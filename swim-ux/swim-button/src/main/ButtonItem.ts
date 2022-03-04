@@ -14,8 +14,8 @@
 
 import type {Timing} from "@swim/util";
 import {Affinity} from "@swim/component";
-import {AnyExpansion, Expansion} from "@swim/style";
-import {Look, MoodVector, ThemeMatrix, ThemeAnimator, ExpansionThemeAnimator} from "@swim/theme";
+import {AnyExpansion, Expansion, ExpansionAnimator} from "@swim/style";
+import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import type {ViewContextType, View} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import type {HtmlIconView} from "@swim/graphics";
@@ -59,8 +59,8 @@ export class ButtonItem extends HtmlView {
     return childView instanceof HtmlView ? childView : null;
   }
 
-  @ThemeAnimator({type: Expansion, inherits: true})
-  readonly disclosure!: ExpansionThemeAnimator<this, Expansion | undefined, AnyExpansion | undefined>;
+  @ExpansionAnimator({type: Expansion, inherits: true})
+  readonly disclosure!: ExpansionAnimator<this, Expansion | undefined, AnyExpansion | undefined>;
 
   protected override onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);

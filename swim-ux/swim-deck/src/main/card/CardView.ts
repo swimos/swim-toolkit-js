@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Class, Initable, AnyTiming, Timing} from "@swim/util";
+import type {Mutable, Class, Initable, AnyTiming, Timing} from "@swim/util";
 import {Affinity, MemberFastenerClass, Property} from "@swim/component";
 import {Length} from "@swim/math";
-import {AnyPresence, Presence} from "@swim/style";
-import {Look, Mood, PresenceThemeAnimator} from "@swim/theme";
+import {AnyPresence, Presence, PresenceAnimator} from "@swim/style";
+import {Look, Mood} from "@swim/theme";
 import {ViewportInsets, ViewContextType, AnyView, View, ViewRef} from "@swim/view";
 import {HtmlViewInit, HtmlView} from "@swim/dom";
 import {ToolView, TitleToolView} from "@swim/toolbar";
@@ -90,10 +90,13 @@ export class CardView extends HtmlView {
   @Property({type: Object, inherits: true, value: null})
   readonly edgeInsets!: Property<this, ViewportInsets | null>;
 
-  @PresenceThemeAnimator<CardView, Presence, AnyPresence>({
+  @PresenceAnimator<CardView, Presence, AnyPresence>({
     type: Presence,
     value: Presence.presented(),
     updateFlags: View.NeedsLayout,
+    get transition(): Timing | null {
+      return this.owner.getLookOr(Look.timing, Mood.navigating, null);
+    },
     willPresent(): void {
       this.owner.callObservers("viewWillPresent", this.owner);
     },
@@ -110,23 +113,13 @@ export class CardView extends HtmlView {
       this.owner.callObservers("viewDidDismiss", this.owner);
     },
   })
-  readonly presence!: PresenceThemeAnimator<this, Presence, AnyPresence>;
+  readonly presence!: PresenceAnimator<this, Presence, AnyPresence>;
 
   present(timing?: AnyTiming | boolean): void {
-    if (timing === void 0 || timing === true) {
-      timing = this.getLookOr(Look.timing, Mood.navigating, false);
-    } else {
-      timing = Timing.fromAny(timing);
-    }
     this.presence.present(timing);
   }
 
   dismiss(timing?: AnyTiming | boolean): void {
-    if (timing === void 0 || timing === true) {
-      timing = this.getLookOr(Look.timing, Mood.navigating, false);
-    } else {
-      timing = Timing.fromAny(timing);
-    }
     this.presence.dismiss(timing);
   }
 

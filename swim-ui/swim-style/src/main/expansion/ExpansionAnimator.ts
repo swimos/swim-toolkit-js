@@ -12,15 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {AnyTiming} from "@swim/util";
-import {Affinity} from "@swim/component";
+import type {AnyTiming, Timing} from "@swim/util";
+import {Affinity, AnimatorInit, AnimatorClass, Animator} from "@swim/component";
 import {AnyExpansion, Expansion} from "@swim/style";
-import {Look} from "../look/Look";
-import {ThemeContext} from "../theme/ThemeContext";
-import {ThemeAnimatorFactory, ThemeAnimator} from "./ThemeAnimator";
 
 /** @public */
-export interface ExpansionThemeAnimatorInit {
+export interface ExpansionAnimatorInit<T extends Expansion | null | undefined = Expansion | null | undefined, U extends AnyExpansion | null | undefined = T> extends AnimatorInit<T, U> {
+  extends?: {prototype: ExpansionAnimator<any, any>} | string | boolean | null;
+
+  transition?: Timing | null;
+
   willExpand?(): void;
   didExpand?(): void;
   willCollapse?(): void;
@@ -28,7 +29,29 @@ export interface ExpansionThemeAnimatorInit {
 }
 
 /** @public */
-export interface ExpansionThemeAnimator<O = unknown, T extends Expansion | null | undefined = Expansion, U extends AnyExpansion | null | undefined = AnyExpansion> extends ThemeAnimator<O, T, U> {
+export type ExpansionAnimatorDescriptor<O = unknown, T extends Expansion | null | undefined = Expansion | null | undefined, U extends AnyExpansion | null | undefined = T, I = {}> = ThisType<ExpansionAnimator<O, T, U> & I> & ExpansionAnimatorInit<T, U> & Partial<I>;
+
+/** @public */
+export interface ExpansionAnimatorClass<A extends ExpansionAnimator<any, any> = ExpansionAnimator<any, any>> extends AnimatorClass<A> {
+}
+
+/** @public */
+export interface ExpansionAnimatorFactory<A extends ExpansionAnimator<any, any> = ExpansionAnimator<any, any>> extends ExpansionAnimatorClass<A> {
+  extend<I = {}>(className: string, classMembers?: Partial<I> | null): ExpansionAnimatorFactory<A> & I;
+
+  specialize(type: unknown): ExpansionAnimatorFactory | null;
+
+  define<O, T extends Expansion | null | undefined = Expansion | null | undefined, U extends AnyExpansion | null | undefined = T>(className: string, descriptor: ExpansionAnimatorDescriptor<O, T, U>): ExpansionAnimatorFactory<ExpansionAnimator<any, T, U>>;
+  define<O, T extends Expansion | null | undefined = Expansion | null | undefined, U extends AnyExpansion | null | undefined = T, I = {}>(className: string, descriptor: {implements: unknown} & ExpansionAnimatorDescriptor<O, T, U, I>): ExpansionAnimatorFactory<ExpansionAnimator<any, T, U> & I>;
+
+  <O, T extends Expansion | null | undefined = Expansion | null | undefined, U extends AnyExpansion | null | undefined = T>(descriptor: ExpansionAnimatorDescriptor<O, T, U> & ExpansionAnimatorInit): PropertyDecorator;
+  <O, T extends Expansion | null | undefined = Expansion | null | undefined, U extends AnyExpansion | null | undefined = T, I = {}>(descriptor: {implements: unknown} & ExpansionAnimatorDescriptor<O, T, U, I>): PropertyDecorator;
+}
+
+/** @public */
+export interface ExpansionAnimator<O = unknown, T extends Expansion | null | undefined = Expansion, U extends AnyExpansion | null | undefined = T> extends Animator<O, T, U> {
+  get type(): typeof Expansion;
+
   get phase(): number | undefined;
 
   getPhase(): number;
@@ -78,29 +101,39 @@ export interface ExpansionThemeAnimator<O = unknown, T extends Expansion | null 
   didCollapse(): void;
 
   /** @override */
-  (newValue: T, oldValue: T | undefined): boolean;
+  equalValues(newValue: T, oldValue: T | undefined): boolean;
 
   /** @override */
   fromAny(value: T | U): T
+
+  /** @internal */
+  get transition(): Timing | null | undefined; // optional prototype field
 }
 
 /** @public */
-export const ExpansionThemeAnimator = (function (_super: typeof ThemeAnimator) {
-  const ExpansionThemeAnimator = _super.extend("ExpansionThemeAnimator") as ThemeAnimatorFactory<ExpansionThemeAnimator<any, Expansion | null | undefined, AnyExpansion | null | undefined>>;
+export const ExpansionAnimator = (function (_super: typeof Animator) {
+  const ExpansionAnimator: ExpansionAnimatorFactory = _super.extend("ExpansionAnimator");
 
-  Object.defineProperty(ExpansionThemeAnimator.prototype, "phase", {
-    get(this: ExpansionThemeAnimator): number | undefined {
+  Object.defineProperty(ExpansionAnimator.prototype, "type", {
+    get(this: ExpansionAnimator): typeof Expansion {
+      return Expansion;
+    },
+    configurable: true,
+  });
+
+  Object.defineProperty(ExpansionAnimator.prototype, "phase", {
+    get(this: ExpansionAnimator): number | undefined {
       const value = this.value;
       return value !== void 0 && value !== null ? value.phase : void 0;
     },
     configurable: true,
   });
 
-  ExpansionThemeAnimator.prototype.getPhase = function (this: ExpansionThemeAnimator): number {
+  ExpansionAnimator.prototype.getPhase = function (this: ExpansionAnimator): number {
     return this.getValue().phase;
   };
 
-  ExpansionThemeAnimator.prototype.getPhaseOr = function <E>(this: ExpansionThemeAnimator, elsePhase: E): number | E {
+  ExpansionAnimator.prototype.getPhaseOr = function <E>(this: ExpansionAnimator, elsePhase: E): number | E {
     const value = this.value;
     if (value !== void 0 && value !== null) {
       return value.phase;
@@ -109,7 +142,7 @@ export const ExpansionThemeAnimator = (function (_super: typeof ThemeAnimator) {
     }
   };
 
-  ExpansionThemeAnimator.prototype.setPhase = function (this: ExpansionThemeAnimator, newPhase: number, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
+  ExpansionAnimator.prototype.setPhase = function (this: ExpansionAnimator, newPhase: number, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue !== void 0 && oldValue !== null) {
       if (typeof timing === "number") {
@@ -120,15 +153,15 @@ export const ExpansionThemeAnimator = (function (_super: typeof ThemeAnimator) {
     }
   };
 
-  Object.defineProperty(ExpansionThemeAnimator.prototype, "direction", {
-    get(this: ExpansionThemeAnimator): number {
+  Object.defineProperty(ExpansionAnimator.prototype, "direction", {
+    get(this: ExpansionAnimator): number {
       const value = this.value;
       return value !== void 0 && value !== null ? value.direction : 0;
     },
     configurable: true,
   });
 
-  ExpansionThemeAnimator.prototype.setDirection = function (this: ExpansionThemeAnimator, newDirection: number, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
+  ExpansionAnimator.prototype.setDirection = function (this: ExpansionAnimator, newDirection: number, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue !== void 0 && oldValue !== null) {
       if (typeof timing === "number") {
@@ -139,47 +172,47 @@ export const ExpansionThemeAnimator = (function (_super: typeof ThemeAnimator) {
     }
   };
 
-  Object.defineProperty(ExpansionThemeAnimator.prototype, "modalState", {
-    get(this: ExpansionThemeAnimator): string | undefined {
+  Object.defineProperty(ExpansionAnimator.prototype, "modalState", {
+    get(this: ExpansionAnimator): string | undefined {
       const value = this.value;
       return value !== void 0 && value !== null ? value.modalState : void 0;
     },
     configurable: true,
   });
 
-  Object.defineProperty(ExpansionThemeAnimator.prototype, "collapsed", {
-    get(this: ExpansionThemeAnimator): boolean {
+  Object.defineProperty(ExpansionAnimator.prototype, "collapsed", {
+    get(this: ExpansionAnimator): boolean {
       const value = this.value;
       return value !== void 0 && value !== null && value.collapsed;
     },
     configurable: true,
   });
 
-  Object.defineProperty(ExpansionThemeAnimator.prototype, "expanded", {
-    get(this: ExpansionThemeAnimator): boolean {
+  Object.defineProperty(ExpansionAnimator.prototype, "expanded", {
+    get(this: ExpansionAnimator): boolean {
       const value = this.value;
       return value !== void 0 && value !== null && value.expanded;
     },
     configurable: true,
   });
 
-  Object.defineProperty(ExpansionThemeAnimator.prototype, "expanding", {
-    get(this: ExpansionThemeAnimator): boolean {
+  Object.defineProperty(ExpansionAnimator.prototype, "expanding", {
+    get(this: ExpansionAnimator): boolean {
       const value = this.value;
       return value !== void 0 && value !== null && value.expanding;
     },
     configurable: true,
   });
 
-  Object.defineProperty(ExpansionThemeAnimator.prototype, "collapsing", {
-    get(this: ExpansionThemeAnimator): boolean {
+  Object.defineProperty(ExpansionAnimator.prototype, "collapsing", {
+    get(this: ExpansionAnimator): boolean {
       const value = this.value;
       return value !== void 0 && value !== null && value.collapsing;
     },
     configurable: true,
   });
 
-  ExpansionThemeAnimator.prototype.expand = function (this: ExpansionThemeAnimator, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
+  ExpansionAnimator.prototype.expand = function (this: ExpansionAnimator, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue === void 0 || oldValue === null || !oldValue.expanded) {
       if (typeof timing === "number") {
@@ -187,10 +220,7 @@ export const ExpansionThemeAnimator = (function (_super: typeof ThemeAnimator) {
         timing = void 0;
       }
       if (timing === void 0 || timing === true) {
-        const themeContext = this.owner;
-        if (this.mounted && ThemeContext.is(themeContext)) {
-          timing = themeContext.getLook(Look.timing);
-        }
+        timing = this.transition;
       }
       if (oldValue !== void 0 && oldValue !== null) {
         this.setValue(oldValue.asExpanding(), Affinity.Reflexive);
@@ -199,7 +229,7 @@ export const ExpansionThemeAnimator = (function (_super: typeof ThemeAnimator) {
     }
   };
 
-  ExpansionThemeAnimator.prototype.collapse = function (this: ExpansionThemeAnimator, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
+  ExpansionAnimator.prototype.collapse = function (this: ExpansionAnimator, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue === void 0 || oldValue === null || !oldValue.collapsed) {
       if (typeof timing === "number") {
@@ -207,10 +237,7 @@ export const ExpansionThemeAnimator = (function (_super: typeof ThemeAnimator) {
         timing = void 0;
       }
       if (timing === void 0 || timing === true) {
-        const themeContext = this.owner;
-        if (this.mounted && ThemeContext.is(themeContext)) {
-          timing = themeContext.getLook(Look.timing);
-        }
+        timing = this.transition;
       }
       if (oldValue !== void 0 && oldValue !== null) {
         this.setValue(oldValue.asCollapsing(), Affinity.Reflexive);
@@ -219,7 +246,7 @@ export const ExpansionThemeAnimator = (function (_super: typeof ThemeAnimator) {
     }
   };
 
-  ExpansionThemeAnimator.prototype.toggle = function (this: ExpansionThemeAnimator, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
+  ExpansionAnimator.prototype.toggle = function (this: ExpansionAnimator, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue !== void 0 && oldValue !== null) {
       if (typeof timing === "number") {
@@ -227,17 +254,14 @@ export const ExpansionThemeAnimator = (function (_super: typeof ThemeAnimator) {
         timing = void 0;
       }
       if (timing === void 0 || timing === true) {
-        const themeContext = this.owner;
-        if (this.mounted && ThemeContext.is(themeContext)) {
-          timing = themeContext.getLook(Look.timing);
-        }
+        timing = this.transition;
       }
       this.setValue(oldValue.asToggling(), Affinity.Reflexive);
       this.setState(oldValue.asToggled(), timing, affinity);
     }
   };
 
-  ExpansionThemeAnimator.prototype.onSetValue = function (this: ExpansionThemeAnimator, newValue: Expansion | null | undefined, oldValue: Expansion | null | undefined): void {
+  ExpansionAnimator.prototype.onSetValue = function (this: ExpansionAnimator, newValue: Expansion | null | undefined, oldValue: Expansion | null | undefined): void {
     _super.prototype.onSetValue.call(this, newValue, oldValue);
     if (newValue !== void 0 && newValue !== null && oldValue !== void 0 && oldValue !== null) {
       if (newValue.expanding && !oldValue.expanding) {
@@ -252,27 +276,27 @@ export const ExpansionThemeAnimator = (function (_super: typeof ThemeAnimator) {
     }
   };
 
-  ExpansionThemeAnimator.prototype.willExpand = function (this: ExpansionThemeAnimator): void {
+  ExpansionAnimator.prototype.willExpand = function (this: ExpansionAnimator): void {
     // hook
   };
 
-  ExpansionThemeAnimator.prototype.didExpand = function (this: ExpansionThemeAnimator): void {
+  ExpansionAnimator.prototype.didExpand = function (this: ExpansionAnimator): void {
     // hook
   };
 
-  ExpansionThemeAnimator.prototype.willCollapse = function (this: ExpansionThemeAnimator): void {
+  ExpansionAnimator.prototype.willCollapse = function (this: ExpansionAnimator): void {
     // hook
   };
 
-  ExpansionThemeAnimator.prototype.didCollapse = function (this: ExpansionThemeAnimator): void {
+  ExpansionAnimator.prototype.didCollapse = function (this: ExpansionAnimator): void {
     // hook
   };
 
-  ExpansionThemeAnimator.prototype.fromAny = function (this: ExpansionThemeAnimator, value: AnyExpansion | null | undefined): Expansion | null | undefined {
+  ExpansionAnimator.prototype.fromAny = function (this: ExpansionAnimator, value: AnyExpansion | null | undefined): Expansion | null | undefined {
     return value !== void 0 && value !== null ? Expansion.fromAny(value) : null;
   };
 
-  ExpansionThemeAnimator.prototype.equalValues = function (this: ExpansionThemeAnimator, newValue: Expansion | null | undefined, oldValue: Expansion | null | undefined): boolean {
+  ExpansionAnimator.prototype.equalValues = function (this: ExpansionAnimator, newValue: Expansion | null | undefined, oldValue: Expansion | null | undefined): boolean {
     if (newValue !== void 0 && newValue !== null) {
       return newValue.equals(oldValue);
     } else {
@@ -280,5 +304,9 @@ export const ExpansionThemeAnimator = (function (_super: typeof ThemeAnimator) {
     }
   };
 
-  return ExpansionThemeAnimator;
-})(ThemeAnimator);
+  ExpansionAnimator.specialize = function (type: unknown): ExpansionAnimatorFactory | null {
+    return ExpansionAnimator;
+  };
+
+  return ExpansionAnimator;
+})(Animator);

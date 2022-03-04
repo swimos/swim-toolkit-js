@@ -12,15 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {AnyTiming} from "@swim/util";
-import {Affinity} from "@swim/component";
-import {AnyFocus, Focus} from "@swim/style";
-import {Look} from "../look/Look";
-import {ThemeContext} from "../theme/ThemeContext";
-import {ThemeAnimatorFactory, ThemeAnimator} from "./ThemeAnimator";
+import type {AnyTiming, Timing} from "@swim/util";
+import {Affinity, AnimatorInit, AnimatorClass, Animator} from "@swim/component";
+import {AnyFocus, Focus} from "./Focus";
 
 /** @public */
-export interface FocusThemeAnimatorInit {
+export interface FocusAnimatorInit<T extends Focus | null | undefined = Focus | null | undefined, U extends AnyFocus | null | undefined = T> extends AnimatorInit<T, U> {
+  extends?: {prototype: FocusAnimator<any, any>} | string | boolean | null;
+
+  transition?: Timing | null;
+
   willFocus?(): void;
   didFocus?(): void;
   willUnfocus?(): void;
@@ -28,7 +29,29 @@ export interface FocusThemeAnimatorInit {
 }
 
 /** @public */
-export interface FocusThemeAnimator<O = unknown, T extends Focus | null | undefined = Focus, U extends AnyFocus | null | undefined = AnyFocus> extends ThemeAnimator<O, T, U> {
+export type FocusAnimatorDescriptor<O = unknown, T extends Focus | null | undefined = Focus | null | undefined, U extends AnyFocus | null | undefined = T, I = {}> = ThisType<FocusAnimator<O, T, U> & I> & FocusAnimatorInit<T, U> & Partial<I>;
+
+/** @public */
+export interface FocusAnimatorClass<A extends FocusAnimator<any, any> = FocusAnimator<any, any>> extends AnimatorClass<A> {
+}
+
+/** @public */
+export interface FocusAnimatorFactory<A extends FocusAnimator<any, any> = FocusAnimator<any, any>> extends FocusAnimatorClass<A> {
+  extend<I = {}>(className: string, classMembers?: Partial<I> | null): FocusAnimatorFactory<A> & I;
+
+  specialize(type: unknown): FocusAnimatorFactory | null;
+
+  define<O, T extends Focus | null | undefined = Focus | null | undefined, U extends AnyFocus | null | undefined = T>(className: string, descriptor: FocusAnimatorDescriptor<O, T, U>): FocusAnimatorFactory<FocusAnimator<any, T, U>>;
+  define<O, T extends Focus | null | undefined = Focus | null | undefined, U extends AnyFocus | null | undefined = T, I = {}>(className: string, descriptor: {implements: unknown} & FocusAnimatorDescriptor<O, T, U, I>): FocusAnimatorFactory<FocusAnimator<any, T, U> & I>;
+
+  <O, T extends Focus | null | undefined = Focus | null | undefined, U extends AnyFocus | null | undefined = T>(descriptor: FocusAnimatorDescriptor<O, T, U> & FocusAnimatorInit): PropertyDecorator;
+  <O, T extends Focus | null | undefined = Focus | null | undefined, U extends AnyFocus | null | undefined = T, I = {}>(descriptor: {implements: unknown} & FocusAnimatorDescriptor<O, T, U, I>): PropertyDecorator;
+}
+
+/** @public */
+export interface FocusAnimator<O = unknown, T extends Focus | null | undefined = Focus | null | undefined, U extends AnyFocus | null | undefined = T> extends Animator<O, T, U> {
+  get type(): typeof Focus;
+
   get phase(): number | undefined;
 
   getPhase(): number;
@@ -76,29 +99,39 @@ export interface FocusThemeAnimator<O = unknown, T extends Focus | null | undefi
   didUnfocus(): void;
 
   /** @override */
-  (newState: T, oldState: T | undefined): boolean;
+  equalValues(newState: T, oldState: T | undefined): boolean;
 
   /** @override */
   fromAny(value: T | U): T
+
+  /** @internal */
+  get transition(): Timing | null | undefined; // optional prototype field
 }
 
 /** @public */
-export const FocusThemeAnimator = (function (_super: typeof ThemeAnimator) {
-  const FocusThemeAnimator = _super.extend("FocusThemeAnimator") as ThemeAnimatorFactory<FocusThemeAnimator<any, Focus | null | undefined, AnyFocus | null | undefined>>;
+export const FocusAnimator = (function (_super: typeof Animator) {
+  const FocusAnimator: FocusAnimatorFactory = _super.extend("FocusAnimator");
 
-  Object.defineProperty(FocusThemeAnimator.prototype, "phase", {
-    get(this: FocusThemeAnimator): number | undefined {
+  Object.defineProperty(FocusAnimator.prototype, "type", {
+    get(this: FocusAnimator): typeof Focus {
+      return Focus;
+    },
+    configurable: true,
+  });
+
+  Object.defineProperty(FocusAnimator.prototype, "phase", {
+    get(this: FocusAnimator): number | undefined {
       const value = this.value;
       return value !== void 0 && value !== null ? value.phase : void 0;
     },
     configurable: true,
   });
 
-  FocusThemeAnimator.prototype.getPhase = function (this: FocusThemeAnimator): number {
+  FocusAnimator.prototype.getPhase = function (this: FocusAnimator): number {
     return this.getValue().phase;
   };
 
-  FocusThemeAnimator.prototype.getPhaseOr = function <E>(this: FocusThemeAnimator, elsePhase: E): number | E {
+  FocusAnimator.prototype.getPhaseOr = function <E>(this: FocusAnimator, elsePhase: E): number | E {
     const value = this.value;
     if (value !== void 0 && value !== null) {
       return value.phase;
@@ -107,7 +140,7 @@ export const FocusThemeAnimator = (function (_super: typeof ThemeAnimator) {
     }
   };
 
-  FocusThemeAnimator.prototype.setPhase = function (this: FocusThemeAnimator, newPhase: number, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
+  FocusAnimator.prototype.setPhase = function (this: FocusAnimator, newPhase: number, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue !== void 0 && oldValue !== null) {
       if (typeof timing === "number") {
@@ -118,15 +151,15 @@ export const FocusThemeAnimator = (function (_super: typeof ThemeAnimator) {
     }
   };
 
-  Object.defineProperty(FocusThemeAnimator.prototype, "direction", {
-    get(this: FocusThemeAnimator): number {
+  Object.defineProperty(FocusAnimator.prototype, "direction", {
+    get(this: FocusAnimator): number {
       const value = this.value;
       return value !== void 0 && value !== null ? value.direction : 0;
     },
     configurable: true,
   });
 
-  FocusThemeAnimator.prototype.setDirection = function (this: FocusThemeAnimator, newDirection: number, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
+  FocusAnimator.prototype.setDirection = function (this: FocusAnimator, newDirection: number, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue !== void 0 && oldValue !== null) {
       if (typeof timing === "number") {
@@ -137,39 +170,39 @@ export const FocusThemeAnimator = (function (_super: typeof ThemeAnimator) {
     }
   };
 
-  Object.defineProperty(FocusThemeAnimator.prototype, "unfocused", {
-    get(this: FocusThemeAnimator): boolean {
+  Object.defineProperty(FocusAnimator.prototype, "unfocused", {
+    get(this: FocusAnimator): boolean {
       const value = this.value;
       return value !== void 0 && value !== null && value.unfocused;
     },
     configurable: true,
   });
 
-  Object.defineProperty(FocusThemeAnimator.prototype, "focused", {
-    get(this: FocusThemeAnimator): boolean {
+  Object.defineProperty(FocusAnimator.prototype, "focused", {
+    get(this: FocusAnimator): boolean {
       const value = this.value;
       return value !== void 0 && value !== null && value.focused;
     },
     configurable: true,
   });
 
-  Object.defineProperty(FocusThemeAnimator.prototype, "focusing", {
-    get(this: FocusThemeAnimator): boolean {
+  Object.defineProperty(FocusAnimator.prototype, "focusing", {
+    get(this: FocusAnimator): boolean {
       const value = this.value;
       return value !== void 0 && value !== null && value.focusing;
     },
     configurable: true,
   });
 
-  Object.defineProperty(FocusThemeAnimator.prototype, "unfocusing", {
-    get(this: FocusThemeAnimator): boolean {
+  Object.defineProperty(FocusAnimator.prototype, "unfocusing", {
+    get(this: FocusAnimator): boolean {
       const value = this.value;
       return value !== void 0 && value !== null && value.unfocusing;
     },
     configurable: true,
   });
 
-  FocusThemeAnimator.prototype.focus = function (this: FocusThemeAnimator, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
+  FocusAnimator.prototype.focus = function (this: FocusAnimator, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue === void 0 || oldValue === null || !oldValue.focused) {
       if (typeof timing === "number") {
@@ -177,10 +210,7 @@ export const FocusThemeAnimator = (function (_super: typeof ThemeAnimator) {
         timing = void 0;
       }
       if (timing === void 0 || timing === true) {
-        const themeContext = this.owner;
-        if (this.mounted && ThemeContext.is(themeContext)) {
-          timing = themeContext.getLook(Look.timing);
-        }
+        timing = this.transition;
       }
       if (oldValue !== void 0 && oldValue !== null) {
         this.setValue(oldValue.asFocusing(), Affinity.Reflexive);
@@ -189,7 +219,7 @@ export const FocusThemeAnimator = (function (_super: typeof ThemeAnimator) {
     }
   };
 
-  FocusThemeAnimator.prototype.unfocus = function (this: FocusThemeAnimator, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
+  FocusAnimator.prototype.unfocus = function (this: FocusAnimator, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue === void 0 || oldValue === null || !oldValue.unfocused) {
       if (typeof timing === "number") {
@@ -197,10 +227,7 @@ export const FocusThemeAnimator = (function (_super: typeof ThemeAnimator) {
         timing = void 0;
       }
       if (timing === void 0 || timing === true) {
-        const themeContext = this.owner;
-        if (this.mounted && ThemeContext.is(themeContext)) {
-          timing = themeContext.getLook(Look.timing);
-        }
+        timing = this.transition;
       }
       if (oldValue !== void 0 && oldValue !== null) {
         this.setValue(oldValue.asUnfocusing(), Affinity.Reflexive);
@@ -209,7 +236,7 @@ export const FocusThemeAnimator = (function (_super: typeof ThemeAnimator) {
     }
   };
 
-  FocusThemeAnimator.prototype.toggle = function (this: FocusThemeAnimator, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
+  FocusAnimator.prototype.toggle = function (this: FocusAnimator, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue !== void 0 && oldValue !== null) {
       if (typeof timing === "number") {
@@ -217,17 +244,14 @@ export const FocusThemeAnimator = (function (_super: typeof ThemeAnimator) {
         timing = void 0;
       }
       if (timing === void 0 || timing === true) {
-        const themeContext = this.owner;
-        if (this.mounted && ThemeContext.is(themeContext)) {
-          timing = themeContext.getLook(Look.timing);
-        }
+        timing = this.transition;
       }
       this.setValue(oldValue.asToggling(), Affinity.Reflexive);
       this.setState(oldValue.asToggled(), timing, affinity);
     }
   };
 
-  FocusThemeAnimator.prototype.onSetValue = function (this: FocusThemeAnimator, newValue: Focus | null | undefined, oldValue: Focus | null | undefined): void {
+  FocusAnimator.prototype.onSetValue = function (this: FocusAnimator, newValue: Focus | null | undefined, oldValue: Focus | null | undefined): void {
     _super.prototype.onSetValue.call(this, newValue, oldValue);
     if (newValue !== void 0 && newValue !== null && oldValue !== void 0 && oldValue !== null) {
       if (newValue.focusing && !oldValue.focusing) {
@@ -242,27 +266,27 @@ export const FocusThemeAnimator = (function (_super: typeof ThemeAnimator) {
     }
   };
 
-  FocusThemeAnimator.prototype.willFocus = function (this: FocusThemeAnimator): void {
+  FocusAnimator.prototype.willFocus = function (this: FocusAnimator): void {
     // hook
   };
 
-  FocusThemeAnimator.prototype.didFocus = function (this: FocusThemeAnimator): void {
+  FocusAnimator.prototype.didFocus = function (this: FocusAnimator): void {
     // hook
   };
 
-  FocusThemeAnimator.prototype.willUnfocus = function (this: FocusThemeAnimator): void {
+  FocusAnimator.prototype.willUnfocus = function (this: FocusAnimator): void {
     // hook
   };
 
-  FocusThemeAnimator.prototype.didUnfocus = function (this: FocusThemeAnimator): void {
+  FocusAnimator.prototype.didUnfocus = function (this: FocusAnimator): void {
     // hook
   };
 
-  FocusThemeAnimator.prototype.fromAny = function (this: FocusThemeAnimator, value: AnyFocus | null | undefined): Focus | null | undefined {
+  FocusAnimator.prototype.fromAny = function (this: FocusAnimator, value: AnyFocus | null | undefined): Focus | null | undefined {
     return value !== void 0 && value !== null ? Focus.fromAny(value) : null;
   };
 
-  FocusThemeAnimator.prototype.equalValues = function (this: FocusThemeAnimator, newState: Focus | null | undefined, oldState: Focus | null | undefined): boolean {
+  FocusAnimator.prototype.equalValues = function (this: FocusAnimator, newState: Focus | null | undefined, oldState: Focus | null | undefined): boolean {
     if (newState !== void 0 && newState !== null) {
       return newState.equals(oldState);
     } else {
@@ -270,5 +294,9 @@ export const FocusThemeAnimator = (function (_super: typeof ThemeAnimator) {
     }
   };
 
-  return FocusThemeAnimator;
-})(ThemeAnimator);
+  FocusAnimator.specialize = function (type: unknown): FocusAnimatorFactory | null {
+    return FocusAnimator;
+  };
+
+  return FocusAnimator;
+})(Animator);

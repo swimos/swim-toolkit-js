@@ -12,15 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {AnyTiming} from "@swim/util";
-import {Affinity} from "@swim/component";
+import type {AnyTiming, Timing} from "@swim/util";
+import {Affinity, AnimatorInit, AnimatorClass, Animator} from "@swim/component";
 import {AnyPresence, Presence} from "@swim/style";
-import {Look} from "../look/Look";
-import {ThemeContext} from "../theme/ThemeContext";
-import {ThemeAnimatorFactory, ThemeAnimator} from "./ThemeAnimator";
 
 /** @public */
-export interface PresenceThemeAnimatorInit {
+export interface PresenceAnimatorInit<T extends Presence | null | undefined = Presence | null | undefined, U extends AnyPresence | null | undefined = T> extends AnimatorInit<T, U> {
+  extends?: {prototype: PresenceAnimator<any, any>} | string | boolean | null;
+
+  transition?: Timing | null;
+
   willPresent?(): void;
   didPresent?(): void;
   willDismiss?(): void;
@@ -28,7 +29,29 @@ export interface PresenceThemeAnimatorInit {
 }
 
 /** @public */
-export interface PresenceThemeAnimator<O = unknown, T extends Presence | null | undefined = Presence, U extends AnyPresence | null | undefined = AnyPresence> extends ThemeAnimator<O, T, U> {
+export type PresenceAnimatorDescriptor<O = unknown, T extends Presence | null | undefined = Presence | null | undefined, U extends AnyPresence | null | undefined = T, I = {}> = ThisType<PresenceAnimator<O, T, U> & I> & PresenceAnimatorInit<T, U> & Partial<I>;
+
+/** @public */
+export interface PresenceAnimatorClass<A extends PresenceAnimator<any, any> = PresenceAnimator<any, any>> extends AnimatorClass<A> {
+}
+
+/** @public */
+export interface PresenceAnimatorFactory<A extends PresenceAnimator<any, any> = PresenceAnimator<any, any>> extends PresenceAnimatorClass<A> {
+  extend<I = {}>(className: string, classMembers?: Partial<I> | null): PresenceAnimatorFactory<A> & I;
+
+  specialize(type: unknown): PresenceAnimatorFactory | null;
+
+  define<O, T extends Presence | null | undefined = Presence | null | undefined, U extends AnyPresence | null | undefined = T>(className: string, descriptor: PresenceAnimatorDescriptor<O, T, U>): PresenceAnimatorFactory<PresenceAnimator<any, T, U>>;
+  define<O, T extends Presence | null | undefined = Presence | null | undefined, U extends AnyPresence | null | undefined = T, I = {}>(className: string, descriptor: {implements: unknown} & PresenceAnimatorDescriptor<O, T, U, I>): PresenceAnimatorFactory<PresenceAnimator<any, T, U> & I>;
+
+  <O, T extends Presence | null | undefined = Presence | null | undefined, U extends AnyPresence | null | undefined = T>(descriptor: PresenceAnimatorDescriptor<O, T, U> & PresenceAnimatorInit): PropertyDecorator;
+  <O, T extends Presence | null | undefined = Presence | null | undefined, U extends AnyPresence | null | undefined = T, I = {}>(descriptor: {implements: unknown} & PresenceAnimatorDescriptor<O, T, U, I>): PropertyDecorator;
+}
+
+/** @public */
+export interface PresenceAnimator<O = unknown, T extends Presence | null | undefined = Presence | null | undefined, U extends AnyPresence | null | undefined = T> extends Animator<O, T, U> {
+  get type(): typeof Presence;
+
   get phase(): number | undefined;
 
   getPhase(): number;
@@ -78,29 +101,39 @@ export interface PresenceThemeAnimator<O = unknown, T extends Presence | null | 
   didDismiss(): void;
 
   /** @override */
-  (newValue: T, oldValue: T | undefined): boolean;
+  equalValues(newValue: T, oldValue: T | undefined): boolean;
 
   /** @override */
   fromAny(value: T | U): T
+
+  /** @internal */
+  get transition(): Timing | null | undefined; // optional prototype field
 }
 
 /** @public */
-export const PresenceThemeAnimator = (function (_super: typeof ThemeAnimator) {
-  const PresenceThemeAnimator = _super.extend("PresenceThemeAnimator") as ThemeAnimatorFactory<PresenceThemeAnimator<any, Presence | null | undefined, AnyPresence | null | undefined>>;
+export const PresenceAnimator = (function (_super: typeof Animator) {
+  const PresenceAnimator: PresenceAnimatorFactory = _super.extend("PresenceAnimator");
 
-  Object.defineProperty(PresenceThemeAnimator.prototype, "phase", {
-    get(this: PresenceThemeAnimator): number | undefined {
+  Object.defineProperty(PresenceAnimator.prototype, "type", {
+    get(this: PresenceAnimator): typeof Presence {
+      return Presence;
+    },
+    configurable: true,
+  });
+
+  Object.defineProperty(PresenceAnimator.prototype, "phase", {
+    get(this: PresenceAnimator): number | undefined {
       const value = this.value;
       return value !== void 0 && value !== null ? value.phase : void 0;
     },
     configurable: true,
   });
 
-  PresenceThemeAnimator.prototype.getPhase = function (this: PresenceThemeAnimator): number {
+  PresenceAnimator.prototype.getPhase = function (this: PresenceAnimator): number {
     return this.getValue().phase;
   };
 
-  PresenceThemeAnimator.prototype.getPhaseOr = function <E>(this: PresenceThemeAnimator, elsePhase: E): number | E {
+  PresenceAnimator.prototype.getPhaseOr = function <E>(this: PresenceAnimator, elsePhase: E): number | E {
     const value = this.value;
     if (value !== void 0 && value !== null) {
       return value.phase;
@@ -109,7 +142,7 @@ export const PresenceThemeAnimator = (function (_super: typeof ThemeAnimator) {
     }
   };
 
-  PresenceThemeAnimator.prototype.setPhase = function (this: PresenceThemeAnimator, newPhase: number, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
+  PresenceAnimator.prototype.setPhase = function (this: PresenceAnimator, newPhase: number, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue !== void 0 && oldValue !== null) {
       if (typeof timing === "number") {
@@ -120,15 +153,15 @@ export const PresenceThemeAnimator = (function (_super: typeof ThemeAnimator) {
     }
   };
 
-  Object.defineProperty(PresenceThemeAnimator.prototype, "direction", {
-    get(this: PresenceThemeAnimator): number {
+  Object.defineProperty(PresenceAnimator.prototype, "direction", {
+    get(this: PresenceAnimator): number {
       const value = this.value;
       return value !== void 0 && value !== null ? value.direction : 0;
     },
     configurable: true,
   });
 
-  PresenceThemeAnimator.prototype.setDirection = function (this: PresenceThemeAnimator, newDirection: number, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
+  PresenceAnimator.prototype.setDirection = function (this: PresenceAnimator, newDirection: number, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue !== void 0 && oldValue !== null) {
       if (typeof timing === "number") {
@@ -139,47 +172,47 @@ export const PresenceThemeAnimator = (function (_super: typeof ThemeAnimator) {
     }
   };
 
-  Object.defineProperty(PresenceThemeAnimator.prototype, "modalState", {
-    get(this: PresenceThemeAnimator): string | undefined {
+  Object.defineProperty(PresenceAnimator.prototype, "modalState", {
+    get(this: PresenceAnimator): string | undefined {
       const value = this.value;
       return value !== void 0 && value !== null ? value.modalState : void 0;
     },
     configurable: true,
   });
 
-  Object.defineProperty(PresenceThemeAnimator.prototype, "dismissed", {
-    get(this: PresenceThemeAnimator): boolean {
+  Object.defineProperty(PresenceAnimator.prototype, "dismissed", {
+    get(this: PresenceAnimator): boolean {
       const value = this.value;
       return value !== void 0 && value !== null && value.dismissed;
     },
     configurable: true,
   });
 
-  Object.defineProperty(PresenceThemeAnimator.prototype, "presented", {
-    get(this: PresenceThemeAnimator): boolean {
+  Object.defineProperty(PresenceAnimator.prototype, "presented", {
+    get(this: PresenceAnimator): boolean {
       const value = this.value;
       return value !== void 0 && value !== null && value.presented;
     },
     configurable: true,
   });
 
-  Object.defineProperty(PresenceThemeAnimator.prototype, "presenting", {
-    get(this: PresenceThemeAnimator): boolean {
+  Object.defineProperty(PresenceAnimator.prototype, "presenting", {
+    get(this: PresenceAnimator): boolean {
       const value = this.value;
       return value !== void 0 && value !== null && value.presenting;
     },
     configurable: true,
   });
 
-  Object.defineProperty(PresenceThemeAnimator.prototype, "dismissing", {
-    get(this: PresenceThemeAnimator): boolean {
+  Object.defineProperty(PresenceAnimator.prototype, "dismissing", {
+    get(this: PresenceAnimator): boolean {
       const value = this.value;
       return value !== void 0 && value !== null && value.dismissing;
     },
     configurable: true,
   });
 
-  PresenceThemeAnimator.prototype.present = function (this: PresenceThemeAnimator, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
+  PresenceAnimator.prototype.present = function (this: PresenceAnimator, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue === void 0 || oldValue === null || !oldValue.presented) {
       if (typeof timing === "number") {
@@ -187,10 +220,7 @@ export const PresenceThemeAnimator = (function (_super: typeof ThemeAnimator) {
         timing = void 0;
       }
       if (timing === void 0 || timing === true) {
-        const themeContext = this.owner;
-        if (this.mounted && ThemeContext.is(themeContext)) {
-          timing = themeContext.getLook(Look.timing);
-        }
+        timing = this.transition;
       }
       if (oldValue !== void 0 && oldValue !== null) {
         this.setValue(oldValue.asPresenting(), Affinity.Reflexive);
@@ -199,7 +229,7 @@ export const PresenceThemeAnimator = (function (_super: typeof ThemeAnimator) {
     }
   };
 
-  PresenceThemeAnimator.prototype.dismiss = function (this: PresenceThemeAnimator, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
+  PresenceAnimator.prototype.dismiss = function (this: PresenceAnimator, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue === void 0 || oldValue === null || !oldValue.dismissed) {
       if (typeof timing === "number") {
@@ -207,10 +237,7 @@ export const PresenceThemeAnimator = (function (_super: typeof ThemeAnimator) {
         timing = void 0;
       }
       if (timing === void 0 || timing === true) {
-        const themeContext = this.owner;
-        if (this.mounted && ThemeContext.is(themeContext)) {
-          timing = themeContext.getLook(Look.timing);
-        }
+        timing = this.transition;
       }
       if (oldValue !== void 0 && oldValue !== null) {
         this.setValue(oldValue.asDismissing(), Affinity.Reflexive);
@@ -219,7 +246,7 @@ export const PresenceThemeAnimator = (function (_super: typeof ThemeAnimator) {
     }
   };
 
-  PresenceThemeAnimator.prototype.toggle = function (this: PresenceThemeAnimator, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
+  PresenceAnimator.prototype.toggle = function (this: PresenceAnimator, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue !== void 0 && oldValue !== null) {
       if (typeof timing === "number") {
@@ -227,17 +254,14 @@ export const PresenceThemeAnimator = (function (_super: typeof ThemeAnimator) {
         timing = void 0;
       }
       if (timing === void 0 || timing === true) {
-        const themeContext = this.owner;
-        if (this.mounted && ThemeContext.is(themeContext)) {
-          timing = themeContext.getLook(Look.timing);
-        }
+        timing = this.transition;
       }
       this.setValue(oldValue.asToggling(), Affinity.Reflexive);
       this.setState(oldValue.asToggled(), timing, affinity);
     }
   };
 
-  PresenceThemeAnimator.prototype.onSetValue = function (this: PresenceThemeAnimator, newValue: Presence | null | undefined, oldValue: Presence | null | undefined): void {
+  PresenceAnimator.prototype.onSetValue = function (this: PresenceAnimator, newValue: Presence | null | undefined, oldValue: Presence | null | undefined): void {
     _super.prototype.onSetValue.call(this, newValue, oldValue);
     if (newValue !== void 0 && newValue !== null && oldValue !== void 0 && oldValue !== null) {
       if (newValue.presenting && !oldValue.presenting) {
@@ -252,27 +276,27 @@ export const PresenceThemeAnimator = (function (_super: typeof ThemeAnimator) {
     }
   };
 
-  PresenceThemeAnimator.prototype.willPresent = function (this: PresenceThemeAnimator): void {
+  PresenceAnimator.prototype.willPresent = function (this: PresenceAnimator): void {
     // hook
   };
 
-  PresenceThemeAnimator.prototype.didPresent = function (this: PresenceThemeAnimator): void {
+  PresenceAnimator.prototype.didPresent = function (this: PresenceAnimator): void {
     // hook
   };
 
-  PresenceThemeAnimator.prototype.willDismiss = function (this: PresenceThemeAnimator): void {
+  PresenceAnimator.prototype.willDismiss = function (this: PresenceAnimator): void {
     // hook
   };
 
-  PresenceThemeAnimator.prototype.didDismiss = function (this: PresenceThemeAnimator): void {
+  PresenceAnimator.prototype.didDismiss = function (this: PresenceAnimator): void {
     // hook
   };
 
-  PresenceThemeAnimator.prototype.fromAny = function (this: PresenceThemeAnimator, value: AnyPresence | null | undefined): Presence | null | undefined {
+  PresenceAnimator.prototype.fromAny = function (this: PresenceAnimator, value: AnyPresence | null | undefined): Presence | null | undefined {
     return value !== void 0 && value !== null ? Presence.fromAny(value) : null;
   };
 
-  PresenceThemeAnimator.prototype.equalValues = function (this: PresenceThemeAnimator, newValue: Presence | null | undefined, oldState: Presence | null | undefined): boolean {
+  PresenceAnimator.prototype.equalValues = function (this: PresenceAnimator, newValue: Presence | null | undefined, oldState: Presence | null | undefined): boolean {
     if (newValue !== void 0 && newValue !== null) {
       return newValue.equals(oldState);
     } else {
@@ -280,5 +304,9 @@ export const PresenceThemeAnimator = (function (_super: typeof ThemeAnimator) {
     }
   };
 
-  return PresenceThemeAnimator;
-})(ThemeAnimator);
+  PresenceAnimator.specialize = function (type: unknown): PresenceAnimatorFactory | null {
+    return PresenceAnimator;
+  };
+
+  return PresenceAnimator;
+})(Animator);
