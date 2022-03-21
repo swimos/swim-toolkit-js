@@ -74,6 +74,9 @@ export class DrawerView extends HtmlView implements Modal {
   @ConstraintProperty<DrawerView, Length | null, AnyLength | null>({
     type: Length,
     value: null,
+    didSetValue(newValue: Length | null, oldValue: Length | null): void {
+      this.owner.callObservers("viewDidSetEffectiveWidth", newValue, this.owner);
+    },
     toNumber(value: Length | null): number {
       return value !== null ? value.pxValue() : 0;
     },
@@ -83,6 +86,9 @@ export class DrawerView extends HtmlView implements Modal {
   @ConstraintProperty<DrawerView, Length | null, AnyLength | null>({
     type: Length,
     value: null,
+    didSetValue(newValue: Length | null, oldValue: Length | null): void {
+      this.owner.callObservers("viewDidSetEffectiveHeight", newValue, this.owner);
+    },
     toNumber(value: Length | null): number {
       return value !== null ? value.pxValue() : 0;
     },

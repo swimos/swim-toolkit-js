@@ -12,9 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "@swim/button";
-export * from "@swim/toolbar";
-export * from "@swim/token";
-export * from "@swim/table";
-export * from "@swim/window";
-export * from "@swim/sheet";
+import type {TraitObserver} from "@swim/model";
+import type {BarTrait} from "@swim/toolbar";
+import type {SheetTrait} from "../sheet/SheetTrait";
+import type {FolioTrait} from "./FolioTrait";
+
+/** @public */
+export interface FolioTraitObserver<T extends FolioTrait = FolioTrait> extends TraitObserver<T> {
+  traitWillAttachAppbar?(appbarTrait: BarTrait, trait: T): void;
+
+  traitDidDetachAppbar?(appbarTrait: BarTrait, trait: T): void;
+
+  traitWillAttachCover?(coverTrait: SheetTrait,trait: T): void;
+
+  traitDidDetachCover?(coverTrait: SheetTrait, trait: T): void;
+}

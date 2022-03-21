@@ -67,7 +67,7 @@
     "./swim-ux/swim-token",
     "./swim-ux/swim-table",
     "./swim-ux/swim-window",
-    "./swim-ux/swim-deck",
+    "./swim-ux/swim-sheet",
     "./swim-ux",
     "./swim-vis/swim-gauge",
     "./swim-vis/swim-pie",

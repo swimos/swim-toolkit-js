@@ -7,7 +7,7 @@
     "@swim/token",
     "@swim/table",
     "@swim/window",
-    "@swim/deck"
+    "@swim/sheet"
   ],
   "compiler": {
     "tsconfigFilePath": "<projectFolder>/src/main/tsconfig.json"

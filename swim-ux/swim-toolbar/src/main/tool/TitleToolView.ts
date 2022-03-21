@@ -25,6 +25,7 @@ export class TitleToolView extends ToolView {
   protected override initTool(): void {
     super.initTool();
     this.addClass("tool-title");
+    this.overflowX.setState("hidden", Affinity.Intrinsic);
     this.pointerEvents.setState("none", Affinity.Intrinsic);
   }
 
@@ -36,7 +37,7 @@ export class TitleToolView extends ToolView {
     type: HtmlView,
     binds: true,
     initView(contentView: HtmlView): void {
-      contentView.position.setState("absolute", Affinity.Intrinsic);
+      contentView.position.setState("relative", Affinity.Intrinsic);
       contentView.left.setState(0, Affinity.Intrinsic);
       contentView.top.setState(0, Affinity.Intrinsic);
     },
@@ -76,15 +77,23 @@ export class TitleToolView extends ToolView {
   protected layoutTool(): void {
     const contentView = this.content.view;
     if (contentView !== null) {
-      let toolWidth: Length | number | null = this.width.value;
-      toolWidth = toolWidth instanceof Length ? toolWidth.pxValue() : this.node.offsetWidth;
       let contentWidth: Length | number | null = contentView.width.value;
-      contentWidth = contentWidth instanceof Length ? contentWidth.pxValue(toolWidth) : contentView.node.offsetWidth;
+      contentWidth = contentWidth instanceof Length ? contentWidth.pxValue() : contentView.node.offsetWidth;
+      let toolWidth: Length | number | null = this.width.value;
+      toolWidth = toolWidth instanceof Length ? toolWidth.pxValue() : 0;
+      const layoutWidth = toolWidth
+      if (toolWidth < contentWidth) {
+        toolWidth = contentWidth;
+        this.width.setState(toolWidth, Affinity.Intrinsic);
+      }
       const excessWidth = toolWidth - contentWidth;
       const xAlign = this.xAlign.value;
-      contentView.left.setState(excessWidth * xAlign, Affinity.Intrinsic);
+      if (layoutWidth !== 0) {
+        contentView.left.setState(excessWidth * xAlign, Affinity.Intrinsic);
+      } else {
+        contentView.left.setState(contentWidth * xAlign, Affinity.Intrinsic);
+      }
       contentView.top.setState(0, Affinity.Intrinsic);
-      contentView.maxWidth.setState(toolWidth, Affinity.Intrinsic);
       contentView.height.setState(this.height.value, Affinity.Intrinsic);
       if (this.effectiveWidth.state === null && contentWidth !== 0) {
         this.effectiveWidth.setState(contentWidth);

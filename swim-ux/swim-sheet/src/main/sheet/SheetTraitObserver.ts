@@ -12,9 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "@swim/button";
-export * from "@swim/toolbar";
-export * from "@swim/token";
-export * from "@swim/table";
-export * from "@swim/window";
-export * from "@swim/sheet";
+import type {TraitObserver} from "@swim/model";
+import type {SheetTraitTitle, SheetTrait} from "./SheetTrait";
+
+/** @public */
+export interface SheetTraitObserver<T extends SheetTrait = SheetTrait> extends TraitObserver<T> {
+  traitWillSetTitle?(newTitle: SheetTraitTitle | null, oldTitle: SheetTraitTitle | null, trait: T): void;
+
+  traitDidSetTitle?(newTitle: SheetTraitTitle | null, oldTitle: SheetTraitTitle | null, trait: T): void;
+}

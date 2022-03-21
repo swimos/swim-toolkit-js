@@ -19,7 +19,12 @@ import {Look, Mood} from "@swim/theme";
 import type {PositionGestureInput} from "@swim/view";
 import type {HtmlView} from "@swim/dom";
 import type {Graphics} from "@swim/graphics";
-import {Controller, TraitViewRef, TraitViewControllerSet} from "@swim/controller";
+import {
+  ControllerContextType,
+  Controller,
+  TraitViewRef,
+  TraitViewControllerSet,
+} from "@swim/controller";
 import type {ToolLayout} from "../layout/ToolLayout";
 import {BarLayout} from "../layout/BarLayout";
 import type {ToolView} from "../tool/ToolView";
@@ -94,7 +99,7 @@ export class BarController extends Controller {
       this.owner.callObservers("controllerWillAttachBarView", barView, this.owner);
     },
     didAttachView(barView: BarView): void {
-      this.owner.updateLayout();
+      this.owner.requireUpdate(Controller.NeedsAssemble);
     },
     didDetachView(barView: BarView): void {
       this.owner.callObservers("controllerDidDetachBarView", barView, this.owner);
@@ -122,7 +127,7 @@ export class BarController extends Controller {
     return BarLayout.create(tools);
   }
 
-  protected updateLayout(): void {
+  updateLayout(): void {
     const barView = this.bar.view;
     if (barView !== null) {
       const barLayout = this.createLayout();
@@ -210,7 +215,7 @@ export class BarController extends Controller {
       if (toolView !== null) {
         this.attachToolView(toolView, toolController);
       }
-      this.owner.updateLayout();
+      this.owner.requireUpdate(Controller.NeedsAssemble);
     },
     willDetachController(toolController: ToolController): void {
       const toolView = toolController.tool.view;
@@ -223,7 +228,7 @@ export class BarController extends Controller {
       }
     },
     didDetachController(toolController: ToolController): void {
-      this.owner.updateLayout();
+      this.owner.requireUpdate(Controller.NeedsAssemble);
       this.owner.callObservers("controllerDidDetachTool", toolController, this.owner);
     },
     controllerWillAttachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void {
@@ -269,7 +274,7 @@ export class BarController extends Controller {
       this.owner.callObservers("controllerWillSetToolLayout", newToolLayout, oldToolLayout, toolController, this.owner);
     },
     controllerDidSetToolLayout(newToolLayout: ToolLayout | null, oldToolLayout: ToolLayout | null, toolController: ToolController): void {
-      this.owner.updateLayout();
+      this.owner.requireUpdate(Controller.NeedsAssemble);
       this.owner.callObservers("controllerDidSetToolLayout", newToolLayout, oldToolLayout, toolController, this.owner);
     },
     controllerWillAttachToolContentView(contentView: HtmlView, toolController: ToolController): void {
@@ -308,4 +313,9 @@ export class BarController extends Controller {
   })
   readonly tools!: TraitViewControllerSet<this, ToolTrait, ToolView, ToolController>;
   static readonly tools: MemberFastenerClass<BarController, "tools">;
+
+  protected override onAssemble(controllerContext: ControllerContextType<this>): void {
+    super.onAssemble(controllerContext);
+    this.updateLayout();
+  }
 }

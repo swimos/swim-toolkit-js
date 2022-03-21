@@ -70,6 +70,7 @@ export const BarLayoutInterpolator = (function (_super: typeof Interpolator) {
       if (tool1 === null) {
         tool0 = tool0.withPresence(tool0.presence.asDismissing());
         tool1 = tool0.withPresence(Presence.dismissed());
+        tool1 = tool1.withAlign(tool1.outAlign);
       }
       toolInterpolators.push(tool0.interpolateTo(tool1));
     }
@@ -79,6 +80,7 @@ export const BarLayoutInterpolator = (function (_super: typeof Interpolator) {
       if (tool0 === null) {
         tool0 = tool1.withPresence(tool1.presence.phase !== 1 ? tool1.presence.asPresenting() : Presence.presenting());
         tool1 = tool1.withPresence(Presence.presented());
+        tool0 = tool0.withAlign(tool0.inAlign);
         toolInterpolators.push(tool0.interpolateTo(tool1));
       }
     }

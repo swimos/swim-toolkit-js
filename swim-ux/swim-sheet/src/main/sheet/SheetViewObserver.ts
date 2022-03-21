@@ -12,19 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Length} from "@swim/math";
 import type {HtmlViewObserver} from "@swim/dom";
-import type {DrawerPlacement, DrawerView} from "./DrawerView";
+import type {ToolView} from "@swim/toolbar";
+import type {SheetView} from "./SheetView";
 
 /** @public */
-export interface DrawerViewObserver<V extends DrawerView = DrawerView> extends HtmlViewObserver<V> {
-  viewWillSetPlacement?(newPlacement: DrawerPlacement, oldPlacement: DrawerPlacement, view: V): void;
+export interface SheetViewObserver<V extends SheetView = SheetView> extends HtmlViewObserver<V> {
+  viewWillAttachBack?(backView: SheetView, view: V): void;
 
-  viewDidSetPlacement?(newPlacement: DrawerPlacement, oldPlacement: DrawerPlacement, view: V): void;
+  viewDidDetachBack?(backView: SheetView, view: V): void;
 
-  viewDidSetEffectiveWidth?(effectiveWidth: Length | null, view: V): void;
+  viewWillAttachForward?(forwardView: SheetView, view: V): void;
 
-  viewDidSetEffectiveHeight?(effectiveHeight: Length | null, view: V): void;
+  viewDidDetachForward?(forwardView: SheetView, view: V): void;
+
+  viewWillAttachTitle?(titleView: ToolView, view: V): void;
+
+  viewDidDetachTitle?(titleView: ToolView, view: V): void;
 
   viewWillPresent?(view: V): void;
 
@@ -33,12 +37,4 @@ export interface DrawerViewObserver<V extends DrawerView = DrawerView> extends H
   viewWillDismiss?(view: V): void;
 
   viewDidDismiss?(view: V): void;
-
-  viewWillExpand?(view: V): void;
-
-  viewDidExpand?(view: V): void;
-
-  viewWillCollapse?(view: V): void;
-
-  viewDidCollapse?(view: V): void;
 }

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Swim Folio</title>
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=0, shrink-to-fit=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <style>
+      html, body {
+        -webkit-tap-highlight-color: transparent;
+      }
+    </style>
+  </head>
+  <body swim-theme style="display: flex;">
+    <script src="../../swim-runtime/swim-core/dist/swim-core.js"></script>
+    <script src="../../swim-runtime/swim-host/dist/swim-host.js"></script>
+    <script src="../swim-ui/dist/swim-ui.js"></script>
+    <script src="../swim-ux/dist/swim-ux.js"></script>
+    <script>
+
+if (navigator.standalone) {
+  document.documentElement.style.width = "100vw";
+  document.documentElement.style.height = "100vh";
+} else {
+  document.documentElement.style.width = "100%";
+  document.documentElement.style.height = "100%";
+}
+document.body.style.position = "fixed";
+document.body.style.margin = "0";
+document.body.style.overflow = "hidden";
+if (navigator.standalone) {
+  document.body.style.width = "100vw";
+  document.body.style.height = "100vh";
+} else {
+  document.body.style.width = "100%";
+  document.body.style.height = "100%";
+}
+
+const bodyView = swim.HtmlView.fromNode(document.body);
+
+const folioView = swim.FolioView.create().flexGrow(1);
+folioView.appbar.insertView().barHeight(44);
+
+const pocketView = folioView.pocket.attachView();
+pocketView.modifyTheme(swim.Feel.default, [[swim.Feel.raised, 1]]);
+
+const stackView = folioView.stack.insertView();
+stackView.navbar.insertView().barHeight(44);
+
+const sheetView = swim.SheetView.create();
+sheetView.sheetTitle.setView("Sheet");
+sheetView.appendChild(swim.HtmlView.fromTag("h2").margin(12).text("Sheet")).cursor("pointer");
+
+stackView.appendChild(sheetView);
+
+const coverView = swim.SheetView.create();
+coverView.sheetTitle.setView("Cover");
+coverView.appendChild(swim.HtmlView.fromTag("h2").margin(12).text("Cover")).cursor("pointer");
+
+folioView.cover.setView(coverView);
+
+bodyView.appendChild(folioView);
+
+setInterval(function () {
+  pocketView.slide.toggle();
+}, 2000);
+
+    </script>
+  </body>
+</html>

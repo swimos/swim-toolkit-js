@@ -16,7 +16,7 @@
     "@swim/token",
     "@swim/table",
     "@swim/window",
-    "@swim/deck",
+    "@swim/sheet",
     "@swim/ux",
 
     "@swim/gauge",

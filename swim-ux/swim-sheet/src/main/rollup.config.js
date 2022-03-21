@@ -3,15 +3,33 @@ import sourcemaps from "rollup-plugin-sourcemaps";
 import {terser} from "rollup-plugin-terser";
 import * as pkg from "../../package.json";
 
-const script = "swim-style";
+const script = "swim-sheet";
 
 const external = [
   "@swim/util",
   "@swim/codec",
   "@swim/component",
+  "@swim/collections",
+  "@swim/constraint",
   "@swim/structure",
+  "@swim/streamlet",
+  "@swim/dataflow",
+  "@swim/recon",
+  "@swim/uri",
   "@swim/math",
   "@swim/time",
+  "@swim/warp",
+  "@swim/client",
+  "@swim/model",
+  "@swim/style",
+  "@swim/theme",
+  "@swim/view",
+  "@swim/dom",
+  "@swim/graphics",
+  "@swim/controller",
+  "@swim/button",
+  "@swim/toolbar",
+  "@swim/window",
 ];
 
 const globals = Object.fromEntries(external.map(name => [name, "swim"]));

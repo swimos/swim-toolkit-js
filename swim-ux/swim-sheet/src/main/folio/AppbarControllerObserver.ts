@@ -12,9 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "@swim/button";
-export * from "@swim/toolbar";
-export * from "@swim/token";
-export * from "@swim/table";
-export * from "@swim/window";
-export * from "@swim/sheet";
+import type {PositionGestureInput} from "@swim/view";
+import type {BarControllerObserver} from "@swim/toolbar";
+import type {AppbarController} from "./AppbarController";
+
+/** @public */
+export interface AppbarControllerObserver<C extends AppbarController = AppbarController> extends BarControllerObserver<C> {
+  controllerDidPressMenuTool?(input: PositionGestureInput, event: Event | null, controller: C): void;
+
+  controllerDidPressActionTool?(input: PositionGestureInput, event: Event | null, controller: C): void;
+}

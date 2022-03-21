@@ -195,7 +195,7 @@ export class BarView extends HtmlView {
           child.display.setState(!tool.presence.dismissed ? "flex" : "none", Affinity.Intrinsic);
           child.left.setState(tool.left, Affinity.Intrinsic);
           child.top.setState(toolTop, Affinity.Intrinsic);
-          child.width.setState(tool.width, Affinity.Intrinsic);
+          child.width.setState(tool.width !== null && tool.width.value !== 0 ? tool.width : null, Affinity.Intrinsic);
           child.height.setState(toolHeight, Affinity.Intrinsic);
           child.opacity.setState(tool.presence.phase !== 1 ? tool.presence.phase : void 0, Affinity.Intrinsic);
           child.xAlign.setState(tool.align, Affinity.Intrinsic);
