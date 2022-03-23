@@ -293,7 +293,7 @@ export class TableController extends Controller {
       return controller instanceof HeaderController ? controller : null;
     },
   })
-  readonly header!: TraitViewControllerRef<this, HeaderTrait, HeaderView, HeaderController>;
+  readonly header!: TraitViewControllerRef<this, HeaderTrait, HeaderView, HeaderController> & TableControllerHeaderExt;
   static readonly header: MemberFastenerClass<TableController, "header">;
 
   @TraitViewControllerSet<TableController, ColTrait, ColView, ColController, TableControllerColExt>({
@@ -386,7 +386,7 @@ export class TableController extends Controller {
       // hook
     },
   })
-  readonly cols!: TraitViewControllerSet<this, ColTrait, ColView, ColController>;
+  readonly cols!: TraitViewControllerSet<this, ColTrait, ColView, ColController> & TableControllerColExt;
   static readonly cols: MemberFastenerClass<TableController, "cols">;
 
   @TraitViewControllerSet<TableController, RowTrait, RowView, RowController, TableControllerRowExt>({
@@ -637,6 +637,6 @@ export class TableController extends Controller {
       this.owner.callObservers("controllerDidCollapseRowView", rowView, rowController, this.owner);
     },
   })
-  readonly rows!: TraitViewControllerSet<this, RowTrait, RowView, RowController>;
+  readonly rows!: TraitViewControllerSet<this, RowTrait, RowView, RowController> & TableControllerRowExt;
   static readonly rows: MemberFastenerClass<TableController, "rows">;
 }

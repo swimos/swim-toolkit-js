@@ -15,7 +15,7 @@
 import type {Class} from "@swim/util";
 import type {MemberFastenerClass} from "@swim/component";
 import {ViewRef} from "@swim/view";
-import {Controller, TraitViewRef} from "@swim/controller";
+import {Controller, ControllerRef, TraitViewRef} from "@swim/controller";
 import {ToolView} from "@swim/toolbar";
 import {SheetView} from "./SheetView";
 import {SheetTraitTitle, SheetTrait} from "./SheetTrait";
@@ -24,6 +24,32 @@ import type {SheetControllerObserver} from "./SheetControllerObserver";
 /** @public */
 export class SheetController extends Controller {
   override readonly observerType?: Class<SheetControllerObserver>;
+
+  @ControllerRef<SheetController, SheetController>({
+    type: SheetController,
+    binds: false,
+    willAttachController(backController: SheetController): void {
+      this.owner.callObservers("controllerWillAttachBack", backController, this.owner);
+    },
+    didDetachController(backController: SheetController): void {
+      this.owner.callObservers("controllerDidDetachBack", backController, this.owner);
+    },
+  })
+  readonly back!: ControllerRef<this, SheetController>;
+  static readonly back: MemberFastenerClass<SheetController, "back">;
+
+  @ControllerRef<SheetController, SheetController>({
+    type: SheetController,
+    binds: false,
+    willAttachController(forwardController: SheetController): void {
+      this.owner.callObservers("controllerWillAttachForward", forwardController, this.owner);
+    },
+    didDetachController(forwardController: SheetController): void {
+      this.owner.callObservers("controllerDidDetachForward", forwardController, this.owner);
+    },
+  })
+  readonly forward!: ControllerRef<this, SheetController>;
+  static readonly forward: MemberFastenerClass<SheetController, "forward">;
 
   @TraitViewRef<SheetController, SheetTrait, SheetView>({
     traitType: SheetTrait,

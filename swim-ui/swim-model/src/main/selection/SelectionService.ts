@@ -45,7 +45,7 @@ export class SelectionService<M = unknown> extends Service<M> {
         options = null;
       }
       if (options === null || !options.multi) {
-        this.unselectAll();
+        this.unselectAll(true);
       }
       if (index === void 0) {
         index = selections.length;
@@ -94,7 +94,10 @@ export class SelectionService<M = unknown> extends Service<M> {
     }
   }
 
-  unselect(model: Model): void {
+  unselect(model: Model): void;
+  /** @internal */
+  unselect(model: Model, internal?: boolean): void;
+  unselect(model: Model, internal?: boolean): void {
     const selections = this.selections as Model[];
     const index = selections.indexOf(model);
     if (index >= 0) {
@@ -110,6 +113,9 @@ export class SelectionService<M = unknown> extends Service<M> {
         selectableTrait.didUnselect();
       }
       this.didUnselect(model);
+      if (internal !== true && selections.length === 0) {
+        this.didUnselectAll();
+      }
     }
   }
 
@@ -137,10 +143,28 @@ export class SelectionService<M = unknown> extends Service<M> {
     }
   }
 
-  unselectAll(): void {
+  unselectAll(): void;
+  /** @internal */
+  unselectAll(internal?: boolean): void;
+  unselectAll(internal?: boolean): void {
     const selections = this.selections;
-    while (selections.length !== 0) {
-      this.unselect(selections[0]!);
+    if (selections.length !== 0) {
+      while (selections.length !== 0) {
+        this.unselect(selections[0]!, true);
+      }
+      if (internal !== true) {
+        this.didUnselectAll();
+      }
+    }
+  }
+
+  protected didUnselectAll(): void {
+    const observers = this.observers;
+    for (let i = 0, n = observers.length; i < n; i += 1) {
+      const observer = observers[i]!;
+      if (observer.serviceDidUnselectAll !== void 0) {
+        observer.serviceDidUnselectAll(this);
+      }
     }
   }
 
@@ -152,7 +176,7 @@ export class SelectionService<M = unknown> extends Service<M> {
         options = null;
       }
       if (options === null || !options.multi) {
-        this.unselectAll();
+        this.unselectAll(true);
       }
       if (index === void 0) {
         index = selections.length;
@@ -187,6 +211,9 @@ export class SelectionService<M = unknown> extends Service<M> {
         selectableTrait.didUnselect();
       }
       this.didUnselect(model);
+      if (selections.length === 0) {
+        this.didUnselectAll();
+      }
     }
   }
 

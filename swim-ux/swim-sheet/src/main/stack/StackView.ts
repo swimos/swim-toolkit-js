@@ -43,6 +43,7 @@ export class StackView extends HtmlView {
   @ViewRef<StackView, BarView>({
     type: BarView,
     binds: true,
+    observes: true,
     initView(navbarView: BarView): void {
       let stackWidth = this.owner.width.state;
       stackWidth = stackWidth instanceof Length ? stackWidth : Length.px(this.owner.node.offsetWidth);
@@ -57,6 +58,9 @@ export class StackView extends HtmlView {
     },
     didDetachView(navbarView: BarView): void {
       this.owner.callObservers("viewDidDetachNavbar", navbarView, this.owner);
+    },
+    viewDidSetBarHeight(barHeight: Length | null): void {
+      this.owner.requireUpdate(View.NeedsResize);
     },
   })
   readonly navbar!: ViewRef<this, BarView>;
@@ -105,11 +109,13 @@ export class StackView extends HtmlView {
     willAttachView(sheetView: SheetView, target: View | null): void {
       this.owner.callObservers("viewWillAttachSheet", sheetView, target, this.owner);
       const backView = this.owner.active.view;
-      sheetView.back.setView(backView);
-      if (backView !== null) {
-        backView.forward.setView(sheetView);
+      if (sheetView !== backView) {
+        sheetView.back.setView(backView);
+        if (backView !== null) {
+          backView.forward.setView(sheetView);
+        }
+        this.owner.active.setView(sheetView);
       }
-      this.owner.active.setView(sheetView);
     },
     didDetachView(sheetView: SheetView): void {
       const backView = sheetView.back.view;
@@ -164,6 +170,7 @@ export class StackView extends HtmlView {
     type: SheetView,
     binds: false,
     willAttachView(sheetView: SheetView, target: View | null): void {
+      this.owner.callObservers("viewWillAttachActive", sheetView, target, this.owner);
       if (sheetView.parent === null) {
         this.owner.insertChild(sheetView, target);
       }
@@ -183,6 +190,7 @@ export class StackView extends HtmlView {
         sheetView.sheetAlign.setValue(1, Affinity.Intrinsic);
         sheetView.dismiss();
       }
+      this.owner.callObservers("viewDidDetachActive", sheetView, this.owner);
     },
   })
   readonly active!: ViewRef<this, SheetView>;

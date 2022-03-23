@@ -28,13 +28,21 @@ export interface SheetControllerObserver<C extends SheetController = SheetContro
 
   controllerDidDetachSheetView?(sheetView: SheetView, controller: C): void;
 
+  controllerWillAttachBack?(backController: SheetController, controller: C): void;
+
+  controllerDidDetachBack?(backController: SheetController, controller: C): void;
+
   controllerWillAttachBackView?(backView: SheetView, controller: C): void;
 
   controllerDidDetachBackView?(backView: SheetView, controller: C): void;
 
-  controllerWillAttachForwardView?(backView: SheetView, controller: C): void;
+  controllerWillAttachForward?(forwardController: SheetController, controller: C): void;
 
-  controllerDidDetachForwardView?(backView: SheetView, controller: C): void;
+  controllerDidDetachForward?(forwardController: SheetController, controller: C): void;
+
+  controllerWillAttachForwardView?(forwardView: SheetView, controller: C): void;
+
+  controllerDidDetachForwardView?(forwardView: SheetView, controller: C): void;
 
   controllerWillAttachSheetTitleView?(titleView: ToolView, controller: C): void;
 

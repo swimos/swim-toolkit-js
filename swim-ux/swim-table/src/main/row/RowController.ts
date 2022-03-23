@@ -187,6 +187,6 @@ export class RowController extends LeafController {
       return TableController.create();
     },
   })
-  readonly tree!: TraitViewControllerRef<this, TableTrait, TableView, TableController>;
+  readonly tree!: TraitViewControllerRef<this, TableTrait, TableView, TableController> & RowControllerTreeExt;
   static readonly tree: MemberFastenerClass<RowController, "tree">;
 }

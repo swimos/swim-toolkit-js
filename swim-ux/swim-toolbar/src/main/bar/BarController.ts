@@ -104,11 +104,8 @@ export class BarController extends Controller {
     didDetachView(barView: BarView): void {
       this.owner.callObservers("controllerDidDetachBarView", barView, this.owner);
     },
-    viewWillSetLayout(newLayout: BarLayout | null, oldLayout: BarLayout | null): void {
-      this.owner.callObservers("controllerWillSetBarLayout", newLayout, oldLayout, this.owner);
-    },
-    viewDidSetLayout(newLayout: BarLayout | null, oldLayout: BarLayout | null): void {
-      this.owner.callObservers("controllerDidSetBarLayout", newLayout, oldLayout, this.owner);
+    viewDidSetBarLayout(barLayout: BarLayout | null): void {
+      this.owner.callObservers("controllerDidSetBarLayout", barLayout, this.owner);
     },
   })
   readonly bar!: TraitViewRef<this, BarTrait, BarView>;
@@ -270,12 +267,9 @@ export class BarController extends Controller {
       }
       toolView.remove();
     },
-    controllerWillSetToolLayout(newToolLayout: ToolLayout | null, oldToolLayout: ToolLayout | null, toolController: ToolController): void {
-      this.owner.callObservers("controllerWillSetToolLayout", newToolLayout, oldToolLayout, toolController, this.owner);
-    },
-    controllerDidSetToolLayout(newToolLayout: ToolLayout | null, oldToolLayout: ToolLayout | null, toolController: ToolController): void {
+    controllerDidSetToolLayout(toolLayout: ToolLayout | null, toolController: ToolController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
-      this.owner.callObservers("controllerDidSetToolLayout", newToolLayout, oldToolLayout, toolController, this.owner);
+      this.owner.callObservers("controllerDidSetToolLayout", toolLayout, toolController, this.owner);
     },
     controllerWillAttachToolContentView(contentView: HtmlView, toolController: ToolController): void {
       this.attachToolContentView(contentView, toolController);

@@ -25,4 +25,6 @@ export interface SelectionServiceObserver<M = unknown, S extends SelectionServic
   serviceWillUnselect?(model: Model, service: S): void;
 
   serviceDidUnselect?(model: Model, service: S): void;
+
+  serviceDidUnselectAll?(service: S): void;
 }

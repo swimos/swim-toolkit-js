@@ -25,11 +25,8 @@ export class ToolTrait extends Trait {
   @Property<ToolTrait, ToolLayout | null, AnyToolLayout | null>({
     type: ToolLayout,
     value: null,
-    willSetValue(newLayout: ToolLayout | null, oldLayout: ToolLayout | null): void {
-      this.owner.callObservers("traitWillSetLayout", newLayout, oldLayout, this.owner);
-    },
     didSetValue(newLayout: ToolLayout | null, oldLayout: ToolLayout | null): void {
-      this.owner.callObservers("traitDidSetLayout", newLayout, oldLayout, this.owner);
+      this.owner.callObservers("traitDidSetToolLayout", newLayout, this.owner);
     },
   })
   readonly layout!: Property<this, ToolLayout | null, AnyToolLayout | null>;

@@ -28,7 +28,5 @@ export interface ToolControllerObserver<C extends ToolController = ToolControlle
 
   controllerDidDetachToolView?(toolView: ToolView, controller: C): void;
 
-  controllerWillSetToolLayout?(newToolLayout: ToolLayout | null, oldToolLayout: ToolLayout | null, controller: C): void;
-
-  controllerDidSetToolLayout?(newToolLayout: ToolLayout | null, oldToolLayout: ToolLayout | null, controller: C): void;
+  controllerDidSetToolLayout?(toolLayout: ToolLayout | null, controller: C): void;
 }

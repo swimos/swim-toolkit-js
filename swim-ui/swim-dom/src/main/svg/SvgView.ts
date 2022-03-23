@@ -76,6 +76,7 @@ export interface SvgViewAttributesInit {
   dy?: MemberAnimatorInit<SvgView, "dy">;
   edgeMode?: MemberAnimatorInit<SvgView, "edgeMode">;
   fill?: MemberAnimatorInit<SvgView, "fill">;
+  fillOpacity?: MemberAnimatorInit<SvgView, "fillOpacity">;
   fillRule?: MemberAnimatorInit<SvgView, "fillRule">;
   floodColor?: MemberAnimatorInit<SvgView, "floodColor">;
   floodOpacity?: MemberAnimatorInit<SvgView, "floodOpacity">;
@@ -97,6 +98,7 @@ export interface SvgViewAttributesInit {
   strokeLinecap?: MemberAnimatorInit<SvgView, "strokeLinecap">;
   strokeLinejoin?: MemberAnimatorInit<SvgView, "strokeLinejoin">;
   strokeMiterlimit?: MemberAnimatorInit<SvgView, "strokeMiterlimit">;
+  strokeOpacity?: MemberAnimatorInit<SvgView, "strokeOpacity">;
   strokeWidth?: MemberAnimatorInit<SvgView, "strokeWidth">;
   textAnchor?: MemberAnimatorInit<SvgView, "textAnchor">;
   textLength?: MemberAnimatorInit<SvgView, "textLength">;
@@ -308,6 +310,9 @@ export class SvgView extends ElementView {
   @AttributeAnimator({attributeName: "fill", type: Color, value: null})
   readonly fill!: AttributeAnimator<this, Color | null, AnyColor | null>;
 
+  @AttributeAnimator({attributeName: "fill-opacity", type: Number})
+  readonly fillOpacity!: AttributeAnimator<this, number | undefined>;
+
   @AttributeAnimator({attributeName: "fill-rule", type: String})
   readonly fillRule!: AttributeAnimator<this, FillRule | undefined>;
 
@@ -370,6 +375,9 @@ export class SvgView extends ElementView {
 
   @AttributeAnimator({attributeName: "stroke-miterlimit", type: Number})
   readonly strokeMiterlimit!: AttributeAnimator<this, number | undefined>;
+
+  @AttributeAnimator({attributeName: "stroke-opacity", type: Number})
+  readonly strokeOpacity!: AttributeAnimator<this, number | undefined>;
 
   @AttributeAnimator({attributeName: "stroke-width", type: Number})
   readonly strokeWidth!: AttributeAnimator<this, number | undefined>;
@@ -549,6 +557,9 @@ export class SvgView extends ElementView {
     }
     if (init.fill !== void 0) {
       this.fill(init.fill);
+    }
+    if (init.fillOpacity !== void 0) {
+      this.fillOpacity(init.fillOpacity);
     }
     if (init.fillRule !== void 0) {
       this.fillRule(init.fillRule);

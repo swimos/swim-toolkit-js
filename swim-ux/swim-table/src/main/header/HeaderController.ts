@@ -248,6 +248,6 @@ export class HeaderController extends Controller {
       // hook
     },
   })
-  readonly cols!: TraitViewControllerSet<this, ColTrait, ColView, ColController>;
+  readonly cols!: TraitViewControllerSet<this, ColTrait, ColView, ColController> & HeaderControllerColExt;
   static readonly cols: MemberFastenerClass<HeaderController, "cols">;
 }

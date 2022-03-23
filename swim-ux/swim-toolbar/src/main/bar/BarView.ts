@@ -53,14 +53,11 @@ export class BarView extends HtmlView {
     inherits: true,
     value: null,
     updateFlags: View.NeedsLayout,
-    willSetValue(newLayout: BarLayout | null, oldLayout: BarLayout | null): void {
-      this.owner.callObservers("viewWillSetLayout", newLayout, oldLayout, this.owner);
-    },
     didSetValue(newLayout: BarLayout | null, oldLayout: BarLayout | null): void {
       if (newLayout !== null && newLayout.width === null) {
         this.owner.requireUpdate(View.NeedsResize);
       }
-      this.owner.callObservers("viewDidSetLayout", newLayout, oldLayout, this.owner);
+      this.owner.callObservers("viewDidSetBarLayout", newLayout, this.owner);
     },
     transformState(newLayout: BarLayout | null): BarLayout | null {
       if (newLayout !== null && newLayout.width === null) {
@@ -78,7 +75,14 @@ export class BarView extends HtmlView {
   })
   readonly layout!: Animator<this, BarLayout | null, AnyBarLayout | null> & {resized(layout: BarLayout): BarLayout};
 
-  @ThemeConstraintAnimator({type: Length, inherits: true, value: null, updateFlags: View.NeedsResize})
+  @ThemeConstraintAnimator<BarView, Length | null, AnyLength | null>({
+    type: Length,
+    value: null,
+    updateFlags: View.NeedsResize,
+    didSetValue(newBarHeight: Length | null, oldBarHeight: Length | null): void {
+      this.owner.callObservers("viewDidSetBarHeight", newBarHeight, this.owner);
+    },
+  })
   readonly barHeight!: ThemeConstraintAnimator<this, Length | null, AnyLength | null>;
 
   @Property({type: Length, value: Length.zero(), updateFlags: View.NeedsResize})

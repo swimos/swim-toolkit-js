@@ -28,6 +28,10 @@ export interface StackViewObserver<V extends StackView = StackView> extends Html
 
   viewDidDetachSheet?(sheetView: SheetView, view: V): void;
 
+  viewWillAttachActive?(activeView: SheetView, targetView: View | null, view: V): void;
+
+  viewDidDetachActive?(activeView: SheetView, view: V): void;
+
   viewWillPresentSheet?(sheetView: SheetView, view: V): void;
 
   viewDidPresentSheet?(sheetView: SheetView, view: V): void;

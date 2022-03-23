@@ -41,6 +41,7 @@ Theme.dark = (function (): ThemeMatrix {
   const alertColor = Color.parse("#f6511d");
 
   const backgroundColor = Color.parse("#181818");
+  const selectedColor = backgroundColor.darker(1);
   const borderColor = Color.parse("#ffffff").alpha(0.1);
 
   const raisedColor = Color.parse("#212121");
@@ -120,7 +121,7 @@ Theme.dark = (function (): ThemeMatrix {
   const selectedFeel = FeelVector.of(
     [Look.textColor, textColor],
     [Look.iconColor, iconColor],
-    [Look.backgroundColor, backgroundColor.darker(1)],
+    [Look.backgroundColor, selectedColor],
   );
 
   const disabledFeel = FeelVector.of(

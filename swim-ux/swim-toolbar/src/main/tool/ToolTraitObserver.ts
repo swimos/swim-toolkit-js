@@ -18,7 +18,5 @@ import type {ToolTrait} from "./ToolTrait";
 
 /** @public */
 export interface ToolTraitObserver<T extends ToolTrait = ToolTrait> extends TraitObserver<T> {
-  traitWillSetLayout?(newLayout: ToolLayout | null, oldLayout: ToolLayout | null, trait: T): void;
-
-  traitDidSetLayout?(newLayout: ToolLayout | null, oldLayout: ToolLayout | null, trait: T): void;
+  traitDidSetToolLayout?(toolLayout: ToolLayout | null, trait: T): void;
 }

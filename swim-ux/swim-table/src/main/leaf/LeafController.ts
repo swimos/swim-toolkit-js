@@ -285,6 +285,6 @@ export class LeafController extends Controller {
       }
     },
   })
-  readonly cells!: TraitViewControllerSet<this, CellTrait, CellView, CellController>;
+  readonly cells!: TraitViewControllerSet<this, CellTrait, CellView, CellController> & LeafControllerCellExt;
   static readonly cells: MemberFastenerClass<LeafController, "cells">;
 }

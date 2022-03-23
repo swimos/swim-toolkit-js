@@ -40,8 +40,8 @@ export class ToolController extends Controller {
     didDetachTrait(toolTrait: ToolTrait): void {
       this.owner.callObservers("controllerDidDetachToolTrait", toolTrait, this.owner);
     },
-    traitDidSetLayout(newLayout: ToolLayout | null, oldLayout: ToolLayout | null): void {
-      this.owner.layout.setValue(newLayout, Affinity.Intrinsic);
+    traitDidSetToolLayout(toolLayout: ToolLayout | null): void {
+      this.owner.layout.setValue(toolLayout, Affinity.Intrinsic);
     },
     viewType: ToolView,
     willAttachView(toolView: ToolView): void {
@@ -57,11 +57,8 @@ export class ToolController extends Controller {
   @Property<ToolController, ToolLayout | null, AnyToolLayout | null>({
     type: ToolLayout,
     value: null,
-    willSetValue(newLayout: ToolLayout | null, oldLayout: ToolLayout | null): void {
-      this.owner.callObservers("controllerWillSetToolLayout", newLayout, oldLayout, this.owner);
-    },
     didSetValue(newLayout: ToolLayout | null, oldLayout: ToolLayout | null): void {
-      this.owner.callObservers("controllerDidSetToolLayout", newLayout, oldLayout, this.owner);
+      this.owner.callObservers("controllerDidSetToolLayout", newLayout, this.owner);
     },
   })
   readonly layout!: Property<this, ToolLayout | null, AnyToolLayout | null>;

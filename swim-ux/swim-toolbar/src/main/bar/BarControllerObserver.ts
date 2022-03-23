@@ -35,9 +35,7 @@ export interface BarControllerObserver<C extends BarController = BarController> 
 
   controllerDidDetachBarView?(barView: BarView, controller: C): void;
 
-  controllerWillSetBarLayout?(newBarLayout: BarLayout | null, oldBarLayout: BarLayout | null, controller: C): void;
-
-  controllerDidSetBarLayout?(newBarLayout: BarLayout | null, oldBarLayout: BarLayout | null, controller: C): void;
+  controllerDidSetBarLayout?(barLayout: BarLayout | null, controller: C): void;
 
   controllerWillAttachTool?(toolController: ToolController, controller: C): void;
 
@@ -51,9 +49,7 @@ export interface BarControllerObserver<C extends BarController = BarController> 
 
   controllerDidDetachToolView?(toolView: ToolView, toolController: ToolController, controller: C): void;
 
-  controllerWillSetToolLayout?(newToolLayout: ToolLayout | null, oldToolLayout: ToolLayout | null, toolController: ToolController, controller: C): void;
-
-  controllerDidSetToolLayout?(newToolLayout: ToolLayout | null, oldToolLayout: ToolLayout | null, toolController: ToolController, controller: C): void;
+  controllerDidSetToolLayout?(toolLayout: ToolLayout | null, toolController: ToolController, controller: C): void;
 
   controllerWillAttachToolContentView?(toolContentView: HtmlView, toolController: ToolController, controller: C): void;
 

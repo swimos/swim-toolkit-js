@@ -107,7 +107,7 @@ export class ButtonGlow extends HtmlView {
     if (this.glowState === "ready") {
       this.cancelGlow();
       if (delay !== 0) {
-        const glow = this.glow.bind(this, clientX, clientY, timing, Affinity.Intrinsic);
+        const glow = this.glow.bind(this, clientX, clientY, timing, 0);
         this.glowTimer = setTimeout(glow, delay) as any;
       } else {
         if (timing === void 0 || timing === true) {
