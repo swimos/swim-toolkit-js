@@ -175,7 +175,12 @@ export const ModelRef = (function (_super: typeof ModelRelation) {
   });
 
   ModelRef.prototype.onInherit = function (this: ModelRef, superFastener: ModelRef): void {
-    this.setModel(superFastener.model);
+    const superModel = superFastener.model;
+    if (superModel !== null) {
+      this.attachModel(superModel);
+    } else {
+      this.detachModel();
+    }
   };
 
   ModelRef.prototype.onBindSuperFastener = function <M extends Model>(this: ModelRef<unknown, M>, superFastener: ModelRef<unknown, M>): void {

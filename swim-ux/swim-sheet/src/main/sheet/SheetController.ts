@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class} from "@swim/util";
+import type {Class, ObserverType} from "@swim/util";
 import type {MemberFastenerClass} from "@swim/component";
-import {ViewRef} from "@swim/view";
+import {PositionGestureInput, ViewRef} from "@swim/view";
+import type {Graphics} from "@swim/graphics";
 import {Controller, ControllerRef, TraitViewRef} from "@swim/controller";
-import {ToolView} from "@swim/toolbar";
+import {ToolView, ButtonToolView} from "@swim/toolbar";
 import {SheetView} from "./SheetView";
 import {SheetTraitTitle, SheetTrait} from "./SheetTrait";
 import type {SheetControllerObserver} from "./SheetControllerObserver";
@@ -55,10 +56,12 @@ export class SheetController extends Controller {
     traitType: SheetTrait,
     observesTrait: true,
     initTrait(sheetTrait: SheetTrait): void {
-      this.owner.setTitleView(sheetTrait.title.value, sheetTrait);
+      this.owner.setTitleToolView(sheetTrait.title.value, sheetTrait);
+      this.owner.setIconToolView(sheetTrait.icon.value);
     },
     deinitTrait(sheetTrait: SheetTrait): void {
-      this.owner.setTitleView(null, sheetTrait);
+      this.owner.setIconToolView(null);
+      this.owner.setTitleToolView(null, sheetTrait);
     },
     willAttachTrait(sheetTrait: SheetTrait): void {
       this.owner.callObservers("controllerWillAttachSheetTrait", sheetTrait, this.owner);
@@ -66,20 +69,26 @@ export class SheetController extends Controller {
     didDetachTrait(sheetTrait: SheetTrait): void {
       this.owner.callObservers("controllerDidDetachSheetTrait", sheetTrait, this.owner);
     },
-    traitDidSetTitle(newTitle: SheetTraitTitle | null, oldTitle: SheetTraitTitle | null, sheetTrait: SheetTrait): void {
-      this.owner.setTitleView(newTitle, sheetTrait);
+    traitDidSetTitle(title: SheetTraitTitle | null, sheetTrait: SheetTrait): void {
+      this.owner.setTitleToolView(title, sheetTrait);
+    },
+    traitDidSetIcon(icon: Graphics | null): void {
+      this.owner.setIconToolView(icon);
     },
     viewType: SheetView,
     observesView: true,
     initView(sheetView: SheetView): void {
-      this.owner.title.setView(sheetView.sheetTitle.view);
+      this.owner.titleTool.setView(sheetView.titleTool.view);
+      this.owner.iconTool.setView(sheetView.iconTool.view);
       const sheetTrait = this.trait;
       if (sheetTrait !== null) {
-        this.owner.setTitleView(sheetTrait.title.value, sheetTrait);
+        this.owner.setTitleToolView(sheetTrait.title.value, sheetTrait);
+        this.owner.setIconToolView(sheetTrait.icon.value);
       }
     },
     deinitView(sheetView: SheetView): void {
-      this.owner.title.setView(null);
+      this.owner.iconTool.setView(null);
+      this.owner.titleTool.setView(null);
     },
     willAttachView(sheetView: SheetView): void {
       this.owner.callObservers("controllerWillAttachSheetView", sheetView, this.owner);
@@ -99,11 +108,17 @@ export class SheetController extends Controller {
     viewDidDetachForward(forwardView: SheetView): void {
       this.owner.callObservers("controllerDidDetachForwardView", forwardView, this.owner);
     },
-    viewWillAttachTitle(titleView: ToolView): void {
-      this.owner.title.setView(titleView);
+    viewWillAttachTitleTool(titleToolView: ToolView): void {
+      this.owner.titleTool.setView(titleToolView);
     },
-    viewDidDetachTitle(titleView: ToolView): void {
-      this.owner.title.setView(null);
+    viewDidDetachTitleTool(titleToolView: ToolView): void {
+      this.owner.titleTool.setView(null);
+    },
+    viewWillAttachIconTool(iconToolView: ToolView): void {
+      this.owner.iconTool.setView(iconToolView);
+    },
+    viewDidDetachIconTool(iconToolView: ToolView): void {
+      this.owner.iconTool.setView(null);
     },
     viewWillPresent(sheetView: SheetView): void {
       this.owner.callObservers("controllerWillPresentSheetView", sheetView, this.owner);
@@ -121,7 +136,7 @@ export class SheetController extends Controller {
   readonly sheet!: TraitViewRef<this, SheetTrait, SheetView>;
   static readonly sheet: MemberFastenerClass<SheetController, "sheet">;
 
-  protected createTitleView(title: SheetTraitTitle, sheetTrait: SheetTrait): ToolView | string | null {
+  protected createTitleToolView(title: SheetTraitTitle, sheetTrait: SheetTrait): ToolView | string | null {
     if (typeof title === "function") {
       return title(sheetTrait);
     } else {
@@ -129,23 +144,50 @@ export class SheetController extends Controller {
     }
   }
 
-  protected setTitleView(title: SheetTraitTitle | null, sheetTrait: SheetTrait): void {
+  protected setTitleToolView(title: SheetTraitTitle | null, sheetTrait: SheetTrait): void {
     const sheetView = this.sheet.view;
     if (sheetView !== null) {
-      const titleView = title !== null ? this.createTitleView(title, sheetTrait) : null;
-      sheetView.sheetTitle.setView(titleView);
+      const titleToolView = title !== null ? this.createTitleToolView(title, sheetTrait) : null;
+      sheetView.titleTool.setView(titleToolView);
     }
   }
 
   @ViewRef<SheetController, ToolView>({
     type: ToolView,
-    willAttachView(titleView: ToolView): void {
-      this.owner.callObservers("controllerWillAttachSheetTitleView", titleView, this.owner);
+    willAttachView(titleToolView: ToolView): void {
+      this.owner.callObservers("controllerWillAttachTitleToolView", titleToolView, this.owner);
     },
-    didDetachView(titleView: ToolView): void {
-      this.owner.callObservers("controllerDidDetachSheetTitleView", titleView, this.owner);
+    didDetachView(titleToolView: ToolView): void {
+      this.owner.callObservers("controllerDidDetachTitleToolView", titleToolView, this.owner);
     },
   })
-  readonly title!: ViewRef<this, ToolView>;
-  static readonly title: MemberFastenerClass<SheetController, "title">;
+  readonly titleTool!: ViewRef<this, ToolView>;
+  static readonly titleTool: MemberFastenerClass<SheetController, "titleTool">;
+
+  setIconToolView(icon: Graphics | null): void {
+    const sheetView = this.sheet.view;
+    if (sheetView !== null) {
+      sheetView.iconTool.setView(icon);
+    }
+  }
+
+  @ViewRef<SheetController, ToolView, ObserverType<ToolView | ButtonToolView>>({
+    implements: true,
+    type: ToolView,
+    observes: true,
+    willAttachView(iconToolView: ToolView): void {
+      this.owner.callObservers("controllerWillAttachIconToolView", iconToolView, this.owner);
+    },
+    didDetachView(iconToolView: ToolView): void {
+      this.owner.callObservers("controllerDidDetachIconToolView", iconToolView, this.owner);
+    },
+    viewDidPress(input: PositionGestureInput, event: Event | null): void {
+      this.owner.callObservers("controllerDidPressIconTool", input, event, this.owner);
+    },
+    viewDidLongPress(input: PositionGestureInput): void {
+      this.owner.callObservers("controllerDidLongPressIconTool", input, this.owner);
+    },
+  })
+  readonly iconTool!: ViewRef<this, ToolView>;
+  static readonly iconTool: MemberFastenerClass<SheetController, "iconTool">;
 }

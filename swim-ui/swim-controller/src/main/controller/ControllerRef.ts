@@ -175,7 +175,12 @@ export const ControllerRef = (function (_super: typeof ControllerRelation) {
   });
 
   ControllerRef.prototype.onInherit = function (this: ControllerRef, superFastener: ControllerRef): void {
-    this.setController(superFastener.controller);
+    const superController = superFastener.controller;
+    if (superController !== null) {
+      this.attachController(superController);
+    } else {
+      this.detachController();
+    }
   };
 
   ControllerRef.prototype.onBindSuperFastener = function <C extends Controller>(this: ControllerRef<unknown, C>, superFastener: ControllerRef<unknown, C>): void {

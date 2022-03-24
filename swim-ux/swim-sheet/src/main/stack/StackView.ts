@@ -44,27 +44,27 @@ export class StackView extends HtmlView {
     type: BarView,
     binds: true,
     observes: true,
-    initView(navbarView: BarView): void {
+    initView(navBarView: BarView): void {
       let stackWidth = this.owner.width.state;
       stackWidth = stackWidth instanceof Length ? stackWidth : Length.px(this.owner.node.offsetWidth);
-      navbarView.position.setState("absolute", Affinity.Intrinsic);
-      navbarView.left.setState(0, Affinity.Intrinsic);
-      navbarView.top.setState(0, Affinity.Intrinsic);
-      navbarView.width.setState(stackWidth, Affinity.Intrinsic);
-      navbarView.zIndex.setState(1, Affinity.Intrinsic);
+      navBarView.position.setState("absolute", Affinity.Intrinsic);
+      navBarView.left.setState(0, Affinity.Intrinsic);
+      navBarView.top.setState(0, Affinity.Intrinsic);
+      navBarView.width.setState(stackWidth, Affinity.Intrinsic);
+      navBarView.zIndex.setState(1, Affinity.Intrinsic);
     },
-    willAttachView(navbarView: BarView, target: View | null): void {
-      this.owner.callObservers("viewWillAttachNavbar", navbarView, target, this.owner);
+    willAttachView(navBarView: BarView, target: View | null): void {
+      this.owner.callObservers("viewWillAttachNavBar", navBarView, target, this.owner);
     },
-    didDetachView(navbarView: BarView): void {
-      this.owner.callObservers("viewDidDetachNavbar", navbarView, this.owner);
+    didDetachView(navBarView: BarView): void {
+      this.owner.callObservers("viewDidDetachNavBar", navBarView, this.owner);
     },
     viewDidSetBarHeight(barHeight: Length | null): void {
       this.owner.requireUpdate(View.NeedsResize);
     },
   })
-  readonly navbar!: ViewRef<this, BarView>;
-  static readonly navbar: MemberFastenerClass<StackView, "navbar">;
+  readonly navBar!: ViewRef<this, BarView>;
+  static readonly navBar: MemberFastenerClass<StackView, "navBar">;
 
   @ViewSet<StackView, SheetView>({
     implements: true,
@@ -81,11 +81,11 @@ export class StackView extends HtmlView {
         edgeInsets = this.owner.viewport.safeArea;
       }
 
-      const navbarView = this.owner.navbar.view;
-      let navbarHeight: Length | null = null;
-      if (navbarView !== null) {
-        navbarHeight = navbarView.height.state;
-        navbarHeight = navbarHeight instanceof Length ? navbarHeight : Length.px(navbarView.node.offsetHeight);
+      const navBarView = this.owner.navBar.view;
+      let navBarHeight: Length | null = null;
+      if (navBarView !== null) {
+        navBarHeight = navBarView.height.state;
+        navBarHeight = navBarHeight instanceof Length ? navBarHeight : Length.px(navBarView.node.offsetHeight);
         if (edgeInsets !== null) {
           edgeInsets = {
             insetTop: 0,
@@ -101,27 +101,27 @@ export class StackView extends HtmlView {
       sheetView.top.setState(0, Affinity.Intrinsic);
       sheetView.width.setState(stackWidth, Affinity.Intrinsic);
       sheetView.height.setState(stackHeight, Affinity.Intrinsic);
-      sheetView.paddingTop.setState(navbarHeight, Affinity.Intrinsic);
+      sheetView.paddingTop.setState(navBarHeight, Affinity.Intrinsic);
       sheetView.boxSizing.setState("border-box", Affinity.Intrinsic);
       sheetView.zIndex.setState(0, Affinity.Intrinsic);
       sheetView.edgeInsets.setValue(edgeInsets, Affinity.Intrinsic);
     },
     willAttachView(sheetView: SheetView, target: View | null): void {
       this.owner.callObservers("viewWillAttachSheet", sheetView, target, this.owner);
-      const backView = this.owner.active.view;
+      const backView = this.owner.front.view;
       if (sheetView !== backView) {
         sheetView.back.setView(backView);
         if (backView !== null) {
           backView.forward.setView(sheetView);
         }
-        this.owner.active.setView(sheetView);
+        this.owner.front.setView(sheetView);
       }
     },
     didDetachView(sheetView: SheetView): void {
       const backView = sheetView.back.view;
       const forwardView = sheetView.forward.view;
-      if (sheetView === this.owner.active.view) {
-        this.owner.active.setView(backView, forwardView);
+      if (sheetView === this.owner.front.view) {
+        this.owner.front.setView(backView, forwardView);
       }
       if (backView !== null) {
         backView.forward.setView(forwardView);
@@ -141,11 +141,11 @@ export class StackView extends HtmlView {
     },
     viewWillDismiss(sheetView: SheetView): void {
       this.owner.callObservers("viewWillDismissSheet", sheetView, this.owner);
-      if (sheetView === this.owner.active.view) {
-        this.owner.active.setView(null);
+      if (sheetView === this.owner.front.view) {
+        this.owner.front.setView(null);
         const backView = sheetView.back.view;
         if (backView !== null) {
-          this.owner.active.setView(backView, sheetView);
+          this.owner.front.setView(backView, sheetView);
           backView.forward.setView(null);
           sheetView.back.setView(null);
         }
@@ -170,7 +170,7 @@ export class StackView extends HtmlView {
     type: SheetView,
     binds: false,
     willAttachView(sheetView: SheetView, target: View | null): void {
-      this.owner.callObservers("viewWillAttachActive", sheetView, target, this.owner);
+      this.owner.callObservers("viewWillAttachFront", sheetView, target, this.owner);
       if (sheetView.parent === null) {
         this.owner.insertChild(sheetView, target);
       }
@@ -190,11 +190,11 @@ export class StackView extends HtmlView {
         sheetView.sheetAlign.setValue(1, Affinity.Intrinsic);
         sheetView.dismiss();
       }
-      this.owner.callObservers("viewDidDetachActive", sheetView, this.owner);
+      this.owner.callObservers("viewDidDetachFront", sheetView, this.owner);
     },
   })
-  readonly active!: ViewRef<this, SheetView>;
-  static readonly active: MemberFastenerClass<StackView, "active">;
+  readonly front!: ViewRef<this, SheetView>;
+  static readonly front: MemberFastenerClass<StackView, "front">;
 
   protected override didResize(viewContext: ViewContextType<this>): void {
     this.resizeStack(viewContext);
@@ -211,12 +211,12 @@ export class StackView extends HtmlView {
       edgeInsets = viewContext.viewport.safeArea;
     }
 
-    const navbarView = this.navbar.view;
-    let navbarHeight: Length | null = null;
-    if (navbarView !== null) {
-      navbarView.width.setState(stackWidth, Affinity.Intrinsic);
-      navbarHeight = navbarView.height.state;
-      navbarHeight = navbarHeight instanceof Length ? navbarHeight : Length.px(navbarView.node.offsetHeight);
+    const navBarView = this.navBar.view;
+    let navBarHeight: Length | null = null;
+    if (navBarView !== null) {
+      navBarView.width.setState(stackWidth, Affinity.Intrinsic);
+      navBarHeight = navBarView.height.state;
+      navBarHeight = navBarHeight instanceof Length ? navBarHeight : Length.px(navBarView.node.offsetHeight);
       if (edgeInsets !== null) {
         edgeInsets = {
           insetTop: 0,
@@ -232,7 +232,7 @@ export class StackView extends HtmlView {
       const sheetView = sheetViews[viewId]!;
       sheetView.width.setState(stackWidth, Affinity.Intrinsic);
       sheetView.height.setState(stackHeight, Affinity.Intrinsic);
-      sheetView.paddingTop.setState(navbarHeight, Affinity.Intrinsic);
+      sheetView.paddingTop.setState(navBarHeight, Affinity.Intrinsic);
       sheetView.edgeInsets.setValue(edgeInsets, Affinity.Intrinsic);
     }
   }

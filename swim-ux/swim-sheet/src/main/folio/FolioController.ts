@@ -21,20 +21,21 @@ import {DrawerView} from "@swim/window";
 import type {SheetView} from "../sheet/SheetView";
 import type {SheetTrait} from "../sheet/SheetTrait";
 import {SheetController} from "../sheet/SheetController";
+import {NavBarController} from "../stack/NavBarController";
 import type {StackView} from "../stack/StackView";
 import type {StackTrait} from "../stack/StackTrait";
-import {StackController} from "../stack/StackController";
-import {AppbarController} from "./AppbarController";
+import {StackControllerNavBarExt, StackController} from "../stack/StackController";
+import {AppBarController} from "./AppBarController";
 import {FolioStyle, FolioView} from "./FolioView";
 import {FolioTrait} from "./FolioTrait";
 import type {FolioControllerObserver} from "./FolioControllerObserver";
 
 /** @public */
-export interface FolioControllerAppbarExt {
-  attachAppbarTrait(appbarTrait: BarTrait, appbarController: BarController): void;
-  detachAppbarTrait(appbarTrait: BarTrait, appbarController: BarController): void;
-  attachAppbarView(appbarView: BarView, appbarController: BarController): void;
-  detachAppbarView(appbarView: BarView, appbarController: BarController): void;
+export interface FolioControllerAppBarExt {
+  attachAppBarTrait(appBarTrait: BarTrait, appBarController: BarController): void;
+  detachAppBarTrait(appBarTrait: BarTrait, appBarController: BarController): void;
+  attachAppBarView(appBarView: BarView, appBarController: BarController): void;
+  detachAppBarView(appBarView: BarView, appBarController: BarController): void;
 }
 
 /** @public */
@@ -57,9 +58,9 @@ export class FolioController extends StackController {
       this.owner.callObservers("controllerWillAttachFolioTrait", folioTrait, this.owner);
     },
     didAttachTrait(folioTrait: FolioTrait): void {
-      const appbarTrait = folioTrait.appbar.trait;
-      if (appbarTrait !== null) {
-        this.owner.appbar.setTrait(appbarTrait);
+      const appBarTrait = folioTrait.appBar.trait;
+      if (appBarTrait !== null) {
+        this.owner.appBar.setTrait(appBarTrait);
       }
       const coverTrait = folioTrait.cover.trait;
       if (coverTrait !== null) {
@@ -71,19 +72,19 @@ export class FolioController extends StackController {
       if (coverTrait !== null) {
         this.owner.cover.deleteTrait(coverTrait);
       }
-      const appbarTrait = folioTrait.appbar.trait;
-      if (appbarTrait !== null) {
-        this.owner.appbar.deleteTrait(appbarTrait);
+      const appBarTrait = folioTrait.appBar.trait;
+      if (appBarTrait !== null) {
+        this.owner.appBar.deleteTrait(appBarTrait);
       }
     },
     didDetachTrait(folioTrait: FolioTrait): void {
       this.owner.callObservers("controllerDidDetachFolioTrait", folioTrait, this.owner);
     },
-    traitWillAttachAppbar(appbarTrait: BarTrait): void {
-      this.owner.appbar.setTrait(appbarTrait);
+    traitWillAttachAppBar(appBarTrait: BarTrait): void {
+      this.owner.appBar.setTrait(appBarTrait);
     },
-    traitDidDetachAppbar(appbarTrait: BarTrait): void {
-      this.owner.appbar.deleteTrait(appbarTrait);
+    traitDidDetachAppBar(appBarTrait: BarTrait): void {
+      this.owner.appBar.deleteTrait(appBarTrait);
     },
     traitWillAttachCover(sheetTrait: SheetTrait): void {
       this.owner.cover.setTrait(sheetTrait);
@@ -94,11 +95,11 @@ export class FolioController extends StackController {
     viewType: FolioView,
     observesView: true,
     initView(folioView: FolioView): void {
-      const appbarController = this.owner.appbar.controller;
-      if (appbarController !== null) {
-        appbarController.bar.attachView();
-        if (folioView.appbar.view === null) {
-          folioView.appbar.setView(appbarController.bar.view);
+      const appBarController = this.owner.appBar.controller;
+      if (appBarController !== null) {
+        appBarController.bar.attachView();
+        if (folioView.appBar.view === null) {
+          folioView.appBar.setView(appBarController.bar.view);
         }
       }
       const coverController = this.owner.cover.controller;
@@ -110,12 +111,12 @@ export class FolioController extends StackController {
       this.owner.callObservers("controllerWillAttachFolioView", folioView, this.owner);
     },
     didAttachView(folioView: FolioView): void {
-      this.owner.pocket.setView(folioView.pocket.attachView());
+      this.owner.drawer.setView(folioView.drawer.attachView());
       this.owner.stack.setView(folioView.stack.attachView());
     },
     willDetachView(folioView: FolioView): void {
       this.owner.stack.setView(null);
-      this.owner.pocket.setView(null);
+      this.owner.drawer.setView(null);
     },
     didDetachView(folioView: FolioView): void {
       this.owner.callObservers("controllerDidDetachFolioView", folioView, this.owner);
@@ -131,28 +132,33 @@ export class FolioController extends StackController {
         if (coverController !== null) {
           this.owner.sheets.detachController(coverController);
         }
-        const appbarController = this.owner.appbar.controller;
-        if (appbarController instanceof AppbarController) {
-          appbarController.updateLayout();
+        const appBarController = this.owner.appBar.controller;
+        if (appBarController instanceof AppBarController) {
+          appBarController.updateLayout();
         }
       }
-    },
-    viewWillAttachPocket(pocketView: DrawerView): void {
-      this.owner.pocket.setView(pocketView);
-    },
-    viewDidDetachPocket(pocketView: DrawerView): void {
-      this.owner.pocket.setView(null);
-    },
-    viewWillAttachAppbar(appbarView: BarView): void {
-      const appbarController = this.owner.appbar.controller;
-      if (appbarController !== null) {
-        appbarController.bar.setView(appbarView);
+
+      const navBarController = this.owner.navBar.controller;
+      if (navBarController instanceof NavBarController) {
+        navBarController.showBackTitle.setValue(folioStyle === "stacked", Affinity.Intrinsic);
       }
     },
-    viewDidDetachAppbar(appbarView: BarView): void {
-      const appbarController = this.owner.appbar.controller;
-      if (appbarController !== null) {
-        appbarController.bar.setView(null);
+    viewWillAttachDrawer(drawerView: DrawerView): void {
+      this.owner.drawer.setView(drawerView);
+    },
+    viewDidDetachDrawer(drawerView: DrawerView): void {
+      this.owner.drawer.setView(null);
+    },
+    viewWillAttachAppBar(appBarView: BarView): void {
+      const appBarController = this.owner.appBar.controller;
+      if (appBarController !== null) {
+        appBarController.bar.setView(appBarView);
+      }
+    },
+    viewDidDetachAppBar(appBarView: BarView): void {
+      const appBarController = this.owner.appBar.controller;
+      if (appBarController !== null) {
+        appBarController.bar.setView(null);
       }
     },
   })
@@ -168,7 +174,7 @@ export class FolioController extends StackController {
     this.callObservers("controllerDidPressActionTool", input, event, this);
   }
 
-  @TraitViewControllerRef<FolioController, BarTrait, BarView, BarController, FolioControllerAppbarExt & ObserverType<BarController | AppbarController>>({
+  @TraitViewControllerRef<FolioController, BarTrait, BarView, BarController, FolioControllerAppBarExt & ObserverType<BarController | AppBarController>>({
     implements: true,
     type: BarController,
     binds: true,
@@ -176,75 +182,75 @@ export class FolioController extends StackController {
     get parentView(): FolioView | null {
       return this.owner.folio.view;
     },
-    getTraitViewRef(appbarController: BarController): TraitViewRef<unknown, BarTrait, BarView> {
-      return appbarController.bar;
+    getTraitViewRef(appBarController: BarController): TraitViewRef<unknown, BarTrait, BarView> {
+      return appBarController.bar;
     },
-    initController(appbarController: BarController): void {
+    initController(appBarController: BarController): void {
       const folioTrait = this.owner.folio.trait;
       if (folioTrait !== null) {
-        const appbarTrait = folioTrait.appbar.trait;
-        if (appbarTrait !== null) {
-          appbarController.bar.setTrait(appbarTrait);
+        const appBarTrait = folioTrait.appBar.trait;
+        if (appBarTrait !== null) {
+          appBarController.bar.setTrait(appBarTrait);
         }
       }
-      appbarController.bar.attachView();
+      appBarController.bar.attachView();
     },
-    willAttachController(appbarController: BarController): void {
-      this.owner.callObservers("controllerWillAttachAppbar", appbarController, this.owner);
+    willAttachController(appBarController: BarController): void {
+      this.owner.callObservers("controllerWillAttachAppBar", appBarController, this.owner);
     },
-    didAttachController(appbarController: BarController): void {
-      const appbarTrait = appbarController.bar.trait;
-      if (appbarTrait !== null) {
-        this.attachAppbarTrait(appbarTrait, appbarController);
+    didAttachController(appBarController: BarController): void {
+      const appBarTrait = appBarController.bar.trait;
+      if (appBarTrait !== null) {
+        this.attachAppBarTrait(appBarTrait, appBarController);
       }
-      const appbarView = appbarController.bar.view;
-      if (appbarView !== null) {
-        this.attachAppbarView(appbarView, appbarController);
-      }
-    },
-    willDetachController(appbarController: BarController): void {
-      const appbarView = appbarController.bar.view;
-      if (appbarView !== null) {
-        this.detachAppbarView(appbarView, appbarController);
-      }
-      const appbarTrait = appbarController.bar.trait;
-      if (appbarTrait !== null) {
-        this.detachAppbarTrait(appbarTrait, appbarController);
+      const appBarView = appBarController.bar.view;
+      if (appBarView !== null) {
+        this.attachAppBarView(appBarView, appBarController);
       }
     },
-    didDetachController(appbarController: BarController): void {
-      this.owner.callObservers("controllerDidDetachAppbar", appbarController, this.owner);
+    willDetachController(appBarController: BarController): void {
+      const appBarView = appBarController.bar.view;
+      if (appBarView !== null) {
+        this.detachAppBarView(appBarView, appBarController);
+      }
+      const appBarTrait = appBarController.bar.trait;
+      if (appBarTrait !== null) {
+        this.detachAppBarTrait(appBarTrait, appBarController);
+      }
     },
-    controllerWillAttachBarTrait(appbarTrait: BarTrait, appbarController: BarController): void {
-      this.owner.callObservers("controllerWillAttachAppbarTrait", appbarTrait, this.owner);
-      this.attachAppbarTrait(appbarTrait, appbarController);
+    didDetachController(appBarController: BarController): void {
+      this.owner.callObservers("controllerDidDetachAppBar", appBarController, this.owner);
     },
-    controllerDidDetachBarTrait(appbarTrait: BarTrait, appbarController: BarController): void {
-      this.detachAppbarTrait(appbarTrait, appbarController);
-      this.owner.callObservers("controllerDidDetachAppbarTrait", appbarTrait, this.owner);
+    controllerWillAttachBarTrait(appBarTrait: BarTrait, appBarController: BarController): void {
+      this.owner.callObservers("controllerWillAttachAppBarTrait", appBarTrait, this.owner);
+      this.attachAppBarTrait(appBarTrait, appBarController);
     },
-    attachAppbarTrait(appbarTrait: BarTrait, appbarController: BarController): void {
+    controllerDidDetachBarTrait(appBarTrait: BarTrait, appBarController: BarController): void {
+      this.detachAppBarTrait(appBarTrait, appBarController);
+      this.owner.callObservers("controllerDidDetachAppBarTrait", appBarTrait, this.owner);
+    },
+    attachAppBarTrait(appBarTrait: BarTrait, appBarController: BarController): void {
       // hook
     },
-    detachAppbarTrait(appbarTrait: BarTrait, appbarController: BarController): void {
+    detachAppBarTrait(appBarTrait: BarTrait, appBarController: BarController): void {
       // hook
     },
-    controllerWillAttachBarView(appbarView: BarView, appbarController: BarController): void {
-      this.owner.callObservers("controllerWillAttachAppbarView", appbarView, this.owner);
-      this.attachAppbarView(appbarView, appbarController);
+    controllerWillAttachBarView(appBarView: BarView, appBarController: BarController): void {
+      this.owner.callObservers("controllerWillAttachAppBarView", appBarView, this.owner);
+      this.attachAppBarView(appBarView, appBarController);
     },
-    controllerDidDetachBarView(appbarView: BarView, appbarController: BarController): void {
-      this.detachAppbarView(appbarView, appbarController);
-      this.owner.callObservers("controllerDidDetachAppbarView", appbarView, this.owner);
+    controllerDidDetachBarView(appBarView: BarView, appBarController: BarController): void {
+      this.detachAppBarView(appBarView, appBarController);
+      this.owner.callObservers("controllerDidDetachAppBarView", appBarView, this.owner);
     },
-    attachAppbarView(appbarView: BarView, appbarController: BarController): void {
+    attachAppBarView(appBarView: BarView, appBarController: BarController): void {
       const folioView = this.owner.folio.view;
-      if (folioView !== null && folioView.appbar.view === null) {
-        folioView.appbar.setView(appbarView);
+      if (folioView !== null && folioView.appBar.view === null) {
+        folioView.appBar.setView(appBarView);
       }
     },
-    detachAppbarView(appbarView: BarView, appbarController: BarController): void {
-      appbarView.remove();
+    detachAppBarView(appBarView: BarView, appBarController: BarController): void {
+      appBarView.remove();
     },
     controllerDidPressMenuTool(input: PositionGestureInput, event: Event | null): void {
       this.owner.didPressMenuTool(input, event);
@@ -253,22 +259,22 @@ export class FolioController extends StackController {
       this.owner.didPressActionTool(input, event);
     },
     createController(): BarController {
-      return new AppbarController();
+      return new AppBarController();
     },
   })
-  readonly appbar!: TraitViewControllerRef<this, BarTrait, BarView, BarController> & FolioControllerAppbarExt;
-  static readonly appbar: MemberFastenerClass<FolioController, "appbar">;
+  readonly appBar!: TraitViewControllerRef<this, BarTrait, BarView, BarController> & FolioControllerAppBarExt;
+  static readonly appBar: MemberFastenerClass<FolioController, "appBar">;
 
   @Property<FolioController, boolean>({
     type: Boolean,
     value: false,
     didSetValue(fullScreen: boolean): void {
-      const pocketView = this.owner.pocket.view;
-      if (pocketView !== null) {
+      const drawerView = this.owner.drawer.view;
+      if (drawerView !== null) {
         if (fullScreen) {
-          pocketView.dismiss();
+          drawerView.dismiss();
         } else {
-          pocketView.present();
+          drawerView.present();
         }
       }
       this.owner.callObservers("controllerDidSetFullScreen", fullScreen, this.owner);
@@ -281,28 +287,43 @@ export class FolioController extends StackController {
     get parentView(): FolioView | null {
       return this.owner.folio.view;
     },
-    willAttachView(pocketView: DrawerView): void {
-      this.owner.callObservers("controllerWillAttachPocketView", pocketView, this.owner);
+    willAttachView(drawerView: DrawerView): void {
+      this.owner.callObservers("controllerWillAttachDrawerView", drawerView, this.owner);
     },
-    didAttachView(pocketView: DrawerView): void {
+    didAttachView(drawerView: DrawerView): void {
       if (this.owner.fullScreen.value) {
-        pocketView.dismiss();
+        drawerView.dismiss();
       } else {
-        pocketView.present();
+        drawerView.present();
       }
     },
-    didDetachView(pocketView: DrawerView): void {
-      this.owner.callObservers("controllerDidDetachPocketView", pocketView, this.owner);
+    didDetachView(drawerView: DrawerView): void {
+      this.owner.callObservers("controllerDidDetachDrawerView", drawerView, this.owner);
     },
   })
-  readonly pocket!: ViewRef<this, DrawerView>;
-  static readonly pocket: MemberFastenerClass<FolioController, "pocket">;
+  readonly drawer!: ViewRef<this, DrawerView>;
+  static readonly drawer: MemberFastenerClass<FolioController, "drawer">;
 
   @TraitViewRef<FolioController, StackTrait, StackView>({
     extends: true,
   })
   override readonly stack!: TraitViewRef<this, StackTrait, StackView>;
   static override readonly stack: MemberFastenerClass<StackController, "stack">;
+
+  @TraitViewControllerRef<FolioController, BarTrait, BarView, BarController, StackControllerNavBarExt & ObserverType<BarController | NavBarController>>({
+    extends: true,
+    implements: true,
+    attachNavBarView(navBarView: BarView, navBarController: BarController): void {
+      StackController.navBar.prototype.attachNavBarView.call(this, navBarView, navBarController);
+      if (navBarController instanceof NavBarController) {
+        const folioView = this.owner.folio.view;
+        const folioStyle = folioView !== null ? folioView.folioStyle.value : void 0;
+        navBarController.showBackTitle.setValue(folioStyle === "stacked", Affinity.Intrinsic);
+      }
+    },
+  })
+  override readonly navBar!: TraitViewControllerRef<this, BarTrait, BarView, BarController> & StackControllerNavBarExt;
+  static override readonly navBar: MemberFastenerClass<FolioController, "navBar">;
 
   @TraitViewControllerRef<FolioController, SheetTrait, SheetView, SheetController, FolioControllerCoverExt>({
     implements: true,

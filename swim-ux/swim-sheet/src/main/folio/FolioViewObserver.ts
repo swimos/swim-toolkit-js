@@ -24,13 +24,13 @@ import type {FolioStyle, FolioView} from "./FolioView";
 export interface FolioViewObserver<V extends FolioView = FolioView> extends HtmlViewObserver<V> {
   viewDidSetFolioStyle?(folioStyle: FolioStyle | undefined, view: V): void;
 
-  viewWillAttachAppbar?(appbarView: BarView, targetView: View | null, view: V): void;
+  viewWillAttachAppBar?(appBarView: BarView, targetView: View | null, view: V): void;
 
-  viewDidDetachAppbar?(appbarView: BarView, view: V): void;
+  viewDidDetachAppBar?(appBarView: BarView, view: V): void;
 
-  viewWillAttachPocket?(pocketView: DrawerView, targetView: View | null, view: V): void;
+  viewWillAttachDrawer?(drawerView: DrawerView, targetView: View | null, view: V): void;
 
-  viewDidDetachPocket?(pocketView: DrawerView, view: V): void;
+  viewDidDetachDrawer?(drawerView: DrawerView, view: V): void;
 
   viewWillAttachStack?(stackView: StackView, targetView: View | null, view: V): void;
 

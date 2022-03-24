@@ -56,57 +56,57 @@ export class FolioView extends HtmlView {
   @ViewRef<FolioView, BarView>({
     type: BarView,
     binds: true,
-    initView(appbarView: BarView): void {
+    initView(appBarView: BarView): void {
       let folioWidth = this.owner.width.state;
       folioWidth = folioWidth instanceof Length ? folioWidth : Length.px(this.owner.node.offsetWidth);
 
-      const pocketView = this.owner.pocket.view;
-      const pocketWidth = pocketView !== null ? pocketView.effectiveWidth.value : null;
-      const sheetWidth = pocketWidth !== null ? folioWidth.minus(pocketWidth) : folioWidth;
+      const drawerView = this.owner.drawer.view;
+      const drawerWidth = drawerView !== null ? drawerView.effectiveWidth.value : null;
+      const sheetWidth = drawerWidth !== null ? folioWidth.minus(drawerWidth) : folioWidth;
 
-      appbarView.position.setState("absolute", Affinity.Intrinsic);
-      appbarView.left.setState(pocketWidth, Affinity.Intrinsic);
-      appbarView.top.setState(0, Affinity.Intrinsic);
-      appbarView.width.setState(sheetWidth, Affinity.Intrinsic);
-      appbarView.zIndex.setState(1, Affinity.Intrinsic);
+      appBarView.position.setState("absolute", Affinity.Intrinsic);
+      appBarView.left.setState(drawerWidth, Affinity.Intrinsic);
+      appBarView.top.setState(0, Affinity.Intrinsic);
+      appBarView.width.setState(sheetWidth, Affinity.Intrinsic);
+      appBarView.zIndex.setState(1, Affinity.Intrinsic);
     },
-    willAttachView(appbarView: BarView, target: View | null): void {
-      this.owner.callObservers("viewWillAttachAppbar", appbarView, target, this.owner);
+    willAttachView(appBarView: BarView, target: View | null): void {
+      this.owner.callObservers("viewWillAttachAppBar", appBarView, target, this.owner);
     },
-    didAttachView(appbarView: BarView, target: View | null): void {
+    didAttachView(appBarView: BarView, target: View | null): void {
       this.owner.requireUpdate(View.NeedsResize);
     },
-    didDetachView(appbarView: BarView): void {
-      this.owner.callObservers("viewDidDetachAppbar", appbarView, this.owner);
+    didDetachView(appBarView: BarView): void {
+      this.owner.callObservers("viewDidDetachAppBar", appBarView, this.owner);
     },
   })
-  readonly appbar!: ViewRef<this, BarView>;
-  static readonly appbar: MemberFastenerClass<FolioView, "appbar">;
+  readonly appBar!: ViewRef<this, BarView>;
+  static readonly appBar: MemberFastenerClass<FolioView, "appBar">;
 
   @ViewRef<FolioView, DrawerView>({
     type: DrawerView,
     binds: true,
     observes: true,
-    initView(pocketView: DrawerView): void {
-      pocketView.present(false);
+    initView(drawerView: DrawerView): void {
+      drawerView.present(false);
     },
-    willAttachView(pocketView: DrawerView, target: View | null): void {
-      this.owner.callObservers("viewWillAttachPocket", pocketView, target, this.owner);
+    willAttachView(drawerView: DrawerView, target: View | null): void {
+      this.owner.callObservers("viewWillAttachDrawer", drawerView, target, this.owner);
     },
-    didDetachView(pocketView: DrawerView): void {
-      this.owner.callObservers("viewDidDetachPocket", pocketView, this.owner);
+    didDetachView(drawerView: DrawerView): void {
+      this.owner.callObservers("viewDidDetachDrawer", drawerView, this.owner);
     },
     insertChild(parent: View, childView: DrawerView, targetView: View | null, key: string | undefined): void {
       parent.prependChild(childView, key);
     },
-    viewDidSetEffectiveWidth(effectiveWidth: Length | null, pocketView: DrawerView): void {
+    viewDidSetEffectiveWidth(effectiveWidth: Length | null, drawerView: DrawerView): void {
       if (this.owner.folioStyle.value === "unstacked") {
         this.owner.requireUpdate(View.NeedsLayout);
       }
     },
   })
-  readonly pocket!: ViewRef<this, DrawerView>;
-  static readonly pocket: MemberFastenerClass<FolioView, "pocket">;
+  readonly drawer!: ViewRef<this, DrawerView>;
+  static readonly drawer: MemberFastenerClass<FolioView, "drawer">;
 
   @ViewRef<FolioView, StackView>({
     type: StackView,
@@ -136,16 +136,16 @@ export class FolioView extends HtmlView {
           edgeInsets = this.owner.viewport.safeArea;
         }
 
-        const pocketView = this.owner.pocket.view;
-        const pocketWidth = pocketView !== null ? pocketView.effectiveWidth.value : null;
-        const sheetWidth = pocketWidth !== null ? folioWidth.minus(pocketWidth) : folioWidth;
+        const drawerView = this.owner.drawer.view;
+        const drawerWidth = drawerView !== null ? drawerView.effectiveWidth.value : null;
+        const sheetWidth = drawerWidth !== null ? folioWidth.minus(drawerWidth) : folioWidth;
 
-        const appbarView = this.owner.appbar.view;
-        let appbarHeight: Length | null = null;
-        if (appbarView !== null) {
-          appbarHeight = appbarView.height.state;
-          appbarHeight = appbarHeight !== null ? appbarHeight : appbarView.barHeight.state;
-          appbarHeight = appbarHeight instanceof Length ? appbarHeight : Length.px(appbarView.node.offsetHeight);
+        const appBarView = this.owner.appBar.view;
+        let appBarHeight: Length | null = null;
+        if (appBarView !== null) {
+          appBarHeight = appBarView.height.state;
+          appBarHeight = appBarHeight !== null ? appBarHeight : appBarView.barHeight.state;
+          appBarHeight = appBarHeight instanceof Length ? appBarHeight : Length.px(appBarView.node.offsetHeight);
           if (edgeInsets !== null) {
             edgeInsets = {
               insetTop: 0,
@@ -157,11 +157,11 @@ export class FolioView extends HtmlView {
         }
 
         coverView.position.setState("absolute", Affinity.Intrinsic);
-        coverView.left.setState(pocketWidth, Affinity.Intrinsic);
+        coverView.left.setState(drawerWidth, Affinity.Intrinsic);
         coverView.top.setState(0, Affinity.Intrinsic);
         coverView.width.setState(sheetWidth, Affinity.Intrinsic);
         coverView.height.setState(folioHeight, Affinity.Intrinsic);
-        coverView.paddingTop.setState(appbarHeight, Affinity.Intrinsic);
+        coverView.paddingTop.setState(appBarHeight, Affinity.Intrinsic);
         coverView.boxSizing.setState("border-box", Affinity.Intrinsic);
         coverView.zIndex.setState(0, Affinity.Intrinsic);
         coverView.edgeInsets.setValue(edgeInsets, Affinity.Intrinsic);
@@ -203,8 +203,8 @@ export class FolioView extends HtmlView {
   }
 
   protected resizeStacked(viewContext: ViewContextType<this>): void {
-    this.pocket.removeView();
-    this.appbar.removeView();
+    this.drawer.removeView();
+    this.appBar.removeView();
     this.stack.insertView(this);
 
     const coverView = this.cover.view;
@@ -223,19 +223,19 @@ export class FolioView extends HtmlView {
       edgeInsets = viewContext.viewport.safeArea;
     }
 
-    const pocketView = this.pocket.insertView();
-    const pocketWidth = pocketView.effectiveWidth.value;
-    const sheetWidth = pocketWidth !== null ? folioWidth.minus(pocketWidth) : folioWidth;
+    const drawerView = this.drawer.insertView();
+    const drawerWidth = drawerView.effectiveWidth.value;
+    const sheetWidth = drawerWidth !== null ? folioWidth.minus(drawerWidth) : folioWidth;
 
-    const appbarView = this.appbar.view;
-    let appbarHeight: Length | null = null;
-    if (appbarView !== null) {
-      this.appbar.insertView();
-      appbarView.left.setState(pocketWidth, Affinity.Intrinsic);
-      appbarView.width.setState(sheetWidth, Affinity.Intrinsic);
-      appbarHeight = appbarView.height.state;
-      appbarHeight = appbarHeight !== null ? appbarHeight : appbarView.barHeight.state;
-      appbarHeight = appbarHeight instanceof Length ? appbarHeight : Length.px(appbarView.node.offsetHeight);
+    const appBarView = this.appBar.view;
+    let appBarHeight: Length | null = null;
+    if (appBarView !== null) {
+      this.appBar.insertView();
+      appBarView.left.setState(drawerWidth, Affinity.Intrinsic);
+      appBarView.width.setState(sheetWidth, Affinity.Intrinsic);
+      appBarHeight = appBarView.height.state;
+      appBarHeight = appBarHeight !== null ? appBarHeight : appBarView.barHeight.state;
+      appBarHeight = appBarHeight instanceof Length ? appBarHeight : Length.px(appBarView.node.offsetHeight);
       if (edgeInsets !== null) {
         edgeInsets = {
           insetTop: 0,
@@ -246,14 +246,14 @@ export class FolioView extends HtmlView {
       }
     }
 
-    this.stack.insertView(pocketView);
+    this.stack.insertView(drawerView);
 
     const coverView = this.cover.insertView(this);
-    coverView.left.setState(pocketWidth, Affinity.Intrinsic);
+    coverView.left.setState(drawerWidth, Affinity.Intrinsic);
     coverView.top.setState(0, Affinity.Intrinsic);
     coverView.width.setState(sheetWidth, Affinity.Intrinsic);
     coverView.height.setState(folioHeight, Affinity.Intrinsic);
-    coverView.paddingTop.setState(appbarHeight, Affinity.Intrinsic);
+    coverView.paddingTop.setState(appBarHeight, Affinity.Intrinsic);
     coverView.edgeInsets.setValue(edgeInsets, Affinity.Intrinsic);
     coverView.present(false);
   }
@@ -279,19 +279,19 @@ export class FolioView extends HtmlView {
   protected layoutUnstacked(viewContext: ViewContextType<this>): void {
     let folioWidth = this.width.state;
     folioWidth = folioWidth instanceof Length ? folioWidth : Length.px(this.node.offsetWidth);
-    const pocketView = this.pocket.insertView();
-    const pocketWidth = pocketView.effectiveWidth.value;
-    const sheetWidth = pocketWidth !== null ? folioWidth.minus(pocketWidth) : folioWidth;
+    const drawerView = this.drawer.insertView();
+    const drawerWidth = drawerView.effectiveWidth.value;
+    const sheetWidth = drawerWidth !== null ? folioWidth.minus(drawerWidth) : folioWidth;
 
-    const appbarView = this.appbar.view;
-    if (appbarView !== null) {
-      appbarView.left.setState(pocketWidth, Affinity.Intrinsic);
-      appbarView.width.setState(sheetWidth, Affinity.Intrinsic);
+    const appBarView = this.appBar.view;
+    if (appBarView !== null) {
+      appBarView.left.setState(drawerWidth, Affinity.Intrinsic);
+      appBarView.width.setState(sheetWidth, Affinity.Intrinsic);
     }
 
     const coverView = this.cover.view;
     if (coverView !== null) {
-      coverView.left.setState(pocketWidth, Affinity.Intrinsic);
+      coverView.left.setState(drawerWidth, Affinity.Intrinsic);
       coverView.width.setState(sheetWidth, Affinity.Intrinsic);
     }
   }

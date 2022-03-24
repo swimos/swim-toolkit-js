@@ -18,8 +18,9 @@ import {Length} from "@swim/math";
 import {AnyPresence, Presence, PresenceAnimator} from "@swim/style";
 import {Look, Mood} from "@swim/theme";
 import {ViewportInsets, ViewContextType, AnyView, View, ViewRef} from "@swim/view";
+import {Graphics} from "@swim/graphics";
 import {HtmlViewInit, HtmlView} from "@swim/dom";
-import {ToolView, TitleToolView} from "@swim/toolbar";
+import {ToolView, TitleToolView, ButtonToolView} from "@swim/toolbar";
 import type {SheetViewObserver} from "./SheetViewObserver";
 
 /** @public */
@@ -69,11 +70,11 @@ export class SheetView extends HtmlView {
   @ViewRef<SheetView, ToolView & Initable<HtmlViewInit | string>, {create(value?: string): ToolView}>({
     implements: true,
     type: ToolView,
-    willAttachView(titleView: ToolView): void {
-      this.owner.callObservers("viewWillAttachTitle", titleView, this.owner);
+    willAttachView(titleToolView: ToolView): void {
+      this.owner.callObservers("viewWillAttachTitleTool", titleToolView, this.owner);
     },
-    didDetachView(titleView: ToolView): void {
-      this.owner.callObservers("viewDidDetachTitle", titleView, this.owner);
+    didDetachView(titleToolView: ToolView): void {
+      this.owner.callObservers("viewDidDetachTitleTool", titleToolView, this.owner);
     },
     create(value?: string): ToolView {
       const toolView = TitleToolView.create();
@@ -91,8 +92,37 @@ export class SheetView extends HtmlView {
       }
     },
   })
-  readonly sheetTitle!: ViewRef<this, ToolView & Initable<HtmlViewInit | string>> & {create(value?: string): ToolView};
-  static readonly sheetTitle: MemberFastenerClass<SheetView, "sheetTitle">;
+  readonly titleTool!: ViewRef<this, ToolView & Initable<HtmlViewInit | string>> & {create(value?: string): ToolView};
+  static readonly titleTool: MemberFastenerClass<SheetView, "titleTool">;
+
+  @ViewRef<SheetView, ToolView & Initable<HtmlViewInit | Graphics>, {create(value?: Graphics): ToolView}>({
+    implements: true,
+    type: ToolView,
+    willAttachView(iconToolView: ToolView): void {
+      this.owner.callObservers("viewWillAttachIconTool", iconToolView, this.owner);
+    },
+    didDetachView(iconToolView: ToolView): void {
+      this.owner.callObservers("viewDidDetachIconTool", iconToolView, this.owner);
+    },
+    create(value?: Graphics): ToolView {
+      const toolView = ButtonToolView.create();
+      toolView.iconWidth.setState(24, Affinity.Intrinsic);
+      toolView.iconHeight.setState(24, Affinity.Intrinsic);
+      if (value !== void 0) {
+        toolView.graphics.setState(value, Affinity.Intrinsic);
+      }
+      return toolView;
+    },
+    fromAny(value: AnyView<ToolView> | Graphics): ToolView {
+      if (!(value instanceof View) && Graphics.is(value)) {
+        return this.create(value);
+      } else {
+        return ToolView.fromAny(value);
+      }
+    },
+  })
+  readonly iconTool!: ViewRef<this, ToolView & Initable<HtmlViewInit | Graphics>> & {create(value?: Graphics): ToolView};
+  static readonly iconTool: MemberFastenerClass<SheetView, "iconTool">;
 
   @Property({type: Number, value: 1})
   readonly sheetAlign!: Property<this, number>;

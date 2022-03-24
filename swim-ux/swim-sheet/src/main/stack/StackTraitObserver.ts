@@ -19,9 +19,9 @@ import type {StackTrait} from "./StackTrait";
 
 /** @public */
 export interface StackTraitObserver<T extends StackTrait = StackTrait> extends TraitObserver<T> {
-  traitWillAttachNavbar?(navbarTrait: BarTrait, trait: T): void;
+  traitWillAttachNavBar?(navBarTrait: BarTrait, trait: T): void;
 
-  traitDidDetachNavbar?(navbarTrait: BarTrait, trait: T): void;
+  traitDidDetachNavBar?(navBarTrait: BarTrait, trait: T): void;
 
   traitWillAttachSheet?(sheetTrait: SheetTrait, targetTrait: Trait | null, trait: T): void;
 

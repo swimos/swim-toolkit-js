@@ -17,41 +17,41 @@ import type {MemberFastenerClass} from "@swim/component";
 import {Model, Trait, TraitRef, TraitSet} from "@swim/model";
 import {BarTrait} from "@swim/toolbar";
 import {SheetTrait} from "../sheet/SheetTrait";
-import type {StackTraitObserver} from "./StackTraitObserver";
+import type {PanelTraitObserver} from "./PanelTraitObserver";
 
 /** @public */
-export class StackTrait extends Trait {
-  override readonly observerType?: Class<StackTraitObserver>;
+export class PanelTrait extends Trait {
+  override readonly observerType?: Class<PanelTraitObserver>;
 
-  @TraitRef<StackTrait, BarTrait>({
+  @TraitRef<PanelTrait, BarTrait>({
     type: BarTrait,
     binds: true,
-    willAttachTrait(navBarTrait: BarTrait): void {
-      this.owner.callObservers("traitWillAttachNavBar", navBarTrait, this.owner);
+    willAttachTrait(tabBarTrait: BarTrait): void {
+      this.owner.callObservers("traitWillAttachTabBar", tabBarTrait, this.owner);
     },
-    didDetachTrait(navBarTrait: BarTrait): void {
-      this.owner.callObservers("traitDidDetachNavBar", navBarTrait, this.owner);
+    didDetachTrait(tabBarTrait: BarTrait): void {
+      this.owner.callObservers("traitDidDetachTabBar", tabBarTrait, this.owner);
     },
     detectTrait(trait: Trait): BarTrait | null {
       return trait instanceof BarTrait ? trait : null;
     },
   })
-  readonly navBar!: TraitRef<this, BarTrait>;
-  static readonly navBar: MemberFastenerClass<StackTrait, "navBar">;
+  readonly tabBar!: TraitRef<this, BarTrait>;
+  static readonly tabBar: MemberFastenerClass<PanelTrait, "tabBar">;
 
-  @TraitSet<StackTrait, SheetTrait>({
+  @TraitSet<PanelTrait, SheetTrait>({
     type: SheetTrait,
     binds: true,
-    willAttachTrait(sheetTrait: SheetTrait, targetTrait: Trait | null): void {
-      this.owner.callObservers("traitWillAttachSheet", sheetTrait, targetTrait, this.owner);
+    willAttachTrait(tabTrait: SheetTrait, targetTrait: Trait | null): void {
+      this.owner.callObservers("traitWillAttachTab", tabTrait, targetTrait, this.owner);
     },
-    didDetachTrait(sheetTrait: SheetTrait): void {
-      this.owner.callObservers("traitDidDetachSheet", sheetTrait, this.owner);
+    didDetachTrait(tabTrait: SheetTrait): void {
+      this.owner.callObservers("traitDidDetachTab", tabTrait, this.owner);
     },
     detectModel(model: Model): SheetTrait | null {
       return model.getTrait(SheetTrait);
     },
   })
-  readonly sheets!: TraitSet<this, SheetTrait>;
-  static readonly sheets: MemberFastenerClass<StackTrait, "sheets">;
+  readonly tabs!: TraitSet<this, SheetTrait>;
+  static readonly tabs: MemberFastenerClass<PanelTrait, "tabs">;
 }

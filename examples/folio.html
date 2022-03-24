@@ -39,22 +39,22 @@ if (navigator.standalone) {
 const bodyView = swim.HtmlView.fromNode(document.body);
 
 const folioView = swim.FolioView.create().flexGrow(1);
-folioView.appbar.insertView().barHeight(44);
+folioView.appBar.insertView().barHeight(48);
 
-const pocketView = folioView.pocket.attachView();
-pocketView.modifyTheme(swim.Feel.default, [[swim.Feel.raised, 1]]);
+const drawerView = folioView.drawer.attachView();
+drawerView.modifyTheme(swim.Feel.default, [[swim.Feel.raised, 1]]);
 
 const stackView = folioView.stack.insertView();
-stackView.navbar.insertView().barHeight(44);
+stackView.navBar.insertView().barHeight(48);
 
 const sheetView = swim.SheetView.create();
-sheetView.sheetTitle.setView("Sheet");
+sheetView.titleTool.setView("Sheet");
 sheetView.appendChild(swim.HtmlView.fromTag("h2").margin(12).text("Sheet")).cursor("pointer");
 
 stackView.appendChild(sheetView);
 
 const coverView = swim.SheetView.create();
-coverView.sheetTitle.setView("Cover");
+coverView.titleTool.setView("Cover");
 coverView.appendChild(swim.HtmlView.fromTag("h2").margin(12).text("Cover")).cursor("pointer");
 
 folioView.cover.setView(coverView);
@@ -62,7 +62,7 @@ folioView.cover.setView(coverView);
 bodyView.appendChild(folioView);
 
 setInterval(function () {
-  pocketView.slide.toggle();
+  drawerView.slide.toggle();
 }, 2000);
 
     </script>

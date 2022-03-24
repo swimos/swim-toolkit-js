@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {AppbarController} from "./AppbarController";
-export {AppbarControllerObserver} from "./AppbarControllerObserver";
+export {AppBarController} from "./AppBarController";
+export {AppBarControllerObserver} from "./AppBarControllerObserver";
 
 export {
   FolioStyle,
@@ -25,7 +25,7 @@ export {FolioTrait} from "./FolioTrait";
 export {FolioTraitObserver} from "./FolioTraitObserver";
 
 export {
-  FolioControllerAppbarExt,
+  FolioControllerAppBarExt,
   FolioControllerCoverExt,
   FolioController,
 } from "./FolioController";

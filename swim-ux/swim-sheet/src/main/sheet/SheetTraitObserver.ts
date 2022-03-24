@@ -13,11 +13,12 @@
 // limitations under the License.
 
 import type {TraitObserver} from "@swim/model";
+import type {Graphics} from "@swim/graphics";
 import type {SheetTraitTitle, SheetTrait} from "./SheetTrait";
 
 /** @public */
 export interface SheetTraitObserver<T extends SheetTrait = SheetTrait> extends TraitObserver<T> {
-  traitWillSetTitle?(newTitle: SheetTraitTitle | null, oldTitle: SheetTraitTitle | null, trait: T): void;
+  traitDidSetTitle?(title: SheetTraitTitle | null, trait: T): void;
 
-  traitDidSetTitle?(newTitle: SheetTraitTitle | null, oldTitle: SheetTraitTitle | null, trait: T): void;
+  traitDidSetIcon?(icon: Graphics | null, trait: T): void;
 }

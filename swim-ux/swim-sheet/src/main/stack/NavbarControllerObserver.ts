@@ -14,10 +14,10 @@
 
 import type {PositionGestureInput} from "@swim/view";
 import type {BarControllerObserver} from "@swim/toolbar";
-import type {NavbarController} from "./NavbarController";
+import type {NavBarController} from "./NavBarController";
 
 /** @public */
-export interface NavbarControllerObserver<C extends NavbarController = NavbarController> extends BarControllerObserver<C> {
+export interface NavBarControllerObserver<C extends NavBarController = NavBarController> extends BarControllerObserver<C> {
   controllerDidPressCloseTool?(input: PositionGestureInput, event: Event | null, controller: C): void;
 
   controllerDidPressBackTool?(input: PositionGestureInput, event: Event | null, controller: C): void;

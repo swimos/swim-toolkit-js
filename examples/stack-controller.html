@@ -42,11 +42,11 @@ class ExampleStackController extends swim.StackController {
 }
 swim.TraitViewControllerRef({
   extends: true,
-  attachNavbarView(navbarView, navbarController) {
-    navbarView.barHeight(44);
-    swim.StackController.navbar.prototype.attachNavbarView.call(this, navbarView, navbarController);
+  attachNavBarView(navBarView, navBarController) {
+    navBarView.barHeight(48);
+    swim.StackController.navBar.prototype.attachNavBarView.call(this, navBarView, navBarController);
   },
-})(ExampleStackController.prototype, "navbar");
+})(ExampleStackController.prototype, "navBar");
 swim.TraitViewControllerSet({
   extends: true,
   attachSheetView(sheetView, sheetController) {
@@ -54,7 +54,7 @@ swim.TraitViewControllerSet({
     const sheetTrait = sheetController.sheet.trait;
     if (sheetTrait !== null) {
       const sheetTitle = sheetTrait.title.value;
-      const headerView = ardView.appendChild(swim.HtmlView.fromTag("h2").margin(12).text(sheetTitle), "header");
+      const headerView = sheetView.appendChild(swim.HtmlView.fromTag("h2").margin(12).text(sheetTitle), "header");
       headerView.cursor("pointer").userSelect("none");
     }
   },
@@ -62,20 +62,20 @@ swim.TraitViewControllerSet({
 
 const stackController = new ExampleStackController();
 stackController.mount();
-stackController.stack.insertView(bodyView).flexGrow(1);
+stackController.stack.attachView().flexGrow(1);
 
-const navbarController = stackController.navbar.insertController();
-navbarController.closeTool.insertController();
-navbarController.backTool.insertController();
-const moreToolController = navbarController.moreTool.insertController();
+const navBarController = stackController.navBar.insertController();
+navBarController.closeTool.insertController();
+navBarController.backTool.insertController();
+const moreToolController = navBarController.moreTool.insertController();
 moreToolController.tool.setView(null);
 
 function createSheetController(i) {
   const sheetController = new swim.SheetController();
-  const sheetView = sheetController.sheet.insertView();
+  const sheetView = sheetController.sheet.attachView();
   sheetView.dismiss(false);
   const sheetTitle = "Sheet " + i;
-  sheetView.sheetTitle.setView(sheetTitle);
+  sheetView.titleTool.setView(sheetTitle);
   const headerView = sheetView.appendChild(swim.HtmlView.fromTag("h2").margin(12).text(sheetTitle), "header");
   headerView.cursor("pointer").userSelect("none");
   headerView.on("click", () => {
@@ -84,6 +84,8 @@ function createSheetController(i) {
   return sheetController;
 }
 stackController.sheets.addController(createSheetController(1));
+
+stackController.stack.insertView(bodyView);
 
     </script>
   </body>

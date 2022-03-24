@@ -185,7 +185,12 @@ export const TraitRef = (function (_super: typeof TraitRelation) {
   });
 
   TraitRef.prototype.onInherit = function (this: TraitRef, superFastener: TraitRef): void {
-    this.setTrait(superFastener.trait);
+    const superTrait = superFastener.trait;
+    if (superTrait !== null) {
+      this.attachTrait(superTrait);
+    } else {
+      this.detachTrait();
+    }
   };
 
   TraitRef.prototype.onBindSuperFastener = function <T extends Trait>(this: TraitRef<unknown, T>, superFastener: TraitRef<unknown, T>): void {

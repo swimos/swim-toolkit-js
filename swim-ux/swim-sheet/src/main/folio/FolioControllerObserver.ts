@@ -35,21 +35,21 @@ export interface FolioControllerObserver<C extends FolioController = FolioContro
 
   controllerDidSetFullScreen(fullScreen: boolean, controller: C): void;
 
-  controllerWillAttachAppbar?(appbarController: BarController, controller: C): void;
+  controllerWillAttachAppBar?(appBarController: BarController, controller: C): void;
 
-  controllerDidDetachAppbar?(appbarController: BarController, controller: C): void;
+  controllerDidDetachAppBar?(appBarController: BarController, controller: C): void;
 
-  controllerWillAttachAppbarTrait?(appbarTrait: BarTrait, controller: C): void;
+  controllerWillAttachAppBarTrait?(appBarTrait: BarTrait, controller: C): void;
 
-  controllerDidDetachAppbarTrait?(appbarTrait: BarTrait, controller: C): void;
+  controllerDidDetachAppBarTrait?(appBarTrait: BarTrait, controller: C): void;
 
-  controllerWillAttachAppbarView?(appbarView: BarView, controller: C): void;
+  controllerWillAttachAppBarView?(appBarView: BarView, controller: C): void;
 
-  controllerDidDetachAppbarView?(appbarView: BarView, controller: C): void;
+  controllerDidDetachAppBarView?(appBarView: BarView, controller: C): void;
 
-  controllerWillAttachPocketView?(pocketView: DrawerView, controller: C): void;
+  controllerWillAttachDrawerView?(drawerView: DrawerView, controller: C): void;
 
-  controllerDidDetachPocketView?(pocketView: DrawerView, controller: C): void;
+  controllerDidDetachDrawerView?(drawerView: DrawerView, controller: C): void;
 
   controllerDidPressMenuTool?(input: PositionGestureInput, event: Event | null, controller: C): void;
 

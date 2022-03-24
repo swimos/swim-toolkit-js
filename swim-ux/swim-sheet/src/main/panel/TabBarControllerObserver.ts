@@ -12,27 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {R2Box} from "@swim/math";
-import type {GraphicsRenderer} from "./GraphicsRenderer";
+import type {PositionGestureInput} from "@swim/view";
+import type {BarControllerObserver} from "@swim/toolbar";
+import type {SheetController} from "../sheet/SheetController";
+import type {TabBarController} from "./TabBarController";
 
 /** @public */
-export interface Graphics {
-  render(renderer: GraphicsRenderer, frame: R2Box): void;
+export interface TabBarControllerObserver<C extends TabBarController = TabBarController> extends BarControllerObserver<C> {
+  controllerDidPressTabTool?(input: PositionGestureInput, event: Event | null, tabController: SheetController, controller: C): void;
+
+  controllerDidLongPressTabTool?(input: PositionGestureInput, tabController: SheetController, controller: C): void;
 }
-
-/** @public */
-export const Graphics = (function () {
-  const Graphics = {} as {
-    is(object: unknown): object is Graphics;
-  };
-
-  Graphics.is = function (object: unknown): object is Graphics {
-    if (typeof object === "object" && object !== null || typeof object === "function") {
-      const observable = object as Graphics;
-      return "render" in observable;
-    }
-    return false;
-  };
-
-  return Graphics;
-})();

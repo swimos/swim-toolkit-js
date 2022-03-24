@@ -51,8 +51,10 @@ export class ViewportService<V extends View = View> extends Service<V> {
 
   /** @internal */
   detectViewportIdiom(viewport: Viewport): ViewportIdiom | undefined {
-    if (viewport.width < 960 || viewport.height < 480) {
+    if (viewport.width < 600 || viewport.height < 480) {
       return "mobile";
+    } else if (viewport.width < 800) {
+      return "tablet";
     } else {
       return "desktop";
     }

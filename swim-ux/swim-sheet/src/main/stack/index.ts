@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {NavbarController} from "./NavbarController";
-export {NavbarControllerObserver} from "./NavbarControllerObserver";
+export {NavBarController} from "./NavBarController";
+export {NavBarControllerObserver} from "./NavBarControllerObserver";
 
 export {StackView} from "./StackView";
 export {StackViewObserver} from "./StackViewObserver";
@@ -22,9 +22,9 @@ export {StackTrait} from "./StackTrait";
 export {StackTraitObserver} from "./StackTraitObserver";
 
 export {
-  StackControllerNavbarExt,
+  StackControllerNavBarExt,
   StackControllerSheetsExt,
-  StackControllerActiveExt,
+  StackControllerFrontExt,
   StackController,
 } from "./StackController";
 export {StackControllerObserver} from "./StackControllerObserver";

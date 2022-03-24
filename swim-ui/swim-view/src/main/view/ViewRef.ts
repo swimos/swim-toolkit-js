@@ -243,7 +243,12 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
   });
 
   ViewRef.prototype.onInherit = function (this: ViewRef, superFastener: ViewRef): void {
-    this.setView(superFastener.view);
+    const superView = superFastener.view;
+    if (superView !== null) {
+      this.attachView(superView);
+    } else {
+      this.detachView();
+    }
   };
 
   ViewRef.prototype.onBindSuperFastener = function <V extends View>(this: ViewRef<unknown, V>, superFastener: ViewRef<unknown, V>): void {

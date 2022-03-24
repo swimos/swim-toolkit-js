@@ -32,11 +32,11 @@ import {
 import type {SheetView} from "../sheet/SheetView";
 import type {SheetTrait} from "../sheet/SheetTrait";
 import {SheetController} from "../sheet/SheetController";
-import type {AppbarControllerObserver} from "./AppbarControllerObserver";
+import type {AppBarControllerObserver} from "./AppBarControllerObserver";
 
 /** @public */
-export class AppbarController extends BarController {
-  override readonly observerType?: Class<AppbarControllerObserver>;
+export class AppBarController extends BarController {
+  override readonly observerType?: Class<AppBarControllerObserver>;
 
   protected override createLayout(): BarLayout | null {
     const tools = new Array<ToolLayout>();
@@ -57,7 +57,7 @@ export class AppbarController extends BarController {
     const coverLayout = ToolLayout.create(coverKey, 1, 0, 0, 0);
     tools.push(coverLayout);
     if (coverView !== null) {
-      const coverTitleView = coverView.sheetTitle.insertView(this.bar.view, void 0, void 0, coverKey);
+      const coverTitleView = coverView.titleTool.insertView(this.bar.view, void 0, void 0, coverKey);
       if (coverTitleView !== null) {
         const timing = coverTitleView.getLookOr(Look.timing, Mood.navigating, false);
         coverTitleView.color.setLook(Look.textColor, timing, Affinity.Intrinsic);
@@ -79,7 +79,7 @@ export class AppbarController extends BarController {
     return BarLayout.create(tools);
   }
 
-  @TraitViewControllerRef<AppbarController, ToolTrait, ToolView, ToolController, ObserverType<ToolController | ButtonToolController>>({
+  @TraitViewControllerRef<AppBarController, ToolTrait, ToolView, ToolController, ObserverType<ToolController | ButtonToolController>>({
     implements: true,
     type: BarController,
     binds: true,
@@ -101,17 +101,17 @@ export class AppbarController extends BarController {
       toolView.iconWidth.setState(24, Affinity.Intrinsic);
       toolView.iconHeight.setState(24, Affinity.Intrinsic);
       if (this.owner.fullScreen.value) {
-        toolView.graphics.setState(AppbarController.menuIcon, Affinity.Intrinsic);
+        toolView.graphics.setState(AppBarController.menuIcon, Affinity.Intrinsic);
       } else {
-        toolView.graphics.setState(AppbarController.menuCloseIcon, Affinity.Intrinsic);
+        toolView.graphics.setState(AppBarController.menuCloseIcon, Affinity.Intrinsic);
       }
       return toolController;
     },
   })
   readonly menuTool!: TraitViewControllerRef<this, ToolTrait, ToolView, ToolController>;
-  static readonly menuTool: MemberFastenerClass<AppbarController, "menuTool">;
+  static readonly menuTool: MemberFastenerClass<AppBarController, "menuTool">;
 
-  @TraitViewControllerRef<AppbarController, ToolTrait, ToolView, ToolController, ObserverType<ToolController | ButtonToolController>>({
+  @TraitViewControllerRef<AppBarController, ToolTrait, ToolView, ToolController, ObserverType<ToolController | ButtonToolController>>({
     implements: true,
     type: BarController,
     binds: true,
@@ -132,40 +132,40 @@ export class AppbarController extends BarController {
       const toolView = toolController.tool.attachView()!;
       toolView.iconWidth.setState(24, Affinity.Intrinsic);
       toolView.iconHeight.setState(24, Affinity.Intrinsic);
-      toolView.graphics.setState(AppbarController.actionIcon, Affinity.Intrinsic);
+      toolView.graphics.setState(AppBarController.actionIcon, Affinity.Intrinsic);
       return toolController;
     },
   })
   readonly actionTool!: TraitViewControllerRef<this, ToolTrait, ToolView, ToolController>;
-  static readonly actionTool: MemberFastenerClass<AppbarController, "actionTool">;
+  static readonly actionTool: MemberFastenerClass<AppBarController, "actionTool">;
 
-  @TraitViewControllerRef<AppbarController, SheetTrait, SheetView, SheetController>({
+  @TraitViewControllerRef<AppBarController, SheetTrait, SheetView, SheetController>({
     type: SheetController,
     inherits: true,
     observes: true,
-    getTraitViewRef(sheetController: SheetController): TraitViewRef<unknown, SheetTrait, SheetView> {
-      return sheetController.sheet;
+    getTraitViewRef(coverController: SheetController): TraitViewRef<unknown, SheetTrait, SheetView> {
+      return coverController.sheet;
     },
-    willAttachController(sheetController: SheetController): void {
+    willAttachController(coverController: SheetController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
-    didDetachController(sheetController: SheetController): void {
-      const sheetView = sheetController.sheet.view;
+    didDetachController(coverController: SheetController): void {
+      const sheetView = coverController.sheet.view;
       if (sheetView !== null && sheetView.back.view === null && sheetView.forward.view === null) {
         this.owner.requireUpdate(Controller.NeedsAssemble);
       }
     },
-    controllerWillAttachSheetTitleView(titleView: ToolView, sheetController: SheetController): void {
+    controllerWillAttachTitleToolView(titleToolView: ToolView, coverController: SheetController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
-    controllerDidDetachSheetTitleView(titleView: ToolView, sheetController: SheetController): void {
+    controllerDidDetachTitleToolView(titleToolView: ToolView, coverController: SheetController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
   })
   readonly cover!: TraitViewControllerRef<this, SheetTrait, SheetView, SheetController>;
-  static readonly cover: MemberFastenerClass<AppbarController, "cover">;
+  static readonly cover: MemberFastenerClass<AppBarController, "cover">;
 
-  @Property<AppbarController, boolean>({
+  @Property<AppBarController, boolean>({
     type: Boolean,
     value: false,
     inherits: true,
@@ -173,9 +173,9 @@ export class AppbarController extends BarController {
       const toolView = this.owner.menuTool.view;
       if (toolView instanceof ButtonToolView) {
         if (fullScreen) {
-          toolView.graphics.setState(AppbarController.menuIcon, Affinity.Intrinsic);
+          toolView.graphics.setState(AppBarController.menuIcon, Affinity.Intrinsic);
         } else {
-          toolView.graphics.setState(AppbarController.menuCloseIcon, Affinity.Intrinsic);
+          toolView.graphics.setState(AppBarController.menuCloseIcon, Affinity.Intrinsic);
         }
       }
     },

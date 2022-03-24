@@ -12,13 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {PositionGestureInput} from "@swim/view";
-import type {BarControllerObserver} from "@swim/toolbar";
-import type {AppBarController} from "./AppBarController";
+export {TabBarController} from "./TabBarController";
+export {TabBarControllerObserver} from "./TabBarControllerObserver";
 
-/** @public */
-export interface AppBarControllerObserver<C extends AppBarController = AppBarController> extends BarControllerObserver<C> {
-  controllerDidPressMenuTool?(input: PositionGestureInput, event: Event | null, controller: C): void;
+export {PanelView} from "./PanelView";
+export {PanelViewObserver} from "./PanelViewObserver";
 
-  controllerDidPressActionTool?(input: PositionGestureInput, event: Event | null, controller: C): void;
-}
+export {PanelTrait} from "./PanelTrait";
+export {PanelTraitObserver} from "./PanelTraitObserver";
+
+export {
+  PanelControllerTabBarExt,
+  PanelControllerTabsExt,
+  PanelControllerActiveExt,
+  PanelController,
+} from "./PanelController";
+export {PanelControllerObserver} from "./PanelControllerObserver";

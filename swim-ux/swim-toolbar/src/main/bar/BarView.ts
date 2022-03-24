@@ -230,9 +230,9 @@ export class BarView extends HtmlView {
     const toolCount = tools !== null ? tools.length : 0;
     for (let i = 0; i < toolCount; i += 1) {
       const tool = tools![i]!;
-      if (tool.overlap !== void 0) {
-        const toolView = this.getChild(tool.key);
-        if (toolView instanceof ToolView) {
+      const toolView = this.getChild(tool.key);
+      if (toolView instanceof ToolView) {
+        if (tool.overlap !== void 0) {
           const overlapView = this.getChild(tool.overlap);
           if (overlapView instanceof ToolView) {
             const toolX = toolView.node.offsetLeft;
@@ -252,6 +252,9 @@ export class BarView extends HtmlView {
             toolView.paddingLeft.setState(null, Affinity.Intrinsic);
             toolView.paddingRight.setState(null, Affinity.Intrinsic);
           }
+        } else {
+          toolView.paddingLeft.setState(null, Affinity.Intrinsic);
+          toolView.paddingRight.setState(null, Affinity.Intrinsic);
         }
       }
     }

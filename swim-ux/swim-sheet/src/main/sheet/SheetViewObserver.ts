@@ -26,9 +26,13 @@ export interface SheetViewObserver<V extends SheetView = SheetView> extends Html
 
   viewDidDetachForward?(forwardView: SheetView, view: V): void;
 
-  viewWillAttachTitle?(titleView: ToolView, view: V): void;
+  viewWillAttachTitleTool?(titleToolView: ToolView, view: V): void;
 
-  viewDidDetachTitle?(titleView: ToolView, view: V): void;
+  viewDidDetachTitleTool?(titleToolView: ToolView, view: V): void;
+
+  viewWillAttachIconTool?(iconToolView: ToolView, view: V): void;
+
+  viewDidDetachIconTool?(iconToolView: ToolView, view: V): void;
 
   viewWillPresent?(view: V): void;
 

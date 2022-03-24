@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Mutable, Proto, ObserverType} from "@swim/util";
-import type {FastenerOwner, FastenerFlags} from "@swim/component";
+import {Affinity, FastenerOwner, FastenerFlags, Fastener} from "@swim/component";
 import type {AnyController, Controller} from "./Controller";
 import {ControllerRelationInit, ControllerRelationClass, ControllerRelation} from "./ControllerRelation";
 
@@ -32,6 +32,16 @@ export interface ControllerSetInit<C extends Controller = Controller> extends Co
   didSort?(parent: Controller | null): void;
   sortChildren?(parent: Controller): void;
   compareChildren?(a: Controller, b: Controller): number;
+
+  willInherit?(superFastener: ControllerSet<unknown, C>): void;
+  didInherit?(superFastener: ControllerSet<unknown, C>): void;
+  willUninherit?(superFastener: ControllerSet<unknown, C>): void;
+  didUninherit?(superFastener: ControllerSet<unknown, C>): void;
+
+  willBindSuperFastener?(superFastener: ControllerSet<unknown, C>): void;
+  didBindSuperFastener?(superFastener: ControllerSet<unknown, C>): void;
+  willUnbindSuperFastener?(superFastener: ControllerSet<unknown, C>): void;
+  didUnbindSuperFastener?(superFastener: ControllerSet<unknown, C>): void;
 }
 
 /** @public */
@@ -70,6 +80,63 @@ export interface ControllerSet<O = unknown, C extends Controller = Controller> e
   /** @override */
   get fastenerType(): Proto<ControllerSet<any, any>>;
 
+  /** @internal @override */
+  setInherited(inherited: boolean, superFastener: ControllerSet<unknown, C>): void;
+
+  /** @internal */
+  syncInherited(superFastener: ControllerSet<unknown, C>): void;
+
+  /** @protected @override */
+  willInherit(superFastener: ControllerSet<unknown, C>): void;
+
+  /** @protected @override */
+  onInherit(superFastener: ControllerSet<unknown, C>): void;
+
+  /** @protected @override */
+  didInherit(superFastener: ControllerSet<unknown, C>): void;
+
+  /** @protected @override */
+  willUninherit(superFastener: ControllerSet<unknown, C>): void;
+
+  /** @protected @override */
+  onUninherit(superFastener: ControllerSet<unknown, C>): void;
+
+  /** @protected @override */
+  didUninherit(superFastener: ControllerSet<unknown, C>): void;
+
+  /** @override */
+  readonly superFastener: ControllerSet<unknown, C> | null;
+
+  /** @internal @override */
+  getSuperFastener(): ControllerSet<unknown, C> | null;
+
+  /** @protected @override */
+  willBindSuperFastener(superFastener: ControllerSet<unknown, C>): void;
+
+  /** @protected @override */
+  onBindSuperFastener(superFastener: ControllerSet<unknown, C>): void;
+
+  /** @protected @override */
+  didBindSuperFastener(superFastener: ControllerSet<unknown, C>): void;
+
+  /** @protected @override */
+  willUnbindSuperFastener(superFastener: ControllerSet<unknown, C>): void;
+
+  /** @protected @override */
+  onUnbindSuperFastener(superFastener: ControllerSet<unknown, C>): void;
+
+  /** @protected @override */
+  didUnbindSuperFastener(superFastener: ControllerSet<unknown, C>): void;
+
+  /** @internal */
+  readonly subFasteners: ReadonlyArray<ControllerSet<unknown, C>> | null;
+
+  /** @internal @override */
+  attachSubFastener(subFastener: ControllerSet<unknown, C>): void;
+
+  /** @internal @override */
+  detachSubFastener(subFastener: ControllerSet<unknown, C>): void;
+
   /** @internal */
   readonly controllers: {readonly [controllerId: number]: C | undefined};
 
@@ -97,6 +164,15 @@ export interface ControllerSet<O = unknown, C extends Controller = Controller> e
 
   /** @override */
   detectController(controller: Controller): C | null;
+
+  /** @internal @protected */
+  decohereSubFasteners(): void;
+
+  /** @internal @protected */
+  decohereSubFastener(subFastener: ControllerSet<unknown, C>): void;
+
+  /** @override */
+  recohere(t: number): void;
 
   /** @internal @protected */
   key(controller: C): string | undefined;
@@ -138,6 +214,54 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     configurable: true,
   });
 
+  ControllerSet.prototype.syncInherited = function (this: ControllerSet, superFastener: ControllerSet): void {
+    const controllers = this.controllers;
+    const superControllers = superFastener.controllers;
+    for (const controllerId in controllers) {
+      if (superControllers[controllerId] === void 0) {
+        this.detachController(controllers[controllerId]!);
+      }
+    }
+    for (const controllerId in superControllers) {
+      if (controllers[controllerId] === void 0) {
+        this.attachController(superControllers[controllerId]);
+      }
+    }
+  };
+
+  ControllerSet.prototype.onInherit = function (this: ControllerSet, superFastener: ControllerSet): void {
+    this.syncInherited(superFastener);
+  };
+
+  ControllerSet.prototype.onBindSuperFastener = function <C extends Controller>(this: ControllerSet<unknown, C>, superFastener: ControllerSet<unknown, C>): void {
+    (this as Mutable<typeof this>).superFastener = superFastener;
+    _super.prototype.onBindSuperFastener.call(this, superFastener);
+  };
+
+  ControllerSet.prototype.onUnbindSuperFastener = function <C extends Controller>(this: ControllerSet<unknown, C>, superFastener: ControllerSet<unknown, C>): void {
+    _super.prototype.onUnbindSuperFastener.call(this, superFastener);
+    (this as Mutable<typeof this>).superFastener = null;
+  };
+
+  ControllerSet.prototype.attachSubFastener = function <C extends Controller>(this: ControllerSet<unknown, C>, subFastener: ControllerSet<unknown, C>): void {
+    let subFasteners = this.subFasteners as ControllerSet<unknown, C>[] | null;
+    if (subFasteners === null) {
+      subFasteners = [];
+      (this as Mutable<typeof this>).subFasteners = subFasteners;
+    }
+    subFasteners.push(subFastener);
+  };
+
+  ControllerSet.prototype.detachSubFastener = function <C extends Controller>(this: ControllerSet<unknown, C>, subFastener: ControllerSet<unknown, C>): void {
+    const subFasteners = this.subFasteners as ControllerSet<unknown, C>[] | null;
+    if (subFasteners !== null) {
+      const index = subFasteners.indexOf(subFastener);
+      if (index >= 0) {
+        subFasteners.splice(index, 1);
+      }
+    }
+  };
+
   ControllerSet.prototype.hasController = function (this: ControllerSet, controller: Controller): boolean {
     return this.controllers[controller.uid] !== void 0;
   };
@@ -166,6 +290,8 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
       this.onAttachController(newController, target);
       this.initController(newController);
       this.didAttachController(newController, target);
+      this.setCoherent(true);
+      this.decohereSubFasteners();
     }
     return newController;
   };
@@ -187,6 +313,8 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
       this.onAttachController(newController, target);
       this.initController(newController);
       this.didAttachController(newController, target);
+      this.setCoherent(true);
+      this.decohereSubFasteners();
     }
     return newController;
   };
@@ -200,6 +328,8 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
       this.onDetachController(oldController);
       this.deinitController(oldController);
       this.didDetachController(oldController);
+      this.setCoherent(true);
+      this.decohereSubFasteners();
       return oldController;
     }
     return null;
@@ -231,6 +361,8 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
       this.onAttachController(newController, target);
       this.initController(newController);
       this.didAttachController(newController, target);
+      this.setCoherent(true);
+      this.decohereSubFasteners();
     }
     return newController;
   };
@@ -262,6 +394,8 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
         this.onAttachController(newController, target);
         this.initController(newController);
         this.didAttachController(newController, target);
+        this.setCoherent(true);
+        this.decohereSubFasteners();
       }
     }
   };
@@ -277,6 +411,8 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
         this.onDetachController(oldController);
         this.deinitController(oldController);
         this.didDetachController(oldController);
+        this.setCoherent(true);
+        this.decohereSubFasteners();
       }
     }
   };
@@ -286,6 +422,31 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
       return controller as C;
     }
     return null;
+  };
+
+  ControllerSet.prototype.decohereSubFasteners = function (this: ControllerSet): void {
+    const subFasteners = this.subFasteners;
+    for (let i = 0, n = subFasteners !== null ? subFasteners.length : 0; i < n; i += 1) {
+      this.decohereSubFastener(subFasteners![i]!);
+    }
+  };
+
+  ControllerSet.prototype.decohereSubFastener = function (this: ControllerSet, subFastener: ControllerSet): void {
+    if ((subFastener.flags & Fastener.InheritedFlag) === 0 && Math.min(this.flags & Affinity.Mask, Affinity.Intrinsic) >= (subFastener.flags & Affinity.Mask)) {
+      subFastener.setInherited(true, this);
+    } else if ((subFastener.flags & Fastener.InheritedFlag) !== 0 && (subFastener.flags & Fastener.DecoherentFlag) === 0) {
+      subFastener.setCoherent(false);
+      subFastener.decohere();
+    }
+  };
+
+  ControllerSet.prototype.recohere = function (this: ControllerSet, t: number): void {
+    if ((this.flags & Fastener.InheritedFlag) !== 0) {
+      const superFastener = this.superFastener;
+      if (superFastener !== null) {
+        this.syncInherited(superFastener);
+      }
+    }
   };
 
   ControllerSet.prototype.key = function <C extends Controller>(this: ControllerSet<unknown, C>, controller: C): string | undefined {
@@ -299,7 +460,7 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     configurable: true,
   });
 
-  ControllerSet.prototype.initInherits = function (this: ControllerSet, sorted: boolean): void {
+  ControllerSet.prototype.initSorted = function (this: ControllerSet, sorted: boolean): void {
     if (sorted) {
       (this as Mutable<typeof this>).flags = this.flags | ControllerSet.SortedFlag;
     } else {
@@ -367,6 +528,13 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
       Object.setPrototypeOf(fastener, fastenerClass.prototype);
     }
     fastener = _super.construct(fastenerClass, fastener, owner) as F;
+    Object.defineProperty(fastener, "superFastener", { // override getter
+      value: null,
+      writable: true,
+      enumerable: true,
+      configurable: true,
+    });
+    (fastener as Mutable<typeof fastener>).subFasteners = null;
     (fastener as Mutable<typeof fastener>).controllers = {};
     (fastener as Mutable<typeof fastener>).controllerCount = 0;
     return fastener;

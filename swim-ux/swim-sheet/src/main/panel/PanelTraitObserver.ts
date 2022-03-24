@@ -12,27 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {R2Box} from "@swim/math";
-import type {GraphicsRenderer} from "./GraphicsRenderer";
+import type {Trait, TraitObserver} from "@swim/model";
+import type {BarTrait} from "@swim/toolbar";
+import type {SheetTrait} from "../sheet/SheetTrait";
+import type {PanelTrait} from "./PanelTrait";
 
 /** @public */
-export interface Graphics {
-  render(renderer: GraphicsRenderer, frame: R2Box): void;
+export interface PanelTraitObserver<T extends PanelTrait = PanelTrait> extends TraitObserver<T> {
+  traitWillAttachTabBar?(tabBarTrait: BarTrait, trait: T): void;
+
+  traitDidDetachTabBar?(tabBarTrait: BarTrait, trait: T): void;
+
+  traitWillAttachTab?(tabTrait: SheetTrait, targetTrait: Trait | null, trait: T): void;
+
+  traitDidDetachTab?(tabTrait: SheetTrait, trait: T): void;
 }
-
-/** @public */
-export const Graphics = (function () {
-  const Graphics = {} as {
-    is(object: unknown): object is Graphics;
-  };
-
-  Graphics.is = function (object: unknown): object is Graphics {
-    if (typeof object === "object" && object !== null || typeof object === "function") {
-      const observable = object as Graphics;
-      return "render" in observable;
-    }
-    return false;
-  };
-
-  return Graphics;
-})();

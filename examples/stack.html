@@ -40,11 +40,11 @@ const bodyView = swim.HtmlView.fromNode(document.body);
 
 const stackView = swim.StackView.create().flexGrow(1);
 
-const navbarView = stackView.navbar.insertView().barHeight(44);
+const navBarView = stackView.navBar.insertView().barHeight(48);
 
 const sheet1View = swim.SheetView.create();
 sheet1View.dismiss(false);
-sheet1View.sheetTitle.setView("Sheet 1");
+sheet1View.titleTool.setView("Sheet 1");
 const header1View = sheet1View.appendChild(swim.HtmlView.fromTag("h2").margin(12).text("Sheet 1")).cursor("pointer");
 header1View.on("click", () => {
   stackView.appendChild(sheet2View);
@@ -55,7 +55,7 @@ header1View.on("click", () => {
 
 const sheet2View = swim.SheetView.create();
 sheet2View.dismiss(false);
-sheet2View.sheetTitle.setView("Sheet 2");
+sheet2View.titleTool.setView("Sheet 2");
 const header2View = sheet2View.appendChild(swim.HtmlView.fromTag("h2").margin(12).text("Sheet 2")).cursor("pointer");
 header2View.on("click", () => {
   stackView.appendChild(sheet3View);
@@ -63,7 +63,7 @@ header2View.on("click", () => {
 
 const sheet3View = swim.SheetView.create();
 sheet3View.dismiss(false);
-sheet3View.sheetTitle.setView("Sheet 3");
+sheet3View.titleTool.setView("Sheet 3");
 const header3View = sheet3View.appendChild(swim.HtmlView.fromTag("h2").margin(12).text("Sheet 3"));
 
 stackView.appendChild(sheet1View);

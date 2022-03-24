@@ -13,7 +13,8 @@
 // limitations under the License.
 
 import {Class, Lazy, ObserverType} from "@swim/util";
-import {Affinity, MemberFastenerClass} from "@swim/component";
+import {Affinity, MemberFastenerClass, Property} from "@swim/component";
+import {Presence} from "@swim/style";
 import {Look, Mood} from "@swim/theme";
 import type {PositionGestureInput} from "@swim/view";
 import {VectorIcon} from "@swim/graphics";
@@ -31,20 +32,24 @@ import {
 import type {SheetView} from "../sheet/SheetView";
 import type {SheetTrait} from "../sheet/SheetTrait";
 import {SheetController} from "../sheet/SheetController";
-import type {NavbarControllerObserver} from "./NavbarControllerObserver";
+import type {NavBarControllerObserver} from "./NavBarControllerObserver";
 
 /** @public */
-export class NavbarController extends BarController {
-  override readonly observerType?: Class<NavbarControllerObserver>;
+export class NavBarController extends BarController {
+  override readonly observerType?: Class<NavBarControllerObserver>;
+
+  @Property({type: Boolean, value: true, updateFlags: Controller.NeedsAssemble})
+  readonly showBackTitle!: Property<this, boolean>;
 
   protected override createLayout(): BarLayout | null {
     const tools = new Array<ToolLayout>();
-    const activeView = this.active.view;
-    const activeKey = activeView !== null ? "title" + activeView.uid : void 0;
-    const backView = activeView !== null ? activeView.back.view : null;
+    const frontView = this.front.view;
+    const frontKey = frontView !== null ? "title" + frontView.uid : void 0;
+    const backView = frontView !== null ? frontView.back.view : null;
     const backKey = backView !== null ? "title" + backView.uid : void 0;
+    const showBackTitle = this.showBackTitle.value;
 
-    if (activeView === null || backView === null) {
+    if (frontView === null || backView === null) {
       this.backTool.removeView();
       const closeToolController = this.closeTool.controller;
       if (closeToolController !== null) {
@@ -61,31 +66,63 @@ export class NavbarController extends BarController {
       this.backTool.insertView();
       const backToolController = this.backTool.controller;
       if (backToolController !== null) {
-        const backToolLayout = backToolController.layout.value;
+        let backToolLayout = backToolController.layout.value;
         if (backToolLayout !== null) {
-          tools.push(backToolLayout.withOverlap(backKey).withOverpad(16));
+          if (showBackTitle) {
+            backToolLayout = backToolLayout.withOverlap(backKey).withOverpad(16);
+          }
+          tools.push(backToolLayout);
         }
       }
     }
 
-    if (backView !== null) {
-      const backLayout = ToolLayout.create(backKey!, 0, 0, 0, 0, -1, -1);
-      tools.push(backLayout);
-      const backTitleView = backView.sheetTitle.insertView(this.bar.view, void 0, void 0, backKey);
-      if (backTitleView !== null) {
-        const timing = backTitleView.getLookOr(Look.timing, Mood.navigating, false);
-        backTitleView.color.setLook(Look.accentColor, timing, Affinity.Intrinsic);
-        backTitleView.zIndex.setState(1, Affinity.Intrinsic);
+    if (showBackTitle) {
+      if (backView !== null) {
+        const backLayout = ToolLayout.create(backKey!, 0, 0, 0, 0, -1, -1);
+        tools.push(backLayout);
+        const backTitleView = backView.titleTool.insertView(this.bar.view, void 0, void 0, backKey);
+        if (backTitleView !== null) {
+          const timing = backTitleView.getLookOr(Look.timing, Mood.navigating, false);
+          backTitleView.color.setLook(Look.accentColor, timing, Affinity.Intrinsic);
+          backTitleView.zIndex.setState(1, Affinity.Intrinsic);
+        }
       }
-    }
-    if (activeView !== null) {
-      const activeLayout = ToolLayout.create(activeKey!, 1, 0, 0, 0.5, 1, 1);
-      tools.push(activeLayout);
-      const activeTitleView = activeView.sheetTitle.insertView(this.bar.view, void 0, void 0, activeKey);
-      if (activeTitleView !== null) {
-        const timing = activeTitleView.getLookOr(Look.timing, Mood.navigating, false);
-        activeTitleView.color.setLook(Look.textColor, timing, Affinity.Intrinsic);
-        activeTitleView.zIndex.setState(1, Affinity.Intrinsic);
+      if (frontView !== null) {
+        const frontLayout = ToolLayout.create(frontKey!, 1, 0, 0, 0.5, 1, 1);
+        tools.push(frontLayout);
+        const frontTitleView = frontView.titleTool.insertView(this.bar.view, void 0, void 0, frontKey);
+        if (frontTitleView !== null) {
+          const timing = frontTitleView.getLookOr(Look.timing, Mood.navigating, false);
+          frontTitleView.color.setLook(Look.textColor, timing, Affinity.Intrinsic);
+          frontTitleView.zIndex.setState(1, Affinity.Intrinsic);
+        }
+      }
+    } else {
+      const barView = this.bar.view;
+      const oldBarLayout = barView !== null ? barView.layout.value : null;
+      const oldBackLayout = oldBarLayout !== null && backKey !== void 0 ? oldBarLayout.getTool(backKey) : null;
+      if (backView !== null) {
+        if (oldBackLayout !== null) {
+          const backLayout = ToolLayout.create(backKey!, 0, 0, 0, 0, -1, -1).withPresence(Presence.dismissed());
+          tools.push(backLayout);
+        } else {
+          backView.titleTool.removeView();
+        }
+      }
+      if (frontView !== null) {
+        let frontLayout: ToolLayout;
+        if (oldBackLayout === null) {
+          frontLayout = ToolLayout.create(frontKey!, 1, 0, 0, 0.5, 0, 1);
+        } else {
+          frontLayout = ToolLayout.create(frontKey!, 1, 0, 0, 0.5, 1, 1);
+        }
+        tools.push(frontLayout);
+        const frontTitleView = frontView.titleTool.insertView(this.bar.view, void 0, void 0, frontKey);
+        if (frontTitleView !== null) {
+          const timing = frontTitleView.getLookOr(Look.timing, Mood.navigating, false);
+          frontTitleView.color.setLook(Look.textColor, timing, Affinity.Intrinsic);
+          frontTitleView.zIndex.setState(1, Affinity.Intrinsic);
+        }
       }
     }
 
@@ -103,7 +140,7 @@ export class NavbarController extends BarController {
     return BarLayout.create(tools);
   }
 
-  @TraitViewControllerRef<NavbarController, ToolTrait, ToolView, ToolController, ObserverType<ToolController | ButtonToolController>>({
+  @TraitViewControllerRef<NavBarController, ToolTrait, ToolView, ToolController, ObserverType<ToolController | ButtonToolController>>({
     implements: true,
     type: BarController,
     binds: true,
@@ -124,14 +161,14 @@ export class NavbarController extends BarController {
       const toolView = toolController.tool.attachView()!;
       toolView.iconWidth.setState(24, Affinity.Intrinsic);
       toolView.iconHeight.setState(24, Affinity.Intrinsic);
-      toolView.graphics.setState(NavbarController.closeIcon, Affinity.Intrinsic);
+      toolView.graphics.setState(NavBarController.closeIcon, Affinity.Intrinsic);
       return toolController;
     },
   })
   readonly closeTool!: TraitViewControllerRef<this, ToolTrait, ToolView, ToolController>;
-  static readonly closeTool: MemberFastenerClass<NavbarController, "closeTool">;
+  static readonly closeTool: MemberFastenerClass<NavBarController, "closeTool">;
 
-  @TraitViewControllerRef<NavbarController, ToolTrait, ToolView, ToolController, ObserverType<ToolController | ButtonToolController>>({
+  @TraitViewControllerRef<NavBarController, ToolTrait, ToolView, ToolController, ObserverType<ToolController | ButtonToolController>>({
     implements: true,
     type: BarController,
     binds: true,
@@ -152,14 +189,14 @@ export class NavbarController extends BarController {
       const toolView = toolController.tool.attachView()!;
       toolView.iconWidth.setState(24, Affinity.Intrinsic);
       toolView.iconHeight.setState(24, Affinity.Intrinsic);
-      toolView.graphics.setState(NavbarController.backIcon, Affinity.Intrinsic);
+      toolView.graphics.setState(NavBarController.backIcon, Affinity.Intrinsic);
       return toolController;
     },
   })
   readonly backTool!: TraitViewControllerRef<this, ToolTrait, ToolView, ToolController>;
-  static readonly backTool: MemberFastenerClass<NavbarController, "backTool">;
+  static readonly backTool: MemberFastenerClass<NavBarController, "backTool">;
 
-  @TraitViewControllerRef<NavbarController, ToolTrait, ToolView, ToolController, ObserverType<ToolController | ButtonToolController>>({
+  @TraitViewControllerRef<NavBarController, ToolTrait, ToolView, ToolController, ObserverType<ToolController | ButtonToolController>>({
     implements: true,
     type: BarController,
     binds: true,
@@ -180,38 +217,38 @@ export class NavbarController extends BarController {
       const toolView = toolController.tool.attachView()!;
       toolView.iconWidth.setState(24, Affinity.Intrinsic);
       toolView.iconHeight.setState(24, Affinity.Intrinsic);
-      toolView.graphics.setState(NavbarController.moreIcon, Affinity.Intrinsic);
+      toolView.graphics.setState(NavBarController.moreIcon, Affinity.Intrinsic);
       return toolController;
     },
   })
   readonly moreTool!: TraitViewControllerRef<this, ToolTrait, ToolView, ToolController>;
-  static readonly moreTool: MemberFastenerClass<NavbarController, "moreTool">;
+  static readonly moreTool: MemberFastenerClass<NavBarController, "moreTool">;
 
-  @TraitViewControllerRef<NavbarController, SheetTrait, SheetView, SheetController>({
+  @TraitViewControllerRef<NavBarController, SheetTrait, SheetView, SheetController>({
     type: SheetController,
     inherits: true,
     observes: true,
-    getTraitViewRef(sheetController: SheetController): TraitViewRef<unknown, SheetTrait, SheetView> {
-      return sheetController.sheet;
+    getTraitViewRef(frontController: SheetController): TraitViewRef<unknown, SheetTrait, SheetView> {
+      return frontController.sheet;
     },
-    willAttachController(sheetController: SheetController): void {
+    willAttachController(frontController: SheetController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
-    didDetachController(sheetController: SheetController): void {
-      const sheetView = sheetController.sheet.view;
+    didDetachController(frontController: SheetController): void {
+      const sheetView = frontController.sheet.view;
       if (sheetView !== null && sheetView.back.view === null && sheetView.forward.view === null) {
         this.owner.requireUpdate(Controller.NeedsAssemble);
       }
     },
-    controllerWillAttachSheetTitleView(titleView: ToolView, sheetController: SheetController): void {
+    controllerWillAttachTitleToolView(titleToolView: ToolView, frontController: SheetController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
-    controllerDidDetachSheetTitleView(titleView: ToolView, sheetController: SheetController): void {
+    controllerDidDetachTitleToolView(titleToolView: ToolView, frontController: SheetController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
   })
-  readonly active!: TraitViewControllerRef<this, SheetTrait, SheetView, SheetController>;
-  static readonly active: MemberFastenerClass<NavbarController, "active">;
+  readonly front!: TraitViewControllerRef<this, SheetTrait, SheetView, SheetController>;
+  static readonly front: MemberFastenerClass<NavBarController, "front">;
 
   /** @internal */
   @Lazy

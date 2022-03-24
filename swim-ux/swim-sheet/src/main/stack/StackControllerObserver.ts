@@ -32,17 +32,17 @@ export interface StackControllerObserver<C extends StackController = StackContro
 
   controllerDidDetachStackView?(stackView: StackView, controller: C): void;
 
-  controllerWillAttachNavbar?(navbarController: BarController, controller: C): void;
+  controllerWillAttachNavBar?(navBarController: BarController, controller: C): void;
 
-  controllerDidDetachNavbar?(navbarController: BarController, controller: C): void;
+  controllerDidDetachNavBar?(navBarController: BarController, controller: C): void;
 
-  controllerWillAttachNavbarTrait?(navbarTrait: BarTrait, controller: C): void;
+  controllerWillAttachNavBarTrait?(navBarTrait: BarTrait, controller: C): void;
 
-  controllerDidDetachNavbarTrait?(navbarTrait: BarTrait, controller: C): void;
+  controllerDidDetachNavBarTrait?(navBarTrait: BarTrait, controller: C): void;
 
-  controllerWillAttachNavbarView?(navbarView: BarView, controller: C): void;
+  controllerWillAttachNavBarView?(navBarView: BarView, controller: C): void;
 
-  controllerDidDetachNavbarView?(navbarView: BarView, controller: C): void;
+  controllerDidDetachNavBarView?(navBarView: BarView, controller: C): void;
 
   controllerDidPressCloseTool?(input: PositionGestureInput, event: Event | null, controller: C): void;
 
@@ -62,19 +62,19 @@ export interface StackControllerObserver<C extends StackController = StackContro
 
   controllerDidDetachSheetView?(sheetView: SheetView, sheetController: SheetController, controller: C): void;
 
-  controllerWillAttachSheetTitleView?(sheetTitleView: ToolView, sheetController: SheetController, controller: C): void;
+  controllerWillAttachSheetTitleToolView?(titleToolView: ToolView, sheetController: SheetController, controller: C): void;
 
-  controllerDidDetachSheetTitleView?(sheetTitleView: ToolView, sheetController: SheetController, controller: C): void;
+  controllerDidDetachSheetTitleToolView?(titleToolView: ToolView, sheetController: SheetController, controller: C): void;
 
-  controllerWillAttachActive?(activeController: SheetController, controller: C): void;
+  controllerWillAttachFront?(frontController: SheetController, controller: C): void;
 
-  controllerDidDetachActive?(activeController: SheetController, controller: C): void;
+  controllerDidDetachFront?(frontController: SheetController, controller: C): void;
 
-  controllerWillAttachActiveTrait?(activeTrait: SheetTrait, controller: C): void;
+  controllerWillAttachFrontTrait?(frontTrait: SheetTrait, controller: C): void;
 
-  controllerDidDetachActiveTrait?(activeTrait: SheetTrait, controller: C): void;
+  controllerDidDetachFrontTrait?(frontTrait: SheetTrait, controller: C): void;
 
-  controllerWillAttachActiveView?(activeView: SheetView, controller: C): void;
+  controllerWillAttachFrontView?(frontView: SheetView, controller: C): void;
 
-  controllerDidDetachActiveView?(activeView: SheetView, controller: C): void;
+  controllerDidDetachFrontView?(frontView: SheetView, controller: C): void;
 }

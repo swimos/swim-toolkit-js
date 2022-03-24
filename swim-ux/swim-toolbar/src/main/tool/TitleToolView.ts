@@ -49,10 +49,11 @@ export class TitleToolView extends ToolView {
     },
     create(value?: string): HtmlView {
       const contentView = HtmlView.fromTag("span");
-      contentView.display.setState("flex", Affinity.Intrinsic);
-      contentView.alignItems.setState("center", Affinity.Intrinsic);
+      contentView.display.setState("block", Affinity.Intrinsic);
       contentView.whiteSpace.setState("nowrap", Affinity.Intrinsic);
       contentView.textOverflow.setState("ellipsis", Affinity.Intrinsic);
+      contentView.overflowX.setState("hidden", Affinity.Intrinsic);
+      contentView.overflowY.setState("hidden", Affinity.Intrinsic);
       if (value !== void 0) {
         contentView.text(value);
       }
@@ -81,20 +82,16 @@ export class TitleToolView extends ToolView {
       contentWidth = contentWidth instanceof Length ? contentWidth.pxValue() : contentView.node.offsetWidth;
       let toolWidth: Length | number | null = this.width.value;
       toolWidth = toolWidth instanceof Length ? toolWidth.pxValue() : 0;
-      const layoutWidth = toolWidth
-      if (toolWidth < contentWidth) {
-        toolWidth = contentWidth;
-        this.width.setState(toolWidth, Affinity.Intrinsic);
-      }
       const excessWidth = toolWidth - contentWidth;
       const xAlign = this.xAlign.value;
-      if (layoutWidth !== 0) {
+      if (toolWidth !== 0) {
         contentView.left.setState(excessWidth * xAlign, Affinity.Intrinsic);
       } else {
         contentView.left.setState(contentWidth * xAlign, Affinity.Intrinsic);
       }
       contentView.top.setState(0, Affinity.Intrinsic);
       contentView.height.setState(this.height.value, Affinity.Intrinsic);
+      contentView.lineHeight.setState(this.height.value, Affinity.Intrinsic);
       if (this.effectiveWidth.state === null && contentWidth !== 0) {
         this.effectiveWidth.setState(contentWidth);
       }

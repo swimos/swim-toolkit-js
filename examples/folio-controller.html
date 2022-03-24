@@ -42,42 +42,42 @@ class ExampleFolioController extends swim.FolioController {
 }
 swim.TraitViewControllerRef({
   extends: true,
-  attachAppbarView(appbarView, appbarController) {
-    appbarView.barHeight(44);
-    swim.FolioController.appbar.prototype.attachAppbarView.call(this, appbarView, appbarController);
+  attachAppBarView(appBarView, appBarController) {
+    appBarView.barHeight(48);
+    swim.FolioController.appBar.prototype.attachAppBarView.call(this, appBarView, appBarController);
   },
-})(ExampleFolioController.prototype, "appbar");
+})(ExampleFolioController.prototype, "appBar");
 swim.TraitViewControllerRef({
   extends: true,
-  attachNavbarView(navbarView, navbarController) {
-    navbarView.barHeight(44);
-    swim.FolioController.navbar.prototype.attachNavbarView.call(this, navbarView, navbarController);
+  attachNavBarView(navBarView, navBarController) {
+    navBarView.barHeight(48);
+    swim.FolioController.navBar.prototype.attachNavBarView.call(this, navBarView, navBarController);
   },
-})(ExampleFolioController.prototype, "navbar");
+})(ExampleFolioController.prototype, "navBar");
 
 const folioController = new ExampleFolioController();
 folioController.mount();
 const folioView = folioController.folio.attachView().flexGrow(1);
 
-const appbarController = folioController.appbar.insertController();
-appbarController.menuTool.insertController();
+const appBarController = folioController.appBar.insertController();
+appBarController.menuTool.insertController();
 
-const navbarController = folioController.navbar.insertController();
-const closeToolController = navbarController.closeTool.insertController();
+const navBarController = folioController.navBar.insertController();
+const closeToolController = navBarController.closeTool.insertController();
 closeToolController.tool.setView(null);
-const moreToolController = navbarController.moreTool.insertController();
+const moreToolController = navBarController.moreTool.insertController();
 moreToolController.tool.setView(null);
 
-const pocketView = folioView.pocket.attachView();
-pocketView.expandedWidth.setState(320);
-pocketView.modifyTheme(swim.Feel.default, [[swim.Feel.raised, 1]]);
+const drawerView = folioView.drawer.attachView();
+drawerView.expandedWidth.setState(320);
+drawerView.modifyTheme(swim.Feel.default, [[swim.Feel.raised, 1]]);
 
 function createSheetController(i) {
   const sheetController = new swim.SheetController();
-  const sheetView = sheetController.sheet.insertView();
+  const sheetView = sheetController.sheet.attachView();
   sheetView.dismiss(false);
   const sheetTitle = "Sheet " + i;
-  sheetView.sheetTitle.setView(sheetTitle);
+  sheetView.titleTool.setView(sheetTitle);
   const headerView = sheetView.appendChild(swim.HtmlView.fromTag("h2").margin(12).text(sheetTitle), "header");
   headerView.cursor("pointer").userSelect("none");
   headerView.on("click", () => {
@@ -93,10 +93,10 @@ function createSheetController(i) {
 folioController.sheets.addController(createSheetController(1));
 
 const coverController = new swim.SheetController();
-const coverView = coverController.sheet.insertView();
+const coverView = coverController.sheet.attachView();
 coverView.dismiss(false);
 const coverTitle = "Cover";
-coverView.sheetTitle.setView(coverTitle);
+coverView.titleTool.setView(coverTitle);
 coverView.appendChild(swim.HtmlView.fromTag("h2").margin(12).text(coverTitle), "header");
 
 folioController.appendChild(coverController);

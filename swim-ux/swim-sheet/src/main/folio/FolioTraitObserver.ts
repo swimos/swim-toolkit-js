@@ -19,9 +19,9 @@ import type {FolioTrait} from "./FolioTrait";
 
 /** @public */
 export interface FolioTraitObserver<T extends FolioTrait = FolioTrait> extends TraitObserver<T> {
-  traitWillAttachAppbar?(appbarTrait: BarTrait, trait: T): void;
+  traitWillAttachAppBar?(appBarTrait: BarTrait, trait: T): void;
 
-  traitDidDetachAppbar?(appbarTrait: BarTrait, trait: T): void;
+  traitDidDetachAppBar?(appBarTrait: BarTrait, trait: T): void;
 
   traitWillAttachCover?(coverTrait: SheetTrait,trait: T): void;
 

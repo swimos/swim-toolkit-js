@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {PositionGestureInput} from "@swim/view";
 import type {ControllerObserver} from "@swim/controller";
 import type {ToolView} from "@swim/toolbar";
 import type {SheetView} from "./SheetView";
@@ -44,9 +45,17 @@ export interface SheetControllerObserver<C extends SheetController = SheetContro
 
   controllerDidDetachForwardView?(forwardView: SheetView, controller: C): void;
 
-  controllerWillAttachSheetTitleView?(titleView: ToolView, controller: C): void;
+  controllerWillAttachTitleToolView?(titleToolView: ToolView, controller: C): void;
 
-  controllerDidDetachSheetTitleView?(titleView: ToolView, controller: C): void;
+  controllerDidDetachTitleToolView?(titleToolView: ToolView, controller: C): void;
+
+  controllerWillAttachIconToolView?(iconToolView: ToolView, controller: C): void;
+
+  controllerDidDetachIconToolView?(iconToolView: ToolView, controller: C): void;
+
+  controllerDidPressIconTool?(input: PositionGestureInput, event: Event | null, controller: C): void;
+
+  controllerDidLongPressIconTool?(input: PositionGestureInput, controller: C): void;
 
   controllerWillPresentSheetView?(sheetView: SheetView, controller: C): void;
 

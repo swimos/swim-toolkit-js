@@ -15,6 +15,7 @@
 import type {Class} from "@swim/util";
 import {Property} from "@swim/component";
 import {Trait} from "@swim/model";
+import type {Graphics} from "@swim/graphics";
 import type {ToolView} from "@swim/toolbar";
 import type {SheetTraitObserver} from "./SheetTraitObserver";
 
@@ -29,12 +30,23 @@ export class SheetTrait extends Trait {
 
   @Property<SheetTrait, SheetTraitTitle | null>({
     value: null,
-    willSetValue(newTitle: SheetTraitTitle | null, oldTitle: SheetTraitTitle | null): void {
-      this.owner.callObservers("traitWillSetTitle", newTitle, oldTitle, this.owner);
-    },
     didSetValue(newTitle: SheetTraitTitle | null, oldTitle: SheetTraitTitle | null): void {
-      this.owner.callObservers("traitDidSetTitle", newTitle, oldTitle, this.owner);
+      this.owner.callObservers("traitDidSetTitle", newTitle, this.owner);
+    },
+    equalValues(newTitle: SheetTraitTitle | null, oldTitle: SheetTraitTitle | null): boolean {
+      return newTitle === oldTitle;
     },
   })
   readonly title!: Property<this, SheetTraitTitle | null>;
+
+  @Property<SheetTrait, Graphics | null>({
+    value: null,
+    didSetValue(newIcon: Graphics | null, oldIcon: Graphics | null): void {
+      this.owner.callObservers("traitDidSetIcon", newIcon, this.owner);
+    },
+    equalValues(newIcon: Graphics | null, oldIcon: Graphics | null): boolean {
+      return newIcon === oldIcon;
+    },
+  })
+  readonly icon!: Property<this, Graphics | null>;
 }

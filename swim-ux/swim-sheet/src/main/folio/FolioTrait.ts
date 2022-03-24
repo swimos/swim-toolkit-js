@@ -26,18 +26,18 @@ export class FolioTrait extends Trait {
   @TraitRef<FolioTrait, BarTrait>({
     type: BarTrait,
     binds: true,
-    willAttachTrait(appbarTrait: BarTrait): void {
-      this.owner.callObservers("traitWillAttachAppbar", appbarTrait, this.owner);
+    willAttachTrait(appBarTrait: BarTrait): void {
+      this.owner.callObservers("traitWillAttachAppBar", appBarTrait, this.owner);
     },
-    didDetachTrait(appbarTrait: BarTrait): void {
-      this.owner.callObservers("traitDidDetachAppbar", appbarTrait, this.owner);
+    didDetachTrait(appBarTrait: BarTrait): void {
+      this.owner.callObservers("traitDidDetachAppBar", appBarTrait, this.owner);
     },
     detectTrait(trait: Trait): BarTrait | null {
       return trait instanceof BarTrait ? trait : null;
     },
   })
-  readonly appbar!: TraitRef<this, BarTrait>;
-  static readonly appbar: MemberFastenerClass<FolioTrait, "appbar">;
+  readonly appBar!: TraitRef<this, BarTrait>;
+  static readonly appBar: MemberFastenerClass<FolioTrait, "appBar">;
 
   @TraitRef<FolioTrait, SheetTrait>({
     type: SheetTrait,

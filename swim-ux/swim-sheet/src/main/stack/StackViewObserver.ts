@@ -20,17 +20,17 @@ import type {StackView} from "./StackView";
 
 /** @public */
 export interface StackViewObserver<V extends StackView = StackView> extends HtmlViewObserver<V> {
-  viewWillAttachNavbar?(navbarView: BarView, targetView: View | null, view: V): void;
+  viewWillAttachNavBar?(navBarView: BarView, targetView: View | null, view: V): void;
 
-  viewDidDetachNavbar?(navbarView: BarView, view: V): void;
+  viewDidDetachNavBar?(navBarView: BarView, view: V): void;
 
   viewWillAttachSheet?(sheetView: SheetView, targetView: View | null, view: V): void;
 
   viewDidDetachSheet?(sheetView: SheetView, view: V): void;
 
-  viewWillAttachActive?(activeView: SheetView, targetView: View | null, view: V): void;
+  viewWillAttachFront?(frontView: SheetView, targetView: View | null, view: V): void;
 
-  viewDidDetachActive?(activeView: SheetView, view: V): void;
+  viewDidDetachFront?(frontView: SheetView, view: V): void;
 
   viewWillPresentSheet?(sheetView: SheetView, view: V): void;
 

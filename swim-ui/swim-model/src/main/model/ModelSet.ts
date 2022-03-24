@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Mutable, Proto, ObserverType} from "@swim/util";
-import type {FastenerOwner, FastenerFlags} from "@swim/component";
+import {Affinity, FastenerOwner, FastenerFlags, Fastener} from "@swim/component";
 import type {AnyModel, Model} from "./Model";
 import {ModelRelationInit, ModelRelationClass, ModelRelation} from "./ModelRelation";
 
@@ -32,6 +32,16 @@ export interface ModelSetInit<M extends Model = Model> extends ModelRelationInit
   didSort?(parent: Model | null): void;
   sortChildren?(parent: Model): void;
   compareChildren?(a: Model, b: Model): number;
+
+  willInherit?(superFastener: ModelSet<unknown, M>): void;
+  didInherit?(superFastener: ModelSet<unknown, M>): void;
+  willUninherit?(superFastener: ModelSet<unknown, M>): void;
+  didUninherit?(superFastener: ModelSet<unknown, M>): void;
+
+  willBindSuperFastener?(superFastener: ModelSet<unknown, M>): void;
+  didBindSuperFastener?(superFastener: ModelSet<unknown, M>): void;
+  willUnbindSuperFastener?(superFastener: ModelSet<unknown, M>): void;
+  didUnbindSuperFastener?(superFastener: ModelSet<unknown, M>): void;
 }
 
 /** @public */
@@ -70,6 +80,63 @@ export interface ModelSet<O = unknown, M extends Model = Model> extends ModelRel
   /** @override */
   get fastenerType(): Proto<ModelSet<any, any>>;
 
+  /** @internal @override */
+  setInherited(inherited: boolean, superFastener: ModelSet<unknown, M>): void;
+
+  /** @internal */
+  syncInherited(superFastener: ModelSet<unknown, M>): void;
+
+  /** @protected @override */
+  willInherit(superFastener: ModelSet<unknown, M>): void;
+
+  /** @protected @override */
+  onInherit(superFastener: ModelSet<unknown, M>): void;
+
+  /** @protected @override */
+  didInherit(superFastener: ModelSet<unknown, M>): void;
+
+  /** @protected @override */
+  willUninherit(superFastener: ModelSet<unknown, M>): void;
+
+  /** @protected @override */
+  onUninherit(superFastener: ModelSet<unknown, M>): void;
+
+  /** @protected @override */
+  didUninherit(superFastener: ModelSet<unknown, M>): void;
+
+  /** @override */
+  readonly superFastener: ModelSet<unknown, M> | null;
+
+  /** @internal @override */
+  getSuperFastener(): ModelSet<unknown, M> | null;
+
+  /** @protected @override */
+  willBindSuperFastener(superFastener: ModelSet<unknown, M>): void;
+
+  /** @protected @override */
+  onBindSuperFastener(superFastener: ModelSet<unknown, M>): void;
+
+  /** @protected @override */
+  didBindSuperFastener(superFastener: ModelSet<unknown, M>): void;
+
+  /** @protected @override */
+  willUnbindSuperFastener(superFastener: ModelSet<unknown, M>): void;
+
+  /** @protected @override */
+  onUnbindSuperFastener(superFastener: ModelSet<unknown, M>): void;
+
+  /** @protected @override */
+  didUnbindSuperFastener(superFastener: ModelSet<unknown, M>): void;
+
+  /** @internal */
+  readonly subFasteners: ReadonlyArray<ModelSet<unknown, M>> | null;
+
+  /** @internal @override */
+  attachSubFastener(subFastener: ModelSet<unknown, M>): void;
+
+  /** @internal @override */
+  detachSubFastener(subFastener: ModelSet<unknown, M>): void;
+
   /** @internal */
   readonly models: {readonly [modelId: number]: M | undefined};
 
@@ -97,6 +164,15 @@ export interface ModelSet<O = unknown, M extends Model = Model> extends ModelRel
 
   /** @override */
   detectModel(model: Model): M | null;
+
+  /** @internal @protected */
+  decohereSubFasteners(): void;
+
+  /** @internal @protected */
+  decohereSubFastener(subFastener: ModelSet<unknown, M>): void;
+
+  /** @override */
+  recohere(t: number): void;
 
   /** @internal @protected */
   key(model: M): string | undefined;
@@ -138,6 +214,54 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
     configurable: true,
   });
 
+  ModelSet.prototype.syncInherited = function (this: ModelSet, superFastener: ModelSet): void {
+    const models = this.models;
+    const superModels = superFastener.models;
+    for (const modelId in models) {
+      if (superModels[modelId] === void 0) {
+        this.detachModel(models[modelId]!);
+      }
+    }
+    for (const modelId in superModels) {
+      if (models[modelId] === void 0) {
+        this.attachModel(superModels[modelId]);
+      }
+    }
+  };
+
+  ModelSet.prototype.onInherit = function (this: ModelSet, superFastener: ModelSet): void {
+    this.syncInherited(superFastener);
+  };
+
+  ModelSet.prototype.onBindSuperFastener = function <M extends Model>(this: ModelSet<unknown, M>, superFastener: ModelSet<unknown, M>): void {
+    (this as Mutable<typeof this>).superFastener = superFastener;
+    _super.prototype.onBindSuperFastener.call(this, superFastener);
+  };
+
+  ModelSet.prototype.onUnbindSuperFastener = function <M extends Model>(this: ModelSet<unknown, M>, superFastener: ModelSet<unknown, M>): void {
+    _super.prototype.onUnbindSuperFastener.call(this, superFastener);
+    (this as Mutable<typeof this>).superFastener = null;
+  };
+
+  ModelSet.prototype.attachSubFastener = function <M extends Model>(this: ModelSet<unknown, M>, subFastener: ModelSet<unknown, M>): void {
+    let subFasteners = this.subFasteners as ModelSet<unknown, M>[] | null;
+    if (subFasteners === null) {
+      subFasteners = [];
+      (this as Mutable<typeof this>).subFasteners = subFasteners;
+    }
+    subFasteners.push(subFastener);
+  };
+
+  ModelSet.prototype.detachSubFastener = function <M extends Model>(this: ModelSet<unknown, M>, subFastener: ModelSet<unknown, M>): void {
+    const subFasteners = this.subFasteners as ModelSet<unknown, M>[] | null;
+    if (subFasteners !== null) {
+      const index = subFasteners.indexOf(subFastener);
+      if (index >= 0) {
+        subFasteners.splice(index, 1);
+      }
+    }
+  };
+
   ModelSet.prototype.hasModel = function (this: ModelSet, model: Model): boolean {
     return this.models[model.uid] !== void 0;
   };
@@ -166,6 +290,8 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
       this.onAttachModel(newModel, target);
       this.initModel(newModel);
       this.didAttachModel(newModel, target);
+      this.setCoherent(true);
+      this.decohereSubFasteners();
     }
     return newModel;
   };
@@ -187,6 +313,8 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
       this.onAttachModel(newModel, target);
       this.initModel(newModel);
       this.didAttachModel(newModel, target);
+      this.setCoherent(true);
+      this.decohereSubFasteners();
     }
     return newModel;
   };
@@ -200,6 +328,8 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
       this.onDetachModel(oldModel);
       this.deinitModel(oldModel);
       this.didDetachModel(oldModel);
+      this.setCoherent(true);
+      this.decohereSubFasteners();
       return oldModel;
     }
     return null;
@@ -231,6 +361,8 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
       this.onAttachModel(newModel, target);
       this.initModel(newModel);
       this.didAttachModel(newModel, target);
+      this.setCoherent(true);
+      this.decohereSubFasteners();
     }
     return newModel;
   };
@@ -262,6 +394,8 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
         this.onAttachModel(newModel, target);
         this.initModel(newModel);
         this.didAttachModel(newModel, target);
+        this.setCoherent(true);
+        this.decohereSubFasteners();
       }
     }
   };
@@ -277,6 +411,8 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
         this.onDetachModel(oldModel);
         this.deinitModel(oldModel);
         this.didDetachModel(oldModel);
+        this.setCoherent(true);
+        this.decohereSubFasteners();
       }
     }
   };
@@ -286,6 +422,31 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
       return model as M;
     }
     return null;
+  };
+
+  ModelSet.prototype.decohereSubFasteners = function (this: ModelSet): void {
+    const subFasteners = this.subFasteners;
+    for (let i = 0, n = subFasteners !== null ? subFasteners.length : 0; i < n; i += 1) {
+      this.decohereSubFastener(subFasteners![i]!);
+    }
+  };
+
+  ModelSet.prototype.decohereSubFastener = function (this: ModelSet, subFastener: ModelSet): void {
+    if ((subFastener.flags & Fastener.InheritedFlag) === 0 && Math.min(this.flags & Affinity.Mask, Affinity.Intrinsic) >= (subFastener.flags & Affinity.Mask)) {
+      subFastener.setInherited(true, this);
+    } else if ((subFastener.flags & Fastener.InheritedFlag) !== 0 && (subFastener.flags & Fastener.DecoherentFlag) === 0) {
+      subFastener.setCoherent(false);
+      subFastener.decohere();
+    }
+  };
+
+  ModelSet.prototype.recohere = function (this: ModelSet, t: number): void {
+    if ((this.flags & Fastener.InheritedFlag) !== 0) {
+      const superFastener = this.superFastener;
+      if (superFastener !== null) {
+        this.syncInherited(superFastener);
+      }
+    }
   };
 
   ModelSet.prototype.key = function <M extends Model>(this: ModelSet<unknown, M>, model: M): string | undefined {
@@ -299,7 +460,7 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
     configurable: true,
   });
 
-  ModelSet.prototype.initInherits = function (this: ModelSet, sorted: boolean): void {
+  ModelSet.prototype.initSorted = function (this: ModelSet, sorted: boolean): void {
     if (sorted) {
       (this as Mutable<typeof this>).flags = this.flags | ModelSet.SortedFlag;
     } else {
@@ -367,6 +528,13 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
       Object.setPrototypeOf(fastener, fastenerClass.prototype);
     }
     fastener = _super.construct(fastenerClass, fastener, owner) as F;
+    Object.defineProperty(fastener, "superFastener", { // override getter
+      value: null,
+      writable: true,
+      enumerable: true,
+      configurable: true,
+    });
+    (fastener as Mutable<typeof fastener>).subFasteners = null;
     (fastener as Mutable<typeof fastener>).models = {};
     (fastener as Mutable<typeof fastener>).modelCount = 0;
     return fastener;
