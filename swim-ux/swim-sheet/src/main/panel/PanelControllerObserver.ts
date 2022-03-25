@@ -13,17 +13,17 @@
 // limitations under the License.
 
 import type {PositionGestureInput} from "@swim/view";
-import type {ControllerObserver} from "@swim/controller";
 import type {ToolView, BarView, BarTrait, BarController} from "@swim/toolbar";
 import type {SheetView} from "../sheet/SheetView";
 import type {SheetTrait} from "../sheet/SheetTrait";
 import type {SheetController} from "../sheet/SheetController";
+import type {SheetControllerObserver} from "../sheet/SheetControllerObserver";
 import type {PanelView} from "./PanelView";
 import type {PanelTrait} from "./PanelTrait";
 import type {PanelController} from "./PanelController";
 
 /** @public */
-export interface PanelControllerObserver<C extends PanelController = PanelController> extends ControllerObserver<C> {
+export interface PanelControllerObserver<C extends PanelController = PanelController> extends SheetControllerObserver<C> {
   controllerWillAttachPanelTrait?(panelTrait: PanelTrait, controller: C): void;
 
   controllerDidDetachPanelTrait?(panelTrait: PanelTrait, controller: C): void;

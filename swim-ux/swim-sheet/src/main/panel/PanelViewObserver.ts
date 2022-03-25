@@ -13,13 +13,13 @@
 // limitations under the License.
 
 import type {View} from "@swim/view";
-import type {HtmlViewObserver} from "@swim/dom";
 import type {BarView} from "@swim/toolbar";
 import type {SheetView} from "../sheet/SheetView";
+import type {SheetViewObserver} from "../sheet/SheetViewObserver";
 import type {PanelView} from "./PanelView";
 
 /** @public */
-export interface PanelViewObserver<V extends PanelView = PanelView> extends HtmlViewObserver<V> {
+export interface PanelViewObserver<V extends PanelView = PanelView> extends SheetViewObserver<V> {
   viewWillAttachTabBar?(tabBarView: BarView, targetView: View | null, view: V): void;
 
   viewDidDetachTabBar?(tabBarView: BarView, view: V): void;

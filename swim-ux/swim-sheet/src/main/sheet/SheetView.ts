@@ -17,7 +17,7 @@ import {Affinity, MemberFastenerClass, Property} from "@swim/component";
 import {Length} from "@swim/math";
 import {AnyPresence, Presence, PresenceAnimator} from "@swim/style";
 import {Look, Mood} from "@swim/theme";
-import {ViewportInsets, ViewContextType, AnyView, View, ViewRef} from "@swim/view";
+import {ViewportInsets, AnyView, View, ViewRef} from "@swim/view";
 import {Graphics} from "@swim/graphics";
 import {HtmlViewInit, HtmlView} from "@swim/dom";
 import {ToolView, TitleToolView, ButtonToolView} from "@swim/toolbar";
@@ -33,6 +33,7 @@ export class SheetView extends HtmlView {
   protected initSheet(): void {
     this.addClass("sheet");
     this.position.setState("relative", Affinity.Intrinsic);
+    this.boxSizing.setState("border-box", Affinity.Intrinsic);
     this.overflowX.setState("auto", Affinity.Intrinsic);
     this.overflowY.setState("auto", Affinity.Intrinsic);
     this.overflowScrolling.setState("touch", Affinity.Intrinsic);
@@ -163,12 +164,8 @@ export class SheetView extends HtmlView {
     this.presence.dismiss(timing);
   }
 
-  protected override onLayout(viewContext: ViewContextType<this>): void {
-    super.onLayout(viewContext);
-    this.layoutSheet();
-  }
-
-  protected layoutSheet(): void {
+  /** @internal */
+  layoutSheet(): void {
     let sheetWidth: Length | number | null = this.width.state;
     sheetWidth = sheetWidth instanceof Length ? sheetWidth.pxValue() : this.node.offsetWidth;
     const phase = this.presence.value.phase;

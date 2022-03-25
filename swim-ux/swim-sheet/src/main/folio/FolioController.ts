@@ -21,7 +21,7 @@ import {DrawerView} from "@swim/window";
 import type {SheetView} from "../sheet/SheetView";
 import type {SheetTrait} from "../sheet/SheetTrait";
 import {SheetController} from "../sheet/SheetController";
-import {NavBarController} from "../stack/NavBarController";
+import type {NavBarController} from "../stack/NavBarController";
 import type {StackView} from "../stack/StackView";
 import type {StackTrait} from "../stack/StackTrait";
 import {StackControllerNavBarExt, StackController} from "../stack/StackController";
@@ -29,6 +29,11 @@ import {AppBarController} from "./AppBarController";
 import {FolioStyle, FolioView} from "./FolioView";
 import {FolioTrait} from "./FolioTrait";
 import type {FolioControllerObserver} from "./FolioControllerObserver";
+
+/** @public */
+export interface FolioControllerNavBarExt extends StackControllerNavBarExt {
+  updateFolioStyle(folioStyle: FolioStyle | undefined, navBarController: BarController): void;
+}
 
 /** @public */
 export interface FolioControllerAppBarExt {
@@ -139,8 +144,8 @@ export class FolioController extends StackController {
       }
 
       const navBarController = this.owner.navBar.controller;
-      if (navBarController instanceof NavBarController) {
-        navBarController.showBackTitle.setValue(folioStyle === "stacked", Affinity.Intrinsic);
+      if (navBarController !== null) {
+        this.owner.navBar.updateFolioStyle(folioStyle, navBarController);
       }
     },
     viewWillAttachDrawer(drawerView: DrawerView): void {
@@ -310,19 +315,20 @@ export class FolioController extends StackController {
   override readonly stack!: TraitViewRef<this, StackTrait, StackView>;
   static override readonly stack: MemberFastenerClass<StackController, "stack">;
 
-  @TraitViewControllerRef<FolioController, BarTrait, BarView, BarController, StackControllerNavBarExt & ObserverType<BarController | NavBarController>>({
+  @TraitViewControllerRef<FolioController, BarTrait, BarView, BarController, FolioControllerNavBarExt & ObserverType<BarController | NavBarController>>({
     extends: true,
     implements: true,
     attachNavBarView(navBarView: BarView, navBarController: BarController): void {
       StackController.navBar.prototype.attachNavBarView.call(this, navBarView, navBarController);
-      if (navBarController instanceof NavBarController) {
-        const folioView = this.owner.folio.view;
-        const folioStyle = folioView !== null ? folioView.folioStyle.value : void 0;
-        navBarController.showBackTitle.setValue(folioStyle === "stacked", Affinity.Intrinsic);
-      }
+      const folioView = this.owner.folio.view;
+      const folioStyle = folioView !== null ? folioView.folioStyle.value : void 0;
+      this.updateFolioStyle(folioStyle, navBarController);
+    },
+    updateFolioStyle(folioStyle: FolioStyle | undefined, navBarController: BarController): void {
+      // hook
     },
   })
-  override readonly navBar!: TraitViewControllerRef<this, BarTrait, BarView, BarController> & StackControllerNavBarExt;
+  override readonly navBar!: TraitViewControllerRef<this, BarTrait, BarView, BarController> & FolioControllerNavBarExt;
   static override readonly navBar: MemberFastenerClass<FolioController, "navBar">;
 
   @TraitViewControllerRef<FolioController, SheetTrait, SheetView, SheetController, FolioControllerCoverExt>({

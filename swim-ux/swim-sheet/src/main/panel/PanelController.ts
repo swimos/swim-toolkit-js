@@ -16,12 +16,7 @@ import type {Class, ObserverType} from "@swim/util";
 import type {PositionGestureInput} from "@swim/view";
 import type {MemberFastenerClass} from "@swim/component";
 import type {Trait} from "@swim/model";
-import {
-  Controller,
-  TraitViewRef,
-  TraitViewControllerRef,
-  TraitViewControllerSet,
-} from "@swim/controller";
+import {TraitViewRef, TraitViewControllerRef, TraitViewControllerSet} from "@swim/controller";
 import {ToolView, BarView, BarTrait, BarController} from "@swim/toolbar";
 import type {SheetView} from "../sheet/SheetView";
 import type {SheetTrait} from "../sheet/SheetTrait";
@@ -58,7 +53,7 @@ export type PanelControllerActiveExt = {
 };
 
 /** @public */
-export class PanelController extends Controller {
+export class PanelController extends SheetController {
   override readonly observerType?: Class<PanelControllerObserver>;
 
   @TraitViewRef<PanelController, PanelTrait, PanelView>({
@@ -121,6 +116,9 @@ export class PanelController extends Controller {
     },
     willAttachView(panelView: PanelView): void {
       this.owner.callObservers("controllerWillAttachPanelView", panelView, this.owner);
+      if (this.owner.sheet.view === null) {
+        this.owner.sheet.setView(panelView);
+      }
     },
     didAttachView(panelView: PanelView): void {
       const activeController = this.owner.active.controller;
@@ -132,6 +130,9 @@ export class PanelController extends Controller {
       this.owner.active.setController(null);
     },
     didDetachView(panelView: PanelView): void {
+      if (this.owner.sheet.view === panelView) {
+        this.owner.sheet.detachView();
+      }
       this.owner.callObservers("controllerDidDetachPanelView", panelView, this.owner);
     },
     viewWillAttachTabBar(tabBarView: BarView): void {

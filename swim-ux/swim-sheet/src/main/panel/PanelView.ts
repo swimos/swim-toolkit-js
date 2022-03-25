@@ -13,16 +13,15 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {Affinity, MemberFastenerClass, Property} from "@swim/component";
+import {Affinity, MemberFastenerClass} from "@swim/component";
 import {Length} from "@swim/math";
-import {ViewportInsets, ViewContextType, View, ViewRef, ViewSet} from "@swim/view";
-import {HtmlView} from "@swim/dom";
+import {ViewContextType, View, ViewRef, ViewSet} from "@swim/view";
 import {BarView} from "@swim/toolbar";
 import {SheetView} from "../sheet/SheetView";
 import type {PanelViewObserver} from "./PanelViewObserver";
 
 /** @public */
-export class PanelView extends HtmlView {
+export class PanelView extends SheetView {
   constructor(node: HTMLElement) {
     super(node);
     this.initPanel();
@@ -36,9 +35,6 @@ export class PanelView extends HtmlView {
   }
 
   override readonly observerType?: Class<PanelViewObserver>;
-
-  @Property({type: Object, inherits: true, value: null, updateFlags: View.NeedsResize})
-  readonly edgeInsets!: Property<this, ViewportInsets | null>;
 
   @ViewRef<PanelView, BarView>({
     type: BarView,
@@ -138,9 +134,9 @@ export class PanelView extends HtmlView {
   readonly active!: ViewRef<this, SheetView>;
   static readonly active: MemberFastenerClass<PanelView, "active">;
 
-  protected override didResize(viewContext: ViewContextType<this>): void {
+  protected override onResize(viewContext: ViewContextType<this>): void {
+    super.onResize(viewContext);
     this.resizePanel(viewContext);
-    super.didResize(viewContext);
   }
 
   protected resizePanel(viewContext: ViewContextType<this>): void {
@@ -154,11 +150,8 @@ export class PanelView extends HtmlView {
     }
 
     const tabBarView = this.tabBar.view;
-    let tabBarHeight: Length | null = null;
     if (tabBarView !== null) {
       tabBarView.width.setState(panelWidth, Affinity.Intrinsic);
-      tabBarHeight = tabBarView.height.state;
-      tabBarHeight = tabBarHeight instanceof Length ? tabBarHeight : Length.px(tabBarView.node.offsetHeight);
       if (edgeInsets !== null) {
         edgeInsets = {
           insetTop: 0,
@@ -174,8 +167,28 @@ export class PanelView extends HtmlView {
       const tabView = tabViews[viewId]!;
       tabView.width.setState(panelWidth, Affinity.Intrinsic);
       tabView.height.setState(panelHeight, Affinity.Intrinsic);
-      tabView.paddingBottom.setState(tabBarHeight, Affinity.Intrinsic);
       tabView.edgeInsets.setValue(edgeInsets, Affinity.Intrinsic);
+    }
+  }
+
+  protected override onLayout(viewContext: ViewContextType<this>): void {
+    super.onLayout(viewContext);
+    this.layoutPanel(viewContext);
+  }
+
+  protected layoutPanel(viewContext: ViewContextType<this>): void {
+    const tabBarView = this.tabBar.view;
+    let tabBarHeight: Length | null = null;
+    if (tabBarView !== null) {
+      tabBarHeight = tabBarView.height.state;
+      tabBarHeight = tabBarHeight instanceof Length ? tabBarHeight : Length.px(tabBarView.node.offsetHeight);
+    }
+
+    const tabViews = this.tabs.views;
+    for (const viewId in tabViews) {
+      const tabView = tabViews[viewId]!;
+      tabView.paddingTop.setState(this.paddingTop.state, Affinity.Intrinsic);
+      tabView.paddingBottom.setState(tabBarHeight, Affinity.Intrinsic);
     }
   }
 }

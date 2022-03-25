@@ -101,7 +101,7 @@ export class FolioView extends HtmlView {
     },
     viewDidSetEffectiveWidth(effectiveWidth: Length | null, drawerView: DrawerView): void {
       if (this.owner.folioStyle.value === "unstacked") {
-        this.owner.requireUpdate(View.NeedsLayout);
+        this.owner.requireUpdate(View.NeedsResize);
       }
     },
   })

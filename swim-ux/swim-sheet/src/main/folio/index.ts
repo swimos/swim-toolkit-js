@@ -25,6 +25,7 @@ export {FolioTrait} from "./FolioTrait";
 export {FolioTraitObserver} from "./FolioTraitObserver";
 
 export {
+  FolioControllerNavBarExt,
   FolioControllerAppBarExt,
   FolioControllerCoverExt,
   FolioController,
