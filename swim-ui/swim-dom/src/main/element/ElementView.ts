@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, Instance, Arrays, Creatable, ObserverType} from "@swim/util";
-import {Affinity} from "@swim/component";
+import {Class, Instance, Arrays, Creatable, ObserverType, AnyTiming} from "@swim/util";
+import {Affinity, Provider} from "@swim/component";
 import {R2Box} from "@swim/math";
 import {ThemeMatrix, Theme} from "@swim/theme";
 import {ToAttributeString, ToStyleString, ToCssValue} from "@swim/style";
-import {View, Viewport} from "@swim/view";
+import {View, Viewport, ThemeService, ThemeProvider} from "@swim/view";
 import type {StyleContext} from "../css/StyleContext";
 import {
   ViewNodeType,
@@ -73,15 +73,23 @@ export interface ElementViewConstructor<V extends ElementView = ElementView, U =
 export class ElementView extends NodeView implements StyleContext {
   constructor(node: Element) {
     super(node);
-    this.initElement(node);
   }
 
   override readonly observerType?: Class<ElementViewObserver>;
 
   override readonly node!: Element & ElementCSSInlineStyle;
 
-  protected initElement(node: Element): void {
-    const themeName = node.getAttribute("swim-theme");
+  @Provider({
+    lazy: false,
+    extends: ThemeProvider,
+    type: ThemeService,
+    observes: false,
+    service: ThemeService.global(),
+  })
+  override readonly themeProvider!: ThemeProvider<this>;
+
+  protected detectTheme(): void {
+    const themeName = this.node.getAttribute("swim-theme");
     if (themeName !== null && themeName !== "") {
       let theme: ThemeMatrix | undefined;
       if (themeName === "auto") {
@@ -98,7 +106,7 @@ export class ElementView extends NodeView implements StyleContext {
         theme = DomService.eval(themeName) as ThemeMatrix | undefined;
       }
       if (theme instanceof ThemeMatrix) {
-        this.theme.setValue(theme, Affinity.Extrinsic);
+        this.theme.setValue(theme, Affinity.Intrinsic);
       } else {
         throw new TypeError("unknown swim-theme: " + themeName);
       }
@@ -106,19 +114,9 @@ export class ElementView extends NodeView implements StyleContext {
   }
 
   /** @internal */
-  protected override mountTheme(): void {
-    super.mountTheme();
-    if (NodeView.isRootView(this.node)) {
-      const themeService = this.themeProvider.service;
-      if (themeService !== void 0 && themeService !== null) {
-        if (this.mood.hasAffinity(Affinity.Intrinsic) && this.mood.value === null) {
-          this.mood.setValue(themeService.mood, Affinity.Intrinsic);
-        }
-        if (this.theme.hasAffinity(Affinity.Intrinsic) && this.theme.value === null) {
-          this.theme.setValue(themeService.theme, Affinity.Intrinsic);
-        }
-      }
-    }
+  protected override updateTheme(timing?: AnyTiming | boolean): void {
+    this.detectTheme();
+    super.updateTheme(timing);
   }
 
   getAttribute(attributeName: string): string | null {

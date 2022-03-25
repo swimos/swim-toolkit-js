@@ -33,14 +33,11 @@ export const Viewport = (function () {
   };
 
   Viewport.detect = function (): Viewport {
-    let insetTop = 0;
-    let insetRight = 0;
-    let insetBottom = 0;
-    let insetLeft = 0;
     const documentWidth = document.documentElement.style.width;
     const documentHeight = document.documentElement.style.height;
     document.documentElement.style.width = "100%";
     document.documentElement.style.height = "100%";
+
     const div = document.createElement("div");
     div.style.setProperty("position", "fixed");
     div.style.setProperty("top", "0");
@@ -55,9 +52,11 @@ export const Viewport = (function () {
     div.style.setProperty("overflow", "hidden");
     div.style.setProperty("visibility", "hidden");
     document.body.appendChild(div);
+
     const style = window.getComputedStyle(div);
     const width = parseFloat(style.getPropertyValue("width"));
     const height = parseFloat(style.getPropertyValue("height"));
+
     let visualWidth = width;
     let visualHeight = height;
     let visualOffsetLeft = 0;
@@ -83,6 +82,11 @@ export const Viewport = (function () {
       pageTop: visualPageTop,
       scale: visualScale,
     };
+
+    let insetTop = 0;
+    let insetRight = 0;
+    let insetBottom = 0;
+    let insetLeft = 0;
     if (typeof CSS !== "undefined" && typeof CSS.supports === "function"
         && CSS.supports("padding-top: env(safe-area-inset-top)")) {
       insetTop = parseFloat(style.getPropertyValue("padding-top"));
@@ -90,10 +94,12 @@ export const Viewport = (function () {
       insetBottom = parseFloat(style.getPropertyValue("padding-bottom"));
       insetLeft = parseFloat(style.getPropertyValue("padding-left"));
     }
+    const safeArea: ViewportInsets = {insetTop, insetRight, insetBottom, insetLeft};
+
     document.body.removeChild(div);
     document.documentElement.style.width = documentWidth;
     document.documentElement.style.height = documentHeight;
-    const safeArea: ViewportInsets = {insetTop, insetRight, insetBottom, insetLeft};
+
     let orientation: OrientationType | undefined =
         (screen as any).msOrientation ||
         (screen as any).mozOrientation ||
@@ -107,6 +113,7 @@ export const Viewport = (function () {
         default: orientation = "landscape-primary";
       }
     }
+
     let colorScheme: ViewportColorScheme;
     if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
       colorScheme = "dark";
@@ -115,6 +122,7 @@ export const Viewport = (function () {
     } else {
       colorScheme = "no-preference";
     }
+
     return {width, height, visual, safeArea, orientation, colorScheme};
   };
 

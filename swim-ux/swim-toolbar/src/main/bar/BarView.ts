@@ -42,7 +42,7 @@ export class BarView extends HtmlView {
       insetLeft: 0,
     }, Affinity.Intrinsic);
 
-    this.modifyMood(Feel.default, [[Feel.transparent, 1], [Feel.primary, 1]]);
+    this.modifyMood(Feel.default, [[Feel.primary, 1]]);
   }
 
   override readonly observerType?: Class<BarViewObserver>;

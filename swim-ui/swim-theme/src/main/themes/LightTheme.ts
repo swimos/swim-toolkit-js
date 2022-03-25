@@ -76,7 +76,7 @@ Theme.light = (function (): ThemeMatrix {
     [Look.gridColor, gridColor],
 
     [Look.spacing, spacing],
-    [Look.timing, Easing.linear.withDuration(1000)],
+    [Look.timing, Easing.linear.withDuration(250)],
   );
 
   const defaultFeel = FeelVector.of(

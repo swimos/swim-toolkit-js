@@ -88,6 +88,7 @@ export class FolioView extends HtmlView {
     binds: true,
     observes: true,
     initView(drawerView: DrawerView): void {
+      drawerView.zIndex.setState(2, Affinity.Intrinsic);
       drawerView.present(false);
     },
     willAttachView(drawerView: DrawerView, target: View | null): void {

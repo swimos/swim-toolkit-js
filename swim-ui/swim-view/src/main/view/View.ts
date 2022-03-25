@@ -369,7 +369,6 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     }
 
     this.mountFasteners();
-    this.mountTheme();
     this.updateTheme(false);
   }
 
@@ -1503,11 +1502,6 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     if (theme !== null && mood !== null) {
       this.applyTheme(theme, mood, timing);
     }
-  }
-
-  /** @internal */
-  protected mountTheme(): void {
-    // hook
   }
 
   /** @internal */

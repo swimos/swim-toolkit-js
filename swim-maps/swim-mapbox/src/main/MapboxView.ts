@@ -16,7 +16,7 @@ import {Mutable, Class, Equivalent, AnyTiming, Timing} from "@swim/util";
 import type {MemberFastenerClass} from "@swim/component";
 import {GeoPoint} from "@swim/geo";
 import {Look, Mood} from "@swim/theme";
-import {View, ViewRef} from "@swim/view";
+import {ViewContextType, View, ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import type {CanvasView} from "@swim/graphics";
 import {AnyGeoPerspective, MapView} from "@swim/map";
@@ -154,6 +154,7 @@ export class MapboxView extends MapView {
 
   @ViewRef<MapboxView, HtmlView>({
     extends: true,
+    observes: true,
     didAttachView(containerView: HtmlView, targetView: View | null): void {
       HtmlView.fromNode(this.owner.map.getContainer());
       const canvasContainerView =  HtmlView.fromNode(this.owner.map.getCanvasContainer());
@@ -171,4 +172,9 @@ export class MapboxView extends MapView {
   })
   override readonly container!: ViewRef<this, HtmlView>;
   static override readonly container: MemberFastenerClass<MapboxView, "container">;
+
+  protected override onResize(viewContext: ViewContextType<this>): void {
+    super.onResize(viewContext);
+    setTimeout(this.map.resize.bind(this.map), 0);
+  }
 }

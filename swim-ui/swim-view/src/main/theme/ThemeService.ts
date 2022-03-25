@@ -24,7 +24,10 @@ export class ThemeService<V extends View = View> extends Service<V> {
   constructor() {
     super();
     this.mood = this.initMood();
-    this.theme = this.initTheme();
+    this.theme = this.detectTheme(Viewport.detect());
+    this.prefersColorSchemeQuery = null;
+
+    this.updateViewportColorScheme = this.updateViewportColorScheme.bind(this);
   }
 
   override readonly observerType?: Class<ThemeServiceObserver<V>>;
@@ -41,17 +44,14 @@ export class ThemeService<V extends View = View> extends Service<V> {
     const roots = this.roots;
     for (let i = 0, n = roots.length; i < n; i += 1) {
       const root = roots[i]!;
-      if (root.mood.hasAffinity(Affinity.Intrinsic)) {
-        root.mood.setValue(mood, Affinity.Intrinsic);
-        root.requireUpdate(View.NeedsChange);
-      }
+      root.mood.setValue(mood, Affinity.Inherited);
+      root.requireUpdate(View.NeedsChange);
     }
   }
 
   readonly theme: ThemeMatrix;
 
-  protected initTheme(): ThemeMatrix {
-    const viewport = Viewport.detect();
+  protected detectTheme(viewport: Viewport): ThemeMatrix {
     const colorScheme = viewport.colorScheme;
     if (colorScheme === "dark") {
       return Theme.dark;
@@ -66,10 +66,8 @@ export class ThemeService<V extends View = View> extends Service<V> {
     const roots = this.roots;
     for (let i = 0, n = roots.length; i < n; i += 1) {
       const root = roots[i]!;
-      if (root.theme.hasAffinity(Affinity.Intrinsic)) {
-        root.theme.setValue(theme, Affinity.Intrinsic);
-        root.requireUpdate(View.NeedsChange);
-      }
+      root.theme.setValue(theme, Affinity.Inherited);
+      root.requireUpdate(View.NeedsChange);
     }
   }
 
@@ -106,6 +104,49 @@ export class ThemeService<V extends View = View> extends Service<V> {
         observer.serviceDidApplyTheme(theme, mood, timing, this);
       }
     }
+  }
+
+  protected override onAttachRoot(root: V): void {
+    super.onAttachRoot(root);
+    root.mood.setValue(this.mood, Affinity.Inherited);
+    root.theme.setValue(this.theme, Affinity.Inherited);
+    root.requireUpdate(View.NeedsChange);
+  }
+
+  protected override onAttach(): void {
+    super.onAttach();
+    this.attachEvents();
+  }
+
+  protected override onDetach(): void {
+    this.detachEvents();
+    super.onDetach();
+  }
+
+  protected attachEvents(): void {
+    if (typeof window !== "undefined") {
+      this.prefersColorSchemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      this.prefersColorSchemeQuery.addEventListener("change", this.updateViewportColorScheme);
+    }
+  }
+
+  protected detachEvents(): void {
+    if (typeof window !== "undefined") {
+      if (this.prefersColorSchemeQuery !== null) {
+        this.prefersColorSchemeQuery.removeEventListener("change", this.updateViewportColorScheme);
+        this.prefersColorSchemeQuery = null;
+      }
+    }
+  }
+
+  /** @internal */
+  prefersColorSchemeQuery: MediaQueryList | null;
+
+  /** @internal */
+  protected updateViewportColorScheme(): void {
+    const viewport = Viewport.detect();
+    const theme = this.detectTheme(viewport);
+    this.setTheme(theme);
   }
 
   @Lazy
