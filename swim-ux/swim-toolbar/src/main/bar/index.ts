@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {BarView} from "./BarView";
+export {
+  BarPlacement,
+  BarView,
+} from "./BarView";
 export {BarViewObserver} from "./BarViewObserver";
 
 export {BarTrait} from "./BarTrait";

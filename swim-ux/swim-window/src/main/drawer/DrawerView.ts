@@ -107,11 +107,8 @@ export class DrawerView extends HtmlView implements Modal {
     type: String,
     value: "left",
     updateFlags: View.NeedsResize | View.NeedsLayout,
-    willSetValue(newPlacement: DrawerPlacement, oldPlacement: DrawerPlacement): void {
-      this.owner.callObservers("viewWillSetPlacement", newPlacement, oldPlacement, this.owner);
-    },
-    didSetValue(newPlacement: DrawerPlacement, oldPlacement: DrawerPlacement): void {
-      this.owner.callObservers("viewDidSetPlacement", newPlacement, oldPlacement, this.owner);
+    didSetValue(placement: DrawerPlacement): void {
+      this.owner.callObservers("viewDidSetPlacement", placement, this.owner);
     },
   })
   readonly placement!: Property<this, DrawerPlacement>;
@@ -229,7 +226,7 @@ export class DrawerView extends HtmlView implements Modal {
       edgeInsets = viewContext.viewport.safeArea;
     }
     this.edgeInsets.setValue({
-      insetTop: 0,
+      insetTop: edgeInsets.insetTop,
       insetRight: edgeInsets.insetRight,
       insetBottom: 0,
       insetLeft: edgeInsets.insetLeft,
@@ -279,9 +276,9 @@ export class DrawerView extends HtmlView implements Modal {
     this.paddingTop.setState(Length.px(edgeInsets.insetTop), Affinity.Intrinsic);
     this.paddingBottom.setState(Length.px(edgeInsets.insetBottom), Affinity.Intrinsic);
     this.edgeInsets.setValue({
-      insetTop: 0,
+      insetTop: edgeInsets.insetTop,
       insetRight: edgeInsets.insetRight,
-      insetBottom: 0,
+      insetBottom: edgeInsets.insetBottom,
       insetLeft: 0,
     }, Affinity.Intrinsic);
   }
@@ -317,7 +314,7 @@ export class DrawerView extends HtmlView implements Modal {
     this.edgeInsets.setValue({
       insetTop: 0,
       insetRight: edgeInsets.insetRight,
-      insetBottom: 0,
+      insetBottom: edgeInsets.insetBottom,
       insetLeft: edgeInsets.insetLeft,
     }, Affinity.Intrinsic);
 
@@ -362,12 +359,10 @@ export class DrawerView extends HtmlView implements Modal {
     if ((edgeInsets === void 0 || edgeInsets === null) || edgeInsets === null) {
       edgeInsets = viewContext.viewport.safeArea;
     }
-    this.paddingTop.setState(Length.px(edgeInsets.insetTop), Affinity.Intrinsic);
-    this.paddingBottom.setState(Length.px(edgeInsets.insetBottom), Affinity.Intrinsic);
     this.edgeInsets.setValue({
-      insetTop: 0,
+      insetTop: edgeInsets.insetTop,
       insetRight: 0,
-      insetBottom: 0,
+      insetBottom: edgeInsets.insetBottom,
       insetLeft: edgeInsets.insetLeft,
     }, Affinity.Intrinsic);
   }

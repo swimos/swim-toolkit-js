@@ -43,6 +43,8 @@ export class PanelView extends SheetView {
     initView(tabBarView: BarView): void {
       let panelWidth = this.owner.width.state;
       panelWidth = panelWidth instanceof Length ? panelWidth : Length.px(this.owner.node.offsetWidth);
+
+      tabBarView.placement.setValue("bottom", Affinity.Intrinsic);
       tabBarView.position.setState("absolute", Affinity.Intrinsic);
       tabBarView.left.setState(0, Affinity.Intrinsic);
       tabBarView.bottom.setState(0, Affinity.Intrinsic);
@@ -84,9 +86,9 @@ export class PanelView extends SheetView {
         tabBarHeight = tabBarHeight instanceof Length ? tabBarHeight : Length.px(tabBarView.node.offsetHeight);
         if (edgeInsets !== null) {
           edgeInsets = {
-            insetTop: 0,
+            insetTop: edgeInsets.insetTop,
             insetRight: edgeInsets.insetRight,
-            insetBottom: edgeInsets.insetBottom,
+            insetBottom: 0,
             insetLeft: edgeInsets.insetLeft,
           };
         }
@@ -154,9 +156,9 @@ export class PanelView extends SheetView {
       tabBarView.width.setState(panelWidth, Affinity.Intrinsic);
       if (edgeInsets !== null) {
         edgeInsets = {
-          insetTop: 0,
+          insetTop: edgeInsets.insetTop,
           insetRight: edgeInsets.insetRight,
-          insetBottom: edgeInsets.insetBottom,
+          insetBottom: 0,
           insetLeft: edgeInsets.insetLeft,
         };
       }

@@ -18,9 +18,7 @@ import type {DrawerPlacement, DrawerView} from "./DrawerView";
 
 /** @public */
 export interface DrawerViewObserver<V extends DrawerView = DrawerView> extends HtmlViewObserver<V> {
-  viewWillSetPlacement?(newPlacement: DrawerPlacement, oldPlacement: DrawerPlacement, view: V): void;
-
-  viewDidSetPlacement?(newPlacement: DrawerPlacement, oldPlacement: DrawerPlacement, view: V): void;
+  viewDidSetPlacement?(placement: DrawerPlacement, view: V): void;
 
   viewDidSetEffectiveWidth?(effectiveWidth: Length | null, view: V): void;
 

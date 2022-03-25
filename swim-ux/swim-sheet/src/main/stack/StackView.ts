@@ -47,6 +47,8 @@ export class StackView extends HtmlView {
     initView(navBarView: BarView): void {
       let stackWidth = this.owner.width.state;
       stackWidth = stackWidth instanceof Length ? stackWidth : Length.px(this.owner.node.offsetWidth);
+
+      navBarView.placement.setValue("top", Affinity.Intrinsic);
       navBarView.position.setState("absolute", Affinity.Intrinsic);
       navBarView.left.setState(0, Affinity.Intrinsic);
       navBarView.top.setState(0, Affinity.Intrinsic);
@@ -84,8 +86,7 @@ export class StackView extends HtmlView {
       const navBarView = this.owner.navBar.view;
       let navBarHeight: Length | null = null;
       if (navBarView !== null) {
-        navBarHeight = navBarView.height.state;
-        navBarHeight = navBarHeight instanceof Length ? navBarHeight : Length.px(navBarView.node.offsetHeight);
+        navBarHeight = navBarView.effectiveHeight.value;
         if (edgeInsets !== null) {
           edgeInsets = {
             insetTop: 0,

@@ -17,10 +17,14 @@ import type {View} from "@swim/view";
 import type {HtmlViewObserver} from "@swim/dom";
 import type {BarLayout} from "../layout/BarLayout";
 import type {ToolView} from "../tool/ToolView";
-import type {BarView} from "./BarView";
+import type {BarPlacement, BarView} from "./BarView";
 
 /** @public */
 export interface BarViewObserver<V extends BarView = BarView> extends HtmlViewObserver<V> {
+  viewDidSetPlacement?(placement: BarPlacement, view: V): void;
+
+  viewDidSetEffectiveHeight?(effectiveHeight: Length | null, view: V): void;
+
   viewDidSetBarLayout?(barLayout: BarLayout | null, view: V): void;
 
   viewDidSetBarHeight?(barHeight: Length | null, view: V): void;

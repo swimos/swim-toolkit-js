@@ -64,6 +64,7 @@ export class FolioView extends HtmlView {
       const drawerWidth = drawerView !== null ? drawerView.effectiveWidth.value : null;
       const sheetWidth = drawerWidth !== null ? folioWidth.minus(drawerWidth) : folioWidth;
 
+      appBarView.placement.setValue("top", Affinity.Intrinsic);
       appBarView.position.setState("absolute", Affinity.Intrinsic);
       appBarView.left.setState(drawerWidth, Affinity.Intrinsic);
       appBarView.top.setState(0, Affinity.Intrinsic);
