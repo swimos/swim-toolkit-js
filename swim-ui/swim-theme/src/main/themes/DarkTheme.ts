@@ -167,19 +167,6 @@ Theme.dark = (function (): ThemeMatrix {
     [Look.shadow, BoxShadow.create(0, 2, 4, 0, Color.black(0.5))],
   );
 
-  const transparentFeel = FeelVector.of(
-    [Look.backgroundColor, backgroundColor.alpha(0)],
-    [Look.borderColor, borderColor.alpha(0)],
-  );
-
-  const translucentFeel = FeelVector.of(
-    [Look.iconColor, Color.black(0.8)],
-    [Look.statusColor, Color.black(0.8)],
-    [Look.accentColor, Color.black(0.8)],
-    [Look.backgroundColor, Color.black(0.8)],
-    [Look.borderColor, Color.black(0.8)],
-  );
-
   const darkerFeel = FeelVector.of(
     [Look.iconColor, Color.black(1)],
     [Look.statusColor, Color.black(1)],
@@ -216,9 +203,22 @@ Theme.dark = (function (): ThemeMatrix {
   );
 
   const hoveringFeel = FeelVector.of(
-    [Look.backgroundColor, Color.black(-2)],
-    [Look.etchColor, Color.black(-1)],
-    [Look.maskColor, Color.black(-1)],
+    [Look.backgroundColor, backgroundColor.lighter(2)],
+    [Look.etchColor, etchColor.lighter(1)],
+    [Look.maskColor, etchColor.lighter(1)],
+  );
+
+  const translucentFeel = FeelVector.of(
+    [Look.iconColor, Color.black(0.8)],
+    [Look.statusColor, Color.black(0.8)],
+    [Look.accentColor, Color.black(0.8)],
+    [Look.backgroundColor, Color.black(0.8)],
+    [Look.borderColor, Color.black(0.8)],
+  );
+
+  const transparentFeel = FeelVector.of(
+    [Look.backgroundColor, Color.black(0)],
+    [Look.borderColor, Color.black(0)],
   );
 
   const navigatingFeel = FeelVector.of(
@@ -248,11 +248,11 @@ Theme.dark = (function (): ThemeMatrix {
 
     [Feel.opaque, opaqueFeel],
     [Feel.floating, floatingFeel],
-    [Feel.transparent, transparentFeel],
-    [Feel.translucent, translucentFeel],
     [Feel.embossed, embossedFeel],
     [Feel.nested, nestedFeel],
     [Feel.hovering, hoveringFeel],
+    [Feel.translucent, translucentFeel],
+    [Feel.transparent, transparentFeel],
 
     [Feel.navigating, navigatingFeel],
   );

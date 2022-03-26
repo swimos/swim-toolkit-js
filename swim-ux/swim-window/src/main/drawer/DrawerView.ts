@@ -169,7 +169,12 @@ export class DrawerView extends HtmlView implements Modal {
   })
   readonly stretch!: ExpansionAnimator<this, Expansion, AnyExpansion>;
 
-  @Property({type: Object, inherits: true, value: null})
+  @Property<DrawerView, ViewportInsets | null>({
+    type: ViewportInsets,
+    inherits: true,
+    value: null,
+    equalValues: ViewportInsets.equal,
+  })
   readonly edgeInsets!: Property<this, ViewportInsets | null>;
 
   protected override onLayout(viewContext: ViewContextType<this>): void {

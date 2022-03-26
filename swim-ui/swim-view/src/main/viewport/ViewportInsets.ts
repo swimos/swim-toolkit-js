@@ -19,3 +19,24 @@ export interface ViewportInsets {
   readonly insetBottom: number;
   readonly insetLeft: number;
 }
+
+/** @public */
+export const ViewportInsets = (function () {
+  const ViewportInsets = {} as {
+    equal(x: ViewportInsets | null | undefined, y: ViewportInsets | null | undefined): boolean;
+  };
+
+  ViewportInsets.equal = function (x: ViewportInsets | null | undefined, y: ViewportInsets | null | undefined): boolean {
+    if (x === y) {
+      return true;
+    } else if (typeof x === "object" && x !== null && typeof y === "object" && y !== null) {
+      return x.insetTop === y.insetTop
+          && x.insetRight === y.insetRight
+          && x.insetBottom === y.insetBottom
+          && x.insetLeft === y.insetLeft;
+    }
+    return false;
+  };
+
+  return ViewportInsets;
+})();

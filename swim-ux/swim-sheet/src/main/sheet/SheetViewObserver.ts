@@ -34,6 +34,8 @@ export interface SheetViewObserver<V extends SheetView = SheetView> extends Html
 
   viewDidDetachIconTool?(iconToolView: ToolView, view: V): void;
 
+  viewDidSetFullBleed?(fullBleed: boolean, view: V): void;
+
   viewWillPresent?(view: V): void;
 
   viewDidPresent?(view: V): void;

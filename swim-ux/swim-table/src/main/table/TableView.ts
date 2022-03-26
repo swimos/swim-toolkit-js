@@ -57,7 +57,13 @@ export class TableView extends HtmlView {
   @Property({type: TableLayout, inherits: true, value: null, updateFlags: View.NeedsLayout})
   readonly layout!: Property<this, TableLayout | null, AnyTableLayout | null>;
 
-  @Property({type: Object, inherits: true, value: null, updateFlags: View.NeedsLayout})
+  @Property<TableView, ViewportInsets | null>({
+    type: ViewportInsets,
+    inherits: true,
+    value: null,
+    updateFlags: View.NeedsLayout,
+    equalValues: ViewportInsets.equal,
+  })
   readonly edgeInsets!: Property<this, ViewportInsets | null>;
 
   @Property<TableView, number>({

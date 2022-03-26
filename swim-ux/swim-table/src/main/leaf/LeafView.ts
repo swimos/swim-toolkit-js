@@ -50,6 +50,7 @@ export class LeafView extends HtmlView {
     this.position.setState("relative", Affinity.Intrinsic);
     this.overflowX.setState("hidden", Affinity.Intrinsic);
     this.overflowY.setState("hidden", Affinity.Intrinsic);
+    this.backgroundColor.setLook(Look.backgroundColor, Affinity.Intrinsic);
 
     const highlightPhase = this.highlight.getPhase();
     const hoverPhase = this.hover.getPhase();
@@ -92,12 +93,6 @@ export class LeafView extends HtmlView {
       this.owner.modifyMood(Feel.default, [[Feel.transparent, 1 - backgroundPhase],
                                            [Feel.hovering, hoverPhase * (1 - highlightPhase)],
                                            [Feel.selected, highlightPhase]], false);
-      if (backgroundPhase !== 0) {
-        this.owner.backgroundColor.setLook(Look.backgroundColor, Affinity.Intrinsic);
-      } else {
-        this.owner.backgroundColor.setLook(null, Affinity.Intrinsic);
-        this.owner.backgroundColor.setState(null, Affinity.Intrinsic);
-      }
     },
   })
   readonly hover!: FocusAnimator<this, Focus, AnyFocus>;
@@ -127,12 +122,6 @@ export class LeafView extends HtmlView {
       this.owner.modifyMood(Feel.default, [[Feel.transparent, 1 - backgroundPhase],
                                            [Feel.hovering, hoverPhase * (1 - highlightPhase)],
                                            [Feel.selected, highlightPhase]], false);
-      if (backgroundPhase !== 0) {
-        this.owner.backgroundColor.setLook(Look.backgroundColor, Affinity.Intrinsic);
-      } else {
-        this.owner.backgroundColor.setLook(null, Affinity.Intrinsic);
-        this.owner.backgroundColor.setState(null, Affinity.Intrinsic);
-      }
     },
   })
   readonly highlight!: FocusAnimator<this, Focus, AnyFocus>;

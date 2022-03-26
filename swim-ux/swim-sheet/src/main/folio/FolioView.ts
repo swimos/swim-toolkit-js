@@ -50,7 +50,23 @@ export class FolioView extends HtmlView {
   })
   readonly folioStyle!: Property<this, FolioStyle | undefined>;
 
-  @Property({type: Object, inherits: true, value: null, updateFlags: View.NeedsResize})
+  @Property<FolioView, boolean>({
+    type: Boolean,
+    value: false,
+    updateFlags: View.NeedsResize,
+    didSetValue(fullBleed: boolean): void {
+      this.owner.callObservers("viewDidSetFullBleed", fullBleed, this.owner);
+    },
+  })
+  readonly fullBleed!: Property<this, boolean>;
+
+  @Property<FolioView, ViewportInsets | null>({
+    type: ViewportInsets,
+    inherits: true,
+    value: null,
+    updateFlags: View.NeedsResize,
+    equalValues: ViewportInsets.equal,
+  })
   readonly edgeInsets!: Property<this, ViewportInsets | null>;
 
   @ViewRef<FolioView, BarView>({
@@ -127,6 +143,7 @@ export class FolioView extends HtmlView {
 
   @ViewRef<FolioView, SheetView>({
     type: SheetView,
+    observes: true,
     initView(coverView: SheetView): void {
       if (this.owner.folioStyle.value === "unstacked") {
         let folioWidth = this.owner.width.state;
@@ -173,13 +190,16 @@ export class FolioView extends HtmlView {
       this.owner.callObservers("viewWillAttachCover", coverView, target, this.owner);
     },
     didAttachView(coverView: SheetView, target: View | null): void {
-      this.owner.requireUpdate(View.NeedsResize);
+      this.owner.fullBleed.setValue(coverView.fullBleed.value, Affinity.Intrinsic);
     },
     willDetachView(coverView: SheetView): void {
       coverView.remove();
     },
     didDetachView(coverView: SheetView): void {
       this.owner.callObservers("viewDidDetachCover", coverView, this.owner);
+    },
+    viewDidSetFullBleed(fullBleed: boolean, coverView: SheetView): void {
+      this.owner.fullBleed.setValue(fullBleed, Affinity.Intrinsic);
     },
   })
   readonly cover!: ViewRef<this, SheetView>;
@@ -210,8 +230,17 @@ export class FolioView extends HtmlView {
     this.stack.insertView(this);
 
     const coverView = this.cover.view;
-    if (coverView !== null && coverView.parent === this) {
-      coverView.remove();
+    if (coverView !== null) {
+      if (coverView.parent === this) {
+        coverView.remove();
+      }
+
+      let edgeInsets = this.edgeInsets.value;
+      if (edgeInsets === void 0 && this.edgeInsets.hasAffinity(Affinity.Intrinsic)) {
+        edgeInsets = viewContext.viewport.safeArea;
+      }
+      coverView.paddingLeft.setState(null, Affinity.Intrinsic);
+      coverView.edgeInsets.setValue(edgeInsets, Affinity.Intrinsic);
     }
   }
 
@@ -251,11 +280,21 @@ export class FolioView extends HtmlView {
     this.stack.insertView(drawerView);
 
     const coverView = this.cover.insertView(this);
-    coverView.left.setState(drawerWidth, Affinity.Intrinsic);
-    coverView.top.setState(0, Affinity.Intrinsic);
-    coverView.width.setState(sheetWidth, Affinity.Intrinsic);
-    coverView.height.setState(folioHeight, Affinity.Intrinsic);
-    coverView.paddingTop.setState(appBarHeight, Affinity.Intrinsic);
+    if (this.fullBleed.value) {
+      coverView.left.setState(0, Affinity.Intrinsic);
+      coverView.top.setState(0, Affinity.Intrinsic);
+      coverView.width.setState(folioWidth, Affinity.Intrinsic);
+      coverView.height.setState(folioHeight, Affinity.Intrinsic);
+      coverView.paddingTop.setState(appBarHeight, Affinity.Intrinsic);
+      coverView.paddingLeft.setState(drawerWidth, Affinity.Intrinsic);
+    } else {
+      coverView.left.setState(drawerWidth, Affinity.Intrinsic);
+      coverView.top.setState(0, Affinity.Intrinsic);
+      coverView.width.setState(sheetWidth, Affinity.Intrinsic);
+      coverView.height.setState(folioHeight, Affinity.Intrinsic);
+      coverView.paddingTop.setState(appBarHeight, Affinity.Intrinsic);
+      coverView.paddingLeft.setState(null, Affinity.Intrinsic);
+    }
     coverView.edgeInsets.setValue(edgeInsets, Affinity.Intrinsic);
     coverView.present(false);
   }
@@ -293,8 +332,15 @@ export class FolioView extends HtmlView {
 
     const coverView = this.cover.view;
     if (coverView !== null) {
-      coverView.left.setState(drawerWidth, Affinity.Intrinsic);
-      coverView.width.setState(sheetWidth, Affinity.Intrinsic);
+      if (this.fullBleed.value) {
+        coverView.left.setState(0, Affinity.Intrinsic);
+        coverView.width.setState(folioWidth, Affinity.Intrinsic);
+        coverView.paddingLeft.setState(drawerWidth, Affinity.Intrinsic);
+      } else {
+        coverView.left.setState(drawerWidth, Affinity.Intrinsic);
+        coverView.top.setState(0, Affinity.Intrinsic);
+        coverView.paddingLeft.setState(null, Affinity.Intrinsic);
+      }
     }
   }
 }

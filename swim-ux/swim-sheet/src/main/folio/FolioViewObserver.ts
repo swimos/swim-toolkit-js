@@ -24,6 +24,8 @@ import type {FolioStyle, FolioView} from "./FolioView";
 export interface FolioViewObserver<V extends FolioView = FolioView> extends HtmlViewObserver<V> {
   viewDidSetFolioStyle?(folioStyle: FolioStyle | undefined, view: V): void;
 
+  viewDidSetFullBleed?(fullBleed: boolean, view: V): void;
+
   viewWillAttachAppBar?(appBarView: BarView, targetView: View | null, view: V): void;
 
   viewDidDetachAppBar?(appBarView: BarView, view: V): void;

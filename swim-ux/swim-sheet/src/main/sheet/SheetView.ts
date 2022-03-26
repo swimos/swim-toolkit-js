@@ -125,13 +125,28 @@ export class SheetView extends HtmlView {
   readonly iconTool!: ViewRef<this, ToolView & Initable<HtmlViewInit | Graphics>> & {create(value?: Graphics): ToolView};
   static readonly iconTool: MemberFastenerClass<SheetView, "iconTool">;
 
+  @Property<SheetView, boolean>({
+    type: Boolean,
+    value: false,
+    didSetValue(fullBleed: boolean): void {
+      this.owner.callObservers("viewDidSetFullBleed", fullBleed, this.owner);
+    },
+  })
+  readonly fullBleed!: Property<this, boolean>;
+
   @Property({type: Number, value: 1})
   readonly sheetAlign!: Property<this, number>;
 
-  @Property({type: Object, inherits: true, value: null})
+  @Property<SheetView, ViewportInsets | null>({
+    type: ViewportInsets,
+    inherits: true,
+    value: null,
+    equalValues: ViewportInsets.equal,
+  })
   readonly edgeInsets!: Property<this, ViewportInsets | null>;
 
-  @PresenceAnimator<SheetView, Presence, AnyPresence>({
+  @PresenceAnimator<SheetView, Presence, AnyPresence, {tween(t: number): void}>({
+    implements: true,
     type: Presence,
     value: Presence.presented(),
     updateFlags: View.NeedsLayout,
@@ -168,7 +183,7 @@ export class SheetView extends HtmlView {
   layoutSheet(): void {
     let sheetWidth: Length | number | null = this.width.state;
     sheetWidth = sheetWidth instanceof Length ? sheetWidth.pxValue() : this.node.offsetWidth;
-    const phase = this.presence.value.phase;
-    this.left.setState(sheetWidth * this.sheetAlign.value * (1 - phase), Affinity.Intrinsic);
+    const presence = this.presence.value;
+    this.left.setState(sheetWidth * this.sheetAlign.value * (1 - presence.phase), Affinity.Intrinsic);
   }
 }

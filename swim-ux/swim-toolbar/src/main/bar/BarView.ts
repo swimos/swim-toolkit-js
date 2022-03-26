@@ -108,7 +108,13 @@ export class BarView extends HtmlView {
   })
   readonly effectiveHeight!: ConstraintProperty<this, Length | null, AnyLength | null>;
 
-  @Property({type: Object, inherits: true, value: null, updateFlags: View.NeedsResize})
+  @Property<BarView, ViewportInsets | null>({
+    type: ViewportInsets,
+    inherits: true,
+    value: null,
+    updateFlags: View.NeedsResize,
+    equalValues: ViewportInsets.equal,
+  })
   readonly edgeInsets!: Property<this, ViewportInsets | null>;
 
   getTool<F extends Class<ToolView>>(key: string, toolViewClass: F): InstanceType<F> | null;

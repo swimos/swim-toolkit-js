@@ -15,7 +15,7 @@
 import type {Class, Timing} from "@swim/util";
 import {Affinity, MemberFastenerClass, Property, Animator} from "@swim/component";
 import {AnyLength, Length} from "@swim/math";
-import {AnyColor, Color} from "@swim/style";
+import {AnyColor, Color, AnyFocus, Focus, FocusAnimator} from "@swim/style";
 import {Look, Feel, MoodVector, ThemeMatrix, ThemeAnimator} from "@swim/theme";
 import {PositionGestureInput, PositionGesture, ViewContextType, View} from "@swim/view";
 import type {HtmlView} from "@swim/dom";
@@ -43,8 +43,12 @@ export class ButtonToolView extends ToolView {
     this.overflowY.setState("hidden", Affinity.Intrinsic);
     this.userSelect.setState("none", Affinity.Intrinsic);
     this.cursor.setState("pointer", Affinity.Intrinsic);
+    this.backgroundColor.setLook(Look.backgroundColor, Affinity.Intrinsic);
 
-    this.modifyMood(Feel.default, [[Feel.translucent, 1]]);
+    const hoverPhase = this.hover.getPhase();
+    this.modifyMood(Feel.default, [[Feel.hovering, 1],
+                                   [Feel.translucent, 1],
+                                   [Feel.transparent, 1 - hoverPhase]], false);
   }
 
   override readonly observerType?: Class<ButtonToolViewObserver>;
@@ -102,7 +106,6 @@ export class ButtonToolView extends ToolView {
       this.owner.callObservers("viewWillSetGraphics", newGraphics, oldGraphics, this.owner);
     },
     didSetValue(newGraphics: Graphics | null, oldGraphics: Graphics | null): void {
-      this.owner.requireUpdate(View.NeedsRasterize | View.NeedsComposite);
       this.owner.callObservers("viewDidSetGraphics", newGraphics, oldGraphics, this.owner);
     },
   })
@@ -165,6 +168,19 @@ export class ButtonToolView extends ToolView {
   @Property({type: Boolean, inherits: true, value: true})
   readonly hovers!: Property<this, boolean>;
 
+  @FocusAnimator<ButtonToolView, Focus, AnyFocus>({
+    type: Focus,
+    value: Focus.unfocused(),
+    get transition(): Timing | null {
+      return this.owner.getLookOr(Look.timing, null);
+    },
+    didSetValue(newHover: Focus, oldHover: Focus): void {
+      const hoverPhase = newHover.phase;
+      this.owner.modifyMood(Feel.default, [[Feel.transparent, 1 - hoverPhase]], false);
+    },
+  })
+  readonly hover!: FocusAnimator<this, Focus, AnyFocus>;
+
   @Property({type: Boolean, inherits: true, value: true})
   readonly glows!: Property<this, boolean>;
 
@@ -184,33 +200,16 @@ export class ButtonToolView extends ToolView {
     self: true,
     observes: true,
     viewDidUnmount(): void {
-      this.owner.modifyMood(Feel.default, [[Feel.hovering, void 0]]);
-      if (this.owner.backgroundColor.hasAffinity(Affinity.Intrinsic)) {
-        let backgroundColor = this.owner.getLookOr(Look.backgroundColor, null);
-        if (backgroundColor !== null) {
-          backgroundColor = backgroundColor.alpha(0);
-        }
-        this.owner.backgroundColor.setState(backgroundColor, false, Affinity.Intrinsic);
-      }
+      this.owner.hover.unfocus(false);
     },
     didStartHovering(): void {
       if (this.owner.hovers.value) {
-        this.owner.modifyMood(Feel.default, [[Feel.hovering, 1]]);
-        if (this.owner.backgroundColor.hasAffinity(Affinity.Intrinsic)) {
-          const timing = this.owner.getLook(Look.timing);
-          this.owner.backgroundColor.setState(this.owner.getLookOr(Look.backgroundColor, null), timing, Affinity.Intrinsic);
-        }
+        this.owner.hover.focus(false);
       }
     },
     didStopHovering(): void {
-      this.owner.modifyMood(Feel.default, [[Feel.hovering, void 0]]);
-      if (this.owner.backgroundColor.hasAffinity(Affinity.Intrinsic)) {
-        let backgroundColor = this.owner.getLookOr(Look.backgroundColor, null);
-        if (backgroundColor !== null) {
-          backgroundColor = backgroundColor.alpha(0);
-        }
-        const timing = this.owner.getLook(Look.timing);
-        this.owner.backgroundColor.setState(backgroundColor, timing, Affinity.Intrinsic);
+      if (this.owner.hovers.value) {
+        this.owner.hover.unfocus();
       }
     },
     didBeginPress(input: PositionGestureInput, event: Event | null): void {

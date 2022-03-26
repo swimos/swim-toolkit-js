@@ -37,7 +37,16 @@ export class StackView extends HtmlView {
 
   override readonly observerType?: Class<StackViewObserver>;
 
-  @Property({type: Object, inherits: true, value: null, updateFlags: View.NeedsResize})
+  @Property({type: Number, value: -(1 / 3)})
+  readonly outAlign!: Property<this, number>;
+
+  @Property<StackView, ViewportInsets | null>({
+    type: ViewportInsets,
+    inherits: true,
+    value: null,
+    updateFlags: View.NeedsResize,
+    equalValues: ViewportInsets.equal,
+  })
   readonly edgeInsets!: Property<this, ViewportInsets | null>;
 
   @ViewRef<StackView, BarView>({
@@ -182,13 +191,13 @@ export class StackView extends HtmlView {
         sheetView.sheetAlign.setValue(1, Affinity.Intrinsic);
         sheetView.present(sheetView.back.view !== null);
       } else {
-        sheetView.sheetAlign.setValue(-(1 / 3), Affinity.Intrinsic);
+        sheetView.sheetAlign.setValue(this.owner.outAlign.value, Affinity.Intrinsic);
         sheetView.present();
       }
     },
     didDetachView(sheetView: SheetView): void {
       if (sheetView.forward.view !== null) {
-        sheetView.sheetAlign.setValue(-(1 / 3), Affinity.Intrinsic);
+        sheetView.sheetAlign.setValue(this.owner.outAlign.value, Affinity.Intrinsic);
         sheetView.dismiss();
       } else {
         sheetView.sheetAlign.setValue(1, Affinity.Intrinsic);

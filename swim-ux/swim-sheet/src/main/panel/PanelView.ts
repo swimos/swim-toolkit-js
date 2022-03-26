@@ -123,14 +123,21 @@ export class PanelView extends SheetView {
   @ViewRef<PanelView, SheetView>({
     type: SheetView,
     binds: false,
+    observes: true,
     willAttachView(tabView: SheetView, target: View | null): void {
       this.owner.callObservers("viewWillAttachActive", tabView, target, this.owner);
       if (tabView.parent === null) {
         this.owner.insertChild(tabView, target);
       }
     },
+    didAttachView(tabView: SheetView): void {
+      this.owner.fullBleed.setValue(tabView.fullBleed.value, Affinity.Intrinsic);
+    },
     didDetachView(tabView: SheetView): void {
       this.owner.callObservers("viewDidDetachActive", tabView, this.owner);
+    },
+    viewDidSetFullBleed(fullBleed: boolean, tabView: SheetView): void {
+      this.owner.fullBleed.setValue(fullBleed, Affinity.Intrinsic);
     },
   })
   readonly active!: ViewRef<this, SheetView>;
@@ -153,7 +160,18 @@ export class PanelView extends SheetView {
 
     const tabBarView = this.tabBar.view;
     if (tabBarView !== null) {
-      tabBarView.width.setState(panelWidth, Affinity.Intrinsic);
+      let tabBarWidth = panelWidth;
+      const paddingLeft = this.paddingLeft.value;
+      if (paddingLeft !== null) {
+        tabBarWidth = tabBarWidth.minus(paddingLeft);
+      }
+      const paddingRight = this.paddingRight.value;
+      if (paddingRight !== null) {
+        tabBarWidth = tabBarWidth.minus(paddingRight);
+      }
+      tabBarView.left.setState(paddingLeft, Affinity.Intrinsic);
+      tabBarView.right.setState(paddingRight, Affinity.Intrinsic);
+      tabBarView.width.setState(tabBarWidth, Affinity.Intrinsic);
       if (edgeInsets !== null) {
         edgeInsets = {
           insetTop: edgeInsets.insetTop,

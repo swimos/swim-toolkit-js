@@ -89,7 +89,6 @@ export class IconCellView extends CellView {
       this.owner.callObservers("viewWillSetGraphics", newGraphics, oldGraphics, this.owner);
     },
     didSetValue(newGraphics: Graphics | null, oldGraphics: Graphics | null): void {
-      this.owner.requireUpdate(View.NeedsRasterize | View.NeedsComposite);
       this.owner.callObservers("viewDidSetGraphics", newGraphics, oldGraphics, this.owner);
     },
   })
