@@ -51,8 +51,8 @@ export class PanelView extends SheetView {
       tabBarView.width.setState(panelWidth, Affinity.Intrinsic);
       tabBarView.zIndex.setState(1, Affinity.Intrinsic);
     },
-    willAttachView(tabBarView: BarView, target: View | null): void {
-      this.owner.callObservers("viewWillAttachTabBar", tabBarView, target, this.owner);
+    willAttachView(tabBarView: BarView, targetView: View | null): void {
+      this.owner.callObservers("viewWillAttachTabBar", tabBarView, targetView, this.owner);
     },
     didDetachView(tabBarView: BarView): void {
       this.owner.callObservers("viewDidDetachTabBar", tabBarView, this.owner);
@@ -104,13 +104,15 @@ export class PanelView extends SheetView {
       tabView.zIndex.setState(0, Affinity.Intrinsic);
       tabView.edgeInsets.setValue(edgeInsets, Affinity.Intrinsic);
     },
-    willAttachView(tabView: SheetView, target: View | null): void {
-      this.owner.callObservers("viewWillAttachTab", tabView, target, this.owner);
+    willAttachView(tabView: SheetView, targetView: View | null): void {
+      this.owner.callObservers("viewWillAttachTab", tabView, targetView, this.owner);
     },
-    didDetachView(tabView: SheetView): void {
+    willDetachView(tabView: SheetView): void {
       if (tabView === this.owner.active.view) {
         this.owner.active.setView(null);
       }
+    },
+    didDetachView(tabView: SheetView): void {
       this.owner.callObservers("viewDidDetachTab", tabView, this.owner);
     },
     detectView(view: View): SheetView | null {
@@ -124,14 +126,14 @@ export class PanelView extends SheetView {
     type: SheetView,
     binds: false,
     observes: true,
-    willAttachView(tabView: SheetView, target: View | null): void {
-      this.owner.callObservers("viewWillAttachActive", tabView, target, this.owner);
-      if (tabView.parent === null) {
-        this.owner.insertChild(tabView, target);
-      }
+    willAttachView(tabView: SheetView, targetView: View | null): void {
+      this.owner.callObservers("viewWillAttachActive", tabView, targetView, this.owner);
     },
-    didAttachView(tabView: SheetView): void {
+    didAttachView(tabView: SheetView, targetView: View | null): void {
       this.owner.fullBleed.setValue(tabView.fullBleed.value, Affinity.Intrinsic);
+      if (tabView.parent === null) {
+        this.owner.insertChild(tabView, targetView);
+      }
     },
     didDetachView(tabView: SheetView): void {
       this.owner.callObservers("viewDidDetachActive", tabView, this.owner);

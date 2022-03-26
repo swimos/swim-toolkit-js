@@ -35,7 +35,7 @@ export interface PanelControllerTabBarExt {
 }
 
 /** @public */
-export type PanelControllerTabsExt = {
+export interface PanelControllerTabsExt {
   attachTabTrait(tabTrait: SheetTrait, tabController: SheetController): void;
   detachTabTrait(tabTrait: SheetTrait, tabController: SheetController): void;
   attachTabView(tabView: SheetView, tabController: SheetController): void;
@@ -45,7 +45,7 @@ export type PanelControllerTabsExt = {
 };
 
 /** @public */
-export type PanelControllerActiveExt = {
+export interface PanelControllerActiveExt {
   attachActiveTrait(activeTrait: SheetTrait, activeController: SheetController): void;
   detachActiveTrait(activeTrait: SheetTrait, activeController: SheetController): void;
   attachActiveView(activeView: SheetView, activeController: SheetController): void;

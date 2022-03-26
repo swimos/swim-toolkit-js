@@ -26,6 +26,7 @@ export {FolioTraitObserver} from "./FolioTraitObserver";
 
 export {
   FolioControllerStackExt,
+  FolioControllerSheetsExt,
   FolioControllerNavBarExt,
   FolioControllerAppBarExt,
   FolioControllerDrawerExt,

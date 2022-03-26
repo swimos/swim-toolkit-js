@@ -27,7 +27,7 @@ import {HeaderTrait} from "./HeaderTrait";
 import type {HeaderControllerObserver} from "./HeaderControllerObserver";
 
 /** @public */
-export type HeaderControllerColExt = {
+export interface HeaderControllerColExt {
   attachColTrait(colTrait: ColTrait, colController: ColController): void;
   detachColTrait(colTrait: ColTrait, colController: ColController): void;
   attachColView(colView: ColView, colController: ColController): void;

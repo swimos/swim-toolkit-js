@@ -14,9 +14,8 @@
 
 import type {Class, ObserverType, AnyTiming} from "@swim/util";
 import {Affinity, MemberFastenerClass, Property} from "@swim/component";
-import {Feel} from "@swim/theme";
 import {PositionGestureInput, View, ViewRef} from "@swim/view";
-import {TraitViewRef, TraitViewControllerRef} from "@swim/controller";
+import {TraitViewRef, TraitViewControllerRef, TraitViewControllerSet} from "@swim/controller";
 import {BarView, BarTrait, BarController} from "@swim/toolbar";
 import {DrawerView} from "@swim/window";
 import type {SheetView} from "../sheet/SheetView";
@@ -25,7 +24,11 @@ import {SheetController} from "../sheet/SheetController";
 import type {NavBarController} from "../stack/NavBarController";
 import type {StackView} from "../stack/StackView";
 import type {StackTrait} from "../stack/StackTrait";
-import {StackControllerNavBarExt, StackController} from "../stack/StackController";
+import {
+  StackControllerSheetsExt,
+  StackControllerNavBarExt,
+  StackController,
+} from "../stack/StackController";
 import {AppBarController} from "./AppBarController";
 import {FolioStyle, FolioView} from "./FolioView";
 import {FolioTrait} from "./FolioTrait";
@@ -33,7 +36,13 @@ import type {FolioControllerObserver} from "./FolioControllerObserver";
 
 /** @public */
 export interface FolioControllerStackExt {
+  updateFolioStyle(folioStyle: FolioStyle | undefined, stackView: StackView): void;
   updateFullBleed(fullBleed: boolean, stackView: StackView): void;
+}
+
+/** @public */
+export interface FolioControllerSheetsExt extends StackControllerSheetsExt {
+  updateFullBleed(fullBleed: boolean, sheetView: SheetView, sheetController: SheetController): void;
 }
 
 /** @public */
@@ -47,6 +56,7 @@ export interface FolioControllerAppBarExt {
   detachAppBarTrait(appBarTrait: BarTrait, appBarController: BarController): void;
   attachAppBarView(appBarView: BarView, appBarController: BarController): void;
   detachAppBarView(appBarView: BarView, appBarController: BarController): void;
+  updateFolioStyle(folioStyle: FolioStyle | undefined, appBarController: BarController): void;
 }
 
 /** @public */
@@ -66,6 +76,76 @@ export interface FolioControllerCoverExt {
 /** @public */
 export class FolioController extends StackController {
   override readonly observerType?: Class<FolioControllerObserver>;
+
+  @Property<FolioController, FolioStyle | undefined>({
+    type: String,
+    didSetValue(folioStyle: FolioStyle | undefined): void {
+      const coverController = this.owner.cover.controller;
+      if (coverController !== null) {
+        if (folioStyle === "stacked") {
+          this.owner.sheets.attachController(coverController);
+        } else if (folioStyle === "unstacked") {
+          this.owner.cover.insertView(this.owner.folio.view);
+          this.owner.sheets.detachController(coverController);
+        }
+      }
+
+      const stackView = this.owner.stack.view;
+      if (stackView !== null) {
+        this.owner.stack.updateFolioStyle(folioStyle, stackView);
+      }
+      const navBarController = this.owner.navBar.controller;
+      if (navBarController !== null) {
+        this.owner.navBar.updateFolioStyle(folioStyle, navBarController);
+      }
+      const appBarController = this.owner.appBar.controller;
+      if (appBarController !== null) {
+        this.owner.appBar.updateFolioStyle(folioStyle, appBarController);
+      }
+    },
+  })
+  readonly folioStyle!: Property<this, FolioStyle | undefined>;
+
+  @Property<FolioController, boolean>({
+    type: Boolean,
+    value: false,
+    didSetValue(fullScreen: boolean): void {
+      const drawerView = this.owner.drawer.view;
+      if (drawerView !== null) {
+        if (fullScreen) {
+          drawerView.dismiss();
+        } else {
+          drawerView.present();
+        }
+      }
+      this.owner.callObservers("controllerDidSetFullScreen", fullScreen, this.owner);
+    },
+  })
+  readonly fullScreen!: Property<this, boolean>;
+
+  @Property<FolioController, boolean>({
+    type: Boolean,
+    value: false,
+    didSetValue(fullBleed: boolean): void {
+      const drawerView = this.owner.drawer.view;
+      if (drawerView !== null) {
+        this.owner.drawer.updateFullBleed(fullBleed, drawerView);
+      }
+      const stackView = this.owner.stack.view;
+      if (stackView !== null) {
+        this.owner.stack.updateFullBleed(fullBleed, stackView);
+      }
+      const sheetControllers = this.owner.sheets.controllers;
+      for (const controllerId in sheetControllers) {
+        const sheetController = sheetControllers[controllerId]!;
+        const sheetView = sheetController.sheet.view;
+        if (sheetView !== null) {
+          this.owner.sheets.updateFullBleed(fullBleed, sheetView, sheetController);
+        }
+      }
+    },
+  })
+  readonly fullBleed!: Property<this, boolean>;
 
   @TraitViewRef<FolioController, FolioTrait, FolioView>({
     traitType: FolioTrait,
@@ -127,6 +207,7 @@ export class FolioController extends StackController {
       this.owner.callObservers("controllerWillAttachFolioView", folioView, this.owner);
     },
     didAttachView(folioView: FolioView): void {
+      this.owner.folioStyle.setValue(folioView.folioStyle.value, Affinity.Intrinsic);
       this.owner.fullBleed.setValue(folioView.fullBleed.value, Affinity.Intrinsic);
       this.owner.drawer.setView(folioView.drawer.attachView());
       this.owner.stack.setView(folioView.stack.attachView());
@@ -139,26 +220,7 @@ export class FolioController extends StackController {
       this.owner.callObservers("controllerDidDetachFolioView", folioView, this.owner);
     },
     viewDidSetFolioStyle(folioStyle: FolioStyle | undefined, folioView: FolioView): void {
-      const coverController = this.owner.cover.controller;
-      if (folioStyle === "stacked") {
-        if (coverController !== null) {
-          this.owner.sheets.attachController(coverController);
-        }
-      } else if (folioStyle === "unstacked") {
-        this.owner.cover.insertView(folioView);
-        if (coverController !== null) {
-          this.owner.sheets.detachController(coverController);
-        }
-        const appBarController = this.owner.appBar.controller;
-        if (appBarController instanceof AppBarController) {
-          appBarController.updateLayout();
-        }
-      }
-
-      const navBarController = this.owner.navBar.controller;
-      if (navBarController !== null) {
-        this.owner.navBar.updateFolioStyle(folioStyle, navBarController);
-      }
+      this.owner.folioStyle.setValue(folioStyle, Affinity.Intrinsic);
     },
     viewDidSetFullBleed(fullBleed: boolean, folioView: FolioView): void {
       this.owner.fullBleed.setValue(fullBleed, Affinity.Intrinsic);
@@ -190,23 +252,39 @@ export class FolioController extends StackController {
     implements: true,
     didAttachView(stackView: StackView, targetView: View | null): void {
       StackController.stack.prototype.didAttachView.call(this, stackView, targetView);
+      this.updateFolioStyle(this.owner.folioStyle.value, stackView);
       this.updateFullBleed(this.owner.fullBleed.value, stackView);
     },
+    updateFolioStyle(folioStyle: FolioStyle | undefined, stackView: StackView): void {
+      // hook
+    },
     updateFullBleed(fullBleed: boolean, stackView: StackView): void {
-      stackView.outAlign.setValue(fullBleed ? -1 : -(1 / 3), Affinity.Intrinsic);
+      // hook
     },
   })
   override readonly stack!: TraitViewRef<this, StackTrait, StackView> & FolioControllerStackExt;
-  static override readonly stack: MemberFastenerClass<StackController, "stack">;
+  static override readonly stack: MemberFastenerClass<FolioController, "stack">;
+
+  @TraitViewControllerSet<FolioController, SheetTrait, SheetView, SheetController, FolioControllerSheetsExt>({
+    extends: true,
+    implements: true,
+    attachSheetView(sheetView: SheetView, sheetController: SheetController): void {
+      StackController.sheets.prototype.attachSheetView.call(this, sheetView, sheetController);
+      this.updateFullBleed(this.owner.fullBleed.value, sheetView, sheetController);
+    },
+    updateFullBleed(fullBleed: boolean, sheetView: SheetView, sheetController: SheetController): void {
+      // hook
+    },
+  })
+  override readonly sheets!: TraitViewControllerSet<this, SheetTrait, SheetView, SheetController> & FolioControllerSheetsExt;
+  static override readonly sheets: MemberFastenerClass<FolioController, "sheets">;
 
   @TraitViewControllerRef<FolioController, BarTrait, BarView, BarController, FolioControllerNavBarExt & ObserverType<BarController | NavBarController>>({
     extends: true,
     implements: true,
     attachNavBarView(navBarView: BarView, navBarController: BarController): void {
       StackController.navBar.prototype.attachNavBarView.call(this, navBarView, navBarController);
-      const folioView = this.owner.folio.view;
-      const folioStyle = folioView !== null ? folioView.folioStyle.value : void 0;
-      this.updateFolioStyle(folioStyle, navBarController);
+      this.updateFolioStyle(this.owner.folioStyle.value, navBarController);
     },
     updateFolioStyle(folioStyle: FolioStyle | undefined, navBarController: BarController): void {
       // hook
@@ -302,6 +380,9 @@ export class FolioController extends StackController {
     detachAppBarView(appBarView: BarView, appBarController: BarController): void {
       appBarView.remove();
     },
+    updateFolioStyle(folioStyle: FolioStyle | undefined, appBarController: BarController): void {
+      appBarController.updateLayout();
+    },
     controllerDidPressMenuTool(input: PositionGestureInput, event: Event | null): void {
       this.owner.didPressMenuTool(input, event);
     },
@@ -314,39 +395,6 @@ export class FolioController extends StackController {
   })
   readonly appBar!: TraitViewControllerRef<this, BarTrait, BarView, BarController> & FolioControllerAppBarExt;
   static readonly appBar: MemberFastenerClass<FolioController, "appBar">;
-
-  @Property<FolioController, boolean>({
-    type: Boolean,
-    value: false,
-    didSetValue(fullScreen: boolean): void {
-      const drawerView = this.owner.drawer.view;
-      if (drawerView !== null) {
-        if (fullScreen) {
-          drawerView.dismiss();
-        } else {
-          drawerView.present();
-        }
-      }
-      this.owner.callObservers("controllerDidSetFullScreen", fullScreen, this.owner);
-    },
-  })
-  readonly fullScreen!: Property<this, boolean>;
-
-  @Property<FolioController, boolean>({
-    type: Boolean,
-    value: false,
-    didSetValue(fullBleed: boolean): void {
-      const drawerView = this.owner.drawer.view;
-      if (drawerView !== null) {
-        this.owner.drawer.updateFullBleed(fullBleed, drawerView);
-      }
-      const stackView = this.owner.stack.view;
-      if (stackView !== null) {
-        this.owner.stack.updateFullBleed(fullBleed, stackView);
-      }
-    },
-  })
-  readonly fullBleed!: Property<this, boolean>;
 
   @ViewRef<FolioController, DrawerView, FolioControllerDrawerExt>({
     implements: true,
@@ -369,7 +417,7 @@ export class FolioController extends StackController {
       this.owner.callObservers("controllerDidDetachDrawerView", drawerView, this.owner);
     },
     updateFullBleed(fullBleed: boolean, drawerView: DrawerView): void {
-      drawerView.modifyMood(Feel.default, [[Feel.translucent, fullBleed ? 1 : 0]]);
+      // hook
     },
   })
   readonly drawer!: ViewRef<this, DrawerView> & FolioControllerDrawerExt;
@@ -441,9 +489,7 @@ export class FolioController extends StackController {
       // hook
     },
     present(timing?: AnyTiming | boolean): SheetView | null {
-      const folioView = this.owner.folio.view;
-      const folioStyle = folioView !== null ? folioView.folioStyle.value : void 0;
-      if (folioStyle === "stacked") {
+      if (this.owner.folioStyle.value === "stacked") {
         const coverController = this.controller;
         const coverView = coverController !== null ? coverController.sheet.view : null;
         if (coverView !== null && coverView.parent === null) {

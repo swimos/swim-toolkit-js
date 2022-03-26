@@ -40,7 +40,7 @@ export interface StackControllerNavBarExt {
 }
 
 /** @public */
-export type StackControllerSheetsExt = {
+export interface StackControllerSheetsExt {
   attachSheetTrait(sheetTrait: SheetTrait, sheetController: SheetController): void;
   detachSheetTrait(sheetTrait: SheetTrait, sheetController: SheetController): void;
   attachSheetView(sheetView: SheetView, sheetController: SheetController): void;
@@ -50,7 +50,7 @@ export type StackControllerSheetsExt = {
 };
 
 /** @public */
-export type StackControllerFrontExt = {
+export interface StackControllerFrontExt {
   attachFrontTrait(frontTrait: SheetTrait, frontController: SheetController): void;
   detachFrontTrait(frontTrait: SheetTrait, frontController: SheetController): void;
   attachFrontView(frontView: SheetView, frontController: SheetController): void;

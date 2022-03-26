@@ -53,8 +53,8 @@ export class FolioView extends HtmlView {
   @Property<FolioView, boolean>({
     type: Boolean,
     value: false,
-    updateFlags: View.NeedsResize,
     didSetValue(fullBleed: boolean): void {
+      this.owner.requireUpdate(View.NeedsResize, true);
       this.owner.callObservers("viewDidSetFullBleed", fullBleed, this.owner);
     },
   })
