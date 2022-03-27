@@ -16,7 +16,7 @@ import type {Class, Instance, ObserverType, Creatable} from "@swim/util";
 import type {MemberFastenerClass} from "@swim/component";
 import type {Trait} from "@swim/model";
 import {Look, Mood} from "@swim/theme";
-import type {PositionGestureInput} from "@swim/view";
+import {PositionGestureInput, View} from "@swim/view";
 import type {HtmlView} from "@swim/dom";
 import type {Graphics} from "@swim/graphics";
 import {
@@ -107,6 +107,9 @@ export class BarController extends Controller {
     viewDidSetBarLayout(barLayout: BarLayout | null): void {
       this.owner.callObservers("controllerDidSetBarLayout", barLayout, this.owner);
     },
+    viewDidDismissTool(toolView: ToolView, toolLayout: ToolLayout, barView: BarView): void {
+      toolView.remove();
+    },
   })
   readonly bar!: TraitViewRef<this, BarTrait, BarView>;
   static readonly bar: MemberFastenerClass<BarController, "bar">;
@@ -131,6 +134,8 @@ export class BarController extends Controller {
       if (barLayout !== null) {
         const timing = barView.getLookOr(Look.timing, Mood.navigating, false);
         barView.layout.setState(barLayout, timing);
+        // Immediately run resize pass to prevent layout flicker.
+        barView.requireUpdate(View.NeedsResize, true);
       }
     }
   }

@@ -56,9 +56,9 @@ export interface PanelControllerObserver<C extends PanelController = PanelContro
 
   controllerDidDetachTabView?(tabView: SheetView, tabController: SheetController, controller: C): void;
 
-  controllerWillAttachTabIconToolView?(iconToolView: ToolView, tabController: SheetController, controller: C): void;
+  controllerWillAttachTabButtonToolView?(buttonToolView: ToolView, tabController: SheetController, controller: C): void;
 
-  controllerDidDetachTabIconToolView?(iconToolView: ToolView, tabController: SheetController, controller: C): void;
+  controllerDidDetachTabButtonToolView?(buttonToolView: ToolView, tabController: SheetController, controller: C): void;
 
   controllerDidPressTabTool?(input: PositionGestureInput, event: Event | null, tabController: SheetController, controller: C): void;
 

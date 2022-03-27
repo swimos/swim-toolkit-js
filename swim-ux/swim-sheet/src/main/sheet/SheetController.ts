@@ -57,10 +57,10 @@ export class SheetController extends Controller {
     observesTrait: true,
     initTrait(sheetTrait: SheetTrait): void {
       this.owner.setTitleToolView(sheetTrait.title.value, sheetTrait);
-      this.owner.setIconToolView(sheetTrait.icon.value);
+      this.owner.setButtonToolView(sheetTrait.icon.value);
     },
     deinitTrait(sheetTrait: SheetTrait): void {
-      this.owner.setIconToolView(null);
+      this.owner.setButtonToolView(null);
       this.owner.setTitleToolView(null, sheetTrait);
     },
     willAttachTrait(sheetTrait: SheetTrait): void {
@@ -73,21 +73,21 @@ export class SheetController extends Controller {
       this.owner.setTitleToolView(title, sheetTrait);
     },
     traitDidSetIcon(icon: Graphics | null): void {
-      this.owner.setIconToolView(icon);
+      this.owner.setButtonToolView(icon);
     },
     viewType: SheetView,
     observesView: true,
     initView(sheetView: SheetView): void {
       this.owner.titleTool.setView(sheetView.titleTool.view);
-      this.owner.iconTool.setView(sheetView.iconTool.view);
+      this.owner.buttonTool.setView(sheetView.buttonTool.view);
       const sheetTrait = this.trait;
       if (sheetTrait !== null) {
         this.owner.setTitleToolView(sheetTrait.title.value, sheetTrait);
-        this.owner.setIconToolView(sheetTrait.icon.value);
+        this.owner.setButtonToolView(sheetTrait.icon.value);
       }
     },
     deinitView(sheetView: SheetView): void {
-      this.owner.iconTool.setView(null);
+      this.owner.buttonTool.setView(null);
       this.owner.titleTool.setView(null);
     },
     willAttachView(sheetView: SheetView): void {
@@ -114,11 +114,11 @@ export class SheetController extends Controller {
     viewDidDetachTitleTool(titleToolView: ToolView): void {
       this.owner.titleTool.setView(null);
     },
-    viewWillAttachIconTool(iconToolView: ToolView): void {
-      this.owner.iconTool.setView(iconToolView);
+    viewWillAttachButtonTool(buttonToolView: ToolView): void {
+      this.owner.buttonTool.setView(buttonToolView);
     },
-    viewDidDetachIconTool(iconToolView: ToolView): void {
-      this.owner.iconTool.setView(null);
+    viewDidDetachButtonTool(buttonToolView: ToolView): void {
+      this.owner.buttonTool.setView(null);
     },
     viewWillPresent(sheetView: SheetView): void {
       this.owner.callObservers("controllerWillPresentSheetView", sheetView, this.owner);
@@ -164,10 +164,10 @@ export class SheetController extends Controller {
   readonly titleTool!: ViewRef<this, ToolView>;
   static readonly titleTool: MemberFastenerClass<SheetController, "titleTool">;
 
-  setIconToolView(icon: Graphics | null): void {
+  setButtonToolView(icon: ToolView | Graphics | null): void {
     const sheetView = this.sheet.view;
     if (sheetView !== null) {
-      sheetView.iconTool.setView(icon);
+      sheetView.buttonTool.setView(icon);
     }
   }
 
@@ -175,19 +175,19 @@ export class SheetController extends Controller {
     implements: true,
     type: ToolView,
     observes: true,
-    willAttachView(iconToolView: ToolView): void {
-      this.owner.callObservers("controllerWillAttachIconToolView", iconToolView, this.owner);
+    willAttachView(buttonToolView: ToolView): void {
+      this.owner.callObservers("controllerWillAttachButtonToolView", buttonToolView, this.owner);
     },
-    didDetachView(iconToolView: ToolView): void {
-      this.owner.callObservers("controllerDidDetachIconToolView", iconToolView, this.owner);
+    didDetachView(buttonToolView: ToolView): void {
+      this.owner.callObservers("controllerDidDetachButtonToolView", buttonToolView, this.owner);
     },
     viewDidPress(input: PositionGestureInput, event: Event | null): void {
-      this.owner.callObservers("controllerDidPressIconTool", input, event, this.owner);
+      this.owner.callObservers("controllerDidPressButtonTool", input, event, this.owner);
     },
     viewDidLongPress(input: PositionGestureInput): void {
-      this.owner.callObservers("controllerDidLongPressIconTool", input, this.owner);
+      this.owner.callObservers("controllerDidLongPressButtonTool", input, this.owner);
     },
   })
-  readonly iconTool!: ViewRef<this, ToolView>;
-  static readonly iconTool: MemberFastenerClass<SheetController, "iconTool">;
+  readonly buttonTool!: ViewRef<this, ToolView>;
+  static readonly buttonTool: MemberFastenerClass<SheetController, "buttonTool">;
 }

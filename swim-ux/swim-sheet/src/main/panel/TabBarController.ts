@@ -40,12 +40,12 @@ export class TabBarController extends BarController {
     const tabControllers = this.tabs.controllers;
     for (const controllerId in tabControllers) {
       const tabController = tabControllers[controllerId]!;
-      const tabToolView = tabController.iconTool.view;
+      const tabToolView = tabController.buttonTool.view;
       if (tabToolView !== null) {
         const tabKey = "tab" + tabToolView.uid;
         const tabToolLayout = ToolLayout.create(tabKey, 1, 0, 0, 0.5);
         tools.push(tabToolLayout);
-        tabController.iconTool.insertView(this.bar.view, void 0, void 0, tabKey);
+        tabController.buttonTool.insertView(this.bar.view, void 0, void 0, tabKey);
         if (tabToolView instanceof ButtonToolView) {
           if (tabController === activeController) {
             tabToolView.iconColor.setLook(Look.accentColor, Affinity.Intrinsic);
@@ -73,16 +73,16 @@ export class TabBarController extends BarController {
     didDetachController(tabController: SheetController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
-    controllerWillAttachIconToolView(iconToolView: ToolView, tabController: SheetController): void {
+    controllerWillAttachButtonToolView(buttonToolView: ToolView, tabController: SheetController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
-    controllerDidDetachIconToolView(iconToolView: ToolView, tabController: SheetController): void {
+    controllerDidDetachButtonToolView(buttonToolView: ToolView, tabController: SheetController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
-    controllerDidPressIconTool(input: PositionGestureInput, event: Event | null, tabController: SheetController): void {
+    controllerDidPressButtonTool(input: PositionGestureInput, event: Event | null, tabController: SheetController): void {
       this.owner.callObservers("controllerDidPressTabTool", input, event, tabController, this.owner);
     },
-    controllerDidLongPressIconTool(input: PositionGestureInput, tabController: SheetController): void {
+    controllerDidLongPressButtonTool(input: PositionGestureInput, tabController: SheetController): void {
       this.owner.callObservers("controllerDidLongPressTabTool", input, tabController, this.owner);
     },
   })
@@ -102,10 +102,10 @@ export class TabBarController extends BarController {
     didDetachController(activeController: SheetController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
-    controllerWillAttachIconToolView(iconToolView: ToolView, activeController: SheetController): void {
+    controllerWillAttachButtonToolView(buttonToolView: ToolView, activeController: SheetController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
-    controllerDidDetachIconToolView(iconToolView: ToolView, activeController: SheetController): void {
+    controllerDidDetachButtonToolView(buttonToolView: ToolView, activeController: SheetController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
   })

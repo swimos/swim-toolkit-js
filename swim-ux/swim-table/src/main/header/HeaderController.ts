@@ -34,7 +34,7 @@ export interface HeaderControllerColExt {
   detachColView(colView: ColView, colController: ColController): void;
   attachColLabelView(colLabelView: HtmlView, colController: ColController): void;
   detachColLabelView(colLabelView: HtmlView, colController: ColController): void;
-};
+}
 
 /** @public */
 export class HeaderController extends Controller {

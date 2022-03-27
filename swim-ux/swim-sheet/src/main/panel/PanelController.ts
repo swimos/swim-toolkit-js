@@ -40,9 +40,9 @@ export interface PanelControllerTabsExt {
   detachTabTrait(tabTrait: SheetTrait, tabController: SheetController): void;
   attachTabView(tabView: SheetView, tabController: SheetController): void;
   detachTabView(tabView: SheetView, tabController: SheetController): void;
-  attachIconToolView(iconToolView: ToolView, tabController: SheetController): void;
-  detachIconToolView(iconToolView: ToolView, tabController: SheetController): void;
-};
+  attachButtonToolView(buttonToolView: ToolView, tabController: SheetController): void;
+  detachButtonToolView(buttonToolView: ToolView, tabController: SheetController): void;
+}
 
 /** @public */
 export interface PanelControllerActiveExt {
@@ -50,7 +50,7 @@ export interface PanelControllerActiveExt {
   detachActiveTrait(activeTrait: SheetTrait, activeController: SheetController): void;
   attachActiveView(activeView: SheetView, activeController: SheetController): void;
   detachActiveView(activeView: SheetView, activeController: SheetController): void;
-};
+}
 
 /** @public */
 export class PanelController extends SheetController {
@@ -315,9 +315,9 @@ export class PanelController extends SheetController {
       this.owner.callObservers("controllerDidDetachTabView", tabView, tabController, this.owner);
     },
     attachTabView(tabView: SheetView, tabController: SheetController): void {
-      const iconToolView = tabView.iconTool.view;
-      if (iconToolView !== null) {
-        this.attachIconToolView(iconToolView, tabController);
+      const buttonToolView = tabView.buttonTool.view;
+      if (buttonToolView !== null) {
+        this.attachButtonToolView(buttonToolView, tabController);
       }
       const panelView = this.owner.panel.view;
       if (panelView !== null) {
@@ -325,28 +325,28 @@ export class PanelController extends SheetController {
       }
     },
     detachTabView(tabView: SheetView, tabController: SheetController): void {
-      const iconToolView = tabView.iconTool.view;
-      if (iconToolView !== null) {
-        this.detachIconToolView(iconToolView, tabController);
+      const buttonToolView = tabView.buttonTool.view;
+      if (buttonToolView !== null) {
+        this.detachButtonToolView(buttonToolView, tabController);
       }
       const panelView = this.owner.panel.view;
       if (panelView !== null) {
         panelView.tabs.deleteView(tabView);
       }
     },
-    controllerWillAttachIconToolView(iconToolView: ToolView, tabController: SheetController): void {
-      this.owner.callObservers("controllerWillAttachTabIconToolView", iconToolView, tabController, this.owner);
-      this.attachIconToolView(iconToolView, tabController);
+    controllerWillAttachButtonToolView(buttonToolView: ToolView, tabController: SheetController): void {
+      this.owner.callObservers("controllerWillAttachTabButtonToolView", buttonToolView, tabController, this.owner);
+      this.attachButtonToolView(buttonToolView, tabController);
     },
-    controllerDidDetachIconToolView(iconToolView: ToolView, tabController: SheetController): void {
-      this.detachIconToolView(iconToolView, tabController);
-      this.owner.callObservers("controllerDidDetachTabIconToolView", iconToolView, tabController, this.owner);
+    controllerDidDetachButtonToolView(buttonToolView: ToolView, tabController: SheetController): void {
+      this.detachButtonToolView(buttonToolView, tabController);
+      this.owner.callObservers("controllerDidDetachTabButtonToolView", buttonToolView, tabController, this.owner);
     },
-    attachIconToolView(iconToolView: ToolView, tabController: SheetController): void {
+    attachButtonToolView(buttonToolView: ToolView, tabController: SheetController): void {
       // hook
     },
-    detachIconToolView(iconToolView: ToolView, tabController: SheetController): void {
-      iconToolView.remove();
+    detachButtonToolView(buttonToolView: ToolView, tabController: SheetController): void {
+      buttonToolView.remove();
     },
   })
   readonly tabs!: TraitViewControllerSet<this, SheetTrait, SheetView, SheetController> & PanelControllerTabsExt;

@@ -47,7 +47,7 @@ export interface StackControllerSheetsExt {
   detachSheetView(sheetView: SheetView, sheetController: SheetController): void;
   attachTitleToolView(titleToolView: ToolView, sheetController: SheetController): void;
   detachTitleToolView(titleToolView: ToolView, sheetController: SheetController): void;
-};
+}
 
 /** @public */
 export interface StackControllerFrontExt {
@@ -56,7 +56,7 @@ export interface StackControllerFrontExt {
   attachFrontView(frontView: SheetView, frontController: SheetController): void;
   detachFrontView(frontView: SheetView, frontController: SheetController): void;
   dismiss(timing?: AnyTiming | boolean): SheetView | null;
-};
+}
 
 /** @public */
 export class StackController extends Controller {

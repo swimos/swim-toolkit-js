@@ -15,6 +15,7 @@
 import type {Length} from "@swim/math";
 import type {View} from "@swim/view";
 import type {HtmlViewObserver} from "@swim/dom";
+import type {ToolLayout} from "../layout/ToolLayout";
 import type {BarLayout} from "../layout/BarLayout";
 import type {ToolView} from "../tool/ToolView";
 import type {BarPlacement, BarView} from "./BarView";
@@ -32,4 +33,6 @@ export interface BarViewObserver<V extends BarView = BarView> extends HtmlViewOb
   viewWillAttachTool?(toolView: ToolView, targetView: View | null, view: V): void;
 
   viewDidDetachTool?(toolView: ToolView, view: V): void;
+
+  viewDidDismissTool?(toolView: ToolView, toolLayout: ToolLayout, view: V): void;
 }

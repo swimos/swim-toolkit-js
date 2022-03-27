@@ -49,13 +49,13 @@ export interface SheetControllerObserver<C extends SheetController = SheetContro
 
   controllerDidDetachTitleToolView?(titleToolView: ToolView, controller: C): void;
 
-  controllerWillAttachIconToolView?(iconToolView: ToolView, controller: C): void;
+  controllerWillAttachButtonToolView?(buttonToolView: ToolView, controller: C): void;
 
-  controllerDidDetachIconToolView?(iconToolView: ToolView, controller: C): void;
+  controllerDidDetachButtonToolView?(buttonToolView: ToolView, controller: C): void;
 
-  controllerDidPressIconTool?(input: PositionGestureInput, event: Event | null, controller: C): void;
+  controllerDidPressButtonTool?(input: PositionGestureInput, event: Event | null, controller: C): void;
 
-  controllerDidLongPressIconTool?(input: PositionGestureInput, controller: C): void;
+  controllerDidLongPressButtonTool?(input: PositionGestureInput, controller: C): void;
 
   controllerWillPresentSheetView?(sheetView: SheetView, controller: C): void;
 

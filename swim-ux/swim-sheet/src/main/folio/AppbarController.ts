@@ -40,8 +40,6 @@ export class AppBarController extends BarController {
 
   protected override createLayout(): BarLayout | null {
     const tools = new Array<ToolLayout>();
-    const coverView = this.cover.view;
-    const coverKey = coverView !== null ? "cover" + coverView.uid : "cover";
 
     const menuToolController = this.menuTool.controller;
     if (menuToolController !== null) {
@@ -54,10 +52,11 @@ export class AppBarController extends BarController {
       }
     }
 
-    const coverLayout = ToolLayout.create(coverKey, 1, 0, 0, 0);
+    const coverLayout = ToolLayout.create("cover", 1, 0, 0, 0);
     tools.push(coverLayout);
+    const coverView = this.cover.view;
     if (coverView !== null) {
-      const coverTitleView = coverView.titleTool.insertView(this.bar.view, void 0, void 0, coverKey);
+      const coverTitleView = coverView.titleTool.insertView(this.bar.view, void 0, void 0, "cover");
       if (coverTitleView !== null) {
         const timing = coverTitleView.getLookOr(Look.timing, Mood.navigating, false);
         coverTitleView.color.setLook(Look.textColor, timing, Affinity.Intrinsic);
@@ -101,9 +100,9 @@ export class AppBarController extends BarController {
       toolView.iconWidth.setState(24, Affinity.Intrinsic);
       toolView.iconHeight.setState(24, Affinity.Intrinsic);
       if (this.owner.fullScreen.value) {
-        toolView.graphics.setState(AppBarController.menuIcon, Affinity.Intrinsic);
+        toolView.graphics.setState(this.owner.menuIcon, Affinity.Intrinsic);
       } else {
-        toolView.graphics.setState(AppBarController.menuCloseIcon, Affinity.Intrinsic);
+        toolView.graphics.setState(this.owner.menuCloseIcon, Affinity.Intrinsic);
       }
       return toolController;
     },
@@ -132,7 +131,7 @@ export class AppBarController extends BarController {
       const toolView = toolController.tool.attachView()!;
       toolView.iconWidth.setState(24, Affinity.Intrinsic);
       toolView.iconHeight.setState(24, Affinity.Intrinsic);
-      toolView.graphics.setState(AppBarController.actionIcon, Affinity.Intrinsic);
+      toolView.graphics.setState(this.owner.actionIcon, Affinity.Intrinsic);
       return toolController;
     },
   })
@@ -173,25 +172,37 @@ export class AppBarController extends BarController {
       const toolView = this.owner.menuTool.view;
       if (toolView instanceof ButtonToolView) {
         if (fullScreen) {
-          toolView.graphics.setState(AppBarController.menuIcon, Affinity.Intrinsic);
+          toolView.graphics.setState(this.owner.menuIcon, Affinity.Intrinsic);
         } else {
-          toolView.graphics.setState(AppBarController.menuCloseIcon, Affinity.Intrinsic);
+          toolView.graphics.setState(this.owner.menuCloseIcon, Affinity.Intrinsic);
         }
       }
     },
   })
   readonly fullScreen!: Property<this, boolean>;
 
+  get menuIcon(): VectorIcon {
+    return AppBarController.menuIcon;
+  }
+
+  get menuCloseIcon(): VectorIcon {
+    return AppBarController.menuCloseIcon;
+  }
+
+  get actionIcon(): VectorIcon {
+    return AppBarController.actionIcon;
+  }
+
   /** @internal */
   @Lazy
   static get menuIcon(): VectorIcon {
-    return VectorIcon.create(24, 24, "M3,18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3Z");
+    return VectorIcon.create(24, 24, "M19,3C20.1,3,21,3.9,21,5L21,19C21,20.1,20.1,21,19,21L5,21C3.9,21,3,20.1,3,19L3,5C3,3.9,3.9,3,5,3L19,3ZM9,5L6,5C5.49,5,5.06,5.39,5.01,5.88L5,6L5,18C5,18.51,5.39,18.94,5.88,18.99L6,19L9,19L9,5ZM18,5L11,5L11,19L18,19C18.51,19,18.94,18.61,18.99,18.12L19,18L19,6C19,5.49,18.61,5.06,18.12,5.01L18,5ZM8,11L8,12L6,12L6,11L8,11ZM8,9L8,10L6,10L6,9L8,9ZM8,7L8,8L6,8L6,7L8,7Z");
   }
 
   /** @internal */
   @Lazy
   static get menuCloseIcon(): VectorIcon {
-    return VectorIcon.create(24, 24, "M3,18h13v-2H3v2zm0-5h10v-2H3v2zm0-7v2h13V6H3zm18,9.59L17.42,12,21,8.41,19.59,7l-5,5,5,5L21,15.59Z");
+    return VectorIcon.create(24, 24, "M19,3C20.1,3,21,3.9,21,5L21,19C21,20.1,20.1,21,19,21L5,21C3.9,21,3,20.1,3,19L3,5C3,3.9,3.9,3,5,3L19,3ZM9,5L6,5C5.49,5,5.06,5.39,5.01,5.88L5,6L5,18C5,18.51,5.39,18.94,5.88,18.99L6,19L9,19L9,5ZM18,5L11,5L11,19L18,19C18.51,19,18.94,18.61,18.99,18.12L19,18L19,6C19,5.49,18.61,5.06,18.12,5.01L18,5ZM8,11L8,12L6,12L6,11L8,11ZM8,9L8,10L6,10L6,9L8,9ZM8,7L8,8L6,8L6,7L8,7Z");
   }
 
   /** @internal */

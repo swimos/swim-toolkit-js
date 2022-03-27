@@ -99,11 +99,11 @@ export class SheetView extends HtmlView {
   @ViewRef<SheetView, ToolView & Initable<HtmlViewInit | Graphics>, {create(value?: Graphics): ToolView}>({
     implements: true,
     type: ToolView,
-    willAttachView(iconToolView: ToolView): void {
-      this.owner.callObservers("viewWillAttachIconTool", iconToolView, this.owner);
+    willAttachView(buttonToolView: ToolView): void {
+      this.owner.callObservers("viewWillAttachButtonTool", buttonToolView, this.owner);
     },
-    didDetachView(iconToolView: ToolView): void {
-      this.owner.callObservers("viewDidDetachIconTool", iconToolView, this.owner);
+    didDetachView(buttonToolView: ToolView): void {
+      this.owner.callObservers("viewDidDetachButtonTool", buttonToolView, this.owner);
     },
     create(value?: Graphics): ToolView {
       const toolView = ButtonToolView.create();
@@ -122,8 +122,8 @@ export class SheetView extends HtmlView {
       }
     },
   })
-  readonly iconTool!: ViewRef<this, ToolView & Initable<HtmlViewInit | Graphics>> & {create(value?: Graphics): ToolView};
-  static readonly iconTool: MemberFastenerClass<SheetView, "iconTool">;
+  readonly buttonTool!: ViewRef<this, ToolView & Initable<HtmlViewInit | Graphics>> & {create(value?: Graphics): ToolView};
+  static readonly buttonTool: MemberFastenerClass<SheetView, "buttonTool">;
 
   @Property<SheetView, boolean>({
     type: Boolean,

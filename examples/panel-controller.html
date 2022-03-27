@@ -68,21 +68,21 @@ panelController.tabBar.insertController();
 const tab1Controller = new swim.SheetController();
 const tab1View = tab1Controller.sheet.attachView();
 tab1View.titleTool.setView("Tab 1");
-tab1View.iconTool.setView(swim.PolygonIcon.create(4));
+tab1View.buttonTool.setView(swim.PolygonIcon.create(4));
 tab1View.appendChild(swim.HtmlView.fromTag("h2").margin(12).text("Tab 1"));
 panelController.tabs.addController(tab1Controller);
 
 const tab2Controller = new swim.SheetController();
 const tab2View = tab2Controller.sheet.attachView();
 tab2View.titleTool.setView("Tab 2");
-tab2View.iconTool.setView(swim.PolygonIcon.create(6));
+tab2View.buttonTool.setView(swim.PolygonIcon.create(6));
 tab2View.appendChild(swim.HtmlView.fromTag("h2").margin(12).text("Tab 2"));
 panelController.tabs.addController(tab2Controller);
 
 const tab3Controller = new swim.SheetController();
 const tab3View = tab3Controller.sheet.attachView();
 tab3View.titleTool.setView("Tab 3");
-tab3View.iconTool.setView(swim.PolygonIcon.create(8));
+tab3View.buttonTool.setView(swim.PolygonIcon.create(8));
 tab3View.appendChild(swim.HtmlView.fromTag("h2").margin(12).text("Tab 3"));
 panelController.tabs.addController(tab3Controller);
 

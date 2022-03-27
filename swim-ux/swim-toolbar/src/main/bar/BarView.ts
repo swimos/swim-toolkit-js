@@ -314,6 +314,9 @@ export class BarView extends HtmlView {
           child.opacity.setState(tool.presence.phase !== 1 ? tool.presence.phase : void 0, Affinity.Intrinsic);
           child.xAlign.setState(tool.align, Affinity.Intrinsic);
           child.pointerEvents.setState(tool.presence.dismissing ? "none" : void 0, Affinity.Transient);
+          if (tool.presence.dismissed) {
+            this.callObservers("viewDidDismissTool", child, tool, this);
+          }
         } else {
           child.display.setState("none", Affinity.Intrinsic);
           child.left.setState(null, Affinity.Intrinsic);

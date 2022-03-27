@@ -42,6 +42,7 @@ export interface FolioControllerStackExt {
 
 /** @public */
 export interface FolioControllerSheetsExt extends StackControllerSheetsExt {
+  updateFolioStyle(folioStyle: FolioStyle | undefined, sheetView: SheetView, sheetController: SheetController): void;
   updateFullBleed(fullBleed: boolean, sheetView: SheetView, sheetController: SheetController): void;
 }
 
@@ -102,26 +103,17 @@ export class FolioController extends StackController {
       if (appBarController !== null) {
         this.owner.appBar.updateFolioStyle(folioStyle, appBarController);
       }
+      const sheetControllers = this.owner.sheets.controllers;
+      for (const controllerId in sheetControllers) {
+        const sheetController = sheetControllers[controllerId]!;
+        const sheetView = sheetController.sheet.view;
+        if (sheetView !== null) {
+          this.owner.sheets.updateFolioStyle(folioStyle, sheetView, sheetController);
+        }
+      }
     },
   })
   readonly folioStyle!: Property<this, FolioStyle | undefined>;
-
-  @Property<FolioController, boolean>({
-    type: Boolean,
-    value: false,
-    didSetValue(fullScreen: boolean): void {
-      const drawerView = this.owner.drawer.view;
-      if (drawerView !== null) {
-        if (fullScreen) {
-          drawerView.dismiss();
-        } else {
-          drawerView.present();
-        }
-      }
-      this.owner.callObservers("controllerDidSetFullScreen", fullScreen, this.owner);
-    },
-  })
-  readonly fullScreen!: Property<this, boolean>;
 
   @Property<FolioController, boolean>({
     type: Boolean,
@@ -146,6 +138,23 @@ export class FolioController extends StackController {
     },
   })
   readonly fullBleed!: Property<this, boolean>;
+
+  @Property<FolioController, boolean>({
+    type: Boolean,
+    value: false,
+    didSetValue(fullScreen: boolean): void {
+      const drawerView = this.owner.drawer.view;
+      if (drawerView !== null) {
+        if (fullScreen) {
+          drawerView.dismiss();
+        } else {
+          drawerView.present();
+        }
+      }
+      this.owner.callObservers("controllerDidSetFullScreen", fullScreen, this.owner);
+    },
+  })
+  readonly fullScreen!: Property<this, boolean>;
 
   @TraitViewRef<FolioController, FolioTrait, FolioView>({
     traitType: FolioTrait,
@@ -270,7 +279,11 @@ export class FolioController extends StackController {
     implements: true,
     attachSheetView(sheetView: SheetView, sheetController: SheetController): void {
       StackController.sheets.prototype.attachSheetView.call(this, sheetView, sheetController);
+      this.updateFolioStyle(this.owner.folioStyle.value, sheetView, sheetController);
       this.updateFullBleed(this.owner.fullBleed.value, sheetView, sheetController);
+    },
+    updateFolioStyle(folioStyle: FolioStyle | undefined, sheetView: SheetView, sheetController: SheetController): void {
+      // hook
     },
     updateFullBleed(fullBleed: boolean, sheetView: SheetView, sheetController: SheetController): void {
       // hook

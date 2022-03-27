@@ -50,7 +50,6 @@ export class NavBarController extends BarController {
     const showBackTitle = this.showBackTitle.value;
 
     if (frontView === null || backView === null) {
-      this.backTool.removeView();
       const closeToolController = this.closeTool.controller;
       if (closeToolController !== null) {
         const closeToolLayout = closeToolController.layout.value;
@@ -62,7 +61,6 @@ export class NavBarController extends BarController {
         }
       }
     } else {
-      this.closeTool.removeView();
       this.backTool.insertView();
       const backToolController = this.backTool.controller;
       if (backToolController !== null) {
@@ -101,13 +99,9 @@ export class NavBarController extends BarController {
       const barView = this.bar.view;
       const oldBarLayout = barView !== null ? barView.layout.value : null;
       const oldBackLayout = oldBarLayout !== null && backKey !== void 0 ? oldBarLayout.getTool(backKey) : null;
-      if (backView !== null) {
-        if (oldBackLayout !== null) {
-          const backLayout = ToolLayout.create(backKey!, 0, 0, 0, 0, -1, -1).withPresence(Presence.dismissed());
-          tools.push(backLayout);
-        } else {
-          backView.titleTool.removeView();
-        }
+      if (backView !== null && oldBackLayout !== null) {
+        const backLayout = ToolLayout.create(backKey!, 0, 0, 0, 0, -1, -1).withPresence(Presence.dismissed());
+        tools.push(backLayout);
       }
       if (frontView !== null) {
         let frontLayout: ToolLayout;
@@ -161,7 +155,7 @@ export class NavBarController extends BarController {
       const toolView = toolController.tool.attachView()!;
       toolView.iconWidth.setState(24, Affinity.Intrinsic);
       toolView.iconHeight.setState(24, Affinity.Intrinsic);
-      toolView.graphics.setState(NavBarController.closeIcon, Affinity.Intrinsic);
+      toolView.graphics.setState(this.owner.closeIcon, Affinity.Intrinsic);
       return toolController;
     },
   })
@@ -189,7 +183,7 @@ export class NavBarController extends BarController {
       const toolView = toolController.tool.attachView()!;
       toolView.iconWidth.setState(24, Affinity.Intrinsic);
       toolView.iconHeight.setState(24, Affinity.Intrinsic);
-      toolView.graphics.setState(NavBarController.backIcon, Affinity.Intrinsic);
+      toolView.graphics.setState(this.owner.backIcon, Affinity.Intrinsic);
       return toolController;
     },
   })
@@ -217,7 +211,7 @@ export class NavBarController extends BarController {
       const toolView = toolController.tool.attachView()!;
       toolView.iconWidth.setState(24, Affinity.Intrinsic);
       toolView.iconHeight.setState(24, Affinity.Intrinsic);
-      toolView.graphics.setState(NavBarController.moreIcon, Affinity.Intrinsic);
+      toolView.graphics.setState(this.owner.moreIcon, Affinity.Intrinsic);
       return toolController;
     },
   })
@@ -249,6 +243,18 @@ export class NavBarController extends BarController {
   })
   readonly front!: TraitViewControllerRef<this, SheetTrait, SheetView, SheetController>;
   static readonly front: MemberFastenerClass<NavBarController, "front">;
+
+  get closeIcon(): VectorIcon {
+    return NavBarController.closeIcon;
+  }
+
+  get backIcon(): VectorIcon {
+    return NavBarController.backIcon;
+  }
+
+  get moreIcon(): VectorIcon {
+    return NavBarController.moreIcon;
+  }
 
   /** @internal */
   @Lazy
