@@ -36,7 +36,7 @@ export class TabBarController extends BarController {
     const tools = new Array<ToolLayout>();
     tools.push(ToolLayout.create("leftPadding", 0.5, 0, 0, 0));
 
-    if (this.tabStyle.value !== "mode") {
+    if (this.tabStyle.value === "bottom") {
       const tabControllers = this.tabs.controllers;
       for (const controllerId in tabControllers) {
         const tabController = tabControllers[controllerId]!;
@@ -108,7 +108,7 @@ export class TabBarController extends BarController {
 
   @Property<TabBarController, PanelTabStyle>({
     type: String,
-    value: "bottom",
+    value: "none",
     inherits: true,
     didSetValue(tabStyle: PanelTabStyle): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);

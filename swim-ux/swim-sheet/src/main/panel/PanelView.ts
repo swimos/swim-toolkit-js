@@ -21,7 +21,7 @@ import {SheetView} from "../sheet/SheetView";
 import type {PanelViewObserver} from "./PanelViewObserver";
 
 /** @public */
-export type PanelTabStyle = "bottom" | "mode";
+export type PanelTabStyle = "bottom" | "mode" | "none";
 
 /** @public */
 export class PanelView extends SheetView {
@@ -41,7 +41,7 @@ export class PanelView extends SheetView {
 
   @Property<PanelView, PanelTabStyle>({
     type: String,
-    value: "bottom",
+    value: "none",
     updateFlags: View.NeedsResize,
     didSetValue(tabStyle: PanelTabStyle): void {
       this.owner.callObservers("viewDidSetTabStyle", tabStyle, this.owner);

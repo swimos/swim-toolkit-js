@@ -75,7 +75,7 @@ export class PanelController extends SheetController {
 
   @Property<PanelController, PanelTabStyle>({
     type: String,
-    value: "bottom",
+    value: "none",
     didSetValue(tabStyle: PanelTabStyle): void {
       const tabBarController = this.owner.tabBar.controller;
       if (tabBarController !== null) {
@@ -275,10 +275,10 @@ export class PanelController extends SheetController {
       this.owner.didLongPressTabTool(input, tabController);
     },
     updateTabStyle(tabStyle: PanelTabStyle, tabBarController: BarController): void {
-      if (tabStyle === "mode") {
-        this.removeView();
-      } else {
+      if (tabStyle === "bottom") {
         this.insertView();
+      } else {
+        this.removeView();
       }
     },
     createController(): BarController {
