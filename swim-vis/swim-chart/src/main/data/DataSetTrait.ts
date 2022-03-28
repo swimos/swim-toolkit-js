@@ -48,31 +48,13 @@ export class DataSetTrait<X = unknown, Y = unknown> extends Trait {
   readonly dataPoints!: TraitSet<this, DataPointTrait<X, Y>>;
   static readonly dataPoints: MemberFastenerClass<DataSetTrait, "dataPoints">;
 
-  /** @internal */
-  protected startConsumingDataPoints(): void {
-    const dataPointTraits = this.dataPoints.traits;
-    for (const traitId in dataPointTraits) {
-      const dataPointTrait = dataPointTraits[traitId]!;
-      dataPointTrait.consume(this);
-    }
-  }
-
-  /** @internal */
-  protected stopConsumingDataPoints(): void {
-    const dataPointTraits = this.dataPoints.traits;
-    for (const traitId in dataPointTraits) {
-      const dataPointTrait = dataPointTraits[traitId]!;
-      dataPointTrait.unconsume(this);
-    }
-  }
-
   protected override onStartConsuming(): void {
     super.onStartConsuming();
-    this.startConsumingDataPoints();
+    this.dataPoints.consumeTraits(this);
   }
 
   protected override onStopConsuming(): void {
     super.onStopConsuming();
-    this.stopConsumingDataPoints();
+    this.dataPoints.unconsumeTraits(this);
   }
 }

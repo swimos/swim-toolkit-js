@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Proto, ObserverType} from "@swim/util";
+import type {Mutable, Proto, ObserverType, ConsumerType} from "@swim/util";
 import {Affinity, FastenerOwner, FastenerFlags, Fastener} from "@swim/component";
 import type {Model} from "../model/Model";
 import type {AnyTrait, Trait} from "./Trait";
@@ -84,9 +84,6 @@ export interface TraitSet<O = unknown, T extends Trait = Trait> extends TraitRel
   /** @internal @override */
   setInherited(inherited: boolean, superFastener: TraitSet<unknown, T>): void;
 
-  /** @internal */
-  syncInherited(superFastener: TraitSet<unknown, T>): void;
-
   /** @protected @override */
   willInherit(superFastener: TraitSet<unknown, T>): void;
 
@@ -147,15 +144,29 @@ export interface TraitSet<O = unknown, T extends Trait = Trait> extends TraitRel
 
   addTrait(trait?: AnyTrait<T>, target?: Trait | null, key?: string): T;
 
+  addTraits(traits: {readonly [traitId: number]: T | undefined}, target?: Trait | null): void;
+
+  setTraits(traits: {readonly [traitId: number]: T | undefined}, target?: Trait | null): void;
+
   attachTrait(trait?: AnyTrait<T>, target?: Trait | null): T;
+
+  attachTraits(traits: {readonly [traitId: number]: T | undefined}, target?: Trait | null): void;
 
   detachTrait(trait: T): T | null;
 
+  detachTraits(traits?: {readonly [traitId: number]: T | undefined}): void;
+
   insertTrait(model?: Model | null, trait?: AnyTrait<T>, target?: Trait | null, key?: string): T;
+
+  insertTraits(model: Model | null, traits: {readonly [traitId: number]: T | undefined}, target?: Trait | null): void;
 
   removeTrait(trait: T): T | null;
 
+  removeTraits(traits?: {readonly [traitId: number]: T | undefined}): void;
+
   deleteTrait(trait: T): T | null;
+
+  deleteTraits(traits?: {readonly [traitId: number]: T | undefined}): void;
 
   /** @internal @override */
   bindModel(model: Model, target: Model | null): void;
@@ -174,6 +185,10 @@ export interface TraitSet<O = unknown, T extends Trait = Trait> extends TraitRel
 
   /** @override */
   detectTrait(trait: Trait): T | null;
+
+  consumeTraits(consumer: ConsumerType<T>): void;
+
+  unconsumeTraits(consumer: ConsumerType<T>): void;
 
   /** @internal @protected */
   decohereSubFasteners(): void;
@@ -224,23 +239,8 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     configurable: true,
   });
 
-  TraitSet.prototype.syncInherited = function (this: TraitSet, superFastener: TraitSet): void {
-    const traits = this.traits;
-    const superTraits = superFastener.traits;
-    for (const traitId in traits) {
-      if (superTraits[traitId] === void 0) {
-        this.detachTrait(traits[traitId]!);
-      }
-    }
-    for (const traitId in superTraits) {
-      if (traits[traitId] === void 0) {
-        this.attachTrait(superTraits[traitId]);
-      }
-    }
-  };
-
   TraitSet.prototype.onInherit = function (this: TraitSet, superFastener: TraitSet): void {
-    this.syncInherited(superFastener);
+    this.setTraits(superFastener.traits);
   };
 
   TraitSet.prototype.onBindSuperFastener = function <T extends Trait>(this: TraitSet<unknown, T>, superFastener: TraitSet<unknown, T>): void {
@@ -306,6 +306,26 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     return newTrait;
   };
 
+  TraitSet.prototype.addTraits = function <T extends Trait>(this: TraitSet, newTraits: {readonly [traitId: number]: T | undefined}, target?: Trait | null): void {
+    for (const traitId in newTraits) {
+      this.addTrait(newTraits[traitId]!, target);
+    }
+  };
+
+  TraitSet.prototype.setTraits = function <T extends Trait>(this: TraitSet, newTraits: {readonly [traitId: number]: T | undefined}, target?: Trait | null): void {
+    const traits = this.traits;
+    for (const traitId in traits) {
+      if (newTraits[traitId] === void 0) {
+        this.detachTrait(traits[traitId]!);
+      }
+    }
+    for (const traitId in newTraits) {
+      if (traits[traitId] === void 0) {
+        this.attachTrait(newTraits[traitId]!, target);
+      }
+    }
+  };
+
   TraitSet.prototype.attachTrait = function <T extends Trait>(this: TraitSet<unknown, T>, newTrait?: AnyTrait<T>, target?: Trait | null): T {
     if (newTrait !== void 0 && newTrait !== null) {
       newTrait = this.fromAny(newTrait);
@@ -329,6 +349,12 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     return newTrait;
   };
 
+  TraitSet.prototype.attachTraits = function <T extends Trait>(this: TraitSet, newTraits: {readonly [traitId: number]: T | undefined}, target?: Trait | null): void {
+    for (const traitId in newTraits) {
+      this.attachTrait(newTraits[traitId]!, target);
+    }
+  };
+
   TraitSet.prototype.detachTrait = function <T extends Trait>(this: TraitSet<unknown, T>, oldTrait: T): T | null {
     const traits = this.traits as {[traitId: number]: T | undefined};
     if (traits[oldTrait.uid] !== void 0) {
@@ -343,6 +369,15 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
       return oldTrait;
     }
     return null;
+  };
+
+  TraitSet.prototype.detachTraits = function <T extends Trait>(this: TraitSet<unknown, T>, traits?: {readonly [traitId: number]: T | undefined}): void {
+    if (traits === void 0) {
+      traits = this.traits;
+    }
+    for (const traitId in traits) {
+      this.detachTrait(traits[traitId]!);
+    }
   };
 
   TraitSet.prototype.insertTrait = function <T extends Trait>(this: TraitSet<unknown, T>, model?: Model | null, newTrait?: AnyTrait<T>, target?: Trait | null, key?: string): T {
@@ -377,6 +412,12 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     return newTrait;
   };
 
+  TraitSet.prototype.insertTraits = function <T extends Trait>(this: TraitSet, model: Model | null, newTraits: {readonly [traitId: number]: T | undefined}, target?: Trait | null): void {
+    for (const traitId in newTraits) {
+      this.insertTrait(model, newTraits[traitId]!, target);
+    }
+  };
+
   TraitSet.prototype.removeTrait = function <T extends Trait>(this: TraitSet<unknown, T>, trait: T): T | null {
     if (this.hasTrait(trait)) {
       trait.remove();
@@ -385,12 +426,30 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     return null;
   };
 
+  TraitSet.prototype.removeTraits = function <T extends Trait>(this: TraitSet<unknown, T>, traits?: {readonly [traitId: number]: T | undefined}): void {
+    if (traits === void 0) {
+      traits = this.traits;
+    }
+    for (const traitId in traits) {
+      this.removeTrait(traits[traitId]!);
+    }
+  };
+
   TraitSet.prototype.deleteTrait = function <T extends Trait>(this: TraitSet<unknown, T>, trait: T): T | null {
     const oldTrait = this.detachTrait(trait);
     if (oldTrait !== null) {
       oldTrait.remove();
     }
     return oldTrait;
+  };
+
+  TraitSet.prototype.deleteTraits = function <T extends Trait>(this: TraitSet<unknown, T>, traits?: {readonly [traitId: number]: T | undefined}): void {
+    if (traits === void 0) {
+      traits = this.traits;
+    }
+    for (const traitId in traits) {
+      this.deleteTrait(traits[traitId]!);
+    }
   };
 
   TraitSet.prototype.bindModel = function <T extends Trait>(this: TraitSet<unknown, T>, model: Model, target: Model | null): void {
@@ -472,6 +531,31 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     return null;
   };
 
+  TraitSet.prototype.consumeTraits = function <T extends Trait>(this: TraitSet<unknown, T>, consumer: ConsumerType<T>): void {
+    const traits = this.traits;
+    for (const traitId in traits) {
+      const trait = traits[traitId]!;
+      trait.consume(consumer);
+    }
+  };
+
+  TraitSet.prototype.unconsumeTraits = function <T extends Trait>(this: TraitSet<unknown, T>, consumer: ConsumerType<T>): void {
+    const traits = this.traits;
+    for (const traitId in traits) {
+      const trait = traits[traitId]!;
+      trait.unconsume(consumer);
+    }
+  };
+
+  TraitSet.prototype.detachTraits = function <T extends Trait>(this: TraitSet<unknown, T>, traits?: {readonly [traitId: number]: T | undefined}): void {
+    if (traits === void 0) {
+      traits = this.traits;
+    }
+    for (const traitId in traits) {
+      this.detachTrait(traits[traitId]!);
+    }
+  };
+
   TraitSet.prototype.decohereSubFasteners = function (this: TraitSet): void {
     const subFasteners = this.subFasteners;
     for (let i = 0, n = subFasteners !== null ? subFasteners.length : 0; i < n; i += 1) {
@@ -492,7 +576,7 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     if ((this.flags & Fastener.InheritedFlag) !== 0) {
       const superFastener = this.superFastener;
       if (superFastener !== null) {
-        this.syncInherited(superFastener);
+        this.setTraits(superFastener.traits);
       }
     }
   };

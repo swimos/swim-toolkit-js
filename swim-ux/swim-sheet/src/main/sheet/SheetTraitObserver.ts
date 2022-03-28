@@ -14,11 +14,11 @@
 
 import type {TraitObserver} from "@swim/model";
 import type {Graphics} from "@swim/graphics";
-import type {SheetTraitTitle, SheetTrait} from "./SheetTrait";
+import type {SheetTrait} from "./SheetTrait";
 
 /** @public */
 export interface SheetTraitObserver<T extends SheetTrait = SheetTrait> extends TraitObserver<T> {
-  traitDidSetTitle?(title: SheetTraitTitle | null, trait: T): void;
+  traitDidSetTitle?(title: string, trait: T): void;
 
   traitDidSetIcon?(icon: Graphics | null, trait: T): void;
 }

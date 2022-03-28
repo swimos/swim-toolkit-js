@@ -66,31 +66,13 @@ export class PieTrait extends Trait {
   readonly slices!: TraitSet<this, SliceTrait>;
   static readonly slices: MemberFastenerClass<PieTrait, "slices">;
 
-  /** @internal */
-  protected startConsumingSlices(): void {
-    const sliceTraits = this.slices.traits;
-    for (const traitId in sliceTraits) {
-      const sliceTrait = sliceTraits[traitId]!;
-      sliceTrait.consume(this);
-    }
-  }
-
-  /** @internal */
-  protected stopConsumingSlices(): void {
-    const sliceTraits = this.slices.traits;
-    for (const traitId in sliceTraits) {
-      const sliceTrait = sliceTraits[traitId]!;
-      sliceTrait.unconsume(this);
-    }
-  }
-
   protected override onStartConsuming(): void {
     super.onStartConsuming();
-    this.startConsumingSlices();
+    this.slices.consumeTraits(this);
   }
 
   protected override onStopConsuming(): void {
     super.onStopConsuming();
-    this.stopConsumingSlices();
+    this.slices.unconsumeTraits(this);
   }
 }

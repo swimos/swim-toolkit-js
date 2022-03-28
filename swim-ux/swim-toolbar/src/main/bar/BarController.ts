@@ -58,27 +58,19 @@ export class BarController extends Controller {
       this.owner.callObservers("controllerWillAttachBarTrait", barTrait, this.owner);
     },
     didAttachTrait(barTrait: BarTrait): void {
-      const toolTraits = barTrait.tools.traits;
-      for (const traitId in toolTraits) {
-        const toolTrait = toolTraits[traitId]!;
-        this.owner.tools.addTraitController(toolTrait);
-      }
+      this.owner.tools.addTraits(barTrait.tools.traits);
     },
     willDetachTrait(barTrait: BarTrait): void {
-      const toolTraits = barTrait.tools.traits;
-      for (const traitId in toolTraits) {
-        const toolTrait = toolTraits[traitId]!;
-        this.owner.tools.deleteTraitController(toolTrait);
-      }
+      this.owner.tools.deleteTraits(barTrait.tools.traits);
     },
     didDetachTrait(barTrait: BarTrait): void {
       this.owner.callObservers("controllerDidDetachBarTrait", barTrait, this.owner);
     },
     traitWillAttachTool(toolTrait: ToolTrait, targetTrait: Trait | null): void {
-      this.owner.tools.addTraitController(toolTrait, targetTrait);
+      this.owner.tools.addTrait(toolTrait, targetTrait);
     },
     traitDidDetachTool(toolTrait: ToolTrait): void {
-      this.owner.tools.deleteTraitController(toolTrait);
+      this.owner.tools.deleteTrait(toolTrait);
     },
     viewType: BarView,
     observesView: true,

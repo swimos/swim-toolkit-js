@@ -13,12 +13,12 @@
 // limitations under the License.
 
 import type {PositionGestureInput} from "@swim/view";
-import type {ToolView, BarView, BarTrait, BarController} from "@swim/toolbar";
+import type {ToolController, BarView, BarTrait, BarController} from "@swim/toolbar";
 import type {SheetView} from "../sheet/SheetView";
 import type {SheetTrait} from "../sheet/SheetTrait";
 import type {SheetController} from "../sheet/SheetController";
 import type {SheetControllerObserver} from "../sheet/SheetControllerObserver";
-import type {PanelView} from "./PanelView";
+import type {PanelTabStyle, PanelView} from "./PanelView";
 import type {PanelTrait} from "./PanelTrait";
 import type {PanelController} from "./PanelController";
 
@@ -31,6 +31,8 @@ export interface PanelControllerObserver<C extends PanelController = PanelContro
   controllerWillAttachPanelView?(panelView: PanelView, controller: C): void;
 
   controllerDidDetachPanelView?(panelView: PanelView, controller: C): void;
+
+  controllerDidSetTabStyle(tabStyle: PanelTabStyle, controller: C): void;
 
   controllerWillAttachTabBar?(tabBarController: BarController, controller: C): void;
 
@@ -56,9 +58,9 @@ export interface PanelControllerObserver<C extends PanelController = PanelContro
 
   controllerDidDetachTabView?(tabView: SheetView, tabController: SheetController, controller: C): void;
 
-  controllerWillAttachTabButtonToolView?(buttonToolView: ToolView, tabController: SheetController, controller: C): void;
+  controllerWillAttachTabButtonTool?(buttonToolController: ToolController, tabController: SheetController, controller: C): void;
 
-  controllerDidDetachTabButtonToolView?(buttonToolView: ToolView, tabController: SheetController, controller: C): void;
+  controllerDidDetachTabButtonTool?(buttonToolController: ToolController, tabController: SheetController, controller: C): void;
 
   controllerDidPressTabTool?(input: PositionGestureInput, event: Event | null, tabController: SheetController, controller: C): void;
 

@@ -106,13 +106,9 @@ export class TableController extends Controller {
       const colTraits = tableTrait.cols.traits;
       for (const traitId in colTraits) {
         const colTrait = colTraits[traitId]!;
-        this.owner.cols.addTraitController(colTrait, null, colTrait.key);
+        this.owner.cols.addTrait(colTrait, null, colTrait.key);
       }
-      const rowTraits = tableTrait.rows.traits;
-      for (const traitId in rowTraits) {
-        const rowTrait = rowTraits[traitId]!;
-        this.owner.rows.addTraitController(rowTrait);
-      }
+      this.owner.rows.addTraits(tableTrait.rows.traits);
       const tableView = this.view;
       if (tableView !== null) {
         const tableLayout = tableTrait.layout.value;
@@ -122,16 +118,8 @@ export class TableController extends Controller {
       }
     },
     willDetachTrait(tableTrait: TableTrait): void {
-      const rowTraits = tableTrait.rows.traits;
-      for (const traitId in rowTraits) {
-        const rowTrait = rowTraits[traitId]!;
-        this.owner.rows.deleteTraitController(rowTrait);
-      }
-      const colTraits = tableTrait.cols.traits;
-      for (const traitId in colTraits) {
-        const colTrait = colTraits[traitId]!;
-        this.owner.cols.deleteTraitController(colTrait);
-      }
+      this.owner.rows.deleteTraits(tableTrait.rows.traits);
+      this.owner.cols.deleteTraits(tableTrait.cols.traits);
       const headerTrait = tableTrait.header.trait;
       if (headerTrait !== null) {
         this.owner.header.deleteTrait(headerTrait);
@@ -153,16 +141,16 @@ export class TableController extends Controller {
       this.owner.header.deleteTrait(headerTrait);
     },
     traitWillAttachCol(colTrait: ColTrait, targetTrait: Trait): void {
-      this.owner.cols.addTraitController(colTrait, targetTrait, colTrait.key);
+      this.owner.cols.addTrait(colTrait, targetTrait, colTrait.key);
     },
     traitDidDetachCol(colTrait: ColTrait): void {
-      this.owner.cols.deleteTraitController(colTrait);
+      this.owner.cols.deleteTrait(colTrait);
     },
     traitWillAttachRow(rowTrait: RowTrait, targetTrait: Trait): void {
-      this.owner.rows.addTraitController(rowTrait, targetTrait);
+      this.owner.rows.addTrait(rowTrait, targetTrait);
     },
     traitDidDetachRow(rowTrait: RowTrait): void {
-      this.owner.rows.deleteTraitController(rowTrait);
+      this.owner.rows.deleteTrait(rowTrait);
     },
     viewType: TableView,
     observesView: true,

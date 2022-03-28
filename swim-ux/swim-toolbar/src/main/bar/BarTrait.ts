@@ -71,31 +71,13 @@ export class BarTrait extends Trait {
   readonly tools!: TraitSet<this, ToolTrait>;
   static readonly tools: MemberFastenerClass<BarTrait, "tools">;
 
-  /** @internal */
-  protected startConsumingTools(): void {
-    const toolTraits = this.tools.traits;
-    for (const traitId in toolTraits) {
-      const toolTrait = toolTraits[traitId]!;
-      toolTrait.consume(this);
-    }
-  }
-
-  /** @internal */
-  protected stopConsumingTools(): void {
-    const toolTraits = this.tools.traits;
-    for (const traitId in toolTraits) {
-      const toolTrait = toolTraits[traitId]!;
-      toolTrait.unconsume(this);
-    }
-  }
-
   protected override onStartConsuming(): void {
     super.onStartConsuming();
-    this.startConsumingTools();
+    this.tools.consumeTraits(this);
   }
 
   protected override onStopConsuming(): void {
     super.onStopConsuming();
-    this.stopConsumingTools();
+    this.tools.unconsumeTraits(this);
   }
 }

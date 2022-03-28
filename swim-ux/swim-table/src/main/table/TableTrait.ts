@@ -115,24 +115,6 @@ export class TableTrait extends Trait {
   readonly cols!: TraitSet<this, ColTrait>;
   static readonly cols: MemberFastenerClass<TableTrait, "cols">;
 
-  /** @internal */
-  protected startConsumingCols(): void {
-    const colTraits = this.cols.traits;
-    for (const traitId in colTraits) {
-      const colTrait = colTraits[traitId]!;
-      colTrait.consume(this);
-    }
-  }
-
-  /** @internal */
-  protected stopConsumingCols(): void {
-    const colTraits = this.cols.traits;
-    for (const traitId in colTraits) {
-      const colTrait = colTraits[traitId]!;
-      colTrait.unconsume(this);
-    }
-  }
-
   @TraitSet<TableTrait, RowTrait>({
     type: RowTrait,
     binds: true,
@@ -162,33 +144,15 @@ export class TableTrait extends Trait {
   readonly rows!: TraitSet<this, RowTrait>;
   static readonly rows: MemberFastenerClass<TableTrait, "rows">;
 
-  /** @internal */
-  protected startConsumingRows(): void {
-    const rowTraits = this.rows.traits;
-    for (const traitId in rowTraits) {
-      const rowTrait = rowTraits[traitId]!;
-      rowTrait.consume(this);
-    }
-  }
-
-  /** @internal */
-  protected stopConsumingRows(): void {
-    const rowTraits = this.rows.traits;
-    for (const traitId in rowTraits) {
-      const rowTrait = rowTraits[traitId]!;
-      rowTrait.unconsume(this);
-    }
-  }
-
   protected override onStartConsuming(): void {
     super.onStartConsuming();
-    this.startConsumingCols();
-    this.startConsumingRows();
+    this.cols.consumeTraits(this);
+    this.rows.consumeTraits(this);
   }
 
   protected override onStopConsuming(): void {
     super.onStopConsuming();
-    this.stopConsumingRows();
-    this.stopConsumingCols();
+    this.rows.unconsumeTraits(this);
+    this.cols.unconsumeTraits(this);
   }
 }

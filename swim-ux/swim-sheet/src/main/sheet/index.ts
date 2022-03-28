@@ -15,12 +15,12 @@
 export {SheetView} from "./SheetView";
 export {SheetViewObserver} from "./SheetViewObserver";
 
-export {
-  SheetTraitTitle,
-  SheetTraitTitleFunction,
-  SheetTrait,
-} from "./SheetTrait";
+export {SheetTrait} from "./SheetTrait";
 export {SheetTraitObserver} from "./SheetTraitObserver";
 
-export {SheetController} from "./SheetController";
+export {
+  SheetControllerButtonToolsExt,
+  SheetControllerModeToolsExt,
+  SheetController,
+} from "./SheetController";
 export {SheetControllerObserver} from "./SheetControllerObserver";

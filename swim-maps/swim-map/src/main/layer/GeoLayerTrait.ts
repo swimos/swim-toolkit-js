@@ -81,31 +81,13 @@ export class GeoLayerTrait extends GeoTrait {
   readonly features!: TraitSet<this, GeoTrait>;
   static readonly features: MemberFastenerClass<GeoLayerTrait, "features">;
 
-  /** @internal */
-  protected startConsumingFeatures(): void {
-    const featureTraits = this.features.traits;
-    for (const traitId in featureTraits) {
-      const featureTrait = featureTraits[traitId]!;
-      featureTrait.consume(this);
-    }
-  }
-
-  /** @internal */
-  protected stopConsumingFeatures(): void {
-    const featureTraits = this.features.traits;
-    for (const traitId in featureTraits) {
-      const featureTrait = featureTraits[traitId]!;
-      featureTrait.unconsume(this);
-    }
-  }
-
   protected override onStartConsuming(): void {
     super.onStartConsuming();
-    this.startConsumingFeatures();
+    this.features.consumeTraits(this);
   }
 
   protected override onStopConsuming(): void {
     super.onStopConsuming();
-    this.stopConsumingFeatures();
+    this.features.unconsumeTraits(this);
   }
 }

@@ -15,7 +15,10 @@
 export {TabBarController} from "./TabBarController";
 export {TabBarControllerObserver} from "./TabBarControllerObserver";
 
-export {PanelView} from "./PanelView";
+export {
+  PanelTabStyle,
+  PanelView,
+} from "./PanelView";
 export {PanelViewObserver} from "./PanelViewObserver";
 
 export {PanelTrait} from "./PanelTrait";

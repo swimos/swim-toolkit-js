@@ -13,13 +13,13 @@
 // limitations under the License.
 
 import type {PositionGestureInput} from "@swim/view";
-import type {BarView, BarTrait, BarController} from "@swim/toolbar";
+import type {ToolTrait, ToolView, ToolController, BarView, BarTrait, BarController} from "@swim/toolbar";
 import type {DrawerView} from "@swim/window";
 import type {SheetView} from "../sheet/SheetView";
 import type {SheetTrait} from "../sheet/SheetTrait";
 import type {SheetController} from "../sheet/SheetController";
 import type {StackControllerObserver} from "../stack/StackControllerObserver";
-import type {FolioView} from "./FolioView";
+import type {FolioStyle, FolioView} from "./FolioView";
 import type {FolioTrait} from "./FolioTrait";
 import type {FolioController} from "./FolioController";
 
@@ -32,6 +32,10 @@ export interface FolioControllerObserver<C extends FolioController = FolioContro
   controllerWillAttachFolioView?(folioView: FolioView, controller: C): void;
 
   controllerDidDetachFolioView?(folioView: FolioView, controller: C): void;
+
+  controllerDidSetFolioStyle(folioStyle: FolioStyle | undefined, controller: C): void;
+
+  controllerDidSetFullBleed(fullBleed: boolean, controller: C): void;
 
   controllerDidSetFullScreen(fullScreen: boolean, controller: C): void;
 
@@ -66,4 +70,16 @@ export interface FolioControllerObserver<C extends FolioController = FolioContro
   controllerWillAttachCoverView?(coverView: SheetView, controller: C): void;
 
   controllerDidDetachCoverView?(coverView: SheetView, controller: C): void;
+
+  controllerWillAttachCoverModeTool?(modeToolController: ToolController, controller: C): void;
+
+  controllerDidDetachCoverModeTool?(modeToolController: ToolController, controller: C): void;
+
+  controllerWillAttachCoverModeToolTrait?(modeToolTrait: ToolTrait, modeToolController: ToolController, controller: C): void;
+
+  controllerDidDetachCoverModeToolTrait?(modeToolTrait: ToolTrait, modeToolController: ToolController, controller: C): void;
+
+  controllerWillAttachCoverModeToolView?(modeToolView: ToolView, modeToolController: ToolController, controller: C): void;
+
+  controllerDidDetachCoverModeToolView?(modeToolView: ToolView, modeToolController: ToolController, controller: C): void;
 }

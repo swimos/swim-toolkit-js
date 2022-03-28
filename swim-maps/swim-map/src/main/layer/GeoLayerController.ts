@@ -43,18 +43,10 @@ export class GeoLayerController extends GeoController {
       this.owner.callObservers("controllerWillAttachGeoTrait", geoTrait, this.owner);
     },
     didAttachTrait(geoTrait: GeoLayerTrait): void {
-      const featureTraits = geoTrait.features.traits;
-      for (const traitId in featureTraits) {
-        const featureTrait = featureTraits[traitId]!;
-        this.owner.features.addTraitController(featureTrait);
-      }
+      this.owner.features.addTraits(geoTrait.features.traits);
     },
     willDetachTrait(geoTrait: GeoLayerTrait): void {
-      const featureTraits = geoTrait.features.traits;
-      for (const traitId in featureTraits) {
-        const featureTrait = featureTraits[traitId]!;
-        this.owner.features.deleteTraitController(featureTrait);
-      }
+      this.owner.features.deleteTraits(geoTrait.features.traits);
     },
     didDetachTrait(geoTrait: GeoLayerTrait): void {
       this.owner.callObservers("controllerDidDetachGeoTrait", geoTrait, this.owner);
@@ -66,10 +58,10 @@ export class GeoLayerController extends GeoController {
       this.owner.callObservers("controllerDidSetGeoBounds", newGeoBounds, oldGeoBounds, this.owner);
     },
     traitWillAttachFeature(featureTrait: GeoTrait, targetTrait: Trait | null): void {
-      this.owner.features.addTraitController(featureTrait, targetTrait);
+      this.owner.features.addTrait(featureTrait, targetTrait);
     },
     traitDidDetachFeature(featureTrait: GeoTrait): void {
-      this.owner.features.deleteTraitController(featureTrait);
+      this.owner.features.deleteTrait(featureTrait);
     },
     viewType: GeoTreeView,
     willAttachView(geoView: GeoView): void {

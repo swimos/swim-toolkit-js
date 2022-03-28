@@ -17,7 +17,12 @@ import {Affinity, MemberFastenerClass, Property} from "@swim/component";
 import {Look, Mood} from "@swim/theme";
 import type {PositionGestureInput} from "@swim/view";
 import {VectorIcon} from "@swim/graphics";
-import {Controller, TraitViewRef, TraitViewControllerRef} from "@swim/controller";
+import {
+  Controller,
+  TraitViewRef,
+  TraitViewControllerRef,
+  TraitViewControllerSet,
+} from "@swim/controller";
 import {
   ToolLayout,
   BarLayout,
@@ -52,11 +57,31 @@ export class AppBarController extends BarController {
       }
     }
 
+    const modeToolControllers = this.modeTools.controllers;
+    let modeToolCount = 0;
+    for (const controllerId in modeToolControllers) {
+      const modeToolController = modeToolControllers[controllerId]!;
+      let modeToolLayout = modeToolController.layout.value;
+      if (modeToolLayout !== null) {
+        const modeToolKey = "mode" + modeToolController.uid;
+        modeToolLayout = modeToolLayout.withKey(modeToolKey);
+        tools.push(modeToolLayout);
+        if (modeToolController.tool.view !== null) {
+          modeToolController.tool.insertView(this.bar.view, void 0, void 0, modeToolKey);
+        }
+        modeToolCount += 1;
+      }
+    }
+
+    if (modeToolCount !== 0) {
+      tools.push(ToolLayout.create("coverPadding", 0, 0, 12));
+    }
+
     const coverLayout = ToolLayout.create("cover", 1, 0, 0, 0);
     tools.push(coverLayout);
-    const coverView = this.cover.view;
-    if (coverView !== null) {
-      const coverTitleView = coverView.titleTool.insertView(this.bar.view, void 0, void 0, "cover");
+    const coverController = this.cover.controller;
+    if (coverController !== null) {
+      const coverTitleView = coverController.titleTool.insertView(this.bar.view, void 0, void 0, "cover");
       if (coverTitleView !== null) {
         const timing = coverTitleView.getLookOr(Look.timing, Mood.navigating, false);
         coverTitleView.color.setLook(Look.textColor, timing, Affinity.Intrinsic);
@@ -80,7 +105,7 @@ export class AppBarController extends BarController {
 
   @TraitViewControllerRef<AppBarController, ToolTrait, ToolView, ToolController, ObserverType<ToolController | ButtonToolController>>({
     implements: true,
-    type: BarController,
+    type: ToolController,
     binds: true,
     viewKey: "menu",
     observes: true,
@@ -112,7 +137,7 @@ export class AppBarController extends BarController {
 
   @TraitViewControllerRef<AppBarController, ToolTrait, ToolView, ToolController, ObserverType<ToolController | ButtonToolController>>({
     implements: true,
-    type: BarController,
+    type: ToolController,
     binds: true,
     viewKey: "action",
     observes: true,
@@ -154,15 +179,38 @@ export class AppBarController extends BarController {
         this.owner.requireUpdate(Controller.NeedsAssemble);
       }
     },
-    controllerWillAttachTitleToolView(titleToolView: ToolView, coverController: SheetController): void {
+    controllerWillAttachTitleTool(titleToolController: ToolController, coverController: SheetController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
-    controllerDidDetachTitleToolView(titleToolView: ToolView, coverController: SheetController): void {
+    controllerDidDetachTitleTool(titleToolController: ToolController, coverController: SheetController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
   })
   readonly cover!: TraitViewControllerRef<this, SheetTrait, SheetView, SheetController>;
   static readonly cover: MemberFastenerClass<AppBarController, "cover">;
+
+  @TraitViewControllerSet<AppBarController, ToolTrait, ToolView, ToolController>({
+    type: ToolController,
+    inherits: true,
+    observes: true,
+    getTraitViewRef(modeToolController: ToolController): TraitViewRef<unknown, ToolTrait, ToolView> {
+      return modeToolController.tool;
+    },
+    willAttachController(modeToolController: ToolController): void {
+      this.owner.requireUpdate(Controller.NeedsAssemble);
+    },
+    didDetachController(modeToolController: ToolController): void {
+      this.owner.requireUpdate(Controller.NeedsAssemble);
+    },
+    controllerWillAttachToolView(modeToolView: ToolView, modeToolController: ToolController): void {
+      this.owner.requireUpdate(Controller.NeedsAssemble);
+    },
+    controllerDidDetachToolView(modeToolView: ToolView, modeToolController: ToolController): void {
+      this.owner.requireUpdate(Controller.NeedsAssemble);
+    },
+  })
+  readonly modeTools!: TraitViewControllerSet<this, ToolTrait, ToolView, ToolController>;
+  static readonly modeTools: MemberFastenerClass<AppBarController, "modeTools">;
 
   @Property<AppBarController, boolean>({
     type: Boolean,

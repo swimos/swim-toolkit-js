@@ -56,6 +56,11 @@ export class ColLayout implements Equals, Equivalent, Debug {
 
   readonly key: string;
 
+  withKey(key: string): ColLayout {
+    return this.copy(key, this.grow, this.shrink, this.basis, this.optional, this.persistent,
+                     this.textColor, this.width, this.left, this.right, this.hidden);
+  }
+
   readonly grow: number;
 
   readonly shrink: number;

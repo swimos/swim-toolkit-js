@@ -61,6 +61,12 @@ export class ToolLayout implements Interpolate<ToolLayout>, Equals, Equivalent, 
 
   readonly key: string;
 
+  withKey(key: string): ToolLayout {
+    return this.copy(key, this.grow, this.shrink, this.basis, this.align,
+                     this.inAlign, this.outAlign, this.overlap, this.overpad,
+                     this.presence, this.width, this.left, this.right);
+  }
+
   readonly grow: number;
 
   readonly shrink: number;

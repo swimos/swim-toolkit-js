@@ -12,15 +12,48 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, ObserverType} from "@swim/util";
-import type {MemberFastenerClass} from "@swim/component";
-import {PositionGestureInput, ViewRef} from "@swim/view";
-import type {Graphics} from "@swim/graphics";
-import {Controller, ControllerRef, TraitViewRef} from "@swim/controller";
-import {ToolView, ButtonToolView} from "@swim/toolbar";
+import type {Mutable, Class, Initable, ObserverType} from "@swim/util";
+import {Affinity, MemberFastenerClass} from "@swim/component";
+import {Look} from "@swim/theme";
+import type {PositionGestureInput} from "@swim/view";
+import {Graphics} from "@swim/graphics";
+import {
+  AnyController,
+  ControllerInit,
+  Controller,
+  ControllerRef,
+  TraitViewRef,
+  TraitViewControllerRef,
+  TraitViewControllerSet,
+} from "@swim/controller";
+import {
+  ToolLayout,
+  ToolView,
+  TitleToolView,
+  ButtonToolView,
+  ToolTrait,
+  ToolController,
+  TitleToolController,
+  ButtonToolController,
+} from "@swim/toolbar";
 import {SheetView} from "./SheetView";
-import {SheetTraitTitle, SheetTrait} from "./SheetTrait";
+import {SheetTrait} from "./SheetTrait";
 import type {SheetControllerObserver} from "./SheetControllerObserver";
+
+/** @public */
+export interface SheetControllerButtonToolsExt {
+  readonly active: boolean;
+  setActive(active: boolean): void;
+  updateActive(active: boolean, buttonToolView: ToolView): void;
+}
+
+/** @public */
+export interface SheetControllerModeToolsExt {
+  attachModeToolTrait(modeToolTrait: ToolTrait, modeToolController: ToolController): void;
+  detachModeToolTrait(modeToolTrait: ToolTrait, modeToolController: ToolController): void;
+  attachModeToolView(modeToolView: ToolView, modeToolController: ToolController): void;
+  detachModeToolView(modeToolView: ToolView, modeToolController: ToolController): void;
+}
 
 /** @public */
 export class SheetController extends Controller {
@@ -55,41 +88,28 @@ export class SheetController extends Controller {
   @TraitViewRef<SheetController, SheetTrait, SheetView>({
     traitType: SheetTrait,
     observesTrait: true,
-    initTrait(sheetTrait: SheetTrait): void {
-      this.owner.setTitleToolView(sheetTrait.title.value, sheetTrait);
-      this.owner.setButtonToolView(sheetTrait.icon.value);
-    },
-    deinitTrait(sheetTrait: SheetTrait): void {
-      this.owner.setButtonToolView(null);
-      this.owner.setTitleToolView(null, sheetTrait);
-    },
     willAttachTrait(sheetTrait: SheetTrait): void {
       this.owner.callObservers("controllerWillAttachSheetTrait", sheetTrait, this.owner);
     },
     didDetachTrait(sheetTrait: SheetTrait): void {
       this.owner.callObservers("controllerDidDetachSheetTrait", sheetTrait, this.owner);
     },
-    traitDidSetTitle(title: SheetTraitTitle | null, sheetTrait: SheetTrait): void {
-      this.owner.setTitleToolView(title, sheetTrait);
+    traitDidSetTitle(title: string, sheetTrait: SheetTrait): void {
+      const titleToolController = this.owner.titleTool.attachController();
+      const titleToolView = titleToolController.tool.attachView();
+      if (titleToolView instanceof TitleToolView) {
+        titleToolView.content.setView(title);
+      }
     },
     traitDidSetIcon(icon: Graphics | null): void {
-      this.owner.setButtonToolView(icon);
+      const buttonToolController = this.owner.buttonTool.attachController();
+      const buttonToolView = buttonToolController.tool.attachView();
+      if (buttonToolView instanceof ButtonToolView) {
+        buttonToolView.graphics.setValue(icon, Affinity.Intrinsic);
+      }
     },
     viewType: SheetView,
     observesView: true,
-    initView(sheetView: SheetView): void {
-      this.owner.titleTool.setView(sheetView.titleTool.view);
-      this.owner.buttonTool.setView(sheetView.buttonTool.view);
-      const sheetTrait = this.trait;
-      if (sheetTrait !== null) {
-        this.owner.setTitleToolView(sheetTrait.title.value, sheetTrait);
-        this.owner.setButtonToolView(sheetTrait.icon.value);
-      }
-    },
-    deinitView(sheetView: SheetView): void {
-      this.owner.buttonTool.setView(null);
-      this.owner.titleTool.setView(null);
-    },
     willAttachView(sheetView: SheetView): void {
       this.owner.callObservers("controllerWillAttachSheetView", sheetView, this.owner);
     },
@@ -108,18 +128,6 @@ export class SheetController extends Controller {
     viewDidDetachForward(forwardView: SheetView): void {
       this.owner.callObservers("controllerDidDetachForwardView", forwardView, this.owner);
     },
-    viewWillAttachTitleTool(titleToolView: ToolView): void {
-      this.owner.titleTool.setView(titleToolView);
-    },
-    viewDidDetachTitleTool(titleToolView: ToolView): void {
-      this.owner.titleTool.setView(null);
-    },
-    viewWillAttachButtonTool(buttonToolView: ToolView): void {
-      this.owner.buttonTool.setView(buttonToolView);
-    },
-    viewDidDetachButtonTool(buttonToolView: ToolView): void {
-      this.owner.buttonTool.setView(null);
-    },
     viewWillPresent(sheetView: SheetView): void {
       this.owner.callObservers("controllerWillPresentSheetView", sheetView, this.owner);
     },
@@ -136,58 +144,171 @@ export class SheetController extends Controller {
   readonly sheet!: TraitViewRef<this, SheetTrait, SheetView>;
   static readonly sheet: MemberFastenerClass<SheetController, "sheet">;
 
-  protected createTitleToolView(title: SheetTraitTitle, sheetTrait: SheetTrait): ToolView | string | null {
-    if (typeof title === "function") {
-      return title(sheetTrait);
-    } else {
-      return title;
-    }
-  }
-
-  protected setTitleToolView(title: SheetTraitTitle | null, sheetTrait: SheetTrait): void {
-    const sheetView = this.sheet.view;
-    if (sheetView !== null) {
-      const titleToolView = title !== null ? this.createTitleToolView(title, sheetTrait) : null;
-      sheetView.titleTool.setView(titleToolView);
-    }
-  }
-
-  @ViewRef<SheetController, ToolView>({
-    type: ToolView,
-    willAttachView(titleToolView: ToolView): void {
-      this.owner.callObservers("controllerWillAttachTitleToolView", titleToolView, this.owner);
+  @TraitViewControllerRef<SheetController, ToolTrait, ToolView, ToolController & Initable<ControllerInit | string>>({
+    type: ToolController,
+    binds: true,
+    getTraitViewRef(toolController: ToolController): TraitViewRef<unknown, ToolTrait, ToolView> {
+      return toolController.tool;
     },
-    didDetachView(titleToolView: ToolView): void {
-      this.owner.callObservers("controllerDidDetachTitleToolView", titleToolView, this.owner);
+    willAttachController(titleToolController: ToolController): void {
+      this.owner.callObservers("controllerWillAttachTitleTool", titleToolController, this.owner);
+    },
+    didDetachController(titleToolController: ToolController): void {
+      this.owner.callObservers("controllerDidDetachTitleTool", titleToolController, this.owner);
+    },
+    createController(): ToolController {
+      const toolController = TitleToolController.create();
+      const toolView = toolController.tool.attachView();
+      toolView.fontSize.setState(14, Affinity.Intrinsic);
+      return toolController;
+    },
+    fromAny(value: AnyController<ToolController> | string): ToolController {
+      if (typeof value === "string") {
+        const toolController = this.createController() as TitleToolController;
+        const toolView = toolController.tool.attachView();
+        toolView.content.setView(value);
+        return toolController;
+      } else {
+        return ToolController.fromAny(value);
+      }
     },
   })
-  readonly titleTool!: ViewRef<this, ToolView>;
+  readonly titleTool!: TraitViewControllerRef<this, ToolTrait, ToolView, ToolController & Initable<ControllerInit | string>>;
   static readonly titleTool: MemberFastenerClass<SheetController, "titleTool">;
 
-  setButtonToolView(icon: ToolView | Graphics | null): void {
-    const sheetView = this.sheet.view;
-    if (sheetView !== null) {
-      sheetView.buttonTool.setView(icon);
-    }
-  }
-
-  @ViewRef<SheetController, ToolView, ObserverType<ToolView | ButtonToolView>>({
+  @TraitViewControllerRef<SheetController, ToolTrait, ToolView, ToolController & Initable<ControllerInit | Graphics>, SheetControllerButtonToolsExt & ObserverType<ToolController | ButtonToolController>>({
     implements: true,
-    type: ToolView,
+    type: ToolController,
+    binds: true,
     observes: true,
-    willAttachView(buttonToolView: ToolView): void {
-      this.owner.callObservers("controllerWillAttachButtonToolView", buttonToolView, this.owner);
+    getTraitViewRef(toolController: ToolController): TraitViewRef<unknown, ToolTrait, ToolView> {
+      return toolController.tool;
     },
-    didDetachView(buttonToolView: ToolView): void {
-      this.owner.callObservers("controllerDidDetachButtonToolView", buttonToolView, this.owner);
+    init(): void {
+      (this as Mutable<typeof this>).active = false;
     },
-    viewDidPress(input: PositionGestureInput, event: Event | null): void {
+    initController(buttonToolController: ToolController): void {
+      const buttonToolView = this.view;
+      if (buttonToolView !== null) {
+        this.updateActive(this.active, buttonToolView);
+      }
+    },
+    willAttachController(buttonToolController: ToolController): void {
+      this.owner.callObservers("controllerWillAttachButtonTool", buttonToolController, this.owner);
+    },
+    didDetachController(buttonToolController: ToolController): void {
+      this.owner.callObservers("controllerDidDetachButtonTool", buttonToolController, this.owner);
+    },
+    controllerWillAttachToolView(buttonToolView: ToolView): void {
+      this.updateActive(this.active, buttonToolView);
+    },
+    controllerDidPressToolView(input: PositionGestureInput, event: Event | null): void {
       this.owner.callObservers("controllerDidPressButtonTool", input, event, this.owner);
     },
-    viewDidLongPress(input: PositionGestureInput): void {
+    controllerDidLongPressToolView(input: PositionGestureInput): void {
       this.owner.callObservers("controllerDidLongPressButtonTool", input, this.owner);
     },
+    setActive(active: boolean): void {
+      (this as Mutable<typeof this>).active = active;
+      const buttonToolView = this.view;
+      if (buttonToolView !== null) {
+        this.updateActive(active, buttonToolView);
+      }
+    },
+    updateActive(active: boolean, buttonToolView: ToolView): void {
+      if (buttonToolView instanceof ButtonToolView) {
+        if (active) {
+          buttonToolView.iconColor.setLook(Look.accentColor, Affinity.Intrinsic);
+        } else {
+          buttonToolView.iconColor.setLook(Look.iconColor, Affinity.Intrinsic);
+        }
+      }
+    },
+    createController(): ToolController {
+      const toolController = ButtonToolController.create();
+      toolController.layout.setValue(ToolLayout.create("", 0, 0, 36));
+      const toolView = toolController.tool.attachView();
+      toolView.iconWidth.setState(24, Affinity.Intrinsic);
+      toolView.iconHeight.setState(24, Affinity.Intrinsic);
+      return toolController;
+    },
+    fromAny(value: AnyController<ToolController> | Graphics): ToolController {
+      if (!(value instanceof Controller) && Graphics.is(value)) {
+        const toolController = this.createController() as ButtonToolController;
+        const toolView = toolController.tool.attachView();
+        toolView.graphics.setState(value, Affinity.Intrinsic);
+        return toolController;
+      } else {
+        return ToolController.fromAny(value);
+      }
+    },
   })
-  readonly buttonTool!: ViewRef<this, ToolView>;
+  readonly buttonTool!: TraitViewControllerRef<this, ToolTrait, ToolView, ToolController & Initable<ControllerInit | Graphics>> & SheetControllerButtonToolsExt;
   static readonly buttonTool: MemberFastenerClass<SheetController, "buttonTool">;
+
+  @TraitViewControllerSet<SheetController, ToolTrait, ToolView, ToolController, SheetControllerModeToolsExt>({
+    implements: true,
+    type: ToolController,
+    binds: false,
+    observes: true,
+    getTraitViewRef(modeToolController: ToolController): TraitViewRef<unknown, ToolTrait, ToolView> {
+      return modeToolController.tool;
+    },
+    willAttachController(modeToolController: ToolController): void {
+      this.owner.callObservers("controllerWillAttachModeTool", modeToolController, this.owner);
+    },
+    didAttachController(modeToolController: ToolController): void {
+      const modeToolTrait = modeToolController.tool.trait;
+      if (modeToolTrait !== null) {
+        this.attachModeToolTrait(modeToolTrait, modeToolController);
+      }
+      const modeToolView = modeToolController.tool.view;
+      if (modeToolView !== null) {
+        this.attachModeToolView(modeToolView, modeToolController);
+      }
+    },
+    willDetachController(modeToolController: ToolController): void {
+      const modeToolView = modeToolController.tool.view;
+      if (modeToolView !== null) {
+        this.detachModeToolView(modeToolView, modeToolController);
+      }
+      const modeToolTrait = modeToolController.tool.trait;
+      if (modeToolTrait !== null) {
+        this.detachModeToolTrait(modeToolTrait, modeToolController);
+      }
+    },
+    didDetachController(modeToolController: ToolController): void {
+      this.owner.callObservers("controllerDidDetachModeTool", modeToolController, this.owner);
+    },
+    controllerWillAttachToolTrait(modeToolTrait: ToolTrait, modeToolController: ToolController): void {
+      this.owner.callObservers("controllerWillAttachModeToolTrait", modeToolTrait, modeToolController, this.owner);
+      this.attachModeToolTrait(modeToolTrait, modeToolController);
+    },
+    controllerDidDetachToolTrait(modeToolTrait: ToolTrait, modeToolController: ToolController): void {
+      this.detachModeToolTrait(modeToolTrait, modeToolController);
+      this.owner.callObservers("controllerDidDetachModeToolTrait", modeToolTrait, modeToolController, this.owner);
+    },
+    attachModeToolTrait(modeToolTrait: ToolTrait, modeToolController: ToolController): void {
+      // hook
+    },
+    detachModeToolTrait(modeToolTrait: ToolTrait, modeToolController: ToolController): void {
+      // hook
+    },
+    controllerWillAttachToolView(modeToolView: ToolView, modeToolController: ToolController): void {
+      this.owner.callObservers("controllerWillAttachModeToolView", modeToolView, modeToolController, this.owner);
+      this.attachModeToolView(modeToolView, modeToolController);
+    },
+    controllerDidDetachToolView(modeToolView: ToolView, modeToolController: ToolController): void {
+      this.detachModeToolView(modeToolView, modeToolController);
+      this.owner.callObservers("controllerDidDetachModeToolView", modeToolView, modeToolController, this.owner);
+    },
+    attachModeToolView(modeToolView: ToolView, modeToolController: ToolController): void {
+      // hook
+    },
+    detachModeToolView(modeToolView: ToolView, modeToolController: ToolController): void {
+      // hook
+    },
+  })
+  readonly modeTools!: TraitViewControllerSet<this, ToolTrait, ToolView, ToolController> & SheetControllerModeToolsExt;
+  static readonly modeTools: MemberFastenerClass<SheetController, "modeTools">;
 }

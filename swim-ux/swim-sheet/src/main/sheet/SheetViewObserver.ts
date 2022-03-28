@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import type {HtmlViewObserver} from "@swim/dom";
-import type {ToolView} from "@swim/toolbar";
 import type {SheetView} from "./SheetView";
 
 /** @public */
@@ -25,14 +24,6 @@ export interface SheetViewObserver<V extends SheetView = SheetView> extends Html
   viewWillAttachForward?(forwardView: SheetView, view: V): void;
 
   viewDidDetachForward?(forwardView: SheetView, view: V): void;
-
-  viewWillAttachTitleTool?(titleToolView: ToolView, view: V): void;
-
-  viewDidDetachTitleTool?(titleToolView: ToolView, view: V): void;
-
-  viewWillAttachButtonTool?(buttonToolView: ToolView, view: V): void;
-
-  viewDidDetachButtonTool?(buttonToolView: ToolView, view: V): void;
 
   viewDidSetFullBleed?(fullBleed: boolean, view: V): void;
 

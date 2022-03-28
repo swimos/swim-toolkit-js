@@ -50,27 +50,19 @@ export class LeafController extends Controller {
       this.owner.callObservers("controllerWillAttachLeafTrait", leafTrait, this.owner);
     },
     didAttachTrait(leafTrait: LeafTrait): void {
-      const cellTraits = leafTrait.cells.traits;
-      for (const traitId in cellTraits) {
-        const cellTrait = cellTraits[traitId]!;
-        this.owner.cells.addTraitController(cellTrait);
-      }
+      this.owner.cells.addTraits(leafTrait.cells.traits);
     },
     willDetachTrait(leafTrait: LeafTrait): void {
-      const cellTraits = leafTrait.cells.traits;
-      for (const traitId in cellTraits) {
-        const cellTrait = cellTraits[traitId]!;
-        this.owner.cells.deleteTraitController(cellTrait);
-      }
+      this.owner.cells.deleteTraits(leafTrait.cells.traits);
     },
     didDetachTrait(leafTrait: LeafTrait): void {
       this.owner.callObservers("controllerDidDetachLeafTrait", leafTrait, this.owner);
     },
     traitWillAttachCell(cellTrait: CellTrait, targetTrait: Trait | null): void {
-      this.owner.cells.addTraitController(cellTrait, targetTrait);
+      this.owner.cells.addTrait(cellTrait, targetTrait);
     },
     traitDidDetachCell(cellTrait: CellTrait): void {
-      this.owner.cells.deleteTraitController(cellTrait);
+      this.owner.cells.deleteTrait(cellTrait);
     },
     viewType: LeafView,
     observesView: true,

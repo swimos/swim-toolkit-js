@@ -87,11 +87,7 @@ export class GeoGridController extends GeoLayerController {
     traitType: GeoGridTrait,
     observesTrait: true,
     didAttachTrait(geoTrait: GeoGridTrait, targetTrait: Trait | null): void {
-      const tileTraits = geoTrait.tiles.traits;
-      for (const traitId in tileTraits) {
-        const tileTrait = tileTraits[traitId]!;
-        this.owner.tiles.addTraitController(tileTrait);
-      }
+      this.owner.tiles.addTraits(geoTrait.tiles.traits);
       const geoView = this.view;
       if (geoView !== null && !geoView.culled) {
         geoTrait.consume(this.owner);
@@ -101,17 +97,13 @@ export class GeoGridController extends GeoLayerController {
     willDetachTrait(geoTrait: GeoGridTrait): void {
       GeoLayerController.geo.prototype.willDetachTrait.call(this, geoTrait);
       geoTrait.unconsume(this.owner);
-      const tileTraits = geoTrait.tiles.traits;
-      for (const traitId in tileTraits) {
-        const tileTrait = tileTraits[traitId]!;
-        this.owner.tiles.deleteTraitController(tileTrait);
-      }
+      this.owner.tiles.deleteTraits(geoTrait.tiles.traits);
     },
     traitWillAttachTile(tileTrait: GeoGridTrait, targetTrait: Trait): void {
-      this.owner.tiles.addTraitController(tileTrait, targetTrait);
+      this.owner.tiles.addTrait(tileTrait, targetTrait);
     },
     traitDidDetachTile(tileTrait: GeoGridTrait): void {
-      this.owner.tiles.deleteTraitController(tileTrait);
+      this.owner.tiles.deleteTrait(tileTrait);
     },
     viewType: GeoGridView,
     observesView: true,

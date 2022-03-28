@@ -78,31 +78,13 @@ export class GaugeTrait extends Trait {
   readonly dials!: TraitSet<this, DialTrait>;
   static readonly dials: MemberFastenerClass<GaugeTrait, "dials">;
 
-  /** @internal */
-  protected startConsumingDials(): void {
-    const dialTraits = this.dials.traits;
-    for (const traitId in dialTraits) {
-      const dialTrait = dialTraits[traitId]!;
-      dialTrait.consume(this);
-    }
-  }
-
-  /** @internal */
-  protected stopConsumingDials(): void {
-    const dialTraits = this.dials.traits;
-    for (const traitId in dialTraits) {
-      const dialTrait = dialTraits[traitId]!;
-      dialTrait.unconsume(this);
-    }
-  }
-
   protected override onStartConsuming(): void {
     super.onStartConsuming();
-    this.startConsumingDials();
+    this.dials.consumeTraits(this);
   }
 
   protected override onStopConsuming(): void {
     super.onStopConsuming();
-    this.stopConsumingDials();
+    this.dials.unconsumeTraits(this);
   }
 }

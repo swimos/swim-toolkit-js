@@ -64,11 +64,7 @@ export class PieController extends Controller {
       this.owner.callObservers("controllerWillAttachPieTrait", pieTrait, this.owner);
     },
     didAttachTrait(pieTrait: PieTrait): void {
-      const sliceTraits = pieTrait.slices.traits;
-      for (const traitId in sliceTraits) {
-        const sliceTrait = sliceTraits[traitId]!;
-        this.owner.slices.addTraitController(sliceTrait);
-      }
+      this.owner.slices.addTraits(pieTrait.slices.traits);
       const pieView = this.view;
       if (pieView !== null) {
         this.owner.setTitleView(pieTrait.title.value, pieTrait);
@@ -79,11 +75,7 @@ export class PieController extends Controller {
       if (pieView !== null) {
         this.owner.setTitleView(pieTrait.title.value, pieTrait);
       }
-      const sliceTraits = pieTrait.slices.traits;
-      for (const traitId in sliceTraits) {
-        const sliceTrait = sliceTraits[traitId]!;
-        this.owner.slices.deleteTraitController(sliceTrait);
-      }
+      this.owner.slices.deleteTraits(pieTrait.slices.traits);
     },
     didDetachTrait(pieTrait: PieTrait): void {
       this.owner.callObservers("controllerDidDetachPieTrait", pieTrait, this.owner);
@@ -92,10 +84,10 @@ export class PieController extends Controller {
       this.owner.setTitleView(newTitle, pieTrait);
     },
     traitWillAttachSlice(sliceTrait: SliceTrait, targetTrait: Trait): void {
-      this.owner.slices.addTraitController(sliceTrait);
+      this.owner.slices.addTrait(sliceTrait);
     },
     traitDidDetachSlice(sliceTrait: SliceTrait): void {
-      this.owner.slices.deleteTraitController(sliceTrait);
+      this.owner.slices.deleteTrait(sliceTrait);
     },
     viewType: PieView,
     observesView: true,

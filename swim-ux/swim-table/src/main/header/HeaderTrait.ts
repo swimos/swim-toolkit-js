@@ -76,31 +76,13 @@ export class HeaderTrait extends Trait {
   readonly cols!: TraitSet<this, ColTrait>;
   static readonly cols: MemberFastenerClass<HeaderTrait, "cols">;
 
-  /** @internal */
-  protected startConsumingCols(): void {
-    const colTraits = this.cols.traits;
-    for (const traitId in colTraits) {
-      const colTrait = colTraits[traitId]!;
-      colTrait.consume(this);
-    }
-  }
-
-  /** @internal */
-  protected stopConsumingCols(): void {
-    const colTraits = this.cols.traits;
-    for (const traitId in colTraits) {
-      const colTrait = colTraits[traitId]!;
-      colTrait.unconsume(this);
-    }
-  }
-
   protected override onStartConsuming(): void {
     super.onStartConsuming();
-    this.startConsumingCols();
+    this.cols.consumeTraits(this);
   }
 
   protected override onStopConsuming(): void {
     super.onStopConsuming();
-    this.stopConsumingCols();
+    this.cols.unconsumeTraits(this);
   }
 }

@@ -13,12 +13,15 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {Affinity, MemberFastenerClass} from "@swim/component";
+import {Affinity, MemberFastenerClass, Property} from "@swim/component";
 import {Length} from "@swim/math";
 import {ViewContextType, View, ViewRef, ViewSet} from "@swim/view";
 import {BarView} from "@swim/toolbar";
 import {SheetView} from "../sheet/SheetView";
 import type {PanelViewObserver} from "./PanelViewObserver";
+
+/** @public */
+export type PanelTabStyle = "bottom" | "mode";
 
 /** @public */
 export class PanelView extends SheetView {
@@ -35,6 +38,16 @@ export class PanelView extends SheetView {
   }
 
   override readonly observerType?: Class<PanelViewObserver>;
+
+  @Property<PanelView, PanelTabStyle>({
+    type: String,
+    value: "bottom",
+    updateFlags: View.NeedsResize,
+    didSetValue(tabStyle: PanelTabStyle): void {
+      this.owner.callObservers("viewDidSetTabStyle", tabStyle, this.owner);
+    },
+  })
+  readonly tabStyle!: Property<this, PanelTabStyle>;
 
   @ViewRef<PanelView, BarView>({
     type: BarView,

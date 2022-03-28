@@ -22,7 +22,7 @@ import {
   TraitViewControllerRef,
   TraitViewControllerSet,
 } from "@swim/controller";
-import {ToolView, BarView, BarTrait, BarController} from "@swim/toolbar";
+import {ToolController, BarView, BarTrait, BarController} from "@swim/toolbar";
 import type {SheetView} from "../sheet/SheetView";
 import type {SheetTrait} from "../sheet/SheetTrait";
 import {SheetController} from "../sheet/SheetController";
@@ -45,8 +45,8 @@ export interface StackControllerSheetsExt {
   detachSheetTrait(sheetTrait: SheetTrait, sheetController: SheetController): void;
   attachSheetView(sheetView: SheetView, sheetController: SheetController): void;
   detachSheetView(sheetView: SheetView, sheetController: SheetController): void;
-  attachTitleToolView(titleToolView: ToolView, sheetController: SheetController): void;
-  detachTitleToolView(titleToolView: ToolView, sheetController: SheetController): void;
+  attachTitleTool(titleToolController: ToolController, sheetController: SheetController): void;
+  detachTitleTool(titleToolController: ToolController, sheetController: SheetController): void;
 }
 
 /** @public */
@@ -73,18 +73,10 @@ export class StackController extends Controller {
       if (navBarTrait !== null) {
         this.owner.navBar.setTrait(navBarTrait);
       }
-      const sheetTraits = stackTrait.sheets.traits;
-      for (const traitId in sheetTraits) {
-        const sheetTrait = sheetTraits[traitId]!;
-        this.owner.sheets.addTraitController(sheetTrait);
-      }
+      this.owner.sheets.addTraits(stackTrait.sheets.traits);
     },
     willDetachTrait(stackTrait: StackTrait): void {
-      const sheetTraits = stackTrait.sheets.traits;
-      for (const traitId in sheetTraits) {
-        const sheetTrait = sheetTraits[traitId]!;
-        this.owner.sheets.deleteTraitController(sheetTrait);
-      }
+      this.owner.sheets.deleteTraits(stackTrait.sheets.traits);
       const navBarTrait = stackTrait.navBar.trait;
       if (navBarTrait !== null) {
         this.owner.navBar.deleteTrait(navBarTrait);
@@ -100,10 +92,10 @@ export class StackController extends Controller {
       this.owner.navBar.deleteTrait(navBarTrait);
     },
     traitWillAttachSheet(sheetTrait: SheetTrait, targetTrait: Trait): void {
-      this.owner.sheets.addTraitController(sheetTrait, targetTrait);
+      this.owner.sheets.addTrait(sheetTrait, targetTrait);
     },
     traitDidDetachSheet(sheetTrait: SheetTrait): void {
-      this.owner.sheets.deleteTraitController(sheetTrait);
+      this.owner.sheets.deleteTrait(sheetTrait);
     },
     viewType: StackView,
     observesView: true,
@@ -371,9 +363,9 @@ export class StackController extends Controller {
       this.owner.callObservers("controllerDidDetachSheetView", sheetView, sheetController, this.owner);
     },
     attachSheetView(sheetView: SheetView, sheetController: SheetController): void {
-      const titleToolView = sheetView.titleTool.view;
-      if (titleToolView !== null) {
-        this.attachTitleToolView(titleToolView, sheetController);
+      const titleToolController = sheetController.titleTool.controller;
+      if (titleToolController !== null) {
+        this.attachTitleTool(titleToolController, sheetController);
       }
       const stackView = this.owner.stack.view;
       if (stackView !== null) {
@@ -381,9 +373,9 @@ export class StackController extends Controller {
       }
     },
     detachSheetView(sheetView: SheetView, sheetController: SheetController): void {
-      const titleToolView = sheetView.titleTool.view;
-      if (titleToolView !== null) {
-        this.detachTitleToolView(titleToolView, sheetController);
+      const titleToolController = sheetController.titleTool.controller;
+      if (titleToolController !== null) {
+        this.detachTitleTool(titleToolController, sheetController);
       }
       sheetView.remove();
     },
@@ -411,19 +403,19 @@ export class StackController extends Controller {
     controllerDidDetachForwardView(forwardView: SheetView, sheetController: SheetController): void {
       sheetController.forward.setController(null);
     },
-    controllerWillAttachTitleToolView(titleToolView: ToolView, sheetController: SheetController): void {
-      this.owner.callObservers("controllerWillAttachSheetTitleToolView", titleToolView, sheetController, this.owner);
-      this.attachTitleToolView(titleToolView, sheetController);
+    controllerWillAttachTitleTool(titleToolController: ToolController, sheetController: SheetController): void {
+      this.owner.callObservers("controllerWillAttachSheetTitleTool", titleToolController, sheetController, this.owner);
+      this.attachTitleTool(titleToolController, sheetController);
     },
-    controllerDidDetachTitleToolView(titleToolView: ToolView, sheetController: SheetController): void {
-      this.detachTitleToolView(titleToolView, sheetController);
-      this.owner.callObservers("controllerDidDetachSheetTitleToolView", titleToolView, sheetController, this.owner);
+    controllerDidDetachTitleTool(titleToolController: ToolController, sheetController: SheetController): void {
+      this.detachTitleTool(titleToolController, sheetController);
+      this.owner.callObservers("controllerDidDetachSheetTitleTool", titleToolController, sheetController, this.owner);
     },
-    attachTitleToolView(titleToolView: ToolView, sheetController: SheetController): void {
+    attachTitleTool(titleToolController: ToolController, sheetController: SheetController): void {
       // hook
     },
-    detachTitleToolView(titleToolView: ToolView, sheetController: SheetController): void {
-      titleToolView.remove();
+    detachTitleTool(titleToolController: ToolController, sheetController: SheetController): void {
+      titleToolController.remove();
     },
     controllerDidDismissSheetView(sheetView: SheetView, sheetController: SheetController): void {
       const frontController = this.owner.front.controller;

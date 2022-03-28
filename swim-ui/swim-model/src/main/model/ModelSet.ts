@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Proto, ObserverType} from "@swim/util";
+import type {Mutable, Proto, ObserverType, ConsumerType} from "@swim/util";
 import {Affinity, FastenerOwner, FastenerFlags, Fastener} from "@swim/component";
 import type {AnyModel, Model} from "./Model";
 import {ModelRelationInit, ModelRelationClass, ModelRelation} from "./ModelRelation";
@@ -83,9 +83,6 @@ export interface ModelSet<O = unknown, M extends Model = Model> extends ModelRel
   /** @internal @override */
   setInherited(inherited: boolean, superFastener: ModelSet<unknown, M>): void;
 
-  /** @internal */
-  syncInherited(superFastener: ModelSet<unknown, M>): void;
-
   /** @protected @override */
   willInherit(superFastener: ModelSet<unknown, M>): void;
 
@@ -146,15 +143,29 @@ export interface ModelSet<O = unknown, M extends Model = Model> extends ModelRel
 
   addModel(model?: AnyModel<M>, target?: Model | null, key?: string): M;
 
+  addModels(models: {readonly [modelId: number]: M | undefined}, target?: Model | null): void;
+
+  setModels(models: {readonly [modelId: number]: M | undefined}, target?: Model | null): void;
+
   attachModel(model?: AnyModel<M>, target?: Model | null): M;
+
+  attachModels(models: {readonly [modelId: number]: M | undefined}, target?: Model | null): void;
 
   detachModel(model: M): M | null;
 
+  detachModels(models?: {readonly [modelId: number]: M | undefined}): void;
+
   insertModel(parent?: Model | null, model?: AnyModel<M>, target?: Model | null, key?: string): M;
+
+  insertModels(parent: Model | null, models: {readonly [modelId: number]: M | undefined}, target?: Model | null): void;
 
   removeModel(model: M): M | null;
 
+  removeModels(models?: {readonly [modelId: number]: M | undefined}): void;
+
   deleteModel(model: M): M | null;
+
+  deleteModels(models?: {readonly [modelId: number]: M | undefined}): void;
 
   /** @internal @override */
   bindModel(model: Model, target: Model | null): void;
@@ -164,6 +175,10 @@ export interface ModelSet<O = unknown, M extends Model = Model> extends ModelRel
 
   /** @override */
   detectModel(model: Model): M | null;
+
+  consumeModels(consumer: ConsumerType<M>): void;
+
+  unconsumeModels(consumer: ConsumerType<M>): void;
 
   /** @internal @protected */
   decohereSubFasteners(): void;
@@ -214,23 +229,8 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
     configurable: true,
   });
 
-  ModelSet.prototype.syncInherited = function (this: ModelSet, superFastener: ModelSet): void {
-    const models = this.models;
-    const superModels = superFastener.models;
-    for (const modelId in models) {
-      if (superModels[modelId] === void 0) {
-        this.detachModel(models[modelId]!);
-      }
-    }
-    for (const modelId in superModels) {
-      if (models[modelId] === void 0) {
-        this.attachModel(superModels[modelId]);
-      }
-    }
-  };
-
   ModelSet.prototype.onInherit = function (this: ModelSet, superFastener: ModelSet): void {
-    this.syncInherited(superFastener);
+    this.setModels(superFastener.models);
   };
 
   ModelSet.prototype.onBindSuperFastener = function <M extends Model>(this: ModelSet<unknown, M>, superFastener: ModelSet<unknown, M>): void {
@@ -296,6 +296,26 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
     return newModel;
   };
 
+  ModelSet.prototype.addModels = function <M extends Model>(this: ModelSet, newModels: {readonly [modelId: number]: M | undefined}, target?: Model | null): void {
+    for (const modelId in newModels) {
+      this.addModel(newModels[modelId]!, target);
+    }
+  };
+
+  ModelSet.prototype.setModels = function <M extends Model>(this: ModelSet, newModels: {readonly [modelId: number]: M | undefined}, target?: Model | null): void {
+    const models = this.models;
+    for (const modelId in models) {
+      if (newModels[modelId] === void 0) {
+        this.detachModel(models[modelId]!);
+      }
+    }
+    for (const modelId in newModels) {
+      if (models[modelId] === void 0) {
+        this.attachModel(newModels[modelId]!, target);
+      }
+    }
+  };
+
   ModelSet.prototype.attachModel = function <M extends Model>(this: ModelSet<unknown, M>, newModel?: AnyModel<M>, target?: Model | null): M {
     if (newModel !== void 0 && newModel !== null) {
       newModel = this.fromAny(newModel);
@@ -319,6 +339,12 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
     return newModel;
   };
 
+  ModelSet.prototype.attachModels = function <M extends Model>(this: ModelSet, newModels: {readonly [modelId: number]: M | undefined}, target?: Model | null): void {
+    for (const modelId in newModels) {
+      this.attachModel(newModels[modelId]!, target);
+    }
+  };
+
   ModelSet.prototype.detachModel = function <M extends Model>(this: ModelSet<unknown, M>, oldModel: M): M | null {
     const models = this.models as {[modelId: number]: M | undefined};
     if (models[oldModel.uid] !== void 0) {
@@ -333,6 +359,15 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
       return oldModel;
     }
     return null;
+  };
+
+  ModelSet.prototype.detachModels = function <M extends Model>(this: ModelSet<unknown, M>, models?: {readonly [modelId: number]: M | undefined}): void {
+    if (models === void 0) {
+      models = this.models;
+    }
+    for (const modelId in models) {
+      this.detachModel(models[modelId]!);
+    }
   };
 
   ModelSet.prototype.insertModel = function <M extends Model>(this: ModelSet<unknown, M>, parent?: Model | null, newModel?: AnyModel<M>, target?: Model | null, key?: string): M {
@@ -367,6 +402,12 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
     return newModel;
   };
 
+  ModelSet.prototype.insertModels = function <M extends Model>(this: ModelSet, parent: Model | null, newModels: {readonly [modelId: number]: M | undefined}, target?: Model | null): void {
+    for (const modelId in newModels) {
+      this.insertModel(parent, newModels[modelId]!, target);
+    }
+  };
+
   ModelSet.prototype.removeModel = function <M extends Model>(this: ModelSet<unknown, M>, model: M): M | null {
     if (this.hasModel(model)) {
       model.remove();
@@ -375,12 +416,30 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
     return null;
   };
 
+  ModelSet.prototype.removeModels = function <M extends Model>(this: ModelSet<unknown, M>, models?: {readonly [modelId: number]: M | undefined}): void {
+    if (models === void 0) {
+      models = this.models;
+    }
+    for (const modelId in models) {
+      this.removeModel(models[modelId]!);
+    }
+  };
+
   ModelSet.prototype.deleteModel = function <M extends Model>(this: ModelSet<unknown, M>, model: M): M | null {
     const oldModel = this.detachModel(model);
     if (oldModel !== null) {
       oldModel.remove();
     }
     return oldModel;
+  };
+
+  ModelSet.prototype.deleteModels = function <M extends Model>(this: ModelSet<unknown, M>, models?: {readonly [modelId: number]: M | undefined}): void {
+    if (models === void 0) {
+      models = this.models;
+    }
+    for (const modelId in models) {
+      this.deleteModel(models[modelId]!);
+    }
   };
 
   ModelSet.prototype.bindModel = function <M extends Model>(this: ModelSet<unknown, M>, model: Model, target: Model | null): void {
@@ -424,6 +483,22 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
     return null;
   };
 
+  ModelSet.prototype.consumeModels = function <M extends Model>(this: ModelSet<unknown, M>, consumer: ConsumerType<M>): void {
+    const models = this.models;
+    for (const modelId in models) {
+      const model = models[modelId]!;
+      model.consume(consumer);
+    }
+  };
+
+  ModelSet.prototype.unconsumeModels = function <M extends Model>(this: ModelSet<unknown, M>, consumer: ConsumerType<M>): void {
+    const models = this.models;
+    for (const modelId in models) {
+      const model = models[modelId]!;
+      model.unconsume(consumer);
+    }
+  };
+
   ModelSet.prototype.decohereSubFasteners = function (this: ModelSet): void {
     const subFasteners = this.subFasteners;
     for (let i = 0, n = subFasteners !== null ? subFasteners.length : 0; i < n; i += 1) {
@@ -444,7 +519,7 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
     if ((this.flags & Fastener.InheritedFlag) !== 0) {
       const superFastener = this.superFastener;
       if (superFastener !== null) {
-        this.syncInherited(superFastener);
+        this.setModels(superFastener.models);
       }
     }
   };

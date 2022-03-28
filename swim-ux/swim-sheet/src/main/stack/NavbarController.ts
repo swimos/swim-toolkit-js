@@ -43,13 +43,14 @@ export class NavBarController extends BarController {
 
   protected override createLayout(): BarLayout | null {
     const tools = new Array<ToolLayout>();
-    const frontView = this.front.view;
-    const frontKey = frontView !== null ? "title" + frontView.uid : void 0;
-    const backView = frontView !== null ? frontView.back.view : null;
-    const backKey = backView !== null ? "title" + backView.uid : void 0;
+
+    const frontController = this.front.controller;
+    const frontKey = frontController !== null ? "title" + frontController.uid : void 0;
+    const backController = frontController !== null ? frontController.back.controller : null;
+    const backKey = backController !== null ? "title" + backController.uid : void 0;
     const showBackTitle = this.showBackTitle.value;
 
-    if (frontView === null || backView === null) {
+    if (frontController === null || backController === null) {
       const closeToolController = this.closeTool.controller;
       if (closeToolController !== null) {
         const closeToolLayout = closeToolController.layout.value;
@@ -75,20 +76,20 @@ export class NavBarController extends BarController {
     }
 
     if (showBackTitle) {
-      if (backView !== null) {
+      if (backController !== null) {
         const backLayout = ToolLayout.create(backKey!, 0, 0, 0, 0, -1, -1);
         tools.push(backLayout);
-        const backTitleView = backView.titleTool.insertView(this.bar.view, void 0, void 0, backKey);
+        const backTitleView = backController.titleTool.insertView(this.bar.view, void 0, void 0, backKey);
         if (backTitleView !== null) {
           const timing = backTitleView.getLookOr(Look.timing, Mood.navigating, false);
           backTitleView.color.setLook(Look.accentColor, timing, Affinity.Intrinsic);
           backTitleView.zIndex.setState(1, Affinity.Intrinsic);
         }
       }
-      if (frontView !== null) {
+      if (frontController !== null) {
         const frontLayout = ToolLayout.create(frontKey!, 1, 0, 0, 0.5, 1, 1);
         tools.push(frontLayout);
-        const frontTitleView = frontView.titleTool.insertView(this.bar.view, void 0, void 0, frontKey);
+        const frontTitleView = frontController.titleTool.insertView(this.bar.view, void 0, void 0, frontKey);
         if (frontTitleView !== null) {
           const timing = frontTitleView.getLookOr(Look.timing, Mood.navigating, false);
           frontTitleView.color.setLook(Look.textColor, timing, Affinity.Intrinsic);
@@ -99,11 +100,11 @@ export class NavBarController extends BarController {
       const barView = this.bar.view;
       const oldBarLayout = barView !== null ? barView.layout.value : null;
       const oldBackLayout = oldBarLayout !== null && backKey !== void 0 ? oldBarLayout.getTool(backKey) : null;
-      if (backView !== null && oldBackLayout !== null) {
+      if (backController !== null && oldBackLayout !== null) {
         const backLayout = ToolLayout.create(backKey!, 0, 0, 0, 0, -1, -1).withPresence(Presence.dismissed());
         tools.push(backLayout);
       }
-      if (frontView !== null) {
+      if (frontController !== null) {
         let frontLayout: ToolLayout;
         if (oldBackLayout === null) {
           frontLayout = ToolLayout.create(frontKey!, 1, 0, 0, 0.5, 0, 1);
@@ -111,7 +112,7 @@ export class NavBarController extends BarController {
           frontLayout = ToolLayout.create(frontKey!, 1, 0, 0, 0.5, 1, 1);
         }
         tools.push(frontLayout);
-        const frontTitleView = frontView.titleTool.insertView(this.bar.view, void 0, void 0, frontKey);
+        const frontTitleView = frontController.titleTool.insertView(this.bar.view, void 0, void 0, frontKey);
         if (frontTitleView !== null) {
           const timing = frontTitleView.getLookOr(Look.timing, Mood.navigating, false);
           frontTitleView.color.setLook(Look.textColor, timing, Affinity.Intrinsic);
@@ -136,7 +137,7 @@ export class NavBarController extends BarController {
 
   @TraitViewControllerRef<NavBarController, ToolTrait, ToolView, ToolController, ObserverType<ToolController | ButtonToolController>>({
     implements: true,
-    type: BarController,
+    type: ToolController,
     binds: true,
     viewKey: "close",
     observes: true,
@@ -164,7 +165,7 @@ export class NavBarController extends BarController {
 
   @TraitViewControllerRef<NavBarController, ToolTrait, ToolView, ToolController, ObserverType<ToolController | ButtonToolController>>({
     implements: true,
-    type: BarController,
+    type: ToolController,
     binds: true,
     viewKey: "back",
     observes: true,
@@ -192,7 +193,7 @@ export class NavBarController extends BarController {
 
   @TraitViewControllerRef<NavBarController, ToolTrait, ToolView, ToolController, ObserverType<ToolController | ButtonToolController>>({
     implements: true,
-    type: BarController,
+    type: ToolController,
     binds: true,
     viewKey: "more",
     observes: true,
@@ -234,10 +235,10 @@ export class NavBarController extends BarController {
         this.owner.requireUpdate(Controller.NeedsAssemble);
       }
     },
-    controllerWillAttachTitleToolView(titleToolView: ToolView, frontController: SheetController): void {
+    controllerWillAttachTitleTool(titleToolController: ToolController, frontController: SheetController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
-    controllerDidDetachTitleToolView(titleToolView: ToolView, frontController: SheetController): void {
+    controllerDidDetachTitleTool(titleToolController: ToolController, frontController: SheetController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
   })

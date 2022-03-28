@@ -31,6 +31,7 @@ export {
   FolioControllerAppBarExt,
   FolioControllerDrawerExt,
   FolioControllerCoverExt,
+  FolioControllerModeToolsExt,
   FolioController,
 } from "./FolioController";
 export {FolioControllerObserver} from "./FolioControllerObserver";

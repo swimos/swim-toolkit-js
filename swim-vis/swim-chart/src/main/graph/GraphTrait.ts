@@ -48,31 +48,13 @@ export class GraphTrait<X = unknown, Y = unknown> extends Trait {
   readonly plots!: TraitSet<this, PlotTrait<X, Y>>;
   static readonly plots: MemberFastenerClass<GraphTrait, "plots">;
 
-  /** @internal */
-  protected startConsumingPlots(): void {
-    const plotTraits = this.plots.traits;
-    for (const traitId in plotTraits) {
-      const plotTrait = plotTraits[traitId]!;
-      plotTrait.consume(this);
-    }
-  }
-
-  /** @internal */
-  protected stopConsumingPlots(): void {
-    const plotTraits = this.plots.traits;
-    for (const traitId in plotTraits) {
-      const plotTrait = plotTraits[traitId]!;
-      plotTrait.unconsume(this);
-    }
-  }
-
   protected override onStartConsuming(): void {
     super.onStartConsuming();
-    this.startConsumingPlots();
+    this.plots.consumeTraits(this);
   }
 
   protected override onStopConsuming(): void {
     super.onStopConsuming();
-    this.stopConsumingPlots();
+    this.plots.unconsumeTraits(this);
   }
 }

@@ -13,16 +13,17 @@
 // limitations under the License.
 
 import type {Class, ObserverType} from "@swim/util";
+import {Affinity, MemberFastenerClass, Property} from "@swim/component";
 import type {PositionGestureInput} from "@swim/view";
-import type {MemberFastenerClass} from "@swim/component";
 import type {Trait} from "@swim/model";
 import {TraitViewRef, TraitViewControllerRef, TraitViewControllerSet} from "@swim/controller";
-import {ToolView, BarView, BarTrait, BarController} from "@swim/toolbar";
+import {ToolController, BarView, BarTrait, BarController} from "@swim/toolbar";
 import type {SheetView} from "../sheet/SheetView";
 import type {SheetTrait} from "../sheet/SheetTrait";
 import {SheetController} from "../sheet/SheetController";
+import type {FolioStyle} from "../folio/FolioView";
 import {TabBarController} from "./TabBarController";
-import {PanelView} from "./PanelView";
+import {PanelTabStyle, PanelView} from "./PanelView";
 import {PanelTrait} from "./PanelTrait";
 import type {PanelControllerObserver} from "./PanelControllerObserver";
 
@@ -32,6 +33,7 @@ export interface PanelControllerTabBarExt {
   detachTabBarTrait(tabBarTrait: BarTrait, tabBarController: BarController): void;
   attachTabBarView(tabBarView: BarView, tabBarController: BarController): void;
   detachTabBarView(tabBarView: BarView, tabBarController: BarController): void;
+  updateTabStyle(tabStyle: PanelTabStyle, tabBarController: BarController): void;
 }
 
 /** @public */
@@ -40,8 +42,9 @@ export interface PanelControllerTabsExt {
   detachTabTrait(tabTrait: SheetTrait, tabController: SheetController): void;
   attachTabView(tabView: SheetView, tabController: SheetController): void;
   detachTabView(tabView: SheetView, tabController: SheetController): void;
-  attachButtonToolView(buttonToolView: ToolView, tabController: SheetController): void;
-  detachButtonToolView(buttonToolView: ToolView, tabController: SheetController): void;
+  attachButtonTool(buttonToolController: ToolController, tabController: SheetController): void;
+  detachButtonTool(buttonToolController: ToolController, tabController: SheetController): void;
+  updateTabStyle(tabStyle: PanelTabStyle, tabController: SheetController): void;
 }
 
 /** @public */
@@ -56,6 +59,38 @@ export interface PanelControllerActiveExt {
 export class PanelController extends SheetController {
   override readonly observerType?: Class<PanelControllerObserver>;
 
+  @Property<PanelController, FolioStyle | undefined>({
+    lazy: false,
+    type: String,
+    inherits: true,
+    didSetValue(folioStyle: FolioStyle | undefined): void {
+      if (folioStyle === "stacked") {
+        this.owner.tabStyle.setValue("bottom", Affinity.Intrinsic);
+      } else if (folioStyle === "unstacked") {
+        this.owner.tabStyle.setValue("mode", Affinity.Intrinsic);
+      }
+    },
+  })
+  readonly folioStyle!: Property<this, FolioStyle | undefined>;
+
+  @Property<PanelController, PanelTabStyle>({
+    type: String,
+    value: "bottom",
+    didSetValue(tabStyle: PanelTabStyle): void {
+      const tabBarController = this.owner.tabBar.controller;
+      if (tabBarController !== null) {
+        this.owner.tabBar.updateTabStyle(tabStyle, tabBarController);
+      }
+      const tabControllers = this.owner.tabs.controllers;
+      for (const controllerId in tabControllers) {
+        const tabController = tabControllers[controllerId]!;
+        this.owner.tabs.updateTabStyle(tabStyle, tabController);
+      }
+      this.owner.callObservers("controllerDidSetTabStyle", tabStyle, this.owner);
+    },
+  })
+  readonly tabStyle!: Property<this, PanelTabStyle>;
+
   @TraitViewRef<PanelController, PanelTrait, PanelView>({
     traitType: PanelTrait,
     observesTrait: true,
@@ -67,18 +102,10 @@ export class PanelController extends SheetController {
       if (tabBarTrait !== null) {
         this.owner.tabBar.setTrait(tabBarTrait);
       }
-      const tabTraits = panelTrait.tabs.traits;
-      for (const traitId in tabTraits) {
-        const tabTrait = tabTraits[traitId]!;
-        this.owner.tabs.addTraitController(tabTrait);
-      }
+      this.owner.tabs.addTraits(panelTrait.tabs.traits);
     },
     willDetachTrait(panelTrait: PanelTrait): void {
-      const tabTraits = panelTrait.tabs.traits;
-      for (const traitId in tabTraits) {
-        const tabTrait = tabTraits[traitId]!;
-        this.owner.tabs.deleteTraitController(tabTrait);
-      }
+      this.owner.tabs.deleteTraits(panelTrait.tabs.traits);
       const tabBarTrait = panelTrait.tabBar.trait;
       if (tabBarTrait !== null) {
         this.owner.tabBar.deleteTrait(tabBarTrait);
@@ -94,20 +121,17 @@ export class PanelController extends SheetController {
       this.owner.tabBar.deleteTrait(tabBarTrait);
     },
     traitWillAttachTab(tabTrait: SheetTrait, targetTrait: Trait): void {
-      this.owner.tabs.addTraitController(tabTrait, targetTrait);
+      this.owner.tabs.addTrait(tabTrait, targetTrait);
     },
     traitDidDetachTab(tabTrait: SheetTrait): void {
-      this.owner.tabs.deleteTraitController(tabTrait);
+      this.owner.tabs.deleteTrait(tabTrait);
     },
     viewType: PanelView,
     observesView: true,
     initView(panelView: PanelView): void {
       const tabBarController = this.owner.tabBar.controller;
       if (tabBarController !== null) {
-        tabBarController.bar.insertView(panelView);
-        if (panelView.tabBar.view === null) {
-          panelView.tabBar.setView(tabBarController.bar.view);
-        }
+        panelView.tabBar.setView(tabBarController.bar.view);
       }
       const activeController = this.owner.active.controller;
       if (activeController !== null) {
@@ -121,6 +145,7 @@ export class PanelController extends SheetController {
       }
     },
     didAttachView(panelView: PanelView): void {
+      //this.owner.tabStyle.setValue(panelView.tabStyle.value, Affinity.Intrinsic);
       const activeController = this.owner.active.controller;
       if (activeController !== null) {
         activeController.sheet.removeView();
@@ -135,6 +160,9 @@ export class PanelController extends SheetController {
       }
       this.owner.callObservers("controllerDidDetachPanelView", panelView, this.owner);
     },
+    //viewDidSetTabStyle(tabStyle: PanelTabStyle, panelView: PanelView): void {
+    //  this.owner.tabStyle.setValue(tabStyle, Affinity.Intrinsic);
+    //},
     viewWillAttachTabBar(tabBarView: BarView): void {
       const tabBarController = this.owner.tabBar.controller;
       if (tabBarController !== null) {
@@ -174,6 +202,7 @@ export class PanelController extends SheetController {
       return tabBarController.bar;
     },
     initController(tabBarController: BarController): void {
+      this.updateTabStyle(this.owner.tabStyle.value, tabBarController);
       const panelTrait = this.owner.panel.trait;
       if (panelTrait !== null) {
         const tabBarTrait = panelTrait.tabBar.trait;
@@ -190,7 +219,10 @@ export class PanelController extends SheetController {
       if (tabBarTrait !== null) {
         this.attachTabBarTrait(tabBarTrait, tabBarController);
       }
-      tabBarController.bar.insertView();
+      const tabBarView = tabBarController.bar.view;
+      if (tabBarView !== null) {
+        this.attachTabBarView(tabBarView, tabBarController);
+      }
     },
     willDetachController(tabBarController: BarController): void {
       const tabBarView = tabBarController.bar.view;
@@ -230,7 +262,7 @@ export class PanelController extends SheetController {
     attachTabBarView(tabBarView: BarView, tabBarController: BarController): void {
       const panelView = this.owner.panel.view;
       if (panelView !== null && panelView.tabBar.view === null) {
-        panelView.tabBar.setView(tabBarView);
+        panelView.tabBar.attachView(tabBarView);
       }
     },
     detachTabBarView(tabBarView: BarView, tabBarController: BarController): void {
@@ -241,6 +273,13 @@ export class PanelController extends SheetController {
     },
     controllerDidLongPressTabTool(input: PositionGestureInput, tabController: SheetController): void {
       this.owner.didLongPressTabTool(input, tabController);
+    },
+    updateTabStyle(tabStyle: PanelTabStyle, tabBarController: BarController): void {
+      if (tabStyle === "mode") {
+        this.removeView();
+      } else {
+        this.insertView();
+      }
     },
     createController(): BarController {
       return new TabBarController();
@@ -260,6 +299,9 @@ export class PanelController extends SheetController {
     getTraitViewRef(tabController: SheetController): TraitViewRef<unknown, SheetTrait, SheetView> {
       return tabController.sheet;
     },
+    initController(tabController: SheetController): void {
+      this.updateTabStyle(this.owner.tabStyle.value, tabController);
+    },
     willAttachController(tabController: SheetController): void {
       this.owner.callObservers("controllerWillAttachTab", tabController, this.owner);
     },
@@ -272,6 +314,10 @@ export class PanelController extends SheetController {
       if (tabView !== null) {
         this.attachTabView(tabView, tabController);
       }
+      const buttonToolController = tabController.buttonTool.controller;
+      if (buttonToolController !== null) {
+        this.attachButtonTool(buttonToolController, tabController);
+      }
       if (this.owner.active.controller === null) {
         this.owner.active.setController(tabController);
       }
@@ -279,6 +325,10 @@ export class PanelController extends SheetController {
     willDetachController(tabController: SheetController): void {
       if (tabController === this.owner.active.controller) {
         this.owner.active.setController(null);
+      }
+      const buttonToolController = tabController.buttonTool.controller;
+      if (buttonToolController !== null) {
+        this.detachButtonTool(buttonToolController, tabController);
       }
       const tabView = tabController.sheet.view;
       if (tabView !== null) {
@@ -315,38 +365,47 @@ export class PanelController extends SheetController {
       this.owner.callObservers("controllerDidDetachTabView", tabView, tabController, this.owner);
     },
     attachTabView(tabView: SheetView, tabController: SheetController): void {
-      const buttonToolView = tabView.buttonTool.view;
-      if (buttonToolView !== null) {
-        this.attachButtonToolView(buttonToolView, tabController);
-      }
       const panelView = this.owner.panel.view;
       if (panelView !== null) {
         panelView.tabs.attachView(tabView);
       }
     },
     detachTabView(tabView: SheetView, tabController: SheetController): void {
-      const buttonToolView = tabView.buttonTool.view;
-      if (buttonToolView !== null) {
-        this.detachButtonToolView(buttonToolView, tabController);
-      }
       const panelView = this.owner.panel.view;
       if (panelView !== null) {
         panelView.tabs.deleteView(tabView);
       }
     },
-    controllerWillAttachButtonToolView(buttonToolView: ToolView, tabController: SheetController): void {
-      this.owner.callObservers("controllerWillAttachTabButtonToolView", buttonToolView, tabController, this.owner);
-      this.attachButtonToolView(buttonToolView, tabController);
+    controllerWillAttachButtonTool(buttonToolController: ToolController, tabController: SheetController): void {
+      this.owner.callObservers("controllerWillAttachTabButtonTool", buttonToolController, tabController, this.owner);
+      this.attachButtonTool(buttonToolController, tabController);
     },
-    controllerDidDetachButtonToolView(buttonToolView: ToolView, tabController: SheetController): void {
-      this.detachButtonToolView(buttonToolView, tabController);
-      this.owner.callObservers("controllerDidDetachTabButtonToolView", buttonToolView, tabController, this.owner);
+    controllerDidDetachButtonTool(buttonToolController: ToolController, tabController: SheetController): void {
+      this.detachButtonTool(buttonToolController, tabController);
+      this.owner.callObservers("controllerDidDetachTabButtonTool", buttonToolController, tabController, this.owner);
     },
-    attachButtonToolView(buttonToolView: ToolView, tabController: SheetController): void {
-      // hook
+    attachButtonTool(buttonToolController: ToolController, tabController: SheetController): void {
+      const tabStyle = this.owner.tabStyle.value;
+      if (tabStyle === "mode") {
+        this.owner.modeTools.attachController(buttonToolController);
+      }
     },
-    detachButtonToolView(buttonToolView: ToolView, tabController: SheetController): void {
-      buttonToolView.remove();
+    detachButtonTool(buttonToolController: ToolController, tabController: SheetController): void {
+      const tabStyle = this.owner.tabStyle.value;
+      if (tabStyle === "mode") {
+        this.owner.modeTools.deleteController(buttonToolController);
+      }
+      buttonToolController.remove();
+    },
+    updateTabStyle(tabStyle: PanelTabStyle, tabController: SheetController): void {
+      const tabToolController = tabController.buttonTool.controller;
+      if (tabToolController !== null) {
+        if (tabStyle === "mode") {
+          this.owner.modeTools.attachController(tabToolController);
+        } else {
+          this.owner.modeTools.detachController(tabToolController);
+        }
+      }
     },
   })
   readonly tabs!: TraitViewControllerSet<this, SheetTrait, SheetView, SheetController> & PanelControllerTabsExt;
@@ -372,8 +431,10 @@ export class PanelController extends SheetController {
       if (activeView !== null) {
         this.attachActiveView(activeView, activeController);
       }
+      activeController.buttonTool.setActive(true);
     },
     willDetachController(activeController: SheetController): void {
+      activeController.buttonTool.setActive(false);
       const activeView = activeController.sheet.view;
       if (activeView !== null) {
         this.detachActiveView(activeView, activeController);

@@ -71,11 +71,7 @@ export class GaugeController extends Controller {
       this.owner.callObservers("controllerWillAttachGaugeTrait", gaugeTrait, this.owner);
     },
     didAttachTrait(gaugeTrait: GaugeTrait): void {
-      const dialTraits = gaugeTrait.dials.traits;
-      for (const traitId in dialTraits) {
-        const dialTrait = dialTraits[traitId]!;
-        this.owner.dials.addTraitController(dialTrait);
-      }
+      this.owner.dials.addTraits(gaugeTrait.dials.traits);
       const gaugeView = this.view;
       if (gaugeView !== null) {
         this.owner.setTitleView(gaugeTrait.title.value, gaugeTrait);
@@ -88,11 +84,7 @@ export class GaugeController extends Controller {
         this.owner.setTitleView(null, gaugeTrait);
         this.owner.setLimit(0);
       }
-      const dialTraits = gaugeTrait.dials.traits;
-      for (const traitId in dialTraits) {
-        const dialTrait = dialTraits[traitId]!;
-        this.owner.dials.deleteTraitController(dialTrait);
-      }
+      this.owner.dials.deleteTraits(gaugeTrait.dials.traits);
     },
     didDetachTrait(gaugeTrait: GaugeTrait): void {
       this.owner.callObservers("controllerDidDetachGaugeTrait", gaugeTrait, this.owner);
@@ -104,10 +96,10 @@ export class GaugeController extends Controller {
       this.owner.setLimit(newLimit);
     },
     traitWillAttachDial(dialTrait: DialTrait, targetTrait: Trait): void {
-      this.owner.dials.addTraitController(dialTrait, targetTrait);
+      this.owner.dials.addTrait(dialTrait, targetTrait);
     },
     traitDidDetachDial(dialTrait: DialTrait): void {
-      this.owner.dials.deleteTraitController(dialTrait);
+      this.owner.dials.deleteTrait(dialTrait);
     },
     viewType: GaugeView,
     observesView: true,

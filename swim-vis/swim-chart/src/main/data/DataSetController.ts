@@ -46,27 +46,19 @@ export class DataSetController<X = unknown, Y = unknown> extends Controller {
       this.owner.callObservers("controllerWillAttachDataSetTrait", dataSetTrait, this.owner);
     },
     didAttachTrait(dataSetTrait: DataSetTrait<X, Y>): void {
-      const dataPointTraits = dataSetTrait.dataPoints.traits;
-      for (const traitId in dataPointTraits) {
-        const dataPointTrait = dataPointTraits[traitId]!;
-        this.owner.dataPoints.addTraitController(dataPointTrait);
-      }
+      this.owner.dataPoints.addTraits(dataSetTrait.dataPoints.traits);
     },
     willDetachTrait(dataSetTrait: DataSetTrait<X, Y>): void {
-      const dataPointTraits = dataSetTrait.dataPoints.traits;
-      for (const traitId in dataPointTraits) {
-        const dataPointTrait = dataPointTraits[traitId]!;
-        this.owner.dataPoints.deleteTraitController(dataPointTrait);
-      }
+      this.owner.dataPoints.deleteTraits(dataSetTrait.dataPoints.traits);
     },
     didDetachTrait(dataSetTrait: DataSetTrait<X, Y>): void {
       this.owner.callObservers("controllerDidDetachDataSetTrait", dataSetTrait, this.owner);
     },
     traitWillAttachDataPoint(dataPointTrait: DataPointTrait<X, Y>, targetTrait: Trait): void {
-      this.owner.dataPoints.addTraitController(dataPointTrait, targetTrait);
+      this.owner.dataPoints.addTrait(dataPointTrait, targetTrait);
     },
     traitDidDetachDataPoint(dataPointTrait: DataPointTrait<X, Y>): void {
-      this.owner.dataPoints.deleteTraitController(dataPointTrait);
+      this.owner.dataPoints.deleteTrait(dataPointTrait);
     },
   })
   readonly dataSet!: TraitRef<this, DataSetTrait<X, Y>>;

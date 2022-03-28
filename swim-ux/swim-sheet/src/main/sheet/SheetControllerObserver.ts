@@ -14,7 +14,7 @@
 
 import type {PositionGestureInput} from "@swim/view";
 import type {ControllerObserver} from "@swim/controller";
-import type {ToolView} from "@swim/toolbar";
+import type {ToolView, ToolTrait, ToolController} from "@swim/toolbar";
 import type {SheetView} from "./SheetView";
 import type {SheetTrait} from "./SheetTrait";
 import type {SheetController} from "./SheetController";
@@ -45,17 +45,29 @@ export interface SheetControllerObserver<C extends SheetController = SheetContro
 
   controllerDidDetachForwardView?(forwardView: SheetView, controller: C): void;
 
-  controllerWillAttachTitleToolView?(titleToolView: ToolView, controller: C): void;
+  controllerWillAttachTitleTool?(titleToolController: ToolController, controller: C): void;
 
-  controllerDidDetachTitleToolView?(titleToolView: ToolView, controller: C): void;
+  controllerDidDetachTitleTool?(titleToolController: ToolController, controller: C): void;
 
-  controllerWillAttachButtonToolView?(buttonToolView: ToolView, controller: C): void;
+  controllerWillAttachButtonTool?(buttonToolController: ToolController, controller: C): void;
 
-  controllerDidDetachButtonToolView?(buttonToolView: ToolView, controller: C): void;
+  controllerDidDetachButtonTool?(buttonToolController: ToolController, controller: C): void;
 
   controllerDidPressButtonTool?(input: PositionGestureInput, event: Event | null, controller: C): void;
 
   controllerDidLongPressButtonTool?(input: PositionGestureInput, controller: C): void;
+
+  controllerWillAttachModeTool?(modeToolController: ToolController, controller: C): void;
+
+  controllerDidDetachModeTool?(modeToolController: ToolController, controller: C): void;
+
+  controllerWillAttachModeToolTrait?(modeToolTrait: ToolTrait, modeToolController: ToolController, controller: C): void;
+
+  controllerDidDetachModeToolTrait?(modeToolTrait: ToolTrait, modeToolController: ToolController, controller: C): void;
+
+  controllerWillAttachModeToolView?(modeToolView: ToolView, modeToolController: ToolController, controller: C): void;
+
+  controllerDidDetachModeToolView?(modeToolView: ToolView, modeToolController: ToolController, controller: C): void;
 
   controllerWillPresentSheetView?(sheetView: SheetView, controller: C): void;
 

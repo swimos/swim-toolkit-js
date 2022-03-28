@@ -83,9 +83,6 @@ export interface ViewSet<O = unknown, V extends View = View> extends ViewRelatio
   /** @internal @override */
   setInherited(inherited: boolean, superFastener: ViewSet<unknown, V>): void;
 
-  /** @internal */
-  syncInherited(superFastener: ViewSet<unknown, V>): void;
-
   /** @protected @override */
   willInherit(superFastener: ViewSet<unknown, V>): void;
 
@@ -146,15 +143,29 @@ export interface ViewSet<O = unknown, V extends View = View> extends ViewRelatio
 
   addView(view?: AnyView<V>, target?: View | null, key?: string): V;
 
+  addViews(views: {readonly [viewId: number]: V | undefined}, target?: View | null): void;
+
+  setViews(views: {readonly [viewId: number]: V | undefined}, target?: View | null): void;
+
   attachView(view?: AnyView<V>, target?: View | null): V;
+
+  attachViews(views: {readonly [viewId: number]: V | undefined}, target?: View | null): void;
 
   detachView(view: V): V | null;
 
+  detachViews(views?: {readonly [viewId: number]: V | undefined}): void;
+
   insertView(parent?: View | null, view?: AnyView<V>, target?: View | null, key?: string): V;
+
+  insertViews(parent: View | null, views: {readonly [viewId: number]: V | undefined}, target?: View | null): void;
 
   removeView(view: V): V | null;
 
+  removeViews(views?: {readonly [viewId: number]: V | undefined}): void;
+
   deleteView(view: V): V | null;
+
+  deleteViews(views?: {readonly [viewId: number]: V | undefined}): void;
 
   /** @internal @override */
   bindView(view: View, target: View | null): void;
@@ -214,23 +225,8 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     configurable: true,
   });
 
-  ViewSet.prototype.syncInherited = function (this: ViewSet, superFastener: ViewSet): void {
-    const views = this.views;
-    const superViews = superFastener.views;
-    for (const viewId in views) {
-      if (superViews[viewId] === void 0) {
-        this.detachView(views[viewId]!);
-      }
-    }
-    for (const viewId in superViews) {
-      if (views[viewId] === void 0) {
-        this.attachView(superViews[viewId]);
-      }
-    }
-  };
-
   ViewSet.prototype.onInherit = function (this: ViewSet, superFastener: ViewSet): void {
-    this.syncInherited(superFastener);
+    this.setViews(superFastener.views);
   };
 
   ViewSet.prototype.onBindSuperFastener = function <V extends View>(this: ViewSet<unknown, V>, superFastener: ViewSet<unknown, V>): void {
@@ -296,6 +292,26 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     return newView;
   };
 
+  ViewSet.prototype.addViews = function <V extends View>(this: ViewSet, newViews: {readonly [viewId: number]: V | undefined}, target?: View | null): void {
+    for (const viewId in newViews) {
+      this.addView(newViews[viewId]!, target);
+    }
+  };
+
+  ViewSet.prototype.setViews = function <V extends View>(this: ViewSet, newViews: {readonly [viewId: number]: V | undefined}, target?: View | null): void {
+    const views = this.views;
+    for (const viewId in views) {
+      if (newViews[viewId] === void 0) {
+        this.detachView(views[viewId]!);
+      }
+    }
+    for (const viewId in newViews) {
+      if (views[viewId] === void 0) {
+        this.attachView(newViews[viewId]!, target);
+      }
+    }
+  };
+
   ViewSet.prototype.attachView = function <V extends View>(this: ViewSet<unknown, V>, newView?: AnyView<V>, target?: View | null): V {
     if (newView !== void 0 && newView !== null) {
       newView = this.fromAny(newView);
@@ -319,6 +335,12 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     return newView;
   };
 
+  ViewSet.prototype.attachViews = function <V extends View>(this: ViewSet, newViews: {readonly [viewId: number]: V | undefined}, target?: View | null): void {
+    for (const viewId in newViews) {
+      this.attachView(newViews[viewId]!, target);
+    }
+  };
+
   ViewSet.prototype.detachView = function <V extends View>(this: ViewSet<unknown, V>, oldView: V): V | null {
     const views = this.views as {[viewId: number]: V | undefined};
     if (views[oldView.uid] !== void 0) {
@@ -333,6 +355,15 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
       return oldView;
     }
     return null;
+  };
+
+  ViewSet.prototype.detachViews = function <V extends View>(this: ViewSet<unknown, V>, views?: {readonly [viewId: number]: V | undefined}): void {
+    if (views === void 0) {
+      views = this.views;
+    }
+    for (const viewId in views) {
+      this.detachView(views[viewId]!);
+    }
   };
 
   ViewSet.prototype.insertView = function <V extends View>(this: ViewSet<unknown, V>, parent?: View | null, newView?: AnyView<V>, target?: View | null, key?: string): V {
@@ -367,6 +398,12 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     return newView;
   };
 
+  ViewSet.prototype.insertViews = function <V extends View>(this: ViewSet, parent: View | null, newViews: {readonly [viewId: number]: V | undefined}, target?: View | null): void {
+    for (const viewId in newViews) {
+      this.insertView(parent, newViews[viewId]!, target);
+    }
+  };
+
   ViewSet.prototype.removeView = function <V extends View>(this: ViewSet<unknown, V>, view: V): V | null {
     if (this.hasView(view)) {
       view.remove();
@@ -375,12 +412,30 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     return null;
   };
 
+  ViewSet.prototype.removeViews = function <V extends View>(this: ViewSet<unknown, V>, views?: {readonly [viewId: number]: V | undefined}): void {
+    if (views === void 0) {
+      views = this.views;
+    }
+    for (const viewId in views) {
+      this.removeView(views[viewId]!);
+    }
+  };
+
   ViewSet.prototype.deleteView = function <V extends View>(this: ViewSet<unknown, V>, view: V): V | null {
     const oldView = this.detachView(view);
     if (oldView !== null) {
       oldView.remove();
     }
     return oldView;
+  };
+
+  ViewSet.prototype.deleteViews = function <V extends View>(this: ViewSet<unknown, V>, views?: {readonly [viewId: number]: V | undefined}): void {
+    if (views === void 0) {
+      views = this.views;
+    }
+    for (const viewId in views) {
+      this.deleteView(views[viewId]!);
+    }
   };
 
   ViewSet.prototype.bindView = function <V extends View>(this: ViewSet<unknown, V>, view: View, target: View | null): void {
@@ -444,7 +499,7 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     if ((this.flags & Fastener.InheritedFlag) !== 0) {
       const superFastener = this.superFastener;
       if (superFastener !== null) {
-        this.syncInherited(superFastener);
+        this.setViews(superFastener.views);
       }
     }
   };

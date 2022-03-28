@@ -71,31 +71,13 @@ export class LeafTrait extends Trait {
   readonly cells!: TraitSet<this, CellTrait>;
   static readonly cells: MemberFastenerClass<LeafTrait, "cells">;
 
-  /** @internal */
-  protected startConsumingCells(): void {
-    const cellTraits = this.cells.traits;
-    for (const traitId in cellTraits) {
-      const cellTrait = cellTraits[traitId]!;
-      cellTrait.consume(this);
-    }
-  }
-
-  /** @internal */
-  protected stopConsumingCells(): void {
-    const cellTraits = this.cells.traits;
-    for (const traitId in cellTraits) {
-      const cellTrait = cellTraits[traitId]!;
-      cellTrait.unconsume(this);
-    }
-  }
-
   protected override onStartConsuming(): void {
     super.onStartConsuming();
-    this.startConsumingCells();
+    this.cells.consumeTraits(this);
   }
 
   protected override onStopConsuming(): void {
     super.onStopConsuming();
-    this.stopConsumingCells();
+    this.cells.unconsumeTraits(this);
   }
 }

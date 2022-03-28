@@ -16,28 +16,22 @@ import type {Class} from "@swim/util";
 import {Property} from "@swim/component";
 import {Trait} from "@swim/model";
 import type {Graphics} from "@swim/graphics";
-import type {ToolView} from "@swim/toolbar";
 import type {SheetTraitObserver} from "./SheetTraitObserver";
-
-/** @public */
-export type SheetTraitTitle = SheetTraitTitleFunction | string;
-/** @public */
-export type SheetTraitTitleFunction = (sheetTrait: SheetTrait) => ToolView | string | null;
 
 /** @public */
 export class SheetTrait extends Trait {
   override readonly observerType?: Class<SheetTraitObserver>;
 
-  @Property<SheetTrait, SheetTraitTitle | null>({
-    value: null,
-    didSetValue(newTitle: SheetTraitTitle | null, oldTitle: SheetTraitTitle | null): void {
+  @Property<SheetTrait, string>({
+    value: "",
+    didSetValue(newTitle: string, oldTitle: string): void {
       this.owner.callObservers("traitDidSetTitle", newTitle, this.owner);
     },
-    equalValues(newTitle: SheetTraitTitle | null, oldTitle: SheetTraitTitle | null): boolean {
+    equalValues(newTitle: string, oldTitle: string): boolean {
       return newTitle === oldTitle;
     },
   })
-  readonly title!: Property<this, SheetTraitTitle | null>;
+  readonly title!: Property<this, string>;
 
   @Property<SheetTrait, Graphics | null>({
     value: null,

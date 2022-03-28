@@ -14,7 +14,7 @@
 
 import type {PositionGestureInput} from "@swim/view";
 import type {ControllerObserver} from "@swim/controller";
-import type {ToolView, BarView, BarTrait, BarController} from "@swim/toolbar";
+import type {ToolController, BarView, BarTrait, BarController} from "@swim/toolbar";
 import type {SheetView} from "../sheet/SheetView";
 import type {SheetTrait} from "../sheet/SheetTrait";
 import type {SheetController} from "../sheet/SheetController";
@@ -62,9 +62,9 @@ export interface StackControllerObserver<C extends StackController = StackContro
 
   controllerDidDetachSheetView?(sheetView: SheetView, sheetController: SheetController, controller: C): void;
 
-  controllerWillAttachSheetTitleToolView?(titleToolView: ToolView, sheetController: SheetController, controller: C): void;
+  controllerWillAttachSheetTitleTool?(titleToolController: ToolController, sheetController: SheetController, controller: C): void;
 
-  controllerDidDetachSheetTitleToolView?(titleToolView: ToolView, sheetController: SheetController, controller: C): void;
+  controllerDidDetachSheetTitleTool?(titleToolController: ToolController, sheetController: SheetController, controller: C): void;
 
   controllerWillAttachFront?(frontController: SheetController, controller: C): void;
 

@@ -83,9 +83,6 @@ export interface ControllerSet<O = unknown, C extends Controller = Controller> e
   /** @internal @override */
   setInherited(inherited: boolean, superFastener: ControllerSet<unknown, C>): void;
 
-  /** @internal */
-  syncInherited(superFastener: ControllerSet<unknown, C>): void;
-
   /** @protected @override */
   willInherit(superFastener: ControllerSet<unknown, C>): void;
 
@@ -146,15 +143,29 @@ export interface ControllerSet<O = unknown, C extends Controller = Controller> e
 
   addController(controller?: AnyController<C>, target?: Controller | null, key?: string): C;
 
+  addControllers(controllers: {readonly [controllerId: number]: C | undefined}, target?: Controller | null): void;
+
+  setControllers(controllers: {readonly [controllerId: number]: C | undefined}, target?: Controller | null): void;
+
   attachController(controller?: AnyController<C>, target?: Controller | null): C;
+
+  attachControllers(controllers: {readonly [controllerId: number]: C | undefined}, target?: Controller | null): void;
 
   detachController(controller: C): C | null;
 
+  detachControllers(controllers?: {readonly [controllerId: number]: C | undefined}): void;
+
   insertController(parent?: Controller | null, controller?: AnyController<C>, target?: Controller | null, key?: string): C;
+
+  insertControllers(parent: Controller | null, controllers: {readonly [controllerId: number]: C | undefined}, target?: Controller | null): void;
 
   removeController(controller: C): C | null;
 
+  removeControllers(controllers?: {readonly [controllerId: number]: C | undefined}): void;
+
   deleteController(controller: C): C | null;
+
+  deleteControllers(controllers?: {readonly [controllerId: number]: C | undefined}): void;
 
   /** @internal @override */
   bindController(controller: Controller, target: Controller | null): void;
@@ -214,23 +225,8 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     configurable: true,
   });
 
-  ControllerSet.prototype.syncInherited = function (this: ControllerSet, superFastener: ControllerSet): void {
-    const controllers = this.controllers;
-    const superControllers = superFastener.controllers;
-    for (const controllerId in controllers) {
-      if (superControllers[controllerId] === void 0) {
-        this.detachController(controllers[controllerId]!);
-      }
-    }
-    for (const controllerId in superControllers) {
-      if (controllers[controllerId] === void 0) {
-        this.attachController(superControllers[controllerId]);
-      }
-    }
-  };
-
   ControllerSet.prototype.onInherit = function (this: ControllerSet, superFastener: ControllerSet): void {
-    this.syncInherited(superFastener);
+    this.setControllers(superFastener.controllers);
   };
 
   ControllerSet.prototype.onBindSuperFastener = function <C extends Controller>(this: ControllerSet<unknown, C>, superFastener: ControllerSet<unknown, C>): void {
@@ -296,6 +292,26 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     return newController;
   };
 
+  ControllerSet.prototype.addControllers = function <C extends Controller>(this: ControllerSet, newControllers: {readonly [controllerId: number]: C | undefined}, target?: Controller | null): void {
+    for (const controllerId in newControllers) {
+      this.addController(newControllers[controllerId]!, target);
+    }
+  };
+
+  ControllerSet.prototype.setControllers = function <C extends Controller>(this: ControllerSet, newControllers: {readonly [controllerId: number]: C | undefined}, target?: Controller | null): void {
+    const controllers = this.controllers;
+    for (const controllerId in controllers) {
+      if (newControllers[controllerId] === void 0) {
+        this.detachController(controllers[controllerId]!);
+      }
+    }
+    for (const controllerId in newControllers) {
+      if (controllers[controllerId] === void 0) {
+        this.attachController(newControllers[controllerId]!, target);
+      }
+    }
+  };
+
   ControllerSet.prototype.attachController = function <C extends Controller>(this: ControllerSet<unknown, C>, newController?: AnyController<C>, target?: Controller | null): C {
     if (newController !== void 0 && newController !== null) {
       newController = this.fromAny(newController);
@@ -319,6 +335,12 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     return newController;
   };
 
+  ControllerSet.prototype.attachControllers = function <C extends Controller>(this: ControllerSet, newControllers: {readonly [controllerId: number]: C | undefined}, target?: Controller | null): void {
+    for (const controllerId in newControllers) {
+      this.attachController(newControllers[controllerId]!, target);
+    }
+  };
+
   ControllerSet.prototype.detachController = function <C extends Controller>(this: ControllerSet<unknown, C>, oldController: C): C | null {
     const controllers = this.controllers as {[comtrollerId: number]: C | undefined};
     if (controllers[oldController.uid] !== void 0) {
@@ -333,6 +355,15 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
       return oldController;
     }
     return null;
+  };
+
+  ControllerSet.prototype.detachControllers = function <C extends Controller>(this: ControllerSet<unknown, C>, controllers?: {readonly [controllerId: number]: C | undefined}): void {
+    if (controllers === void 0) {
+      controllers = this.controllers;
+    }
+    for (const controllerId in controllers) {
+      this.detachController(controllers[controllerId]!);
+    }
   };
 
   ControllerSet.prototype.insertController = function <C extends Controller>(this: ControllerSet<unknown, C>, parent?: Controller | null, newController?: AnyController<C>, target?: Controller | null, key?: string): C {
@@ -367,6 +398,12 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     return newController;
   };
 
+  ControllerSet.prototype.insertControllers = function <C extends Controller>(this: ControllerSet, parent: Controller | null, newControllers: {readonly [controllerId: number]: C | undefined}, target?: Controller | null): void {
+    for (const controllerId in newControllers) {
+      this.insertController(parent, newControllers[controllerId]!, target);
+    }
+  };
+
   ControllerSet.prototype.removeController = function <C extends Controller>(this: ControllerSet<unknown, C>, controller: C): C | null {
     if (this.hasController(controller)) {
       controller.remove();
@@ -375,12 +412,30 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     return null;
   };
 
+  ControllerSet.prototype.removeControllers = function <C extends Controller>(this: ControllerSet<unknown, C>, controllers?: {readonly [controllerId: number]: C | undefined}): void {
+    if (controllers === void 0) {
+      controllers = this.controllers;
+    }
+    for (const controllerId in controllers) {
+      this.removeController(controllers[controllerId]!);
+    }
+  };
+
   ControllerSet.prototype.deleteController = function <C extends Controller>(this: ControllerSet<unknown, C>, controller: C): C | null {
     const oldController = this.detachController(controller);
     if (oldController !== null) {
       oldController.remove();
     }
     return oldController;
+  };
+
+  ControllerSet.prototype.deleteControllers = function <C extends Controller>(this: ControllerSet<unknown, C>, controllers?: {readonly [controllerId: number]: C | undefined}): void {
+    if (controllers === void 0) {
+      controllers = this.controllers;
+    }
+    for (const controllerId in controllers) {
+      this.deleteController(controllers[controllerId]!);
+    }
   };
 
   ControllerSet.prototype.bindController = function <C extends Controller>(this: ControllerSet<unknown, C>, controller: Controller, target: Controller | null): void {
@@ -444,7 +499,7 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     if ((this.flags & Fastener.InheritedFlag) !== 0) {
       const superFastener = this.superFastener;
       if (superFastener !== null) {
-        this.syncInherited(superFastener);
+        this.setControllers(superFastener.controllers);
       }
     }
   };

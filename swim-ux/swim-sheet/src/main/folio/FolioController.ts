@@ -16,7 +16,7 @@ import type {Class, ObserverType, AnyTiming} from "@swim/util";
 import {Affinity, MemberFastenerClass, Property} from "@swim/component";
 import {PositionGestureInput, View, ViewRef} from "@swim/view";
 import {TraitViewRef, TraitViewControllerRef, TraitViewControllerSet} from "@swim/controller";
-import {BarView, BarTrait, BarController} from "@swim/toolbar";
+import {ToolView, ToolTrait, ToolController, BarView, BarTrait, BarController} from "@swim/toolbar";
 import {DrawerView} from "@swim/window";
 import type {SheetView} from "../sheet/SheetView";
 import type {SheetTrait} from "../sheet/SheetTrait";
@@ -75,6 +75,14 @@ export interface FolioControllerCoverExt {
 }
 
 /** @public */
+export interface FolioControllerModeToolsExt {
+  attachModeToolTrait(modeToolTrait: ToolTrait, modeToolController: ToolController): void;
+  detachModeToolTrait(modeToolTrait: ToolTrait, modeToolController: ToolController): void;
+  attachModeToolView(modeToolView: ToolView, modeToolController: ToolController): void;
+  detachModeToolView(modeToolView: ToolView, modeToolController: ToolController): void;
+}
+
+/** @public */
 export class FolioController extends StackController {
   override readonly observerType?: Class<FolioControllerObserver>;
 
@@ -111,6 +119,7 @@ export class FolioController extends StackController {
           this.owner.sheets.updateFolioStyle(folioStyle, sheetView, sheetController);
         }
       }
+      this.owner.callObservers("controllerDidSetFolioStyle", folioStyle, this.owner);
     },
   })
   readonly folioStyle!: Property<this, FolioStyle | undefined>;
@@ -135,6 +144,7 @@ export class FolioController extends StackController {
           this.owner.sheets.updateFullBleed(fullBleed, sheetView, sheetController);
         }
       }
+      this.owner.callObservers("controllerDidSetFullBleed", fullBleed, this.owner);
     },
   })
   readonly fullBleed!: Property<this, boolean>;
@@ -295,8 +305,8 @@ export class FolioController extends StackController {
   @TraitViewControllerRef<FolioController, BarTrait, BarView, BarController, FolioControllerNavBarExt & ObserverType<BarController | NavBarController>>({
     extends: true,
     implements: true,
-    attachNavBarView(navBarView: BarView, navBarController: BarController): void {
-      StackController.navBar.prototype.attachNavBarView.call(this, navBarView, navBarController);
+    initController(navBarController: BarController): void {
+      StackController.navBar.prototype.initController.call(this, navBarController);
       this.updateFolioStyle(this.owner.folioStyle.value, navBarController);
     },
     updateFolioStyle(folioStyle: FolioStyle | undefined, navBarController: BarController): void {
@@ -456,8 +466,16 @@ export class FolioController extends StackController {
       if (coverView !== null) {
         this.attachCoverView(coverView, coverController);
       }
+      const modeToolControllers = coverController.modeTools.controllers;
+      for (const controllerId in modeToolControllers) {
+        this.owner.modeTools.attachController(modeToolControllers[controllerId]!);
+      }
     },
     willDetachController(coverController: SheetController): void {
+      const modeToolControllers = coverController.modeTools.controllers;
+      for (const controllerId in modeToolControllers) {
+        this.owner.modeTools.detachController(modeToolControllers[controllerId]!);
+      }
       const coverView = coverController.sheet.view;
       if (coverView !== null) {
         this.detachCoverView(coverView, coverController);
@@ -501,6 +519,12 @@ export class FolioController extends StackController {
     detachCoverView(coverView: SheetView, coverController: SheetController): void {
       // hook
     },
+    controllerWillAttachModeTool(modeToolController: ToolController, coverController: SheetController): void {
+      this.owner.modeTools.attachController(modeToolController);
+    },
+    controllerDidDetachModeTool(modeToolController: ToolController, coverController: SheetController): void {
+      this.owner.modeTools.detachController(modeToolController);
+    },
     present(timing?: AnyTiming | boolean): SheetView | null {
       if (this.owner.folioStyle.value === "stacked") {
         const coverController = this.controller;
@@ -518,4 +542,70 @@ export class FolioController extends StackController {
   })
   readonly cover!: TraitViewControllerRef<this, SheetTrait, SheetView, SheetController> & FolioControllerCoverExt;
   static readonly cover: MemberFastenerClass<FolioController, "cover">;
+
+  @TraitViewControllerSet<FolioController, ToolTrait, ToolView, ToolController, FolioControllerModeToolsExt>({
+    implements: true,
+    type: ToolController,
+    binds: false,
+    observes: true,
+    getTraitViewRef(modeToolController: ToolController): TraitViewRef<unknown, ToolTrait, ToolView> {
+      return modeToolController.tool;
+    },
+    willAttachController(modeToolController: ToolController): void {
+      this.owner.callObservers("controllerWillAttachCoverModeTool", modeToolController, this.owner);
+    },
+    didAttachController(modeToolController: ToolController): void {
+      const modeToolTrait = modeToolController.tool.trait;
+      if (modeToolTrait !== null) {
+        this.attachModeToolTrait(modeToolTrait, modeToolController);
+      }
+      const modeToolView = modeToolController.tool.view;
+      if (modeToolView !== null) {
+        this.attachModeToolView(modeToolView, modeToolController);
+      }
+    },
+    willDetachController(modeToolController: ToolController): void {
+      const modeToolView = modeToolController.tool.view;
+      if (modeToolView !== null) {
+        this.detachModeToolView(modeToolView, modeToolController);
+      }
+      const modeToolTrait = modeToolController.tool.trait;
+      if (modeToolTrait !== null) {
+        this.detachModeToolTrait(modeToolTrait, modeToolController);
+      }
+    },
+    didDetachController(modeToolController: ToolController): void {
+      this.owner.callObservers("controllerDidDetachCoverModeTool", modeToolController, this.owner);
+    },
+    controllerWillAttachToolTrait(modeToolTrait: ToolTrait, modeToolController: ToolController): void {
+      this.owner.callObservers("controllerWillAttachCoverModeToolTrait", modeToolTrait, modeToolController, this.owner);
+      this.attachModeToolTrait(modeToolTrait, modeToolController);
+    },
+    controllerDidDetachToolTrait(modeToolTrait: ToolTrait, modeToolController: ToolController): void {
+      this.detachModeToolTrait(modeToolTrait, modeToolController);
+      this.owner.callObservers("controllerDidDetachCoverModeToolTrait", modeToolTrait, modeToolController, this.owner);
+    },
+    attachModeToolTrait(modeToolTrait: ToolTrait, modeToolController: ToolController): void {
+      // hook
+    },
+    detachModeToolTrait(modeToolTrait: ToolTrait, modeToolController: ToolController): void {
+      // hook
+    },
+    controllerWillAttachToolView(modeToolView: ToolView, modeToolController: ToolController): void {
+      this.owner.callObservers("controllerWillAttachCoverModeToolView", modeToolView, modeToolController, this.owner);
+      this.attachModeToolView(modeToolView, modeToolController);
+    },
+    controllerDidDetachToolView(modeToolView: ToolView, modeToolController: ToolController): void {
+      this.detachModeToolView(modeToolView, modeToolController);
+      this.owner.callObservers("controllerDidDetachCoverModeToolView", modeToolView, modeToolController, this.owner);
+    },
+    attachModeToolView(modeToolView: ToolView, modeToolController: ToolController): void {
+      // hook
+    },
+    detachModeToolView(modeToolView: ToolView, modeToolController: ToolController): void {
+      // hook
+    },
+  })
+  readonly modeTools!: TraitViewControllerSet<this, ToolTrait, ToolView, ToolController> & FolioControllerModeToolsExt;
+  static readonly modeTools: MemberFastenerClass<FolioController, "modeTools">;
 }

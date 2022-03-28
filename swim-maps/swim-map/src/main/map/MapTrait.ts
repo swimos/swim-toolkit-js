@@ -69,31 +69,13 @@ export class MapTrait extends GeoTrait {
   readonly layers!: TraitSet<this, GeoTrait>;
   static readonly layers: MemberFastenerClass<MapTrait, "layers">;
 
-  /** @internal */
-  protected startConsumingLayers(): void {
-    const layerTraits = this.layers.traits;
-    for (const traitId in layerTraits) {
-      const layerTrait = layerTraits[traitId]!;
-      layerTrait.consume(this);
-    }
-  }
-
-  /** @internal */
-  protected stopConsumingLayers(): void {
-    const layerTraits = this.layers.traits;
-    for (const traitId in layerTraits) {
-      const layerTrait = layerTraits[traitId]!;
-      layerTrait.unconsume(this);
-    }
-  }
-
   protected override onStartConsuming(): void {
     super.onStartConsuming();
-    this.startConsumingLayers();
+    this.layers.consumeTraits(this);
   }
 
   protected override onStopConsuming(): void {
     super.onStopConsuming();
-    this.stopConsumingLayers();
+    this.layers.unconsumeTraits(this);
   }
 }

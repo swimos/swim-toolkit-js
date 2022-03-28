@@ -14,19 +14,19 @@
 
 import type {Class} from "@swim/util";
 import type {PositionGestureInput} from "@swim/view";
-import {Affinity, MemberFastenerClass} from "@swim/component";
-import {Look} from "@swim/theme";
+import {MemberFastenerClass, Property} from "@swim/component";
 import {
   Controller,
   TraitViewRef,
   TraitViewControllerRef,
   TraitViewControllerSet,
 } from "@swim/controller";
-import {ToolLayout, BarLayout, ToolView, ButtonToolView, BarController} from "@swim/toolbar";
+import {ToolLayout, BarLayout, ToolController, BarController} from "@swim/toolbar";
 import type {SheetView} from "../sheet/SheetView";
 import type {SheetTrait} from "../sheet/SheetTrait";
 import {SheetController} from "../sheet/SheetController";
 import type {TabBarControllerObserver} from "./TabBarControllerObserver";
+import type {PanelTabStyle} from "./PanelView";
 
 /** @public */
 export class TabBarController extends BarController {
@@ -34,29 +34,23 @@ export class TabBarController extends BarController {
 
   protected override createLayout(): BarLayout | null {
     const tools = new Array<ToolLayout>();
-    tools.push(ToolLayout.create("left", 0.5, 0, 0, 0));
+    tools.push(ToolLayout.create("leftPadding", 0.5, 0, 0, 0));
 
-    const activeController = this.active.controller;
-    const tabControllers = this.tabs.controllers;
-    for (const controllerId in tabControllers) {
-      const tabController = tabControllers[controllerId]!;
-      const tabToolView = tabController.buttonTool.view;
-      if (tabToolView !== null) {
-        const tabKey = "tab" + tabToolView.uid;
-        const tabToolLayout = ToolLayout.create(tabKey, 1, 0, 0, 0.5);
-        tools.push(tabToolLayout);
-        tabController.buttonTool.insertView(this.bar.view, void 0, void 0, tabKey);
-        if (tabToolView instanceof ButtonToolView) {
-          if (tabController === activeController) {
-            tabToolView.iconColor.setLook(Look.accentColor, Affinity.Intrinsic);
-          } else {
-            tabToolView.iconColor.setLook(Look.iconColor, Affinity.Intrinsic);
-          }
+    if (this.tabStyle.value !== "mode") {
+      const tabControllers = this.tabs.controllers;
+      for (const controllerId in tabControllers) {
+        const tabController = tabControllers[controllerId]!;
+        const tabToolView = tabController.buttonTool.view;
+        if (tabToolView !== null) {
+          const tabKey = "tab" + tabToolView.uid;
+          const tabToolLayout = ToolLayout.create(tabKey, 1, 0, 0, 0.5);
+          tools.push(tabToolLayout);
+          tabController.buttonTool.insertView(this.bar.view, void 0, void 0, tabKey);
         }
       }
     }
 
-    tools.push(ToolLayout.create("right", 0.5, 0, 0, 1));
+    tools.push(ToolLayout.create("rightPadding", 0.5, 0, 0, 1));
     return BarLayout.create(tools);
   }
 
@@ -73,10 +67,10 @@ export class TabBarController extends BarController {
     didDetachController(tabController: SheetController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
-    controllerWillAttachButtonToolView(buttonToolView: ToolView, tabController: SheetController): void {
+    controllerWillAttachButtonTool(buttonToolController: ToolController, tabController: SheetController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
-    controllerDidDetachButtonToolView(buttonToolView: ToolView, tabController: SheetController): void {
+    controllerDidDetachButtonTool(buttonToolController: ToolController, tabController: SheetController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
     controllerDidPressButtonTool(input: PositionGestureInput, event: Event | null, tabController: SheetController): void {
@@ -102,13 +96,23 @@ export class TabBarController extends BarController {
     didDetachController(activeController: SheetController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
-    controllerWillAttachButtonToolView(buttonToolView: ToolView, activeController: SheetController): void {
+    controllerWillAttachButtonTool(buttonToolController: ToolController, activeController: SheetController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
-    controllerDidDetachButtonToolView(buttonToolView: ToolView, activeController: SheetController): void {
+    controllerDidDetachButtonTool(buttonToolController: ToolController, activeController: SheetController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
   })
   readonly active!: TraitViewControllerRef<this, SheetTrait, SheetView, SheetController>;
   static readonly active: MemberFastenerClass<TabBarController, "active">;
+
+  @Property<TabBarController, PanelTabStyle>({
+    type: String,
+    value: "bottom",
+    inherits: true,
+    didSetValue(tabStyle: PanelTabStyle): void {
+      this.owner.requireUpdate(Controller.NeedsAssemble);
+    },
+  })
+  readonly tabStyle!: Property<this, PanelTabStyle>;
 }

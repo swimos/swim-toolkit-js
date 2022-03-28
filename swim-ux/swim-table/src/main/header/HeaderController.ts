@@ -47,27 +47,19 @@ export class HeaderController extends Controller {
       this.owner.callObservers("controllerWillAttachHeaderTrait", headerTrait, this.owner);
     },
     didAttachTrait(headerTrait: HeaderTrait): void {
-      const colTraits = headerTrait.cols.traits;
-      for (const traitId in colTraits) {
-        const colTrait = colTraits[traitId]!;
-        this.owner.cols.addTraitController(colTrait);
-      }
+      this.owner.cols.addTraits(headerTrait.cols.traits);
     },
     willDetachTrait(headerTrait: HeaderTrait): void {
-      const colTraits = headerTrait.cols.traits;
-      for (const traitId in colTraits) {
-        const colTrait = colTraits[traitId]!;
-        this.owner.cols.deleteTraitController(colTrait);
-      }
+      this.owner.cols.deleteTraits(headerTrait.cols.traits);
     },
     didDetachTrait(headerTrait: HeaderTrait): void {
       this.owner.callObservers("controllerDidDetachHeaderTrait", headerTrait, this.owner);
     },
     traitWillAttachCol(colTrait: ColTrait, targetTrait: Trait): void {
-      this.owner.cols.addTraitController(colTrait, targetTrait);
+      this.owner.cols.addTrait(colTrait, targetTrait);
     },
     traitDidDetachCol(colTrait: ColTrait): void {
-      this.owner.cols.deleteTraitController(colTrait);
+      this.owner.cols.deleteTrait(colTrait);
     },
     viewType: HeaderView,
     observesView: true,

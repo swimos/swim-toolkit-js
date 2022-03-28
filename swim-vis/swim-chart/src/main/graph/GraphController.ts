@@ -57,27 +57,19 @@ export class GraphController<X = unknown, Y = unknown> extends Controller {
       this.owner.callObservers("controllerWillAttachGraphTrait", graphTrait, this.owner);
     },
     didAttachTrait(graphTrait: GraphTrait<X, Y>): void {
-      const plotTraits = graphTrait.plots.traits;
-      for (const traitId in plotTraits) {
-        const plotTrait = plotTraits[traitId]!;
-        this.owner.plots.addTraitController(plotTrait);
-      }
+      this.owner.plots.addTraits(graphTrait.plots.traits);
     },
     willDetachTrait(graphTrait: GraphTrait<X, Y>): void {
-      const plotTraits = graphTrait.plots.traits;
-      for (const traitId in plotTraits) {
-        const plotTrait = plotTraits[traitId]!;
-        this.owner.plots.deleteTraitController(plotTrait);
-      }
+      this.owner.plots.deleteTraits(graphTrait.plots.traits);
     },
     didDetachTrait(graphTrait: GraphTrait<X, Y>): void {
       this.owner.callObservers("controllerDidDetachGraphTrait", graphTrait, this.owner);
     },
     traitWillAttachPlot(plotTrait: PlotTrait<X, Y>, targetTrait: Trait): void {
-      this.owner.plots.addTraitController(plotTrait, targetTrait);
+      this.owner.plots.addTrait(plotTrait, targetTrait);
     },
     traitDidDetachPlot(plotTrait: PlotTrait<X, Y>): void {
-      this.owner.plots.deleteTraitController(plotTrait);
+      this.owner.plots.deleteTrait(plotTrait);
     },
     viewType: GraphView,
     initView(graphView: GraphView<X, Y>): void {

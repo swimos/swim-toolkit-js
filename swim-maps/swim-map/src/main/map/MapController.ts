@@ -63,18 +63,10 @@ export abstract class MapController extends Controller {
       if (mapView !== null) {
         this.owner.setGeoPerspective(mapTrait.geoPerspective.value);
       }
-      const layerTraits = mapTrait.layers.traits;
-      for (const traitId in layerTraits) {
-        const layerTrait = layerTraits[traitId]!;
-        this.owner.layers.addTraitController(layerTrait);
-      }
+      this.owner.layers.addTraits(mapTrait.layers.traits);
     },
     willDetachTrait(mapTrait: MapTrait): void {
-      const layerTraits = mapTrait.layers.traits;
-      for (const traitId in layerTraits) {
-        const layerTrait = layerTraits[traitId]!;
-        this.owner.layers.deleteTraitController(layerTrait);
-      }
+      this.owner.layers.deleteTraits(mapTrait.layers.traits);
     },
     didDetachTrait(mapTrait: MapTrait): void {
       this.owner.callObservers("controllerDidDetachMapTrait", mapTrait, this.owner);
@@ -83,10 +75,10 @@ export abstract class MapController extends Controller {
       this.owner.setGeoPerspective(newGeoPerspective);
     },
     traitWillAttachLayer(layerTrait: GeoTrait, targetTrait: Trait): void {
-      this.owner.layers.addTraitController(layerTrait, targetTrait);
+      this.owner.layers.addTrait(layerTrait, targetTrait);
     },
     traitDidDetachLayer(layerTrait: GeoTrait): void {
-      this.owner.layers.deleteTraitController(layerTrait);
+      this.owner.layers.deleteTrait(layerTrait);
     },
     viewType: MapView,
     observesView: true,
@@ -102,7 +94,7 @@ export abstract class MapController extends Controller {
       }
       const layerControllers = this.owner.layers.controllers;
       for (const controllerId in layerControllers) {
-      const layerController = layerControllers[controllerId]!;
+        const layerController = layerControllers[controllerId]!;
         const layerView = layerController.geo.view;
         if (layerView !== null && layerView.parent === null) {
           layerController.geo.insertView(mapView);
