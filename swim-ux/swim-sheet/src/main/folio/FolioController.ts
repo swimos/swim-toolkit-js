@@ -14,16 +14,15 @@
 
 import type {Class, ObserverType, AnyTiming} from "@swim/util";
 import {Affinity, MemberFastenerClass, Property} from "@swim/component";
+import {Trait} from "@swim/model";
 import {PositionGestureInput, View, ViewRef} from "@swim/view";
 import {TraitViewRef, TraitViewControllerRef, TraitViewControllerSet} from "@swim/controller";
 import {ToolView, ToolTrait, ToolController, BarView, BarTrait, BarController} from "@swim/toolbar";
 import {DrawerView} from "@swim/window";
 import type {SheetView} from "../sheet/SheetView";
-import type {SheetTrait} from "../sheet/SheetTrait";
 import {SheetController} from "../sheet/SheetController";
 import type {NavBarController} from "../stack/NavBarController";
 import type {StackView} from "../stack/StackView";
-import type {StackTrait} from "../stack/StackTrait";
 import {
   StackControllerSheetsExt,
   StackControllerNavBarExt,
@@ -31,7 +30,6 @@ import {
 } from "../stack/StackController";
 import {AppBarController} from "./AppBarController";
 import {FolioStyle, FolioView} from "./FolioView";
-import {FolioTrait} from "./FolioTrait";
 import type {FolioControllerObserver} from "./FolioControllerObserver";
 
 /** @public */
@@ -67,8 +65,8 @@ export interface FolioControllerDrawerExt {
 
 /** @public */
 export interface FolioControllerCoverExt {
-  attachCoverTrait(coverTrait: SheetTrait, coverController: SheetController): void;
-  detachCoverTrait(coverTrait: SheetTrait, coverController: SheetController): void;
+  attachCoverTrait(coverTrait: Trait, coverController: SheetController): void;
+  detachCoverTrait(coverTrait: Trait, coverController: SheetController): void;
   attachCoverView(coverView: SheetView, coverController: SheetController): void;
   detachCoverView(coverView: SheetView, coverController: SheetController): void;
   present(timing?: AnyTiming | boolean): SheetView | null;
@@ -120,6 +118,10 @@ export class FolioController extends StackController {
         }
       }
       this.owner.callObservers("controllerDidSetFolioStyle", folioStyle, this.owner);
+      const folioView = this.owner.folio.view;
+      if (folioView !== null) {
+        folioView.folioStyle.setValue(folioStyle, Affinity.Inherited);
+      }
     },
   })
   readonly folioStyle!: Property<this, FolioStyle | undefined>;
@@ -145,6 +147,10 @@ export class FolioController extends StackController {
         }
       }
       this.owner.callObservers("controllerDidSetFullBleed", fullBleed, this.owner);
+      const folioView = this.owner.folio.view;
+      if (folioView !== null) {
+        folioView.fullBleed.setValue(fullBleed, Affinity.Inherited);
+      }
     },
   })
   readonly fullBleed!: Property<this, boolean>;
@@ -166,46 +172,13 @@ export class FolioController extends StackController {
   })
   readonly fullScreen!: Property<this, boolean>;
 
-  @TraitViewRef<FolioController, FolioTrait, FolioView>({
-    traitType: FolioTrait,
-    observesTrait: true,
-    willAttachTrait(folioTrait: FolioTrait): void {
+  @TraitViewRef<FolioController, Trait, FolioView>({
+    traitType: Trait,
+    willAttachTrait(folioTrait: Trait): void {
       this.owner.callObservers("controllerWillAttachFolioTrait", folioTrait, this.owner);
     },
-    didAttachTrait(folioTrait: FolioTrait): void {
-      const appBarTrait = folioTrait.appBar.trait;
-      if (appBarTrait !== null) {
-        this.owner.appBar.setTrait(appBarTrait);
-      }
-      const coverTrait = folioTrait.cover.trait;
-      if (coverTrait !== null) {
-        this.owner.cover.setTrait(coverTrait);
-      }
-    },
-    willDetachTrait(folioTrait: FolioTrait): void {
-      const coverTrait = folioTrait.cover.trait;
-      if (coverTrait !== null) {
-        this.owner.cover.deleteTrait(coverTrait);
-      }
-      const appBarTrait = folioTrait.appBar.trait;
-      if (appBarTrait !== null) {
-        this.owner.appBar.deleteTrait(appBarTrait);
-      }
-    },
-    didDetachTrait(folioTrait: FolioTrait): void {
+    didDetachTrait(folioTrait: Trait): void {
       this.owner.callObservers("controllerDidDetachFolioTrait", folioTrait, this.owner);
-    },
-    traitWillAttachAppBar(appBarTrait: BarTrait): void {
-      this.owner.appBar.setTrait(appBarTrait);
-    },
-    traitDidDetachAppBar(appBarTrait: BarTrait): void {
-      this.owner.appBar.deleteTrait(appBarTrait);
-    },
-    traitWillAttachCover(sheetTrait: SheetTrait): void {
-      this.owner.cover.setTrait(sheetTrait);
-    },
-    traitDidDetachCover(sheetTrait: SheetTrait): void {
-      this.owner.cover.deleteTrait(sheetTrait);
     },
     viewType: FolioView,
     observesView: true,
@@ -263,10 +236,10 @@ export class FolioController extends StackController {
       }
     },
   })
-  readonly folio!: TraitViewRef<this, FolioTrait, FolioView>;
+  readonly folio!: TraitViewRef<this, Trait, FolioView>;
   static readonly folio: MemberFastenerClass<FolioController, "folio">;
 
-  @TraitViewRef<FolioController, StackTrait, StackView, FolioControllerStackExt>({
+  @TraitViewRef<FolioController, Trait, StackView, FolioControllerStackExt>({
     extends: true,
     implements: true,
     didAttachView(stackView: StackView, targetView: View | null): void {
@@ -281,10 +254,10 @@ export class FolioController extends StackController {
       // hook
     },
   })
-  override readonly stack!: TraitViewRef<this, StackTrait, StackView> & FolioControllerStackExt;
+  override readonly stack!: TraitViewRef<this, Trait, StackView> & FolioControllerStackExt;
   static override readonly stack: MemberFastenerClass<FolioController, "stack">;
 
-  @TraitViewControllerSet<FolioController, SheetTrait, SheetView, SheetController, FolioControllerSheetsExt>({
+  @TraitViewControllerSet<FolioController, Trait, SheetView, SheetController, FolioControllerSheetsExt>({
     extends: true,
     implements: true,
     attachSheetView(sheetView: SheetView, sheetController: SheetController): void {
@@ -299,7 +272,7 @@ export class FolioController extends StackController {
       // hook
     },
   })
-  override readonly sheets!: TraitViewControllerSet<this, SheetTrait, SheetView, SheetController> & FolioControllerSheetsExt;
+  override readonly sheets!: TraitViewControllerSet<this, Trait, SheetView, SheetController> & FolioControllerSheetsExt;
   static override readonly sheets: MemberFastenerClass<FolioController, "sheets">;
 
   @TraitViewControllerRef<FolioController, BarTrait, BarView, BarController, FolioControllerNavBarExt & ObserverType<BarController | NavBarController>>({
@@ -337,13 +310,6 @@ export class FolioController extends StackController {
       return appBarController.bar;
     },
     initController(appBarController: BarController): void {
-      const folioTrait = this.owner.folio.trait;
-      if (folioTrait !== null) {
-        const appBarTrait = folioTrait.appBar.trait;
-        if (appBarTrait !== null) {
-          appBarController.bar.setTrait(appBarTrait);
-        }
-      }
       appBarController.bar.attachView();
     },
     willAttachController(appBarController: BarController): void {
@@ -446,18 +412,19 @@ export class FolioController extends StackController {
   readonly drawer!: ViewRef<this, DrawerView> & FolioControllerDrawerExt;
   static readonly drawer: MemberFastenerClass<FolioController, "drawer">;
 
-  @TraitViewControllerRef<FolioController, SheetTrait, SheetView, SheetController, FolioControllerCoverExt>({
+  @TraitViewControllerRef<FolioController, Trait, SheetView, SheetController, FolioControllerCoverExt>({
     implements: true,
     type: SheetController,
     binds: false,
     observes: true,
-    getTraitViewRef(coverController: SheetController): TraitViewRef<unknown, SheetTrait, SheetView> {
+    getTraitViewRef(coverController: SheetController): TraitViewRef<unknown, Trait, SheetView> {
       return coverController.sheet;
     },
     willAttachController(coverController: SheetController): void {
       this.owner.callObservers("controllerWillAttachCover", coverController, this.owner);
     },
     didAttachController(coverController: SheetController): void {
+      this.owner.fullBleed.setValue(coverController.fullBleed.value, Affinity.Intrinsic);
       const coverTrait = coverController.sheet.trait;
       if (coverTrait !== null) {
         this.attachCoverTrait(coverTrait, coverController);
@@ -488,18 +455,18 @@ export class FolioController extends StackController {
     didDetachController(coverController: SheetController): void {
       this.owner.callObservers("controllerDidDetachCover", coverController, this.owner);
     },
-    controllerWillAttachSheetTrait(coverTrait: SheetTrait, coverController: SheetController): void {
+    controllerWillAttachSheetTrait(coverTrait: Trait, coverController: SheetController): void {
       this.owner.callObservers("controllerWillAttachCoverTrait", coverTrait, this.owner);
       this.attachCoverTrait(coverTrait, coverController);
     },
-    controllerDidDetachSheetTrait(coverTrait: SheetTrait, coverController: SheetController): void {
+    controllerDidDetachSheetTrait(coverTrait: Trait, coverController: SheetController): void {
       this.detachCoverTrait(coverTrait, coverController);
       this.owner.callObservers("controllerDidDetachCoverTrait", coverTrait, this.owner);
     },
-    attachCoverTrait(coverTrait: SheetTrait, coverController: SheetController): void {
+    attachCoverTrait(coverTrait: Trait, coverController: SheetController): void {
       // hook
     },
-    detachCoverTrait(coverTrait: SheetTrait, coverController: SheetController): void {
+    detachCoverTrait(coverTrait: Trait, coverController: SheetController): void {
       // hook
     },
     controllerWillAttachSheetView(coverView: SheetView, coverController: SheetController): void {
@@ -518,6 +485,9 @@ export class FolioController extends StackController {
     },
     detachCoverView(coverView: SheetView, coverController: SheetController): void {
       // hook
+    },
+    controllerDidSetFullBleed(fullBleed: boolean, sheetController: SheetController): void {
+      this.owner.fullBleed.setValue(fullBleed, Affinity.Intrinsic);
     },
     controllerWillAttachModeTool(modeToolController: ToolController, coverController: SheetController): void {
       this.owner.modeTools.attachController(modeToolController);
@@ -540,7 +510,7 @@ export class FolioController extends StackController {
       return null;
     },
   })
-  readonly cover!: TraitViewControllerRef<this, SheetTrait, SheetView, SheetController> & FolioControllerCoverExt;
+  readonly cover!: TraitViewControllerRef<this, Trait, SheetView, SheetController> & FolioControllerCoverExt;
   static readonly cover: MemberFastenerClass<FolioController, "cover">;
 
   @TraitViewControllerSet<FolioController, ToolTrait, ToolView, ToolController, FolioControllerModeToolsExt>({

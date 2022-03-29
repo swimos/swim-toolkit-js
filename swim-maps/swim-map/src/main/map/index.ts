@@ -19,7 +19,7 @@ export {MapTrait} from "./MapTrait";
 export {MapTraitObserver} from "./MapTraitObserver";
 
 export {
-  MapControllerLayerExt,
+  MapControllerLayersExt,
   MapController,
 } from "./MapController";
 export {MapControllerObserver} from "./MapControllerObserver";

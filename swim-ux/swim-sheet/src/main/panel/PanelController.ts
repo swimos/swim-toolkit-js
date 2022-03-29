@@ -15,16 +15,14 @@
 import type {Class, ObserverType} from "@swim/util";
 import {Affinity, MemberFastenerClass, Property} from "@swim/component";
 import type {PositionGestureInput} from "@swim/view";
-import type {Trait} from "@swim/model";
+import {Trait} from "@swim/model";
 import {TraitViewRef, TraitViewControllerRef, TraitViewControllerSet} from "@swim/controller";
 import {ToolController, BarView, BarTrait, BarController} from "@swim/toolbar";
 import type {SheetView} from "../sheet/SheetView";
-import type {SheetTrait} from "../sheet/SheetTrait";
 import {SheetController} from "../sheet/SheetController";
 import type {FolioStyle} from "../folio/FolioView";
 import {TabBarController} from "./TabBarController";
 import {PanelTabStyle, PanelView} from "./PanelView";
-import {PanelTrait} from "./PanelTrait";
 import type {PanelControllerObserver} from "./PanelControllerObserver";
 
 /** @public */
@@ -38,8 +36,8 @@ export interface PanelControllerTabBarExt {
 
 /** @public */
 export interface PanelControllerTabsExt {
-  attachTabTrait(tabTrait: SheetTrait, tabController: SheetController): void;
-  detachTabTrait(tabTrait: SheetTrait, tabController: SheetController): void;
+  attachTabTrait(tabTrait: Trait, tabController: SheetController): void;
+  detachTabTrait(tabTrait: Trait, tabController: SheetController): void;
   attachTabView(tabView: SheetView, tabController: SheetController): void;
   detachTabView(tabView: SheetView, tabController: SheetController): void;
   attachButtonTool(buttonToolController: ToolController, tabController: SheetController): void;
@@ -49,8 +47,8 @@ export interface PanelControllerTabsExt {
 
 /** @public */
 export interface PanelControllerActiveExt {
-  attachActiveTrait(activeTrait: SheetTrait, activeController: SheetController): void;
-  detachActiveTrait(activeTrait: SheetTrait, activeController: SheetController): void;
+  attachActiveTrait(activeTrait: Trait, activeController: SheetController): void;
+  detachActiveTrait(activeTrait: Trait, activeController: SheetController): void;
   attachActiveView(activeView: SheetView, activeController: SheetController): void;
   detachActiveView(activeView: SheetView, activeController: SheetController): void;
 }
@@ -87,44 +85,21 @@ export class PanelController extends SheetController {
         this.owner.tabs.updateTabStyle(tabStyle, tabController);
       }
       this.owner.callObservers("controllerDidSetTabStyle", tabStyle, this.owner);
+      const panelView = this.owner.panel.view;
+      if (panelView !== null) {
+        panelView.tabStyle.setValue(tabStyle, Affinity.Inherited);
+      }
     },
   })
   readonly tabStyle!: Property<this, PanelTabStyle>;
 
-  @TraitViewRef<PanelController, PanelTrait, PanelView>({
-    traitType: PanelTrait,
-    observesTrait: true,
-    willAttachTrait(panelTrait: PanelTrait): void {
+  @TraitViewRef<PanelController, Trait, PanelView>({
+    traitType: Trait,
+    willAttachTrait(panelTrait: Trait): void {
       this.owner.callObservers("controllerWillAttachPanelTrait", panelTrait, this.owner);
     },
-    didAttachTrait(panelTrait: PanelTrait): void {
-      const tabBarTrait = panelTrait.tabBar.trait;
-      if (tabBarTrait !== null) {
-        this.owner.tabBar.setTrait(tabBarTrait);
-      }
-      this.owner.tabs.addTraits(panelTrait.tabs.traits);
-    },
-    willDetachTrait(panelTrait: PanelTrait): void {
-      this.owner.tabs.deleteTraits(panelTrait.tabs.traits);
-      const tabBarTrait = panelTrait.tabBar.trait;
-      if (tabBarTrait !== null) {
-        this.owner.tabBar.deleteTrait(tabBarTrait);
-      }
-    },
-    didDetachTrait(panelTrait: PanelTrait): void {
+    didDetachTrait(panelTrait: Trait): void {
       this.owner.callObservers("controllerDidDetachPanelTrait", panelTrait, this.owner);
-    },
-    traitWillAttachTabBar(tabBarTrait: BarTrait): void {
-      this.owner.tabBar.setTrait(tabBarTrait);
-    },
-    traitDidDetachTabBar(tabBarTrait: BarTrait): void {
-      this.owner.tabBar.deleteTrait(tabBarTrait);
-    },
-    traitWillAttachTab(tabTrait: SheetTrait, targetTrait: Trait): void {
-      this.owner.tabs.addTrait(tabTrait, targetTrait);
-    },
-    traitDidDetachTab(tabTrait: SheetTrait): void {
-      this.owner.tabs.deleteTrait(tabTrait);
     },
     viewType: PanelView,
     observesView: true,
@@ -176,7 +151,7 @@ export class PanelController extends SheetController {
       }
     },
   })
-  readonly panel!: TraitViewRef<this, PanelTrait, PanelView>;
+  readonly panel!: TraitViewRef<this, Trait, PanelView>;
   static readonly panel: MemberFastenerClass<PanelController, "panel">;
 
   protected didPressTabTool(input: PositionGestureInput, event: Event | null, tabController: SheetController): void {
@@ -203,13 +178,6 @@ export class PanelController extends SheetController {
     },
     initController(tabBarController: BarController): void {
       this.updateTabStyle(this.owner.tabStyle.value, tabBarController);
-      const panelTrait = this.owner.panel.trait;
-      if (panelTrait !== null) {
-        const tabBarTrait = panelTrait.tabBar.trait;
-        if (tabBarTrait !== null) {
-          tabBarController.bar.setTrait(tabBarTrait);
-        }
-      }
     },
     willAttachController(tabBarController: BarController): void {
       this.owner.callObservers("controllerWillAttachTabBar", tabBarController, this.owner);
@@ -288,7 +256,7 @@ export class PanelController extends SheetController {
   readonly tabBar!: TraitViewControllerRef<this, BarTrait, BarView, BarController> & PanelControllerTabBarExt;
   static readonly tabBar: MemberFastenerClass<PanelController, "tabBar">;
 
-  @TraitViewControllerSet<PanelController, SheetTrait, SheetView, SheetController, PanelControllerTabsExt>({
+  @TraitViewControllerSet<PanelController, Trait, SheetView, SheetController, PanelControllerTabsExt>({
     implements: true,
     type: SheetController,
     binds: false,
@@ -296,7 +264,7 @@ export class PanelController extends SheetController {
     get parentView(): PanelView | null {
       return this.owner.panel.view;
     },
-    getTraitViewRef(tabController: SheetController): TraitViewRef<unknown, SheetTrait, SheetView> {
+    getTraitViewRef(tabController: SheetController): TraitViewRef<unknown, Trait, SheetView> {
       return tabController.sheet;
     },
     initController(tabController: SheetController): void {
@@ -342,18 +310,18 @@ export class PanelController extends SheetController {
     didDetachController(tabController: SheetController): void {
       this.owner.callObservers("controllerDidDetachTab", tabController, this.owner);
     },
-    controllerWillAttachSheetTrait(tabTrait: SheetTrait, tabController: SheetController): void {
+    controllerWillAttachSheetTrait(tabTrait: Trait, tabController: SheetController): void {
       this.owner.callObservers("controllerWillAttachTabTrait", tabTrait, tabController, this.owner);
       this.attachTabTrait(tabTrait, tabController);
     },
-    controllerDidDetachSheetTrait(tabTrait: SheetTrait, tabController: SheetController): void {
+    controllerDidDetachSheetTrait(tabTrait: Trait, tabController: SheetController): void {
       this.detachTabTrait(tabTrait, tabController);
       this.owner.callObservers("controllerDidDetachTabTrait", tabTrait, tabController, this.owner);
     },
-    attachTabTrait(tabTrait: SheetTrait, tabController: SheetController): void {
+    attachTabTrait(tabTrait: Trait, tabController: SheetController): void {
       // hook
     },
-    detachTabTrait(tabTrait: SheetTrait, tabController: SheetController): void {
+    detachTabTrait(tabTrait: Trait, tabController: SheetController): void {
       // hook
     },
     controllerWillAttachSheetView(tabView: SheetView, tabController: SheetController): void {
@@ -408,26 +376,27 @@ export class PanelController extends SheetController {
       }
     },
   })
-  readonly tabs!: TraitViewControllerSet<this, SheetTrait, SheetView, SheetController> & PanelControllerTabsExt;
+  readonly tabs!: TraitViewControllerSet<this, Trait, SheetView, SheetController> & PanelControllerTabsExt;
   static readonly tabs: MemberFastenerClass<PanelController, "tabs">;
 
-  @TraitViewControllerRef<PanelController, SheetTrait, SheetView, SheetController, PanelControllerActiveExt>({
+  @TraitViewControllerRef<PanelController, Trait, SheetView, SheetController, PanelControllerActiveExt>({
     implements: true,
     type: SheetController,
     binds: false,
     observes: true,
-    getTraitViewRef(activeController: SheetController): TraitViewRef<unknown, SheetTrait, SheetView> {
+    getTraitViewRef(activeController: SheetController): TraitViewRef<unknown, Trait, SheetView> {
       return activeController.sheet;
     },
     willAttachController(activeController: SheetController): void {
       this.owner.callObservers("controllerWillAttachActive", activeController, this.owner);
     },
     didAttachController(activeController: SheetController): void {
+      this.owner.fullBleed.setValue(activeController.fullBleed.value, Affinity.Intrinsic);
       const activeTrait = activeController.sheet.trait;
       if (activeTrait !== null) {
         this.attachActiveTrait(activeTrait, activeController);
       }
-      const activeView = activeController.sheet.view;
+      const activeView = activeController.sheet.attachView();
       if (activeView !== null) {
         this.attachActiveView(activeView, activeController);
       }
@@ -447,18 +416,18 @@ export class PanelController extends SheetController {
     didDetachController(activeController: SheetController): void {
       this.owner.callObservers("controllerDidDetachActive", activeController, this.owner);
     },
-    controllerWillAttachSheetTrait(activeTrait: SheetTrait, activeController: SheetController): void {
+    controllerWillAttachSheetTrait(activeTrait: Trait, activeController: SheetController): void {
       this.owner.callObservers("controllerWillAttachActiveTrait", activeTrait, this.owner);
       this.attachActiveTrait(activeTrait, activeController);
     },
-    controllerDidDetachSheetTrait(activeTrait: SheetTrait, activeController: SheetController): void {
+    controllerDidDetachSheetTrait(activeTrait: Trait, activeController: SheetController): void {
       this.detachActiveTrait(activeTrait, activeController);
       this.owner.callObservers("controllerDidDetachActiveTrait", activeTrait, this.owner);
     },
-    attachActiveTrait(activeTrait: SheetTrait, activeController: SheetController): void {
+    attachActiveTrait(activeTrait: Trait, activeController: SheetController): void {
       // hook
     },
-    detachActiveTrait(activeTrait: SheetTrait, activeController: SheetController): void {
+    detachActiveTrait(activeTrait: Trait, activeController: SheetController): void {
       // hook
     },
     controllerWillAttachSheetView(activeView: SheetView, activeController: SheetController): void {
@@ -481,7 +450,10 @@ export class PanelController extends SheetController {
         panelView.active.deleteView();
       }
     },
+    controllerDidSetFullBleed(fullBleed: boolean, activeController: SheetController): void {
+      this.owner.fullBleed.setValue(fullBleed, Affinity.Intrinsic);
+    },
   })
-  readonly active!: TraitViewControllerRef<this, SheetTrait, SheetView, SheetController> & PanelControllerActiveExt;
+  readonly active!: TraitViewControllerRef<this, Trait, SheetView, SheetController> & PanelControllerActiveExt;
   static readonly active: MemberFastenerClass<PanelController, "active">;
 }

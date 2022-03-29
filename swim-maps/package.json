@@ -44,7 +44,6 @@
     "@swim/dom": "4.0.0-dev.20210927.1",
     "@swim/graphics": "4.0.0-dev.20210927.1",
     "@swim/controller": "4.0.0-dev.20210927.1",
-    "@swim/ui": "4.0.0-dev.20210927.1",
     "@swim/map": "4.0.0-dev.20210927.1",
     "@swim/mapbox": "4.0.0-dev.20210927.1",
     "@swim/leaflet": "4.0.0-dev.20210927.1",

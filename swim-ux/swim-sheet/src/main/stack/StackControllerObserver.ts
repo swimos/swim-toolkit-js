@@ -12,21 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Trait} from "@swim/model";
 import type {PositionGestureInput} from "@swim/view";
 import type {ControllerObserver} from "@swim/controller";
 import type {ToolController, BarView, BarTrait, BarController} from "@swim/toolbar";
 import type {SheetView} from "../sheet/SheetView";
-import type {SheetTrait} from "../sheet/SheetTrait";
 import type {SheetController} from "../sheet/SheetController";
 import type {StackView} from "./StackView";
-import type {StackTrait} from "./StackTrait";
 import type {StackController} from "./StackController";
 
 /** @public */
 export interface StackControllerObserver<C extends StackController = StackController> extends ControllerObserver<C> {
-  controllerWillAttachStackTrait?(stackTrait: StackTrait, controller: C): void;
+  controllerWillAttachStackTrait?(stackTrait: Trait, controller: C): void;
 
-  controllerDidDetachStackTrait?(stackTrait: StackTrait, controller: C): void;
+  controllerDidDetachStackTrait?(stackTrait: Trait, controller: C): void;
 
   controllerWillAttachStackView?(stackView: StackView, controller: C): void;
 
@@ -54,9 +53,9 @@ export interface StackControllerObserver<C extends StackController = StackContro
 
   controllerDidDetachSheet?(sheetController: SheetController, controller: C): void;
 
-  controllerWillAttachSheetTrait?(sheetTrait: SheetTrait, sheetController: SheetController, controller: C): void;
+  controllerWillAttachSheetTrait?(sheetTrait: Trait, sheetController: SheetController, controller: C): void;
 
-  controllerDidDetachSheetTrait?(sheetTrait: SheetTrait, sheetController: SheetController, controller: C): void;
+  controllerDidDetachSheetTrait?(sheetTrait: Trait, sheetController: SheetController, controller: C): void;
 
   controllerWillAttachSheetView?(sheetView: SheetView, sheetController: SheetController, controller: C): void;
 
@@ -70,9 +69,9 @@ export interface StackControllerObserver<C extends StackController = StackContro
 
   controllerDidDetachFront?(frontController: SheetController, controller: C): void;
 
-  controllerWillAttachFrontTrait?(frontTrait: SheetTrait, controller: C): void;
+  controllerWillAttachFrontTrait?(frontTrait: Trait, controller: C): void;
 
-  controllerDidDetachFrontTrait?(frontTrait: SheetTrait, controller: C): void;
+  controllerDidDetachFrontTrait?(frontTrait: Trait, controller: C): void;
 
   controllerWillAttachFrontView?(frontView: SheetView, controller: C): void;
 

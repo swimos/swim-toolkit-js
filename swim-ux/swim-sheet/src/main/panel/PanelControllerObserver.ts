@@ -12,21 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Trait} from "@swim/model";
 import type {PositionGestureInput} from "@swim/view";
 import type {ToolController, BarView, BarTrait, BarController} from "@swim/toolbar";
 import type {SheetView} from "../sheet/SheetView";
-import type {SheetTrait} from "../sheet/SheetTrait";
 import type {SheetController} from "../sheet/SheetController";
 import type {SheetControllerObserver} from "../sheet/SheetControllerObserver";
 import type {PanelTabStyle, PanelView} from "./PanelView";
-import type {PanelTrait} from "./PanelTrait";
 import type {PanelController} from "./PanelController";
 
 /** @public */
 export interface PanelControllerObserver<C extends PanelController = PanelController> extends SheetControllerObserver<C> {
-  controllerWillAttachPanelTrait?(panelTrait: PanelTrait, controller: C): void;
+  controllerWillAttachPanelTrait?(panelTrait: Trait, controller: C): void;
 
-  controllerDidDetachPanelTrait?(panelTrait: PanelTrait, controller: C): void;
+  controllerDidDetachPanelTrait?(panelTrait: Trait, controller: C): void;
 
   controllerWillAttachPanelView?(panelView: PanelView, controller: C): void;
 
@@ -50,9 +49,9 @@ export interface PanelControllerObserver<C extends PanelController = PanelContro
 
   controllerDidDetachTab?(tabController: SheetController, controller: C): void;
 
-  controllerWillAttachTabTrait?(tabTrait: SheetTrait, tabController: SheetController, controller: C): void;
+  controllerWillAttachTabTrait?(tabTrait: Trait, tabController: SheetController, controller: C): void;
 
-  controllerDidDetachTabTrait?(tabTrait: SheetTrait, tabController: SheetController, controller: C): void;
+  controllerDidDetachTabTrait?(tabTrait: Trait, tabController: SheetController, controller: C): void;
 
   controllerWillAttachTabView?(tabView: SheetView, tabController: SheetController, controller: C): void;
 
@@ -70,9 +69,9 @@ export interface PanelControllerObserver<C extends PanelController = PanelContro
 
   controllerDidDetachActive?(activeController: SheetController, controller: C): void;
 
-  controllerWillAttachActiveTrait?(activeTrait: SheetTrait, controller: C): void;
+  controllerWillAttachActiveTrait?(activeTrait: Trait, controller: C): void;
 
-  controllerDidDetachActiveTrait?(activeTrait: SheetTrait, controller: C): void;
+  controllerDidDetachActiveTrait?(activeTrait: Trait, controller: C): void;
 
   controllerWillAttachActiveView?(activeView: SheetView, controller: C): void;
 

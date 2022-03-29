@@ -13,7 +13,8 @@
 // limitations under the License.
 
 import type {Mutable, Class, Initable, ObserverType} from "@swim/util";
-import {Affinity, MemberFastenerClass} from "@swim/component";
+import {Affinity, MemberFastenerClass, Property} from "@swim/component";
+import {Trait} from "@swim/model";
 import {Look} from "@swim/theme";
 import type {PositionGestureInput} from "@swim/view";
 import {Graphics} from "@swim/graphics";
@@ -29,7 +30,6 @@ import {
 import {
   ToolLayout,
   ToolView,
-  TitleToolView,
   ButtonToolView,
   ToolTrait,
   ToolController,
@@ -37,7 +37,6 @@ import {
   ButtonToolController,
 } from "@swim/toolbar";
 import {SheetView} from "./SheetView";
-import {SheetTrait} from "./SheetTrait";
 import type {SheetControllerObserver} from "./SheetControllerObserver";
 
 /** @public */
@@ -58,6 +57,69 @@ export interface SheetControllerModeToolsExt {
 /** @public */
 export class SheetController extends Controller {
   override readonly observerType?: Class<SheetControllerObserver>;
+
+  @Property<SheetController, boolean>({
+    type: Boolean,
+    value: false,
+    didSetValue(fullBleed: boolean): void {
+      this.owner.callObservers("controllerDidSetFullBleed", fullBleed, this.owner);
+      const sheetView = this.owner.sheet.view;
+      if (sheetView !== null) {
+        sheetView.fullBleed.setValue(fullBleed, Affinity.Inherited);
+      }
+    },
+  })
+  readonly fullBleed!: Property<this, boolean>;
+
+  @TraitViewRef<SheetController, Trait, SheetView>({
+    traitType: Trait,
+    willAttachTrait(sheetTrait: Trait): void {
+      this.owner.callObservers("controllerWillAttachSheetTrait", sheetTrait, this.owner);
+    },
+    didDetachTrait(sheetTrait: Trait): void {
+      this.owner.callObservers("controllerDidDetachSheetTrait", sheetTrait, this.owner);
+    },
+    viewType: SheetView,
+    observesView: true,
+    willAttachView(sheetView: SheetView): void {
+      this.owner.callObservers("controllerWillAttachSheetView", sheetView, this.owner);
+    },
+    didAttachView(sheetView: SheetView): void {
+      this.owner.fullBleed.setValue(sheetView.fullBleed.value, Affinity.Intrinsic);
+    },
+    didDetachView(sheetView: SheetView): void {
+      this.owner.callObservers("controllerDidDetachSheetView", sheetView, this.owner);
+    },
+    viewWillAttachBack(backView: SheetView): void {
+      this.owner.callObservers("controllerWillAttachBackView", backView, this.owner);
+    },
+    viewDidDetachBack(backView: SheetView): void {
+      this.owner.callObservers("controllerDidDetachBackView", backView, this.owner);
+    },
+    viewWillAttachForward(forwardView: SheetView): void {
+      this.owner.callObservers("controllerWillAttachForwardView", forwardView, this.owner);
+    },
+    viewDidDetachForward(forwardView: SheetView): void {
+      this.owner.callObservers("controllerDidDetachForwardView", forwardView, this.owner);
+    },
+    viewDidSetFullBleed(fullBleed: boolean, sheetView: SheetView): void {
+      this.owner.fullBleed.setValue(fullBleed, Affinity.Intrinsic);
+    },
+    viewWillPresent(sheetView: SheetView): void {
+      this.owner.callObservers("controllerWillPresentSheetView", sheetView, this.owner);
+    },
+    viewDidPresent(sheetView: SheetView): void {
+      this.owner.callObservers("controllerDidPresentSheetView", sheetView, this.owner);
+    },
+    viewWillDismiss(sheetView: SheetView): void {
+      this.owner.callObservers("controllerWillDismissSheetView", sheetView, this.owner);
+    },
+    viewDidDismiss(sheetView: SheetView): void {
+      this.owner.callObservers("controllerDidDismissSheetView", sheetView, this.owner);
+    },
+  })
+  readonly sheet!: TraitViewRef<this, Trait, SheetView>;
+  static readonly sheet: MemberFastenerClass<SheetController, "sheet">;
 
   @ControllerRef<SheetController, SheetController>({
     type: SheetController,
@@ -84,65 +146,6 @@ export class SheetController extends Controller {
   })
   readonly forward!: ControllerRef<this, SheetController>;
   static readonly forward: MemberFastenerClass<SheetController, "forward">;
-
-  @TraitViewRef<SheetController, SheetTrait, SheetView>({
-    traitType: SheetTrait,
-    observesTrait: true,
-    willAttachTrait(sheetTrait: SheetTrait): void {
-      this.owner.callObservers("controllerWillAttachSheetTrait", sheetTrait, this.owner);
-    },
-    didDetachTrait(sheetTrait: SheetTrait): void {
-      this.owner.callObservers("controllerDidDetachSheetTrait", sheetTrait, this.owner);
-    },
-    traitDidSetTitle(title: string, sheetTrait: SheetTrait): void {
-      const titleToolController = this.owner.titleTool.attachController();
-      const titleToolView = titleToolController.tool.attachView();
-      if (titleToolView instanceof TitleToolView) {
-        titleToolView.content.setView(title);
-      }
-    },
-    traitDidSetIcon(icon: Graphics | null): void {
-      const buttonToolController = this.owner.buttonTool.attachController();
-      const buttonToolView = buttonToolController.tool.attachView();
-      if (buttonToolView instanceof ButtonToolView) {
-        buttonToolView.graphics.setValue(icon, Affinity.Intrinsic);
-      }
-    },
-    viewType: SheetView,
-    observesView: true,
-    willAttachView(sheetView: SheetView): void {
-      this.owner.callObservers("controllerWillAttachSheetView", sheetView, this.owner);
-    },
-    didDetachView(sheetView: SheetView): void {
-      this.owner.callObservers("controllerDidDetachSheetView", sheetView, this.owner);
-    },
-    viewWillAttachBack(backView: SheetView): void {
-      this.owner.callObservers("controllerWillAttachBackView", backView, this.owner);
-    },
-    viewDidDetachBack(backView: SheetView): void {
-      this.owner.callObservers("controllerDidDetachBackView", backView, this.owner);
-    },
-    viewWillAttachForward(forwardView: SheetView): void {
-      this.owner.callObservers("controllerWillAttachForwardView", forwardView, this.owner);
-    },
-    viewDidDetachForward(forwardView: SheetView): void {
-      this.owner.callObservers("controllerDidDetachForwardView", forwardView, this.owner);
-    },
-    viewWillPresent(sheetView: SheetView): void {
-      this.owner.callObservers("controllerWillPresentSheetView", sheetView, this.owner);
-    },
-    viewDidPresent(sheetView: SheetView): void {
-      this.owner.callObservers("controllerDidPresentSheetView", sheetView, this.owner);
-    },
-    viewWillDismiss(sheetView: SheetView): void {
-      this.owner.callObservers("controllerWillDismissSheetView", sheetView, this.owner);
-    },
-    viewDidDismiss(sheetView: SheetView): void {
-      this.owner.callObservers("controllerDidDismissSheetView", sheetView, this.owner);
-    },
-  })
-  readonly sheet!: TraitViewRef<this, SheetTrait, SheetView>;
-  static readonly sheet: MemberFastenerClass<SheetController, "sheet">;
 
   @TraitViewControllerRef<SheetController, ToolTrait, ToolView, ToolController & Initable<ControllerInit | string>>({
     type: ToolController,

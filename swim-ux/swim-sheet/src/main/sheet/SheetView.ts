@@ -40,6 +40,11 @@ export class SheetView extends HtmlView {
 
   override readonly observerType?: Class<SheetViewObserver>;
 
+  override setStyle(propertyName: string, value: unknown, priority?: string): this {
+    super.setStyle(propertyName, value, priority);
+    return this;
+  }
+
   @ViewRef<SheetView, SheetView>({
     type: SheetView,
     binds: false,

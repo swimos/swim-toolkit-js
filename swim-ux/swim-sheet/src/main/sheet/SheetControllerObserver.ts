@@ -12,18 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Trait} from "@swim/model";
 import type {PositionGestureInput} from "@swim/view";
 import type {ControllerObserver} from "@swim/controller";
 import type {ToolView, ToolTrait, ToolController} from "@swim/toolbar";
 import type {SheetView} from "./SheetView";
-import type {SheetTrait} from "./SheetTrait";
 import type {SheetController} from "./SheetController";
 
 /** @public */
 export interface SheetControllerObserver<C extends SheetController = SheetController> extends ControllerObserver<C> {
-  controllerWillAttachSheetTrait?(sheetTrait: SheetTrait, controller: C): void;
+  controllerWillAttachSheetTrait?(sheetTrait: Trait, controller: C): void;
 
-  controllerDidDetachSheetTrait?(sheetTrait: SheetTrait, controller: C): void;
+  controllerDidDetachSheetTrait?(sheetTrait: Trait, controller: C): void;
 
   controllerWillAttachSheetView?(sheetView: SheetView, controller: C): void;
 
@@ -44,6 +44,8 @@ export interface SheetControllerObserver<C extends SheetController = SheetContro
   controllerWillAttachForwardView?(forwardView: SheetView, controller: C): void;
 
   controllerDidDetachForwardView?(forwardView: SheetView, controller: C): void;
+
+  controllerDidSetFullBleed?(fullBleed: boolean, controller: C): void;
 
   controllerWillAttachTitleTool?(titleToolController: ToolController, controller: C): void;
 

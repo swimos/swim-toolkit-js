@@ -30,7 +30,7 @@ import {MapTrait} from "./MapTrait";
 import type {MapControllerObserver} from "./MapControllerObserver";
 
 /** @public */
-export interface MapControllerLayerExt {
+export interface MapControllerLayersExt {
   attachLayerTrait(layerTrait: GeoTrait, layerController: GeoController): void;
   detachLayerTrait(layerTrait: GeoTrait, layerController: GeoController): void;
   attachLayerView(layerView: GeoView, layerController: GeoController): void;
@@ -38,10 +38,12 @@ export interface MapControllerLayerExt {
 }
 
 /** @public */
-export abstract class MapController extends Controller {
+export class MapController extends Controller {
   override readonly observerType?: Class<MapControllerObserver>;
 
-  protected abstract createMapView(containerView: HtmlView): MapView;
+  protected createMapView(containerView: HtmlView): MapView | null {
+    return null;
+  }
 
   protected setGeoPerspective(geoPerspective: GeoPerspective | null): void {
     if (geoPerspective !== null) {
@@ -148,9 +150,14 @@ export abstract class MapController extends Controller {
       this.owner.callObservers("controllerWillAttachMapContainerView", mapContainerView, this.owner);
     },
     didAttachView(containerView: HtmlView): void {
-      const mapView = this.owner.createMapView(containerView);
-      mapView.container.setView(containerView);
-      this.owner.map.setView(mapView);
+      let mapView = this.owner.map.view;
+      if (mapView === null) {
+        mapView = this.owner.createMapView(containerView);
+        this.owner.map.setView(mapView);
+      }
+      if (mapView !== null) {
+        mapView.container.setView(containerView);
+      }
     },
     didDetachView(mapContainerView: HtmlView): void {
       this.owner.callObservers("controllerDidDetachMapContainerView", mapContainerView, this.owner);
@@ -162,7 +169,7 @@ export abstract class MapController extends Controller {
   @Property({type: Timing, value: true})
   readonly geoTiming!: Property<this, Timing | boolean | undefined, AnyTiming>;
 
-  @TraitViewControllerSet<MapController, GeoTrait, GeoView, GeoController, MapControllerLayerExt>({
+  @TraitViewControllerSet<MapController, GeoTrait, GeoView, GeoController, MapControllerLayersExt>({
     implements: true,
     type: GeoController,
     binds: true,
@@ -241,6 +248,6 @@ export abstract class MapController extends Controller {
       }
     },
   })
-  readonly layers!: TraitViewControllerSet<this, GeoTrait, GeoView, GeoController> & MapControllerLayerExt;
+  readonly layers!: TraitViewControllerSet<this, GeoTrait, GeoView, GeoController> & MapControllerLayersExt;
   static readonly layers: MemberFastenerClass<MapController, "layers">;
 }

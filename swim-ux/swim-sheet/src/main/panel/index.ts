@@ -21,9 +21,6 @@ export {
 } from "./PanelView";
 export {PanelViewObserver} from "./PanelViewObserver";
 
-export {PanelTrait} from "./PanelTrait";
-export {PanelTraitObserver} from "./PanelTraitObserver";
-
 export {
   PanelControllerTabBarExt,
   PanelControllerTabsExt,

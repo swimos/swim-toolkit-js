@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
+import type {Trait} from "@swim/model";
 import type {PositionGestureInput} from "@swim/view";
 import {MemberFastenerClass, Property} from "@swim/component";
 import {
@@ -23,7 +24,6 @@ import {
 } from "@swim/controller";
 import {ToolLayout, BarLayout, ToolController, BarController} from "@swim/toolbar";
 import type {SheetView} from "../sheet/SheetView";
-import type {SheetTrait} from "../sheet/SheetTrait";
 import {SheetController} from "../sheet/SheetController";
 import type {TabBarControllerObserver} from "./TabBarControllerObserver";
 import type {PanelTabStyle} from "./PanelView";
@@ -40,13 +40,11 @@ export class TabBarController extends BarController {
       const tabControllers = this.tabs.controllers;
       for (const controllerId in tabControllers) {
         const tabController = tabControllers[controllerId]!;
-        const tabToolView = tabController.buttonTool.view;
-        if (tabToolView !== null) {
-          const tabKey = "tab" + tabToolView.uid;
-          const tabToolLayout = ToolLayout.create(tabKey, 1, 0, 0, 0.5);
-          tools.push(tabToolLayout);
-          tabController.buttonTool.insertView(this.bar.view, void 0, void 0, tabKey);
-        }
+        const tabToolView = tabController.buttonTool.attachView();
+        const tabKey = "tab" + tabToolView.uid;
+        const tabToolLayout = ToolLayout.create(tabKey, 1, 0, 0, 0.5);
+        tools.push(tabToolLayout);
+        tabController.buttonTool.insertView(this.bar.view, void 0, void 0, tabKey);
       }
     }
 
@@ -54,11 +52,11 @@ export class TabBarController extends BarController {
     return BarLayout.create(tools);
   }
 
-  @TraitViewControllerSet<TabBarController, SheetTrait, SheetView, SheetController>({
+  @TraitViewControllerSet<TabBarController, Trait, SheetView, SheetController>({
     type: SheetController,
     inherits: true,
     observes: true,
-    getTraitViewRef(tabController: SheetController): TraitViewRef<unknown, SheetTrait, SheetView> {
+    getTraitViewRef(tabController: SheetController): TraitViewRef<unknown, Trait, SheetView> {
       return tabController.sheet;
     },
     willAttachController(tabController: SheetController): void {
@@ -80,14 +78,14 @@ export class TabBarController extends BarController {
       this.owner.callObservers("controllerDidLongPressTabTool", input, tabController, this.owner);
     },
   })
-  readonly tabs!: TraitViewControllerSet<this, SheetTrait, SheetView, SheetController>;
+  readonly tabs!: TraitViewControllerSet<this, Trait, SheetView, SheetController>;
   static readonly tabs: MemberFastenerClass<TabBarController, "tabs">;
 
-  @TraitViewControllerRef<TabBarController, SheetTrait, SheetView, SheetController>({
+  @TraitViewControllerRef<TabBarController, Trait, SheetView, SheetController>({
     type: SheetController,
     inherits: true,
     observes: true,
-    getTraitViewRef(activeController: SheetController): TraitViewRef<unknown, SheetTrait, SheetView> {
+    getTraitViewRef(activeController: SheetController): TraitViewRef<unknown, Trait, SheetView> {
       return activeController.sheet;
     },
     willAttachController(activeController: SheetController): void {
@@ -103,7 +101,7 @@ export class TabBarController extends BarController {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
   })
-  readonly active!: TraitViewControllerRef<this, SheetTrait, SheetView, SheetController>;
+  readonly active!: TraitViewControllerRef<this, Trait, SheetView, SheetController>;
   static readonly active: MemberFastenerClass<TabBarController, "active">;
 
   @Property<TabBarController, PanelTabStyle>({

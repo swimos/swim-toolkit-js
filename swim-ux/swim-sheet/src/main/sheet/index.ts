@@ -15,9 +15,6 @@
 export {SheetView} from "./SheetView";
 export {SheetViewObserver} from "./SheetViewObserver";
 
-export {SheetTrait} from "./SheetTrait";
-export {SheetTraitObserver} from "./SheetTraitObserver";
-
 export {
   SheetControllerButtonToolsExt,
   SheetControllerModeToolsExt,

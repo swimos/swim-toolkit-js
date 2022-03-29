@@ -18,9 +18,6 @@ export {NavBarControllerObserver} from "./NavBarControllerObserver";
 export {StackView} from "./StackView";
 export {StackViewObserver} from "./StackViewObserver";
 
-export {StackTrait} from "./StackTrait";
-export {StackTraitObserver} from "./StackTraitObserver";
-
 export {
   StackControllerNavBarExt,
   StackControllerSheetsExt,

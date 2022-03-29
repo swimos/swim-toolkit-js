@@ -21,9 +21,6 @@ export {
 } from "./FolioView";
 export {FolioViewObserver} from "./FolioViewObserver";
 
-export {FolioTrait} from "./FolioTrait";
-export {FolioTraitObserver} from "./FolioTraitObserver";
-
 export {
   FolioControllerStackExt,
   FolioControllerSheetsExt,

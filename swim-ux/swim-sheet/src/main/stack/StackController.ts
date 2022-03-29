@@ -14,7 +14,7 @@
 
 import type {Class, ObserverType, AnyTiming} from "@swim/util";
 import type {MemberFastenerClass} from "@swim/component";
-import type {Trait} from "@swim/model";
+import {Trait} from "@swim/model";
 import type {PositionGestureInput} from "@swim/view";
 import {
   Controller,
@@ -24,11 +24,9 @@ import {
 } from "@swim/controller";
 import {ToolController, BarView, BarTrait, BarController} from "@swim/toolbar";
 import type {SheetView} from "../sheet/SheetView";
-import type {SheetTrait} from "../sheet/SheetTrait";
 import {SheetController} from "../sheet/SheetController";
 import {NavBarController} from "./NavBarController";
 import {StackView} from "./StackView";
-import {StackTrait} from "./StackTrait";
 import type {StackControllerObserver} from "./StackControllerObserver";
 
 /** @public */
@@ -41,8 +39,8 @@ export interface StackControllerNavBarExt {
 
 /** @public */
 export interface StackControllerSheetsExt {
-  attachSheetTrait(sheetTrait: SheetTrait, sheetController: SheetController): void;
-  detachSheetTrait(sheetTrait: SheetTrait, sheetController: SheetController): void;
+  attachSheetTrait(sheetTrait: Trait, sheetController: SheetController): void;
+  detachSheetTrait(sheetTrait: Trait, sheetController: SheetController): void;
   attachSheetView(sheetView: SheetView, sheetController: SheetController): void;
   detachSheetView(sheetView: SheetView, sheetController: SheetController): void;
   attachTitleTool(titleToolController: ToolController, sheetController: SheetController): void;
@@ -51,8 +49,8 @@ export interface StackControllerSheetsExt {
 
 /** @public */
 export interface StackControllerFrontExt {
-  attachFrontTrait(frontTrait: SheetTrait, frontController: SheetController): void;
-  detachFrontTrait(frontTrait: SheetTrait, frontController: SheetController): void;
+  attachFrontTrait(frontTrait: Trait, frontController: SheetController): void;
+  detachFrontTrait(frontTrait: Trait, frontController: SheetController): void;
   attachFrontView(frontView: SheetView, frontController: SheetController): void;
   detachFrontView(frontView: SheetView, frontController: SheetController): void;
   dismiss(timing?: AnyTiming | boolean): SheetView | null;
@@ -62,40 +60,13 @@ export interface StackControllerFrontExt {
 export class StackController extends Controller {
   override readonly observerType?: Class<StackControllerObserver>;
 
-  @TraitViewRef<StackController, StackTrait, StackView>({
-    traitType: StackTrait,
-    observesTrait: true,
-    willAttachTrait(stackTrait: StackTrait): void {
+  @TraitViewRef<StackController, Trait, StackView>({
+    traitType: Trait,
+    willAttachTrait(stackTrait: Trait): void {
       this.owner.callObservers("controllerWillAttachStackTrait", stackTrait, this.owner);
     },
-    didAttachTrait(stackTrait: StackTrait): void {
-      const navBarTrait = stackTrait.navBar.trait;
-      if (navBarTrait !== null) {
-        this.owner.navBar.setTrait(navBarTrait);
-      }
-      this.owner.sheets.addTraits(stackTrait.sheets.traits);
-    },
-    willDetachTrait(stackTrait: StackTrait): void {
-      this.owner.sheets.deleteTraits(stackTrait.sheets.traits);
-      const navBarTrait = stackTrait.navBar.trait;
-      if (navBarTrait !== null) {
-        this.owner.navBar.deleteTrait(navBarTrait);
-      }
-    },
-    didDetachTrait(stackTrait: StackTrait): void {
+    didDetachTrait(stackTrait: Trait): void {
       this.owner.callObservers("controllerDidDetachStackTrait", stackTrait, this.owner);
-    },
-    traitWillAttachNavBar(navBarTrait: BarTrait): void {
-      this.owner.navBar.setTrait(navBarTrait);
-    },
-    traitDidDetachNavBar(navBarTrait: BarTrait): void {
-      this.owner.navBar.deleteTrait(navBarTrait);
-    },
-    traitWillAttachSheet(sheetTrait: SheetTrait, targetTrait: Trait): void {
-      this.owner.sheets.addTrait(sheetTrait, targetTrait);
-    },
-    traitDidDetachSheet(sheetTrait: SheetTrait): void {
-      this.owner.sheets.deleteTrait(sheetTrait);
     },
     viewType: StackView,
     observesView: true,
@@ -195,7 +166,7 @@ export class StackController extends Controller {
       this.owner.front.setController(null);
     },
   })
-  readonly stack!: TraitViewRef<this, StackTrait, StackView>;
+  readonly stack!: TraitViewRef<this, Trait, StackView>;
   static readonly stack: MemberFastenerClass<StackController, "stack">;
 
   protected didPressCloseTool(input: PositionGestureInput, event: Event | null): void {
@@ -223,15 +194,6 @@ export class StackController extends Controller {
     },
     getTraitViewRef(navBarController: BarController): TraitViewRef<unknown, BarTrait, BarView> {
       return navBarController.bar;
-    },
-    initController(navBarController: BarController): void {
-      const stackTrait = this.owner.stack.trait;
-      if (stackTrait !== null) {
-        const navBarTrait = stackTrait.navBar.trait;
-        if (navBarTrait !== null) {
-          navBarController.bar.setTrait(navBarTrait);
-        }
-      }
     },
     willAttachController(navBarController: BarController): void {
       this.owner.callObservers("controllerWillAttachNavBar", navBarController, this.owner);
@@ -303,7 +265,7 @@ export class StackController extends Controller {
   readonly navBar!: TraitViewControllerRef<this, BarTrait, BarView, BarController> & StackControllerNavBarExt;
   static readonly navBar: MemberFastenerClass<StackController, "navBar">;
 
-  @TraitViewControllerSet<StackController, SheetTrait, SheetView, SheetController, StackControllerSheetsExt>({
+  @TraitViewControllerSet<StackController, Trait, SheetView, SheetController, StackControllerSheetsExt>({
     implements: true,
     type: SheetController,
     binds: false,
@@ -311,7 +273,7 @@ export class StackController extends Controller {
     get parentView(): StackView | null {
       return this.owner.stack.view;
     },
-    getTraitViewRef(sheetController: SheetController): TraitViewRef<unknown, SheetTrait, SheetView> {
+    getTraitViewRef(sheetController: SheetController): TraitViewRef<unknown, Trait, SheetView> {
       return sheetController.sheet;
     },
     willAttachController(sheetController: SheetController): void {
@@ -340,18 +302,18 @@ export class StackController extends Controller {
     didDetachController(sheetController: SheetController): void {
       this.owner.callObservers("controllerDidDetachSheet", sheetController, this.owner);
     },
-    controllerWillAttachSheetTrait(sheetTrait: SheetTrait, sheetController: SheetController): void {
+    controllerWillAttachSheetTrait(sheetTrait: Trait, sheetController: SheetController): void {
       this.owner.callObservers("controllerWillAttachSheetTrait", sheetTrait, sheetController, this.owner);
       this.attachSheetTrait(sheetTrait, sheetController);
     },
-    controllerDidDetachSheetTrait(sheetTrait: SheetTrait, sheetController: SheetController): void {
+    controllerDidDetachSheetTrait(sheetTrait: Trait, sheetController: SheetController): void {
       this.detachSheetTrait(sheetTrait, sheetController);
       this.owner.callObservers("controllerDidDetachSheetTrait", sheetTrait, sheetController, this.owner);
     },
-    attachSheetTrait(sheetTrait: SheetTrait, sheetController: SheetController): void {
+    attachSheetTrait(sheetTrait: Trait, sheetController: SheetController): void {
       // hook
     },
-    detachSheetTrait(sheetTrait: SheetTrait, sheetController: SheetController): void {
+    detachSheetTrait(sheetTrait: Trait, sheetController: SheetController): void {
       // hook
     },
     controllerWillAttachSheetView(sheetView: SheetView, sheetController: SheetController): void {
@@ -425,15 +387,15 @@ export class StackController extends Controller {
       }
     },
   })
-  readonly sheets!: TraitViewControllerSet<this, SheetTrait, SheetView, SheetController> & StackControllerSheetsExt;
+  readonly sheets!: TraitViewControllerSet<this, Trait, SheetView, SheetController> & StackControllerSheetsExt;
   static readonly sheets: MemberFastenerClass<StackController, "sheets">;
 
-  @TraitViewControllerRef<StackController, SheetTrait, SheetView, SheetController, StackControllerFrontExt>({
+  @TraitViewControllerRef<StackController, Trait, SheetView, SheetController, StackControllerFrontExt>({
     implements: true,
     type: SheetController,
     binds: false,
     observes: true,
-    getTraitViewRef(frontController: SheetController): TraitViewRef<unknown, SheetTrait, SheetView> {
+    getTraitViewRef(frontController: SheetController): TraitViewRef<unknown, Trait, SheetView> {
       return frontController.sheet;
     },
     willAttachController(frontController: SheetController): void {
@@ -462,18 +424,18 @@ export class StackController extends Controller {
     didDetachController(frontController: SheetController): void {
       this.owner.callObservers("controllerDidDetachFront", frontController, this.owner);
     },
-    controllerWillAttachSheetTrait(frontTrait: SheetTrait, frontController: SheetController): void {
+    controllerWillAttachSheetTrait(frontTrait: Trait, frontController: SheetController): void {
       this.owner.callObservers("controllerWillAttachFrontTrait", frontTrait, this.owner);
       this.attachFrontTrait(frontTrait, frontController);
     },
-    controllerDidDetachSheetTrait(frontTrait: SheetTrait, frontController: SheetController): void {
+    controllerDidDetachSheetTrait(frontTrait: Trait, frontController: SheetController): void {
       this.detachFrontTrait(frontTrait, frontController);
       this.owner.callObservers("controllerDidDetachFrontTrait", frontTrait, this.owner);
     },
-    attachFrontTrait(frontTrait: SheetTrait, frontController: SheetController): void {
+    attachFrontTrait(frontTrait: Trait, frontController: SheetController): void {
       // hook
     },
-    detachFrontTrait(frontTrait: SheetTrait, frontController: SheetController): void {
+    detachFrontTrait(frontTrait: Trait, frontController: SheetController): void {
       // hook
     },
     controllerWillAttachSheetView(frontView: SheetView, frontController: SheetController): void {
@@ -498,6 +460,6 @@ export class StackController extends Controller {
       return frontView;
     },
   })
-  readonly front!: TraitViewControllerRef<this, SheetTrait, SheetView, SheetController> & StackControllerFrontExt;
+  readonly front!: TraitViewControllerRef<this, Trait, SheetView, SheetController> & StackControllerFrontExt;
   static readonly front: MemberFastenerClass<StackController, "front">;
 }

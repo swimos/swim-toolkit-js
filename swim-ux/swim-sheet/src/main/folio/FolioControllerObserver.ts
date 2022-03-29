@@ -12,22 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Trait} from "@swim/model";
 import type {PositionGestureInput} from "@swim/view";
 import type {ToolTrait, ToolView, ToolController, BarView, BarTrait, BarController} from "@swim/toolbar";
 import type {DrawerView} from "@swim/window";
 import type {SheetView} from "../sheet/SheetView";
-import type {SheetTrait} from "../sheet/SheetTrait";
 import type {SheetController} from "../sheet/SheetController";
 import type {StackControllerObserver} from "../stack/StackControllerObserver";
 import type {FolioStyle, FolioView} from "./FolioView";
-import type {FolioTrait} from "./FolioTrait";
 import type {FolioController} from "./FolioController";
 
 /** @public */
 export interface FolioControllerObserver<C extends FolioController = FolioController> extends StackControllerObserver<C> {
-  controllerWillAttachFolioTrait?(folioTrait: FolioTrait, controller: C): void;
+  controllerWillAttachFolioTrait?(folioTrait: Trait, controller: C): void;
 
-  controllerDidDetachFolioTrait?(folioTrait: FolioTrait, controller: C): void;
+  controllerDidDetachFolioTrait?(folioTrait: Trait, controller: C): void;
 
   controllerWillAttachFolioView?(folioView: FolioView, controller: C): void;
 
@@ -63,9 +62,9 @@ export interface FolioControllerObserver<C extends FolioController = FolioContro
 
   controllerDidDetachCover?(coverController: SheetController, controller: C): void;
 
-  controllerWillAttachCoverTrait?(coverTrait: SheetTrait, controller: C): void;
+  controllerWillAttachCoverTrait?(coverTrait: Trait, controller: C): void;
 
-  controllerDidDetachCoverTrait?(coverTrait: SheetTrait, controller: C): void;
+  controllerDidDetachCoverTrait?(coverTrait: Trait, controller: C): void;
 
   controllerWillAttachCoverView?(coverView: SheetView, controller: C): void;
 

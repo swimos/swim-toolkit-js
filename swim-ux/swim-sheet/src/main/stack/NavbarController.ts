@@ -14,6 +14,7 @@
 
 import {Class, Lazy, ObserverType} from "@swim/util";
 import {Affinity, MemberFastenerClass, Property} from "@swim/component";
+import type {Trait} from "@swim/model";
 import {Presence} from "@swim/style";
 import {Look, Mood} from "@swim/theme";
 import type {PositionGestureInput} from "@swim/view";
@@ -30,7 +31,6 @@ import {
   BarController,
 } from "@swim/toolbar";
 import type {SheetView} from "../sheet/SheetView";
-import type {SheetTrait} from "../sheet/SheetTrait";
 import {SheetController} from "../sheet/SheetController";
 import type {NavBarControllerObserver} from "./NavBarControllerObserver";
 
@@ -219,11 +219,11 @@ export class NavBarController extends BarController {
   readonly moreTool!: TraitViewControllerRef<this, ToolTrait, ToolView, ToolController>;
   static readonly moreTool: MemberFastenerClass<NavBarController, "moreTool">;
 
-  @TraitViewControllerRef<NavBarController, SheetTrait, SheetView, SheetController>({
+  @TraitViewControllerRef<NavBarController, Trait, SheetView, SheetController>({
     type: SheetController,
     inherits: true,
     observes: true,
-    getTraitViewRef(frontController: SheetController): TraitViewRef<unknown, SheetTrait, SheetView> {
+    getTraitViewRef(frontController: SheetController): TraitViewRef<unknown, Trait, SheetView> {
       return frontController.sheet;
     },
     willAttachController(frontController: SheetController): void {
@@ -242,7 +242,7 @@ export class NavBarController extends BarController {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
   })
-  readonly front!: TraitViewControllerRef<this, SheetTrait, SheetView, SheetController>;
+  readonly front!: TraitViewControllerRef<this, Trait, SheetView, SheetController>;
   static readonly front: MemberFastenerClass<NavBarController, "front">;
 
   get closeIcon(): VectorIcon {
