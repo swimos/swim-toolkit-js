@@ -341,7 +341,7 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
     } else {
       newTrait = oldTrait;
     }
-    if (newTrait !== oldTrait) {
+    if (oldTrait !== newTrait) {
       if (target === void 0) {
         target = null;
       }
@@ -433,7 +433,7 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
       this.insertChildTrait(model, newTrait, target, key);
     }
     const oldTrait = this.trait;
-    if (newTrait !== oldTrait) {
+    if (oldTrait !== newTrait) {
       if (oldTrait !== null) {
         (this as Mutable<typeof this>).trait = null;
         this.willDetachTrait(oldTrait);
@@ -642,7 +642,7 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
     } else {
       newView = oldView;
     }
-    if (newView !== oldView) {
+    if (oldView !== newView) {
       if (target === void 0) {
         target = null;
       }
@@ -734,7 +734,7 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
       this.insertChildView(parent, newView, target, key);
     }
     const oldView = this.view;
-    if (newView !== oldView) {
+    if (oldView !== newView) {
       if (oldView !== null) {
         (this as Mutable<typeof this>).view = null;
         this.willDetachView(oldView);

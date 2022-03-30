@@ -16,7 +16,7 @@ import type {Mutable, Class, Initable, ObserverType} from "@swim/util";
 import {Affinity, MemberFastenerClass, Property} from "@swim/component";
 import {Trait} from "@swim/model";
 import {Look} from "@swim/theme";
-import type {PositionGestureInput} from "@swim/view";
+import type {PositionGestureInput, ViewContextType} from "@swim/view";
 import {Graphics} from "@swim/graphics";
 import {
   AnyController,
@@ -89,6 +89,9 @@ export class SheetController extends Controller {
     },
     didDetachView(sheetView: SheetView): void {
       this.owner.callObservers("controllerDidDetachSheetView", sheetView, this.owner);
+    },
+    viewDidScroll(viewContext: ViewContextType<SheetView>, sheetView: SheetView): void {
+      this.owner.callObservers("controllerDidScrollSheetView", sheetView, this.owner);
     },
     viewWillAttachBack(backView: SheetView): void {
       this.owner.callObservers("controllerWillAttachBackView", backView, this.owner);

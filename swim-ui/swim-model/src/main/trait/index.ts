@@ -51,3 +51,12 @@ export {
   TraitSetFactory,
   TraitSet,
 } from "./TraitSet";
+
+export {
+  TraitModelRefType,
+  TraitModelRefInit,
+  TraitModelRefDescriptor,
+  TraitModelRefClass,
+  TraitModelRefFactory,
+  TraitModelRef,
+} from "./TraitModelRef";

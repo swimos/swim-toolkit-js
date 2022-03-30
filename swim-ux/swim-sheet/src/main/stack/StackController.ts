@@ -35,6 +35,7 @@ export interface StackControllerNavBarExt {
   detachNavBarTrait(navBarTrait: BarTrait, navBarController: BarController): void;
   attachNavBarView(navBarView: BarView, navBarController: BarController): void;
   detachNavBarView(navBarView: BarView, navBarController: BarController): void;
+  frontViewDidScroll(frontView: SheetView, navBarController: BarController): void;
 }
 
 /** @public */
@@ -245,6 +246,10 @@ export class StackController extends Controller {
       if (stackView !== null && stackView.navBar.view === null) {
         stackView.navBar.setView(navBarView);
       }
+      const frontView = this.owner.front.view;
+      if (frontView !== null) {
+        this.frontViewDidScroll(frontView, navBarController);
+      }
     },
     detachNavBarView(navBarView: BarView, navBarController: BarController): void {
       navBarView.remove();
@@ -257,6 +262,9 @@ export class StackController extends Controller {
     },
     controllerDidPressMoreTool(input: PositionGestureInput, event: Event | null): void {
       this.owner.didPressMoreTool(input, event);
+    },
+    frontViewDidScroll(frontView: SheetView, navBarController: BarController): void {
+      // hook
     },
     createController(): BarController {
       return new NavBarController();
@@ -447,10 +455,19 @@ export class StackController extends Controller {
       this.owner.callObservers("controllerDidDetachFrontView", frontView, this.owner);
     },
     attachFrontView(frontView: SheetView, frontController: SheetController): void {
-      // hook
+      const navBarController = this.owner.navBar.controller;
+      if (navBarController !== null) {
+        this.owner.navBar.frontViewDidScroll(frontView, navBarController);
+      }
     },
     detachFrontView(frontView: SheetView, frontController: SheetController): void {
       // hook
+    },
+    controllerDidScrollSheetView(frontView: SheetView, frontController: SheetController): void {
+      const navBarController = this.owner.navBar.controller;
+      if (navBarController !== null) {
+        this.owner.navBar.frontViewDidScroll(frontView, navBarController);
+      }
     },
     dismiss(timing?: AnyTiming | boolean): SheetView | null {
       const frontView = this.view;

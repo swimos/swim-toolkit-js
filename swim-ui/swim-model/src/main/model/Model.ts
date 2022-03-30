@@ -1006,6 +1006,30 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
     }
   }
 
+  findTrait<F extends Class<Trait>>(key: string | undefined, traitBound: F): InstanceType<F> | null;
+  findTrait(key: string | undefined, traitBound: Class<Trait> | undefined): Trait | null;
+  findTrait(key: string | undefined, traitBound: Class<Trait> | undefined): Trait | null {
+    if (key !== void 0) {
+      const traitMap = this.traitMap;
+      if (traitMap !== null) {
+        const trait = traitMap[key];
+        if (trait !== void 0 && (traitBound === void 0 || trait instanceof traitBound)) {
+          return trait;
+        }
+      }
+    }
+    if (traitBound !== void 0) {
+      let trait = this.firstTrait;
+      while (trait !== null) {
+        if (trait instanceof traitBound) {
+          return trait;
+        }
+        trait = (trait as Trait).nextTrait;
+      }
+    }
+    return null;
+  }
+
   getTrait<F extends Class<Trait>>(key: string, traitBound: F): InstanceType<F> | null;
   getTrait(key: string, traitBound?: Class<Trait>): Trait | null;
   getTrait<F extends Class<Trait>>(traitBound: F): InstanceType<F> | null;
@@ -1057,7 +1081,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
       newTrait.attachModel(this, target);
       this.onInsertTrait(newTrait, target);
       this.didInsertTrait(newTrait, target);
-    } else if (newTrait !== oldTrait || newTrait !== null && newTrait.key !== key) {
+    } else if (oldTrait !== newTrait || newTrait !== null && newTrait.key !== key) {
       if (oldTrait !== null) { // remove
         target = oldTrait.nextTrait;
         this.willRemoveTrait(oldTrait);
@@ -1160,7 +1184,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
     }
     newTrait = Trait.fromAny(newTrait);
 
-    if (newTrait !== oldTrait) {
+    if (oldTrait !== newTrait) {
       newTrait.remove();
       const target = oldTrait.nextTrait;
 

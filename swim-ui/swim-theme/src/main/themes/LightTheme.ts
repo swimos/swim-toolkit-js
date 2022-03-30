@@ -167,30 +167,6 @@ Theme.light = (function (): ThemeMatrix {
     [Look.shadow, BoxShadow.create(0, 2, 4, 0, Color.black(0.5))],
   );
 
-  const darkerFeel = FeelVector.of(
-    [Look.iconColor, Color.black(1)],
-    [Look.statusColor, Color.black(1)],
-    [Look.accentColor, Color.black(1)],
-    [Look.etchColor, Color.black(1)],
-    [Look.maskColor, Color.black(1)],
-  );
-
-  const lighterFeel = FeelVector.of(
-    [Look.iconColor, Color.black(-1)],
-    [Look.statusColor, Color.black(-1)],
-    [Look.accentColor, Color.black(-1)],
-    [Look.etchColor, Color.black(-1)],
-    [Look.maskColor, Color.black(-1)],
-  );
-
-  const contrastedFeel = FeelVector.of(
-    [Look.iconColor, Color.black(1)],
-    [Look.statusColor, Color.black(1)],
-    [Look.accentColor, Color.black(1)],
-    [Look.etchColor, Color.black(1)],
-    [Look.maskColor, Color.black(1)],
-  );
-
   const embossedFeel = FeelVector.of(
     [Look.iconColor, Color.black(1)],
     [Look.statusColor, Color.black(1)],
@@ -216,6 +192,33 @@ Theme.light = (function (): ThemeMatrix {
     [Look.borderColor, Color.black(0.8)],
   );
 
+  const darkerFeel = FeelVector.of(
+    [Look.backgroundColor, Color.black(1)],
+    [Look.iconColor, Color.black(1)],
+    [Look.statusColor, Color.black(1)],
+    [Look.accentColor, Color.black(1)],
+    [Look.etchColor, Color.black(1)],
+    [Look.maskColor, Color.black(1)],
+  );
+
+  const lighterFeel = FeelVector.of(
+    [Look.backgroundColor, Color.black(-1)],
+    [Look.iconColor, Color.black(-1)],
+    [Look.statusColor, Color.black(-1)],
+    [Look.accentColor, Color.black(-1)],
+    [Look.etchColor, Color.black(-1)],
+    [Look.maskColor, Color.black(-1)],
+  );
+
+  const contrastedFeel = FeelVector.of(
+    [Look.backgroundColor, Color.black(1)],
+    [Look.iconColor, Color.black(1)],
+    [Look.statusColor, Color.black(1)],
+    [Look.accentColor, Color.black(1)],
+    [Look.etchColor, Color.black(1)],
+    [Look.maskColor, Color.black(1)],
+  );
+
   const transparentFeel = FeelVector.of(
     [Look.backgroundColor, Color.black(0)],
     [Look.borderColor, Color.black(0)],
@@ -239,10 +242,6 @@ Theme.light = (function (): ThemeMatrix {
     [Feel.warning, warningFeel],
     [Feel.alert, alertFeel],
 
-    [Feel.darker, darkerFeel],
-    [Feel.lighter, lighterFeel],
-    [Feel.contrasted, contrastedFeel],
-
     [Feel.raised, raisedFeel],
     [Feel.covered, coveredFeel],
 
@@ -251,7 +250,11 @@ Theme.light = (function (): ThemeMatrix {
     [Feel.embossed, embossedFeel],
     [Feel.nested, nestedFeel],
     [Feel.hovering, hoveringFeel],
+
     [Feel.translucent, translucentFeel],
+    [Feel.darker, darkerFeel],
+    [Feel.lighter, lighterFeel],
+    [Feel.contrasted, contrastedFeel],
     [Feel.transparent, transparentFeel],
 
     [Feel.navigating, navigatingFeel],

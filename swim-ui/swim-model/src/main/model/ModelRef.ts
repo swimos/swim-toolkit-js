@@ -302,7 +302,7 @@ export const ModelRef = (function (_super: typeof ModelRelation) {
     } else {
       newModel = oldModel;
     }
-    if (newModel !== oldModel) {
+    if (oldModel !== newModel) {
       if (target === void 0) {
         target = null;
       }
@@ -362,7 +362,7 @@ export const ModelRef = (function (_super: typeof ModelRelation) {
       this.insertChild(parent, newModel, target, key);
     }
     const oldModel = this.model;
-    if (newModel !== oldModel) {
+    if (oldModel !== newModel) {
       if (oldModel !== null) {
         (this as Mutable<typeof this>).model = null;
         this.willDetachModel(oldModel);

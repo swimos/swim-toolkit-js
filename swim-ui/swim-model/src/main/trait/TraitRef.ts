@@ -312,7 +312,7 @@ export const TraitRef = (function (_super: typeof TraitRelation) {
     } else {
       newTrait = oldTrait;
     }
-    if (newTrait !== oldTrait) {
+    if (oldTrait !== newTrait) {
       if (target === void 0) {
         target = null;
       }
@@ -368,11 +368,11 @@ export const TraitRef = (function (_super: typeof TraitRelation) {
     if (key === void 0) {
       key = this.key;
     }
-    if (model !== null && (newTrait.parent !== model || newTrait.key !== key)) {
+    if (model !== null && (newTrait.model !== model || newTrait.key !== key)) {
       this.insertChild(model, newTrait, target, key);
     }
     const oldTrait = this.trait;
-    if (newTrait !== oldTrait) {
+    if (oldTrait !== newTrait) {
       if (oldTrait !== null) {
         (this as Mutable<typeof this>).trait = null;
         this.willDetachTrait(oldTrait);

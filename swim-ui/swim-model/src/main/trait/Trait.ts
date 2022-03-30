@@ -520,6 +520,13 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     return model !== null ? model.forEachTrait(callback, thisArg) : void 0;
   }
 
+  findTrait<F extends Class<Trait>>(key: string | undefined, traitBound: F): InstanceType<F> | null;
+  findTrait(key: string | undefined, traitBound: Class<Trait> | undefined): Trait | null;
+  findTrait(key: string | undefined, traitBound: Class<Trait> | undefined): Trait | null {
+    const model = this.model;
+    return model !== null ? model.findTrait(key, traitBound) : null;
+  }
+
   getTrait<F extends Class<Trait>>(key: string, traitBound: F): InstanceType<F> | null;
   getTrait(key: string, traitBound?: Class<Trait>): Trait | null;
   getTrait<F extends Class<Trait>>(traitBound: F): InstanceType<F> | null;

@@ -371,7 +371,7 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
     } else {
       newView = oldView;
     }
-    if (newView !== oldView) {
+    if (oldView !== newView) {
       if (target === void 0) {
         target = null;
       }
@@ -433,7 +433,7 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
       this.insertChild(parent, newView, target, key);
     }
     const oldView = this.view;
-    if (newView !== oldView) {
+    if (oldView !== newView) {
       if (oldView !== null) {
         this.deactivateLayout();
         (this as Mutable<typeof this>).view = null;

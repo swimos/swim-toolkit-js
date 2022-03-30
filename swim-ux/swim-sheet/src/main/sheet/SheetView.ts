@@ -26,6 +26,7 @@ export class SheetView extends HtmlView {
   constructor(node: HTMLElement) {
     super(node);
     this.initSheet();
+    node.addEventListener("scroll", this.onSheetScroll.bind(this));
   }
 
   protected initSheet(): void {
@@ -34,6 +35,7 @@ export class SheetView extends HtmlView {
     this.boxSizing.setState("border-box", Affinity.Intrinsic);
     this.overflowX.setState("auto", Affinity.Intrinsic);
     this.overflowY.setState("auto", Affinity.Intrinsic);
+    this.overscrollBehaviorY.setState("contain", Affinity.Intrinsic);
     this.overflowScrolling.setState("touch", Affinity.Intrinsic);
     this.backgroundColor.setLook(Look.backgroundColor, Affinity.Intrinsic);
   }
@@ -109,8 +111,12 @@ export class SheetView extends HtmlView {
     willDismiss(): void {
       this.owner.callObservers("viewWillDismiss", this.owner);
       this.owner.pointerEvents.setState("none", Affinity.Transient);
+      this.owner.overflowX.setState("hidden", Affinity.Intrinsic);
+      this.owner.overflowY.setState("hidden", Affinity.Intrinsic);
     },
     didDismiss(): void {
+      this.owner.overflowY.setState("auto", Affinity.Intrinsic);
+      this.owner.overflowX.setState("auto", Affinity.Intrinsic);
       this.owner.pointerEvents.setState(void 0, Affinity.Transient);
       this.owner.callObservers("viewDidDismiss", this.owner);
     },
@@ -131,5 +137,9 @@ export class SheetView extends HtmlView {
     sheetWidth = sheetWidth instanceof Length ? sheetWidth.pxValue() : this.node.offsetWidth;
     const presence = this.presence.value;
     this.left.setState(sheetWidth * this.sheetAlign.value * (1 - presence.phase), Affinity.Intrinsic);
+  }
+
+  protected onSheetScroll(event: Event): void {
+    this.requireUpdate(View.NeedsScroll);
   }
 }

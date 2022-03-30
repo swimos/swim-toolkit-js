@@ -232,7 +232,7 @@ export const TraitRelation = (function (_super: typeof Fastener) {
     let trait: T | undefined;
     const type = this.type;
     if (type !== void 0) {
-      return type.create();
+      trait = type.create();
     }
     if (trait === void 0 || trait === null) {
       let message = "Unable to create ";

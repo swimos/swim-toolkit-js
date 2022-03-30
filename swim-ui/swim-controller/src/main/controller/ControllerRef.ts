@@ -302,7 +302,7 @@ export const ControllerRef = (function (_super: typeof ControllerRelation) {
     } else {
       newController = oldController;
     }
-    if (newController !== oldController) {
+    if (oldController !== newController) {
       if (target === void 0) {
         target = null;
       }
@@ -362,7 +362,7 @@ export const ControllerRef = (function (_super: typeof ControllerRelation) {
       this.insertChild(parent, newController, target, key);
     }
     const oldController = this.controller;
-    if (newController !== oldController) {
+    if (oldController !== newController) {
       if (oldController !== null) {
         (this as Mutable<typeof this>).controller = null;
         this.willDetachController(oldController);

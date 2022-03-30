@@ -77,10 +77,10 @@ export class TableView extends HtmlView {
   })
   readonly depth!: Property<this, number>;
 
-  @ThemeConstraintAnimator({type: Length, inherits: true, value: Length.zero(), updateFlags: View.NeedsLayout})
+  @ThemeConstraintAnimator({type: Length, inherits: true, value: Length.zero(), updateFlags: View.NeedsScroll})
   readonly rowSpacing!: ThemeConstraintAnimator<this, Length, AnyLength>;
 
-  @ThemeConstraintAnimator({type: Length, inherits: true, value: Length.px(24), updateFlags: View.NeedsLayout})
+  @ThemeConstraintAnimator({type: Length, inherits: true, value: Length.px(24), updateFlags: View.NeedsScroll})
   readonly rowHeight!: ThemeConstraintAnimator<this, Length, AnyLength>;
 
   @Property({type: Boolean, inherits: true, value: false})
@@ -298,6 +298,10 @@ export class TableView extends HtmlView {
   protected scrollChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
                              processChild: (this: this, child: View, processFlags: ViewFlags,
                                             viewContext: ViewContextType<this>) => void): void {
+    const rowHeight = this.rowHeight.getValue();
+    const rowSpacing = this.rowSpacing.getValue().pxValue(rowHeight.pxValue());
+    const disclosingPhase = this.disclosing.getPhaseOr(1);
+
     const visibleViews = this.visibleViews as View[];
     visibleViews.length = 0;
 
@@ -305,9 +309,22 @@ export class TableView extends HtmlView {
     (viewContext as Mutable<ViewContextType<this>>).visibleFrame = visibleFrame;
     (this as Mutable<this>).visibleFrame = visibleFrame;
 
+    let yValue = 0;
+    let yState = 0;
+    let rowIndex = 0;
+
     type self = this;
     function scrollChildView(this: self, child: View, processFlags: ViewFlags,
                              viewContext: ViewContextType<self>): void {
+      if (child instanceof RowView || child instanceof HeaderView) {
+        if (rowIndex !== 0) {
+          yValue += rowSpacing * disclosingPhase;
+          yState += rowSpacing;
+        }
+        if (child.top.hasAffinity(Affinity.Intrinsic)) {
+          child.top.setInterpolatedValue(Length.px(yValue), Length.px(yState));
+        }
+      }
       let isVisible: boolean;
       if (child instanceof HtmlView) {
         const top = child.top.state;
@@ -329,6 +346,15 @@ export class TableView extends HtmlView {
       if (isVisible) {
         visibleViews.push(child);
         processChild.call(this, child, processFlags, viewContext);
+      }
+      if (child instanceof RowView || child instanceof HeaderView) {
+        let heightValue: Length | number | null = child.height.value;
+        heightValue = heightValue instanceof Length ? heightValue.pxValue() : child.node.offsetHeight;
+        let heightState: Length | number | null = child.height.state;
+        heightState = heightState instanceof Length ? heightState.pxValue() : heightValue;
+        yValue += heightValue * disclosingPhase;
+        yState += heightState;
+        rowIndex += 1;
       }
     }
     super.processChildren(processFlags, viewContext, scrollChildView);

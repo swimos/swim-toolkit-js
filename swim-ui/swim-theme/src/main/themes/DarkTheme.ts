@@ -168,6 +168,7 @@ Theme.dark = (function (): ThemeMatrix {
   );
 
   const darkerFeel = FeelVector.of(
+    [Look.backgroundColor, Color.black(1)],
     [Look.iconColor, Color.black(1)],
     [Look.statusColor, Color.black(1)],
     [Look.accentColor, Color.black(1)],
@@ -176,6 +177,7 @@ Theme.dark = (function (): ThemeMatrix {
   );
 
   const lighterFeel = FeelVector.of(
+    [Look.backgroundColor, Color.black(-1)],
     [Look.iconColor, Color.black(-1)],
     [Look.statusColor, Color.black(-1)],
     [Look.accentColor, Color.black(-1)],
@@ -184,6 +186,7 @@ Theme.dark = (function (): ThemeMatrix {
   );
 
   const contrastedFeel = FeelVector.of(
+    [Look.backgroundColor, Color.black(-1)],
     [Look.iconColor, Color.black(-1)],
     [Look.statusColor, Color.black(-1)],
     [Look.accentColor, Color.black(-1)],

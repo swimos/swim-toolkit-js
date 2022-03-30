@@ -14,7 +14,7 @@
 
 import type {Proto, ObserverType} from "@swim/util";
 import type {FastenerOwner} from "@swim/component";
-import type {Trait} from "@swim/model";
+import type {TraitClass, Trait} from "@swim/model";
 import type {AnyView, View} from "@swim/view";
 import type {Controller} from "../controller/Controller";
 import {ControllerRefInit, ControllerRefClass, ControllerRef} from "../controller/ControllerRef";
@@ -27,11 +27,14 @@ export type TraitViewControllerRefType<F extends TraitViewControllerRef<any, any
 /** @public */
 export interface TraitViewControllerRefInit<T extends Trait, V extends View, C extends Controller = Controller> extends ControllerRefInit<C> {
   extends?: {prototype: TraitViewControllerRef<any, any, any, any>} | string | boolean | null;
-  getTraitViewRef?(controller: C): TraitViewRef<any, T, V>;
-  createController?(trait?: T): C;
+  traitType?: TraitClass<T>;
   traitKey?: string | boolean;
   viewKey?: string | boolean;
   parentView?: View | null;
+
+  getTraitViewRef?(controller: C): TraitViewRef<any, T, V>;
+  createTrait?(): T;
+  createController?(trait?: T): C;
 }
 
 /** @public */
@@ -93,8 +96,13 @@ export interface TraitViewControllerRef<O = unknown, T extends Trait = Trait, V 
 
   deleteView(): V | null;
 
+  createTrait(): T;
+
   /** @override */
   createController(trait?: T): C;
+
+  /** @internal @protected */
+  get traitType(): TraitClass<T> | undefined; // optional prototype property
 
   /** @internal */
   get viewKey(): string | undefined; // optional prototype field
@@ -187,6 +195,23 @@ export const TraitViewControllerRef = (function (_super: typeof ControllerRef) {
       }
     }
     return null;
+  };
+
+  TraitViewControllerRef.prototype.createTrait = function <T extends Trait, C extends Controller>(this: TraitViewControllerRef<unknown, T, View, C>): T {
+    let trait: T | undefined;
+    const traitType = this.traitType;
+    if (traitType !== void 0) {
+      trait = traitType.create();
+    }
+    if (trait === void 0 || trait === null) {
+      let message = "Unable to create ";
+      if (this.name.length !== 0) {
+        message += this.name + " ";
+      }
+      message += "trait";
+      throw new Error(message);
+    }
+    return trait;
   };
 
   Object.defineProperty(TraitViewControllerRef.prototype, "view", {

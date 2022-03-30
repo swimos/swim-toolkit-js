@@ -14,7 +14,7 @@
 
 import type {Mutable, ObserverType, ConsumerType} from "@swim/util";
 import type {FastenerOwner} from "@swim/component";
-import type {Trait, TraitRef} from "@swim/model";
+import type {TraitClass, Trait, TraitRef} from "@swim/model";
 import type {Controller} from "../controller/Controller";
 import {ControllerSetInit, ControllerSetClass, ControllerSet} from "../controller/ControllerSet";
 
@@ -25,6 +25,9 @@ export type TraitControllerSetType<F extends TraitControllerSet<any, any, any>> 
 /** @public */
 export interface TraitControllerSetInit<T extends Trait = Trait, C extends Controller = Controller> extends ControllerSetInit<C> {
   extends?: {prototype: TraitControllerSet<any, any, any>} | string | boolean | null;
+  traitType?: TraitClass<T>;
+  traitKey?: string | boolean;
+
   getTraitRef?(controller: C): TraitRef<any, T>;
 
   initTrait?(trait: T, controller: C): void;
@@ -35,6 +38,7 @@ export interface TraitControllerSetInit<T extends Trait = Trait, C extends Contr
   willDetachTrait?(trait: T, controller: C): void;
   didDetachTrait?(trait: T, controller: C): void;
 
+  createTrait?(): T;
   createController?(trait?: T): C;
 }
 
@@ -118,6 +122,8 @@ export interface TraitControllerSet<O = unknown, T extends Trait = Trait, C exte
 
   unconsumeTraits(consumer: ConsumerType<T>): void;
 
+  createTrait(): T;
+
   /** @protected @override */
   onAttachController(controller: C, targetController: Controller | null): void;
 
@@ -126,6 +132,12 @@ export interface TraitControllerSet<O = unknown, T extends Trait = Trait, C exte
 
   /** @override */
   createController(trait?: T): C;
+
+  /** @internal @protected */
+  get traitType(): TraitClass<T> | undefined; // optional prototype property
+
+  /** @internal */
+  get traitKey(): string | undefined; // optional prototype field
 }
 
 /** @public */
@@ -302,6 +314,23 @@ export const TraitControllerSet = (function (_super: typeof ControllerSet) {
     }
   };
 
+  TraitControllerSet.prototype.createTrait = function <T extends Trait, C extends Controller>(this: TraitControllerSet<unknown, T, C>): T {
+    let trait: T | undefined;
+    const traitType = this.traitType;
+    if (traitType !== void 0) {
+      trait = traitType.create();
+    }
+    if (trait === void 0 || trait === null) {
+      let message = "Unable to create ";
+      if (this.name.length !== 0) {
+        message += this.name + " ";
+      }
+      message += "trait";
+      throw new Error(message);
+    }
+    return trait;
+  };
+
   TraitControllerSet.prototype.onAttachController = function <T extends Trait, C extends Controller>(this: TraitControllerSet<unknown, T, C>, controller: C, targetController: Controller | null): void {
     const trait = this.getTraitRef(controller).trait;
     if (trait !== null) {
@@ -335,6 +364,18 @@ export const TraitControllerSet = (function (_super: typeof ControllerSet) {
     delete descriptor.affinity;
     delete descriptor.inherits;
     delete descriptor.sorted;
+
+    if (descriptor.traitKey === true) {
+      Object.defineProperty(descriptor, "traitKey", {
+        value: className,
+        configurable: true,
+      });
+    } else if (descriptor.traitKey === false) {
+      Object.defineProperty(descriptor, "traitKey", {
+        value: void 0,
+        configurable: true,
+      });
+    }
 
     if (superClass === void 0 || superClass === null) {
       superClass = this;
