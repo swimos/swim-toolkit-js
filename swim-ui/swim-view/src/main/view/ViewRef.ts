@@ -27,48 +27,70 @@ import {
   ConstraintContext,
 } from "@swim/constraint";
 import type {AnyView, View} from "./View";
-import {ViewRelationInit, ViewRelationClass, ViewRelation} from "./ViewRelation";
-
-/** @internal */
-export type ViewRefType<F extends ViewRef<any, any>> =
-  F extends ViewRef<any, infer V> ? V : never;
+import {
+  ViewRelationRefinement,
+  ViewRelationTemplate,
+  ViewRelationClass,
+  ViewRelation,
+} from "./ViewRelation";
 
 /** @public */
-export interface ViewRefInit<V extends View = View> extends ViewRelationInit<V> {
-  extends?: {prototype: ViewRef<any, any>} | string | boolean | null;
-  key?: string | boolean;
-
-  willInherit?(superFastener: ViewRef<unknown, V>): void;
-  didInherit?(superFastener: ViewRef<unknown, V>): void;
-  willUninherit?(superFastener: ViewRef<unknown, V>): void;
-  didUninherit?(superFastener: ViewRef<unknown, V>): void;
-
-  willBindSuperFastener?(superFastener: ViewRef<unknown, V>): void;
-  didBindSuperFastener?(superFastener: ViewRef<unknown, V>): void;
-  willUnbindSuperFastener?(superFastener: ViewRef<unknown, V>): void;
-  didUnbindSuperFastener?(superFastener: ViewRef<unknown, V>): void;
+export interface ViewRefRefinement extends ViewRelationRefinement {
 }
 
 /** @public */
-export type ViewRefDescriptor<O = unknown, V extends View = View, I = {}> = ThisType<ViewRef<O, V> & I> & ViewRefInit<V> & Partial<I>;
+export type ViewRefView<R extends ViewRefRefinement | ViewRef<any, any>, D = View> =
+  R extends {view: infer V} ? V :
+  R extends {extends: infer E} ? ViewRefView<E, D> :
+  R extends ViewRef<any, infer V> ? V :
+  D;
+
+/** @public */
+export interface ViewRefTemplate<V extends View = View> extends ViewRelationTemplate<V> {
+  extends?: Proto<ViewRef<any, any>> | string | boolean | null;
+  viewKey?: string | boolean;
+}
 
 /** @public */
 export interface ViewRefClass<F extends ViewRef<any, any> = ViewRef<any, any>> extends ViewRelationClass<F> {
+  /** @override */
+  specialize(className: string, template: ViewRefTemplate): ViewRefClass;
+
+  /** @override */
+  refine(fastenerClass: ViewRefClass): void;
+
+  /** @override */
+  extend(className: string, template: ViewRefTemplate): ViewRefClass<F>;
+
+  /** @override */
+  specify<O, V extends View = View>(className: string, template: ThisType<ViewRef<O, V>> & ViewRefTemplate<V> & Partial<Omit<ViewRef<O, V>, keyof ViewRefTemplate>>): ViewRefClass<F>;
+
+  /** @override */
+  <O, V extends View = View>(template: ThisType<ViewRef<O, V>> & ViewRefTemplate<V> & Partial<Omit<ViewRef<O, V>, keyof ViewRefTemplate>>): PropertyDecorator;
 }
 
 /** @public */
-export interface ViewRefFactory<F extends ViewRef<any, any> = ViewRef<any, any>> extends ViewRefClass<F> {
-  extend<I = {}>(className: string, classMembers?: Partial<I> | null): ViewRefFactory<F> & I;
+export type ViewRefDef<O, R extends ViewRefRefinement> =
+  ViewRef<O, ViewRefView<R>> &
+  {readonly name: string} & // prevent type alias simplification
+  (R extends {extends: infer E} ? E : {}) &
+  (R extends {defines: infer D} ? D : {}) &
+  (R extends {implements: infer I} ? I : {}) &
+  (R extends {observes: infer B} ? ObserverType<B extends boolean ? ViewRefView<R> : B> : {});
 
-  define<O, V extends View = View>(className: string, descriptor: ViewRefDescriptor<O, V>): ViewRefFactory<ViewRef<any, V>>;
-  define<O, V extends View = View>(className: string, descriptor: {observes: boolean} & ViewRefDescriptor<O, V, ObserverType<V>>): ViewRefFactory<ViewRef<any, V>>;
-  define<O, V extends View = View, I = {}>(className: string, descriptor: {implements: unknown} & ViewRefDescriptor<O, V, I>): ViewRefFactory<ViewRef<any, V> & I>;
-  define<O, V extends View = View, I = {}>(className: string, descriptor: {implements: unknown; observes: boolean} & ViewRefDescriptor<O, V, I & ObserverType<V>>): ViewRefFactory<ViewRef<any, V> & I>;
-
-  <O, V extends View = View>(descriptor: ViewRefDescriptor<O, V>): PropertyDecorator;
-  <O, V extends View = View>(descriptor: {observes: boolean} & ViewRefDescriptor<O, V, ObserverType<V>>): PropertyDecorator;
-  <O, V extends View = View, I = {}>(descriptor: {implements: unknown} & ViewRefDescriptor<O, V, I>): PropertyDecorator;
-  <O, V extends View = View, I = {}>(descriptor: {implements: unknown; observes: boolean} & ViewRefDescriptor<O, V, I & ObserverType<V>>): PropertyDecorator;
+/** @public */
+export function ViewRefDef<F extends ViewRef<any, any>>(
+  template: F extends ViewRefDef<infer O, infer R>
+          ? ThisType<ViewRefDef<O, R>>
+          & ViewRefTemplate<ViewRefView<R>>
+          & Partial<Omit<ViewRef<O, ViewRefView<R>>, keyof ViewRefTemplate>>
+          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof ViewRefTemplate>> & {extends: unknown}) : {})
+          & (R extends {defines: infer D} ? Partial<D> : {})
+          & (R extends {implements: infer I} ? I : {})
+          & (R extends {observes: infer B} ? (ObserverType<B extends boolean ? ViewRefView<R> : B> & {observes: boolean}) : {})
+          : never
+): PropertyDecorator {
+  return ViewRef(template);
 }
 
 /** @public */
@@ -80,62 +102,65 @@ export interface ViewRef<O = unknown, V extends View = View> extends ViewRelatio
   get fastenerType(): Proto<ViewRef<any, any>>;
 
   /** @internal @override */
-  setInherited(inherited: boolean, superFastener: ViewRef<unknown, V>): void;
+  getSuper(): ViewRef<unknown, V> | null;
+
+  /** @internal @override */
+  setDerived(derived: boolean, inlet: ViewRef<unknown, V>): void;
 
   /** @protected @override */
-  willInherit(superFastener: ViewRef<unknown, V>): void;
+  willDerive(inlet: ViewRef<unknown, V>): void;
 
   /** @protected @override */
-  onInherit(superFastener: ViewRef<unknown, V>): void;
+  onDerive(inlet: ViewRef<unknown, V>): void;
 
   /** @protected @override */
-  didInherit(superFastener: ViewRef<unknown, V>): void;
+  didDerive(inlet: ViewRef<unknown, V>): void;
 
   /** @protected @override */
-  willUninherit(superFastener: ViewRef<unknown, V>): void;
+  willUnderive(inlet: ViewRef<unknown, V>): void;
 
   /** @protected @override */
-  onUninherit(superFastener: ViewRef<unknown, V>): void;
+  onUnderive(inlet: ViewRef<unknown, V>): void;
 
   /** @protected @override */
-  didUninherit(superFastener: ViewRef<unknown, V>): void;
+  didUnderive(inlet: ViewRef<unknown, V>): void;
 
   /** @override */
-  readonly superFastener: ViewRef<unknown, V> | null;
-
-  /** @internal @override */
-  getSuperFastener(): ViewRef<unknown, V> | null;
+  readonly inlet: ViewRef<unknown, V> | null;
 
   /** @protected @override */
-  willBindSuperFastener(superFastener: ViewRef<unknown, V>): void;
+  willBindInlet(inlet: ViewRef<unknown, V>): void;
 
   /** @protected @override */
-  onBindSuperFastener(superFastener: ViewRef<unknown, V>): void;
+  onBindInlet(inlet: ViewRef<unknown, V>): void;
 
   /** @protected @override */
-  didBindSuperFastener(superFastener: ViewRef<unknown, V>): void;
+  didBindInlet(inlet: ViewRef<unknown, V>): void;
 
   /** @protected @override */
-  willUnbindSuperFastener(superFastener: ViewRef<unknown, V>): void;
+  willUnbindInlet(inlet: ViewRef<unknown, V>): void;
 
   /** @protected @override */
-  onUnbindSuperFastener(superFastener: ViewRef<unknown, V>): void;
+  onUnbindInlet(inlet: ViewRef<unknown, V>): void;
 
   /** @protected @override */
-  didUnbindSuperFastener(superFastener: ViewRef<unknown, V>): void;
+  didUnbindInlet(inlet: ViewRef<unknown, V>): void;
 
   /** @internal */
-  readonly subFasteners: ReadonlyArray<ViewRef<unknown, V>> | null;
+  readonly outlets: ReadonlyArray<ViewRef<unknown, V>> | null;
 
   /** @internal @override */
-  attachSubFastener(subFastener: ViewRef<unknown, V>): void;
+  attachOutlet(outlet: ViewRef<unknown, V>): void;
 
   /** @internal @override */
-  detachSubFastener(subFastener: ViewRef<unknown, V>): void;
+  detachOutlet(outlet: ViewRef<unknown, V>): void;
 
-  get superView(): V | null;
+  get inletView(): V | null;
 
-  getSuperView(): V;
+  getInletView(): V;
+
+  /** @internal */
+  readonly viewKey?: string; // optional prototype property
 
   readonly view: V | null;
 
@@ -163,10 +188,10 @@ export interface ViewRef<O = unknown, V extends View = View> extends ViewRelatio
   detectView(view: View): V | null;
 
   /** @internal @protected */
-  decohereSubFasteners(): void;
+  decohereOutlets(): void;
 
   /** @internal @protected */
-  decohereSubFastener(subFastener: ViewRef<unknown, V>): void;
+  decohereOutlet(outlet: ViewRef<unknown, V>): void;
 
   /** @override */
   recohere(t: number): void;
@@ -226,79 +251,74 @@ export interface ViewRef<O = unknown, V extends View = View> extends ViewRelatio
 
   /** @protected @override */
   onUnmount(): void;
-
-  /** @internal */
-  get key(): string | undefined; // optional prototype field
 }
 
 /** @public */
 export const ViewRef = (function (_super: typeof ViewRelation) {
-  const ViewRef: ViewRefFactory = _super.extend("ViewRef");
+  const ViewRef = _super.extend("ViewRef", {}) as ViewRefClass;
 
   Object.defineProperty(ViewRef.prototype, "fastenerType", {
-    get: function (this: ViewRef): Proto<ViewRef<any, any>> {
-      return ViewRef;
-    },
+    value: ViewRef,
     configurable: true,
   });
 
-  ViewRef.prototype.onInherit = function (this: ViewRef, superFastener: ViewRef): void {
-    const superView = superFastener.view;
-    if (superView !== null) {
-      this.attachView(superView);
+  ViewRef.prototype.onDerive = function (this: ViewRef, inlet: ViewRef): void {
+    const inletView = inlet.view;
+    if (inletView !== null) {
+      this.attachView(inletView);
     } else {
       this.detachView();
     }
   };
 
-  ViewRef.prototype.onBindSuperFastener = function <V extends View>(this: ViewRef<unknown, V>, superFastener: ViewRef<unknown, V>): void {
-    (this as Mutable<typeof this>).superFastener = superFastener;
-    _super.prototype.onBindSuperFastener.call(this, superFastener);
+  ViewRef.prototype.onBindInlet = function <V extends View>(this: ViewRef<unknown, V>, inlet: ViewRef<unknown, V>): void {
+    (this as Mutable<typeof this>).inlet = inlet;
+    _super.prototype.onBindInlet.call(this, inlet);
   };
 
-  ViewRef.prototype.onUnbindSuperFastener = function <V extends View>(this: ViewRef<unknown, V>, superFastener: ViewRef<unknown, V>): void {
-    _super.prototype.onUnbindSuperFastener.call(this, superFastener);
-    (this as Mutable<typeof this>).superFastener = null;
+  ViewRef.prototype.onUnbindInlet = function <V extends View>(this: ViewRef<unknown, V>, inlet: ViewRef<unknown, V>): void {
+    _super.prototype.onUnbindInlet.call(this, inlet);
+    (this as Mutable<typeof this>).inlet = null;
   };
 
-  ViewRef.prototype.attachSubFastener = function <V extends View>(this: ViewRef<unknown, V>, subFastener: ViewRef<unknown, V>): void {
-    let subFasteners = this.subFasteners as ViewRef<unknown, V>[] | null;
-    if (subFasteners === null) {
-      subFasteners = [];
-      (this as Mutable<typeof this>).subFasteners = subFasteners;
+  ViewRef.prototype.attachOutlet = function <V extends View>(this: ViewRef<unknown, V>, outlet: ViewRef<unknown, V>): void {
+    let outlets = this.outlets as ViewRef<unknown, V>[] | null;
+    if (outlets === null) {
+      outlets = [];
+      (this as Mutable<typeof this>).outlets = outlets;
     }
-    subFasteners.push(subFastener);
+    outlets.push(outlet);
   };
 
-  ViewRef.prototype.detachSubFastener = function <V extends View>(this: ViewRef<unknown, V>, subFastener: ViewRef<unknown, V>): void {
-    const subFasteners = this.subFasteners as ViewRef<unknown, V>[] | null;
-    if (subFasteners !== null) {
-      const index = subFasteners.indexOf(subFastener);
+  ViewRef.prototype.detachOutlet = function <V extends View>(this: ViewRef<unknown, V>, outlet: ViewRef<unknown, V>): void {
+    const outlets = this.outlets as ViewRef<unknown, V>[] | null;
+    if (outlets !== null) {
+      const index = outlets.indexOf(outlet);
       if (index >= 0) {
-        subFasteners.splice(index, 1);
+        outlets.splice(index, 1);
       }
     }
   };
 
-  Object.defineProperty(ViewRef.prototype, "superView", {
+  Object.defineProperty(ViewRef.prototype, "inletView", {
     get: function <V extends View>(this: ViewRef<unknown, V>): V | null {
-      const superFastener = this.superFastener;
-      return superFastener !== null ? superFastener.view : null;
+      const inlet = this.inlet;
+      return inlet !== null ? inlet.view : null;
     },
     configurable: true,
   });
 
-  ViewRef.prototype.getSuperView = function <V extends View>(this: ViewRef<unknown, V>): V {
-    const superView = this.superView;
-    if (superView === void 0 || superView === null) {
-      let message = superView + " ";
+  ViewRef.prototype.getInletView = function <V extends View>(this: ViewRef<unknown, V>): V {
+    const inletView = this.inletView;
+    if (inletView === void 0 || inletView === null) {
+      let message = inletView + " ";
       if (this.name.length !== 0) {
         message += this.name + " ";
       }
-      message += "super view";
+      message += "inlet view";
       throw new TypeError(message);
     }
-    return superView;
+    return inletView;
   };
 
   ViewRef.prototype.getView = function <V extends View>(this: ViewRef<unknown, V>): V {
@@ -333,7 +353,7 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
         }
         if (newView !== null) {
           if (key === void 0) {
-            key = this.key;
+            key = this.viewKey;
           }
           this.insertChild(parent, newView, target, key);
         }
@@ -356,7 +376,7 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
           this.didAttachView(newView, target);
         }
         this.setCoherent(true);
-        this.decohereSubFasteners();
+        this.decohereOutlets();
       }
     }
     return oldView;
@@ -389,7 +409,7 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
       this.initView(newView);
       this.didAttachView(newView, target);
       this.setCoherent(true);
-      this.decohereSubFasteners();
+      this.decohereOutlets();
     }
     return newView;
   };
@@ -404,7 +424,7 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
       this.deinitView(oldView);
       this.didDetachView(oldView);
       this.setCoherent(true);
-      this.decohereSubFasteners();
+      this.decohereOutlets();
     }
     return oldView;
   };
@@ -427,7 +447,7 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
       target = null;
     }
     if (key === void 0) {
-      key = this.key;
+      key = this.viewKey;
     }
     if (parent !== null && (newView.parent !== parent || newView.key !== key)) {
       this.insertChild(parent, newView, target, key);
@@ -449,7 +469,7 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
       this.initView(newView);
       this.didAttachView(newView, target);
       this.setCoherent(true);
-      this.decohereSubFasteners();
+      this.decohereOutlets();
     }
     return newView;
   };
@@ -480,7 +500,7 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
         this.initView(newView);
         this.didAttachView(newView, target);
         this.setCoherent(true);
-        this.decohereSubFasteners();
+        this.decohereOutlets();
       }
     }
   };
@@ -496,40 +516,40 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
         this.deinitView(oldView);
         this.didDetachView(oldView);
         this.setCoherent(true);
-        this.decohereSubFasteners();
+        this.decohereOutlets();
       }
     }
   };
 
   ViewRef.prototype.detectView = function <V extends View>(this: ViewRef<unknown, V>, view: View): V | null {
-    const key = this.key;
-    if (key !== void 0 && key === view.key) {
+    const viewKey = this.viewKey;
+    if (viewKey !== void 0 && viewKey === view.key) {
       return view as V;
     }
     return null;
   };
 
-  ViewRef.prototype.decohereSubFasteners = function (this: ViewRef): void {
-    const subFasteners = this.subFasteners;
-    for (let i = 0, n = subFasteners !== null ? subFasteners.length : 0; i < n; i += 1) {
-      this.decohereSubFastener(subFasteners![i]!);
+  ViewRef.prototype.decohereOutlets = function (this: ViewRef): void {
+    const outlets = this.outlets;
+    for (let i = 0, n = outlets !== null ? outlets.length : 0; i < n; i += 1) {
+      this.decohereOutlet(outlets![i]!);
     }
   };
 
-  ViewRef.prototype.decohereSubFastener = function (this: ViewRef, subFastener: ViewRef): void {
-    if ((subFastener.flags & Fastener.InheritedFlag) === 0 && Math.min(this.flags & Affinity.Mask, Affinity.Intrinsic) >= (subFastener.flags & Affinity.Mask)) {
-      subFastener.setInherited(true, this);
-    } else if ((subFastener.flags & Fastener.InheritedFlag) !== 0 && (subFastener.flags & Fastener.DecoherentFlag) === 0) {
-      subFastener.setCoherent(false);
-      subFastener.decohere();
+  ViewRef.prototype.decohereOutlet = function (this: ViewRef, outlet: ViewRef): void {
+    if ((outlet.flags & Fastener.DerivedFlag) === 0 && Math.min(this.flags & Affinity.Mask, Affinity.Intrinsic) >= (outlet.flags & Affinity.Mask)) {
+      outlet.setDerived(true, this);
+    } else if ((outlet.flags & Fastener.DerivedFlag) !== 0 && (outlet.flags & Fastener.DecoherentFlag) === 0) {
+      outlet.setCoherent(false);
+      outlet.decohere();
     }
   };
 
   ViewRef.prototype.recohere = function (this: ViewRef, t: number): void {
-    if ((this.flags & Fastener.InheritedFlag) !== 0) {
-      const superFastener = this.superFastener;
-      if (superFastener !== null) {
-        this.setView(superFastener.view);
+    if ((this.flags & Fastener.DerivedFlag) !== 0) {
+      const inlet = this.inlet;
+      if (inlet !== null) {
+        this.setView(inlet.view);
       }
     }
   };
@@ -668,9 +688,9 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
     _super.prototype.onUnmount.call(this);
   };
 
-  ViewRef.construct = function <F extends ViewRef<any, any>>(fastenerClass: {prototype: F}, fastener: F | null, owner: FastenerOwner<F>): F {
+  ViewRef.construct = function <F extends ViewRef<any, any>>(fastener: F | null, owner: FastenerOwner<F>): F {
     if (fastener === null) {
-      fastener = function (view?: AnyView<ViewRefType<F>> | null, target?: View | null, key?: string): ViewRefType<F> | null | FastenerOwner<F> {
+      fastener = function (view?: AnyView<ViewRefView<F>> | null, target?: View | null, key?: string): ViewRefView<F> | null | FastenerOwner<F> {
         if (view === void 0) {
           return fastener!.view;
         } else {
@@ -679,61 +699,42 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
         }
       } as F;
       delete (fastener as Partial<Mutable<F>>).name; // don't clobber prototype name
-      Object.setPrototypeOf(fastener, fastenerClass.prototype);
+      Object.setPrototypeOf(fastener, this.prototype);
     }
-    fastener = _super.construct(fastenerClass, fastener, owner) as F;
-    Object.defineProperty(fastener, "superFastener", { // override getter
+    fastener = _super.construct.call(this, fastener, owner) as F;
+    Object.defineProperty(fastener, "inlet", { // override getter
       value: null,
       writable: true,
       enumerable: true,
       configurable: true,
     });
-    (fastener as Mutable<typeof fastener>).subFasteners = null;
+    (fastener as Mutable<typeof fastener>).outlets = null;
     (fastener as Mutable<typeof fastener>).view = null;
     (fastener as Mutable<typeof fastener>).constraints = Arrays.empty;
     (fastener as Mutable<typeof fastener>).constraintVariables = Arrays.empty;
     return fastener;
   };
 
-  ViewRef.define = function <O, V extends View>(className: string, descriptor: ViewRefDescriptor<O, V>): ViewRefFactory<ViewRef<any, V>> {
-    let superClass = descriptor.extends as ViewRefFactory | null | undefined;
-    const affinity = descriptor.affinity;
-    const inherits = descriptor.inherits;
-    delete descriptor.extends;
-    delete descriptor.implements;
-    delete descriptor.affinity;
-    delete descriptor.inherits;
+  ViewRef.refine = function (fastenerClass: ViewRefClass): void {
+    _super.refine.call(this, fastenerClass);
+    const fastenerPrototype = fastenerClass.prototype;
 
-    if (descriptor.key === true) {
-      Object.defineProperty(descriptor, "key", {
-        value: className,
-        configurable: true,
-      });
-    } else if (descriptor.key === false) {
-      Object.defineProperty(descriptor, "key", {
-        value: void 0,
-        configurable: true,
-      });
-    }
-
-    if (superClass === void 0 || superClass === null) {
-      superClass = this;
-    }
-
-    const fastenerClass = superClass.extend(className, descriptor);
-
-    fastenerClass.construct = function (fastenerClass: {prototype: ViewRef<any, any>}, fastener: ViewRef<O, V> | null, owner: O): ViewRef<O, V> {
-      fastener = superClass!.construct(fastenerClass, fastener, owner);
-      if (affinity !== void 0) {
-        fastener.initAffinity(affinity);
+    if (Object.prototype.hasOwnProperty.call(fastenerPrototype, "viewKey")) {
+      const viewKey = fastenerPrototype.viewKey as string | boolean | undefined;
+      if (viewKey === true) {
+        Object.defineProperty(fastenerPrototype, "viewKey", {
+          value: fastenerClass.name,
+          enumerable: true,
+          configurable: true,
+        });
+      } else if (viewKey === false) {
+        Object.defineProperty(fastenerPrototype, "viewKey", {
+          value: void 0,
+          enumerable: true,
+          configurable: true,
+        });
       }
-      if (inherits !== void 0) {
-        fastener.initInherits(inherits);
-      }
-      return fastener;
-    };
-
-    return fastenerClass;
+    }
   };
 
   return ViewRef;

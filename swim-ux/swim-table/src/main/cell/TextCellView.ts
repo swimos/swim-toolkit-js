@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import type {Class, Initable} from "@swim/util";
-import {Affinity, MemberFastenerClass} from "@swim/component";
-import {AnyView, ViewRef} from "@swim/view";
+import {Affinity, FastenerClass} from "@swim/component";
+import {AnyView, ViewRefDef} from "@swim/view";
 import {HtmlViewInit, HtmlView} from "@swim/dom";
 import {CellView} from "./CellView";
 import type {TextCellViewObserver} from "./TextCellViewObserver";
@@ -28,10 +28,9 @@ export class TextCellView extends CellView {
 
   override readonly observerType?: Class<TextCellViewObserver>;
 
-  @ViewRef<TextCellView, HtmlView & Initable<HtmlViewInit | string>, {create(value?: string): HtmlView}>({
-    implements: true,
-    key: true,
-    type: HtmlView,
+  @ViewRefDef<TextCellView["content"]>({
+    viewType: HtmlView,
+    viewKey: true,
     binds: true,
     willAttachView(contentView: HtmlView): void {
       this.owner.callObservers("viewWillAttachContent", contentView, this.owner);
@@ -59,6 +58,11 @@ export class TextCellView extends CellView {
       }
     },
   })
-  readonly content!: ViewRef<this, HtmlView & Initable<HtmlViewInit | string>> & {create(value?: string): HtmlView};
-  static readonly content: MemberFastenerClass<TextCellView, "content">;
+  readonly content!: ViewRefDef<this, {
+    view: HtmlView & Initable<HtmlViewInit | string>,
+    implements: {
+      create(value?: string): HtmlView,
+    },
+  }>;
+  static readonly content: FastenerClass<TextCellView["content"]>;
 }

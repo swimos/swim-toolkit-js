@@ -18,7 +18,7 @@ import {HistoryService} from "./HistoryService";
 import type {Controller} from "../controller/Controller";
 
 /** @public */
-export interface HistoryProvider<C extends Controller, S extends HistoryService<C> | null | undefined = HistoryService<C>> extends Provider<C, S> {
+export interface HistoryProvider<C extends Controller, S extends HistoryService<any> | null | undefined = HistoryService> extends Provider<C, S> {
   get historyState(): HistoryState;
 
   pushHistory(deltaState: HistoryStateInit): void;
@@ -30,7 +30,9 @@ export interface HistoryProvider<C extends Controller, S extends HistoryService<
 
 /** @public */
 export const HistoryProvider = (function (_super: typeof Provider) {
-  const HistoryProvider = _super.extend("HistoryProvider") as ProviderClass<HistoryProvider<any, any>>;
+  const HistoryProvider = _super.extend("HistoryProvider", {
+    serviceType: HistoryService,
+  }) as ProviderClass<HistoryProvider<any, any>>;
 
   Object.defineProperty(HistoryProvider.prototype, "historyState", {
     get<C extends Controller, S extends HistoryService<C> | null | undefined>(this: HistoryProvider<C, S>): HistoryState {

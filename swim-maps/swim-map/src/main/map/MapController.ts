@@ -13,13 +13,19 @@
 // limitations under the License.
 
 import {Class, AnyTiming, Timing} from "@swim/util";
-import {MemberFastenerClass, Property} from "@swim/component";
+import {FastenerClass, PropertyDef} from "@swim/component";
 import type {GeoBox} from "@swim/geo";
 import type {Trait} from "@swim/model";
-import {ViewRef} from "@swim/view";
+import {ViewRefDef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {CanvasView} from "@swim/graphics";
-import {Controller, TraitViewRef, TraitViewControllerSet} from "@swim/controller";
+import {
+  Controller,
+  TraitViewRefDef,
+  TraitViewRef,
+  TraitViewControllerSetDef,
+  TraitViewControllerSet,
+} from "@swim/controller";
 import type {GeoPerspective} from "../geo/GeoPerspective";
 import type {GeoViewport} from "../geo/GeoViewport";
 import type {GeoView} from "../geo/GeoView";
@@ -28,14 +34,6 @@ import {GeoController} from "../geo/GeoController";
 import {MapView} from "./MapView";
 import {MapTrait} from "./MapTrait";
 import type {MapControllerObserver} from "./MapControllerObserver";
-
-/** @public */
-export interface MapControllerLayersExt {
-  attachLayerTrait(layerTrait: GeoTrait, layerController: GeoController): void;
-  detachLayerTrait(layerTrait: GeoTrait, layerController: GeoController): void;
-  attachLayerView(layerView: GeoView, layerController: GeoController): void;
-  detachLayerView(layerView: GeoView, layerController: GeoController): void;
-}
 
 /** @public */
 export class MapController extends Controller {
@@ -54,7 +52,7 @@ export class MapController extends Controller {
     }
   }
 
-  @TraitViewRef<MapController, MapTrait, MapView>({
+  @TraitViewRefDef<MapController["map"]>({
     traitType: MapTrait,
     observesTrait: true,
     willAttachTrait(mapTrait: MapTrait): void {
@@ -73,8 +71,8 @@ export class MapController extends Controller {
     didDetachTrait(mapTrait: MapTrait): void {
       this.owner.callObservers("controllerDidDetachMapTrait", mapTrait, this.owner);
     },
-    traitDidSetGeoPerspective(newGeoPerspective: GeoPerspective | null, oldGeoPerspective: GeoPerspective | null): void {
-      this.owner.setGeoPerspective(newGeoPerspective);
+    traitDidSetGeoPerspective(geoPerspective: GeoPerspective | null): void {
+      this.owner.setGeoPerspective(geoPerspective);
     },
     traitWillAttachLayer(layerTrait: GeoTrait, targetTrait: Trait): void {
       this.owner.layers.addTrait(layerTrait, targetTrait);
@@ -129,11 +127,16 @@ export class MapController extends Controller {
       this.owner.container.setView(null);
     },
   })
-  readonly map!: TraitViewRef<this, MapTrait, MapView>;
-  static readonly map: MemberFastenerClass<MapController, "map">;
+  readonly map!: TraitViewRefDef<this, {
+    trait: MapTrait,
+    observesTrait: true,
+    view: MapView,
+    observesView: true,
+  }>;
+  static readonly map: FastenerClass<MapController["map"]>;
 
-  @ViewRef<MapController, CanvasView>({
-    type: CanvasView,
+  @ViewRefDef<MapController["canvas"]>({
+    viewType: CanvasView,
     willAttachView(mapCanvasView: CanvasView): void {
       this.owner.callObservers("controllerWillAttachMapCanvasView", mapCanvasView, this.owner);
     },
@@ -141,11 +144,11 @@ export class MapController extends Controller {
       this.owner.callObservers("controllerDidDetachMapCanvasView", mapCanvasView, this.owner);
     },
   })
-  readonly canvas!: ViewRef<this, CanvasView>;
-  static readonly canvas: MemberFastenerClass<MapController, "canvas">;
+  readonly canvas!: ViewRefDef<this, {view: CanvasView}>;
+  static readonly canvas: FastenerClass<MapController["canvas"]>;
 
-  @ViewRef<MapController, HtmlView>({
-    type: HtmlView,
+  @ViewRefDef<MapController["container"]>({
+    viewType: HtmlView,
     willAttachView(mapContainerView: HtmlView): void {
       this.owner.callObservers("controllerWillAttachMapContainerView", mapContainerView, this.owner);
     },
@@ -163,15 +166,14 @@ export class MapController extends Controller {
       this.owner.callObservers("controllerDidDetachMapContainerView", mapContainerView, this.owner);
     },
   })
-  readonly container!: ViewRef<this, HtmlView>;
-  static readonly container: MemberFastenerClass<MapController, "container">;
+  readonly container!: ViewRefDef<this, {view: HtmlView}>;
+  static readonly container: FastenerClass<MapController["container"]>;
 
-  @Property({type: Timing, value: true})
-  readonly geoTiming!: Property<this, Timing | boolean | undefined, AnyTiming>;
+  @PropertyDef({valueType: Timing, value: true})
+  readonly geoTiming!: PropertyDef<this, {value: Timing | boolean | undefined, valueInit: AnyTiming}>;
 
-  @TraitViewControllerSet<MapController, GeoTrait, GeoView, GeoController, MapControllerLayersExt>({
-    implements: true,
-    type: GeoController,
+  @TraitViewControllerSetDef<MapController["layers"]>({
+    controllerType: GeoController,
     binds: true,
     observes: true,
     get parentView(): MapView | null {
@@ -242,12 +244,23 @@ export class MapController extends Controller {
     },
     createController(layerTrait?: GeoTrait): GeoController {
       if (layerTrait !== void 0) {
-        return GeoController.fromTrait(layerTrait);
+        return layerTrait.createGeoController();
       } else {
         return TraitViewControllerSet.prototype.createController.call(this);
       }
     },
   })
-  readonly layers!: TraitViewControllerSet<this, GeoTrait, GeoView, GeoController> & MapControllerLayersExt;
-  static readonly layers: MemberFastenerClass<MapController, "layers">;
+  readonly layers!: TraitViewControllerSetDef<this, {
+    trait: GeoTrait,
+    view: GeoView,
+    controller: GeoController,
+    implements: {
+      attachLayerTrait(layerTrait: GeoTrait, layerController: GeoController): void;
+      detachLayerTrait(layerTrait: GeoTrait, layerController: GeoController): void;
+      attachLayerView(layerView: GeoView, layerController: GeoController): void;
+      detachLayerView(layerView: GeoView, layerController: GeoController): void;
+    },
+    observes: true,
+  }>;
+  static readonly layers: FastenerClass<MapController["layers"]>;
 }

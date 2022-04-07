@@ -13,47 +13,31 @@
 // limitations under the License.
 
 import {Class, AnyTiming, Timing} from "@swim/util";
-import {MemberFastenerClass, Property} from "@swim/component";
+import {FastenerClass, PropertyDef} from "@swim/component";
 import type {Trait} from "@swim/model";
-import {ViewRef} from "@swim/view";
+import {ViewRefDef} from "@swim/view";
 import type {GraphicsView} from "@swim/graphics";
-import {Controller, TraitViewRef, TraitViewControllerSet} from "@swim/controller";
+import {
+  Controller,
+  TraitViewRefDef,
+  TraitViewRef,
+  TraitViewControllerSetDef,
+} from "@swim/controller";
 import type {DialView} from "../dial/DialView";
 import type {DialTrait} from "../dial/DialTrait";
 import {DialController} from "../dial/DialController";
 import {GaugeView} from "./GaugeView";
-import {GaugeTitle, GaugeTrait} from "./GaugeTrait";
+import {GaugeTrait} from "./GaugeTrait";
 import type {GaugeControllerObserver} from "./GaugeControllerObserver";
-
-/** @public */
-export interface GaugeControllerDialExt {
-  attachDialTrait(dialTrait: DialTrait, dialController: DialController): void;
-  detachDialTrait(dialTrait: DialTrait, dialController: DialController): void;
-  attachDialView(dialView: DialView, dialController: DialController): void;
-  detachDialView(dialView: DialView, dialController: DialController): void;
-  attachDialLabelView(labelView: GraphicsView, dialController: DialController): void;
-  detachDialLabelView(labelView: GraphicsView, dialController: DialController): void;
-  attachDialLegendView(legendView: GraphicsView, dialController: DialController): void;
-  detachDialLegendView(legendView: GraphicsView, dialController: DialController): void;
-}
 
 /** @public */
 export class GaugeController extends Controller {
   override readonly observerType?: Class<GaugeControllerObserver>;
 
-  protected createTitleView(title: GaugeTitle, gaugeTrait: GaugeTrait): GraphicsView | string | null {
-    if (typeof title === "function") {
-      return title(gaugeTrait);
-    } else {
-      return title;
-    }
-  }
-
-  protected setTitleView(title: GaugeTitle | null, gaugeTrait: GaugeTrait): void {
+  protected setTitleView(title: string | undefined): void {
     const gaugeView = this.gauge.view;
     if (gaugeView !== null) {
-      const titleView = title !== null ? this.createTitleView(title, gaugeTrait) : null;
-      gaugeView.title.setView(titleView);
+      gaugeView.title.setView(title !== void 0 ? title : null);
     }
   }
 
@@ -64,7 +48,7 @@ export class GaugeController extends Controller {
     }
   }
 
-  @TraitViewRef<GaugeController, GaugeTrait, GaugeView>({
+  @TraitViewRefDef<GaugeController["gauge"]>({
     traitType: GaugeTrait,
     observesTrait: true,
     willAttachTrait(gaugeTrait: GaugeTrait): void {
@@ -74,14 +58,14 @@ export class GaugeController extends Controller {
       this.owner.dials.addTraits(gaugeTrait.dials.traits);
       const gaugeView = this.view;
       if (gaugeView !== null) {
-        this.owner.setTitleView(gaugeTrait.title.value, gaugeTrait);
+        this.owner.setTitleView(gaugeTrait.title.value);
         this.owner.setLimit(gaugeTrait.limit.value);
       }
     },
     willDetachTrait(gaugeTrait: GaugeTrait): void {
       const gaugeView = this.view;
       if (gaugeView !== null) {
-        this.owner.setTitleView(null, gaugeTrait);
+        this.owner.setTitleView(void 0);
         this.owner.setLimit(0);
       }
       this.owner.dials.deleteTraits(gaugeTrait.dials.traits);
@@ -89,11 +73,11 @@ export class GaugeController extends Controller {
     didDetachTrait(gaugeTrait: GaugeTrait): void {
       this.owner.callObservers("controllerDidDetachGaugeTrait", gaugeTrait, this.owner);
     },
-    traitDidSetGaugeTitle(newTitle: GaugeTitle | null, oldTitle: GaugeTitle | null, gaugeTrait: GaugeTrait): void {
-      this.owner.setTitleView(newTitle, gaugeTrait);
+    traitDidSetTitle(title: string | undefined): void {
+      this.owner.setTitleView(title);
     },
-    traitDidSetGaugeLimit(newLimit: number, oldLimit: number, gaugeTrait: GaugeTrait): void {
-      this.owner.setLimit(newLimit);
+    traitDidSetLimit(limit: number): void {
+      this.owner.setLimit(limit);
     },
     traitWillAttachDial(dialTrait: DialTrait, targetTrait: Trait): void {
       this.owner.dials.addTrait(dialTrait, targetTrait);
@@ -115,7 +99,7 @@ export class GaugeController extends Controller {
       this.owner.title.setView(gaugeView.title.view);
       const gaugeTrait = this.trait;
       if (gaugeTrait !== null) {
-        this.owner.setTitleView(gaugeTrait.title.value, gaugeTrait);
+        this.owner.setTitleView(gaugeTrait.title.value);
         this.owner.setLimit(gaugeTrait.limit.value);
       }
     },
@@ -128,18 +112,23 @@ export class GaugeController extends Controller {
     didDetachView(gaugeView: GaugeView): void {
       this.owner.callObservers("controllerDidDetachGaugeView", gaugeView, this.owner);
     },
-    viewWillAttachGaugeTitle(titleView: GraphicsView): void {
+    viewWillAttachTitle(titleView: GraphicsView): void {
       this.owner.title.setView(titleView);
     },
-    viewDidDetachGaugeTitle(titleView: GraphicsView): void {
+    viewDidDetachTitle(titleView: GraphicsView): void {
       this.owner.title.setView(null);
     },
   })
-  readonly gauge!: TraitViewRef<this, GaugeTrait, GaugeView>;
-  static readonly gauge: MemberFastenerClass<GaugeController, "gauge">;
+  readonly gauge!: TraitViewRefDef<this, {
+    trait: GaugeTrait,
+    observesTrait: true,
+    view: GaugeView,
+    observesView: true,
+  }>;
+  static readonly gauge: FastenerClass<GaugeController["gauge"]>;
 
-  @ViewRef<GaugeController, GraphicsView>({
-    key: true,
+  @ViewRefDef<GaugeController["title"]>({
+    viewKey: true,
     willAttachView(titleView: GraphicsView): void {
       this.owner.callObservers("controllerWillAttachGaugeTitleView", titleView, this.owner);
     },
@@ -147,15 +136,17 @@ export class GaugeController extends Controller {
       this.owner.callObservers("controllerDidDetachGaugeTitleView", titleView, this.owner);
     },
   })
-  readonly title!: ViewRef<this, GraphicsView>;
-  static readonly title: MemberFastenerClass<GaugeController, "title">;
+  readonly title!: ViewRefDef<this, {view: GraphicsView}>;
+  static readonly title: FastenerClass<GaugeController["title"]>;
 
-  @Property({type: Timing, value: true})
-  readonly dialTiming!: Property<this, Timing | boolean | undefined, AnyTiming>;
+  @PropertyDef({valueType: Timing, value: true})
+  readonly dialTiming!: PropertyDef<this, {
+    value: Timing | boolean | undefined,
+    valueInit: AnyTiming | boolean | undefined,
+  }>;
 
-  @TraitViewControllerSet<GaugeController, DialTrait, DialView, DialController, GaugeControllerDialExt>({
-    implements: true,
-    type: DialController,
+  @TraitViewControllerSetDef<GaugeController["dials"]>({
+    controllerType: DialController,
     binds: true,
     observes: true,
     get parentView(): GaugeView | null {
@@ -233,17 +224,11 @@ export class GaugeController extends Controller {
       }
       dialView.remove();
     },
-    controllerWillSetDialValue(newValue: number, oldValue: number, dialController: DialController): void {
-      this.owner.callObservers("controllerWillSetDialValue", newValue, oldValue, dialController, this.owner);
+    controllerDidSetDialValue(value: number, dialController: DialController): void {
+      this.owner.callObservers("controllerDidSetDialValue", value, dialController, this.owner);
     },
-    controllerDidSetDialValue(newValue: number, oldValue: number, dialController: DialController): void {
-      this.owner.callObservers("controllerDidSetDialValue", newValue, oldValue, dialController, this.owner);
-    },
-    controllerWillSetDialLimit(newLimit: number, oldLimit: number, dialController: DialController): void {
-      this.owner.callObservers("controllerWillSetDialLimit", newLimit, oldLimit, dialController, this.owner);
-    },
-    controllerDidSetDialLimit(newLimit: number, oldLimit: number, dialController: DialController): void {
-      this.owner.callObservers("controllerDidSetDialLimit", newLimit, oldLimit, dialController, this.owner);
+    controllerDidSetDialLimit(limit: number, dialController: DialController): void {
+      this.owner.callObservers("controllerDidSetDialLimit", limit, dialController, this.owner);
     },
     controllerWillAttachDialLabelView(labelView: GraphicsView, dialController: DialController): void {
       this.owner.callObservers("controllerWillAttachDialLabelView", labelView, dialController, this.owner);
@@ -274,6 +259,21 @@ export class GaugeController extends Controller {
       // hook
     },
   })
-  readonly dials!: TraitViewControllerSet<this, DialTrait, DialView, DialController> & GaugeControllerDialExt;
-  static readonly dials: MemberFastenerClass<GaugeController, "dials">;
+  readonly dials!: TraitViewControllerSetDef<this, {
+    trait: DialTrait,
+    view: DialView,
+    controller: DialController,
+    implements: {
+      attachDialTrait(dialTrait: DialTrait, dialController: DialController): void;
+      detachDialTrait(dialTrait: DialTrait, dialController: DialController): void;
+      attachDialView(dialView: DialView, dialController: DialController): void;
+      detachDialView(dialView: DialView, dialController: DialController): void;
+      attachDialLabelView(labelView: GraphicsView, dialController: DialController): void;
+      detachDialLabelView(labelView: GraphicsView, dialController: DialController): void;
+      attachDialLegendView(legendView: GraphicsView, dialController: DialController): void;
+      detachDialLegendView(legendView: GraphicsView, dialController: DialController): void;
+    },
+    observes: true,
+  }>;
+  static readonly dials: FastenerClass<GaugeController["dials"]>;
 }

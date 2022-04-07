@@ -13,10 +13,10 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {Affinity, Property} from "@swim/component";
+import {Affinity, PropertyDef} from "@swim/component";
 import {AnyLength, Length, R2Box} from "@swim/math";
 import {AnyColor, Color} from "@swim/style";
-import {Look, ThemeAnimator} from "@swim/theme";
+import {Look, ThemeAnimatorDef} from "@swim/theme";
 import {View} from "@swim/view";
 import type {GraphicsView, CanvasContext, CanvasRenderer, StrokeViewInit, StrokeView} from "@swim/graphics";
 import type {DataPointView} from "../data/DataPointView";
@@ -35,28 +35,22 @@ export interface LinePlotViewInit<X = unknown, Y = unknown> extends SeriesPlotVi
 export class LinePlotView<X = unknown, Y = unknown> extends SeriesPlotView<X, Y> implements StrokeView {
   override readonly observerType?: Class<LinePlotViewObserver<X, Y>>;
 
-  @ThemeAnimator<LinePlotView<X, Y>, Color | null, AnyColor | null>({
-    type: Color,
+  @ThemeAnimatorDef<LinePlotView<X, Y>["stroke"]>({
+    valueType: Color,
     value: null,
     look: Look.accentColor,
     updateFlags: View.NeedsRender,
-    willSetValue(newStroke: Color | null, oldStroke: Color | null): void {
-      this.owner.callObservers("viewWillSetPlotStroke", newStroke, oldStroke, this.owner);
-    },
-    didSetValue(newStroke: Color | null, oldStroke: Color | null): void {
-      this.owner.callObservers("viewDidSetPlotStroke", newStroke, oldStroke, this.owner);
+    didSetValue(stroke: Color | null): void {
+      this.owner.callObservers("viewDidSetStroke", stroke, this.owner);
     },
   })
-  readonly stroke!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly stroke!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
 
-  @ThemeAnimator<LinePlotView<X, Y>, Length | null, AnyLength | null>({
-    type: Length,
+  @ThemeAnimatorDef<LinePlotView<X, Y>["strokeWidth"]>({
+    valueType: Length,
     value: Length.px(1),
     updateFlags: View.NeedsRender,
-    willSetValue(newStrokeWidth: Length | null, oldStrokeWidth: Length | null): void {
-      this.owner.callObservers("viewWillSetPlotStrokeWidth", newStrokeWidth, oldStrokeWidth, this.owner);
-    },
-    didSetValue(newStrokeWidth: Length | null, oldStrokeWidth: Length | null): void {
+    didSetValue(strokeWidth: Length | null): void {
       if (this.owner.xRangePadding.hasAffinity(Affinity.Intrinsic) || this.owner.yRangePadding.hasAffinity(Affinity.Intrinsic)) {
         const frame = this.owner.viewFrame;
         const size = Math.min(frame.width, frame.height);
@@ -65,13 +59,13 @@ export class LinePlotView<X = unknown, Y = unknown> extends SeriesPlotView<X, Y>
         this.owner.xRangePadding.setValue([strokeRadius, strokeRadius], Affinity.Intrinsic);
         this.owner.yRangePadding.setValue([strokeRadius, strokeRadius], Affinity.Intrinsic);
       }
-      this.owner.callObservers("viewDidSetPlotStrokeWidth", newStrokeWidth, oldStrokeWidth, this.owner);
+      this.owner.callObservers("viewDidSetStrokeWidth", strokeWidth, this.owner);
     },
   })
-  readonly strokeWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
+  readonly strokeWidth!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
 
-  @Property({type: Number, value: 5})
-  readonly hitWidth!: Property<this, number>;
+  @PropertyDef({valueType: Number, value: 5})
+  readonly hitWidth!: PropertyDef<this, {value: number}>;
 
   protected renderPlot(context: CanvasContext, frame: R2Box): void {
     const size = Math.min(frame.width, frame.height);

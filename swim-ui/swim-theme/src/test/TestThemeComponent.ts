@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Property, Component} from "@swim/component";
+import {PropertyDef, Component} from "@swim/component";
 import {Look, Feel, MoodVector, ThemeMatrix, ThemeContext} from "@swim/theme";
 
 export class TestThemeComponent extends Component implements ThemeContext {
-  @Property({type: MoodVector, value: null, inherits: true})
-  readonly mood!: Property<this, MoodVector | null>;
+  @PropertyDef({valueType: MoodVector, value: null, inherits: true})
+  readonly mood!: PropertyDef<this, {value: MoodVector | null}>;
 
-  @Property({type: ThemeMatrix, value: null, inherits: true})
-  readonly theme!: Property<this, ThemeMatrix | null>;
+  @PropertyDef({valueType: ThemeMatrix, value: null, inherits: true})
+  readonly theme!: PropertyDef<this, {value: ThemeMatrix | null}>;
 
   getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel> | null): T | undefined {
     const theme = this.theme.value;

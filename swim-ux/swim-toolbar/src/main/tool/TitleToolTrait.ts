@@ -13,28 +13,25 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {Property} from "@swim/component";
-import type {HtmlView} from "@swim/dom";
+import {PropertyDef} from "@swim/component";
 import {ToolTrait} from "./ToolTrait";
 import type {TitleToolTraitObserver} from "./TitleToolTraitObserver";
-
-/** @public */
-export type TitleToolContent = TitleToolContentFunction | string;
-/** @public */
-export type TitleToolContentFunction = (toolTrait: TitleToolTrait) => HtmlView | string | null;
+import type {ToolController} from "./ToolController";
+import {TitleToolController} from "./"; // forward import
 
 /** @public */
 export class TitleToolTrait extends ToolTrait {
   override readonly observerType?: Class<TitleToolTraitObserver>;
 
-  @Property<TitleToolTrait, TitleToolContent | null>({
-    value: null,
-    willSetValue(newContent: TitleToolContent | null, oldContent: TitleToolContent | null): void {
-      this.owner.callObservers("traitWillSetContent", newContent, oldContent, this.owner);
-    },
-    didSetValue(newContent: TitleToolContent | null, oldContent: TitleToolContent | null): void {
-      this.owner.callObservers("traitDidSetContent", newContent, oldContent, this.owner);
+  @PropertyDef<TitleToolTrait["content"]>({
+    valueType: String,
+    didSetValue(content: string | undefined): void {
+      this.owner.callObservers("traitDidSetContent", content, this.owner);
     },
   })
-  readonly content!: Property<this, TitleToolContent | null>;
+  readonly content!: PropertyDef<this, {value: string | undefined}>;
+
+  override createToolController(): ToolController {
+    return new TitleToolController();
+  }
 }

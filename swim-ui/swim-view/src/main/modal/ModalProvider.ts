@@ -18,7 +18,7 @@ import {ModalService} from "./ModalService";
 import type {View} from "../view/View";
 
 /** @public */
-export interface ModalProvider<V extends View, S extends ModalService<V> | null | undefined = ModalService<V>> extends Provider<V, S> {
+export interface ModalProvider<V extends View, S extends ModalService<any> | null | undefined = ModalService> extends Provider<V, S> {
   presentModal(modal: Modal, options?: ModalOptions): void;
 
   dismissModal(modal: Modal): void;
@@ -36,7 +36,9 @@ export interface ModalProvider<V extends View, S extends ModalService<V> | null 
 
 /** @public */
 export const ModalProvider = (function (_super: typeof Provider) {
-  const ModalProvider = _super.extend("ModalProvider") as ProviderClass<ModalProvider<any, any>>;
+  const ModalProvider = _super.extend("ModalProvider", {
+    serviceType: ModalService,
+  }) as ProviderClass<ModalProvider<any, any>>;
 
   ModalProvider.prototype.presentModal = function <V extends View, S extends ModalService<V>>(this: ModalProvider<V, S>, modal: Modal, options?: ModalOptions): void {
     let service: ModalService<V> | null | undefined = this.service;

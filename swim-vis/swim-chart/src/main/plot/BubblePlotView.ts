@@ -15,7 +15,7 @@
 import type {Class} from "@swim/util";
 import {AnyLength, Length, R2Box} from "@swim/math";
 import {AnyColor, Color} from "@swim/style";
-import {Look, ThemeAnimator} from "@swim/theme";
+import {Look, ThemeAnimatorDef} from "@swim/theme";
 import {View} from "@swim/view";
 import type {CanvasContext, FillViewInit, FillView, StrokeViewInit, StrokeView} from "@swim/graphics";
 import {ScatterPlotViewInit, ScatterPlotView} from "./ScatterPlotView";
@@ -33,38 +33,32 @@ export interface BubblePlotViewInit<X = unknown, Y = unknown> extends ScatterPlo
 export class BubblePlotView<X = unknown, Y = unknown> extends ScatterPlotView<X, Y> implements FillView, StrokeView {
   override readonly observerType?: Class<BubblePlotViewObserver<X, Y>>;
 
-  @ThemeAnimator<BubblePlotView<X, Y>, Length | null, AnyLength | null>({
-    type: Length,
+  @ThemeAnimatorDef<BubblePlotView<X, Y>["radius"]>({
+    valueType: Length,
     value: Length.px(5),
     updateFlags: View.NeedsRender,
-    willSetValue(newRadius: Length | null, oldRadius: Length | null): void {
-      this.owner.callObservers("viewWillSetPlotRadius", newRadius, oldRadius, this.owner);
-    },
-    didSetValue(newRadius: Length | null, oldRadius: Length | null): void {
-      this.owner.callObservers("viewDidSetPlotRadius", newRadius, oldRadius, this.owner);
+    didSetValue(radius: Length | null): void {
+      this.owner.callObservers("viewDidSetRadius", radius, this.owner);
     },
   })
-  readonly radius!: ThemeAnimator<this, Length | null, AnyLength | null>;
+  readonly radius!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
 
-  @ThemeAnimator<BubblePlotView<X, Y>, Color | null, AnyColor | null>({
-    type: Color,
+  @ThemeAnimatorDef<BubblePlotView<X, Y>["fill"]>({
+    valueType: Color,
     value: null,
     look: Look.accentColor,
     updateFlags: View.NeedsRender,
-    willSetValue(newFill: Color | null, oldFill: Color | null): void {
-      this.owner.callObservers("viewWillSetPlotFill", newFill, oldFill, this.owner);
-    },
-    didSetValue(newFill: Color | null, oldFill: Color | null): void {
-      this.owner.callObservers("viewDidSetPlotFill", newFill, oldFill, this.owner);
+    didSetValue(fill: Color | null): void {
+      this.owner.callObservers("viewDidSetFill", fill, this.owner);
     },
   })
-  readonly fill!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly fill!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
 
-  @ThemeAnimator({type: Color, value: null, updateFlags: View.NeedsRender})
-  readonly stroke!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  @ThemeAnimatorDef({valueType: Color, value: null, updateFlags: View.NeedsRender})
+  readonly stroke!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
 
-  @ThemeAnimator({type: Length, value: null, updateFlags: View.NeedsRender})
-  readonly strokeWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
+  @ThemeAnimatorDef({valueType: Length, value: null, updateFlags: View.NeedsRender})
+  readonly strokeWidth!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
 
   protected renderPlot(context: CanvasContext, frame: R2Box): void {
     const size = Math.min(frame.width, frame.height);

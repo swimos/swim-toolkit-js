@@ -12,11 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, FromAny} from "@swim/util";
-import {Affinity, FastenerOwner} from "@swim/component";
-import {AnyLength, Length, AnyTransform, Transform} from "@swim/math";
-import {AnyColor, Color} from "@swim/style";
-import {ThemeAnimatorInit, ThemeAnimatorClass, ThemeAnimator} from "@swim/theme";
+import type {Mutable, Proto} from "@swim/util";
+import {Affinity, AnimatorValue, AnimatorValueInit} from "@swim/component";
+import {Length, Transform} from "@swim/math";
+import {Color} from "@swim/style";
+import {
+  ThemeAnimatorRefinement,
+  ThemeAnimatorTemplate,
+  ThemeAnimatorClass,
+  ThemeAnimator,
+} from "@swim/theme";
 import {StringAttributeAnimator} from "./"; // forward import
 import {NumberAttributeAnimator} from "./"; // forward import
 import {BooleanAttributeAnimator} from "./"; // forward import
@@ -26,43 +31,55 @@ import {TransformAttributeAnimator} from "./"; // forward import
 import {ElementView} from "../"; // forward import
 
 /** @public */
-export interface AttributeAnimatorInit<T = unknown, U = never> extends ThemeAnimatorInit<T, U> {
-  extends?: {prototype: AttributeAnimator<any, any>} | string | boolean | null;
-  attributeName: string;
-
-  parse?(value: string): T;
+export interface AttributeAnimatorRefinement extends ThemeAnimatorRefinement {
 }
 
 /** @public */
-export type AttributeAnimatorDescriptor<O = unknown, T = unknown, U = never, I = {}> = ThisType<AttributeAnimator<O, T, U> & I> & AttributeAnimatorInit<T, U> & Partial<I>;
-
-/** @public */
-export interface AttributeAnimatorClass<A extends AttributeAnimator<any, any> = AttributeAnimator<any, any, any>> extends ThemeAnimatorClass<A> {
+export interface AttributeAnimatorTemplate<T = unknown, U = T> extends ThemeAnimatorTemplate<T, U> {
+  extends?: Proto<AttributeAnimator<any, any, any>> | string | boolean | null;
+  attributeName?: string;
 }
 
 /** @public */
-export interface AttributeAnimatorFactory<A extends AttributeAnimator<any, any> = AttributeAnimator<any, any, any>> extends AttributeAnimatorClass<A> {
-  extend<I = {}>(className: string, classMembers?: Partial<I> | null): AttributeAnimatorFactory<A> & I;
+export interface AttributeAnimatorClass<A extends AttributeAnimator<any, any, any> = AttributeAnimator<any, any, any>> extends ThemeAnimatorClass<A> {
+  /** @override */
+  specialize(className: string, template: AttributeAnimatorTemplate): AttributeAnimatorClass;
 
-  specialize(type: unknown): AttributeAnimatorFactory | null;
+  /** @override */
+  extend(className: string, template: AttributeAnimatorTemplate): AttributeAnimatorClass<A>;
 
-  define<O, T, U = never>(className: string, descriptor: AttributeAnimatorDescriptor<O, T, U>): AttributeAnimatorFactory<AttributeAnimator<any, T, U>>;
-  define<O, T, U = never, I = {}>(className: string, descriptor: {implements: unknown} & AttributeAnimatorDescriptor<O, T, U, I>): AttributeAnimatorFactory<AttributeAnimator<any, T, U> & I>;
+  /** @override */
+  specify<O, T = unknown, U = T>(className: string, template: ThisType<AttributeAnimator<O, T, U>> & AttributeAnimatorTemplate<T, U> & Partial<Omit<AttributeAnimator<O, T, U>, keyof AttributeAnimatorTemplate>>): AttributeAnimatorClass<A>;
 
-  <O, T extends Length | undefined = Length | undefined, U extends AnyLength | undefined = AnyLength | undefined>(descriptor: {type: typeof Length} & AttributeAnimatorDescriptor<O, T, U>): PropertyDecorator;
-  <O, T extends Color | undefined = Color | undefined, U extends AnyColor | undefined = AnyColor | undefined>(descriptor: {type: typeof Color} & AttributeAnimatorDescriptor<O, T, U>): PropertyDecorator;
-  <O, T extends Transform | undefined = Transform | undefined, U extends AnyTransform | undefined = AnyTransform | undefined>(descriptor: {type: typeof Transform} & AttributeAnimatorDescriptor<O, T, U>): PropertyDecorator;
-  <O, T extends string | undefined = string | undefined, U extends string | undefined = string | undefined>(descriptor: {type: typeof String} & AttributeAnimatorDescriptor<O, T, U>): PropertyDecorator;
-  <O, T extends number | undefined = number | undefined, U extends number | string | undefined = number | string | undefined>(descriptor: {type: typeof Number} & AttributeAnimatorDescriptor<O, T, U>): PropertyDecorator;
-  <O, T extends boolean | undefined = boolean | undefined, U extends boolean | string | undefined = boolean | string | undefined>(descriptor: {type: typeof Boolean} & AttributeAnimatorDescriptor<O, T, U>): PropertyDecorator;
-  <O, T, U = never>(descriptor: ({type: FromAny<T, U>} | {fromAny(value: T | U): T}) & AttributeAnimatorDescriptor<O, T, U>): PropertyDecorator;
-  <O, T, U = never>(descriptor: AttributeAnimatorDescriptor<O, T, U>): PropertyDecorator;
-  <O, T, U = never, I = {}>(descriptor: {implements: unknown} & AttributeAnimatorDescriptor<O, T, U, I>): PropertyDecorator;
+  /** @override */
+  <O, T = unknown, U = T>(template: ThisType<AttributeAnimator<O, T, U>> & AttributeAnimatorTemplate<T, U> & Partial<Omit<AttributeAnimator<O, T, U>, keyof AttributeAnimatorTemplate>>): PropertyDecorator;
 }
 
 /** @public */
-export interface AttributeAnimator<O = unknown, T = unknown, U = never> extends ThemeAnimator<O, T, U> {
-  get attributeName(): string;
+export type AttributeAnimatorDef<O, R extends AttributeAnimatorRefinement> =
+  AttributeAnimator<O, AnimatorValue<R>, AnimatorValueInit<R>> &
+  {readonly name: string} & // prevent type alias simplification
+  (R extends {extends: infer E} ? E : {}) &
+  (R extends {defines: infer D} ? D : {}) &
+  (R extends {implements: infer I} ? I : {});
+
+/** @public */
+export function AttributeAnimatorDef<A extends AttributeAnimator<any, any, any>>(
+  template: A extends AttributeAnimatorDef<infer O, infer R>
+          ? ThisType<AttributeAnimatorDef<O, R>>
+          & AttributeAnimatorTemplate<AnimatorValue<R>, AnimatorValueInit<R>>
+          & Partial<Omit<AttributeAnimator<O, AnimatorValue<R>, AnimatorValueInit<R>>, keyof AttributeAnimatorTemplate>>
+          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof AttributeAnimatorTemplate>> & {extends: unknown}) : {})
+          & (R extends {defines: infer D} ? Partial<D> : {})
+          & (R extends {implements: infer I} ? I : {})
+          : never
+): PropertyDecorator {
+  return AttributeAnimator(template);
+}
+
+/** @public */
+export interface AttributeAnimator<O = unknown, T = unknown, U = T> extends ThemeAnimator<O, T, U> {
+  readonly attributeName: string; // prototype property
 
   get attributeValue(): T | undefined;
 
@@ -80,14 +97,7 @@ export interface AttributeAnimator<O = unknown, T = unknown, U = never> extends 
 
 /** @public */
 export const AttributeAnimator = (function (_super: typeof ThemeAnimator) {
-  const AttributeAnimator: AttributeAnimatorFactory = _super.extend("AttributeAnimator");
-
-  Object.defineProperty(AttributeAnimator.prototype, "attributeName", {
-    get(this: AttributeAnimator): string {
-      throw new Error("no attribute name");
-    },
-    configurable: true,
-  });
+  const AttributeAnimator = _super.extend("AttributeAnimator", {}) as AttributeAnimatorClass;
 
   Object.defineProperty(AttributeAnimator.prototype, "attributeValue", {
     get: function <T>(this: AttributeAnimator<unknown, T>): T | undefined {
@@ -137,77 +147,27 @@ export const AttributeAnimator = (function (_super: typeof ThemeAnimator) {
     throw new Error();
   };
 
-  AttributeAnimator.construct = function <A extends AttributeAnimator<any, any, any>>(animatorClass: {prototype: A}, animator: A | null, owner: FastenerOwner<A>): A {
-    animator = _super.construct(animatorClass, animator, owner) as A;
-    return animator;
-  };
-
-  AttributeAnimator.specialize = function (type: unknown): AttributeAnimatorFactory | null {
-    if (type === String) {
-      return StringAttributeAnimator;
-    } else if (type === Number) {
-      return NumberAttributeAnimator;
-    } else if (type === Boolean) {
-      return BooleanAttributeAnimator;
-    } else if (type === Length) {
-      return LengthAttributeAnimator;
-    } else if (type === Color) {
-      return ColorAttributeAnimator;
-    } else if (type === Transform) {
-      return TransformAttributeAnimator;
-    }
-    return null;
-  };
-
-  AttributeAnimator.define = function <O, T, U>(className: string, descriptor: AttributeAnimatorDescriptor<O, T, U>): AttributeAnimatorFactory<AttributeAnimator<any, T, U>> {
-    let superClass = descriptor.extends as AttributeAnimatorFactory | null | undefined;
-    const affinity = descriptor.affinity;
-    const inherits = descriptor.inherits;
-    const look = descriptor.look;
-    const value = descriptor.value;
-    const initValue = descriptor.initValue;
-    delete descriptor.extends;
-    delete descriptor.implements;
-    delete descriptor.affinity;
-    delete descriptor.inherits;
-    delete descriptor.look;
-    delete descriptor.value;
-    delete descriptor.initValue;
-
+  AttributeAnimator.specialize = function (className: string, template: AttributeAnimatorTemplate): AttributeAnimatorClass {
+    let superClass = template.extends as AttributeAnimatorClass | null | undefined;
     if (superClass === void 0 || superClass === null) {
-      superClass = this.specialize(descriptor.type);
-    }
-    if (superClass === null) {
-      superClass = this;
-      if (descriptor.fromAny === void 0 && FromAny.is<T, U>(descriptor.type)) {
-        descriptor.fromAny = descriptor.type.fromAny;
+      const valueType = template.valueType;
+      if (valueType === String) {
+        superClass = StringAttributeAnimator;
+      } else if (valueType === Number) {
+        superClass = NumberAttributeAnimator;
+      } else if (valueType === Boolean) {
+        superClass = BooleanAttributeAnimator;
+      } else if (valueType === Length) {
+        superClass = LengthAttributeAnimator;
+      } else if (valueType === Color) {
+        superClass = ColorAttributeAnimator;
+      } else if (valueType === Transform) {
+        superClass = TransformAttributeAnimator;
+      } else {
+        superClass = this;
       }
     }
-
-    const animatorClass = superClass.extend(className, descriptor);
-
-    animatorClass.construct = function (animatorClass: {prototype: AttributeAnimator<any, any, any>}, animator: AttributeAnimator<O, T, U> | null, owner: O): AttributeAnimator<O, T, U> {
-      animator = superClass!.construct(animatorClass, animator, owner);
-      if (affinity !== void 0) {
-        animator.initAffinity(affinity);
-      }
-      if (inherits !== void 0) {
-        animator.initInherits(inherits);
-      }
-      if (look !== void 0) {
-        (animator as Mutable<typeof animator>).look = look;
-      }
-      if (initValue !== void 0) {
-        (animator as Mutable<typeof animator>).value = animator.fromAny(initValue());
-        (animator as Mutable<typeof animator>).state = animator.value;
-      } else if (value !== void 0) {
-        (animator as Mutable<typeof animator>).value = animator.fromAny(value);
-        (animator as Mutable<typeof animator>).state = animator.value;
-      }
-      return animator;
-    };
-
-    return animatorClass;
+    return superClass
   };
 
   return AttributeAnimator;

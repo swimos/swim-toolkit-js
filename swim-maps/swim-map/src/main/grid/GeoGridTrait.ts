@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {MemberFastenerClass} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
 import type {GeoTile, GeoBox} from "@swim/geo";
-import {Model, Trait, TraitSet} from "@swim/model";
+import {Model, Trait, TraitSetDef} from "@swim/model";
 import {GeoTrait} from "../geo/GeoTrait";
 import {GeoLayerTrait} from "../layer/GeoLayerTrait";
 import type {GeoGridTraitObserver} from "./GeoGridTraitObserver";
@@ -38,18 +38,20 @@ export class GeoGridTrait extends GeoLayerTrait {
     // immutable
   }
 
-  @TraitSet<GeoLayerTrait, GeoTrait>({
+  @TraitSetDef<GeoGridTrait["features"]>({
     extends: true,
     detectModel(model: Model): GeoTrait | null {
       const geoTrait = model.getTrait(GeoTrait);
       return !(geoTrait instanceof GeoGridTrait) ? geoTrait : null;
     },
   })
-  override readonly features!: TraitSet<this, GeoTrait>;
-  static override readonly features: MemberFastenerClass<GeoGridTrait, "features">;
+  override readonly features!: TraitSetDef<this, {
+    extends: GeoLayerTrait["features"],
+  }>;
+  static override readonly features: FastenerClass<GeoGridTrait["features"]>;
 
-  @TraitSet<GeoGridTrait, GeoGridTrait>({
-    type: GeoGridTrait,
+  @TraitSetDef<GeoGridTrait["tiles"]>({
+    traitType: GeoGridTrait,
     binds: true,
     willAttachTrait(tileTrait: GeoGridTrait): void {
       this.owner.callObservers("traitWillAttachTile", tileTrait, this.owner);
@@ -64,8 +66,8 @@ export class GeoGridTrait extends GeoLayerTrait {
       return null;
     },
   })
-  readonly tiles!: TraitSet<this, GeoGridTrait>;
-  static readonly tiles: MemberFastenerClass<GeoGridTrait, "tiles">;
+  readonly tiles!: TraitSetDef<this, {trait: GeoGridTrait}>;
+  static readonly tiles: FastenerClass<GeoGridTrait["tiles"]>;
 
   protected createTileTrait(geoTile: GeoTile): GeoGridTrait | null {
     return new GeoGridTrait(geoTile);

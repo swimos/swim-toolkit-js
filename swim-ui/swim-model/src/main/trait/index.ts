@@ -26,37 +26,38 @@ export {
 export {TraitObserver} from "./TraitObserver";
 
 export {
-  TraitRelationType,
-  TraitRelationInit,
-  TraitRelationDescriptor,
+  TraitRelationRefinement,
+  TraitRelationTrait,
+  TraitRelationTemplate,
   TraitRelationClass,
-  TraitRelationFactory,
+  TraitRelationDef,
   TraitRelation,
 } from "./TraitRelation";
 
 export {
-  TraitRefType,
-  TraitRefInit,
-  TraitRefDescriptor,
+  TraitRefRefinement,
+  TraitRefTrait,
+  TraitRefTemplate,
   TraitRefClass,
-  TraitRefFactory,
+  TraitRefDef,
   TraitRef,
 } from "./TraitRef";
 
 export {
-  TraitSetType,
-  TraitSetInit,
-  TraitSetDescriptor,
+  TraitSetRefinement,
+  TraitSetTrait,
+  TraitSetTemplate,
   TraitSetClass,
-  TraitSetFactory,
+  TraitSetDef,
   TraitSet,
 } from "./TraitSet";
 
 export {
-  TraitModelRefType,
-  TraitModelRefInit,
-  TraitModelRefDescriptor,
+  TraitModelRefRefinement,
+  TraitModelRefTrait,
+  TraitModelRefModel,
+  TraitModelRefTemplate,
   TraitModelRefClass,
-  TraitModelRefFactory,
+  TraitModelRefDef,
   TraitModelRef,
 } from "./TraitModelRef";

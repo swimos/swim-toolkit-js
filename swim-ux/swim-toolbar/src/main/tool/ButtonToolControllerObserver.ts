@@ -29,9 +29,7 @@ export interface ButtonToolControllerObserver<C extends ButtonToolController = B
 
   controllerDidDetachToolView?(toolView: ButtonToolView, controller: C): void;
 
-  controllerWillSetToolIcon?(newToolIcon: Graphics | null, oldToolIcon: Graphics | null, controller: C): void;
-
-  controllerDidSetToolIcon?(newToolIcon: Graphics | null, oldToolIcon: Graphics | null, controller: C): void;
+  controllerDidSetToolIcon?(toolIcon: Graphics | null, controller: C): void;
 
   controllerDidPressToolView?(input: PositionGestureInput, event: Event | null, controller: C): void;
 

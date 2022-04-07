@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import type {Class, Initable} from "@swim/util";
-import {Affinity, MemberFastenerClass} from "@swim/component";
+import {Affinity, FastenerClass} from "@swim/component";
 import {Length} from "@swim/math";
-import {ViewContextType, AnyView, ViewRef} from "@swim/view";
+import {ViewContextType, AnyView, ViewRefDef} from "@swim/view";
 import {HtmlViewInit, HtmlView} from "@swim/dom";
 import {ToolView} from "./ToolView";
 import type {TitleToolViewObserver} from "./TitleToolViewObserver";
@@ -31,10 +31,9 @@ export class TitleToolView extends ToolView {
 
   override readonly observerType?: Class<TitleToolViewObserver>;
 
-  @ViewRef<TitleToolView, HtmlView & Initable<HtmlViewInit | string>, {create(value?: string): HtmlView}>({
-    implements: true,
-    key: true,
-    type: HtmlView,
+  @ViewRefDef<TitleToolView["content"]>({
+    viewType: HtmlView,
+    viewKey: true,
     binds: true,
     initView(contentView: HtmlView): void {
       contentView.position.setState("relative", Affinity.Intrinsic);
@@ -67,8 +66,13 @@ export class TitleToolView extends ToolView {
       }
     },
   })
-  readonly content!: ViewRef<this, HtmlView & Initable<HtmlViewInit | string>> & {create(value?: string): HtmlView};
-  static readonly content: MemberFastenerClass<TitleToolView, "content">;
+  readonly content!: ViewRefDef<this, {
+    view: HtmlView & Initable<HtmlViewInit | string>,
+    implements: {
+      create(value?: string): HtmlView,
+    },
+  }>;
+  static readonly content: FastenerClass<TitleToolView["content"]>;
 
   protected override onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);
@@ -92,8 +96,8 @@ export class TitleToolView extends ToolView {
       contentView.top.setState(0, Affinity.Intrinsic);
       contentView.height.setState(this.height.value, Affinity.Intrinsic);
       contentView.lineHeight.setState(this.height.value, Affinity.Intrinsic);
-      if (this.effectiveWidth.state === null && contentWidth !== 0) {
-        this.effectiveWidth.setState(contentWidth);
+      if (this.effectiveWidth.value === null && contentWidth !== 0) {
+        this.effectiveWidth.setValue(contentWidth);
       }
     }
   }

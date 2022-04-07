@@ -27,28 +27,28 @@ export {
 export {ModelObserver} from "./ModelObserver";
 
 export {
-  ModelRelationType,
-  ModelRelationInit,
-  ModelRelationDescriptor,
+  ModelRelationRefinement,
+  ModelRelationModel,
+  ModelRelationTemplate,
   ModelRelationClass,
-  ModelRelationFactory,
+  ModelRelationDef,
   ModelRelation,
 } from "./ModelRelation";
 
 export {
-  ModelRefType,
-  ModelRefInit,
-  ModelRefDescriptor,
+  ModelRefRefinement,
+  ModelRefModel,
+  ModelRefTemplate,
   ModelRefClass,
-  ModelRefFactory,
+  ModelRefDef,
   ModelRef,
 } from "./ModelRef";
 
 export {
-  ModelSetType,
-  ModelSetInit,
-  ModelSetDescriptor,
+  ModelSetRefinement,
+  ModelSetModel,
+  ModelSetTemplate,
   ModelSetClass,
-  ModelSetFactory,
+  ModelSetDef,
   ModelSet,
 } from "./ModelSet";

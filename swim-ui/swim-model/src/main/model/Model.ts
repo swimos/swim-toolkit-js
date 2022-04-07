@@ -29,9 +29,9 @@ import {
   Consumer,
 } from "@swim/util";
 import {
+  FastenerClass,
   Fastener,
-  Property,
-  Provider,
+  PropertyDef,
   ComponentFlags,
   ComponentInit,
   Component,
@@ -1690,32 +1690,26 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
     }
   }
 
-  @Provider({
-    extends: RefreshProvider,
-    type: RefreshService,
-    observes: false,
+  @RefreshProvider({
     service: RefreshService.global(),
   })
   readonly refreshProvider!: RefreshProvider<this>;
+  static readonly refreshProvider: FastenerClass<Model["refreshProvider"]>;
 
-  @Provider({
-    extends: SelectionProvider,
-    type: SelectionService,
-    observes: false,
+  @SelectionProvider({
     service: SelectionService.global(),
   })
   readonly selectionProvider!: SelectionProvider<this>;
+  static readonly selectionProvider: FastenerClass<Model["selectionProvider"]>;
 
-  @Provider({
-    extends: WarpProvider,
-    type: WarpService,
-    observes: false,
+  @WarpProvider({
     service: WarpService.global(),
   })
   readonly warpProvider!: WarpProvider<this>;
+  static readonly warpProvider: FastenerClass<Model["warpProvider"]>;
 
-  @Property({type: Object, inherits: true, value: null, updateFlags: Model.NeedsReconcile})
-  readonly warpRef!: Property<this, WarpRef | null>;
+  @PropertyDef({valueType: Object, value: null, inherits: true, updateFlags: Model.NeedsReconcile})
+  readonly warpRef!: PropertyDef<this, {value: WarpRef | null}>;
 
   /** @internal */
   get superModelContext(): ModelContext {

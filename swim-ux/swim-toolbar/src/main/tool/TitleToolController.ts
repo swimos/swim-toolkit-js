@@ -13,31 +13,31 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {MemberFastenerClass} from "@swim/component";
-import {ViewRef} from "@swim/view";
+import type {FastenerClass} from "@swim/component";
+import {ViewRefDef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
-import {TraitViewRef} from "@swim/controller";
+import {TraitViewRefDef} from "@swim/controller";
 import {ToolController} from "./ToolController";
 import {TitleToolView} from "./TitleToolView";
-import {TitleToolContent, TitleToolTrait} from "./TitleToolTrait";
+import {TitleToolTrait} from "./TitleToolTrait";
 import type {TitleToolControllerObserver} from "./TitleToolControllerObserver";
 
 /** @public */
 export class TitleToolController extends ToolController {
   override readonly observerType?: Class<TitleToolControllerObserver>;
 
-  @TraitViewRef<TitleToolController, TitleToolTrait, TitleToolView>({
+  @TraitViewRefDef<TitleToolController["tool"]>({
     extends: true,
     traitType: TitleToolTrait,
     observesTrait: true,
     initTrait(toolTrait: TitleToolTrait): void {
-      this.owner.setContentView(toolTrait.content.value, toolTrait);
+      this.owner.setContentView(toolTrait.content.value);
     },
     deinitTrait(toolTrait: TitleToolTrait): void {
-      this.owner.setContentView(null, toolTrait);
+      this.owner.setContentView(void 0);
     },
-    traitDidSetContent(newContent: TitleToolContent | null, oldContent: TitleToolContent | null, toolTrait: TitleToolTrait): void {
-      this.owner.setContentView(newContent, toolTrait);
+    traitDidSetContent(content: string | undefined): void {
+      this.owner.setContentView(content);
     },
     viewType: TitleToolView,
     observesView: true,
@@ -45,7 +45,7 @@ export class TitleToolController extends ToolController {
       this.owner.content.setView(toolView.content.view);
       const toolTrait = this.trait;
       if (toolTrait !== null) {
-        this.owner.setContentView(toolTrait.content.value, toolTrait);
+        this.owner.setContentView(toolTrait.content.value);
       }
     },
     deinitView(toolView: TitleToolView): void {
@@ -58,27 +58,24 @@ export class TitleToolController extends ToolController {
       this.owner.content.setView(null);
     },
   })
-  override readonly tool!: TraitViewRef<this, TitleToolTrait, TitleToolView>;
-  static override readonly tool: MemberFastenerClass<TitleToolController, "tool">;
+  override readonly tool!: TraitViewRefDef<this, {
+    extends: ToolController["tool"],
+    trait: TitleToolTrait,
+    observesTrait: true,
+    view: TitleToolView,
+    observesView: true,
+  }>;
+  static override readonly tool: FastenerClass<TitleToolController["tool"]>;
 
-  protected createContentView(content: TitleToolContent, toolTrait: TitleToolTrait): HtmlView | string | null {
-    if (typeof content === "function") {
-      return content(toolTrait);
-    } else {
-      return content;
-    }
-  }
-
-  protected setContentView(content: TitleToolContent | null, toolTrait: TitleToolTrait): void {
+  protected setContentView(content: string | undefined): void {
     const toolView = this.tool.view;
     if (toolView !== null) {
-      const contentView = content !== null ? this.createContentView(content, toolTrait) : null;
-      toolView.content.setView(contentView);
+      toolView.content.setView(content !== void 0 ? content : null);
     }
   }
 
-  @ViewRef<TitleToolController, HtmlView>({
-    type: HtmlView,
+  @ViewRefDef<TitleToolController["content"]>({
+    viewType: HtmlView,
     willAttachView(contentView: HtmlView): void {
       this.owner.callObservers("controllerWillAttachToolContentView", contentView, this.owner);
     },
@@ -86,6 +83,6 @@ export class TitleToolController extends ToolController {
       this.owner.callObservers("controllerDidDetachToolContentView", contentView, this.owner);
     },
   })
-  readonly content!: ViewRef<this, HtmlView>;
-  static readonly content: MemberFastenerClass<TitleToolController, "content">;
+  readonly content!: ViewRefDef<this, {view: HtmlView}>;
+  static readonly content: FastenerClass<TitleToolController["content"]>;
 }

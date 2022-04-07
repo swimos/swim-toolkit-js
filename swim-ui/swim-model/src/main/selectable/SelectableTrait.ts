@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import type {Mutable, Class} from "@swim/util";
-import {Provider} from "@swim/component";
 import {SelectionOptions, SelectionService} from "../selection/SelectionService";
 import {SelectionProvider} from "../selection/SelectionProvider";
 import {Trait} from "../trait/Trait";
@@ -123,10 +122,7 @@ export class SelectableTrait extends Trait {
     }
   }
 
-  @Provider({
-    extends: SelectionProvider,
-    type: SelectionService,
-    observes: false,
+  @SelectionProvider({
     service: SelectionService.global(),
   })
   readonly selectionProvider!: SelectionProvider<this>;

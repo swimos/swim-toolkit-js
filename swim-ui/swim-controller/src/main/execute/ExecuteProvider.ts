@@ -18,7 +18,7 @@ import type {ControllerContext} from "../controller/ControllerContext";
 import type {ControllerFlags, Controller} from "../controller/Controller";
 
 /** @public */
-export interface ExecuteProvider<C extends Controller, S extends ExecuteService<C> | null | undefined = ExecuteService<C>> extends Provider<C, S> {
+export interface ExecuteProvider<C extends Controller, S extends ExecuteService<any> | null | undefined = ExecuteService> extends Provider<C, S> {
   get controllerContext(): ControllerContext;
 
   updatedControllerContext(): ControllerContext;
@@ -30,7 +30,9 @@ export interface ExecuteProvider<C extends Controller, S extends ExecuteService<
 
 /** @public */
 export const ExecuteProvider = (function (_super: typeof Provider) {
-  const ExecuteProvider = _super.extend("ExecuteProvider") as ProviderClass<ExecuteProvider<any, any>>;
+  const ExecuteProvider = _super.extend("ExecuteProvider", {
+    serviceType: ExecuteService,
+  }) as ProviderClass<ExecuteProvider<any, any>>;
 
   Object.defineProperty(ExecuteProvider.prototype, "controllerContext", {
     get<C extends Controller, S extends ExecuteService<C> | null | undefined>(this: ExecuteProvider<C, S>): ControllerContext {

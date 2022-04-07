@@ -13,18 +13,17 @@
 // limitations under the License.
 
 import {Mutable, AnyTiming, Timing} from "@swim/util";
-import {Affinity, MemberFastenerClass} from "@swim/component";
+import {Affinity, FastenerClass, AnimatorDef} from "@swim/component";
 import {Length, Angle, Transform} from "@swim/math";
 import {AnyExpansion, Expansion, ExpansionAnimator} from "@swim/style";
 import {Look, Feel, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import {
   PositionGestureInput,
-  PositionGesture,
+  PositionGestureDef,
   ViewContextType,
   ViewContext,
   ViewRef,
 } from "@swim/view";
-import type {HtmlView} from "@swim/dom";
 import {Graphics, HtmlIconView} from "@swim/graphics";
 import {ButtonMembrane} from "./ButtonMembrane";
 
@@ -76,7 +75,7 @@ export class FloatingButton extends ButtonMembrane {
     }
   }
 
-  @PositionGesture<FloatingButton, HtmlView>({
+  @PositionGestureDef<FloatingButton["gesture"]>({
     extends: true,
     didStartHovering(): void {
       this.owner.modifyMood(Feel.default, [[Feel.hovering, 1]]);
@@ -96,13 +95,14 @@ export class FloatingButton extends ButtonMembrane {
       // nop
     },
   })
-  override readonly gesture!: PositionGesture<this, HtmlView>;
-  static override readonly gesture: MemberFastenerClass<FloatingButton, "gesture">;
+  override readonly gesture!: PositionGestureDef<this, {
+    extends: ButtonMembrane["gesture"],
+  }>;
+  static override readonly gesture: FastenerClass<FloatingButton["gesture"]>;
 
   /** @internal */
-  static IconRef = ViewRef.define<FloatingButton, HtmlIconView, {iconIndex: number}>("IconRef", {
-    implements: true,
-    type: HtmlIconView,
+  static IconRef = ViewRef.specify<FloatingButton, HtmlIconView>("IconRef", {
+    viewType: HtmlIconView,
     observes: true,
     init(): void {
       this.iconIndex = 0;
@@ -115,11 +115,11 @@ export class FloatingButton extends ButtonMembrane {
       if (!iconView.opacity.tweening && this.iconIndex !== this.owner.iconCount) {
         iconView.remove();
         if (this.iconIndex > this.owner.iconCount) {
-          this.owner.setFastener(this.key!, null);
+          this.owner.setFastener(this.viewKey!, null);
         }
       }
     },
-  });
+  } as ThisType<ViewRef<FloatingButton, HtmlIconView> & {iconIndex: number}>);
 
   /** @internal */
   iconCount: number;
@@ -148,7 +148,7 @@ export class FloatingButton extends ButtonMembrane {
 
     const newIconCount = oldIconCount + 1;
     const newIconKey = "icon" + newIconCount;
-    const newIconRef = FloatingButton.IconRef.create(this);
+    const newIconRef = FloatingButton.IconRef.create(this) as ViewRef<this, HtmlIconView> & {iconIndex: number};
     Object.defineProperty(newIconRef, "name", {
       value: newIconKey,
       enumerable: true,
@@ -212,8 +212,13 @@ export class FloatingButton extends ButtonMembrane {
     this.icon = newIconRef;
   }
 
-  @ExpansionAnimator({type: Expansion, inherits: true})
-  readonly disclosure!: ExpansionAnimator<this, Expansion | undefined, AnyExpansion | undefined>;
+  @AnimatorDef({
+    extends: ExpansionAnimator,
+    inherits: true,
+  })
+  readonly disclosure!: AnimatorDef<this, {
+    extends: ExpansionAnimator<FloatingButton, Expansion | undefined, AnyExpansion | undefined>,
+  }>;
 
   protected override onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);

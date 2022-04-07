@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import type {Class, Instance, Creatable} from "@swim/util";
-import type {MemberFastenerClass} from "@swim/component";
-import {Model, Trait, TraitSet} from "@swim/model";
+import type {FastenerClass} from "@swim/component";
+import {Model, Trait, TraitSetDef} from "@swim/model";
 import {ToolTrait} from "../tool/ToolTrait";
 import type {BarTraitObserver} from "./BarTraitObserver";
 
@@ -45,8 +45,8 @@ export class BarTrait extends Trait {
     this.setTrait(key, toolTrait);
   }
 
-  @TraitSet<BarTrait, ToolTrait>({
-    type: ToolTrait,
+  @TraitSetDef<BarTrait["tools"]>({
+    traitType: ToolTrait,
     binds: true,
     willAttachTrait(toolTrait: ToolTrait, targetTrait: Trait | null): void {
       this.owner.callObservers("traitWillAttachTool", toolTrait, targetTrait, this.owner);
@@ -68,8 +68,8 @@ export class BarTrait extends Trait {
       return model.getTrait(ToolTrait);
     },
   })
-  readonly tools!: TraitSet<this, ToolTrait>;
-  static readonly tools: MemberFastenerClass<BarTrait, "tools">;
+  readonly tools!: TraitSetDef<this, {trait: ToolTrait}>;
+  static readonly tools: FastenerClass<BarTrait["tools"]>;
 
   protected override onStartConsuming(): void {
     super.onStartConsuming();

@@ -13,10 +13,10 @@
 // limitations under the License.
 
 import {Mutable, Class, Equivalent, AnyTiming, Timing} from "@swim/util";
-import type {MemberFastenerClass} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
 import {GeoPoint} from "@swim/geo";
 import {Look, Mood} from "@swim/theme";
-import {ViewContextType, View, ViewRef} from "@swim/view";
+import {ViewContextType, View, ViewRefDef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import type {CanvasView} from "@swim/graphics";
 import {AnyGeoPerspective, MapView} from "@swim/map";
@@ -133,7 +133,7 @@ export class MapboxView extends MapView {
     this.callObservers("viewDidMoveMap", this);
   }
 
-  @ViewRef<MapboxView, CanvasView>({
+  @ViewRefDef<MapboxView["canvas"]>({
     extends: true,
     didAttachView(canvasView: CanvasView, targetView: View | null): void {
       if (this.owner.parent === null) {
@@ -149,12 +149,13 @@ export class MapboxView extends MapView {
       }
     },
   })
-  override readonly canvas!: ViewRef<this, CanvasView>;
-  static override readonly canvas: MemberFastenerClass<MapboxView, "canvas">;
+  override readonly canvas!: ViewRefDef<this, {
+    extends: MapView["canvas"],
+  }>;
+  static override readonly canvas: FastenerClass<MapboxView["canvas"]>;
 
-  @ViewRef<MapboxView, HtmlView>({
+  @ViewRefDef<MapboxView["container"]>({
     extends: true,
-    observes: true,
     didAttachView(containerView: HtmlView, targetView: View | null): void {
       HtmlView.fromNode(this.owner.map.getContainer());
       const canvasContainerView =  HtmlView.fromNode(this.owner.map.getCanvasContainer());
@@ -170,8 +171,10 @@ export class MapboxView extends MapView {
       }
     },
   })
-  override readonly container!: ViewRef<this, HtmlView>;
-  static override readonly container: MemberFastenerClass<MapboxView, "container">;
+  override readonly container!: ViewRefDef<this, {
+    extends: MapView["container"],
+  }>;
+  static override readonly container: FastenerClass<MapboxView["container"]>;
 
   protected override onResize(viewContext: ViewContextType<this>): void {
     super.onResize(viewContext);

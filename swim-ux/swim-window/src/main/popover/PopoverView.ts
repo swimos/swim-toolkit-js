@@ -13,10 +13,10 @@
 // limitations under the License.
 
 import {Mutable, Class, Arrays, AnyTiming, Timing} from "@swim/util";
-import {Affinity, MemberFastenerClass, Property} from "@swim/component";
+import {Affinity, FastenerClass, PropertyDef} from "@swim/component";
 import {AnyLength, Length, AnyR2Box, R2Box} from "@swim/math";
-import {AnyColor, Color} from "@swim/style";
-import {Look, ThemeAnimator} from "@swim/theme";
+import {Color} from "@swim/style";
+import {Look, ThemeAnimatorDef} from "@swim/theme";
 import {
   ModalOptions,
   ModalState,
@@ -25,9 +25,9 @@ import {
   ViewContext,
   ViewFlags,
   View,
-  ViewRef,
+  ViewRefDef,
 } from "@swim/view";
-import {StyleAnimator, HtmlViewInit, HtmlView, HtmlViewObserver} from "@swim/dom";
+import {StyleAnimatorDef, HtmlViewInit, HtmlView} from "@swim/dom";
 import type {PopoverViewObserver} from "./PopoverViewObserver";
 
 /** @public */
@@ -82,31 +82,30 @@ export class PopoverView extends HtmlView implements Modal {
     (this as Mutable<this>).displayState = displayState;
   }
 
-  @StyleAnimator<PopoverView, Color | null, AnyColor | null>({
-    propertyNames: "background-color",
-    type: Color,
-    value: null,
+  @StyleAnimatorDef<PopoverView["backgroundColor"]>({
+    extends: HtmlView.getFastenerClass("backgroundColor"),
     didSetValue(newBackgroundColor: Color, oldBackgroundColor: Color): void {
       this.owner.place();
     },
   })
-  override readonly backgroundColor!: StyleAnimator<this, Color | null, AnyColor | null>;
+  override readonly backgroundColor!: StyleAnimatorDef<this, {
+    extends: HtmlView["backgroundColor"],
+  }>;
 
   /** @internal */
-  @ThemeAnimator({type: Number, value: 0})
-  readonly displayPhase!: ThemeAnimator<this, number>; // 0 = hidden; 1 = shown
+  @ThemeAnimatorDef({valueType: Number, value: 0})
+  readonly displayPhase!: ThemeAnimatorDef<this, {value: number}>; // 0 = hidden; 1 = shown
 
-  @ThemeAnimator({type: Length, value: Length.zero()})
-  readonly placementGap!: ThemeAnimator<this, Length, AnyLength>;
+  @ThemeAnimatorDef({valueType: Length, value: Length.zero()})
+  readonly placementGap!: ThemeAnimatorDef<this, {value: Length, valueInit: AnyLength}>;
 
-  @ThemeAnimator({type: Length, value: Length.px(10)})
-  readonly arrowWidth!: ThemeAnimator<this, Length, AnyLength>;
+  @ThemeAnimatorDef({valueType: Length, value: Length.px(10)})
+  readonly arrowWidth!: ThemeAnimatorDef<this, {value: Length, valueInit: AnyLength}>;
 
-  @ThemeAnimator({type: Length, value: Length.px(8)})
-  readonly arrowHeight!: ThemeAnimator<this, Length, AnyLength>;
+  @ThemeAnimatorDef({valueType: Length, value: Length.px(8)})
+  readonly arrowHeight!: ThemeAnimatorDef<this, {value: Length, valueInit: AnyLength}>;
 
-  @ViewRef<PopoverView, View, HtmlViewObserver>({
-    implements: true,
+  @ViewRefDef<PopoverView["source"]>({
     observes: true,
     willAttachView(sourceView: View): void {
       this.owner.callObservers("popoverWillAttachSource", sourceView, this.owner);
@@ -142,8 +141,8 @@ export class PopoverView extends HtmlView implements Modal {
       this.owner.place();
     },
   })
-  readonly source!: ViewRef<this, View>;
-  static readonly source: MemberFastenerClass<PopoverView, "source">;
+  readonly source!: ViewRefDef<this, {view: View, observes: HtmlView}>;
+  static readonly source: FastenerClass<PopoverView["source"]>;
 
   setSource(sourceView: View | null): void {
     this.source.setView(sourceView);
@@ -304,8 +303,8 @@ export class PopoverView extends HtmlView implements Modal {
   /** @internal */
   readonly currentPlacement: PopoverPlacement;
 
-  @Property<PopoverView, R2Box | null, AnyR2Box | null>({
-    type: R2Box,
+  @PropertyDef<PopoverView["placementFrame"]>({
+    valueType: R2Box,
     value: null,
     didSetValue(placementFrame: R2Box | null): void {
       this.owner.place();
@@ -314,16 +313,16 @@ export class PopoverView extends HtmlView implements Modal {
       return value !== null ? R2Box.fromAny(value) : null;
     },
   })
-  readonly placementFrame!: Property<this, R2Box | null, AnyR2Box | null>;
+  readonly placementFrame!: PropertyDef<this, {value: R2Box | null, valueInit: AnyR2Box | null}>;
 
-  @Property<PopoverView, boolean>({
-    type: Boolean,
+  @PropertyDef<PopoverView["dropdown"]>({
+    valueType: Boolean,
     value: false,
     didSetValue(dropdown: boolean): void {
       this.owner.place();
     }
   })
-  readonly dropdown!: Property<this, boolean>;
+  readonly dropdown!: PropertyDef<this, {value: boolean}>;
 
   protected override onMount(): void {
     super.onMount();

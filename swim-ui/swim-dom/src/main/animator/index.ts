@@ -13,55 +13,40 @@
 // limitations under the License.
 
 export {
-  AttributeAnimatorInit,
-  AttributeAnimatorDescriptor,
+  AttributeAnimatorRefinement,
+  AttributeAnimatorTemplate,
   AttributeAnimatorClass,
-  AttributeAnimatorFactory,
+  AttributeAnimatorDef,
   AttributeAnimator,
 } from "./AttributeAnimator";
-
 export {StringAttributeAnimator} from "./StringAttributeAnimator";
-
 export {NumberAttributeAnimator} from "./NumberAttributeAnimator";
-
 export {BooleanAttributeAnimator} from "./BooleanAttributeAnimator";
-
 export {LengthAttributeAnimator} from "./LengthAttributeAnimator";
-
 export {ColorAttributeAnimator} from "./ColorAttributeAnimator";
-
 export {TransformAttributeAnimator} from "./TransformAttributeAnimator";
 
 export {
-  StyleAnimatorInit,
-  StyleAnimatorDescriptor,
+  StyleAnimatorRefinement,
+  StyleAnimatorTemplate,
   StyleAnimatorClass,
-  StyleAnimatorFactory,
+  StyleAnimatorDef,
   StyleAnimator,
 } from "./StyleAnimator";
-
 export {StringStyleAnimator} from "./StringStyleAnimator";
-
 export {NumberStyleAnimator} from "./NumberStyleAnimator";
-
 export {LengthStyleAnimator} from "./LengthStyleAnimator";
-
 export {ColorStyleAnimator} from "./ColorStyleAnimator";
-
 export {FontFamilyStyleAnimator} from "./FontFamilyStyleAnimator";
-
 export {BoxShadowStyleAnimator} from "./BoxShadowStyleAnimator";
-
 export {TransformStyleAnimator} from "./TransformStyleAnimator";
 
 export {
-  StyleConstraintAnimatorInit,
-  StyleConstraintAnimatorDescriptor,
+  StyleConstraintAnimatorRefinement,
+  StyleConstraintAnimatorTemplate,
   StyleConstraintAnimatorClass,
-  StyleConstraintAnimatorFactory,
+  StyleConstraintAnimatorDef,
   StyleConstraintAnimator,
 } from "./StyleConstraintAnimator";
-
 export {NumberStyleConstraintAnimator} from "./NumberStyleConstraintAnimator";
-
 export {LengthStyleConstraintAnimator} from "./LengthStyleConstraintAnimator";

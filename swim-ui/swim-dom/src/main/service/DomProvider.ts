@@ -23,7 +23,9 @@ export interface DomProvider<V extends NodeView, S extends DomService<V> | null 
 
 /** @public */
 export const DomProvider = (function (_super: typeof Provider) {
-  const DomProvider = _super.extend("DomProvider") as ProviderClass<DomProvider<any, any>>;
+  const DomProvider = _super.extend("DomProvider", {
+    serviceType: DomService,
+  }) as ProviderClass<DomProvider<any, any>>;
 
   DomProvider.prototype.createService = function <V extends NodeView, S extends DomService<V> | null | undefined>(this: DomProvider<V, S>): S {
     return DomService.global() as S;

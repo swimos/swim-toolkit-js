@@ -12,41 +12,62 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, AnyTiming, Timing} from "@swim/util";
+import {Mutable, Proto, AnyTiming, Timing} from "@swim/util";
 import type {FastenerOwner} from "@swim/component";
 import {ToStyleString, ToCssValue} from "@swim/style";
 import {Look, Mood, MoodVector, ThemeMatrix, ThemeAnimator} from "@swim/theme";
 import {StyleMapInit, StyleMap} from "./StyleMap";
 import {CssContext} from "./CssContext";
-import {CssRuleInit, CssRuleClass, CssRule} from "./CssRule";
+import {CssRuleRefinement, CssRuleTemplate, CssRuleClass, CssRule} from "./CssRule";
 
 /** @public */
-export interface StyleRuleInit extends CssRuleInit {
-  extends?: {prototype: StyleRule<any>} | string | boolean | null;
-  style?: StyleMapInit;
-
-  willSetStyle?(propertyName: string, value: unknown, priority: string | undefined): void;
-  didSetStyle?(propertyName: string, value: unknown, priority: string | undefined): void;
-
-  initRule?(rule: CSSStyleRule): void;
+export interface StyleRuleRefinement extends CssRuleRefinement {
 }
 
 /** @public */
-export type StyleRuleDescriptor<O = unknown, I = {}> = ThisType<StyleRule<O> & I> & StyleRuleInit & Partial<I>;
+export interface StyleRuleTemplate extends CssRuleTemplate {
+  extends?: Proto<StyleRule<any>> | string | boolean | null;
+  style?: StyleMapInit;
+}
 
 /** @public */
 export interface StyleRuleClass<F extends StyleRule<any> = StyleRule<any>> extends CssRuleClass<F> {
+  /** @override */
+  specialize(className: string, template: StyleRuleTemplate): StyleRuleClass;
+
+  /** @override */
+  refine(fastenerClass: StyleRuleClass): void;
+
+  /** @override */
+  extend(className: string, template: StyleRuleTemplate): StyleRuleClass<F>;
+
+  /** @override */
+  specify<O>(className: string, template: ThisType<StyleRule<O>> & StyleRuleTemplate & Partial<Omit<StyleRule<O>, keyof StyleRuleTemplate>>): StyleRuleClass<F>;
+
+  /** @override */
+  <O>(template: ThisType<StyleRule<O>> & StyleRuleTemplate & Partial<Omit<StyleRule<O>, keyof StyleRuleTemplate>>): PropertyDecorator;
 }
 
 /** @public */
-export interface StyleRuleFactory<F extends StyleRule<any> = StyleRule<any>> extends StyleRuleClass<F> {
-  extend<I = {}>(className: string, classMembers?: Partial<I> | null): StyleRuleFactory<F> & I;
+export type StyleRuleDef<O, R extends StyleRuleRefinement> =
+  StyleRule<O> &
+  {readonly name: string} & // prevent type alias simplification
+  (R extends {extends: infer E} ? E : {}) &
+  (R extends {defines: infer D} ? D : {}) &
+  (R extends {implements: infer I} ? I : {});
 
-  define<O>(className: string, descriptor: StyleRuleDescriptor<O>): StyleRuleFactory<StyleRule<any>>;
-  define<O, I = {}>(className: string, descriptor: {implements: unknown} & StyleRuleDescriptor<O, I>): StyleRuleFactory<StyleRule<any> & I>;
-
-  <O>(descriptor: StyleRuleDescriptor<O>): PropertyDecorator;
-  <O, I = {}>(descriptor: {implements: unknown} & StyleRuleDescriptor<O, I>): PropertyDecorator;
+/** @public */
+export function StyleRuleDef<P extends StyleRule<any>>(
+  template: P extends StyleRuleDef<infer O, infer R>
+          ? ThisType<StyleRuleDef<O, R>>
+          & StyleRuleTemplate
+          & Partial<Omit<StyleRule<O>, keyof StyleRuleTemplate>>
+          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof StyleRuleTemplate>> & {extends: unknown}) : {})
+          & (R extends {defines: infer D} ? Partial<D> : {})
+          & (R extends {implements: infer I} ? I : {})
+          : never
+): PropertyDecorator {
+  return StyleRule(template);
 }
 
 /** @public */
@@ -54,12 +75,21 @@ export interface StyleRule<O = unknown> extends CssRule<O>, StyleMap {
   (property: string): unknown;
   (property: string, value: unknown): O;
 
+  /** @internal @override */
+  initRule(): CSSStyleRule;
+
+  /** @internal @override */
+  createRule(css: string): CSSStyleRule;
+
   /** @override */
   readonly rule: CSSStyleRule;
 
   get selector(): string;
 
   setSelector(selector: string): void;
+
+  /** @protected */
+  readonly style?: StyleMapInit; // optional prototype property
 
   /** @override */
   getStyle(propertyNames: string | ReadonlyArray<string>): CSSStyleValue | string | undefined;
@@ -78,20 +108,26 @@ export interface StyleRule<O = unknown> extends CssRule<O>, StyleMap {
 
   /** @override */
   applyTheme(theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean | null): void;
-
-  /** @internal */
-  createRule(cssText: string): CSSStyleRule;
-
-  /** @internal */
-  initRule?(rule: CSSStyleRule): void;
-
-  /** @internal */
-  initCss?(): string;
 }
 
 /** @public */
 export const StyleRule = (function (_super: typeof CssRule) {
-  const StyleRule: StyleRuleFactory = _super.extend("StyleRule");
+  const StyleRule = _super.extend("StyleRule", {}) as StyleRuleClass;
+
+  StyleRule.prototype.createRule = function (this: StyleRule, css: string): CSSStyleRule {
+    const cssContext = this.owner;
+    if (CssContext.is(cssContext)) {
+      const index = cssContext.insertRule(css);
+      const rule = cssContext.getRule(index);
+      if (rule instanceof CSSStyleRule) {
+        return rule;
+      } else {
+        throw new TypeError("" + rule);
+      }
+    } else {
+      throw new Error("no css context");
+    }
+  };
 
   Object.defineProperty(StyleRule.prototype, "selector", {
     get: function (this: StyleRule): string {
@@ -190,24 +226,9 @@ export const StyleRule = (function (_super: typeof CssRule) {
     }
   };
 
-  StyleRule.prototype.createRule = function (this: StyleRule, cssText: string): CSSStyleRule {
-    const cssContext = this.owner;
-    if (CssContext.is(cssContext)) {
-      const index = cssContext.insertRule(cssText);
-      const rule = cssContext.getRule(index);
-      if (rule instanceof CSSStyleRule) {
-        return rule;
-      } else {
-        throw new TypeError("" + rule);
-      }
-    } else {
-      throw new Error("no css context");
-    }
-  };
-
   StyleMap.define(StyleRule.prototype);
 
-  StyleRule.construct = function <F extends StyleRule<any>>(ruleClass: {prototype: F}, rule: F | null, owner: FastenerOwner<F>): F {
+  StyleRule.construct = function <F extends StyleRule<any>>(rule: F | null, owner: FastenerOwner<F>): F {
     if (rule === null) {
       rule = function (property: string, value: unknown): unknown | FastenerOwner<F> {
         if (value === void 0) {
@@ -218,68 +239,13 @@ export const StyleRule = (function (_super: typeof CssRule) {
         }
       } as F;
       delete (rule as Partial<Mutable<F>>).name; // don't clobber prototype name
-      Object.setPrototypeOf(rule, ruleClass.prototype);
+      Object.setPrototypeOf(rule, this.prototype);
     }
-    rule = _super.construct(ruleClass, rule, owner) as F;
+    rule = _super.construct.call(this, rule, owner) as F;
+    if (rule.style !== void 0) {
+      StyleMap.init(rule, rule.style);
+    }
     return rule;
-  };
-
-  StyleRule.define = function <O>(className: string, descriptor: StyleRuleDescriptor<O>): StyleRuleFactory<StyleRule<any>> {
-    let superClass = descriptor.extends as StyleRuleFactory | null | undefined;
-    const affinity = descriptor.affinity;
-    const inherits = descriptor.inherits;
-    let css = descriptor.css;
-    const style = descriptor.style;
-    delete descriptor.extends;
-    delete descriptor.implements;
-    delete descriptor.affinity;
-    delete descriptor.inherits;
-    delete descriptor.css;
-    delete descriptor.style;
-
-    if (superClass === void 0 || superClass === null) {
-      superClass = this;
-    }
-
-    const ruleClass = superClass.extend(className, descriptor);
-
-    if (typeof css === "function") {
-      ruleClass.prototype.initCss = css;
-      css = void 0;
-    }
-
-    ruleClass.construct = function (ruleClass: {prototype: StyleRule<any>}, rule: StyleRule<O> | null, owner: O): StyleRule<O> {
-      rule = superClass!.construct(ruleClass, rule, owner);
-
-      if (affinity !== void 0) {
-        rule.initAffinity(affinity);
-      }
-      if (inherits !== void 0) {
-        rule.initInherits(inherits);
-      }
-
-      let cssText: string | undefined;
-      if (css !== void 0) {
-        cssText = css as string;
-      } else if (rule.initCss !== void 0) {
-        cssText = rule.initCss();
-      } else {
-        throw new Error("undefined css");
-      }
-
-      (rule as Mutable<typeof rule>).rule = rule.createRule(cssText);
-      if (rule.initRule !== void 0) {
-        rule.initRule(rule.rule);
-      }
-
-      if (style !== void 0) {
-        StyleMap.init(rule, style);
-      }
-
-      return rule;
-    };
-
-    return ruleClass;
   };
 
   return StyleRule;

@@ -13,22 +13,18 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {MemberFastenerClass} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
 import type {PositionGestureInput} from "@swim/view";
-import {Controller, TraitViewRef} from "@swim/controller";
+import {Controller, TraitViewRefDef} from "@swim/controller";
 import {CellView} from "./CellView";
 import {CellTrait} from "./CellTrait";
-import {TextCellTrait} from "./TextCellTrait";
-import {IconCellTrait} from "./IconCellTrait";
 import type {CellControllerObserver} from "./CellControllerObserver";
-import {TextCellController} from "../"; // forward import
-import {IconCellController} from "../"; // forward import
 
 /** @public */
 export class CellController extends Controller {
   override readonly observerType?: Class<CellControllerObserver>;
 
-  @TraitViewRef<CellController, CellTrait, CellView>({
+  @TraitViewRefDef<CellController["cell"]>({
     traitType: CellTrait,
     willAttachTrait(cellTrait: CellTrait): void {
       this.owner.callObservers("controllerWillAttachCellTrait", cellTrait, this.owner);
@@ -51,16 +47,10 @@ export class CellController extends Controller {
       this.owner.callObservers("controllerDidLongPressCellView", input, cellView, this.owner);
     },
   })
-  readonly cell!: TraitViewRef<this, CellTrait, CellView>;
-  static readonly cell: MemberFastenerClass<CellController, "cell">;
-
-  static fromTrait(cellTrait: CellTrait): CellController {
-    if (cellTrait instanceof TextCellTrait) {
-      return new TextCellController();
-    } else if (cellTrait instanceof IconCellTrait) {
-      return new IconCellController();
-    } else {
-      return new CellController();
-    }
-  }
+  readonly cell!: TraitViewRefDef<this, {
+    trait: CellTrait,
+    view: CellView,
+    observesView: true,
+  }>;
+  static readonly cell: FastenerClass<CellController["cell"]>;
 }

@@ -13,11 +13,9 @@
 // limitations under the License.
 
 import type {ToolTraitObserver} from "./ToolTraitObserver";
-import type {TitleToolContent, TitleToolTrait} from "./TitleToolTrait";
+import type {TitleToolTrait} from "./TitleToolTrait";
 
 /** @public */
 export interface TitleToolTraitObserver<T extends TitleToolTrait = TitleToolTrait> extends ToolTraitObserver<T> {
-  traitWillSetContent?(newContent: TitleToolContent | null, oldContent: TitleToolContent | null, trait: T): void;
-
-  traitDidSetContent?(newContent: TitleToolContent | null, oldContent: TitleToolContent | null, trait: T): void;
+  traitDidSetContent?(content: string | undefined, trait: T): void;
 }

@@ -13,42 +13,49 @@
 // limitations under the License.
 
 import type {Mutable, Proto, ObserverType, ConsumerType} from "@swim/util";
-import {Affinity, FastenerOwner, FastenerFlags, Fastener} from "@swim/component";
+import {Affinity, FastenerFlags, FastenerOwner, Fastener} from "@swim/component";
 import type {AnyModel, Model} from "./Model";
-import {ModelRelationInit, ModelRelationClass, ModelRelation} from "./ModelRelation";
-
-/** @internal */
-export type ModelSetType<F extends ModelSet<any, any>> =
-  F extends ModelSet<any, infer M> ? M : never;
+import {
+  ModelRelationRefinement,
+  ModelRelationTemplate,
+  ModelRelationClass,
+  ModelRelation,
+} from "./ModelRelation";
 
 /** @public */
-export interface ModelSetInit<M extends Model = Model> extends ModelRelationInit<M> {
-  extends?: {prototype: ModelSet<any, any>} | string | boolean | null;
-  key?(model: M): string | undefined;
-  compare?(a: M, b: M): number;
-
-  sorted?: boolean;
-  willSort?(parent: Model | null): void;
-  didSort?(parent: Model | null): void;
-  sortChildren?(parent: Model): void;
-  compareChildren?(a: Model, b: Model): number;
-
-  willInherit?(superFastener: ModelSet<unknown, M>): void;
-  didInherit?(superFastener: ModelSet<unknown, M>): void;
-  willUninherit?(superFastener: ModelSet<unknown, M>): void;
-  didUninherit?(superFastener: ModelSet<unknown, M>): void;
-
-  willBindSuperFastener?(superFastener: ModelSet<unknown, M>): void;
-  didBindSuperFastener?(superFastener: ModelSet<unknown, M>): void;
-  willUnbindSuperFastener?(superFastener: ModelSet<unknown, M>): void;
-  didUnbindSuperFastener?(superFastener: ModelSet<unknown, M>): void;
+export interface ModelSetRefinement extends ModelRelationRefinement {
 }
 
 /** @public */
-export type ModelSetDescriptor<O = unknown, M extends Model = Model, I = {}> = ThisType<ModelSet<O, M> & I> & ModelSetInit<M> & Partial<I>;
+export type ModelSetModel<R extends ModelSetRefinement | ModelSet<any, any>, D = Model> =
+  R extends {model: infer M} ? M :
+  R extends {extends: infer E} ? ModelSetModel<E, D> :
+  R extends ModelSet<any, infer M> ? M :
+  D;
+
+/** @public */
+export interface ModelSetTemplate<M extends Model = Model> extends ModelRelationTemplate<M> {
+  extends?: Proto<ModelSet<any, any>> | string | boolean | null;
+  sorted?: boolean;
+}
 
 /** @public */
 export interface ModelSetClass<F extends ModelSet<any, any> = ModelSet<any, any>> extends ModelRelationClass<F> {
+  /** @override */
+  specialize(className: string, template: ModelSetTemplate): ModelSetClass;
+
+  /** @override */
+  refine(fastenerClass: ModelSetClass): void;
+
+  /** @override */
+  extend(className: string, template: ModelSetTemplate): ModelSetClass<F>;
+
+  /** @override */
+  specify<O, M extends Model = Model>(className: string, template: ThisType<ModelSet<O, M>> & ModelSetTemplate<M> & Partial<Omit<ModelSet<O, M>, keyof ModelSetTemplate>>): ModelSetClass<F>;
+
+  /** @override */
+  <O, M extends Model = Model>(template: ThisType<ModelSet<O, M>> & ModelSetTemplate<M> & Partial<Omit<ModelSet<O, M>, keyof ModelSetTemplate>>): PropertyDecorator;
+
   /** @internal */
   readonly SortedFlag: FastenerFlags;
 
@@ -59,18 +66,27 @@ export interface ModelSetClass<F extends ModelSet<any, any> = ModelSet<any, any>
 }
 
 /** @public */
-export interface ModelSetFactory<F extends ModelSet<any, any> = ModelSet<any, any>> extends ModelSetClass<F> {
-  extend<I = {}>(className: string, classMembers?: Partial<I> | null): ModelSetFactory<F> & I;
+export type ModelSetDef<O, R extends ModelSetRefinement> =
+  ModelSet<O, ModelSetModel<R>> &
+  {readonly name: string} & // prevent type alias simplification
+  (R extends {extends: infer E} ? E : {}) &
+  (R extends {defines: infer D} ? D : {}) &
+  (R extends {implements: infer I} ? I : {}) &
+  (R extends {observes: infer B} ? ObserverType<B extends boolean ? ModelSetModel<R> : B> : {});
 
-  define<O, M extends Model = Model>(className: string, descriptor: ModelSetDescriptor<O, M>): ModelSetFactory<ModelSet<any, M>>;
-  define<O, M extends Model = Model>(className: string, descriptor: {observes: boolean} & ModelSetDescriptor<O, M, ObserverType<M>>): ModelSetFactory<ModelSet<any, M>>;
-  define<O, M extends Model = Model, I = {}>(className: string, descriptor: {implements: unknown} & ModelSetDescriptor<O, M, I>): ModelSetFactory<ModelSet<any, M> & I>;
-  define<O, M extends Model = Model, I = {}>(className: string, descriptor: {implements: unknown; observes: boolean} & ModelSetDescriptor<O, M, I & ObserverType<M>>): ModelSetFactory<ModelSet<any, M> & I>;
-
-  <O, M extends Model = Model>(descriptor: ModelSetDescriptor<O, M>): PropertyDecorator;
-  <O, M extends Model = Model>(descriptor: {observes: boolean} & ModelSetDescriptor<O, M, ObserverType<M>>): PropertyDecorator;
-  <O, M extends Model = Model, I = {}>(descriptor: {implements: unknown} & ModelSetDescriptor<O, M, I>): PropertyDecorator;
-  <O, M extends Model = Model, I = {}>(descriptor: {implements: unknown; observes: boolean} & ModelSetDescriptor<O, M, I & ObserverType<M>>): PropertyDecorator;
+/** @public */
+export function ModelSetDef<F extends ModelSet<any, any>>(
+  template: F extends ModelSetDef<infer O, infer R>
+          ? ThisType<ModelSetDef<O, R>>
+          & ModelSetTemplate<ModelSetModel<R>>
+          & Partial<Omit<ModelSet<O, ModelSetModel<R>>, keyof ModelSetTemplate>>
+          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof ModelSetTemplate>> & {extends: unknown}) : {})
+          & (R extends {defines: infer D} ? Partial<D> : {})
+          & (R extends {implements: infer I} ? I : {})
+          & (R extends {observes: infer B} ? (ObserverType<B extends boolean ? ModelSetModel<R> : B> & {observes: boolean}) : {})
+          : never
+): PropertyDecorator {
+  return ModelSet(template);
 }
 
 /** @public */
@@ -81,58 +97,58 @@ export interface ModelSet<O = unknown, M extends Model = Model> extends ModelRel
   get fastenerType(): Proto<ModelSet<any, any>>;
 
   /** @internal @override */
-  setInherited(inherited: boolean, superFastener: ModelSet<unknown, M>): void;
+  getSuper(): ModelSet<unknown, M> | null;
+
+  /** @internal @override */
+  setDerived(derived: boolean, inlet: ModelSet<unknown, M>): void;
 
   /** @protected @override */
-  willInherit(superFastener: ModelSet<unknown, M>): void;
+  willDerive(inlet: ModelSet<unknown, M>): void;
 
   /** @protected @override */
-  onInherit(superFastener: ModelSet<unknown, M>): void;
+  onDerive(inlet: ModelSet<unknown, M>): void;
 
   /** @protected @override */
-  didInherit(superFastener: ModelSet<unknown, M>): void;
+  didDerive(inlet: ModelSet<unknown, M>): void;
 
   /** @protected @override */
-  willUninherit(superFastener: ModelSet<unknown, M>): void;
+  willUnderive(inlet: ModelSet<unknown, M>): void;
 
   /** @protected @override */
-  onUninherit(superFastener: ModelSet<unknown, M>): void;
+  onUnderive(inlet: ModelSet<unknown, M>): void;
 
   /** @protected @override */
-  didUninherit(superFastener: ModelSet<unknown, M>): void;
+  didUnderive(inlet: ModelSet<unknown, M>): void;
 
   /** @override */
-  readonly superFastener: ModelSet<unknown, M> | null;
-
-  /** @internal @override */
-  getSuperFastener(): ModelSet<unknown, M> | null;
+  readonly inlet: ModelSet<unknown, M> | null;
 
   /** @protected @override */
-  willBindSuperFastener(superFastener: ModelSet<unknown, M>): void;
+  willBindInlet(inlet: ModelSet<unknown, M>): void;
 
   /** @protected @override */
-  onBindSuperFastener(superFastener: ModelSet<unknown, M>): void;
+  onBindInlet(inlet: ModelSet<unknown, M>): void;
 
   /** @protected @override */
-  didBindSuperFastener(superFastener: ModelSet<unknown, M>): void;
+  didBindInlet(inlet: ModelSet<unknown, M>): void;
 
   /** @protected @override */
-  willUnbindSuperFastener(superFastener: ModelSet<unknown, M>): void;
+  willUnbindInlet(inlet: ModelSet<unknown, M>): void;
 
   /** @protected @override */
-  onUnbindSuperFastener(superFastener: ModelSet<unknown, M>): void;
+  onUnbindInlet(inlet: ModelSet<unknown, M>): void;
 
   /** @protected @override */
-  didUnbindSuperFastener(superFastener: ModelSet<unknown, M>): void;
+  didUnbindInlet(inlet: ModelSet<unknown, M>): void;
 
   /** @internal */
-  readonly subFasteners: ReadonlyArray<ModelSet<unknown, M>> | null;
+  readonly outlets: ReadonlyArray<ModelSet<unknown, M>> | null;
 
   /** @internal @override */
-  attachSubFastener(subFastener: ModelSet<unknown, M>): void;
+  attachOutlet(outlet: ModelSet<unknown, M>): void;
 
   /** @internal @override */
-  detachSubFastener(subFastener: ModelSet<unknown, M>): void;
+  detachOutlet(outlet: ModelSet<unknown, M>): void;
 
   /** @internal */
   readonly models: {readonly [modelId: number]: M | undefined};
@@ -181,16 +197,16 @@ export interface ModelSet<O = unknown, M extends Model = Model> extends ModelRel
   unconsumeModels(consumer: ConsumerType<M>): void;
 
   /** @internal @protected */
-  decohereSubFasteners(): void;
+  decohereOutlets(): void;
 
   /** @internal @protected */
-  decohereSubFastener(subFastener: ModelSet<unknown, M>): void;
+  decohereOutlet(outlet: ModelSet<unknown, M>): void;
 
   /** @override */
   recohere(t: number): void;
 
   /** @internal @protected */
-  key(model: M): string | undefined;
+  modelKey(model: M): string | undefined;
 
   get sorted(): boolean;
 
@@ -220,44 +236,42 @@ export interface ModelSet<O = unknown, M extends Model = Model> extends ModelRel
 
 /** @public */
 export const ModelSet = (function (_super: typeof ModelRelation) {
-  const ModelSet: ModelSetFactory = _super.extend("ModelSet");
+  const ModelSet = _super.extend("ModelSet", {}) as ModelSetClass;
 
   Object.defineProperty(ModelSet.prototype, "fastenerType", {
-    get: function (this: ModelSet): Proto<ModelSet<any, any>> {
-      return ModelSet;
-    },
+    value: ModelSet,
     configurable: true,
   });
 
-  ModelSet.prototype.onInherit = function (this: ModelSet, superFastener: ModelSet): void {
-    this.setModels(superFastener.models);
+  ModelSet.prototype.onDerive = function (this: ModelSet, inlet: ModelSet): void {
+    this.setModels(inlet.models);
   };
 
-  ModelSet.prototype.onBindSuperFastener = function <M extends Model>(this: ModelSet<unknown, M>, superFastener: ModelSet<unknown, M>): void {
-    (this as Mutable<typeof this>).superFastener = superFastener;
-    _super.prototype.onBindSuperFastener.call(this, superFastener);
+  ModelSet.prototype.onBindInlet = function <M extends Model>(this: ModelSet<unknown, M>, inlet: ModelSet<unknown, M>): void {
+    (this as Mutable<typeof this>).inlet = inlet;
+    _super.prototype.onBindInlet.call(this, inlet);
   };
 
-  ModelSet.prototype.onUnbindSuperFastener = function <M extends Model>(this: ModelSet<unknown, M>, superFastener: ModelSet<unknown, M>): void {
-    _super.prototype.onUnbindSuperFastener.call(this, superFastener);
-    (this as Mutable<typeof this>).superFastener = null;
+  ModelSet.prototype.onUnbindInlet = function <M extends Model>(this: ModelSet<unknown, M>, inlet: ModelSet<unknown, M>): void {
+    _super.prototype.onUnbindInlet.call(this, inlet);
+    (this as Mutable<typeof this>).inlet = null;
   };
 
-  ModelSet.prototype.attachSubFastener = function <M extends Model>(this: ModelSet<unknown, M>, subFastener: ModelSet<unknown, M>): void {
-    let subFasteners = this.subFasteners as ModelSet<unknown, M>[] | null;
-    if (subFasteners === null) {
-      subFasteners = [];
-      (this as Mutable<typeof this>).subFasteners = subFasteners;
+  ModelSet.prototype.attachOutlet = function <M extends Model>(this: ModelSet<unknown, M>, outlet: ModelSet<unknown, M>): void {
+    let outlets = this.outlets as ModelSet<unknown, M>[] | null;
+    if (outlets === null) {
+      outlets = [];
+      (this as Mutable<typeof this>).outlets = outlets;
     }
-    subFasteners.push(subFastener);
+    outlets.push(outlet);
   };
 
-  ModelSet.prototype.detachSubFastener = function <M extends Model>(this: ModelSet<unknown, M>, subFastener: ModelSet<unknown, M>): void {
-    const subFasteners = this.subFasteners as ModelSet<unknown, M>[] | null;
-    if (subFasteners !== null) {
-      const index = subFasteners.indexOf(subFastener);
+  ModelSet.prototype.detachOutlet = function <M extends Model>(this: ModelSet<unknown, M>, outlet: ModelSet<unknown, M>): void {
+    const outlets = this.outlets as ModelSet<unknown, M>[] | null;
+    if (outlets !== null) {
+      const index = outlets.indexOf(outlet);
       if (index >= 0) {
-        subFasteners.splice(index, 1);
+        outlets.splice(index, 1);
       }
     }
   };
@@ -278,7 +292,7 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
     let parent: Model | null;
     if (this.binds && (parent = this.parentModel, parent !== null)) {
       if (key === void 0) {
-        key = this.key(newModel);
+        key = this.modelKey(newModel);
       }
       this.insertChild(parent, newModel, target, key);
     }
@@ -291,7 +305,7 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
       this.initModel(newModel);
       this.didAttachModel(newModel, target);
       this.setCoherent(true);
-      this.decohereSubFasteners();
+      this.decohereOutlets();
     }
     return newModel;
   };
@@ -334,7 +348,7 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
       this.initModel(newModel);
       this.didAttachModel(newModel, target);
       this.setCoherent(true);
-      this.decohereSubFasteners();
+      this.decohereOutlets();
     }
     return newModel;
   };
@@ -355,7 +369,7 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
       this.deinitModel(oldModel);
       this.didDetachModel(oldModel);
       this.setCoherent(true);
-      this.decohereSubFasteners();
+      this.decohereOutlets();
       return oldModel;
     }
     return null;
@@ -383,7 +397,7 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
       target = null;
     }
     if (key === void 0) {
-      key = this.key(newModel);
+      key = this.modelKey(newModel);
     }
     if (parent !== null && (newModel.parent !== parent || newModel.key !== key)) {
       this.insertChild(parent, newModel, target, key);
@@ -397,7 +411,7 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
       this.initModel(newModel);
       this.didAttachModel(newModel, target);
       this.setCoherent(true);
-      this.decohereSubFasteners();
+      this.decohereOutlets();
     }
     return newModel;
   };
@@ -454,7 +468,7 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
         this.initModel(newModel);
         this.didAttachModel(newModel, target);
         this.setCoherent(true);
-        this.decohereSubFasteners();
+        this.decohereOutlets();
       }
     }
   };
@@ -471,13 +485,13 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
         this.deinitModel(oldModel);
         this.didDetachModel(oldModel);
         this.setCoherent(true);
-        this.decohereSubFasteners();
+        this.decohereOutlets();
       }
     }
   };
 
   ModelSet.prototype.detectModel = function <M extends Model>(this: ModelSet<unknown, M>, model: Model): M | null {
-    if (typeof this.type === "function" && model instanceof this.type) {
+    if (typeof this.modelType === "function" && model instanceof this.modelType) {
       return model as M;
     }
     return null;
@@ -499,32 +513,32 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
     }
   };
 
-  ModelSet.prototype.decohereSubFasteners = function (this: ModelSet): void {
-    const subFasteners = this.subFasteners;
-    for (let i = 0, n = subFasteners !== null ? subFasteners.length : 0; i < n; i += 1) {
-      this.decohereSubFastener(subFasteners![i]!);
+  ModelSet.prototype.decohereOutlets = function (this: ModelSet): void {
+    const outlets = this.outlets;
+    for (let i = 0, n = outlets !== null ? outlets.length : 0; i < n; i += 1) {
+      this.decohereOutlet(outlets![i]!);
     }
   };
 
-  ModelSet.prototype.decohereSubFastener = function (this: ModelSet, subFastener: ModelSet): void {
-    if ((subFastener.flags & Fastener.InheritedFlag) === 0 && Math.min(this.flags & Affinity.Mask, Affinity.Intrinsic) >= (subFastener.flags & Affinity.Mask)) {
-      subFastener.setInherited(true, this);
-    } else if ((subFastener.flags & Fastener.InheritedFlag) !== 0 && (subFastener.flags & Fastener.DecoherentFlag) === 0) {
-      subFastener.setCoherent(false);
-      subFastener.decohere();
+  ModelSet.prototype.decohereOutlet = function (this: ModelSet, outlet: ModelSet): void {
+    if ((outlet.flags & Fastener.DerivedFlag) === 0 && Math.min(this.flags & Affinity.Mask, Affinity.Intrinsic) >= (outlet.flags & Affinity.Mask)) {
+      outlet.setDerived(true, this);
+    } else if ((outlet.flags & Fastener.DerivedFlag) !== 0 && (outlet.flags & Fastener.DecoherentFlag) === 0) {
+      outlet.setCoherent(false);
+      outlet.decohere();
     }
   };
 
   ModelSet.prototype.recohere = function (this: ModelSet, t: number): void {
-    if ((this.flags & Fastener.InheritedFlag) !== 0) {
-      const superFastener = this.superFastener;
-      if (superFastener !== null) {
-        this.setModels(superFastener.models);
+    if ((this.flags & Fastener.DerivedFlag) !== 0) {
+      const inlet = this.inlet;
+      if (inlet !== null) {
+        this.setModels(inlet.models);
       }
     }
   };
 
-  ModelSet.prototype.key = function <M extends Model>(this: ModelSet<unknown, M>, model: M): string | undefined {
+  ModelSet.prototype.modelKey = function <M extends Model>(this: ModelSet<unknown, M>, model: M): string | undefined {
     return void 0;
   };
 
@@ -593,60 +607,55 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
     return a.uid < b.uid ? -1 : a.uid > b.uid ? 1 : 0;
   };
 
-  ModelSet.construct = function <F extends ModelSet<any, any>>(fastenerClass: {prototype: F}, fastener: F | null, owner: FastenerOwner<F>): F {
+  ModelSet.construct = function <F extends ModelSet<any, any>>(fastener: F | null, owner: FastenerOwner<F>): F {
     if (fastener === null) {
-      fastener = function (newModel: AnyModel<ModelSetType<F>>): FastenerOwner<F> {
+      fastener = function (newModel: AnyModel<ModelSetModel<F>>): FastenerOwner<F> {
         fastener!.addModel(newModel);
         return fastener!.owner;
       } as F;
       delete (fastener as Partial<Mutable<F>>).name; // don't clobber prototype name
-      Object.setPrototypeOf(fastener, fastenerClass.prototype);
+      Object.setPrototypeOf(fastener, this.prototype);
     }
-    fastener = _super.construct(fastenerClass, fastener, owner) as F;
-    Object.defineProperty(fastener, "superFastener", { // override getter
+    fastener = _super.construct.call(this, fastener, owner) as F;
+    const flagsInit = fastener.flagsInit;
+    if (flagsInit !== void 0) {
+      fastener.initSorted((flagsInit & ModelSet.SortedFlag) !== 0);
+    }
+    Object.defineProperty(fastener, "inlet", { // override getter
       value: null,
       writable: true,
       enumerable: true,
       configurable: true,
     });
-    (fastener as Mutable<typeof fastener>).subFasteners = null;
+    (fastener as Mutable<typeof fastener>).outlets = null;
     (fastener as Mutable<typeof fastener>).models = {};
     (fastener as Mutable<typeof fastener>).modelCount = 0;
     return fastener;
   };
 
-  ModelSet.define = function <O, M extends Model>(className: string, descriptor: ModelSetDescriptor<O, M>): ModelSetFactory<ModelSet<any, M>> {
-    let superClass = descriptor.extends as ModelSetFactory | null | undefined;
-    const affinity = descriptor.affinity;
-    const inherits = descriptor.inherits;
-    const sorted = descriptor.sorted;
-    delete descriptor.extends;
-    delete descriptor.implements;
-    delete descriptor.affinity;
-    delete descriptor.inherits;
-    delete descriptor.sorted;
+  ModelSet.refine = function (fastenerClass: ModelSetClass): void {
+    _super.refine.call(this, fastenerClass);
+    const fastenerPrototype = fastenerClass.prototype;
+    let flagsInit = fastenerPrototype.flagsInit;
 
-    if (superClass === void 0 || superClass === null) {
-      superClass = this;
+    if (Object.prototype.hasOwnProperty.call(fastenerPrototype, "sorted")) {
+      if (flagsInit === void 0) {
+        flagsInit = 0;
+      }
+      if (fastenerPrototype.sorted) {
+        flagsInit |= ModelSet.SortedFlag;
+      } else {
+        flagsInit &= ~ModelSet.SortedFlag;
+      }
+      delete (fastenerPrototype as ModelSetTemplate).sorted;
     }
 
-    const fastenerClass = superClass.extend(className, descriptor);
-
-    fastenerClass.construct = function (fastenerClass: {prototype: ModelSet<any, any>}, fastener: ModelSet<O, M> | null, owner: O): ModelSet<O, M> {
-      fastener = superClass!.construct(fastenerClass, fastener, owner);
-      if (affinity !== void 0) {
-        fastener.initAffinity(affinity);
-      }
-      if (inherits !== void 0) {
-        fastener.initInherits(inherits);
-      }
-      if (sorted !== void 0) {
-        fastener.initSorted(sorted);
-      }
-      return fastener;
-    };
-
-    return fastenerClass;
+    if (flagsInit !== void 0) {
+      Object.defineProperty(fastenerPrototype, "flagsInit", {
+        value: flagsInit,
+        configurable: true,
+      });
+    }
   };
 
   (ModelSet as Mutable<typeof ModelSet>).SortedFlag = 1 << (_super.FlagShift + 0);

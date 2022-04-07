@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import type {Class, Timing} from "@swim/util";
-import {Affinity, MemberFastenerClass, Property, Animator} from "@swim/component";
+import {Affinity, FastenerClass, PropertyDef, AnimatorDef} from "@swim/component";
 import {AnyLength, Length} from "@swim/math";
 import {AnyColor, Color, AnyFocus, Focus, FocusAnimator} from "@swim/style";
-import {Look, Feel, MoodVector, ThemeMatrix, ThemeAnimator} from "@swim/theme";
-import {PositionGestureInput, PositionGesture, ViewContextType, View} from "@swim/view";
+import {Look, Feel, MoodVector, ThemeMatrix, ThemeAnimatorDef} from "@swim/theme";
+import {PositionGestureInput, PositionGestureDef, ViewContextType, View} from "@swim/view";
 import type {HtmlView} from "@swim/dom";
 import {Graphics, Icon, FilledIcon, IconGraphicsAnimator, SvgIconView} from "@swim/graphics";
 import {ButtonGlow} from "@swim/button";
@@ -69,20 +69,20 @@ export class ButtonToolView extends ToolView {
     return svgView instanceof SvgIconView ? svgView : null;
   }
 
-  @Animator({type: Number, value: 0.5, updateFlags: View.NeedsLayout})
-  override readonly xAlign!: Animator<this, number>;
+  @AnimatorDef({valueType: Number, value: 0.5, updateFlags: View.NeedsLayout})
+  override readonly xAlign!: AnimatorDef<this, {value: number}>;
 
-  @Animator({type: Number, value: 0.5, updateFlags: View.NeedsLayout})
-  readonly yAlign!: Animator<this, number>;
+  @AnimatorDef({valueType: Number, value: 0.5, updateFlags: View.NeedsLayout})
+  readonly yAlign!: AnimatorDef<this, {value: number}>;
 
-  @ThemeAnimator({type: Length, value: null, updateFlags: View.NeedsLayout})
-  readonly iconWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
+  @ThemeAnimatorDef({valueType: Length, value: null, updateFlags: View.NeedsLayout})
+  readonly iconWidth!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
 
-  @ThemeAnimator({type: Length, value: null, updateFlags: View.NeedsLayout})
-  readonly iconHeight!: ThemeAnimator<this, Length | null, AnyLength | null>;
+  @ThemeAnimatorDef({valueType: Length, value: null, updateFlags: View.NeedsLayout})
+  readonly iconHeight!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
 
-  @ThemeAnimator<ButtonToolView, Color | null, AnyColor | null>({
-    type: Color,
+  @ThemeAnimatorDef<ButtonToolView["iconColor"]>({
+    valueType: Color,
     value: null,
     updateFlags: View.NeedsLayout,
     didSetValue(newIconColor: Color | null, oldIconColor: Color | null): void {
@@ -95,21 +95,18 @@ export class ButtonToolView extends ToolView {
       }
     },
   })
-  readonly iconColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly iconColor!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
 
-  @ThemeAnimator<ButtonToolView, Graphics | null>({
+  @ThemeAnimatorDef<ButtonToolView["graphics"]>({
     extends: IconGraphicsAnimator,
-    type: Object,
+    valueType: Graphics,
     value: null,
     updateFlags: View.NeedsLayout,
-    willSetValue(newGraphics: Graphics | null, oldGraphics: Graphics | null): void {
-      this.owner.callObservers("viewWillSetGraphics", newGraphics, oldGraphics, this.owner);
-    },
     didSetValue(newGraphics: Graphics | null, oldGraphics: Graphics | null): void {
-      this.owner.callObservers("viewDidSetGraphics", newGraphics, oldGraphics, this.owner);
+      this.owner.callObservers("viewDidSetGraphics", newGraphics, this.owner);
     },
   })
-  readonly graphics!: ThemeAnimator<this, Graphics | null>;
+  readonly graphics!: ThemeAnimatorDef<this, {value: Graphics | null}>;
 
   protected override onInsertChild(child: View, target: View | null): void {
     super.onInsertChild(child, target);
@@ -130,7 +127,7 @@ export class ButtonToolView extends ToolView {
 
   protected override onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
-    if (!this.graphics.inherited) {
+    if (!this.graphics.derived) {
       const oldGraphics = this.graphics.value;
       if (oldGraphics instanceof Icon) {
         const newGraphics = oldGraphics.withTheme(theme, mood);
@@ -161,15 +158,15 @@ export class ButtonToolView extends ToolView {
       svgView.width.setState(viewWidth, Affinity.Intrinsic);
       svgView.height.setState(viewHeight, Affinity.Intrinsic);
       svgView.viewBox.setState("0 0 " + viewWidth + " " + viewHeight, Affinity.Intrinsic);
-      this.effectiveWidth.setState(viewWidth);
+      this.effectiveWidth.setValue(viewWidth);
     }
   }
 
-  @Property({type: Boolean, inherits: true, value: true})
-  readonly hovers!: Property<this, boolean>;
+  @PropertyDef({valueType: Boolean, value: true, inherits: true})
+  readonly hovers!: PropertyDef<this, {value: boolean}>;
 
-  @FocusAnimator<ButtonToolView, Focus, AnyFocus>({
-    type: Focus,
+  @AnimatorDef<ButtonToolView["hover"]>({
+    extends: FocusAnimator,
     value: Focus.unfocused(),
     get transition(): Timing | null {
       return this.owner.getLookOr(Look.timing, null);
@@ -179,10 +176,12 @@ export class ButtonToolView extends ToolView {
       this.owner.modifyMood(Feel.default, [[Feel.transparent, 1 - hoverPhase]], false);
     },
   })
-  readonly hover!: FocusAnimator<this, Focus, AnyFocus>;
+  readonly hover!: AnimatorDef<this, {
+    extends: FocusAnimator<ButtonToolView, Focus, AnyFocus>,
+  }>;
 
-  @Property({type: Boolean, inherits: true, value: true})
-  readonly glows!: Property<this, boolean>;
+  @PropertyDef({valueType: Boolean, value: true, inherits: true})
+  readonly glows!: PropertyDef<this, {value: boolean}>;
 
   protected glow(input: PositionGestureInput): void {
     if (input.detail instanceof ButtonGlow) {
@@ -196,8 +195,8 @@ export class ButtonToolView extends ToolView {
     }
   }
 
-  @PositionGesture<ButtonToolView, HtmlView>({
-    self: true,
+  @PositionGestureDef<ButtonToolView["gesture"]>({
+    bindsOwner: true,
     observes: true,
     viewDidUnmount(): void {
       this.owner.hover.unfocus(false);
@@ -262,8 +261,8 @@ export class ButtonToolView extends ToolView {
       }
     },
   })
-  readonly gesture!: PositionGesture<this, HtmlView>;
-  static readonly gesture: MemberFastenerClass<ButtonToolView, "gesture">;
+  readonly gesture!: PositionGestureDef<this, {view: HtmlView, observes: true}>;
+  static readonly gesture: FastenerClass<ButtonToolView["gesture"]>;
 
   onPress(input: PositionGestureInput, event: Event | null): void {
     // hook

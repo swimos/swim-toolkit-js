@@ -15,7 +15,7 @@
 import type {Class} from "@swim/util";
 import type {R2Box} from "@swim/math";
 import {AnyColor, Color} from "@swim/style";
-import {Look, ThemeAnimator} from "@swim/theme";
+import {Look, ThemeAnimatorDef} from "@swim/theme";
 import {View} from "@swim/view";
 import type {GraphicsView, CanvasContext, CanvasRenderer, FillViewInit, FillView} from "@swim/graphics";
 import {SeriesPlotViewInit, SeriesPlotView} from "./SeriesPlotView";
@@ -32,19 +32,16 @@ export interface AreaPlotViewInit<X = unknown, Y = unknown> extends SeriesPlotVi
 export class AreaPlotView<X = unknown, Y = unknown> extends SeriesPlotView<X, Y> implements FillView {
   override readonly observerType?: Class<AreaPlotViewObserver<X, Y>>;
 
-  @ThemeAnimator<AreaPlotView<X, Y>, Color | null, AnyColor | null>({
-    type: Color,
+  @ThemeAnimatorDef<AreaPlotView<X, Y>["fill"]>({
+    valueType: Color,
     value: null,
     look: Look.accentColor,
     updateFlags: View.NeedsRender,
-    willSetValue(newFill: Color | null, oldFill: Color | null): void {
-      this.owner.callObservers("viewWillSetPlotFill", newFill, oldFill, this.owner);
-    },
-    didSetValue(newFill: Color | null, oldFill: Color | null): void {
-      this.owner.callObservers("viewDidSetPlotFill", newFill, oldFill, this.owner);
+    didSetValue(fill: Color | null): void {
+      this.owner.callObservers("viewDidSetFill", fill, this.owner);
     },
   })
-  readonly fill!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly fill!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
 
   protected renderPlot(context: CanvasContext, frame: R2Box): void {
     const fill = this.fill.getValueOr(Color.transparent());

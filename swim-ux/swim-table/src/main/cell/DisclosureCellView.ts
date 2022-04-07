@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {MemberFastenerClass} from "@swim/component";
+import {FastenerClass, AnimatorDef} from "@swim/component";
 import {AnyExpansion, Expansion, ExpansionAnimator} from "@swim/style";
-import {ViewRef, PositionGestureInput} from "@swim/view";
+import {PositionGestureInput, ViewRefDef} from "@swim/view";
 import {DisclosureButton} from "@swim/button";
 import {CellView} from "./CellView";
 
@@ -26,20 +26,25 @@ export class DisclosureCellView extends CellView {
     this.button.insertView();
   }
 
-  @ExpansionAnimator({type: Expansion, inherits: true})
-  readonly disclosure!: ExpansionAnimator<this, Expansion, AnyExpansion>;
+  @AnimatorDef<DisclosureCellView["disclosure"]>({
+    extends: ExpansionAnimator,
+    inherits: true,
+  })
+  readonly disclosure!: AnimatorDef<this, {
+    extends: ExpansionAnimator<DisclosureCellView, Expansion, AnyExpansion>,
+  }>;
 
-  @ViewRef<DisclosureCellView, DisclosureButton>({
-    key: true,
-    type: DisclosureButton,
+  @ViewRefDef<DisclosureCellView["button"]>({
+    viewType: DisclosureButton,
+    viewKey: true,
     binds: true,
   })
-  readonly button!: ViewRef<this, DisclosureButton>;
-  static readonly button: MemberFastenerClass<DisclosureCellView, "button">;
+  readonly button!: ViewRefDef<this, {view: DisclosureButton}>;
+  static readonly button: FastenerClass<DisclosureCellView["button"]>;
 
   override didPress(input: PositionGestureInput, event: Event | null): void {
     input.preventDefault();
-    const superDisclosure = this.disclosure.superFastener;
+    const superDisclosure = this.disclosure.inlet;
     if (superDisclosure instanceof ExpansionAnimator) {
       superDisclosure.toggle();
     }

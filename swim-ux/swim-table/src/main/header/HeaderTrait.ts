@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {MemberFastenerClass} from "@swim/component";
-import {Model, TraitConstructor, TraitClass, Trait, TraitSet} from "@swim/model";
+import type {FastenerClass} from "@swim/component";
+import {Model, TraitConstructor, TraitClass, Trait, TraitSetDef} from "@swim/model";
 import {ColTrait} from "../col/ColTrait";
 import type {HeaderTraitObserver} from "./HeaderTraitObserver";
 
@@ -23,7 +23,7 @@ export class HeaderTrait extends Trait {
   override readonly observerType?: Class<HeaderTraitObserver>;
 
   getCol(key: string): ColTrait | null;
-  getCol<R extends ColTrait>(key: string, colTraitClass: TraitClass<R>): R | null;
+  getCol<T extends ColTrait>(key: string, colTraitClass: TraitClass<T>): T | null;
   getCol(key: string, colTraitClass?: TraitClass<ColTrait>): ColTrait | null {
     if (colTraitClass === void 0) {
       colTraitClass = ColTrait;
@@ -33,7 +33,7 @@ export class HeaderTrait extends Trait {
   }
 
   getOrCreateCol(key: string): ColTrait;
-  getOrCreateCol<R extends ColTrait>(key: string, colTraitConstructor: TraitConstructor<R>): R;
+  getOrCreateCol<T extends ColTrait>(key: string, colTraitConstructor: TraitConstructor<T>): T;
   getOrCreateCol(key: string, colTraitConstructor?: TraitConstructor<ColTrait>): ColTrait {
     if (colTraitConstructor === void 0) {
       colTraitConstructor = ColTrait;
@@ -50,8 +50,8 @@ export class HeaderTrait extends Trait {
     this.setTrait(key, colTrait);
   }
 
-  @TraitSet<HeaderTrait, ColTrait>({
-    type: ColTrait,
+  @TraitSetDef<HeaderTrait["cols"]>({
+    traitType: ColTrait,
     binds: true,
     willAttachTrait(colTrait: ColTrait, targetTrait: Trait | null): void {
       this.owner.callObservers("traitWillAttachCol", colTrait, targetTrait, this.owner);
@@ -73,8 +73,8 @@ export class HeaderTrait extends Trait {
       return model.getTrait(ColTrait);
     },
   })
-  readonly cols!: TraitSet<this, ColTrait>;
-  static readonly cols: MemberFastenerClass<HeaderTrait, "cols">;
+  readonly cols!: TraitSetDef<this, {trait: ColTrait}>;
+  static readonly cols: FastenerClass<HeaderTrait["cols"]>;
 
   protected override onStartConsuming(): void {
     super.onStartConsuming();

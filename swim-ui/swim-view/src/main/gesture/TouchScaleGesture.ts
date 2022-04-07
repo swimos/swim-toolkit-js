@@ -14,7 +14,7 @@
 
 import type {FastenerOwner} from "@swim/component";
 import type {ScaleGestureInput} from "./ScaleGestureInput";
-import {ScaleGestureClass, ScaleGestureFactory, ScaleGesture} from "./ScaleGesture";
+import {ScaleGestureClass, ScaleGesture} from "./ScaleGesture";
 import type {View} from "../view/View";
 
 /** @internal */
@@ -49,7 +49,7 @@ export interface TouchScaleGesture<O = unknown, V extends View = View, X = unkno
 
 /** @internal */
 export const TouchScaleGesture = (function (_super: typeof ScaleGesture) {
-  const TouchScaleGesture = _super.extend("TouchScaleGesture") as ScaleGestureFactory<TouchScaleGesture<any, any, any, any>>;
+  const TouchScaleGesture = _super.extend("TouchScaleGesture", {}) as ScaleGestureClass<TouchScaleGesture<any, any, any, any>>;
 
   TouchScaleGesture.prototype.attachHoverEvents = function (this: TouchScaleGesture, view: View): void {
     view.on("touchstart", this.onTouchStart as EventListener);
@@ -140,8 +140,8 @@ export const TouchScaleGesture = (function (_super: typeof ScaleGesture) {
     }
   };
 
-  TouchScaleGesture.construct = function <G extends TouchScaleGesture<any, any, any, any>>(gestureClass: ScaleGestureClass<TouchScaleGesture<any, any, any, any>>, gesture: G | null, owner: FastenerOwner<G>): G {
-    gesture = _super.construct(gestureClass, gesture, owner) as G;
+  TouchScaleGesture.construct = function <G extends TouchScaleGesture<any, any, any, any>>(gesture: G | null, owner: FastenerOwner<G>): G {
+    gesture = _super.construct.call(this, gesture, owner) as G;
     gesture.onTouchStart = gesture.onTouchStart.bind(gesture);
     gesture.onTouchMove = gesture.onTouchMove.bind(gesture);
     gesture.onTouchEnd = gesture.onTouchEnd.bind(gesture);

@@ -12,80 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, ObserverType, AnyTiming} from "@swim/util";
-import {Affinity, MemberFastenerClass, Property} from "@swim/component";
+import type {Class, AnyTiming} from "@swim/util";
+import {Affinity, FastenerClass, PropertyDef} from "@swim/component";
 import {Trait} from "@swim/model";
-import {PositionGestureInput, View, ViewRef} from "@swim/view";
-import {TraitViewRef, TraitViewControllerRef, TraitViewControllerSet} from "@swim/controller";
+import {PositionGestureInput, View, ViewRefDef} from "@swim/view";
+import {
+  TraitViewRefDef,
+  TraitViewRef,
+  TraitViewControllerRefDef,
+  TraitViewControllerSetDef,
+} from "@swim/controller";
 import {ToolView, ToolTrait, ToolController, BarView, BarTrait, BarController} from "@swim/toolbar";
 import {DrawerView} from "@swim/window";
 import type {SheetView} from "../sheet/SheetView";
 import {SheetController} from "../sheet/SheetController";
-import type {NavBarController} from "../stack/NavBarController";
 import type {StackView} from "../stack/StackView";
-import {
-  StackControllerSheetsExt,
-  StackControllerNavBarExt,
-  StackController,
-} from "../stack/StackController";
+import {StackController} from "../stack/StackController";
 import {AppBarController} from "./AppBarController";
 import {FolioStyle, FolioView} from "./FolioView";
 import type {FolioControllerObserver} from "./FolioControllerObserver";
 
 /** @public */
-export interface FolioControllerStackExt {
-  updateFolioStyle(folioStyle: FolioStyle | undefined, stackView: StackView): void;
-  updateFullBleed(fullBleed: boolean, stackView: StackView): void;
-}
-
-/** @public */
-export interface FolioControllerSheetsExt extends StackControllerSheetsExt {
-  updateFolioStyle(folioStyle: FolioStyle | undefined, sheetView: SheetView, sheetController: SheetController): void;
-  updateFullBleed(fullBleed: boolean, sheetView: SheetView, sheetController: SheetController): void;
-}
-
-/** @public */
-export interface FolioControllerNavBarExt extends StackControllerNavBarExt {
-  updateFolioStyle(folioStyle: FolioStyle | undefined, navBarController: BarController): void;
-}
-
-/** @public */
-export interface FolioControllerAppBarExt {
-  attachAppBarTrait(appBarTrait: BarTrait, appBarController: BarController): void;
-  detachAppBarTrait(appBarTrait: BarTrait, appBarController: BarController): void;
-  attachAppBarView(appBarView: BarView, appBarController: BarController): void;
-  detachAppBarView(appBarView: BarView, appBarController: BarController): void;
-  updateFolioStyle(folioStyle: FolioStyle | undefined, appBarController: BarController): void;
-}
-
-/** @public */
-export interface FolioControllerDrawerExt {
-  updateFullBleed(fullBleed: boolean, drawerView: DrawerView): void;
-}
-
-/** @public */
-export interface FolioControllerCoverExt {
-  attachCoverTrait(coverTrait: Trait, coverController: SheetController): void;
-  detachCoverTrait(coverTrait: Trait, coverController: SheetController): void;
-  attachCoverView(coverView: SheetView, coverController: SheetController): void;
-  detachCoverView(coverView: SheetView, coverController: SheetController): void;
-  present(timing?: AnyTiming | boolean): SheetView | null;
-}
-
-/** @public */
-export interface FolioControllerModeToolsExt {
-  attachModeToolTrait(modeToolTrait: ToolTrait, modeToolController: ToolController): void;
-  detachModeToolTrait(modeToolTrait: ToolTrait, modeToolController: ToolController): void;
-  attachModeToolView(modeToolView: ToolView, modeToolController: ToolController): void;
-  detachModeToolView(modeToolView: ToolView, modeToolController: ToolController): void;
-}
-
-/** @public */
 export class FolioController extends StackController {
   override readonly observerType?: Class<FolioControllerObserver>;
 
-  @Property<FolioController, FolioStyle | undefined>({
-    type: String,
+  @PropertyDef<FolioController["folioStyle"]>({
+    valueType: String,
     didSetValue(folioStyle: FolioStyle | undefined): void {
       const coverController = this.owner.cover.controller;
       if (coverController !== null) {
@@ -124,10 +76,10 @@ export class FolioController extends StackController {
       }
     },
   })
-  readonly folioStyle!: Property<this, FolioStyle | undefined>;
+  readonly folioStyle!: PropertyDef<this, {value: FolioStyle | undefined}>;
 
-  @Property<FolioController, boolean>({
-    type: Boolean,
+  @PropertyDef<FolioController["fullBleed"]>({
+    valueType: Boolean,
     value: false,
     didSetValue(fullBleed: boolean): void {
       const drawerView = this.owner.drawer.view;
@@ -153,10 +105,10 @@ export class FolioController extends StackController {
       }
     },
   })
-  readonly fullBleed!: Property<this, boolean>;
+  readonly fullBleed!: PropertyDef<this, {value: boolean}>;
 
-  @Property<FolioController, boolean>({
-    type: Boolean,
+  @PropertyDef<FolioController["fullScreen"]>({
+    valueType: Boolean,
     value: false,
     didSetValue(fullScreen: boolean): void {
       const drawerView = this.owner.drawer.view;
@@ -170,9 +122,9 @@ export class FolioController extends StackController {
       this.owner.callObservers("controllerDidSetFullScreen", fullScreen, this.owner);
     },
   })
-  readonly fullScreen!: Property<this, boolean>;
+  readonly fullScreen!: PropertyDef<this, {value: boolean}>;
 
-  @TraitViewRef<FolioController, Trait, FolioView>({
+  @TraitViewRefDef<FolioController["folio"]>({
     traitType: Trait,
     willAttachTrait(folioTrait: Trait): void {
       this.owner.callObservers("controllerWillAttachFolioTrait", folioTrait, this.owner);
@@ -236,12 +188,14 @@ export class FolioController extends StackController {
       }
     },
   })
-  readonly folio!: TraitViewRef<this, Trait, FolioView>;
-  static readonly folio: MemberFastenerClass<FolioController, "folio">;
+  readonly folio!: TraitViewRefDef<this, {
+    view: FolioView,
+    observesView: true,
+  }>;
+  static readonly folio: FastenerClass<FolioController["folio"]>;
 
-  @TraitViewRef<FolioController, Trait, StackView, FolioControllerStackExt>({
+  @TraitViewRefDef<FolioController["stack"]>({
     extends: true,
-    implements: true,
     didAttachView(stackView: StackView, targetView: View | null): void {
       StackController.stack.prototype.didAttachView.call(this, stackView, targetView);
       this.updateFolioStyle(this.owner.folioStyle.value, stackView);
@@ -254,12 +208,17 @@ export class FolioController extends StackController {
       // hook
     },
   })
-  override readonly stack!: TraitViewRef<this, Trait, StackView> & FolioControllerStackExt;
-  static override readonly stack: MemberFastenerClass<FolioController, "stack">;
+  override readonly stack!: TraitViewRefDef<this, {
+    extends: StackController["stack"],
+    implements: {
+      updateFolioStyle(folioStyle: FolioStyle | undefined, stackView: StackView): void;
+      updateFullBleed(fullBleed: boolean, stackView: StackView): void;
+    },
+  }>;
+  static override readonly stack: FastenerClass<FolioController["stack"]>;
 
-  @TraitViewControllerSet<FolioController, Trait, SheetView, SheetController, FolioControllerSheetsExt>({
+  @TraitViewControllerSetDef<FolioController["sheets"]>({
     extends: true,
-    implements: true,
     attachSheetView(sheetView: SheetView, sheetController: SheetController): void {
       StackController.sheets.prototype.attachSheetView.call(this, sheetView, sheetController);
       this.updateFolioStyle(this.owner.folioStyle.value, sheetView, sheetController);
@@ -272,22 +231,33 @@ export class FolioController extends StackController {
       // hook
     },
   })
-  override readonly sheets!: TraitViewControllerSet<this, Trait, SheetView, SheetController> & FolioControllerSheetsExt;
-  static override readonly sheets: MemberFastenerClass<FolioController, "sheets">;
+  override readonly sheets!: TraitViewControllerSetDef<this, {
+    extends: StackController["sheets"],
+    implements: {
+      updateFolioStyle(folioStyle: FolioStyle | undefined, sheetView: SheetView, sheetController: SheetController): void;
+      updateFullBleed(fullBleed: boolean, sheetView: SheetView, sheetController: SheetController): void;
+    },
+  }>;
+  static override readonly sheets: FastenerClass<FolioController["sheets"]>;
 
-  @TraitViewControllerRef<FolioController, BarTrait, BarView, BarController, FolioControllerNavBarExt & ObserverType<BarController | NavBarController>>({
+  @TraitViewControllerRefDef<FolioController["navBar"]>({
     extends: true,
-    implements: true,
     initController(navBarController: BarController): void {
       StackController.navBar.prototype.initController.call(this, navBarController);
       this.updateFolioStyle(this.owner.folioStyle.value, navBarController);
+      this.frontViewDidScroll;
     },
     updateFolioStyle(folioStyle: FolioStyle | undefined, navBarController: BarController): void {
       // hook
     },
   })
-  override readonly navBar!: TraitViewControllerRef<this, BarTrait, BarView, BarController> & FolioControllerNavBarExt;
-  static override readonly navBar: MemberFastenerClass<FolioController, "navBar">;
+  override readonly navBar!: TraitViewControllerRefDef<this, {
+    extends: StackController["navBar"];
+    implements: {
+      updateFolioStyle(folioStyle: FolioStyle | undefined, navBarController: BarController): void;
+    };
+  }>;
+  static override readonly navBar: FastenerClass<FolioController["navBar"]>;
 
   protected didPressMenuTool(input: PositionGestureInput, event: Event | null): void {
     this.fullScreen.setValue(!this.fullScreen.value, Affinity.Intrinsic);
@@ -298,9 +268,8 @@ export class FolioController extends StackController {
     this.callObservers("controllerDidPressActionTool", input, event, this);
   }
 
-  @TraitViewControllerRef<FolioController, BarTrait, BarView, BarController, FolioControllerAppBarExt & ObserverType<BarController | AppBarController>>({
-    implements: true,
-    type: BarController,
+  @TraitViewControllerRefDef<FolioController["appBar"]>({
+    controllerType: BarController,
     binds: true,
     observes: true,
     get parentView(): FolioView | null {
@@ -382,12 +351,23 @@ export class FolioController extends StackController {
       return new AppBarController();
     },
   })
-  readonly appBar!: TraitViewControllerRef<this, BarTrait, BarView, BarController> & FolioControllerAppBarExt;
-  static readonly appBar: MemberFastenerClass<FolioController, "appBar">;
+  readonly appBar!: TraitViewControllerRefDef<this, {
+    trait: BarTrait,
+    view: BarView,
+    controller: BarController,
+    implements: {
+      attachAppBarTrait(appBarTrait: BarTrait, appBarController: BarController): void;
+      detachAppBarTrait(appBarTrait: BarTrait, appBarController: BarController): void;
+      attachAppBarView(appBarView: BarView, appBarController: BarController): void;
+      detachAppBarView(appBarView: BarView, appBarController: BarController): void;
+      updateFolioStyle(folioStyle: FolioStyle | undefined, appBarController: BarController): void;
+    },
+    observes: BarController & AppBarController,
+  }>;
+  static readonly appBar: FastenerClass<FolioController["appBar"]>;
 
-  @ViewRef<FolioController, DrawerView, FolioControllerDrawerExt>({
-    implements: true,
-    type: DrawerView,
+  @ViewRefDef<FolioController["drawer"]>({
+    viewType: DrawerView,
     get parentView(): FolioView | null {
       return this.owner.folio.view;
     },
@@ -409,12 +389,16 @@ export class FolioController extends StackController {
       // hook
     },
   })
-  readonly drawer!: ViewRef<this, DrawerView> & FolioControllerDrawerExt;
-  static readonly drawer: MemberFastenerClass<FolioController, "drawer">;
+  readonly drawer!: ViewRefDef<this, {
+    view: DrawerView,
+    implements: {
+      updateFullBleed(fullBleed: boolean, drawerView: DrawerView): void;
+    },
+  }>;
+  static readonly drawer: FastenerClass<FolioController["drawer"]>;
 
-  @TraitViewControllerRef<FolioController, Trait, SheetView, SheetController, FolioControllerCoverExt>({
-    implements: true,
-    type: SheetController,
+  @TraitViewControllerRefDef<FolioController["cover"]>({
+    controllerType: SheetController,
     binds: false,
     observes: true,
     getTraitViewRef(coverController: SheetController): TraitViewRef<unknown, Trait, SheetView> {
@@ -510,12 +494,22 @@ export class FolioController extends StackController {
       return null;
     },
   })
-  readonly cover!: TraitViewControllerRef<this, Trait, SheetView, SheetController> & FolioControllerCoverExt;
-  static readonly cover: MemberFastenerClass<FolioController, "cover">;
+  readonly cover!: TraitViewControllerRefDef<this, {
+    view: SheetView,
+    controller: SheetController,
+    implements: {
+      attachCoverTrait(coverTrait: Trait, coverController: SheetController): void;
+      detachCoverTrait(coverTrait: Trait, coverController: SheetController): void;
+      attachCoverView(coverView: SheetView, coverController: SheetController): void;
+      detachCoverView(coverView: SheetView, coverController: SheetController): void;
+      present(timing?: AnyTiming | boolean): SheetView | null;
+    },
+    observes: true,
+  }>;
+  static readonly cover: FastenerClass<FolioController["cover"]>;
 
-  @TraitViewControllerSet<FolioController, ToolTrait, ToolView, ToolController, FolioControllerModeToolsExt>({
-    implements: true,
-    type: ToolController,
+  @TraitViewControllerSetDef<FolioController["modeTools"]>({
+    controllerType: ToolController,
     binds: false,
     observes: true,
     getTraitViewRef(modeToolController: ToolController): TraitViewRef<unknown, ToolTrait, ToolView> {
@@ -576,6 +570,17 @@ export class FolioController extends StackController {
       // hook
     },
   })
-  readonly modeTools!: TraitViewControllerSet<this, ToolTrait, ToolView, ToolController> & FolioControllerModeToolsExt;
-  static readonly modeTools: MemberFastenerClass<FolioController, "modeTools">;
+  readonly modeTools!: TraitViewControllerSetDef<this, {
+    trait: ToolTrait,
+    view: ToolView,
+    controller: ToolController,
+    implements: {
+      attachModeToolTrait(modeToolTrait: ToolTrait, modeToolController: ToolController): void;
+      detachModeToolTrait(modeToolTrait: ToolTrait, modeToolController: ToolController): void;
+      attachModeToolView(modeToolView: ToolView, modeToolController: ToolController): void;
+      detachModeToolView(modeToolView: ToolView, modeToolController: ToolController): void;
+    },
+    observes: true,
+  }>;
+  static readonly modeTools: FastenerClass<FolioController["modeTools"]>;
 }

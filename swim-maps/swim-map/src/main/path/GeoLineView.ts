@@ -14,9 +14,9 @@
 
 import type {Class} from "@swim/util";
 import {AnyLength, Length, R2Box} from "@swim/math";
-import {Property} from "@swim/component";
+import {PropertyDef} from "@swim/component";
 import {AnyColor, Color} from "@swim/style";
-import {ThemeAnimator} from "@swim/theme";
+import {ThemeAnimatorDef} from "@swim/theme";
 import {ViewContextType, View} from "@swim/view";
 import {
   GraphicsView,
@@ -39,36 +39,30 @@ export interface GeoLineViewInit extends GeoPathViewInit, StrokeViewInit {
 export class GeoLineView extends GeoPathView implements StrokeView {
   override readonly observerType?: Class<GeoLineViewObserver>;
 
-  @ThemeAnimator<GeoLineView, Color | null, AnyColor | null>({
-    type: Color,
+  @ThemeAnimatorDef<GeoLineView["stroke"]>({
+    valueType: Color,
     value: null,
     inherits: true,
     updateFlags: View.NeedsRender,
-    willSetValue(newStroke: Color | null, oldStroke: Color | null): void {
-      this.owner.callObservers("viewWillSetStroke", newStroke, oldStroke, this.owner);
-    },
-    didSetValue(newStroke: Color | null, oldStroke: Color | null): void {
-      this.owner.callObservers("viewDidSetStroke", newStroke, oldStroke, this.owner);
+    didSetValue(stroke: Color | null): void {
+      this.owner.callObservers("viewDidSetStroke", stroke, this.owner);
     },
   })
-  readonly stroke!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly stroke!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
 
-  @ThemeAnimator<GeoLineView, Length | null, AnyLength | null>({
-    type: Length,
+  @ThemeAnimatorDef<GeoLineView["strokeWidth"]>({
+    valueType: Length,
     value: null,
     inherits: true,
     updateFlags: View.NeedsRender,
-    willSetValue(newStrokeWidth: Length | null, oldStrokeWidth: Length | null): void {
-      this.owner.callObservers("viewWillSetStrokeWidth", newStrokeWidth, oldStrokeWidth, this.owner);
-    },
-    didSetValue(newStrokeWidth: Length | null, oldStrokeWidth: Length | null): void {
-      this.owner.callObservers("viewDidSetStrokeWidth", newStrokeWidth, oldStrokeWidth, this.owner);
+    didSetValue(strokeWIdth: Length | null): void {
+      this.owner.callObservers("viewDidSetStrokeWidth", strokeWIdth, this.owner);
     },
   })
-  readonly strokeWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
+  readonly strokeWidth!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
 
-  @Property({type: Number})
-  readonly hitWidth!: Property<this, number | undefined>;
+  @PropertyDef({valueType: Number})
+  readonly hitWidth!: PropertyDef<this, {value: number | undefined}>;
 
   protected override onRender(viewContext: ViewContextType<this>): void {
     super.onRender(viewContext);

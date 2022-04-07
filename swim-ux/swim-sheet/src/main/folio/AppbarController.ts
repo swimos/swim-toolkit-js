@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, Lazy, ObserverType} from "@swim/util";
-import {Affinity, MemberFastenerClass, Property} from "@swim/component";
+import {Class, Lazy} from "@swim/util";
+import {Affinity, FastenerClass, PropertyDef} from "@swim/component";
 import type {Trait} from "@swim/model";
 import {Look, Mood} from "@swim/theme";
 import type {PositionGestureInput} from "@swim/view";
@@ -21,8 +21,8 @@ import {VectorIcon} from "@swim/graphics";
 import {
   Controller,
   TraitViewRef,
-  TraitViewControllerRef,
-  TraitViewControllerSet,
+  TraitViewControllerRefDef,
+  TraitViewControllerSetDef,
 } from "@swim/controller";
 import {
   ToolLayout,
@@ -103,12 +103,11 @@ export class AppBarController extends BarController {
     return BarLayout.create(tools);
   }
 
-  @TraitViewControllerRef<AppBarController, ToolTrait, ToolView, ToolController, ObserverType<ToolController | ButtonToolController>>({
-    implements: true,
-    type: ToolController,
+  @TraitViewControllerRefDef<AppBarController["menuTool"]>({
+    controllerType: ToolController,
     binds: true,
-    viewKey: "menu",
     observes: true,
+    viewKey: "menu",
     get parentView(): BarView | null {
       return this.owner.bar.view;
     },
@@ -132,15 +131,19 @@ export class AppBarController extends BarController {
       return toolController;
     },
   })
-  readonly menuTool!: TraitViewControllerRef<this, ToolTrait, ToolView, ToolController>;
-  static readonly menuTool: MemberFastenerClass<AppBarController, "menuTool">;
+  readonly menuTool!: TraitViewControllerRefDef<this, {
+    trait: ToolTrait,
+    view: ToolView,
+    controller: ToolController,
+    observes: ToolController & ButtonToolController,
+  }>;
+  static readonly menuTool: FastenerClass<AppBarController["menuTool"]>;
 
-  @TraitViewControllerRef<AppBarController, ToolTrait, ToolView, ToolController, ObserverType<ToolController | ButtonToolController>>({
-    implements: true,
-    type: ToolController,
+  @TraitViewControllerRefDef<AppBarController["actionTool"]>({
+    controllerType: ToolController,
     binds: true,
-    viewKey: "action",
     observes: true,
+    viewKey: "action",
     get parentView(): BarView | null {
       return this.owner.bar.view;
     },
@@ -160,11 +163,16 @@ export class AppBarController extends BarController {
       return toolController;
     },
   })
-  readonly actionTool!: TraitViewControllerRef<this, ToolTrait, ToolView, ToolController>;
-  static readonly actionTool: MemberFastenerClass<AppBarController, "actionTool">;
+  readonly actionTool!: TraitViewControllerRefDef<this, {
+    trait: ToolTrait,
+    view: ToolView,
+    controller: ToolController,
+    observes: ToolController & ButtonToolController,
+  }>;
+  static readonly actionTool: FastenerClass<AppBarController["actionTool"]>;
 
-  @TraitViewControllerRef<AppBarController, Trait, SheetView, SheetController>({
-    type: SheetController,
+  @TraitViewControllerRefDef<AppBarController["cover"]>({
+    controllerType: SheetController,
     inherits: true,
     observes: true,
     getTraitViewRef(coverController: SheetController): TraitViewRef<unknown, Trait, SheetView> {
@@ -186,11 +194,15 @@ export class AppBarController extends BarController {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
   })
-  readonly cover!: TraitViewControllerRef<this, Trait, SheetView, SheetController>;
-  static readonly cover: MemberFastenerClass<AppBarController, "cover">;
+  readonly cover!: TraitViewControllerRefDef<this, {
+    view: SheetView,
+    controller: SheetController,
+    observes: true,
+  }>;
+  static readonly cover: FastenerClass<AppBarController["cover"]>;
 
-  @TraitViewControllerSet<AppBarController, ToolTrait, ToolView, ToolController>({
-    type: ToolController,
+  @TraitViewControllerSetDef<AppBarController["modeTools"]>({
+    controllerType: ToolController,
     inherits: true,
     observes: true,
     getTraitViewRef(modeToolController: ToolController): TraitViewRef<unknown, ToolTrait, ToolView> {
@@ -209,11 +221,16 @@ export class AppBarController extends BarController {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
   })
-  readonly modeTools!: TraitViewControllerSet<this, ToolTrait, ToolView, ToolController>;
-  static readonly modeTools: MemberFastenerClass<AppBarController, "modeTools">;
+  readonly modeTools!: TraitViewControllerSetDef<this, {
+    trait: ToolTrait,
+    view: ToolView,
+    controller: ToolController,
+    observes: true,
+  }>;
+  static readonly modeTools: FastenerClass<AppBarController["modeTools"]>;
 
-  @Property<AppBarController, boolean>({
-    type: Boolean,
+  @PropertyDef<AppBarController["fullScreen"]>({
+    valueType: Boolean,
     value: false,
     inherits: true,
     didSetValue(fullScreen: boolean): void {
@@ -227,7 +244,7 @@ export class AppBarController extends BarController {
       }
     },
   })
-  readonly fullScreen!: Property<this, boolean>;
+  readonly fullScreen!: PropertyDef<this, {value: boolean}>;
 
   get menuIcon(): VectorIcon {
     return AppBarController.menuIcon;

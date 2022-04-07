@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import type {Class, Instance, Creatable} from "@swim/util";
-import type {MemberFastenerClass} from "@swim/component";
-import {Model, Trait, TraitSet} from "@swim/model";
+import type {FastenerClass} from "@swim/component";
+import {Model, Trait, TraitSetDef} from "@swim/model";
 import {CellTrait} from "../cell/CellTrait";
 import type {LeafTraitObserver} from "./LeafTraitObserver";
 
@@ -45,8 +45,8 @@ export class LeafTrait extends Trait {
     this.setTrait(key, cellTrait);
   }
 
-  @TraitSet<LeafTrait, CellTrait>({
-    type: CellTrait,
+  @TraitSetDef<LeafTrait["cells"]>({
+    traitType: CellTrait,
     binds: true,
     willAttachTrait(cellTrait: CellTrait, targetTrait: Trait | null): void {
       this.owner.callObservers("traitWillAttachCell", cellTrait, targetTrait, this.owner);
@@ -68,8 +68,8 @@ export class LeafTrait extends Trait {
       return model.getTrait(CellTrait);
     },
   })
-  readonly cells!: TraitSet<this, CellTrait>;
-  static readonly cells: MemberFastenerClass<LeafTrait, "cells">;
+  readonly cells!: TraitSetDef<this, {trait: CellTrait}>;
+  static readonly cells: FastenerClass<LeafTrait["cells"]>;
 
   protected override onStartConsuming(): void {
     super.onStartConsuming();

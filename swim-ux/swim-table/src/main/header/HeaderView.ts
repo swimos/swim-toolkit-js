@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {Affinity, MemberFastenerClass, Property} from "@swim/component";
+import {Affinity, FastenerClass, PropertyDef, AnimatorDef} from "@swim/component";
 import {AnyLength, Length} from "@swim/math";
 import {AnyExpansion, Expansion, ExpansionAnimator} from "@swim/style";
-import {Look, ThemeConstraintAnimator} from "@swim/theme";
-import {ViewContextType, ViewFlags, View, ViewSet} from "@swim/view";
+import {Look, ThemeConstraintAnimatorDef} from "@swim/theme";
+import {ViewContextType, ViewFlags, View, ViewSetDef} from "@swim/view";
 import {HtmlViewClass, HtmlView} from "@swim/dom";
 import {AnyTableLayout, TableLayout} from "../layout/TableLayout";
 import {ColView} from "../col/ColView";
@@ -39,20 +39,27 @@ export class HeaderView extends HtmlView {
 
   override readonly observerType?: Class<HeaderViewObserver>;
 
-  @Property({type: TableLayout, inherits: true, value: null, updateFlags: View.NeedsLayout})
-  readonly layout!: Property<this, TableLayout | null, AnyTableLayout | null>;
+  @PropertyDef({valueType: TableLayout, value: null, inherits: true, updateFlags: View.NeedsLayout})
+  readonly layout!: PropertyDef<this, {value: TableLayout | null, valueInit: AnyTableLayout | null}>;
 
-  @Property({type: Number, inherits: true, value: 0, updateFlags: View.NeedsLayout})
-  readonly depth!: Property<this, number>;
+  @PropertyDef({valueType: Number, value: 0, inherits: true, updateFlags: View.NeedsLayout})
+  readonly depth!: PropertyDef<this, {value: number}>;
 
-  @ThemeConstraintAnimator({type: Length, inherits: true, value: null, updateFlags: View.NeedsLayout})
-  readonly rowSpacing!: ThemeConstraintAnimator<this, Length | null, AnyLength | null>;
+  @ThemeConstraintAnimatorDef({valueType: Length, value: null, inherits: true, updateFlags: View.NeedsLayout})
+  readonly rowSpacing!: ThemeConstraintAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
 
-  @ThemeConstraintAnimator({type: Length, inherits: true, value: null, updateFlags: View.NeedsLayout})
-  readonly rowHeight!: ThemeConstraintAnimator<this, Length | null, AnyLength | null>;
+  @ThemeConstraintAnimatorDef({valueType: Length, value: null, inherits: true, updateFlags: View.NeedsLayout})
+  readonly rowHeight!: ThemeConstraintAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
 
-  @ExpansionAnimator({type: Expansion, inherits: true, value: null, updateFlags: View.NeedsLayout})
-  readonly stretch!: ExpansionAnimator<this, Expansion | null, AnyExpansion | null>;
+  @AnimatorDef<HeaderView["stretch"]>({
+    extends: ExpansionAnimator,
+    value: null,
+    inherits: true,
+    updateFlags: View.NeedsLayout,
+  })
+  readonly stretch!: AnimatorDef<this, {
+    extends: ExpansionAnimator<HeaderView, Expansion | null, AnyExpansion | null>,
+  }>;
 
   getCol(key: string): ColView | null;
   getCol<V extends ColView>(key: string, colViewClass: Class<V>): V | null;
@@ -82,8 +89,8 @@ export class HeaderView extends HtmlView {
     this.setChild(key, colView);
   }
 
-  @ViewSet<HeaderView, ColView>({
-    type: ColView,
+  @ViewSetDef<HeaderView["cols"]>({
+    viewType: ColView,
     binds: true,
     initView(colView: ColView): void {
       colView.display.setState("none", Affinity.Intrinsic);
@@ -100,8 +107,8 @@ export class HeaderView extends HtmlView {
       this.owner.callObservers("viewDidDetachCol", colView, this.owner);
     },
   })
-  readonly cols!: ViewSet<this, ColView>;
-  static readonly cols: MemberFastenerClass<HeaderView, "cols">;
+  readonly cols!: ViewSetDef<this, {view: ColView}>;
+  static readonly cols: FastenerClass<HeaderView["cols"]>;
 
   protected override onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);

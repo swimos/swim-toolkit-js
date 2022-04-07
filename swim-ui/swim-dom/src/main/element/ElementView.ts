@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import {Class, Instance, Arrays, Creatable, ObserverType, AnyTiming} from "@swim/util";
-import {Affinity, Provider} from "@swim/component";
+import {Affinity, FastenerClass, ProviderDef} from "@swim/component";
 import {R2Box} from "@swim/math";
 import {ThemeMatrix, Theme} from "@swim/theme";
 import {ToAttributeString, ToStyleString, ToCssValue} from "@swim/style";
-import {View, Viewport, ThemeService, ThemeProvider} from "@swim/view";
+import {View, Viewport} from "@swim/view";
 import type {StyleContext} from "../css/StyleContext";
 import {
   ViewNodeType,
@@ -79,14 +79,14 @@ export class ElementView extends NodeView implements StyleContext {
 
   override readonly node!: Element & ElementCSSInlineStyle;
 
-  @Provider({
+  @ProviderDef<ElementView["themeProvider"]>({
     lazy: false,
-    extends: ThemeProvider,
-    type: ThemeService,
-    observes: false,
-    service: ThemeService.global(),
+    extends: NodeView["themeProvider"],
   })
-  override readonly themeProvider!: ThemeProvider<this>;
+  override readonly themeProvider!: ProviderDef<this, {
+    extends: NodeView["themeProvider"],
+  }>;
+  static override readonly themeProvider: FastenerClass<ElementView["themeProvider"]>;
 
   protected detectTheme(): void {
     const themeName = this.node.getAttribute("swim-theme");

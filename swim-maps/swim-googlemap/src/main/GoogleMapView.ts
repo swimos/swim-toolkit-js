@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import {Mutable, Class, Lazy, Equivalent, AnyTiming} from "@swim/util";
-import type {MemberFastenerClass} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
 import {GeoPoint} from "@swim/geo";
-import {ViewContextType, ViewFlags, View, ViewRef} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewRefDef} from "@swim/view";
 import {ViewHtml, HtmlView} from "@swim/dom";
 import type {CanvasView} from "@swim/graphics";
 import {AnyGeoPerspective, MapView} from "@swim/map";
@@ -147,7 +147,7 @@ export class GoogleMapView extends MapView {
     }
   }
 
-  @ViewRef<GoogleMapView, CanvasView>({
+  @ViewRefDef<GoogleMapView["canvas"]>({
     extends: true,
     didAttachView(canvasView: CanvasView, targetView: View | null): void {
       if (this.owner.parent === null) {
@@ -162,12 +162,30 @@ export class GoogleMapView extends MapView {
       }
     },
   })
-  override readonly canvas!: ViewRef<this, CanvasView>;
-  static override readonly canvas: MemberFastenerClass<GoogleMapView, "canvas">;
+  override readonly canvas!: ViewRefDef<this, {
+    extends: MapView["canvas"],
+  }>;
+  static override readonly canvas: FastenerClass<GoogleMapView["canvas"]>;
 
-  @ViewRef<GoogleMapView, HtmlView, {materializeView(containerView: HtmlView): void}>({
+  @ViewRefDef<GoogleMapView["container"]>({
     extends: true,
-    implements: true,
+    didAttachView(containerView: HtmlView, targetView: View | null): void {
+      this.materializeView(containerView);
+      MapView.container.prototype.didAttachView.call(this, containerView, targetView);
+    },
+    willDetachView(containerView: HtmlView): void {
+      MapView.container.prototype.willDetachView.call(this, containerView);
+      const canvasView = this.owner.canvas.view;
+      const mapPanes = this.owner.mapOverlay.getPanes();
+      if (mapPanes !== void 0 && mapPanes !== null) {
+        const overlayMouseTargetView = (mapPanes.overlayMouseTarget as ViewHtml).view!;
+        const overlayContainerView = overlayMouseTargetView.parent as HtmlView;
+        const canvasContainerView = overlayContainerView.parent as HtmlView;
+        if (canvasView !== null && canvasView.parent === canvasContainerView) {
+          canvasContainerView.removeChild(containerView);
+        }
+      }
+    },
     materializeView(containerView: HtmlView): void {
       function materializeAncestors(node: HTMLElement): HtmlView {
         const parentNode = node.parentNode;
@@ -187,24 +205,12 @@ export class GoogleMapView extends MapView {
         this.owner.canvas.attachView();
       }
     },
-    didAttachView(containerView: HtmlView, targetView: View | null): void {
-      this.materializeView(containerView);
-      MapView.container.prototype.didAttachView.call(this, containerView, targetView);
-    },
-    willDetachView(containerView: HtmlView): void {
-      MapView.container.prototype.willDetachView.call(this, containerView);
-      const canvasView = this.owner.canvas.view;
-      const mapPanes = this.owner.mapOverlay.getPanes();
-      if (mapPanes !== void 0 && mapPanes !== null) {
-        const overlayMouseTargetView = (mapPanes.overlayMouseTarget as ViewHtml).view!;
-        const overlayContainerView = overlayMouseTargetView.parent as HtmlView;
-        const canvasContainerView = overlayContainerView.parent as HtmlView;
-        if (canvasView !== null && canvasView.parent === canvasContainerView) {
-          canvasContainerView.removeChild(containerView);
-        }
-      }
-    },
   })
-  override readonly container!: ViewRef<this, HtmlView> & {materializeView(containerView: HtmlView): void};
-  static override readonly container: MemberFastenerClass<GoogleMapView, "container">;
+  override readonly container!: ViewRefDef<this, {
+    extends: MapView["container"],
+    implements: {
+      materializeView(containerView: HtmlView): void,
+    },
+  }>;
+  static override readonly container: FastenerClass<GoogleMapView["container"]>;
 }

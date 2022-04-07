@@ -17,7 +17,7 @@ import {Affinity, MemberAnimatorInit} from "@swim/component";
 import {Transform} from "@swim/math";
 import {Look, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewFlags, AnyView, View} from "@swim/view";
-import {AttributeAnimator} from "../animator/AttributeAnimator";
+import {AttributeAnimatorDef} from "../animator/AttributeAnimator";
 import {StyleMapInit, StyleMap} from "../css/StyleMap";
 import type {ViewNodeType} from "../node/NodeView";
 import {
@@ -256,35 +256,35 @@ export class HtmlView extends ElementView {
     return super.replaceChild(newChild, oldChild);
   }
 
-  @AttributeAnimator({attributeName: "autocomplete", type: String})
-  readonly autocomplete!: AttributeAnimator<this, string>;
+  @AttributeAnimatorDef({attributeName: "autocomplete", valueType: String})
+  readonly autocomplete!: AttributeAnimatorDef<this, {value: string}>;
 
-  @AttributeAnimator({attributeName: "checked", type: Boolean})
-  readonly checked!: AttributeAnimator<this, boolean, boolean | string>;
+  @AttributeAnimatorDef({attributeName: "checked", valueType: Boolean})
+  readonly checked!: AttributeAnimatorDef<this, {value: boolean, valueInit: boolean | string}>;
 
-  @AttributeAnimator({attributeName: "colspan", type: Number})
-  readonly colspan!: AttributeAnimator<this, number, number | string>;
+  @AttributeAnimatorDef({attributeName: "colspan", valueType: Number})
+  readonly colspan!: AttributeAnimatorDef<this, {value: number, valueInit: number | string}>;
 
-  @AttributeAnimator({attributeName: "disabled", type: Boolean})
-  readonly disabled!: AttributeAnimator<this, boolean, boolean | string>;
+  @AttributeAnimatorDef({attributeName: "disabled", valueType: Boolean})
+  readonly disabled!: AttributeAnimatorDef<this, {value: boolean, valueInit: boolean | string}>;
 
-  @AttributeAnimator({attributeName: "placeholder", type: String})
-  readonly placeholder!: AttributeAnimator<this, string>;
+  @AttributeAnimatorDef({attributeName: "placeholder", valueType: String})
+  readonly placeholder!: AttributeAnimatorDef<this, {value: string}>;
 
-  @AttributeAnimator({attributeName: "rowspan", type: Number})
-  readonly rowspan!: AttributeAnimator<this, number, number | string>;
+  @AttributeAnimatorDef({attributeName: "rowspan", valueType: Number})
+  readonly rowspan!: AttributeAnimatorDef<this, {value: number, valueInit: number | string}>;
 
-  @AttributeAnimator({attributeName: "selected", type: Boolean})
-  readonly selected!: AttributeAnimator<this, boolean, boolean | string>;
+  @AttributeAnimatorDef({attributeName: "selected", valueType: Boolean})
+  readonly selected!: AttributeAnimatorDef<this, {value: boolean, valueInit: boolean | string}>;
 
-  @AttributeAnimator({attributeName: "title", type: String})
-  readonly title!: AttributeAnimator<this, string>;
+  @AttributeAnimatorDef({attributeName: "title", valueType: String})
+  readonly title!: AttributeAnimatorDef<this, {value: string}>;
 
-  @AttributeAnimator({attributeName: "type", type: String})
-  readonly type!: AttributeAnimator<this, string>;
+  @AttributeAnimatorDef({attributeName: "type", valueType: String})
+  readonly type!: AttributeAnimatorDef<this, {value: string}>;
 
-  @AttributeAnimator({attributeName: "value", type: String})
-  readonly value!: AttributeAnimator<this, string>;
+  @AttributeAnimatorDef({attributeName: "value", valueType: String})
+  readonly value!: AttributeAnimatorDef<this, {value: string}>;
 
   protected override onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);

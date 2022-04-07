@@ -13,17 +13,17 @@
 // limitations under the License.
 
 import type {Mutable, Class, Instance, Creatable, Timing} from "@swim/util";
-import {Affinity, MemberFastenerClass, Property} from "@swim/component";
+import {Affinity, FastenerClass, PropertyDef, AnimatorDef} from "@swim/component";
 import {AnyLength, Length, R2Box} from "@swim/math";
 import {AnyExpansion, Expansion, ExpansionAnimator} from "@swim/style";
-import {Look, ThemeConstraintAnimator} from "@swim/theme";
+import {Look, ThemeConstraintAnimatorDef} from "@swim/theme";
 import {
   PositionGestureInput,
   ViewContextType,
   ViewContext,
   ViewFlags,
   View,
-  ViewRef,
+  ViewRefDef,
 } from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {AnyTableLayout, TableLayout} from "../layout/TableLayout";
@@ -50,13 +50,13 @@ export class RowView extends HtmlView {
 
   override readonly contextType?: Class<TableViewContext>;
 
-  @Property({type: TableLayout, inherits: true, value: null, updateFlags: View.NeedsLayout})
-  readonly layout!: Property<this, TableLayout | null, AnyTableLayout | null>;
+  @PropertyDef({valueType: TableLayout, value: null, inherits: true, updateFlags: View.NeedsLayout})
+  readonly layout!: PropertyDef<this, {value: TableLayout | null, valueInit: AnyTableLayout | null}>;
 
-  @Property<RowView, number>({
-    type: Number,
-    inherits: true,
+  @PropertyDef<RowView["depth"]>({
+    valueType: Number,
     value: 0,
+    inherits: true,
     updateFlags: View.NeedsLayout,
     didSetValue(newDepth: number, oldDepth: number): void {
       const treeView = this.owner.tree.view;
@@ -65,19 +65,19 @@ export class RowView extends HtmlView {
       }
     },
   })
-  readonly depth!: Property<this, number>;
+  readonly depth!: PropertyDef<this, {value: number}>;
 
-  @ThemeConstraintAnimator({type: Length, inherits: true, value: null, updateFlags: View.NeedsLayout})
-  readonly rowSpacing!: ThemeConstraintAnimator<this, Length | null, AnyLength | null>;
+  @ThemeConstraintAnimatorDef({valueType: Length, value: null, inherits: true, updateFlags: View.NeedsLayout})
+  readonly rowSpacing!: ThemeConstraintAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
 
-  @ThemeConstraintAnimator({type: Length, inherits: true, value: null, updateFlags: View.NeedsLayout})
-  readonly rowHeight!: ThemeConstraintAnimator<this, Length | null, AnyLength | null>;
+  @ThemeConstraintAnimatorDef({valueType: Length, value: null, inherits: true, updateFlags: View.NeedsLayout})
+  readonly rowHeight!: ThemeConstraintAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
 
-  @Property({type: Boolean, inherits: true, value: false})
-  readonly hovers!: Property<this, boolean>;
+  @PropertyDef({valueType: Boolean, value: false, inherits: true})
+  readonly hovers!: PropertyDef<this, {value: boolean}>;
 
-  @Property({type: Boolean, inherits: true, value: true})
-  readonly glows!: Property<this, boolean>;
+  @PropertyDef({valueType: Boolean, value: true, inherits: true})
+  readonly glows!: PropertyDef<this, {value: boolean}>;
 
   getCell<F extends Class<CellView>>(key: string, cellViewClass: F): InstanceType<F> | null;
   getCell(key: string): CellView | null;
@@ -102,9 +102,9 @@ export class RowView extends HtmlView {
     leafView.setCell(key, cellView);
   }
 
-  @ViewRef<RowView, LeafView>({
-    key: true,
-    type: LeafView,
+  @ViewRefDef<RowView["leaf"]>({
+    viewType: LeafView,
+    viewKey: true,
     binds: true,
     observes: true,
     initView(leafView: LeafView): void {
@@ -147,12 +147,12 @@ export class RowView extends HtmlView {
       this.owner.callObservers("viewDidLongPressLeaf", input, leafView, this.owner);
     },
   })
-  readonly leaf!: ViewRef<this, LeafView>;
-  static readonly leaf: MemberFastenerClass<RowView, "leaf">;
+  readonly leaf!: ViewRefDef<this, {view: LeafView, observes: true}>;
+  static readonly leaf: FastenerClass<RowView["leaf"]>;
 
-  @ViewRef<RowView, HtmlView>({
-    key: true,
-    type: HtmlView,
+  @ViewRefDef<RowView["head"]>({
+    viewType: HtmlView,
+    viewKey: true,
     binds: true,
     initView(headView: HtmlView): void {
       headView.addClass("head");
@@ -168,12 +168,12 @@ export class RowView extends HtmlView {
       headView.zIndex.setState(1, Affinity.Intrinsic);
     },
   })
-  readonly head!: ViewRef<this, HtmlView>;
-  static readonly head: MemberFastenerClass<RowView, "head">;
+  readonly head!: ViewRefDef<this, {view: HtmlView}>;
+  static readonly head: FastenerClass<RowView["head"]>;
 
-  @ViewRef<RowView, TableView>({
-    key: true,
-    // avoid cyclic static reference to type: TableView
+  @ViewRefDef<RowView["tree"]>({
+    // avoid cyclic static reference to viewType: TableView
+    viewKey: true,
     binds: true,
     initView(treeView: TableView): void {
       treeView.addClass("tree");
@@ -195,12 +195,12 @@ export class RowView extends HtmlView {
       return TableView.create();
     },
   })
-  readonly tree!: ViewRef<this, TableView>;
-  static readonly tree: MemberFastenerClass<RowView, "tree">;
+  readonly tree!: ViewRefDef<this, {view: TableView}>;
+  static readonly tree: FastenerClass<RowView["tree"]>;
 
-  @ViewRef<RowView, HtmlView>({
-    key: true,
-    type: HtmlView,
+  @ViewRefDef<RowView["foot"]>({
+    viewType: HtmlView,
+    viewKey: true,
     binds: true,
     initView(footView: HtmlView): void {
       footView.addClass("foot");
@@ -216,11 +216,11 @@ export class RowView extends HtmlView {
       footView.zIndex.setState(1, Affinity.Intrinsic);
     },
   })
-  readonly foot!: ViewRef<this, HtmlView>;
-  static readonly foot: MemberFastenerClass<RowView, "foot">;
+  readonly foot!: ViewRefDef<this, {view: HtmlView}>;
+  static readonly foot: FastenerClass<RowView["foot"]>;
 
-  @ExpansionAnimator<RowView, Expansion, AnyExpansion>({
-    type: Expansion,
+  @AnimatorDef<RowView["disclosure"]>({
+    extends: ExpansionAnimator,
     value: Expansion.collapsed(),
     get transition(): Timing | null {
       return this.owner.getLookOr(Look.timing, null);
@@ -258,10 +258,19 @@ export class RowView extends HtmlView {
       }
     },
   })
-  readonly disclosure!: ExpansionAnimator<this, Expansion, AnyExpansion>;
+  readonly disclosure!: AnimatorDef<this, {
+    extends: ExpansionAnimator<RowView, Expansion, AnyExpansion>,
+  }>;
 
-  @ExpansionAnimator({type: Expansion, inherits: true, value: null, updateFlags: View.NeedsLayout})
-  readonly disclosing!: ExpansionAnimator<this, Expansion | null, AnyExpansion | null>;
+  @AnimatorDef<RowView["disclosing"]>({
+    extends: ExpansionAnimator,
+    value: null,
+    inherits: true,
+    updateFlags: View.NeedsLayout,
+  })
+  readonly disclosing!: AnimatorDef<this, {
+    extends: ExpansionAnimator<RowView, Expansion | null, AnyExpansion | null>,
+  }>;
 
   /** @internal */
   readonly visibleFrame!: R2Box;
@@ -324,9 +333,9 @@ export class RowView extends HtmlView {
   }
 
   protected resizeRow(): void {
-    const oldLayout = !this.layout.inherited ? this.layout.value : null;
+    const oldLayout = !this.layout.derived ? this.layout.value : null;
     if (oldLayout !== null) {
-      const superLayout = this.layout.superValue;
+      const superLayout = this.layout.inletValue;
       let width: Length | number | null = null;
       if (superLayout !== void 0 && superLayout !== null && superLayout.width !== null) {
         width = superLayout.width.pxValue();

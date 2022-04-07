@@ -18,7 +18,7 @@ import {ThemeService} from "./ThemeService";
 import type {View} from "../view/View";
 
 /** @public */
-export interface ThemeProvider<V extends View, S extends ThemeService<V> | null | undefined = ThemeService<V>> extends Provider<V, S> {
+export interface ThemeProvider<V extends View, S extends ThemeService<any> | null | undefined = ThemeService> extends Provider<V, S> {
   get mood(): MoodVector;
 
   setMood(mood: MoodVector): void;
@@ -32,7 +32,9 @@ export interface ThemeProvider<V extends View, S extends ThemeService<V> | null 
 
 /** @public */
 export const ThemeProvider = (function (_super: typeof Provider) {
-  const ThemeProvider = _super.extend("ThemeProvider") as ProviderClass<ThemeProvider<any, any>>;
+  const ThemeProvider = _super.extend("ThemeProvider", {
+    serviceType: ThemeService,
+  }) as ProviderClass<ThemeProvider<any, any>>;
 
   Object.defineProperty(ThemeProvider.prototype, "mood", {
     get<V extends View, S extends ThemeService<V>>(this: ThemeProvider<V, S>): MoodVector {

@@ -12,18 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Class, Instance, Equals, Values, Creatable, Domain, Range, AnyTiming, LinearRange, ContinuousScale} from "@swim/util";
-import {Affinity, MemberFastenerClass, Property, Animator} from "@swim/component";
+import {
+  Mutable,
+  Class,
+  Instance,
+  Equals,
+  Values,
+  Creatable,
+  Domain,
+  Range,
+  AnyTiming,
+  LinearRange,
+  ContinuousScale,
+} from "@swim/util";
+import {Affinity, FastenerClass, PropertyDef, AnimatorDef} from "@swim/component";
 import {BTree} from "@swim/collections";
 import type {R2Box} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
-import {ThemeAnimator} from "@swim/theme";
-import {ViewContextType, ViewFlags, AnyView, View, ViewSet} from "@swim/view";
+import {ThemeAnimatorDef} from "@swim/theme";
+import {ViewContextType, ViewFlags, AnyView, View, ViewSetDef} from "@swim/view";
 import {GraphicsView, CanvasContext, CanvasRenderer} from "@swim/graphics";
 import type {DataPointCategory} from "../data/DataPoint";
 import {AnyDataPointView, DataPointView} from "../data/DataPointView";
 import {ContinuousScaleAnimator} from "../scaled/ContinuousScaleAnimator";
-import type {PlotViewInit, PlotViewDataPointExt, PlotView} from "./PlotView";
+import type {PlotViewInit, PlotView} from "./PlotView";
 import type {SeriesPlotViewObserver} from "./SeriesPlotViewObserver";
 
 /** @public */
@@ -51,46 +63,46 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
 
   override readonly observerType?: Class<SeriesPlotViewObserver<X, Y>>;
 
-  @ThemeAnimator({type: Font, value: null, inherits: true})
-  readonly font!: ThemeAnimator<this, Font | null, AnyFont | null>;
+  @ThemeAnimatorDef({valueType: Font, value: null, inherits: true})
+  readonly font!: ThemeAnimatorDef<this, {value: Font | null, valueInit: AnyFont | null}>;
 
-  @ThemeAnimator({type: Color, value: null, inherits: true})
-  readonly textColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  @ThemeAnimatorDef({valueType: Color, value: null, inherits: true})
+  readonly textColor!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
 
-  @Property({type: String, value: "domain"})
-  readonly hitMode!: Property<this, SeriesPlotHitMode>;
+  @PropertyDef<SeriesPlotView<X, Y>["hitMode"]>({valueType: String, value: "domain"})
+  readonly hitMode!: PropertyDef<this, {value: SeriesPlotHitMode}>;
 
-  @Animator<SeriesPlotView<X, Y>, ContinuousScale<X, number> | null>({
+  @AnimatorDef<SeriesPlotView<X, Y>["xScale"]>({
     extends: ContinuousScaleAnimator,
-    type: ContinuousScale,
-    inherits: true,
+    valueType: ContinuousScale,
     value: null,
+    inherits: true,
     updateFlags: View.NeedsLayout,
-    willSetValue(newXScale: ContinuousScale<X, number> | null, oldXScale: ContinuousScale<X, number> | null): void {
-      this.owner.callObservers("viewWillSetXScale", newXScale, oldXScale, this.owner);
-    },
-    didSetValue(newXScale: ContinuousScale<X, number> | null, oldXScale: ContinuousScale<X, number> | null): void {
+    didSetValue(xScale: ContinuousScale<X, number> | null): void {
       this.owner.updateXDataRange();
-      this.owner.callObservers("viewDidSetXScale", newXScale, oldXScale, this.owner);
+      this.owner.callObservers("viewDidSetXScale", xScale, this.owner);
     },
   })
-  readonly xScale!: ContinuousScaleAnimator<this, X, number>;
+  readonly xScale!: AnimatorDef<this, {
+    extends: ContinuousScaleAnimator<SeriesPlotView<X, Y>, X, number>,
+    value: ContinuousScale<X, number> | null,
+  }>;
 
-  @Animator<SeriesPlotView<X, Y>, ContinuousScale<Y, number> | null>({
+  @AnimatorDef<SeriesPlotView<X, Y>["yScale"]>({
     extends: ContinuousScaleAnimator,
-    type: ContinuousScale,
-    inherits: true,
+    valueType: ContinuousScale,
     value: null,
+    inherits: true,
     updateFlags: View.NeedsLayout,
-    willSetValue(newYScale: ContinuousScale<Y, number> | null, oldYScale: ContinuousScale<Y, number> | null): void {
-      this.owner.callObservers("viewWillSetYScale", newYScale, oldYScale, this.owner);
-    },
-    didSetValue(newYScale: ContinuousScale<Y, number> | null, oldYScale: ContinuousScale<Y, number> | null): void {
+    didSetValue(yScale: ContinuousScale<Y, number> | null): void {
       this.owner.updateYDataRange();
-      this.owner.callObservers("viewDidSetYScale", newYScale, oldYScale, this.owner);
+      this.owner.callObservers("viewDidSetYScale", yScale, this.owner);
     },
   })
-  readonly yScale!: ContinuousScaleAnimator<this, Y, number>;
+  readonly yScale!: AnimatorDef<this, {
+    extends: ContinuousScaleAnimator<SeriesPlotView<X, Y>, Y, number>,
+    value: ContinuousScale<Y, number> | null,
+  }>;
 
   xDomain(): Domain<X> | null;
   xDomain(xDomain: Domain<X> | string | null, timing?: AnyTiming | boolean): this;
@@ -130,31 +142,25 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
     return yScale !== null ? yScale.range : null;
   }
 
-  @Property<SeriesPlotView<X, Y>, readonly [number, number]>({
+  @PropertyDef<SeriesPlotView<X, Y>["xRangePadding"]>({
     initValue(): readonly [number, number] {
       return [0, 0];
     },
-    willSetValue(newXRangePadding: readonly [number, number], oldXRangePadding: readonly [number, number]): void {
-      this.owner.callObservers("viewWillSetXRangePadding", newXRangePadding, oldXRangePadding, this.owner);
-    },
-    didSetValue(newXRangePadding: readonly [number, number], oldXRangePadding: readonly [number, number]): void {
-      this.owner.callObservers("viewDidSetXRangePadding", newXRangePadding, oldXRangePadding, this.owner);
+    didSetValue(xRangePadding: readonly [number, number]): void {
+      this.owner.callObservers("viewDidSetXRangePadding", xRangePadding, this.owner);
     },
   })
-  readonly xRangePadding!: Property<this, readonly [number, number]>
+  readonly xRangePadding!: PropertyDef<this, {value: readonly [number, number]}>
 
-  @Property<SeriesPlotView<X, Y>, readonly [number, number]>({
+  @PropertyDef<SeriesPlotView<X, Y>["yRangePadding"]>({
     initValue(): readonly [number, number] {
       return [0, 0];
     },
-    willSetValue(newYRangePadding: readonly [number, number], oldYRangePadding: readonly [number, number]): void {
-      this.owner.callObservers("viewWillSetYRangePadding", newYRangePadding, oldYRangePadding, this.owner);
-    },
-    didSetValue(newYRangePadding: readonly [number, number], oldYRangePadding: readonly [number, number]): void {
-      this.owner.callObservers("viewDidSetYRangePadding", newYRangePadding, oldYRangePadding, this.owner);
+    didSetValue(yRangePadding: readonly [number, number]): void {
+      this.owner.callObservers("viewDidSetYRangePadding", yRangePadding, this.owner);
     },
   })
-  readonly yRangePadding!: Property<this, readonly [number, number]>
+  readonly yRangePadding!: PropertyDef<this, {value: readonly [number, number]}>
 
   readonly xDataDomain: Domain<X> | null;
 
@@ -169,7 +175,7 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
   }
 
   protected willSetXDataDomain(newXDataDomain: Domain<X> | null, oldXDataDomain: Domain<X> | null): void {
-    this.callObservers("viewWillSetXDataDomain", newXDataDomain, oldXDataDomain, this);
+    // hook
   }
 
   protected onSetXDataDomain(newXDataDomain: Domain<X> | null, oldXDataDomain: Domain<X> | null): void {
@@ -178,7 +184,7 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
   }
 
   protected didSetXDataDomain(newXDataDomain: Domain<X> | null, oldXDataDomain: Domain<X> | null): void {
-    this.callObservers("viewDidSetXDataDomain", newXDataDomain, oldXDataDomain, this);
+    this.callObservers("viewDidSetXDataDomain", newXDataDomain, this);
   }
 
   protected updateXDataDomain(dataPointView: DataPointView<X, Y>): void {
@@ -208,7 +214,7 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
   }
 
   protected willSetYDataDomain(newYDataDomain: Domain<Y> | null, oldYDataDomain: Domain<Y> | null): void {
-    this.callObservers("viewWillSetYDataDomain", newYDataDomain, oldYDataDomain, this);
+    // hook
   }
 
   protected onSetYDataDomain(newYDataDomain: Domain<Y> | null, oldYDataDomain: Domain<Y> | null): void {
@@ -217,11 +223,11 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
   }
 
   protected didSetYDataDomain(newYDataDomain: Domain<Y> | null, oldYDataDomain: Domain<Y> | null): void {
-    this.callObservers("viewDidSetYDataDomain", newYDataDomain, oldYDataDomain, this);
+    this.callObservers("viewDidSetYDataDomain", newYDataDomain, this);
   }
 
   protected updateYDataDomain(dataPointView: DataPointView<X, Y>): void {
-    const y = dataPointView.y.value;
+    const y = dataPointView.y.value as Y;
     const y2 = dataPointView.y2.value;
     let yDataDomain = this.yDataDomain;
     if (yDataDomain === null) {
@@ -282,9 +288,8 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
   /** @internal */
   readonly gradientStops: number;
 
-  @ViewSet<SeriesPlotView<X, Y>, DataPointView<X, Y>, PlotViewDataPointExt<X, Y>>({
-    implements: true,
-    type: DataPointView,
+  @ViewSetDef<SeriesPlotView<X, Y>["dataPoints"]>({
+    viewType: DataPointView,
     binds: true,
     observes: true,
     willAttachView(dataPointView: DataPointView<X, Y>, targetView: View | null): void {
@@ -315,22 +320,22 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
     didDetachView(dataPointView: DataPointView<X, Y>): void {
       this.owner.callObservers("viewDidDetachDataPoint", dataPointView, this.owner);
     },
-    viewDidSetDataPointX(newX: X | undefined, oldX: X | undefined, dataPointView: DataPointView<X, Y>): void {
+    viewDidSetX(x: X | undefined, dataPointView: DataPointView<X, Y>): void {
       this.owner.updateXDataDomain(dataPointView);
       this.owner.requireUpdate(View.NeedsLayout);
     },
-    viewDidSetDataPointY(newY: Y | undefined, oldY: Y | undefined, dataPointView: DataPointView<X, Y>): void {
+    viewDidSetY(y: Y | undefined, dataPointView: DataPointView<X, Y>): void {
       this.owner.updateYDataDomain(dataPointView);
       this.owner.requireUpdate(View.NeedsLayout);
     },
-    viewDidSetDataPointY2(newY2: Y | undefined, oldY2: Y | undefined, dataPointView: DataPointView<X, Y>): void {
+    viewDidSetY2(y2: Y | undefined, dataPointView: DataPointView<X, Y>): void {
       this.owner.updateYDataDomain(dataPointView);
       this.owner.requireUpdate(View.NeedsLayout);
     },
-    viewWillAttachDataPointLabel(labelView: GraphicsView): void {
+    viewWillAttachLabel(labelView: GraphicsView): void {
       this.attachDataPointLabelView(labelView);
     },
-    viewDidDetachDataPointLabel(labelView: GraphicsView): void {
+    viewDidDetachLabel(labelView: GraphicsView): void {
       this.detachDataPointLabelView(labelView);
     },
     attachDataPointLabelView(labelView: GraphicsView): void {
@@ -340,8 +345,15 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
       // hook
     },
   })
-  readonly dataPoints!: ViewSet<this, DataPointView<X, Y>>;
-  static readonly dataPoints: MemberFastenerClass<SeriesPlotView, "dataPoints">;
+  readonly dataPoints!: ViewSetDef<this, {
+    view: DataPointView<X, Y>,
+    implements: {
+      attachDataPointLabelView(labelView: GraphicsView): void,
+      detachDataPointLabelView(labelView: GraphicsView): void,
+    },
+    observes: true,
+  }>;
+  static readonly dataPoints: FastenerClass<SeriesPlotView["dataPoints"]>;
 
   /** @internal */
   readonly dataPointViews: BTree<X, DataPointView<X, Y>>;
@@ -434,11 +446,11 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
    * Updates own scale ranges to project onto view frame.
    */
   protected resizeScales(frame: R2Box): void {
-    const xScale = !this.xScale.inherited ? this.xScale.value : null;
+    const xScale = !this.xScale.derived ? this.xScale.value : null;
     if (xScale !== null && xScale.range[1] !== frame.width) {
       this.xScale.setRange(0, frame.width);
     }
-    const yScale = !this.yScale.inherited ? this.yScale.value : null;
+    const yScale = !this.yScale.derived ? this.yScale.value : null;
     if (yScale !== null && yScale.range[1] !== frame.height) {
       this.yScale.setRange(0, frame.height);
     }

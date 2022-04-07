@@ -13,35 +13,27 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {MemberFastenerClass, Property} from "@swim/component";
-import {GeoBox} from "@swim/geo";
-import {Model, Trait, TraitSet} from "@swim/model";
+import {FastenerClass, PropertyDef} from "@swim/component";
+import {Model, Trait, TraitSetDef} from "@swim/model";
 import {GeoTrait} from "../geo/GeoTrait";
 import {AnyGeoPerspective, GeoPerspective} from "../geo/GeoPerspective";
 import type {MapTraitObserver} from "./MapTraitObserver";
 
 /** @public */
-export class MapTrait extends GeoTrait {
+export class MapTrait extends Trait {
   override readonly observerType?: Class<MapTraitObserver>;
 
-  override get geoBounds(): GeoBox {
-    return GeoBox.globe();
-  }
-
-  @Property<MapTrait, GeoPerspective | null, AnyGeoPerspective | null>({
-    type: GeoPerspective,
+  @PropertyDef<MapTrait["geoPerspective"]>({
+    valueType: GeoPerspective,
     value: null,
-    willSetValue(newGeoPerspective: GeoPerspective | null, oldGeoPerspective: GeoPerspective | null): void {
-      this.owner.callObservers("traitWillSetGeoPerspective", newGeoPerspective, oldGeoPerspective, this.owner);
-    },
-    didSetValue(newGeoPerspective: GeoPerspective | null, oldGeoPerspective: GeoPerspective | null): void {
-      this.owner.callObservers("traitDidSetGeoPerspective", newGeoPerspective, oldGeoPerspective, this.owner);
+    didSetValue(geoPerspective: GeoPerspective | null): void {
+      this.owner.callObservers("traitDidSetGeoPerspective", geoPerspective, this.owner);
     },
   })
-  readonly geoPerspective!: Property<this, GeoPerspective | null, AnyGeoPerspective | null>;
+  readonly geoPerspective!: PropertyDef<this, {value: GeoPerspective | null, valueInit: AnyGeoPerspective | null}>;
 
-  @TraitSet<MapTrait, GeoTrait>({
-    type: GeoTrait,
+  @TraitSetDef<MapTrait["layers"]>({
+    traitType: GeoTrait,
     binds: true,
     willAttachTrait(newLayerTrait: GeoTrait, targetTrait: Trait | null): void {
       this.owner.callObservers("traitWillAttachLayer", newLayerTrait, targetTrait, this.owner);
@@ -66,8 +58,8 @@ export class MapTrait extends GeoTrait {
       return null;
     },
   })
-  readonly layers!: TraitSet<this, GeoTrait>;
-  static readonly layers: MemberFastenerClass<MapTrait, "layers">;
+  readonly layers!: TraitSetDef<this, {trait: GeoTrait}>;
+  static readonly layers: FastenerClass<MapTrait["layers"]>;
 
   protected override onStartConsuming(): void {
     super.onStartConsuming();

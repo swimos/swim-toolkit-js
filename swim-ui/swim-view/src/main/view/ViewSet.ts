@@ -13,42 +13,49 @@
 // limitations under the License.
 
 import type {Mutable, Proto, ObserverType} from "@swim/util";
-import {Affinity, FastenerOwner, FastenerFlags, Fastener} from "@swim/component";
+import {Affinity, FastenerFlags, FastenerOwner, Fastener} from "@swim/component";
 import type {AnyView, View} from "./View";
-import {ViewRelationInit, ViewRelationClass, ViewRelation} from "./ViewRelation";
-
-/** @internal */
-export type ViewSetType<F extends ViewSet<any, any>> =
-  F extends ViewSet<any, infer V> ? V : never;
+import {
+  ViewRelationRefinement,
+  ViewRelationTemplate,
+  ViewRelationClass,
+  ViewRelation,
+} from "./ViewRelation";
 
 /** @public */
-export interface ViewSetInit<V extends View = View> extends ViewRelationInit<V> {
-  extends?: {prototype: ViewSet<any, any>} | string | boolean | null;
-  key?(view: V): string | undefined;
-  compare?(a: V, b: V): number;
-
-  sorted?: boolean;
-  willSort?(parent: View | null): void;
-  didSort?(parent: View | null): void;
-  sortChildren?(parent: View): void;
-  compareChildren?(a: View, b: View): number;
-
-  willInherit?(superFastener: ViewSet<unknown, V>): void;
-  didInherit?(superFastener: ViewSet<unknown, V>): void;
-  willUninherit?(superFastener: ViewSet<unknown, V>): void;
-  didUninherit?(superFastener: ViewSet<unknown, V>): void;
-
-  willBindSuperFastener?(superFastener: ViewSet<unknown, V>): void;
-  didBindSuperFastener?(superFastener: ViewSet<unknown, V>): void;
-  willUnbindSuperFastener?(superFastener: ViewSet<unknown, V>): void;
-  didUnbindSuperFastener?(superFastener: ViewSet<unknown, V>): void;
+export interface ViewSetRefinement extends ViewRelationRefinement {
 }
 
 /** @public */
-export type ViewSetDescriptor<O = unknown, V extends View = View, I = {}> = ThisType<ViewSet<O, V> & I> & ViewSetInit<V> & Partial<I>;
+export type ViewSetView<R extends ViewSetRefinement | ViewSet<any, any>, D = View> =
+  R extends {view: infer V} ? V :
+  R extends {extends: infer E} ? ViewSetView<E, D> :
+  R extends ViewSet<any, infer V> ? V :
+  D;
+
+/** @public */
+export interface ViewSetTemplate<V extends View = View> extends ViewRelationTemplate<V> {
+  extends?: Proto<ViewSet<any, any>> | string | boolean | null;
+  sorted?: boolean;
+}
 
 /** @public */
 export interface ViewSetClass<F extends ViewSet<any, any> = ViewSet<any, any>> extends ViewRelationClass<F> {
+  /** @override */
+  specialize(className: string, template: ViewSetTemplate): ViewSetClass;
+
+  /** @override */
+  refine(fastenerClass: ViewSetClass): void;
+
+  /** @override */
+  extend(className: string, template: ViewSetTemplate): ViewSetClass<F>;
+
+  /** @override */
+  specify<O, V extends View = View>(className: string, template: ThisType<ViewSet<O, V>> & ViewSetTemplate<V> & Partial<Omit<ViewSet<O, V>, keyof ViewSetTemplate>>): ViewSetClass<F>;
+
+  /** @override */
+  <O, V extends View = View>(template: ThisType<ViewSet<O, V>> & ViewSetTemplate<V> & Partial<Omit<ViewSet<O, V>, keyof ViewSetTemplate>>): PropertyDecorator;
+
   /** @internal */
   readonly SortedFlag: FastenerFlags;
 
@@ -59,18 +66,27 @@ export interface ViewSetClass<F extends ViewSet<any, any> = ViewSet<any, any>> e
 }
 
 /** @public */
-export interface ViewSetFactory<F extends ViewSet<any, any> = ViewSet<any, any>> extends ViewSetClass<F> {
-  extend<I = {}>(className: string, classMembers?: Partial<I> | null): ViewSetFactory<F> & I;
+export type ViewSetDef<O, R extends ViewSetRefinement> =
+  ViewSet<O, ViewSetView<R>> &
+  {readonly name: string} & // prevent type alias simplification
+  (R extends {extends: infer E} ? E : {}) &
+  (R extends {defines: infer D} ? D : {}) &
+  (R extends {implements: infer I} ? I : {}) &
+  (R extends {observes: infer B} ? ObserverType<B extends boolean ? ViewSetView<R> : B> : {});
 
-  define<O, V extends View = View>(className: string, descriptor: ViewSetDescriptor<O, V>): ViewSetFactory<ViewSet<any, V>>;
-  define<O, V extends View = View>(className: string, descriptor: {observes: boolean} & ViewSetDescriptor<O, V, ObserverType<V>>): ViewSetFactory<ViewSet<any, V>>;
-  define<O, V extends View = View, I = {}>(className: string, descriptor: {implements: unknown} & ViewSetDescriptor<O, V, I>): ViewSetFactory<ViewSet<any, V> & I>;
-  define<O, V extends View = View, I = {}>(className: string, descriptor: {implements: unknown; observes: boolean} & ViewSetDescriptor<O, V, I & ObserverType<V>>): ViewSetFactory<ViewSet<any, V> & I>;
-
-  <O, V extends View = View>(descriptor: ViewSetDescriptor<O, V>): PropertyDecorator;
-  <O, V extends View = View>(descriptor: {observes: boolean} & ViewSetDescriptor<O, V, ObserverType<V>>): PropertyDecorator;
-  <O, V extends View = View, I = {}>(descriptor: {implements: unknown} & ViewSetDescriptor<O, V, I>): PropertyDecorator;
-  <O, V extends View = View, I = {}>(descriptor: {implements: unknown; observes: boolean} & ViewSetDescriptor<O, V, I & ObserverType<V>>): PropertyDecorator;
+/** @public */
+export function ViewSetDef<F extends ViewSet<any, any>>(
+  template: F extends ViewSetDef<infer O, infer R>
+          ? ThisType<ViewSetDef<O, R>>
+          & ViewSetTemplate<ViewSetView<R>>
+          & Partial<Omit<ViewSet<O, ViewSetView<R>>, keyof ViewSetTemplate>>
+          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof ViewSetTemplate>> & {extends: unknown}) : {})
+          & (R extends {defines: infer D} ? Partial<D> : {})
+          & (R extends {implements: infer I} ? I : {})
+          & (R extends {observes: infer B} ? (ObserverType<B extends boolean ? ViewSetView<R> : B> & {observes: boolean}) : {})
+          : never
+): PropertyDecorator {
+  return ViewSet(template);
 }
 
 /** @public */
@@ -81,58 +97,58 @@ export interface ViewSet<O = unknown, V extends View = View> extends ViewRelatio
   get fastenerType(): Proto<ViewSet<any, any>>;
 
   /** @internal @override */
-  setInherited(inherited: boolean, superFastener: ViewSet<unknown, V>): void;
+  getSuper(): ViewSet<unknown, V> | null;
+
+  /** @internal @override */
+  setDerived(derived: boolean, inlet: ViewSet<unknown, V>): void;
 
   /** @protected @override */
-  willInherit(superFastener: ViewSet<unknown, V>): void;
+  willDerive(inlet: ViewSet<unknown, V>): void;
 
   /** @protected @override */
-  onInherit(superFastener: ViewSet<unknown, V>): void;
+  onDerive(inlet: ViewSet<unknown, V>): void;
 
   /** @protected @override */
-  didInherit(superFastener: ViewSet<unknown, V>): void;
+  didDerive(inlet: ViewSet<unknown, V>): void;
 
   /** @protected @override */
-  willUninherit(superFastener: ViewSet<unknown, V>): void;
+  willUnderive(inlet: ViewSet<unknown, V>): void;
 
   /** @protected @override */
-  onUninherit(superFastener: ViewSet<unknown, V>): void;
+  onUnderive(inlet: ViewSet<unknown, V>): void;
 
   /** @protected @override */
-  didUninherit(superFastener: ViewSet<unknown, V>): void;
+  didUnderive(inlet: ViewSet<unknown, V>): void;
 
   /** @override */
-  readonly superFastener: ViewSet<unknown, V> | null;
-
-  /** @internal @override */
-  getSuperFastener(): ViewSet<unknown, V> | null;
+  readonly inlet: ViewSet<unknown, V> | null;
 
   /** @protected @override */
-  willBindSuperFastener(superFastener: ViewSet<unknown, V>): void;
+  willBindInlet(inlet: ViewSet<unknown, V>): void;
 
   /** @protected @override */
-  onBindSuperFastener(superFastener: ViewSet<unknown, V>): void;
+  onBindInlet(inlet: ViewSet<unknown, V>): void;
 
   /** @protected @override */
-  didBindSuperFastener(superFastener: ViewSet<unknown, V>): void;
+  didBindInlet(inlet: ViewSet<unknown, V>): void;
 
   /** @protected @override */
-  willUnbindSuperFastener(superFastener: ViewSet<unknown, V>): void;
+  willUnbindInlet(inlet: ViewSet<unknown, V>): void;
 
   /** @protected @override */
-  onUnbindSuperFastener(superFastener: ViewSet<unknown, V>): void;
+  onUnbindInlet(inlet: ViewSet<unknown, V>): void;
 
   /** @protected @override */
-  didUnbindSuperFastener(superFastener: ViewSet<unknown, V>): void;
+  didUnbindInlet(inlet: ViewSet<unknown, V>): void;
 
   /** @internal */
-  readonly subFasteners: ReadonlyArray<ViewSet<unknown, V>> | null;
+  readonly outlets: ReadonlyArray<ViewSet<unknown, V>> | null;
 
   /** @internal @override */
-  attachSubFastener(subFastener: ViewSet<unknown, V>): void;
+  attachOutlet(outlet: ViewSet<unknown, V>): void;
 
   /** @internal @override */
-  detachSubFastener(subFastener: ViewSet<unknown, V>): void;
+  detachOutlet(outlet: ViewSet<unknown, V>): void;
 
   /** @internal */
   readonly views: {readonly [viewId: number]: V | undefined};
@@ -177,16 +193,16 @@ export interface ViewSet<O = unknown, V extends View = View> extends ViewRelatio
   detectView(view: View): V | null;
 
   /** @internal @protected */
-  decohereSubFasteners(): void;
+  decohereOutlets(): void;
 
   /** @internal @protected */
-  decohereSubFastener(subFastener: ViewSet<unknown, V>): void;
+  decohereOutlet(outlet: ViewSet<unknown, V>): void;
 
   /** @override */
   recohere(t: number): void;
 
   /** @internal @protected */
-  key(view: V): string | undefined;
+  viewKey(view: V): string | undefined;
 
   get sorted(): boolean;
 
@@ -216,44 +232,42 @@ export interface ViewSet<O = unknown, V extends View = View> extends ViewRelatio
 
 /** @public */
 export const ViewSet = (function (_super: typeof ViewRelation) {
-  const ViewSet: ViewSetFactory = _super.extend("ViewSet");
+  const ViewSet = _super.extend("ViewSet", {}) as ViewSetClass;
 
   Object.defineProperty(ViewSet.prototype, "fastenerType", {
-    get: function (this: ViewSet): Proto<ViewSet<any, any>> {
-      return ViewSet;
-    },
+    value: ViewSet,
     configurable: true,
   });
 
-  ViewSet.prototype.onInherit = function (this: ViewSet, superFastener: ViewSet): void {
-    this.setViews(superFastener.views);
+  ViewSet.prototype.onDerive = function (this: ViewSet, inlet: ViewSet): void {
+    this.setViews(inlet.views);
   };
 
-  ViewSet.prototype.onBindSuperFastener = function <V extends View>(this: ViewSet<unknown, V>, superFastener: ViewSet<unknown, V>): void {
-    (this as Mutable<typeof this>).superFastener = superFastener;
-    _super.prototype.onBindSuperFastener.call(this, superFastener);
+  ViewSet.prototype.onBindInlet = function <V extends View>(this: ViewSet<unknown, V>, inlet: ViewSet<unknown, V>): void {
+    (this as Mutable<typeof this>).inlet = inlet;
+    _super.prototype.onBindInlet.call(this, inlet);
   };
 
-  ViewSet.prototype.onUnbindSuperFastener = function <V extends View>(this: ViewSet<unknown, V>, superFastener: ViewSet<unknown, V>): void {
-    _super.prototype.onUnbindSuperFastener.call(this, superFastener);
-    (this as Mutable<typeof this>).superFastener = null;
+  ViewSet.prototype.onUnbindInlet = function <V extends View>(this: ViewSet<unknown, V>, inlet: ViewSet<unknown, V>): void {
+    _super.prototype.onUnbindInlet.call(this, inlet);
+    (this as Mutable<typeof this>).inlet = null;
   };
 
-  ViewSet.prototype.attachSubFastener = function <V extends View>(this: ViewSet<unknown, V>, subFastener: ViewSet<unknown, V>): void {
-    let subFasteners = this.subFasteners as ViewSet<unknown, V>[] | null;
-    if (subFasteners === null) {
-      subFasteners = [];
-      (this as Mutable<typeof this>).subFasteners = subFasteners;
+  ViewSet.prototype.attachOutlet = function <V extends View>(this: ViewSet<unknown, V>, outlet: ViewSet<unknown, V>): void {
+    let outlets = this.outlets as ViewSet<unknown, V>[] | null;
+    if (outlets === null) {
+      outlets = [];
+      (this as Mutable<typeof this>).outlets = outlets;
     }
-    subFasteners.push(subFastener);
+    outlets.push(outlet);
   };
 
-  ViewSet.prototype.detachSubFastener = function <V extends View>(this: ViewSet<unknown, V>, subFastener: ViewSet<unknown, V>): void {
-    const subFasteners = this.subFasteners as ViewSet<unknown, V>[] | null;
-    if (subFasteners !== null) {
-      const index = subFasteners.indexOf(subFastener);
+  ViewSet.prototype.detachOutlet = function <V extends View>(this: ViewSet<unknown, V>, outlet: ViewSet<unknown, V>): void {
+    const outlets = this.outlets as ViewSet<unknown, V>[] | null;
+    if (outlets !== null) {
+      const index = outlets.indexOf(outlet);
       if (index >= 0) {
-        subFasteners.splice(index, 1);
+        outlets.splice(index, 1);
       }
     }
   };
@@ -274,7 +288,7 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     let parent: View | null;
     if (this.binds && (parent = this.parentView, parent !== null)) {
       if (key === void 0) {
-        key = this.key(newView);
+        key = this.viewKey(newView);
       }
       this.insertChild(parent, newView, target, key);
     }
@@ -287,7 +301,7 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
       this.initView(newView);
       this.didAttachView(newView, target);
       this.setCoherent(true);
-      this.decohereSubFasteners();
+      this.decohereOutlets();
     }
     return newView;
   };
@@ -330,7 +344,7 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
       this.initView(newView);
       this.didAttachView(newView, target);
       this.setCoherent(true);
-      this.decohereSubFasteners();
+      this.decohereOutlets();
     }
     return newView;
   };
@@ -351,7 +365,7 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
       this.deinitView(oldView);
       this.didDetachView(oldView);
       this.setCoherent(true);
-      this.decohereSubFasteners();
+      this.decohereOutlets();
       return oldView;
     }
     return null;
@@ -379,7 +393,7 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
       target = null;
     }
     if (key === void 0) {
-      key = this.key(newView);
+      key = this.viewKey(newView);
     }
     if (parent !== null && (newView.parent !== parent || newView.key !== key)) {
       this.insertChild(parent, newView, target, key);
@@ -393,7 +407,7 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
       this.initView(newView);
       this.didAttachView(newView, target);
       this.setCoherent(true);
-      this.decohereSubFasteners();
+      this.decohereOutlets();
     }
     return newView;
   };
@@ -450,7 +464,7 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
         this.initView(newView);
         this.didAttachView(newView, target);
         this.setCoherent(true);
-        this.decohereSubFasteners();
+        this.decohereOutlets();
       }
     }
   };
@@ -467,44 +481,44 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
         this.deinitView(oldView);
         this.didDetachView(oldView);
         this.setCoherent(true);
-        this.decohereSubFasteners();
+        this.decohereOutlets();
       }
     }
   };
 
   ViewSet.prototype.detectView = function <V extends View>(this: ViewSet<unknown, V>, view: View): V | null {
-    if (typeof this.type === "function" && view instanceof this.type) {
+    if (typeof this.viewType === "function" && view instanceof this.viewType) {
       return view as V;
     }
     return null;
   };
 
-  ViewSet.prototype.decohereSubFasteners = function (this: ViewSet): void {
-    const subFasteners = this.subFasteners;
-    for (let i = 0, n = subFasteners !== null ? subFasteners.length : 0; i < n; i += 1) {
-      this.decohereSubFastener(subFasteners![i]!);
+  ViewSet.prototype.decohereOutlets = function (this: ViewSet): void {
+    const outlets = this.outlets;
+    for (let i = 0, n = outlets !== null ? outlets.length : 0; i < n; i += 1) {
+      this.decohereOutlet(outlets![i]!);
     }
   };
 
-  ViewSet.prototype.decohereSubFastener = function (this: ViewSet, subFastener: ViewSet): void {
-    if ((subFastener.flags & Fastener.InheritedFlag) === 0 && Math.min(this.flags & Affinity.Mask, Affinity.Intrinsic) >= (subFastener.flags & Affinity.Mask)) {
-      subFastener.setInherited(true, this);
-    } else if ((subFastener.flags & Fastener.InheritedFlag) !== 0 && (subFastener.flags & Fastener.DecoherentFlag) === 0) {
-      subFastener.setCoherent(false);
-      subFastener.decohere();
+  ViewSet.prototype.decohereOutlet = function (this: ViewSet, outlet: ViewSet): void {
+    if ((outlet.flags & Fastener.DerivedFlag) === 0 && Math.min(this.flags & Affinity.Mask, Affinity.Intrinsic) >= (outlet.flags & Affinity.Mask)) {
+      outlet.setDerived(true, this);
+    } else if ((outlet.flags & Fastener.DerivedFlag) !== 0 && (outlet.flags & Fastener.DecoherentFlag) === 0) {
+      outlet.setCoherent(false);
+      outlet.decohere();
     }
   };
 
   ViewSet.prototype.recohere = function (this: ViewSet, t: number): void {
-    if ((this.flags & Fastener.InheritedFlag) !== 0) {
-      const superFastener = this.superFastener;
-      if (superFastener !== null) {
-        this.setViews(superFastener.views);
+    if ((this.flags & Fastener.DerivedFlag) !== 0) {
+      const inlet = this.inlet;
+      if (inlet !== null) {
+        this.setViews(inlet.views);
       }
     }
   };
 
-  ViewSet.prototype.key = function <V extends View>(this: ViewSet<unknown, V>, view: V): string | undefined {
+  ViewSet.prototype.viewKey = function <V extends View>(this: ViewSet<unknown, V>, view: V): string | undefined {
     return void 0;
   };
 
@@ -573,60 +587,55 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     return a.uid < b.uid ? -1 : a.uid > b.uid ? 1 : 0;
   };
 
-  ViewSet.construct = function <F extends ViewSet<any, any>>(fastenerClass: {prototype: F}, fastener: F | null, owner: FastenerOwner<F>): F {
+  ViewSet.construct = function <F extends ViewSet<any, any>>(fastener: F | null, owner: FastenerOwner<F>): F {
     if (fastener === null) {
-      fastener = function (newView: AnyView<ViewSetType<F>>): FastenerOwner<F> {
+      fastener = function (newView: AnyView<ViewSetView<F>>): FastenerOwner<F> {
         fastener!.addView(newView);
         return fastener!.owner;
       } as F;
       delete (fastener as Partial<Mutable<F>>).name; // don't clobber prototype name
-      Object.setPrototypeOf(fastener, fastenerClass.prototype);
+      Object.setPrototypeOf(fastener, this.prototype);
     }
-    fastener = _super.construct(fastenerClass, fastener, owner) as F;
-    Object.defineProperty(fastener, "superFastener", { // override getter
+    fastener = _super.construct.call(this, fastener, owner) as F;
+    const flagsInit = fastener.flagsInit;
+    if (flagsInit !== void 0) {
+      fastener.initSorted((flagsInit & ViewSet.SortedFlag) !== 0);
+    }
+    Object.defineProperty(fastener, "inlet", { // override getter
       value: null,
       writable: true,
       enumerable: true,
       configurable: true,
     });
-    (fastener as Mutable<typeof fastener>).subFasteners = null;
+    (fastener as Mutable<typeof fastener>).outlets = null;
     (fastener as Mutable<typeof fastener>).views = {};
     (fastener as Mutable<typeof fastener>).viewCount = 0;
     return fastener;
   };
 
-  ViewSet.define = function <O, V extends View>(className: string, descriptor: ViewSetDescriptor<O, V>): ViewSetFactory<ViewSet<any, V>> {
-    let superClass = descriptor.extends as ViewSetFactory | null | undefined;
-    const affinity = descriptor.affinity;
-    const inherits = descriptor.inherits;
-    const sorted = descriptor.sorted;
-    delete descriptor.extends;
-    delete descriptor.implements;
-    delete descriptor.affinity;
-    delete descriptor.inherits;
-    delete descriptor.sorted;
+  ViewSet.refine = function (fastenerClass: ViewSetClass): void {
+    _super.refine.call(this, fastenerClass);
+    const fastenerPrototype = fastenerClass.prototype;
+    let flagsInit = fastenerPrototype.flagsInit;
 
-    if (superClass === void 0 || superClass === null) {
-      superClass = this;
+    if (Object.prototype.hasOwnProperty.call(fastenerPrototype, "sorted")) {
+      if (flagsInit === void 0) {
+        flagsInit = 0;
+      }
+      if (fastenerPrototype.sorted) {
+        flagsInit |= ViewSet.SortedFlag;
+      } else {
+        flagsInit &= ~ViewSet.SortedFlag;
+      }
+      delete (fastenerPrototype as ViewSetTemplate).sorted;
     }
 
-    const fastenerClass = superClass.extend(className, descriptor);
-
-    fastenerClass.construct = function (fastenerClass: {prototype: ViewSet<any, any>}, fastener: ViewSet<O, V> | null, owner: O): ViewSet<O, V> {
-      fastener = superClass!.construct(fastenerClass, fastener, owner);
-      if (affinity !== void 0) {
-        fastener.initAffinity(affinity);
-      }
-      if (inherits !== void 0) {
-        fastener.initInherits(inherits);
-      }
-      if (sorted !== void 0) {
-        fastener.initSorted(sorted);
-      }
-      return fastener;
-    };
-
-    return fastenerClass;
+    if (flagsInit !== void 0) {
+      Object.defineProperty(fastenerPrototype, "flagsInit", {
+        value: flagsInit,
+        configurable: true,
+      });
+    }
   };
 
   (ViewSet as Mutable<typeof ViewSet>).SortedFlag = 1 << (_super.FlagShift + 0);

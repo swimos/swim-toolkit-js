@@ -21,10 +21,5 @@ export {
 } from "./PanelView";
 export {PanelViewObserver} from "./PanelViewObserver";
 
-export {
-  PanelControllerTabBarExt,
-  PanelControllerTabsExt,
-  PanelControllerActiveExt,
-  PanelController,
-} from "./PanelController";
+export {PanelController} from "./PanelController";
 export {PanelControllerObserver} from "./PanelControllerObserver";

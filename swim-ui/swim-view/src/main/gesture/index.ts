@@ -17,22 +17,21 @@ export {
   GestureInput,
 } from "./GestureInput";
 export {
-  MemberGestureView,
-  GestureView,
   GestureMethod,
-  GestureInit,
-  GestureDescriptor,
+  GestureRefinement,
+  GestureView,
+  GestureTemplate,
   GestureClass,
-  GestureFactory,
+  GestureDef,
   Gesture,
 } from "./Gesture";
 
 export {PositionGestureInput} from "./PositionGestureInput";
 export {
-  PositionGestureInit,
-  PositionGestureDescriptor,
+  PositionGestureRefinement,
+  PositionGestureTemplate,
   PositionGestureClass,
-  PositionGestureFactory,
+  PositionGestureDef,
   PositionGesture,
 } from "./PositionGesture";
 export {PointerPositionGesture} from "./PointerPositionGesture";
@@ -41,10 +40,10 @@ export {MousePositionGesture} from "./MousePositionGesture";
 
 export {MomentumGestureInput} from "./MomentumGestureInput";
 export {
-  MomentumGestureInit,
-  MomentumGestureDescriptor,
+  MomentumGestureRefinement,
+  MomentumGestureTemplate,
   MomentumGestureClass,
-  MomentumGestureFactory,
+  MomentumGestureDef,
   MomentumGesture,
 } from "./MomentumGesture";
 export {PointerMomentumGesture} from "./PointerMomentumGesture";
@@ -53,10 +52,12 @@ export {MouseMomentumGesture} from "./MouseMomentumGesture";
 
 export {ScaleGestureInput} from "./ScaleGestureInput";
 export {
-  ScaleGestureInit,
-  ScaleGestureDescriptor,
+  ScaleGestureRefinement,
+  ScaleGestureX,
+  ScaleGestureY,
+  ScaleGestureTemplate,
   ScaleGestureClass,
-  ScaleGestureFactory,
+  ScaleGestureDef,
   ScaleGesture,
 } from "./ScaleGesture";
 export {PointerScaleGesture} from "./PointerScaleGesture";

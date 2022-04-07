@@ -17,7 +17,7 @@ import {SelectionOptions, SelectionService} from "./SelectionService";
 import type {Model} from "../model/Model";
 
 /** @public */
-export interface SelectionProvider<M, S extends SelectionService<M> | null | undefined = SelectionService<M>> extends Provider<M, S> {
+export interface SelectionProvider<M, S extends SelectionService<any> | null | undefined = SelectionService> extends Provider<M, S> {
   get selections(): ReadonlyArray<Model>;
 
   select(model: Model, options?: SelectionOptions, index?: number): void;
@@ -31,7 +31,9 @@ export interface SelectionProvider<M, S extends SelectionService<M> | null | und
 
 /** @public */
 export const SelectionProvider = (function (_super: typeof Provider) {
-  const SelectionProvider = _super.extend("SelectionProvider") as ProviderClass<SelectionProvider<any, any>>;
+  const SelectionProvider = _super.extend("SelectionProvider", {
+    serviceType: SelectionService,
+  }) as ProviderClass<SelectionProvider<any, any>>;
 
   Object.defineProperty(SelectionProvider.prototype, "selections", {
     get<M, S extends SelectionService<M> | null | undefined>(this: SelectionProvider<M, S>): ReadonlyArray<Model> {

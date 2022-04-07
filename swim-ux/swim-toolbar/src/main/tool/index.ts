@@ -24,11 +24,7 @@ export {ButtonToolViewObserver} from "./ButtonToolViewObserver";
 export {ToolTrait} from "./ToolTrait";
 export {ToolTraitObserver} from "./ToolTraitObserver";
 
-export {
-  TitleToolContent,
-  TitleToolContentFunction,
-  TitleToolTrait,
-} from "./TitleToolTrait";
+export {TitleToolTrait} from "./TitleToolTrait";
 export {TitleToolTraitObserver} from "./TitleToolTraitObserver";
 
 export {ButtonToolTrait} from "./ButtonToolTrait";

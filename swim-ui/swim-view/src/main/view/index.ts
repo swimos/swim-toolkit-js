@@ -52,28 +52,28 @@ export {
 } from "./ViewObserver";
 
 export {
-  ViewRelationType,
-  ViewRelationInit,
-  ViewRelationDescriptor,
+  ViewRelationRefinement,
+  ViewRelationView,
+  ViewRelationTemplate,
   ViewRelationClass,
-  ViewRelationFactory,
+  ViewRelationDef,
   ViewRelation,
 } from "./ViewRelation";
 
 export {
-  ViewRefType,
-  ViewRefInit,
-  ViewRefDescriptor,
+  ViewRefRefinement,
+  ViewRefView,
+  ViewRefTemplate,
   ViewRefClass,
-  ViewRefFactory,
+  ViewRefDef,
   ViewRef,
 } from "./ViewRef";
 
 export {
-  ViewSetType,
-  ViewSetInit,
-  ViewSetDescriptor,
+  ViewSetRefinement,
+  ViewSetView,
+  ViewSetTemplate,
   ViewSetClass,
-  ViewSetFactory,
+  ViewSetDef,
   ViewSet,
 } from "./ViewSet";

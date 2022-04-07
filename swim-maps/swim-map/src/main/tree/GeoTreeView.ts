@@ -15,7 +15,7 @@
 import type {Mutable} from "@swim/util";
 import type {GeoPoint, GeoBox, GeoProjection} from "@swim/geo";
 import {AnyColor, Color} from "@swim/style";
-import {ThemeAnimator} from "@swim/theme";
+import {ThemeAnimatorDef} from "@swim/theme";
 import {ViewContextType, ViewFlags, View} from "@swim/view";
 import {GraphicsView, PaintingContext, PaintingRenderer} from "@swim/graphics";
 import {GeoViewInit, GeoView} from "../geo/GeoView";
@@ -110,8 +110,8 @@ export class GeoTreeView extends GeoView {
     }
   }
 
-  @ThemeAnimator({type: Color, value: null})
-  readonly geoTreeColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  @ThemeAnimatorDef({valueType: Color, value: null})
+  readonly geoTreeColor!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
 
   protected override onRender(viewContext: ViewContextType<this>): void {
     super.onRender(viewContext);

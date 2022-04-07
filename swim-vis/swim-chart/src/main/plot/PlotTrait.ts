@@ -13,17 +13,18 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {MemberFastenerClass} from "@swim/component";
-import {Model, Trait, TraitRef} from "@swim/model";
+import type {FastenerClass} from "@swim/component";
+import {Model, Trait, TraitRefDef} from "@swim/model";
 import {DataSetTrait} from "../data/DataSetTrait";
 import type {PlotTraitObserver} from "./PlotTraitObserver";
+import type {PlotController} from "./PlotController";
 
 /** @public */
-export class PlotTrait<X = unknown, Y = unknown> extends Trait {
+export abstract class PlotTrait<X = unknown, Y = unknown> extends Trait {
   override readonly observerType?: Class<PlotTraitObserver<X, Y>>;
 
-  @TraitRef<PlotTrait<X, Y>, DataSetTrait<X, Y>>({
-    type: DataSetTrait,
+  @TraitRefDef<PlotTrait<X, Y>["dataSet"]>({
+    traitType: DataSetTrait,
     binds: true,
     willAttachTrait(dataSetTrait: DataSetTrait<X, Y>, targetTrait: Trait | null): void {
       this.owner.callObservers("traitWillAttachDataSet", dataSetTrait, this.owner);
@@ -48,8 +49,8 @@ export class PlotTrait<X = unknown, Y = unknown> extends Trait {
       return trait instanceof DataSetTrait ? trait : null;
     },
   })
-  readonly dataSet!: TraitRef<this, DataSetTrait<X, Y>>;
-  static readonly dataSet: MemberFastenerClass<PlotTrait, "dataSet">;
+  readonly dataSet!: TraitRefDef<this, {trait: DataSetTrait<X, Y>}>;
+  static readonly dataSet: FastenerClass<PlotTrait["dataSet"]>;
 
   protected override onStartConsuming(): void {
     super.onStartConsuming();
@@ -66,4 +67,6 @@ export class PlotTrait<X = unknown, Y = unknown> extends Trait {
       dataSetTrait.unconsume(this);
     }
   }
+
+  abstract createPlotController(): PlotController<X, Y>;
 }

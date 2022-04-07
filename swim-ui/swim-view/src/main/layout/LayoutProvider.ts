@@ -17,13 +17,15 @@ import {LayoutService} from "./LayoutService";
 import type {View} from "../view/View";
 
 /** @public */
-export interface LayoutProvider<V extends View, S extends LayoutService<V> | null | undefined = LayoutService<V>> extends Provider<V, S> {
+export interface LayoutProvider<V extends View, S extends LayoutService<any> | null | undefined = LayoutService> extends Provider<V, S> {
   createService(): S;
 }
 
 /** @public */
 export const LayoutProvider = (function (_super: typeof Provider) {
-  const LayoutProvider = _super.extend("LayoutProvider") as ProviderClass<LayoutProvider<any, any>>;
+  const LayoutProvider = _super.extend("LayoutProvider", {
+    serviceType: LayoutService,
+  }) as ProviderClass<LayoutProvider<any, any>>;
 
   LayoutProvider.prototype.createService = function <V extends View, S extends LayoutService<V> | null | undefined>(this: LayoutProvider<V, S>): S {
     return LayoutService.global() as S;

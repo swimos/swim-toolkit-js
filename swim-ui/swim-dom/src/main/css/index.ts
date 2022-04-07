@@ -24,33 +24,33 @@ export {
 export {CssContext} from "./CssContext";
 
 export {
-  CssRuleInit,
-  CssRuleDescriptor,
+  CssRuleRefinement,
+  CssRuleTemplate,
   CssRuleClass,
-  CssRuleFactory,
+  CssRuleDef,
   CssRule,
 } from "./CssRule";
 
 export {
-  StyleRuleInit,
-  StyleRuleDescriptor,
+  StyleRuleRefinement,
+  StyleRuleTemplate,
   StyleRuleClass,
-  StyleRuleFactory,
+  StyleRuleDef,
   StyleRule,
 } from "./StyleRule";
 
 export {
-  MediaRuleInit,
-  MediaRuleDescriptor,
+  MediaRuleRefinement,
+  MediaRuleTemplate,
   MediaRuleClass,
-  MediaRuleFactory,
+  MediaRuleDef,
   MediaRule,
 } from "./MediaRule";
 
 export {
-  StyleSheetInit,
-  StyleSheetDescriptor,
+  StyleSheetRefinement,
+  StyleSheetTemplate,
   StyleSheetClass,
-  StyleSheetFactory,
+  StyleSheetDef,
   StyleSheet,
 } from "./StyleSheet";

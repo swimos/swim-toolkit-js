@@ -20,7 +20,7 @@ import type {ViewContext} from "../view/ViewContext";
 import type {View} from "../view/View";
 
 /** @public */
-export interface ViewportProvider<V extends View, S extends ViewportService<V> | null | undefined = ViewportService<V>> extends Provider<V, S> {
+export interface ViewportProvider<V extends View, S extends ViewportService<any> | null | undefined = ViewportService> extends Provider<V, S> {
   get viewContext(): ViewContext;
 
   get viewport(): Viewport;
@@ -34,7 +34,9 @@ export interface ViewportProvider<V extends View, S extends ViewportService<V> |
 
 /** @public */
 export const ViewportProvider = (function (_super: typeof Provider) {
-  const ViewportProvider = _super.extend("ViewportProvider") as ProviderClass<ViewportProvider<any, any>>;
+  const ViewportProvider = _super.extend("ViewportProvider", {
+    serviceType: ViewportService,
+  }) as ProviderClass<ViewportProvider<any, any>>;
 
   Object.defineProperty(ViewportProvider.prototype, "viewContext", {
     get<V extends View, S extends ViewportService<V> | null | undefined>(this: ViewportProvider<V, S>): ViewContext {

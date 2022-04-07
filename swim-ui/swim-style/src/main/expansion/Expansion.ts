@@ -237,7 +237,10 @@ export class Expansion implements Interpolate<Expansion>, HashCode, Equivalent, 
     return new Expansion(value.phase, value.direction);
   }
 
-  static fromAny(value: AnyExpansion): Expansion {
+  static fromAny(value: AnyExpansion): Expansion;
+  static fromAny(value: AnyExpansion | null): Expansion | null;
+  static fromAny(value: AnyExpansion | null | undefined): Expansion | null | undefined;
+  static fromAny(value: AnyExpansion | null | undefined): Expansion | null | undefined {
     if (value === void 0 || value === null || value instanceof Expansion) {
       return value;
     } else if (Expansion.isInit(value)) {

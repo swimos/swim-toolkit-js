@@ -237,7 +237,10 @@ export class Presence implements Interpolate<Presence>, HashCode, Equivalent, De
     return new Presence(value.phase, value.direction);
   }
 
-  static fromAny(value: AnyPresence): Presence {
+  static fromAny(value: AnyPresence): Presence;
+  static fromAny(value: AnyPresence | null): Presence | null;
+  static fromAny(value: AnyPresence | null | undefined): Presence | null | undefined;
+  static fromAny(value: AnyPresence | null | undefined): Presence | null | undefined {
     if (value === void 0 || value === null || value instanceof Presence) {
       return value;
     } else if (Presence.isInit(value)) {

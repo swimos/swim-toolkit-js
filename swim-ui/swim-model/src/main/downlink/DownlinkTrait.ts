@@ -13,14 +13,14 @@
 // limitations under the License.
 
 import type {ConsumerType} from "@swim/util";
-import type {MemberFastenerClass} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
 import {Trait} from "../trait/Trait";
-import {TraitRef} from "../trait/TraitRef";
+import {TraitRefDef} from "../trait/TraitRef";
 
 /** @beta */
 export abstract class DownlinkTrait extends Trait {
-  @TraitRef<DownlinkTrait, Trait>({
-    type: Trait,
+  @TraitRefDef<DownlinkTrait["driver"]>({
+    traitType: Trait,
     observes: true,
     didAttachTrait(driverTrait: Trait): void {
       if (driverTrait.consuming) {
@@ -39,6 +39,6 @@ export abstract class DownlinkTrait extends Trait {
       this.owner.unconsume(driverTrait as ConsumerType<DownlinkTrait>);
     },
   })
-  readonly driver!: TraitRef<this, Trait>;
-  static readonly driver: MemberFastenerClass<DownlinkTrait, "driver">;
+  readonly driver!: TraitRefDef<this, {trait: Trait, observes: true}>;
+  static readonly driver: FastenerClass<DownlinkTrait["driver"]>;
 }

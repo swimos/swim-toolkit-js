@@ -72,9 +72,9 @@ const tableView = swim.TableView.create();
 tableView.layout.setValue(tableLayout);
 
 const headerView = tableView.header.insertView();
-headerView.getOrCreateCol("name").label("Name");
-headerView.getOrCreateCol("kpi1").label("KPI 1");
-headerView.getOrCreateCol("kpi2").label("KPI 2");
+headerView.getOrCreateCol("name", swim.TextColView).label("Name");
+headerView.getOrCreateCol("kpi1", swim.TextColView).label("KPI 1");
+headerView.getOrCreateCol("kpi2", swim.TextColView).label("KPI 2");
 
 function createRowView(i) {
   const rowView = swim.RowView.create();

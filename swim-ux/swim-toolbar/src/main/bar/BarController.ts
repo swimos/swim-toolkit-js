@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Instance, ObserverType, Creatable} from "@swim/util";
-import type {MemberFastenerClass} from "@swim/component";
+import type {Class, Instance, Creatable} from "@swim/util";
+import type {FastenerClass} from "@swim/component";
 import type {Trait} from "@swim/model";
 import {Look, Mood} from "@swim/theme";
 import {PositionGestureInput, View} from "@swim/view";
@@ -22,8 +22,10 @@ import type {Graphics} from "@swim/graphics";
 import {
   ControllerContextType,
   Controller,
+  TraitViewRefDef,
   TraitViewRef,
-  TraitViewControllerSet,
+  TraitViewControllerSetDef,
+  TraitViewControllerSet
 } from "@swim/controller";
 import type {ToolLayout} from "../layout/ToolLayout";
 import {BarLayout} from "../layout/BarLayout";
@@ -38,20 +40,10 @@ import {BarTrait} from "./BarTrait";
 import type {BarControllerObserver} from "./BarControllerObserver";
 
 /** @public */
-export interface BarControllerToolExt {
-  attachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void;
-  detachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void;
-  attachToolView(toolView: ToolView, toolController: ToolController): void;
-  detachToolView(toolView: ToolView, toolController: ToolController): void;
-  attachToolContentView(toolContentView: HtmlView, toolController: ToolController): void;
-  detachToolContentView(toolContentView: HtmlView, toolController: ToolController): void;
-}
-
-/** @public */
 export class BarController extends Controller {
   override readonly observerType?: Class<BarControllerObserver>;
 
-  @TraitViewRef<BarController, BarTrait, BarView>({
+  @TraitViewRefDef<BarController["bar"]>({
     traitType: BarTrait,
     observesTrait: true,
     willAttachTrait(barTrait: BarTrait): void {
@@ -103,8 +95,13 @@ export class BarController extends Controller {
       toolView.remove();
     },
   })
-  readonly bar!: TraitViewRef<this, BarTrait, BarView>;
-  static readonly bar: MemberFastenerClass<BarController, "bar">;
+  readonly bar!: TraitViewRefDef<this, {
+    trait: BarTrait,
+    observesTrait: true,
+    view: BarView,
+    observesView: true,
+  }>;
+  static readonly bar: FastenerClass<BarController["bar"]>;
 
   protected createLayout(): BarLayout | null {
     const tools = new Array<ToolLayout>();
@@ -186,9 +183,8 @@ export class BarController extends Controller {
     barView.setTool(key, toolView);
   }
 
-  @TraitViewControllerSet<BarController, ToolTrait, ToolView, ToolController, BarControllerToolExt & ObserverType<ToolController | TitleToolController | ButtonToolController>>({
-    implements: true,
-    type: ToolController,
+  @TraitViewControllerSetDef<BarController["tools"]>({
+    controllerType: ToolController,
     binds: true,
     observes: true,
     get parentView(): BarView | null {
@@ -282,11 +278,8 @@ export class BarController extends Controller {
     detachToolContentView(toolContentView: HtmlView, toolController: ToolController): void {
       // hook
     },
-    controllerWillSetToolIcon(newToolIcon: Graphics | null, oldToolIcon: Graphics | null, toolController: ToolController): void {
-      this.owner.callObservers("controllerWillSetToolIcon", newToolIcon, oldToolIcon, toolController, this.owner);
-    },
-    controllerDidSetToolIcon(newToolIcon: Graphics | null, oldToolIcon: Graphics | null, toolController: ToolController): void {
-      this.owner.callObservers("controllerDidSetToolIcon", newToolIcon, oldToolIcon, toolController, this.owner);
+    controllerDidSetToolIcon(toolIcon: Graphics | null, toolController: ToolController): void {
+      this.owner.callObservers("controllerDidSetToolIcon", toolIcon, toolController, this.owner);
     },
     controllerDidPressToolView(input: PositionGestureInput, event: Event | null, toolController: ToolController): void {
       this.owner.callObservers("controllerDidPressToolView", input, event, toolController, this.owner);
@@ -296,14 +289,27 @@ export class BarController extends Controller {
     },
     createController(toolTrait?: ToolTrait): ToolController {
       if (toolTrait !== void 0) {
-        return ToolController.fromTrait(toolTrait);
+        return toolTrait.createToolController();
       } else {
         return TraitViewControllerSet.prototype.createController.call(this);
       }
     },
   })
-  readonly tools!: TraitViewControllerSet<this, ToolTrait, ToolView, ToolController>;
-  static readonly tools: MemberFastenerClass<BarController, "tools">;
+  readonly tools!: TraitViewControllerSetDef<this, {
+    trait: ToolTrait,
+    view: ToolView,
+    controller: ToolController,
+    implements: {
+      attachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void;
+      detachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void;
+      attachToolView(toolView: ToolView, toolController: ToolController): void;
+      detachToolView(toolView: ToolView, toolController: ToolController): void;
+      attachToolContentView(toolContentView: HtmlView, toolController: ToolController): void;
+      detachToolContentView(toolContentView: HtmlView, toolController: ToolController): void;
+    },
+    observes: ToolController & TitleToolController & ButtonToolController,
+  }>;
+  static readonly tools: FastenerClass<BarController["tools"]>;
 
   protected override onAssemble(controllerContext: ControllerContextType<this>): void {
     super.onAssemble(controllerContext);

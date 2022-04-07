@@ -55,9 +55,7 @@ export interface BarControllerObserver<C extends BarController = BarController> 
 
   controllerDidDetachToolContentView?(toolContentView: HtmlView, toolController: ToolController, controller: C): void;
 
-  controllerWillSetToolIcon?(newIcon: Graphics | null, oldIcon: Graphics | null, toolController: ToolController, controller: C): void;
-
-  controllerDidSetToolIcon?(newIcon: Graphics | null, oldIcon: Graphics | null, toolController: ToolController, controller: C): void;
+  controllerDidSetToolIcon?(toolIcon: Graphics | null, toolController: ToolController, controller: C): void;
 
   controllerDidPressToolView?(input: PositionGestureInput, event: Event | null, toolController: ToolController, controller: C): void;
 

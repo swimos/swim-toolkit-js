@@ -35,12 +35,6 @@ export interface PlotViewInit<X = unknown, Y = unknown> extends GraphicsViewInit
 }
 
 /** @public */
-export interface PlotViewDataPointExt<X = unknown, Y = unknown> {
-  attachDataPointLabelView(labelView: GraphicsView): void;
-  detachDataPointLabelView(labelView: GraphicsView): void;
-}
-
-/** @public */
 export interface PlotView<X = unknown, Y = unknown> extends GraphicsView, ScaledXYView<X, Y> {
   /** @override */
   readonly observerType?: Class<PlotViewObserver<X, Y>>;

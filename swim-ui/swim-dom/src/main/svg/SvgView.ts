@@ -27,8 +27,8 @@ import {
   Color,
 } from "@swim/style";
 import {AnyView, View} from "@swim/view";
-import {AttributeAnimator} from "../animator/AttributeAnimator";
-import {StyleAnimator} from "../animator/StyleAnimator";
+import {AttributeAnimatorDef} from "../animator/AttributeAnimator";
+import {StyleAnimatorDef} from "../animator/StyleAnimator";
 import type {
   AlignmentBaseline,
   CssCursor,
@@ -280,152 +280,152 @@ export class SvgView extends ElementView {
     return super.replaceChild(newChild, oldChild);
   }
 
-  @AttributeAnimator({attributeName: "alignment-baseline", type: String})
-  readonly alignmentBaseline!: AttributeAnimator<this, AlignmentBaseline>;
+  @AttributeAnimatorDef({attributeName: "alignment-baseline", valueType: String})
+  readonly alignmentBaseline!: AttributeAnimatorDef<this, {value: AlignmentBaseline}>;
 
-  @AttributeAnimator({attributeName: "clip-path", type: String})
-  readonly clipPath!: AttributeAnimator<this, string | undefined>;
+  @AttributeAnimatorDef({attributeName: "clip-path", valueType: String})
+  readonly clipPath!: AttributeAnimatorDef<this, {value: string | undefined}>;
 
-  @AttributeAnimator({attributeName: "cursor", type: String})
-  readonly cursor!: AttributeAnimator<this, CssCursor | undefined>;
+  @AttributeAnimatorDef({attributeName: "cursor", valueType: String})
+  readonly cursor!: AttributeAnimatorDef<this, {value: CssCursor | undefined}>;
 
-  @AttributeAnimator({attributeName: "cx", type: Number})
-  readonly cx!: AttributeAnimator<this, number | undefined>;
+  @AttributeAnimatorDef({attributeName: "cx", valueType: Number})
+  readonly cx!: AttributeAnimatorDef<this, {value: number | undefined}>;
 
-  @AttributeAnimator({attributeName: "cy", type: Number})
-  readonly cy!: AttributeAnimator<this, number | undefined>;
+  @AttributeAnimatorDef({attributeName: "cy", valueType: Number})
+  readonly cy!: AttributeAnimatorDef<this, {value: number | undefined}>;
 
-  @AttributeAnimator({attributeName: "d", type: String})
-  readonly d!: AttributeAnimator<this, string | undefined>;
+  @AttributeAnimatorDef({attributeName: "d", valueType: String})
+  readonly d!: AttributeAnimatorDef<this, {value: string | undefined}>;
 
-  @AttributeAnimator({attributeName: "dx", type: Length, value: null})
-  readonly dx!: AttributeAnimator<this, Length | null, AnyLength | null>;
+  @AttributeAnimatorDef({attributeName: "dx", valueType: Length, value: null})
+  readonly dx!: AttributeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
 
-  @AttributeAnimator({attributeName: "dy", type: Length, value: null})
-  readonly dy!: AttributeAnimator<this, Length | null, AnyLength | null>;
+  @AttributeAnimatorDef({attributeName: "dy", valueType: Length, value: null})
+  readonly dy!: AttributeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
 
-  @AttributeAnimator({attributeName: "edgeMode", type: String})
-  readonly edgeMode!: AttributeAnimator<this, string | undefined>;
+  @AttributeAnimatorDef({attributeName: "edgeMode", valueType: String})
+  readonly edgeMode!: AttributeAnimatorDef<this, {value: string | undefined}>;
 
-  @AttributeAnimator({attributeName: "fill", type: Color, value: null})
-  readonly fill!: AttributeAnimator<this, Color | null, AnyColor | null>;
+  @AttributeAnimatorDef({attributeName: "fill", valueType: Color, value: null})
+  readonly fill!: AttributeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
 
-  @AttributeAnimator({attributeName: "fill-opacity", type: Number})
-  readonly fillOpacity!: AttributeAnimator<this, number | undefined>;
+  @AttributeAnimatorDef({attributeName: "fill-opacity", valueType: Number})
+  readonly fillOpacity!: AttributeAnimatorDef<this, {value: number | undefined}>;
 
-  @AttributeAnimator({attributeName: "fill-rule", type: String})
-  readonly fillRule!: AttributeAnimator<this, FillRule | undefined>;
+  @AttributeAnimatorDef({attributeName: "fill-rule", valueType: String})
+  readonly fillRule!: AttributeAnimatorDef<this, {value: FillRule | undefined}>;
 
-  @AttributeAnimator({attributeName: "flood-color", type: Color, value: null})
-  readonly floodColor!: AttributeAnimator<this, Color | null, AnyColor | null>;
+  @AttributeAnimatorDef({attributeName: "flood-color", valueType: Color, value: null})
+  readonly floodColor!: AttributeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
 
-  @AttributeAnimator({attributeName: "flood-opacity", type: Number})
-  readonly floodOpacity!: AttributeAnimator<this, number | undefined>;
+  @AttributeAnimatorDef({attributeName: "flood-opacity", valueType: Number})
+  readonly floodOpacity!: AttributeAnimatorDef<this, {value: number | undefined}>;
 
-  @AttributeAnimator({attributeName: "height", type: Length, value: null})
-  readonly height!: AttributeAnimator<this, Length | null, AnyLength | null>;
+  @AttributeAnimatorDef({attributeName: "height", valueType: Length, value: null})
+  readonly height!: AttributeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
 
-  @AttributeAnimator({attributeName: "in", type: String})
-  readonly in!: AttributeAnimator<this, string | undefined>;
+  @AttributeAnimatorDef({attributeName: "in", valueType: String})
+  readonly in!: AttributeAnimatorDef<this, {value: string | undefined}>;
 
-  @AttributeAnimator({attributeName: "in2", type: String})
-  readonly in2!: AttributeAnimator<this, string | undefined>;
+  @AttributeAnimatorDef({attributeName: "in2", valueType: String})
+  readonly in2!: AttributeAnimatorDef<this, {value: string | undefined}>;
 
-  @AttributeAnimator({attributeName: "lengthAdjust", type: String})
-  readonly lengthAdjust!: AttributeAnimator<this, "spacing" | "spacingAndGlyphs" | undefined>;
+  @AttributeAnimatorDef({attributeName: "lengthAdjust", valueType: String})
+  readonly lengthAdjust!: AttributeAnimatorDef<this, {value: "spacing" | "spacingAndGlyphs" | undefined}>;
 
-  @AttributeAnimator({attributeName: "mode", type: String})
-  readonly mode!: AttributeAnimator<this, string | undefined>;
+  @AttributeAnimatorDef({attributeName: "mode", valueType: String})
+  readonly mode!: AttributeAnimatorDef<this, {value: string | undefined}>;
 
-  @AttributeAnimator({attributeName: "opacity", type: Number})
-  readonly opacity!: AttributeAnimator<this, number | undefined>;
+  @AttributeAnimatorDef({attributeName: "opacity", valueType: Number})
+  readonly opacity!: AttributeAnimatorDef<this, {value: number | undefined}>;
 
-  @AttributeAnimator({attributeName: "pointer-events", type: String})
-  readonly pointerEvents!: AttributeAnimator<this, SvgPointerEvents | undefined>;
+  @AttributeAnimatorDef({attributeName: "pointer-events", valueType: String})
+  readonly pointerEvents!: AttributeAnimatorDef<this, {value: SvgPointerEvents | undefined}>;
 
-  @AttributeAnimator({attributeName: "points", type: String})
-  readonly points!: AttributeAnimator<this, string | undefined>;
+  @AttributeAnimatorDef({attributeName: "points", valueType: String})
+  readonly points!: AttributeAnimatorDef<this, {value: string | undefined}>;
 
-  @AttributeAnimator({attributeName: "preserveAspectRatio", type: Boolean})
-  readonly preserveAspectRatio!: AttributeAnimator<this, boolean | undefined>;
+  @AttributeAnimatorDef({attributeName: "preserveAspectRatio", valueType: Boolean})
+  readonly preserveAspectRatio!: AttributeAnimatorDef<this, {value: boolean | undefined}>;
 
-  @AttributeAnimator({attributeName: "r", type: Number})
-  readonly r!: AttributeAnimator<this, number | undefined>;
+  @AttributeAnimatorDef({attributeName: "r", valueType: Number})
+  readonly r!: AttributeAnimatorDef<this, {value: number | undefined}>;
 
-  @AttributeAnimator({attributeName: "result", type: String})
-  readonly result!: AttributeAnimator<this, string | undefined>;
+  @AttributeAnimatorDef({attributeName: "result", valueType: String})
+  readonly result!: AttributeAnimatorDef<this, {value: string | undefined}>;
 
-  @AttributeAnimator({attributeName: "stdDeviation", type: Number})
-  readonly stdDeviation!: AttributeAnimator<this, number | undefined>;
+  @AttributeAnimatorDef({attributeName: "stdDeviation", valueType: Number})
+  readonly stdDeviation!: AttributeAnimatorDef<this, {value: number | undefined}>;
 
-  @AttributeAnimator({attributeName: "stroke", type: Color, value: null})
-  readonly stroke!: AttributeAnimator<this, Color | null, AnyColor | null>;
+  @AttributeAnimatorDef({attributeName: "stroke", valueType: Color, value: null})
+  readonly stroke!: AttributeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
 
-  @AttributeAnimator({attributeName: "stroke-dasharray", type: String})
-  readonly strokeDasharray!: AttributeAnimator<this, string | undefined>;
+  @AttributeAnimatorDef({attributeName: "stroke-dasharray", valueType: String})
+  readonly strokeDasharray!: AttributeAnimatorDef<this, {value: string | undefined}>;
 
-  @AttributeAnimator({attributeName: "stroke-dashoffset", type: Number})
-  readonly strokeDashoffset!: AttributeAnimator<this, number | undefined>;
+  @AttributeAnimatorDef({attributeName: "stroke-dashoffset", valueType: Number})
+  readonly strokeDashoffset!: AttributeAnimatorDef<this, {value: number | undefined}>;
 
-  @AttributeAnimator({attributeName: "stroke-linecap", type: String})
-  readonly strokeLinecap!: AttributeAnimator<this, StrokeLinecap | undefined>;
+  @AttributeAnimatorDef({attributeName: "stroke-linecap", valueType: String})
+  readonly strokeLinecap!: AttributeAnimatorDef<this, {value: StrokeLinecap | undefined}>;
 
-  @AttributeAnimator({attributeName: "stroke-linejoin", type: String})
-  readonly strokeLinejoin!: AttributeAnimator<this, StrokeLinejoin | undefined>;
+  @AttributeAnimatorDef({attributeName: "stroke-linejoin", valueType: String})
+  readonly strokeLinejoin!: AttributeAnimatorDef<this, {value: StrokeLinejoin | undefined}>;
 
-  @AttributeAnimator({attributeName: "stroke-miterlimit", type: Number})
-  readonly strokeMiterlimit!: AttributeAnimator<this, number | undefined>;
+  @AttributeAnimatorDef({attributeName: "stroke-miterlimit", valueType: Number})
+  readonly strokeMiterlimit!: AttributeAnimatorDef<this, {value: number | undefined}>;
 
-  @AttributeAnimator({attributeName: "stroke-opacity", type: Number})
-  readonly strokeOpacity!: AttributeAnimator<this, number | undefined>;
+  @AttributeAnimatorDef({attributeName: "stroke-opacity", valueType: Number})
+  readonly strokeOpacity!: AttributeAnimatorDef<this, {value: number | undefined}>;
 
-  @AttributeAnimator({attributeName: "stroke-width", type: Number})
-  readonly strokeWidth!: AttributeAnimator<this, number | undefined>;
+  @AttributeAnimatorDef({attributeName: "stroke-width", valueType: Number})
+  readonly strokeWidth!: AttributeAnimatorDef<this, {value: number | undefined}>;
 
-  @AttributeAnimator({attributeName: "text-anchor", type: String})
-  readonly textAnchor!: AttributeAnimator<this, TextAnchor | undefined>;
+  @AttributeAnimatorDef({attributeName: "text-anchor", valueType: String})
+  readonly textAnchor!: AttributeAnimatorDef<this, {value: TextAnchor | undefined}>;
 
-  @AttributeAnimator({attributeName: "textLength", type: Length, value: null})
-  readonly textLength!: AttributeAnimator<this, Length | null, AnyLength | null>;
+  @AttributeAnimatorDef({attributeName: "textLength", valueType: Length, value: null})
+  readonly textLength!: AttributeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
 
-  @AttributeAnimator({attributeName: "transform", type: Transform, value: null})
-  readonly transform!: AttributeAnimator<this, Transform | null, AnyTransform | null>;
+  @AttributeAnimatorDef({attributeName: "transform", valueType: Transform, value: null})
+  readonly transform!: AttributeAnimatorDef<this, {value: Transform | null, valueInit: AnyTransform | null}>;
 
-  @AttributeAnimator({attributeName: "type", type: String})
-  readonly type!: AttributeAnimator<this, string | undefined>;
+  @AttributeAnimatorDef({attributeName: "type", valueType: String})
+  readonly type!: AttributeAnimatorDef<this, {value: string | undefined}>;
 
-  @AttributeAnimator({attributeName: "values", type: String})
-  readonly values!: AttributeAnimator<this, string | undefined>;
+  @AttributeAnimatorDef({attributeName: "values", valueType: String})
+  readonly values!: AttributeAnimatorDef<this, {value: string | undefined}>;
 
-  @AttributeAnimator({attributeName: "viewBox", type: String})
-  readonly viewBox!: AttributeAnimator<this, string | undefined>;
+  @AttributeAnimatorDef({attributeName: "viewBox", valueType: String})
+  readonly viewBox!: AttributeAnimatorDef<this, {value: string | undefined}>;
 
-  @AttributeAnimator({attributeName: "width", type: Length, value: null})
-  readonly width!: AttributeAnimator<this, Length | null, AnyLength | null>;
+  @AttributeAnimatorDef({attributeName: "width", valueType: Length, value: null})
+  readonly width!: AttributeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
 
-  @AttributeAnimator({attributeName: "x", type: Number})
-  readonly x!: AttributeAnimator<this, number | undefined>;
+  @AttributeAnimatorDef({attributeName: "x", valueType: Number})
+  readonly x!: AttributeAnimatorDef<this, {value: number | undefined}>;
 
-  @AttributeAnimator({attributeName: "x1", type: Number})
-  readonly x1!: AttributeAnimator<this, number | undefined>;
+  @AttributeAnimatorDef({attributeName: "x1", valueType: Number})
+  readonly x1!: AttributeAnimatorDef<this, {value: number | undefined}>;
 
-  @AttributeAnimator({attributeName: "x2", type: Number})
-  readonly x2!: AttributeAnimator<this, number | undefined>;
+  @AttributeAnimatorDef({attributeName: "x2", valueType: Number})
+  readonly x2!: AttributeAnimatorDef<this, {value: number | undefined}>;
 
-  @AttributeAnimator({attributeName: "y", type: Number})
-  readonly y!: AttributeAnimator<this, number | undefined>;
+  @AttributeAnimatorDef({attributeName: "y", valueType: Number})
+  readonly y!: AttributeAnimatorDef<this, {value: number | undefined}>;
 
-  @AttributeAnimator({attributeName: "y1", type: Number})
-  readonly y1!: AttributeAnimator<this, number | undefined>;
+  @AttributeAnimatorDef({attributeName: "y1", valueType: Number})
+  readonly y1!: AttributeAnimatorDef<this, {value: number | undefined}>;
 
-  @AttributeAnimator({attributeName: "y2", type: Number})
-  readonly y2!: AttributeAnimator<this, number | undefined>;
+  @AttributeAnimatorDef({attributeName: "y2", valueType: Number})
+  readonly y2!: AttributeAnimatorDef<this, {value: number | undefined}>;
 
-  @StyleAnimator({propertyNames: "transform", type: Transform, value: null})
-  readonly cssTransform!: StyleAnimator<this, Transform | null, AnyTransform | null>;
+  @StyleAnimatorDef({propertyNames: "transform", valueType: Transform, value: null})
+  readonly cssTransform!: StyleAnimatorDef<this, {value: Transform | null, valueInit: AnyTransform | null}>;
 
-  @StyleAnimator({propertyNames: "filter", type: String})
-  readonly filter!: StyleAnimator<this, string | undefined>;
+  @StyleAnimatorDef({propertyNames: "filter", valueType: String})
+  readonly filter!: StyleAnimatorDef<this, {value: string | undefined}>;
 
   font(): Font | null;
   font(value: AnyFont | null, timing?: AnyTiming | boolean): this;
@@ -478,29 +478,32 @@ export class SvgView extends ElementView {
     }
   }
 
-  @StyleAnimator({propertyNames: "font-family", type: FontFamily})
-  readonly fontFamily!: StyleAnimator<this, FontFamily | FontFamily[] | undefined, FontFamily | ReadonlyArray<FontFamily> | undefined>;
+  @StyleAnimatorDef({propertyNames: "font-family", valueType: FontFamily})
+  readonly fontFamily!: StyleAnimatorDef<this, {
+    value: FontFamily | FontFamily[] | undefined,
+    valueInit: FontFamily | ReadonlyArray<FontFamily> | undefined,
+  }>;
 
-  @StyleAnimator({propertyNames: "font-size", type: Length, value: null})
-  readonly fontSize!: StyleAnimator<this, Length | null, AnyLength | null>;
+  @StyleAnimatorDef({propertyNames: "font-size", valueType: Length, value: null})
+  readonly fontSize!: StyleAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
 
-  @StyleAnimator({propertyNames: "font-stretch", type: String})
-  readonly fontStretch!: StyleAnimator<this, FontStretch | undefined>;
+  @StyleAnimatorDef({propertyNames: "font-stretch", valueType: String})
+  readonly fontStretch!: StyleAnimatorDef<this, {value: FontStretch | undefined}>;
 
-  @StyleAnimator({propertyNames: "font-style", type: String})
-  readonly fontStyle!: StyleAnimator<this, FontStyle | undefined>;
+  @StyleAnimatorDef({propertyNames: "font-style", valueType: String})
+  readonly fontStyle!: StyleAnimatorDef<this, {value: FontStyle | undefined}>;
 
-  @StyleAnimator({propertyNames: "font-variant", type: String})
-  readonly fontVariant!: StyleAnimator<this, FontVariant | undefined>;
+  @StyleAnimatorDef({propertyNames: "font-variant", valueType: String})
+  readonly fontVariant!: StyleAnimatorDef<this, {value: FontVariant | undefined}>;
 
-  @StyleAnimator({propertyNames: "font-weight", type: String})
-  readonly fontWeight!: StyleAnimator<this, FontWeight | undefined>;
+  @StyleAnimatorDef<SvgView["fontWeight"]>({propertyNames: "font-weight", valueType: String})
+  readonly fontWeight!: StyleAnimatorDef<this, {value: FontWeight | undefined}>;
 
-  @StyleAnimator({propertyNames: "line-height", type: Length, value: null})
-  readonly lineHeight!: StyleAnimator<this, Length | null, AnyLength | null>;
+  @StyleAnimatorDef<SvgView["lineHeight"]>({propertyNames: "line-height", valueType: Length, value: null})
+  readonly lineHeight!: StyleAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
 
-  @StyleAnimator({propertyNames: "touch-action", type: String})
-  readonly touchAction!: StyleAnimator<this, TouchAction | undefined>;
+  @StyleAnimatorDef<SvgView["touchAction"]>({propertyNames: "touch-action", valueType: String})
+  readonly touchAction!: StyleAnimatorDef<this, {value: TouchAction | undefined}>;
 
   override get parentTransform(): Transform {
     const transform = this.transform.value;

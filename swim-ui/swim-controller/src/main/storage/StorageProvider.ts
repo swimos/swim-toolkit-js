@@ -17,7 +17,7 @@ import {StorageService} from "./StorageService";
 import type {Controller} from "../controller/Controller";
 
 /** @public */
-export interface StorageProvider<C extends Controller, S extends StorageService<C> | null | undefined = StorageService<C>> extends Provider<C, S> {
+export interface StorageProvider<C extends Controller, S extends StorageService<any> | null | undefined = StorageService> extends Provider<C, S> {
   get(key: string): string | undefined;
 
   set(key: string, newValue: string | undefined): string | undefined;
@@ -29,7 +29,9 @@ export interface StorageProvider<C extends Controller, S extends StorageService<
 
 /** @public */
 export const StorageProvider = (function (_super: typeof Provider) {
-  const StorageProvider = _super.extend("StorageProvider") as ProviderClass<StorageProvider<any, any>>;
+  const StorageProvider = _super.extend("StorageProvider", {
+    serviceType: StorageService,
+  }) as ProviderClass<StorageProvider<any, any>>;
 
   StorageProvider.prototype.get = function <C extends Controller, S extends StorageService<C> | null | undefined>(key: string): string | undefined {
     let service: StorageService<C> | null | undefined = this.service;

@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {Affinity, MemberFastenerClass, Property} from "@swim/component";
+import {Affinity, FastenerClass, PropertyDef} from "@swim/component";
 import {Length} from "@swim/math";
-import {ViewContextType, View, ViewRef, ViewSet} from "@swim/view";
+import {ViewContextType, View, ViewRefDef, ViewSetDef} from "@swim/view";
 import {BarView} from "@swim/toolbar";
 import {SheetView} from "../sheet/SheetView";
 import type {PanelViewObserver} from "./PanelViewObserver";
@@ -39,18 +39,18 @@ export class PanelView extends SheetView {
 
   override readonly observerType?: Class<PanelViewObserver>;
 
-  @Property<PanelView, PanelTabStyle>({
-    type: String,
+  @PropertyDef<PanelView["tabStyle"]>({
+    valueType: String,
     value: "none",
     updateFlags: View.NeedsResize,
     didSetValue(tabStyle: PanelTabStyle): void {
       this.owner.callObservers("viewDidSetTabStyle", tabStyle, this.owner);
     },
   })
-  readonly tabStyle!: Property<this, PanelTabStyle>;
+  readonly tabStyle!: PropertyDef<this, {value: PanelTabStyle}>;
 
-  @ViewRef<PanelView, BarView>({
-    type: BarView,
+  @ViewRefDef<PanelView["tabBar"]>({
+    viewType: BarView,
     binds: true,
     observes: true,
     initView(tabBarView: BarView): void {
@@ -74,12 +74,11 @@ export class PanelView extends SheetView {
       this.owner.requireUpdate(View.NeedsResize);
     },
   })
-  readonly tabBar!: ViewRef<this, BarView>;
-  static readonly tabBar: MemberFastenerClass<PanelView, "tabBar">;
+  readonly tabBar!: ViewRefDef<this, {view: BarView, observes: true}>;
+  static readonly tabBar: FastenerClass<PanelView["tabBar"]>;
 
-  @ViewSet<PanelView, SheetView>({
-    implements: true,
-    type: SheetView,
+  @ViewSetDef<PanelView["tabs"]>({
+    viewType: SheetView,
     binds: false,
     observes: true,
     initView(tabView: SheetView): void {
@@ -132,11 +131,11 @@ export class PanelView extends SheetView {
       return view instanceof SheetView ? view : null;
     },
   })
-  readonly tabs!: ViewSet<this, SheetView>;
-  static readonly tabs: MemberFastenerClass<PanelView, "tabs">;
+  readonly tabs!: ViewSetDef<this, {view: SheetView, observes: true}>;
+  static readonly tabs: FastenerClass<PanelView["tabs"]>;
 
-  @ViewRef<PanelView, SheetView>({
-    type: SheetView,
+  @ViewRefDef<PanelView["active"]>({
+    viewType: SheetView,
     binds: false,
     observes: true,
     willAttachView(tabView: SheetView, targetView: View | null): void {
@@ -155,8 +154,8 @@ export class PanelView extends SheetView {
       this.owner.fullBleed.setValue(fullBleed, Affinity.Intrinsic);
     },
   })
-  readonly active!: ViewRef<this, SheetView>;
-  static readonly active: MemberFastenerClass<PanelView, "active">;
+  readonly active!: ViewRefDef<this, {view: SheetView, observes: true}>;
+  static readonly active: FastenerClass<PanelView["active"]>;
 
   protected override onResize(viewContext: ViewContextType<this>): void {
     super.onResize(viewContext);

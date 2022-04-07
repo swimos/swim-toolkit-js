@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import {AnyBoxShadow, BoxShadow} from "@swim/style";
-import {StyleAnimatorFactory, StyleAnimator} from "./StyleAnimator";
+import {StyleAnimatorClass, StyleAnimator} from "./StyleAnimator";
 
 /** @internal */
 export const BoxShadowStyleAnimator = (function (_super: typeof StyleAnimator) {
-  const BoxShadowStyleAnimator = _super.extend("BoxShadowStyleAnimator") as StyleAnimatorFactory<StyleAnimator<any, BoxShadow | null, AnyBoxShadow | null>>;
+  const BoxShadowStyleAnimator = _super.extend("BoxShadowStyleAnimator", {}) as StyleAnimatorClass<StyleAnimator<any, BoxShadow | null, AnyBoxShadow | null>>;
 
   BoxShadowStyleAnimator.prototype.parse = function (value: string): BoxShadow | null {
     return BoxShadow.parse(value);

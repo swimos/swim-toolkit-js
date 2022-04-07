@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import type {Mutable, Class, Initable, Timing} from "@swim/util";
-import {MemberFastenerClass, Animator} from "@swim/component";
+import {FastenerClass, AnimatorDef} from "@swim/component";
 import {AnyR2Point, R2Point, R2Box} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
-import {ThemeAnimator} from "@swim/theme";
-import {ViewContextType, AnyView, View, ViewRef} from "@swim/view";
+import {ThemeAnimatorDef} from "@swim/theme";
+import {ViewContextType, AnyView, View, ViewRefDef} from "@swim/view";
 import {
   GraphicsViewInit,
   GraphicsView,
@@ -92,39 +92,39 @@ export abstract class TickView<D = unknown> extends GraphicsView {
   /** @internal */
   readonly tickState: TickState;
 
-  @Animator({type: R2Point, value: R2Point.origin(), updateFlags: View.NeedsRender})
-  readonly anchor!: Animator<this, R2Point, AnyR2Point>;
+  @AnimatorDef({valueType: R2Point, value: R2Point.origin(), updateFlags: View.NeedsRender})
+  readonly anchor!: AnimatorDef<this, {value: R2Point, valueInit: AnyR2Point}>;
 
-  @ThemeAnimator({type: Number, value: 1, updateFlags: View.NeedsRender})
-  readonly opacity!: ThemeAnimator<this, number>;
+  @ThemeAnimatorDef({valueType: Number, value: 1, updateFlags: View.NeedsRender})
+  readonly opacity!: ThemeAnimatorDef<this, {value: number}>;
 
-  @ThemeAnimator({type: Color, inherits: true, value: null, updateFlags: View.NeedsRender})
-  readonly tickMarkColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  @ThemeAnimatorDef({valueType: Color, value: null, inherits: true, updateFlags: View.NeedsRender})
+  readonly tickMarkColor!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
 
-  @ThemeAnimator({type: Number, inherits: true, value: 1, updateFlags: View.NeedsRender})
-  readonly tickMarkWidth!: ThemeAnimator<this, number>;
+  @ThemeAnimatorDef({valueType: Number, value: 1, inherits: true, updateFlags: View.NeedsRender})
+  readonly tickMarkWidth!: ThemeAnimatorDef<this, {value: number}>;
 
-  @ThemeAnimator({type: Number, inherits: true, value: 6, updateFlags: View.NeedsRender})
-  readonly tickMarkLength!: ThemeAnimator<this, number>;
+  @ThemeAnimatorDef({valueType: Number, value: 6, inherits: true, updateFlags: View.NeedsRender})
+  readonly tickMarkLength!: ThemeAnimatorDef<this, {value: number}>;
 
-  @ThemeAnimator({type: Number, inherits: true, value: 2, updateFlags: View.NeedsRender})
-  readonly tickLabelPadding!: ThemeAnimator<this, number>;
+  @ThemeAnimatorDef({valueType: Number, value: 2, inherits: true, updateFlags: View.NeedsRender})
+  readonly tickLabelPadding!: ThemeAnimatorDef<this, {value: number}>;
 
-  @ThemeAnimator({type: Color, inherits: true, value: null, updateFlags: View.NeedsRender})
-  readonly gridLineColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  @ThemeAnimatorDef({valueType: Color, value: null, inherits: true, updateFlags: View.NeedsRender})
+  readonly gridLineColor!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
 
-  @ThemeAnimator({type: Number, inherits: true, value: 0, updateFlags: View.NeedsRender})
-  readonly gridLineWidth!: ThemeAnimator<this, number>;
+  @ThemeAnimatorDef({valueType: Number, value: 0, inherits: true, updateFlags: View.NeedsRender})
+  readonly gridLineWidth!: ThemeAnimatorDef<this, {value: number}>;
 
-  @ThemeAnimator({type: Font, inherits: true, value: null})
-  readonly font!: ThemeAnimator<this, Font | null, AnyFont | null>;
+  @ThemeAnimatorDef({valueType: Font, value: null, inherits: true})
+  readonly font!: ThemeAnimatorDef<this, {value: Font | null, valueInit: AnyFont | null}>;
 
-  @ThemeAnimator({type: Color, inherits: true, value: null})
-  readonly textColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  @ThemeAnimatorDef({valueType: Color, value: null, inherits: true})
+  readonly textColor!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
 
-  @ViewRef<TickView<D>, GraphicsView & Initable<GraphicsViewInit | string>>({
-    key: true,
-    type: TextRunView,
+  @ViewRefDef<TickView<D>["label"]>({
+    viewType: TextRunView,
+    viewKey: true,
     binds: true,
     willAttachView(labelView: GraphicsView): void {
       this.owner.callObservers("viewWillAttachTickLabel", labelView, this.owner);
@@ -145,8 +145,10 @@ export abstract class TickView<D = unknown> extends GraphicsView {
       }
     },
   })
-  readonly label!: ViewRef<this, GraphicsView & Initable<GraphicsViewInit | string>>;
-  static readonly label: MemberFastenerClass<TickView, "label">;
+  readonly label!: ViewRefDef<this, {
+    view: GraphicsView & Initable<GraphicsViewInit | string>,
+  }>;
+  static readonly label: FastenerClass<TickView["label"]>;
 
   /** @internal */
   readonly preserved: boolean;

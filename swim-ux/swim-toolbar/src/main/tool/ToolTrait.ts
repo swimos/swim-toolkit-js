@@ -13,21 +13,26 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {Property} from "@swim/component";
+import {PropertyDef} from "@swim/component";
 import {Trait} from "@swim/model";
 import {AnyToolLayout, ToolLayout} from "../layout/ToolLayout";
 import type {ToolTraitObserver} from "./ToolTraitObserver";
+import {ToolController} from "./"; // forward import
 
 /** @public */
 export class ToolTrait extends Trait {
   override readonly observerType?: Class<ToolTraitObserver>;
 
-  @Property<ToolTrait, ToolLayout | null, AnyToolLayout | null>({
-    type: ToolLayout,
+  @PropertyDef<ToolTrait["layout"]>({
+    valueType: ToolLayout,
     value: null,
-    didSetValue(newLayout: ToolLayout | null, oldLayout: ToolLayout | null): void {
-      this.owner.callObservers("traitDidSetToolLayout", newLayout, this.owner);
+    didSetValue(toolLayout: ToolLayout | null): void {
+      this.owner.callObservers("traitDidSetToolLayout", toolLayout, this.owner);
     },
   })
-  readonly layout!: Property<this, ToolLayout | null, AnyToolLayout | null>;
+  readonly layout!: PropertyDef<this, {value: ToolLayout | null, valueInit: AnyToolLayout | null}>;
+
+  createToolController(): ToolController {
+    return new ToolController();
+  }
 }

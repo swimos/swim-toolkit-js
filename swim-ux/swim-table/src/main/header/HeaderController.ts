@@ -13,34 +13,32 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {MemberFastenerClass} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
 import type {TraitConstructor, TraitClass, Trait} from "@swim/model";
 import type {View} from "@swim/view";
 import type {HtmlViewClass, HtmlView} from "@swim/dom";
-import {Controller, TraitViewRef, TraitViewControllerSet} from "@swim/controller";
+import {
+  Controller,
+  TraitViewRefDef,
+  TraitViewRef,
+  TraitViewControllerSetDef,
+  TraitViewControllerSet,
+} from "@swim/controller";
 import type {ColLayout} from "../layout/ColLayout";
 import type {ColView} from "../col/ColView";
+import {TextColView} from "../col/TextColView";
 import type {ColTrait} from "../col/ColTrait";
 import {ColController} from "../col/ColController";
+import type {TextColController} from "../col/TextColController";
 import {HeaderView} from "./HeaderView";
 import {HeaderTrait} from "./HeaderTrait";
 import type {HeaderControllerObserver} from "./HeaderControllerObserver";
 
 /** @public */
-export interface HeaderControllerColExt {
-  attachColTrait(colTrait: ColTrait, colController: ColController): void;
-  detachColTrait(colTrait: ColTrait, colController: ColController): void;
-  attachColView(colView: ColView, colController: ColController): void;
-  detachColView(colView: ColView, colController: ColController): void;
-  attachColLabelView(colLabelView: HtmlView, colController: ColController): void;
-  detachColLabelView(colLabelView: HtmlView, colController: ColController): void;
-}
-
-/** @public */
 export class HeaderController extends Controller {
   override readonly observerType?: Class<HeaderControllerObserver>;
 
-  @TraitViewRef<HeaderController, HeaderTrait, HeaderView>({
+  @TraitViewRefDef<HeaderController["header"]>({
     traitType: HeaderTrait,
     observesTrait: true,
     willAttachTrait(headerTrait: HeaderTrait): void {
@@ -86,18 +84,23 @@ export class HeaderController extends Controller {
       parent.prependChild(childView, key);
     },
   })
-  readonly header!: TraitViewRef<this, HeaderTrait, HeaderView>;
-  static readonly header: MemberFastenerClass<HeaderController, "header">;
+  readonly header!: TraitViewRefDef<this, {
+    trait: HeaderTrait,
+    observesTrait: true,
+    view: HeaderView,
+    observesView: true,
+  }>;
+  static readonly header: FastenerClass<HeaderController["header"]>;
 
   getColTrait(key: string): ColTrait | null;
-  getColTrait<R extends ColTrait>(key: string, colTraitClass: TraitClass<R>): R | null;
+  getColTrait<T extends ColTrait>(key: string, colTraitClass: TraitClass<T>): T | null;
   getColTrait(key: string, colTraitClass?: TraitClass<ColTrait>): ColTrait | null {
     const headerTrait = this.header.trait;
     return headerTrait !== null ? headerTrait.getCol(key, colTraitClass!) : null;
   }
 
   getOrCreateColTrait(key: string): ColTrait;
-  getOrCreateColTrait<R extends ColTrait>(key: string, colTraitConstructor: TraitConstructor<R>): R;
+  getOrCreateColTrait<T extends ColTrait>(key: string, colTraitConstructor: TraitConstructor<T>): T;
   getOrCreateColTrait(key: string, colTraitConstructor?: TraitConstructor<ColTrait>): ColTrait {
     const headerTrait = this.header.trait;
     if (headerTrait === null) {
@@ -147,9 +150,8 @@ export class HeaderController extends Controller {
     headerView.setCol(key, colView);
   }
 
-  @TraitViewControllerSet<HeaderController, ColTrait, ColView, ColController, HeaderControllerColExt>({
-    implements: true,
-    type: ColController,
+  @TraitViewControllerSetDef<HeaderController["cols"]>({
+    controllerType: ColController,
     binds: true,
     observes: true,
     get parentView(): HeaderView | null {
@@ -207,23 +209,24 @@ export class HeaderController extends Controller {
       this.owner.callObservers("controllerDidDetachColView", colView, colController, this.owner);
     },
     attachColView(colView: ColView, colController: ColController): void {
-      const colLabelView = colView.label.view;
-      if (colLabelView !== null) {
-        this.attachColLabelView(colLabelView, colController);
+      if (colView instanceof TextColView) {
+        const colLabelView = colView.label.view;
+        if (colLabelView !== null) {
+          this.attachColLabelView(colLabelView, colController);
+        }
       }
     },
     detachColView(colView: ColView, colController: ColController): void {
-      const colLabelView = colView.label.view;
-      if (colLabelView !== null) {
-        this.detachColLabelView(colLabelView, colController);
+      if (colView instanceof TextColView) {
+        const colLabelView = colView.label.view;
+        if (colLabelView !== null) {
+          this.detachColLabelView(colLabelView, colController);
+        }
       }
       colView.remove();
     },
-    controllerWillSetColLayout(newColLayout: ColLayout | null, oldColLayout: ColLayout | null, colController: ColController): void {
-      this.owner.callObservers("controllerWillSetColLayout", newColLayout, oldColLayout, colController, this.owner);
-    },
-    controllerDidSetColLayout(newColLayout: ColLayout | null, oldColLayout: ColLayout | null, colController: ColController): void {
-      this.owner.callObservers("controllerDidSetColLayout", newColLayout, oldColLayout, colController, this.owner);
+    controllerDidSetColLayout(colLayout: ColLayout | null, colController: ColController): void {
+      this.owner.callObservers("controllerDidSetColLayout", colLayout, colController, this.owner);
     },
     controllerWillAttachColLabelView(colLabelView: HtmlView, colController: ColController): void {
       this.owner.callObservers("controllerWillAttachColLabelView", colLabelView, colController, this.owner);
@@ -239,7 +242,27 @@ export class HeaderController extends Controller {
     detachColLabelView(colLabelView: HtmlView, colController: ColController): void {
       // hook
     },
+    createController(colTrait?: ColTrait): ColController {
+      if (colTrait !== void 0) {
+        return colTrait.createColController();
+      } else {
+        return TraitViewControllerSet.prototype.createController.call(this);
+      }
+    },
   })
-  readonly cols!: TraitViewControllerSet<this, ColTrait, ColView, ColController> & HeaderControllerColExt;
-  static readonly cols: MemberFastenerClass<HeaderController, "cols">;
+  readonly cols!: TraitViewControllerSetDef<this, {
+    trait: ColTrait,
+    view: ColView,
+    controller: ColController,
+    implements: {
+      attachColTrait(colTrait: ColTrait, colController: ColController): void;
+      detachColTrait(colTrait: ColTrait, colController: ColController): void;
+      attachColView(colView: ColView, colController: ColController): void;
+      detachColView(colView: ColView, colController: ColController): void;
+      attachColLabelView(colLabelView: HtmlView, colController: ColController): void;
+      detachColLabelView(colLabelView: HtmlView, colController: ColController): void;
+    },
+    observes: ColController & TextColController,
+  }>;
+  static readonly cols: FastenerClass<HeaderController["cols"]>;
 }

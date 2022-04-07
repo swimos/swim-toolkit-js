@@ -13,64 +13,80 @@
 // limitations under the License.
 
 import type {Proto, ObserverType} from "@swim/util";
-import {FastenerOwner, FastenerInit, FastenerClass, Fastener} from "@swim/component";
+import {FastenerRefinement, FastenerTemplate, FastenerClass, Fastener} from "@swim/component";
 import {Model} from "../model/Model";
 import {AnyTrait, TraitFactory, Trait} from "./Trait";
 
-/** @internal */
-export type TraitRelationType<F extends TraitRelation<any, any>> =
-  F extends TraitRelation<any, infer T> ? T : never;
-
 /** @public */
-export interface TraitRelationInit<T extends Trait = Trait> extends FastenerInit {
-  extends?: {prototype: TraitRelation<any, any>} | string | boolean | null;
-  type?: TraitFactory<T>;
-  binds?: boolean;
-  observes?: boolean;
-
-  initTrait?(trait: T): void;
-  willAttachTrait?(trait: T, target: Trait | null): void;
-  didAttachTrait?(trait: T, target: Trait | null): void;
-
-  deinitTrait?(trait: T): void;
-  willDetachTrait?(trait: T): void;
-  didDetachTrait?(trait: T): void;
-
-  parentModel?: Model | null;
-  insertChild?(model: Model, trait: T, target: Trait | null, key: string | undefined): void;
-
-  detectModel?(model: Model): T | null;
-  detectTrait?(trait: Trait): T | null;
-  createTrait?(): T;
-  fromAny?(value: AnyTrait<T>): T;
+export interface TraitRelationRefinement extends FastenerRefinement {
+  trait?: Trait;
+  observes?: unknown;
 }
 
 /** @public */
-export type TraitRelationDescriptor<O = unknown, T extends Trait = Trait, I = {}> = ThisType<TraitRelation<O, T> & I> & TraitRelationInit<T> & Partial<I>;
+export type TraitRelationTrait<R extends TraitRelationRefinement | TraitRelation<any, any>, D = Trait> =
+  R extends {trait: infer T} ? T :
+  R extends {extends: infer E} ? TraitRelationTrait<E, D> :
+  R extends TraitRelation<any, infer T> ? T :
+  D;
+
+/** @public */
+export interface TraitRelationTemplate<T extends Trait = Trait> extends FastenerTemplate {
+  extends?: Proto<TraitRelation<any, any>> | string | boolean | null;
+  traitType?: TraitFactory<T>;
+  binds?: boolean;
+  observes?: boolean;
+}
 
 /** @public */
 export interface TraitRelationClass<F extends TraitRelation<any, any> = TraitRelation<any, any>> extends FastenerClass<F> {
+  /** @override */
+  specialize(className: string, template: TraitRelationTemplate): TraitRelationClass;
+
+  /** @override */
+  refine(fastenerClass: TraitRelationClass): void;
+
+  /** @override */
+  extend(className: string, template: TraitRelationTemplate): TraitRelationClass<F>;
+
+  /** @override */
+  specify<O, T extends Trait = Trait>(className: string, template: ThisType<TraitRelation<O, T>> & TraitRelationTemplate<T> & Partial<Omit<TraitRelation<O, T>, keyof TraitRelationTemplate>>): TraitRelationClass<F>;
+
+  /** @override */
+  <O, T extends Trait = Trait>(template: ThisType<TraitRelation<O, T>> & TraitRelationTemplate<T> & Partial<Omit<TraitRelation<O, T>, keyof TraitRelationTemplate>>): PropertyDecorator;
 }
 
 /** @public */
-export interface TraitRelationFactory<F extends TraitRelation<any, any> = TraitRelation<any, any>> extends TraitRelationClass<F> {
-  extend<I = {}>(className: string, classMembers?: Partial<I> | null): TraitRelationFactory<F> & I;
+export type TraitRelationDef<O, R extends TraitRelationRefinement> =
+  TraitRelation<O, TraitRelationTrait<R>> &
+  {readonly name: string} & // prevent type alias simplification
+  (R extends {extends: infer E} ? E : {}) &
+  (R extends {defines: infer D} ? D : {}) &
+  (R extends {implements: infer I} ? I : {}) &
+  (R extends {observes: infer B} ? ObserverType<B extends boolean ? TraitRelationTrait<R> : B> : {});
 
-  define<O, T extends Trait = Trait>(className: string, descriptor: TraitRelationDescriptor<O, T>): TraitRelationFactory<TraitRelation<any, T>>;
-  define<O, T extends Trait = Trait>(className: string, descriptor: {observes: boolean} & TraitRelationDescriptor<O, T, ObserverType<T>>): TraitRelationFactory<TraitRelation<any, T>>;
-  define<O, T extends Trait = Trait, I = {}>(className: string, descriptor: {implements: unknown} & TraitRelationDescriptor<O, T, I>): TraitRelationFactory<TraitRelation<any, T> & I>;
-  define<O, T extends Trait = Trait, I = {}>(className: string, descriptor: {implements: unknown; observes: boolean} & TraitRelationDescriptor<O, T, I & ObserverType<T>>): TraitRelationFactory<TraitRelation<any, T> & I>;
-
-  <O, T extends Trait = Trait>(descriptor: TraitRelationDescriptor<O, T>): PropertyDecorator;
-  <O, T extends Trait = Trait>(descriptor: {observes: boolean} & TraitRelationDescriptor<O, T, ObserverType<T>>): PropertyDecorator;
-  <O, T extends Trait = Trait, I = {}>(descriptor: {implements: unknown} & TraitRelationDescriptor<O, T, I>): PropertyDecorator;
-  <O, T extends Trait = Trait, I = {}>(descriptor: {implements: unknown; observes: boolean} & TraitRelationDescriptor<O, T, I & ObserverType<T>>): PropertyDecorator;
+/** @public */
+export function TraitRelationDef<F extends TraitRelation<any, any>>(
+  template: F extends TraitRelationDef<infer O, infer R>
+          ? ThisType<TraitRelationDef<O, R>>
+          & TraitRelationTemplate<TraitRelationTrait<R>>
+          & Partial<Omit<TraitRelation<O, TraitRelationTrait<R>>, keyof TraitRelationTemplate>>
+          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof TraitRelationTemplate>> & {extends: unknown}) : {})
+          & (R extends {defines: infer D} ? Partial<D> : {})
+          & (R extends {implements: infer I} ? I : {})
+          & (R extends {observes: infer B} ? (ObserverType<B extends boolean ? TraitRelationTrait<R> : B> & {observes: boolean}) : {})
+          : never
+): PropertyDecorator {
+  return TraitRelation(template);
 }
 
 /** @public */
 export interface TraitRelation<O = unknown, T extends Trait = Trait> extends Fastener<O> {
   /** @override */
   get fastenerType(): Proto<TraitRelation<any, any>>;
+
+  /** @internal */
+  readonly traitType?: TraitFactory<T>; // optional prototype property
 
   /** @protected */
   initTrait(trait: T): void;
@@ -120,33 +136,22 @@ export interface TraitRelation<O = unknown, T extends Trait = Trait> extends Fas
 
   createTrait(): T;
 
+  /** @internal */
+  readonly observes?: boolean; // optional prototype property
+
   /** @internal @protected */
   fromAny(value: AnyTrait<T>): T;
-
-  /** @internal @protected */
-  get type(): TraitFactory<T> | undefined; // optional prototype property
-
-  /** @internal @protected */
-  get binds(): boolean | undefined; // optional prototype property
-
-  /** @internal @protected */
-  get observes(): boolean | undefined; // optional prototype property
-
-  /** @internal @override */
-  get lazy(): boolean; // prototype property
-
-  /** @internal @override */
-  get static(): string | boolean; // prototype property
 }
 
 /** @public */
 export const TraitRelation = (function (_super: typeof Fastener) {
-  const TraitRelation: TraitRelationFactory = _super.extend("TraitRelation");
+  const TraitRelation = _super.extend("TraitRelation", {
+    lazy: false,
+    static: true,
+  }) as TraitRelationClass;
 
   Object.defineProperty(TraitRelation.prototype, "fastenerType", {
-    get: function (this: TraitRelation): Proto<TraitRelation<any, any>> {
-      return TraitRelation;
-    },
+    value: TraitRelation,
     configurable: true,
   });
 
@@ -230,9 +235,9 @@ export const TraitRelation = (function (_super: typeof Fastener) {
 
   TraitRelation.prototype.createTrait = function <T extends Trait>(this: TraitRelation<unknown, T>): T {
     let trait: T | undefined;
-    const type = this.type;
-    if (type !== void 0) {
-      trait = type.create();
+    const traitType = this.traitType;
+    if (traitType !== void 0) {
+      trait = traitType.create();
     }
     if (trait === void 0 || trait === null) {
       let message = "Unable to create ";
@@ -246,60 +251,12 @@ export const TraitRelation = (function (_super: typeof Fastener) {
   };
 
   TraitRelation.prototype.fromAny = function <T extends Trait>(this: TraitRelation<unknown, T>, value: AnyTrait<T>): T {
-    const type = this.type;
-    if (type !== void 0) {
-      return type.fromAny(value);
+    const traitType = this.traitType;
+    if (traitType !== void 0) {
+      return traitType.fromAny(value);
     } else {
       return Trait.fromAny(value) as T;
     }
-  };
-
-  Object.defineProperty(TraitRelation.prototype, "lazy", {
-    get: function (this: TraitRelation): boolean {
-      return false;
-    },
-    configurable: true,
-  });
-
-  Object.defineProperty(TraitRelation.prototype, "static", {
-    get: function (this: TraitRelation): string | boolean {
-      return true;
-    },
-    configurable: true,
-  });
-
-  TraitRelation.construct = function <F extends TraitRelation<any, any>>(fastenerClass: {prototype: F}, fastener: F | null, owner: FastenerOwner<F>): F {
-    fastener = _super.construct(fastenerClass, fastener, owner) as F;
-    return fastener;
-  };
-
-  TraitRelation.define = function <O, T extends Trait>(className: string, descriptor: TraitRelationDescriptor<O, T>): TraitRelationFactory<TraitRelation<any, T>> {
-    let superClass = descriptor.extends as TraitRelationFactory | null | undefined;
-    const affinity = descriptor.affinity;
-    const inherits = descriptor.inherits;
-    delete descriptor.extends;
-    delete descriptor.implements;
-    delete descriptor.affinity;
-    delete descriptor.inherits;
-
-    if (superClass === void 0 || superClass === null) {
-      superClass = this;
-    }
-
-    const fastenerClass = superClass.extend(className, descriptor);
-
-    fastenerClass.construct = function (fastenerClass: {prototype: TraitRelation<any, any>}, fastener: TraitRelation<O, T> | null, owner: O): TraitRelation<O, T> {
-      fastener = superClass!.construct(fastenerClass, fastener, owner);
-      if (affinity !== void 0) {
-        fastener.initAffinity(affinity);
-      }
-      if (inherits !== void 0) {
-        fastener.initInherits(inherits);
-      }
-      return fastener;
-    };
-
-    return fastenerClass;
   };
 
   return TraitRelation;

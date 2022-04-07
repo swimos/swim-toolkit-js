@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Mutable, Class, Arrays, ObserverType} from "@swim/util";
-import {Affinity, Provider} from "@swim/component";
+import {Affinity, ProviderDef} from "@swim/component";
 import {R2Box, Transform} from "@swim/math";
 import {
   ViewContextType,
@@ -161,12 +161,11 @@ export class CanvasView extends HtmlView {
     return displayFlags;
   }
 
-  @Provider({
-    type: SpriteService,
-    observes: false,
+  @ProviderDef<CanvasView["spriteProvider"]>({
+    serviceType: SpriteService,
     service: SpriteService.global(),
   })
-  readonly spriteProvider!: Provider<this, SpriteService>;
+  readonly spriteProvider!: ProviderDef<this, {service: SpriteService}>;
 
   get pixelRatio(): number {
     return window.devicePixelRatio || 1;

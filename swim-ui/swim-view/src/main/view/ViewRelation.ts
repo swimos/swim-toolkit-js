@@ -13,62 +13,78 @@
 // limitations under the License.
 
 import type {Proto, ObserverType} from "@swim/util";
-import {FastenerOwner, FastenerInit, FastenerClass, Fastener} from "@swim/component";
+import {FastenerRefinement, FastenerTemplate, FastenerClass, Fastener} from "@swim/component";
 import {AnyView, ViewFactory, View} from "./View";
 
-/** @internal */
-export type ViewRelationType<F extends ViewRelation<any, any>> =
-  F extends ViewRelation<any, infer V> ? V : never;
-
 /** @public */
-export interface ViewRelationInit<V extends View = View> extends FastenerInit {
-  extends?: {prototype: ViewRelation<any, any>} | string | boolean | null;
-  type?: ViewFactory<V>;
-  binds?: boolean;
-  observes?: boolean;
-
-  initView?(view: V): void;
-  willAttachView?(view: V, target: View | null): void;
-  didAttachView?(view: V, target: View | null): void;
-
-  deinitView?(view: V): void;
-  willDetachView?(view: V): void;
-  didDetachView?(view: V): void;
-
-  parentView?: View | null;
-  insertChild?(parent: View, child: V, target: View | null, key: string | undefined): void;
-
-  detectView?(view: View): V | null;
-  createView?(): V;
-  fromAny?(value: AnyView<V>): V;
+export interface ViewRelationRefinement extends FastenerRefinement {
+  view?: View;
 }
 
 /** @public */
-export type ViewRelationDescriptor<O = unknown, V extends View = View, I = {}> = ThisType<ViewRelation<O, V> & I> & ViewRelationInit<V> & Partial<I>;
+export type ViewRelationView<R extends ViewRelationRefinement | ViewRelation<any, any>, D = View> =
+  R extends {view: infer V} ? V :
+  R extends {extends: infer E} ? ViewRelationView<E, D> :
+  R extends ViewRelation<any, infer V> ? V :
+  D;
+
+/** @public */
+export interface ViewRelationTemplate<V extends View = View> extends FastenerTemplate {
+  extends?: Proto<ViewRelation<any, any>> | string | boolean | null;
+  viewType?: ViewFactory<V>;
+  binds?: boolean;
+  observes?: boolean;
+}
 
 /** @public */
 export interface ViewRelationClass<F extends ViewRelation<any, any> = ViewRelation<any, any>> extends FastenerClass<F> {
+  /** @override */
+  specialize(className: string, template: ViewRelationTemplate): ViewRelationClass;
+
+  /** @override */
+  refine(fastenerClass: ViewRelationClass): void;
+
+  /** @override */
+  extend(className: string, template: ViewRelationTemplate): ViewRelationClass<F>;
+
+  /** @override */
+  specify<O, V extends View = View>(className: string, template: ThisType<ViewRelation<O, V>> & ViewRelationTemplate<V> & Partial<Omit<ViewRelation<O, V>, keyof ViewRelationTemplate>>): ViewRelationClass<F>;
+
+  /** @override */
+  <O, V extends View = View>(template: ThisType<ViewRelation<O, V>> & ViewRelationTemplate<V> & Partial<Omit<ViewRelation<O, V>, keyof ViewRelationTemplate>>): PropertyDecorator;
 }
 
 /** @public */
-export interface ViewRelationFactory<F extends ViewRelation<any, any> = ViewRelation<any, any>> extends ViewRelationClass<F> {
-  extend<I = {}>(className: string, classMembers?: Partial<I> | null): ViewRelationFactory<F> & I;
+export type ViewRelationDef<O, R extends ViewRelationRefinement> =
+  ViewRelation<O, ViewRelationView<R>> &
+  {readonly name: string} & // prevent type alias simplification
+  (R extends {extends: infer E} ? E : {}) &
+  (R extends {defines: infer D} ? D : {}) &
+  (R extends {implements: infer I} ? I : {}) &
+  (R extends {observes: infer B} ? ObserverType<B extends boolean ? ViewRelationView<R> : B> : {});
 
-  define<O, V extends View = View>(className: string, descriptor: ViewRelationDescriptor<O, V>): ViewRelationFactory<ViewRelation<any, V>>;
-  define<O, V extends View = View>(className: string, descriptor: {observes: boolean} & ViewRelationDescriptor<O, V, ObserverType<V>>): ViewRelationFactory<ViewRelation<any, V>>;
-  define<O, V extends View = View, I = {}>(className: string, descriptor: {implements: unknown} & ViewRelationDescriptor<O, V, I>): ViewRelationFactory<ViewRelation<any, V> & I>;
-  define<O, V extends View = View, I = {}>(className: string, descriptor: {implements: unknown; observes: boolean} & ViewRelationDescriptor<O, V, I & ObserverType<V>>): ViewRelationFactory<ViewRelation<any, V> & I>;
-
-  <O, V extends View = View>(descriptor: ViewRelationDescriptor<O, V>): PropertyDecorator;
-  <O, V extends View = View>(descriptor: {observes: boolean} & ViewRelationDescriptor<O, V, ObserverType<V>>): PropertyDecorator;
-  <O, V extends View = View, I = {}>(descriptor: {implements: unknown} & ViewRelationDescriptor<O, V, I>): PropertyDecorator;
-  <O, V extends View = View, I = {}>(descriptor: {implements: unknown; observes: boolean} & ViewRelationDescriptor<O, V, I & ObserverType<V>>): PropertyDecorator;
+/** @public */
+export function ViewRelationDef<F extends ViewRelation<any, any>>(
+  template: F extends ViewRelationDef<infer O, infer R>
+          ? ThisType<ViewRelationDef<O, R>>
+          & ViewRelationTemplate<ViewRelationView<R>>
+          & Partial<Omit<ViewRelation<O, ViewRelationView<R>>, keyof ViewRelationTemplate>>
+          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof ViewRelationTemplate>> & {extends: unknown}) : {})
+          & (R extends {defines: infer D} ? Partial<D> : {})
+          & (R extends {implements: infer I} ? I : {})
+          & (R extends {observes: infer B} ? (ObserverType<B extends boolean ? ViewRelationView<R> : B> & {observes: boolean}) : {})
+          : never
+): PropertyDecorator {
+  return ViewRelation(template);
 }
 
 /** @public */
 export interface ViewRelation<O = unknown, V extends View = View> extends Fastener<O> {
   /** @override */
   get fastenerType(): Proto<ViewRelation<any, any>>;
+
+  /** @internal */
+  readonly viewType?: ViewFactory<V>; // optional prototype property
 
   /** @protected */
   initView(view: V): void;
@@ -110,33 +126,22 @@ export interface ViewRelation<O = unknown, V extends View = View> extends Fasten
 
   createView(): V;
 
+  /** @internal */
+  readonly observes?: boolean; // optional prototype property
+
   /** @internal @protected */
   fromAny(value: AnyView<V>): V;
-
-  /** @internal @protected */
-  get type(): ViewFactory<V> | undefined; // optional prototype property
-
-  /** @internal @protected */
-  get binds(): boolean | undefined; // optional prototype property
-
-  /** @internal @protected */
-  get observes(): boolean | undefined; // optional prototype property
-
-  /** @internal @override */
-  get lazy(): boolean; // prototype property
-
-  /** @internal @override */
-  get static(): string | boolean; // prototype property
 }
 
 /** @public */
 export const ViewRelation = (function (_super: typeof Fastener) {
-  const ViewRelation: ViewRelationFactory = _super.extend("ViewRelation");
+  const ViewRelation = _super.extend("ViewRelation", {
+    lazy: false,
+    static: true,
+  }) as ViewRelationClass;
 
   Object.defineProperty(ViewRelation.prototype, "fastenerType", {
-    get: function (this: ViewRelation): Proto<ViewRelation<any, any>> {
-      return ViewRelation;
-    },
+    value: ViewRelation,
     configurable: true,
   });
 
@@ -202,9 +207,9 @@ export const ViewRelation = (function (_super: typeof Fastener) {
 
   ViewRelation.prototype.createView = function <V extends View>(this: ViewRelation<unknown, V>): V {
     let view: V | undefined;
-    const type = this.type;
-    if (type !== void 0) {
-      view = type.create();
+    const viewType = this.viewType;
+    if (viewType !== void 0) {
+      view = viewType.create();
     }
     if (view === void 0 || view === null) {
       let message = "Unable to create ";
@@ -218,60 +223,12 @@ export const ViewRelation = (function (_super: typeof Fastener) {
   };
 
   ViewRelation.prototype.fromAny = function <V extends View>(this: ViewRelation<unknown, V>, value: AnyView<V>): V {
-    const type = this.type;
-    if (type !== void 0) {
-      return type.fromAny(value);
+    const viewType = this.viewType;
+    if (viewType !== void 0) {
+      return viewType.fromAny(value);
     } else {
       return View.fromAny(value) as V;
     }
-  };
-
-  Object.defineProperty(ViewRelation.prototype, "lazy", {
-    get: function (this: ViewRelation): boolean {
-      return false;
-    },
-    configurable: true,
-  });
-
-  Object.defineProperty(ViewRelation.prototype, "static", {
-    get: function (this: ViewRelation): string | boolean {
-      return true;
-    },
-    configurable: true,
-  });
-
-  ViewRelation.construct = function <F extends ViewRelation<any, any>>(fastenerClass: {prototype: F}, fastener: F | null, owner: FastenerOwner<F>): F {
-    fastener = _super.construct(fastenerClass, fastener, owner) as F;
-    return fastener;
-  };
-
-  ViewRelation.define = function <O, V extends View>(className: string, descriptor: ViewRelationDescriptor<O, V>): ViewRelationFactory<ViewRelation<any, V>> {
-    let superClass = descriptor.extends as ViewRelationFactory | null | undefined;
-    const affinity = descriptor.affinity;
-    const inherits = descriptor.inherits;
-    delete descriptor.extends;
-    delete descriptor.implements;
-    delete descriptor.affinity;
-    delete descriptor.inherits;
-
-    if (superClass === void 0 || superClass === null) {
-      superClass = this;
-    }
-
-    const fastenerClass = superClass.extend(className, descriptor);
-
-    fastenerClass.construct = function (fastenerClass: {prototype: ViewRelation<any, any>}, fastener: ViewRelation<O, V> | null, owner: O): ViewRelation<O, V> {
-      fastener = superClass!.construct(fastenerClass, fastener, owner);
-      if (affinity !== void 0) {
-        fastener.initAffinity(affinity);
-      }
-      if (inherits !== void 0) {
-        fastener.initInherits(inherits);
-      }
-      return fastener;
-    };
-
-    return fastenerClass;
   };
 
   return ViewRelation;

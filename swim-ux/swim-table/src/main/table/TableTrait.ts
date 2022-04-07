@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {Affinity, MemberFastenerClass, Property} from "@swim/component";
+import {Affinity, FastenerClass, PropertyDef} from "@swim/component";
 import {AnyLength, Length} from "@swim/math";
-import {Model, Trait, TraitRef, TraitSet} from "@swim/model";
+import {Model, Trait, TraitRefDef, TraitSetDef} from "@swim/model";
 import type {ColLayout} from "../layout/ColLayout";
 import {AnyTableLayout, TableLayout} from "../layout/TableLayout";
 import {RowTrait} from "../row/RowTrait";
@@ -46,29 +46,26 @@ export class TableTrait extends Trait {
     this.layout.setValue(layout, Affinity.Intrinsic);
   }
 
-  @Property<TableTrait, TableLayout | null, AnyTableLayout | null>({
-    type: TableLayout,
+  @PropertyDef<TableTrait["layout"]>({
+    valueType: TableLayout,
     value: null,
-    willSetValue(newLayout: TableLayout | null, oldLayout: TableLayout | null): void {
-      this.owner.callObservers("traitWillSetTableLayout", newLayout, oldLayout, this.owner);
-    },
-    didSetValue(newLayout: TableLayout | null, oldLayout: TableLayout | null): void {
-      this.owner.callObservers("traitDidSetTableLayout", newLayout, oldLayout, this.owner);
+    didSetValue(layout: TableLayout | null): void {
+      this.owner.callObservers("traitDidSetTableLayout", layout, this.owner);
     },
   })
-  readonly layout!: Property<this, TableLayout | null, AnyTableLayout | null>;
+  readonly layout!: PropertyDef<this, {value: TableLayout | null, valueInit: AnyTableLayout | null}>;
 
-  @Property<TableTrait, Length | null, AnyLength | null>({
-    type: Length,
+  @PropertyDef<TableTrait["colSpacing"]>({
+    valueType: Length,
     value: null,
     didSetValue(newColSpacing: Length | null, oldColSpacing: Length | null): void {
       this.owner.updateLayout();
     },
   })
-  readonly colSpacing!: Property<this, Length | null, AnyLength | null>;
+  readonly colSpacing!: PropertyDef<this, {value: Length | null, valueInit: AnyLength | null}>;
 
-  @TraitRef<TableTrait, HeaderTrait>({
-    type: HeaderTrait,
+  @TraitRefDef<TableTrait["header"]>({
+    traitType: HeaderTrait,
     binds: true,
     willAttachTrait(headerTrait: HeaderTrait): void {
       this.owner.callObservers("traitWillAttachHeader", headerTrait, this.owner);
@@ -80,11 +77,11 @@ export class TableTrait extends Trait {
       return trait instanceof HeaderTrait ? trait : null;
     },
   })
-  readonly header!: TraitRef<this, HeaderTrait>;
-  static readonly header: MemberFastenerClass<TableTrait, "header">;
+  readonly header!: TraitRefDef<this, {trait: HeaderTrait}>;
+  static readonly header: FastenerClass<TableTrait["header"]>;
 
-  @TraitSet<TableTrait, ColTrait>({
-    type: ColTrait,
+  @TraitSetDef<TableTrait["cols"]>({
+    traitType: ColTrait,
     binds: true,
     observes: true,
     willAttachTrait(colTrait: ColTrait, targetTrait: Trait | null): void {
@@ -105,18 +102,18 @@ export class TableTrait extends Trait {
       this.owner.updateLayout();
       this.owner.callObservers("traitDidDetachCol", colTrait, this.owner);
     },
-    traitDidSetLayout(newColLayout: ColLayout | null, oldColLayout: ColLayout | null): void {
+    traitDidSetLayout(colLayout: ColLayout | null): void {
       this.owner.updateLayout();
     },
     detectModel(model: Model): ColTrait | null {
       return model.getTrait(ColTrait);
     },
   })
-  readonly cols!: TraitSet<this, ColTrait>;
-  static readonly cols: MemberFastenerClass<TableTrait, "cols">;
+  readonly cols!: TraitSetDef<this, {trait: ColTrait, observes: true}>;
+  static readonly cols: FastenerClass<TableTrait["cols"]>;
 
-  @TraitSet<TableTrait, RowTrait>({
-    type: RowTrait,
+  @TraitSetDef<TableTrait["rows"]>({
+    traitType: RowTrait,
     binds: true,
     willAttachTrait(rowTrait: RowTrait, targetTrait: Trait | null): void {
       this.owner.callObservers("traitWillAttachRow", rowTrait, targetTrait, this.owner);
@@ -141,8 +138,8 @@ export class TableTrait extends Trait {
       return null;
     },
   })
-  readonly rows!: TraitSet<this, RowTrait>;
-  static readonly rows: MemberFastenerClass<TableTrait, "rows">;
+  readonly rows!: TraitSetDef<this, {trait: RowTrait}>;
+  static readonly rows: FastenerClass<TableTrait["rows"]>;
 
   protected override onStartConsuming(): void {
     super.onStartConsuming();

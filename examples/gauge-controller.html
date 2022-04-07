@@ -50,9 +50,9 @@ swim.TraitViewControllerSet({
       dialView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, void 0]], true);
     });
   },
-  controllerWillSetDialValue(newValue, oldValue, dialController, gaugeController) {
-    swim.GaugeController.dials.prototype.controllerWillSetDialValue.call(this, newValue, oldValue, dialController, gaugeController);
-    const label = Math.round(100 * newValue).toString();
+  controllerDidSetDialValue(dialValue, dialController, gaugeController) {
+    swim.GaugeController.dials.prototype.controllerDidSetDialValue.call(this, dialValue, dialController, gaugeController);
+    const label = Math.round(100 * dialValue).toString();
     dialController.dial.trait.label.setValue(label);
   },
 })(ExampleGaugeController.prototype, "dials");

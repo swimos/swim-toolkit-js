@@ -13,23 +13,27 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {Property} from "@swim/component";
-import type {Graphics} from "@swim/graphics";
+import {PropertyDef} from "@swim/component";
+import {Graphics} from "@swim/graphics";
 import {ToolTrait} from "./ToolTrait";
 import type {ButtonToolTraitObserver} from "./ButtonToolTraitObserver";
+import type {ToolController} from "./ToolController";
+import {ButtonToolController} from "./"; // forward import
 
 /** @public */
 export class ButtonToolTrait extends ToolTrait {
   override readonly observerType?: Class<ButtonToolTraitObserver>;
 
-  @Property<ButtonToolTrait, Graphics | null>({
+  @PropertyDef<ButtonToolTrait["icon"]>({
+    valueType: Graphics,
     value: null,
-    willSetValue(newIcon: Graphics | null, oldIcon: Graphics | null): void {
-      this.owner.callObservers("traitWillSetIcon", newIcon, oldIcon, this.owner);
-    },
-    didSetValue(newIcon: Graphics | null, oldIcon: Graphics | null): void {
-      this.owner.callObservers("traitDidSetIcon", newIcon, oldIcon, this.owner);
+    didSetValue(icon: Graphics | null): void {
+      this.owner.callObservers("traitDidSetIcon", icon, this.owner);
     },
   })
-  readonly icon!: Property<this, Graphics | null>;
+  readonly icon!: PropertyDef<this, {value: Graphics | null}>;
+
+  override createToolController(): ToolController {
+    return new ButtonToolController();
+  }
 }

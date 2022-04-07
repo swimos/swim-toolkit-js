@@ -12,46 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {AnyTiming, Timing} from "@swim/util";
-import {Affinity, AnimatorInit, AnimatorClass, Animator} from "@swim/component";
+import type {AnyTiming} from "@swim/util";
+import {Affinity, AnimatorClass, Animator} from "@swim/component";
 import {AnyExpansion, Expansion} from "./Expansion";
 
 /** @public */
-export interface ExpansionAnimatorInit<T extends Expansion | null | undefined = Expansion | null | undefined, U extends AnyExpansion | null | undefined = T> extends AnimatorInit<T, U> {
-  extends?: {prototype: ExpansionAnimator<any, any>} | string | boolean | null;
-
-  transition?: Timing | null;
-
-  willExpand?(): void;
-  didExpand?(): void;
-  willCollapse?(): void;
-  didCollapse?(): void;
-}
-
-/** @public */
-export type ExpansionAnimatorDescriptor<O = unknown, T extends Expansion | null | undefined = Expansion | null | undefined, U extends AnyExpansion | null | undefined = T, I = {}> = ThisType<ExpansionAnimator<O, T, U> & I> & ExpansionAnimatorInit<T, U> & Partial<I>;
-
-/** @public */
-export interface ExpansionAnimatorClass<A extends ExpansionAnimator<any, any> = ExpansionAnimator<any, any>> extends AnimatorClass<A> {
-}
-
-/** @public */
-export interface ExpansionAnimatorFactory<A extends ExpansionAnimator<any, any> = ExpansionAnimator<any, any>> extends ExpansionAnimatorClass<A> {
-  extend<I = {}>(className: string, classMembers?: Partial<I> | null): ExpansionAnimatorFactory<A> & I;
-
-  specialize(type: unknown): ExpansionAnimatorFactory | null;
-
-  define<O, T extends Expansion | null | undefined = Expansion | null | undefined, U extends AnyExpansion | null | undefined = T>(className: string, descriptor: ExpansionAnimatorDescriptor<O, T, U>): ExpansionAnimatorFactory<ExpansionAnimator<any, T, U>>;
-  define<O, T extends Expansion | null | undefined = Expansion | null | undefined, U extends AnyExpansion | null | undefined = T, I = {}>(className: string, descriptor: {implements: unknown} & ExpansionAnimatorDescriptor<O, T, U, I>): ExpansionAnimatorFactory<ExpansionAnimator<any, T, U> & I>;
-
-  <O, T extends Expansion | null | undefined = Expansion | null | undefined, U extends AnyExpansion | null | undefined = T>(descriptor: ExpansionAnimatorDescriptor<O, T, U> & ExpansionAnimatorInit): PropertyDecorator;
-  <O, T extends Expansion | null | undefined = Expansion | null | undefined, U extends AnyExpansion | null | undefined = T, I = {}>(descriptor: {implements: unknown} & ExpansionAnimatorDescriptor<O, T, U, I>): PropertyDecorator;
-}
-
-/** @public */
-export interface ExpansionAnimator<O = unknown, T extends Expansion | null | undefined = Expansion, U extends AnyExpansion | null | undefined = T> extends Animator<O, T, U> {
-  get type(): typeof Expansion;
-
+export interface ExpansionAnimator<O = unknown, T extends Expansion | null | undefined = Expansion | null | undefined, U extends AnyExpansion | null | undefined = T> extends Animator<O, T, U> {
   get phase(): number | undefined;
 
   getPhase(): number;
@@ -104,22 +70,14 @@ export interface ExpansionAnimator<O = unknown, T extends Expansion | null | und
   equalValues(newValue: T, oldValue: T | undefined): boolean;
 
   /** @override */
-  fromAny(value: T | U): T
-
-  /** @internal */
-  get transition(): Timing | null | undefined; // optional prototype field
+  fromAny(value: T | U): T;
 }
 
 /** @public */
 export const ExpansionAnimator = (function (_super: typeof Animator) {
-  const ExpansionAnimator: ExpansionAnimatorFactory = _super.extend("ExpansionAnimator");
-
-  Object.defineProperty(ExpansionAnimator.prototype, "type", {
-    get(this: ExpansionAnimator): typeof Expansion {
-      return Expansion;
-    },
-    configurable: true,
-  });
+  const ExpansionAnimator = _super.extend("ExpansionAnimator", {
+    valueType: Expansion,
+  }) as AnimatorClass<ExpansionAnimator>;
 
   Object.defineProperty(ExpansionAnimator.prototype, "phase", {
     get(this: ExpansionAnimator): number | undefined {
@@ -302,10 +260,6 @@ export const ExpansionAnimator = (function (_super: typeof Animator) {
     } else {
       return newValue === oldValue;
     }
-  };
-
-  ExpansionAnimator.specialize = function (type: unknown): ExpansionAnimatorFactory | null {
-    return ExpansionAnimator;
   };
 
   return ExpansionAnimator;

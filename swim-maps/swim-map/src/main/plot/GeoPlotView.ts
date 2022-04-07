@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import type {Mutable, Class, AnyTiming} from "@swim/util";
-import {Affinity, Property} from "@swim/component";
+import {Affinity, PropertyDef} from "@swim/component";
 import {AnyLength, Length, AnyR2Point, R2Point, R2Box} from "@swim/math";
 import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
-import {ThemeAnimator} from "@swim/theme";
+import {ThemeAnimatorDef} from "@swim/theme";
 import {ViewContextType, View} from "@swim/view";
 import {
   GraphicsView,
@@ -152,26 +152,26 @@ export class GeoPlotView extends GeoView implements StrokeView {
     return point;
   }
 
-  @Property({type: GeoPoint, value: GeoPoint.origin()})
-  readonly geoCentroid!: Property<this, GeoPoint, AnyGeoPoint>;
+  @PropertyDef({valueType: GeoPoint, value: GeoPoint.origin()})
+  readonly geoCentroid!: PropertyDef<this, {value: GeoPoint, valueInit: AnyGeoPoint}>;
 
-  @Property({type: R2Point, value: R2Point.origin()})
-  readonly viewCentroid!: Property<this, R2Point, AnyR2Point>;
+  @PropertyDef({valueType: R2Point, value: R2Point.origin()})
+  readonly viewCentroid!: PropertyDef<this, {value: R2Point, valueInit: AnyR2Point}>;
 
-  @ThemeAnimator({type: Color, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly stroke!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  @ThemeAnimatorDef({valueType: Color, value: null, inherits: true, updateFlags: View.NeedsRender})
+  readonly stroke!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
 
-  @ThemeAnimator({type: Length, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly strokeWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
+  @ThemeAnimatorDef({valueType: Length, value: null, inherits: true, updateFlags: View.NeedsRender})
+  readonly strokeWidth!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
 
-  @ThemeAnimator({type: Font, value: null, inherits: true})
-  readonly font!: ThemeAnimator<this, Font | null, AnyFont | null>;
+  @ThemeAnimatorDef({valueType: Font, value: null, inherits: true})
+  readonly font!: ThemeAnimatorDef<this, {value: Font | null, valueInit: AnyFont | null}>;
 
-  @ThemeAnimator({type: Color, value: null, inherits: true})
-  readonly textColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  @ThemeAnimatorDef({valueType: Color, value: null, inherits: true})
+  readonly textColor!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
 
-  @Property({type: Number})
-  readonly hitWidth!: Property<this, number | undefined>;
+  @PropertyDef({valueType: Number})
+  readonly hitWidth!: PropertyDef<this, {value: number | undefined}>;
 
   /** @internal */
   readonly gradientStops: number;

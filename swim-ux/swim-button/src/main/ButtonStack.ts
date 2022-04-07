@@ -13,20 +13,20 @@
 // limitations under the License.
 
 import {Mutable, Class, Lazy, AnyTiming, Timing} from "@swim/util";
-import {Affinity, MemberFastenerClass} from "@swim/component";
+import {Affinity, FastenerClass, AnimatorDef} from "@swim/component";
 import {Length} from "@swim/math";
 import {AnyExpansion, Expansion, ExpansionAnimator} from "@swim/style";
-import {Look, ThemeAnimator} from "@swim/theme";
+import {Look, ThemeAnimatorDef} from "@swim/theme";
 import {
   ModalOptions,
   ModalState,
   Modal,
   PositionGestureInput,
-  PositionGesture,
+  PositionGestureDef,
   ViewContextType,
   View,
 } from "@swim/view";
-import {StyleAnimator, ViewNode, HtmlView} from "@swim/dom";
+import {StyleAnimatorDef, ViewNode, HtmlView} from "@swim/dom";
 import {Graphics, VectorIcon} from "@swim/graphics";
 import {FloatingButton} from "./FloatingButton";
 import {ButtonItem} from "./ButtonItem";
@@ -70,7 +70,7 @@ export class ButtonStack extends HtmlView implements Modal {
     return FloatingButton.create();
   }
 
-  @PositionGesture<ButtonStack, HtmlView>({
+  @PositionGestureDef<ButtonStack["gesture"]>({
     didMovePress(input: PositionGestureInput, event: Event | null): void {
       if (!input.defaultPrevented && !this.owner.disclosure.expanded) {
         const stackHeight = this.owner.stackHeight;
@@ -119,11 +119,11 @@ export class ButtonStack extends HtmlView implements Modal {
       this.owner.disclosure.toggle();
     },
   })
-  readonly gesture!: PositionGesture<this, HtmlView>;
-  static readonly gesture: MemberFastenerClass<ButtonStack, "gesture">;
+  readonly gesture!: PositionGestureDef<this, {view: HtmlView}>;
+  static readonly gesture: FastenerClass<ButtonStack["gesture"]>;
 
-  @ExpansionAnimator<ButtonStack, Expansion, AnyExpansion>({
-    type: Expansion,
+  @AnimatorDef<ButtonStack["disclosure"]>({
+    extends: ExpansionAnimator,
     value: Expansion.collapsed(),
     updateFlags: View.NeedsLayout,
     get transition(): Timing | null {
@@ -144,17 +144,20 @@ export class ButtonStack extends HtmlView implements Modal {
       this.owner.didCollapse();
     },
   })
-  readonly disclosure!: ExpansionAnimator<this, Expansion, AnyExpansion>;
+  readonly disclosure!: AnimatorDef<this, {
+    extends: ExpansionAnimator<ButtonStack, Expansion, AnyExpansion>,
+    value: Expansion,
+    valueInit: AnyExpansion,
+  }>;
 
-  @ThemeAnimator({type: Number, value: 28, updateFlags: View.NeedsLayout})
-  readonly buttonSpacing!: ThemeAnimator<this, number>;
+  @ThemeAnimatorDef({valueType: Number, value: 28, updateFlags: View.NeedsLayout})
+  readonly buttonSpacing!: ThemeAnimatorDef<this, {value: number}>;
 
-  @ThemeAnimator({type: Number, value: 20, updateFlags: View.NeedsLayout})
-  readonly itemSpacing!: ThemeAnimator<this, number>;
+  @ThemeAnimatorDef({valueType: Number, value: 20, updateFlags: View.NeedsLayout})
+  readonly itemSpacing!: ThemeAnimatorDef<this, {value: number}>;
 
-  @StyleAnimator<ButtonStack, number | undefined>({
-    propertyNames: "opacity",
-    type: Number,
+  @StyleAnimatorDef<ButtonStack["opacity"]>({
+    extends: HtmlView.getFastenerClass("opacity"),
     didTransition(opacity: number | undefined): void {
       if (opacity === 1) {
         this.owner.didShowStack();
@@ -163,7 +166,9 @@ export class ButtonStack extends HtmlView implements Modal {
       }
     },
   })
-  override readonly opacity!: StyleAnimator<this, number | undefined>;
+  override readonly opacity!: StyleAnimatorDef<this, {
+    extends: HtmlView["opacity"],
+  }>;
 
   get modalView(): View | null {
     return null;

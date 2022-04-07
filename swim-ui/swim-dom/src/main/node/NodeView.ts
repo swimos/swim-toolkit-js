@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import {Class, Instance, Creatable} from "@swim/util";
-import {Provider} from "@swim/component";
 import {R2Box, Transform} from "@swim/math";
 import {AnyView, ViewInit, ViewFactory, ViewClass, View, ModalService} from "@swim/view";
 import {DomService} from "../service/DomService";
@@ -514,13 +513,10 @@ export class NodeView extends View {
     }
   }
 
-  @Provider({
-    extends: DomProvider,
-    type: DomService,
-    observes: false,
+  @DomProvider({
     service: DomService.global(),
   })
-  declare readonly domProvider: DomProvider<this>;
+  readonly domProvider!: DomProvider<this>;
 
   text(): string | undefined;
   text(value: string | null | undefined): this;

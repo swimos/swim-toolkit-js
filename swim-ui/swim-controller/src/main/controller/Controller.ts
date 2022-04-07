@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Class, Instance, FromAny, Creatable, InitType, Initable} from "@swim/util";
-import {Fastener, Provider, ComponentFlags, ComponentInit, Component} from "@swim/component";
+import {FastenerClass, Fastener, ComponentFlags, ComponentInit, Component} from "@swim/component";
 import {ExecuteService} from "../execute/ExecuteService";
 import {ExecuteProvider} from "../execute/ExecuteProvider";
 import {HistoryService} from "../history/HistoryService";
@@ -653,29 +653,23 @@ export class Controller extends Component<Controller> implements Initable<Contro
     this.requireUpdate(Controller.NeedsRevise);
   }
 
-  @Provider({
-    extends: ExecuteProvider,
-    type: ExecuteService,
-    observes: false,
+  @ExecuteProvider({
     service: ExecuteService.global(),
   })
   readonly executeProvider!: ExecuteProvider<this>;
+  static readonly executeProvider: FastenerClass<Controller["executeProvider"]>;
 
-  @Provider({
-    extends: HistoryProvider,
-    type: HistoryService,
-    observes: false,
+  @HistoryProvider({
     service: HistoryService.global(),
   })
   readonly historyProvider!: HistoryProvider<this>;
+  static readonly historyProvider: FastenerClass<Controller["historyProvider"]>;
 
-  @Provider({
-    extends: StorageProvider,
-    type: StorageService,
-    observes: false,
+  @StorageProvider({
     service: StorageService.global(),
   })
   readonly storageProvider!: StorageProvider<this>;
+  static readonly storageProvider: FastenerClass<Controller["storageProvider"]>;
 
   /** @internal */
   get superControllerContext(): ControllerContext {

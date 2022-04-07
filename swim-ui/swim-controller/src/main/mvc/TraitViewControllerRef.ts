@@ -13,50 +13,93 @@
 // limitations under the License.
 
 import type {Proto, ObserverType} from "@swim/util";
-import type {FastenerOwner} from "@swim/component";
-import type {TraitClass, Trait} from "@swim/model";
-import type {AnyView, View} from "@swim/view";
+import type {TraitFactory, Trait} from "@swim/model";
+import type {AnyView, ViewFactory, View} from "@swim/view";
 import type {Controller} from "../controller/Controller";
-import {ControllerRefInit, ControllerRefClass, ControllerRef} from "../controller/ControllerRef";
+import {
+  ControllerRefRefinement,
+  ControllerRefTemplate,
+  ControllerRefClass,
+  ControllerRef,
+} from "../controller/ControllerRef";
 import type {TraitViewRef} from "./TraitViewRef";
 
-/** @internal */
-export type TraitViewControllerRefType<F extends TraitViewControllerRef<any, any, any, any>> =
-  F extends TraitViewControllerRef<any, any, any, infer C> ? C : never;
-
 /** @public */
-export interface TraitViewControllerRefInit<T extends Trait, V extends View, C extends Controller = Controller> extends ControllerRefInit<C> {
-  extends?: {prototype: TraitViewControllerRef<any, any, any, any>} | string | boolean | null;
-  traitType?: TraitClass<T>;
-  traitKey?: string | boolean;
-  viewKey?: string | boolean;
-  parentView?: View | null;
-
-  getTraitViewRef?(controller: C): TraitViewRef<any, T, V>;
-  createTrait?(): T;
-  createController?(trait?: T): C;
+export interface TraitViewControllerRefRefinement extends ControllerRefRefinement {
+  trait?: Trait;
+  view?: View;
 }
 
 /** @public */
-export type TraitViewControllerRefDescriptor<O = unknown, T extends Trait = Trait, V extends View = View, C extends Controller = Controller, I = {}> = ThisType<TraitViewControllerRef<O, T, V, C> & I> & TraitViewControllerRefInit<T, V, C> & Partial<I>;
+export type TraitViewControllerRefTrait<R extends TraitViewControllerRefRefinement | TraitViewControllerRef<any, any, any, any>, D = Trait> =
+  R extends {trait: infer T} ? T :
+  R extends {extends: infer E} ? TraitViewControllerRefTrait<E, D> :
+  R extends TraitViewControllerRef<any, infer T, any, any> ? T :
+  D;
+
+/** @public */
+export type TraitViewControllerRefView<R extends TraitViewControllerRefRefinement | TraitViewControllerRef<any, any, any, any>, D = View> =
+  R extends {view: infer V} ? V :
+  R extends {extends: infer E} ? TraitViewControllerRefView<E, D> :
+  R extends TraitViewControllerRef<any, any, infer V, any> ? V :
+  D;
+
+/** @public */
+export type TraitViewControllerRefController<R extends TraitViewControllerRefRefinement | TraitViewControllerRef<any, any, any, any>, D = Controller> =
+  R extends {controller: infer C} ? C :
+  R extends {extends: infer E} ? TraitViewControllerRefController<E, D> :
+  R extends TraitViewControllerRef<any, any, any, infer C> ? C :
+  D;
+
+/** @public */
+export interface TraitViewControllerRefTemplate<T extends Trait = Trait, V extends View = View, C extends Controller = Controller> extends ControllerRefTemplate<C> {
+  extends?: Proto<TraitViewControllerRef<any, any, any, any>> | string | boolean | null;
+  traitType?: TraitFactory<T>;
+  traitKey?: string | boolean;
+  viewType?: ViewFactory<V>;
+  viewKey?: string | boolean;
+}
 
 /** @public */
 export interface TraitViewControllerRefClass<F extends TraitViewControllerRef<any, any, any, any> = TraitViewControllerRef<any, any, any, any>> extends ControllerRefClass<F> {
+  /** @override */
+  specialize(className: string, template: TraitViewControllerRefTemplate): TraitViewControllerRefClass;
+
+  /** @override */
+  refine(fastenerClass: TraitViewControllerRefClass): void;
+
+  /** @override */
+  extend(className: string, template: TraitViewControllerRefTemplate): TraitViewControllerRefClass<F>;
+
+  /** @override */
+  specify<O, T extends Trait = Trait, V extends View = View, C extends Controller = Controller>(className: string, template: ThisType<TraitViewControllerRef<O, T, V, C>> & TraitViewControllerRefTemplate<T, V, C> & Partial<Omit<TraitViewControllerRef<O, T, V, C>, keyof TraitViewControllerRefTemplate>>): TraitViewControllerRefClass<F>;
+
+  /** @override */
+  <O, T extends Trait = Trait, V extends View = View, C extends Controller = Controller>(template: ThisType<TraitViewControllerRef<O, T, V, C>> & TraitViewControllerRefTemplate<T, V, C> & Partial<Omit<TraitViewControllerRef<O, T, V, C>, keyof TraitViewControllerRefTemplate>>): PropertyDecorator;
 }
 
 /** @public */
-export interface TraitViewControllerRefFactory<F extends TraitViewControllerRef<any, any, any, any> = TraitViewControllerRef<any, any, any, any>> extends TraitViewControllerRefClass<F> {
-  extend<I = {}>(className: string, classMembers?: Partial<I> | null): TraitViewControllerRefFactory<F> & I;
+export type TraitViewControllerRefDef<O, R extends TraitViewControllerRefRefinement> =
+  TraitViewControllerRef<O, TraitViewControllerRefTrait<R>, TraitViewControllerRefView<R>, TraitViewControllerRefController<R>> &
+  {readonly name: string} & // prevent type alias simplification
+  (R extends {extends: infer E} ? E : {}) &
+  (R extends {defines: infer D} ? D : {}) &
+  (R extends {implements: infer I} ? I : {}) &
+  (R extends {observes: infer B} ? ObserverType<B extends boolean ? TraitViewControllerRefController<R> : B> : {});
 
-  define<O, T extends Trait = Trait, V extends View = View, C extends Controller = Controller>(className: string, descriptor: TraitViewControllerRefDescriptor<O, T, V, C>): TraitViewControllerRefFactory<TraitViewControllerRef<any, T, V, C>>;
-  define<O, T extends Trait = Trait, V extends View = View, C extends Controller = Controller>(className: string, descriptor: {observes: boolean} & TraitViewControllerRefDescriptor<O, T, V, C, ObserverType<C>>): TraitViewControllerRefFactory<TraitViewControllerRef<any, T, V, C>>;
-  define<O, T extends Trait = Trait, V extends View = View, C extends Controller = Controller, I = {}>(className: string, descriptor: {implements: unknown} & TraitViewControllerRefDescriptor<O, T, V, C, I>): TraitViewControllerRefFactory<TraitViewControllerRef<any, T, V, C> & I>;
-  define<O, T extends Trait = Trait, V extends View = View, C extends Controller = Controller, I = {}>(className: string, descriptor: {implements: unknown; observes: boolean} & TraitViewControllerRefDescriptor<O, T, V, C, I & ObserverType<C>>): TraitViewControllerRefFactory<TraitViewControllerRef<any, T, V, C> & I>;
-
-  <O, T extends Trait = Trait, V extends View = View, C extends Controller = Controller>(descriptor: TraitViewControllerRefDescriptor<O, T, V, C>): PropertyDecorator;
-  <O, T extends Trait = Trait, V extends View = View, C extends Controller = Controller>(descriptor: {observes: boolean} & TraitViewControllerRefDescriptor<O, T, V, C, ObserverType<C>>): PropertyDecorator;
-  <O, T extends Trait = Trait, V extends View = View, C extends Controller = Controller, I = {}>(descriptor: {implements: unknown} & TraitViewControllerRefDescriptor<O, T, V, C, I>): PropertyDecorator;
-  <O, T extends Trait = Trait, V extends View = View, C extends Controller = Controller, I = {}>(descriptor: {implements: unknown; observes: boolean} & TraitViewControllerRefDescriptor<O, T, V, C, I & ObserverType<C>>): PropertyDecorator;
+/** @public */
+export function TraitViewControllerRefDef<F extends TraitViewControllerRef<any, any, any, any>>(
+  template: F extends TraitViewControllerRefDef<infer O, infer R>
+          ? ThisType<TraitViewControllerRefDef<O, R>>
+          & TraitViewControllerRefTemplate<TraitViewControllerRefTrait<R>, TraitViewControllerRefView<R>, TraitViewControllerRefController<R>>
+          & Partial<Omit<TraitViewControllerRef<O, TraitViewControllerRefTrait<R>, TraitViewControllerRefView<R>, TraitViewControllerRefController<R>>, keyof TraitViewControllerRefTemplate>>
+          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof TraitViewControllerRefTemplate>> & {extends: unknown}) : {})
+          & (R extends {defines: infer D} ? Partial<D> : {})
+          & (R extends {implements: infer I} ? I : {})
+          & (R extends {observes: infer B} ? (ObserverType<B extends boolean ? TraitViewControllerRefController<R> : B> & {observes: boolean}) : {})
+          : never
+): PropertyDecorator {
+  return TraitViewControllerRef(template);
 }
 
 /** @public */
@@ -66,6 +109,12 @@ export interface TraitViewControllerRef<O = unknown, T extends Trait = Trait, V 
 
   /** @internal */
   getTraitViewRef(controller: C): TraitViewRef<unknown, T, V>;
+
+  /** @internal */
+  readonly traitType?: TraitFactory<T>; // optional prototype property
+
+  /** @internal */
+  readonly traitKey?: string; // optional prototype property
 
   get trait(): T | null;
 
@@ -77,8 +126,13 @@ export interface TraitViewControllerRef<O = unknown, T extends Trait = Trait, V 
 
   deleteTrait(trait: T | null): C | null;
 
+  get parentView(): View | null;
+
   /** @internal */
-  get traitKey(): string | undefined; // optional prototype field
+  readonly viewType?: ViewFactory<V>; // optional prototype property
+
+  /** @internal */
+  readonly viewKey?: string; // optional prototype property
 
   get view(): V | null;
 
@@ -100,25 +154,14 @@ export interface TraitViewControllerRef<O = unknown, T extends Trait = Trait, V 
 
   /** @override */
   createController(trait?: T): C;
-
-  /** @internal @protected */
-  get traitType(): TraitClass<T> | undefined; // optional prototype property
-
-  /** @internal */
-  get viewKey(): string | undefined; // optional prototype field
-
-  /** @internal @protected */
-  get parentView(): View | null; // optional prototype property
 }
 
 /** @public */
 export const TraitViewControllerRef = (function (_super: typeof ControllerRef) {
-  const TraitViewControllerRef: TraitViewControllerRefFactory = _super.extend("TraitViewControllerRef");
+  const TraitViewControllerRef = _super.extend("TraitViewControllerRef", {}) as TraitViewControllerRefClass;
 
   Object.defineProperty(TraitViewControllerRef.prototype, "fastenerType", {
-    get: function (this: TraitViewControllerRef): Proto<TraitViewControllerRef<any, any, any, any>> {
-      return TraitViewControllerRef;
-    },
+    value: TraitViewControllerRef,
     configurable: true,
   });
 
@@ -214,6 +257,11 @@ export const TraitViewControllerRef = (function (_super: typeof ControllerRef) {
     return trait;
   };
 
+  Object.defineProperty(TraitViewControllerRef.prototype, "parentView", {
+    value: null,
+    configurable: true,
+  });
+
   Object.defineProperty(TraitViewControllerRef.prototype, "view", {
     get: function <V extends View>(this: TraitViewControllerRef<unknown, Trait, V, Controller>): V | null {
       const controller = this.controller;
@@ -300,74 +348,43 @@ export const TraitViewControllerRef = (function (_super: typeof ControllerRef) {
     configurable: true,
   });
 
-  TraitViewControllerRef.construct = function <F extends TraitViewControllerRef<any, any, any, any>>(fastenerClass: {prototype: F}, fastener: F | null, owner: FastenerOwner<F>): F {
-    fastener = _super.construct(fastenerClass, fastener, owner) as F;
-    return fastener;
-  };
+  TraitViewControllerRef.refine = function (fastenerClass: TraitViewControllerRefClass): void {
+    _super.refine.call(this, fastenerClass);
+    const fastenerPrototype = fastenerClass.prototype;
 
-  TraitViewControllerRef.define = function <O, T extends Trait, V extends View, C extends Controller>(className: string, descriptor: TraitViewControllerRefDescriptor<O, T, V, C>): TraitViewControllerRefFactory<TraitViewControllerRef<any, T, V, C>> {
-    let superClass = descriptor.extends as TraitViewControllerRefFactory | null | undefined;
-    const affinity = descriptor.affinity;
-    const inherits = descriptor.inherits;
-    delete descriptor.extends;
-    delete descriptor.implements;
-    delete descriptor.affinity;
-    delete descriptor.inherits;
-
-    if (descriptor.key === true) {
-      Object.defineProperty(descriptor, "key", {
-        value: className,
-        configurable: true,
-      });
-    } else if (descriptor.key === false) {
-      Object.defineProperty(descriptor, "key", {
-        value: void 0,
-        configurable: true,
-      });
-    }
-
-    if (descriptor.traitKey === true) {
-      Object.defineProperty(descriptor, "traitKey", {
-        value: className,
-        configurable: true,
-      });
-    } else if (descriptor.traitKey === false) {
-      Object.defineProperty(descriptor, "traitKey", {
-        value: void 0,
-        configurable: true,
-      });
-    }
-
-    if (descriptor.viewKey === true) {
-      Object.defineProperty(descriptor, "viewKey", {
-        value: className,
-        configurable: true,
-      });
-    } else if (descriptor.viewKey === false) {
-      Object.defineProperty(descriptor, "viewKey", {
-        value: void 0,
-        configurable: true,
-      });
-    }
-
-    if (superClass === void 0 || superClass === null) {
-      superClass = this;
-    }
-
-    const fastenerClass = superClass.extend(className, descriptor);
-
-    fastenerClass.construct = function (fastenerClass: {prototype: TraitViewControllerRef<any, any, any, any>}, fastener: TraitViewControllerRef<O, T, V, C> | null, owner: O): TraitViewControllerRef<O, T, V, C> {
-      fastener = superClass!.construct(fastenerClass, fastener, owner);
-      if (affinity !== void 0) {
-        fastener.initAffinity(affinity);
+    if (Object.prototype.hasOwnProperty.call(fastenerPrototype, "traitKey")) {
+      const traitKey = fastenerPrototype.traitKey as string | boolean | undefined;
+      if (traitKey === true) {
+        Object.defineProperty(fastenerPrototype, "traitKey", {
+          value: fastenerClass.name,
+          enumerable: true,
+          configurable: true,
+        });
+      } else if (traitKey === false) {
+        Object.defineProperty(fastenerPrototype, "traitKey", {
+          value: void 0,
+          enumerable: true,
+          configurable: true,
+        });
       }
-      if (inherits !== void 0) {
-        fastener.initInherits(inherits);
-      }
-      return fastener;
-    };
+    }
 
-    return fastenerClass;
+    if (Object.prototype.hasOwnProperty.call(fastenerPrototype, "viewKey")) {
+      const viewKey = fastenerPrototype.viewKey as string | boolean | undefined;
+      if (viewKey === true) {
+        Object.defineProperty(fastenerPrototype, "traitKey", {
+          value: fastenerClass.name,
+          enumerable: true,
+          configurable: true,
+        });
+      } else if (viewKey === false) {
+        Object.defineProperty(fastenerPrototype, "viewKey", {
+          value: void 0,
+          enumerable: true,
+          configurable: true,
+        });
+      }
+    }
   };
 
   return TraitViewControllerRef;

@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import {AnyTransform, Transform} from "@swim/math";
-import {StyleAnimatorFactory, StyleAnimator} from "./StyleAnimator";
+import {StyleAnimatorClass, StyleAnimator} from "./StyleAnimator";
 
 /** @internal */
 export const TransformStyleAnimator = (function (_super: typeof StyleAnimator) {
-  const TransformStyleAnimator = _super.extend("TransformStyleAnimator") as StyleAnimatorFactory<StyleAnimator<any, Transform | null, AnyTransform | null>>;
+  const TransformStyleAnimator = _super.extend("TransformStyleAnimator", {}) as StyleAnimatorClass<StyleAnimator<any, Transform | null, AnyTransform | null>>;
 
   TransformStyleAnimator.prototype.parse = function (value: string): Transform | null {
     return Transform.parse(value);

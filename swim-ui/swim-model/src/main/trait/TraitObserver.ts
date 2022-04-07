@@ -17,72 +17,72 @@ import type {Model} from "../model/Model";
 import type {TraitModelType, TraitContextType, Trait} from "./Trait";
 
 /** @public */
-export interface TraitObserver<R extends Trait = Trait> extends Observer<R> {
-  traitWillAttachModel?(model: TraitModelType<R>, trait: R): void;
+export interface TraitObserver<T extends Trait = Trait> extends Observer<T> {
+  traitWillAttachModel?(model: TraitModelType<T>, trait: T): void;
 
-  traitDidAttachModel?(model: TraitModelType<R>, trait: R): void;
+  traitDidAttachModel?(model: TraitModelType<T>, trait: T): void;
 
-  traitWillDetachModel?(model: TraitModelType<R>, trait: R): void;
+  traitWillDetachModel?(model: TraitModelType<T>, trait: T): void;
 
-  traitDidDetachModel?(model: TraitModelType<R>, trait: R): void;
+  traitDidDetachModel?(model: TraitModelType<T>, trait: T): void;
 
-  traitWillAttachParent?(parent: Model, trait: R): void;
+  traitWillAttachParent?(parent: Model, trait: T): void;
 
-  traitDidAttachParent?(parent: Model, trait: R): void;
+  traitDidAttachParent?(parent: Model, trait: T): void;
 
-  traitWillDetachParent?(parent: Model, trait: R): void;
+  traitWillDetachParent?(parent: Model, trait: T): void;
 
-  traitDidDetachParent?(parent: Model, trait: R): void;
+  traitDidDetachParent?(parent: Model, trait: T): void;
 
-  traitWillInsertChild?(child: Model, target: Model | null, trait: R): void;
+  traitWillInsertChild?(child: Model, target: Model | null, trait: T): void;
 
-  traitDidInsertChild?(child: Model, target: Model | null, trait: R): void;
+  traitDidInsertChild?(child: Model, target: Model | null, trait: T): void;
 
-  traitWillRemoveChild?(child: Model, trait: R): void;
+  traitWillRemoveChild?(child: Model, trait: T): void;
 
-  traitDidRemoveChild?(child: Model, trait: R): void;
+  traitDidRemoveChild?(child: Model, trait: T): void;
 
-  traitWillInsertTrait?(member: Trait, target: Trait | null, trait: R): void;
+  traitWillInsertTrait?(member: Trait, target: Trait | null, trait: T): void;
 
-  traitDidInsertTrait?(member: Trait, target: Trait | null, trait: R): void;
+  traitDidInsertTrait?(member: Trait, target: Trait | null, trait: T): void;
 
-  traitWillRemoveTrait?(member: Trait, trait: R): void;
+  traitWillRemoveTrait?(member: Trait, trait: T): void;
 
-  traitDidRemoveTrait?(member: Trait, trait: R): void;
+  traitDidRemoveTrait?(member: Trait, trait: T): void;
 
-  traitWillMount?(trait: R): void;
+  traitWillMount?(trait: T): void;
 
-  traitDidMount?(trait: R): void;
+  traitDidMount?(trait: T): void;
 
-  traitWillUnmount?(trait: R): void;
+  traitWillUnmount?(trait: T): void;
 
-  traitDidUnmount?(trait: R): void;
+  traitDidUnmount?(trait: T): void;
 
-  traitWillMutate?(modelContext: TraitContextType<R>, trait: R): void;
+  traitWillMutate?(modelContext: TraitContextType<T>, trait: T): void;
 
-  traitDidMutate?(modelContext: TraitContextType<R>, trait: R): void;
+  traitDidMutate?(modelContext: TraitContextType<T>, trait: T): void;
 
-  traitWillAggregate?(modelContext: TraitContextType<R>, trait: R): void;
+  traitWillAggregate?(modelContext: TraitContextType<T>, trait: T): void;
 
-  traitDidAggregate?(modelContext: TraitContextType<R>, trait: R): void;
+  traitDidAggregate?(modelContext: TraitContextType<T>, trait: T): void;
 
-  traitWillCorrelate?(modelContext: TraitContextType<R>, trait: R): void;
+  traitWillCorrelate?(modelContext: TraitContextType<T>, trait: T): void;
 
-  traitDidCorrelate?(modelContext: TraitContextType<R>, trait: R): void;
+  traitDidCorrelate?(modelContext: TraitContextType<T>, trait: T): void;
 
-  traitWillValidate?(modelContext: TraitContextType<R>, trait: R): void;
+  traitWillValidate?(modelContext: TraitContextType<T>, trait: T): void;
 
-  traitDidValidate?(modelContext: TraitContextType<R>, trait: R): void;
+  traitDidValidate?(modelContext: TraitContextType<T>, trait: T): void;
 
-  traitWillReconcile?(modelContext: TraitContextType<R>, trait: R): void;
+  traitWillReconcile?(modelContext: TraitContextType<T>, trait: T): void;
 
-  traitDidReconcile?(modelContext: TraitContextType<R>, trait: R): void;
+  traitDidReconcile?(modelContext: TraitContextType<T>, trait: T): void;
 
-  traitWillStartConsuming?(trait: R): void;
+  traitWillStartConsuming?(trait: T): void;
 
-  traitDidStartConsuming?(trait: R): void;
+  traitDidStartConsuming?(trait: T): void;
 
-  traitWillStopConsuming?(trait: R): void;
+  traitWillStopConsuming?(trait: T): void;
 
-  traitDidStopConsuming?(trait: R): void;
+  traitDidStopConsuming?(trait: T): void;
 }

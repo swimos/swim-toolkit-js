@@ -21,14 +21,5 @@ export {
 } from "./FolioView";
 export {FolioViewObserver} from "./FolioViewObserver";
 
-export {
-  FolioControllerStackExt,
-  FolioControllerSheetsExt,
-  FolioControllerNavBarExt,
-  FolioControllerAppBarExt,
-  FolioControllerDrawerExt,
-  FolioControllerCoverExt,
-  FolioControllerModeToolsExt,
-  FolioController,
-} from "./FolioController";
+export {FolioController} from "./FolioController";
 export {FolioControllerObserver} from "./FolioControllerObserver";

@@ -26,7 +26,7 @@ export interface GeoGridControllerObserver<C extends GeoGridController = GeoGrid
 
   controllerWillAttachTile?(tileController: GeoGridController, controller: C): void;
 
-  controllerDidDetachTile(tileController: GeoGridController, controller: C): void;
+  controllerDidDetachTile?(tileController: GeoGridController, controller: C): void;
 
   controllerWillAttachTileTrait?(tileTrait: GeoTrait, tileController: GeoGridController, controller: C): void;
 

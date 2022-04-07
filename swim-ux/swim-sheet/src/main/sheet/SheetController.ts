@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Class, Initable, ObserverType} from "@swim/util";
-import {Affinity, MemberFastenerClass, Property} from "@swim/component";
-import {Trait} from "@swim/model";
+import type {Mutable, Class, Initable} from "@swim/util";
+import {Affinity, FastenerClass, PropertyDef} from "@swim/component";
+import type {Trait} from "@swim/model";
 import {Look} from "@swim/theme";
 import type {PositionGestureInput, ViewContextType} from "@swim/view";
 import {Graphics} from "@swim/graphics";
@@ -22,10 +22,11 @@ import {
   AnyController,
   ControllerInit,
   Controller,
-  ControllerRef,
+  ControllerRefDef,
+  TraitViewRefDef,
   TraitViewRef,
-  TraitViewControllerRef,
-  TraitViewControllerSet,
+  TraitViewControllerRefDef,
+  TraitViewControllerSetDef,
 } from "@swim/controller";
 import {
   ToolLayout,
@@ -40,26 +41,11 @@ import {SheetView} from "./SheetView";
 import type {SheetControllerObserver} from "./SheetControllerObserver";
 
 /** @public */
-export interface SheetControllerButtonToolsExt {
-  readonly active: boolean;
-  setActive(active: boolean): void;
-  updateActive(active: boolean, buttonToolView: ToolView): void;
-}
-
-/** @public */
-export interface SheetControllerModeToolsExt {
-  attachModeToolTrait(modeToolTrait: ToolTrait, modeToolController: ToolController): void;
-  detachModeToolTrait(modeToolTrait: ToolTrait, modeToolController: ToolController): void;
-  attachModeToolView(modeToolView: ToolView, modeToolController: ToolController): void;
-  detachModeToolView(modeToolView: ToolView, modeToolController: ToolController): void;
-}
-
-/** @public */
 export class SheetController extends Controller {
   override readonly observerType?: Class<SheetControllerObserver>;
 
-  @Property<SheetController, boolean>({
-    type: Boolean,
+  @PropertyDef<SheetController["fullBleed"]>({
+    valueType: Boolean,
     value: false,
     didSetValue(fullBleed: boolean): void {
       this.owner.callObservers("controllerDidSetFullBleed", fullBleed, this.owner);
@@ -69,18 +55,17 @@ export class SheetController extends Controller {
       }
     },
   })
-  readonly fullBleed!: Property<this, boolean>;
+  readonly fullBleed!: PropertyDef<this, {value: boolean}>;
 
-  @TraitViewRef<SheetController, Trait, SheetView>({
-    traitType: Trait,
+  @TraitViewRefDef<SheetController["sheet"]>({
+    viewType: SheetView,
+    observesView: true,
     willAttachTrait(sheetTrait: Trait): void {
       this.owner.callObservers("controllerWillAttachSheetTrait", sheetTrait, this.owner);
     },
     didDetachTrait(sheetTrait: Trait): void {
       this.owner.callObservers("controllerDidDetachSheetTrait", sheetTrait, this.owner);
     },
-    viewType: SheetView,
-    observesView: true,
     willAttachView(sheetView: SheetView): void {
       this.owner.callObservers("controllerWillAttachSheetView", sheetView, this.owner);
     },
@@ -121,11 +106,14 @@ export class SheetController extends Controller {
       this.owner.callObservers("controllerDidDismissSheetView", sheetView, this.owner);
     },
   })
-  readonly sheet!: TraitViewRef<this, Trait, SheetView>;
-  static readonly sheet: MemberFastenerClass<SheetController, "sheet">;
+  readonly sheet!: TraitViewRefDef<this, {
+    view: SheetView,
+    observesView: true,
+  }>;
+  static readonly sheet: FastenerClass<SheetController["sheet"]>;
 
-  @ControllerRef<SheetController, SheetController>({
-    type: SheetController,
+  @ControllerRefDef<SheetController["back"]>({
+    controllerType: SheetController,
     binds: false,
     willAttachController(backController: SheetController): void {
       this.owner.callObservers("controllerWillAttachBack", backController, this.owner);
@@ -134,11 +122,11 @@ export class SheetController extends Controller {
       this.owner.callObservers("controllerDidDetachBack", backController, this.owner);
     },
   })
-  readonly back!: ControllerRef<this, SheetController>;
-  static readonly back: MemberFastenerClass<SheetController, "back">;
+  readonly back!: ControllerRefDef<this, {controller: SheetController}>;
+  static readonly back: FastenerClass<SheetController["back"]>;
 
-  @ControllerRef<SheetController, SheetController>({
-    type: SheetController,
+  @ControllerRefDef<SheetController["forward"]>({
+    controllerType: SheetController,
     binds: false,
     willAttachController(forwardController: SheetController): void {
       this.owner.callObservers("controllerWillAttachForward", forwardController, this.owner);
@@ -147,11 +135,11 @@ export class SheetController extends Controller {
       this.owner.callObservers("controllerDidDetachForward", forwardController, this.owner);
     },
   })
-  readonly forward!: ControllerRef<this, SheetController>;
-  static readonly forward: MemberFastenerClass<SheetController, "forward">;
+  readonly forward!: ControllerRefDef<this, {controller: SheetController}>;
+  static readonly forward: FastenerClass<SheetController["forward"]>;
 
-  @TraitViewControllerRef<SheetController, ToolTrait, ToolView, ToolController & Initable<ControllerInit | string>>({
-    type: ToolController,
+  @TraitViewControllerRefDef<SheetController["titleTool"]>({
+    controllerType: ToolController,
     binds: true,
     getTraitViewRef(toolController: ToolController): TraitViewRef<unknown, ToolTrait, ToolView> {
       return toolController.tool;
@@ -179,12 +167,15 @@ export class SheetController extends Controller {
       }
     },
   })
-  readonly titleTool!: TraitViewControllerRef<this, ToolTrait, ToolView, ToolController & Initable<ControllerInit | string>>;
-  static readonly titleTool: MemberFastenerClass<SheetController, "titleTool">;
+  readonly titleTool!: TraitViewControllerRefDef<this, {
+    trait: ToolTrait,
+    view: ToolView,
+    controller: ToolController & Initable<ControllerInit | string>,
+  }>;
+  static readonly titleTool: FastenerClass<SheetController["titleTool"]>;
 
-  @TraitViewControllerRef<SheetController, ToolTrait, ToolView, ToolController & Initable<ControllerInit | Graphics>, SheetControllerButtonToolsExt & ObserverType<ToolController | ButtonToolController>>({
-    implements: true,
-    type: ToolController,
+  @TraitViewControllerRefDef<SheetController["buttonTool"]>({
+    controllerType: ToolController,
     binds: true,
     observes: true,
     getTraitViewRef(toolController: ToolController): TraitViewRef<unknown, ToolTrait, ToolView> {
@@ -249,12 +240,23 @@ export class SheetController extends Controller {
       }
     },
   })
-  readonly buttonTool!: TraitViewControllerRef<this, ToolTrait, ToolView, ToolController & Initable<ControllerInit | Graphics>> & SheetControllerButtonToolsExt;
-  static readonly buttonTool: MemberFastenerClass<SheetController, "buttonTool">;
+  readonly buttonTool!: TraitViewControllerRefDef<this, {
+    trait: ToolTrait,
+    view: ToolView,
+    controller: ToolController & Initable<ControllerInit | Graphics>,
+    defines: {
+      readonly active: boolean;
+    },
+    implements: {
+      setActive(active: boolean): void;
+      updateActive(active: boolean, buttonToolView: ToolView): void;
+    },
+    observes: ToolController & ButtonToolController,
+  }>;
+  static readonly buttonTool: FastenerClass<SheetController["buttonTool"]>;
 
-  @TraitViewControllerSet<SheetController, ToolTrait, ToolView, ToolController, SheetControllerModeToolsExt>({
-    implements: true,
-    type: ToolController,
+  @TraitViewControllerSetDef<SheetController["modeTools"]>({
+    controllerType: ToolController,
     binds: false,
     observes: true,
     getTraitViewRef(modeToolController: ToolController): TraitViewRef<unknown, ToolTrait, ToolView> {
@@ -315,6 +317,17 @@ export class SheetController extends Controller {
       // hook
     },
   })
-  readonly modeTools!: TraitViewControllerSet<this, ToolTrait, ToolView, ToolController> & SheetControllerModeToolsExt;
-  static readonly modeTools: MemberFastenerClass<SheetController, "modeTools">;
+  readonly modeTools!: TraitViewControllerSetDef<this, {
+    trait: ToolTrait,
+    view: ToolView,
+    controller: ToolController,
+    implements: {
+      attachModeToolTrait(modeToolTrait: ToolTrait, modeToolController: ToolController): void;
+      detachModeToolTrait(modeToolTrait: ToolTrait, modeToolController: ToolController): void;
+      attachModeToolView(modeToolView: ToolView, modeToolController: ToolController): void;
+      detachModeToolView(modeToolView: ToolView, modeToolController: ToolController): void;
+    },
+    observes: true,
+  }>;
+  static readonly modeTools: FastenerClass<SheetController["modeTools"]>;
 }

@@ -13,22 +13,18 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {Affinity, MemberFastenerClass, Property} from "@swim/component";
-import {Controller, TraitViewRef} from "@swim/controller";
+import {Affinity, FastenerClass, PropertyDef} from "@swim/component";
+import {Controller, TraitViewRefDef} from "@swim/controller";
 import {AnyToolLayout, ToolLayout} from "../layout/ToolLayout";
 import {ToolView} from "./ToolView";
 import {ToolTrait} from "./ToolTrait";
-import {TitleToolTrait} from "./TitleToolTrait";
-import {ButtonToolTrait} from "./ButtonToolTrait";
 import type {ToolControllerObserver} from "./ToolControllerObserver";
-import {TitleToolController} from "../"; // forward import
-import {ButtonToolController} from "../"; // forward import
 
 /** @public */
 export class ToolController extends Controller {
   override readonly observerType?: Class<ToolControllerObserver>;
 
-  @TraitViewRef<ToolController, ToolTrait, ToolView>({
+  @TraitViewRefDef<ToolController["tool"]>({
     traitType: ToolTrait,
     observesTrait: true,
     initTrait(toolTrait: ToolTrait): void {
@@ -51,25 +47,19 @@ export class ToolController extends Controller {
       this.owner.callObservers("controllerDidDetachToolView", toolView, this.owner);
     },
   })
-  readonly tool!: TraitViewRef<this, ToolTrait, ToolView>;
-  static readonly tool: MemberFastenerClass<ToolController, "tool">;
+  readonly tool!: TraitViewRefDef<this, {
+    trait: ToolTrait,
+    observesTrait: true,
+    view: ToolView,
+  }>;
+  static readonly tool: FastenerClass<ToolController["tool"]>;
 
-  @Property<ToolController, ToolLayout | null, AnyToolLayout | null>({
-    type: ToolLayout,
+  @PropertyDef<ToolController["layout"]>({
+    valueType: ToolLayout,
     value: null,
-    didSetValue(newLayout: ToolLayout | null, oldLayout: ToolLayout | null): void {
-      this.owner.callObservers("controllerDidSetToolLayout", newLayout, this.owner);
+    didSetValue(toolLayout: ToolLayout | null): void {
+      this.owner.callObservers("controllerDidSetToolLayout", toolLayout, this.owner);
     },
   })
-  readonly layout!: Property<this, ToolLayout | null, AnyToolLayout | null>;
-
-  static fromTrait(toolTrait: ToolTrait): ToolController {
-    if (toolTrait instanceof TitleToolTrait) {
-      return new TitleToolController();
-    } else if (toolTrait instanceof ButtonToolTrait) {
-      return new ButtonToolController();
-    } else {
-      return new ToolController();
-    }
-  }
+  readonly layout!: PropertyDef<this, {value: ToolLayout | null, valueInit: AnyToolLayout | null}>;
 }

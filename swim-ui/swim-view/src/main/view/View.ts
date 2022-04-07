@@ -27,11 +27,12 @@ import {
 } from "@swim/util";
 import {
   Affinity,
+  FastenerClass,
   Fastener,
   MemberPropertyInitMap,
+  PropertyDef,
   Property,
   Animator,
-  Provider,
   ComponentFlags,
   ComponentInit,
   Component,
@@ -530,10 +531,10 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
       this.requireUpdate(View.NeedsChange | View.NeedsAnimate);
     }
 
-    if (this.mood.inherited) {
+    if (this.mood.derived) {
       this.mood.decohere();
     }
-    if (this.theme.inherited) {
+    if (this.theme.derived) {
       this.theme.decohere();
     }
   }
@@ -1255,51 +1256,41 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     child.cascadeDisplay(displayFlags, viewContext);
   }
 
-  @Provider({
-    extends: ViewportProvider,
-    type: ViewportService,
-    observes: false,
+  @ViewportProvider({
     service: ViewportService.global(),
   })
   readonly viewportProvider!: ViewportProvider<this>;
+  static readonly viewportProvider: FastenerClass<View["viewportProvider"]>;
 
-  @Provider({
-    extends: DisplayProvider,
-    type: DisplayService,
-    observes: false,
+  @DisplayProvider({
     service: DisplayService.global(),
   })
   readonly displayProvider!: DisplayProvider<this>;
+  static readonly displayProvider: FastenerClass<View["displayProvider"]>;
 
-  @Provider({
-    extends: LayoutProvider,
-    type: LayoutService,
-    observes: false,
+  @LayoutProvider({
     service: LayoutService.global(),
   })
   readonly layoutProvider!: LayoutProvider<this>;
+  static readonly layoutProvider: FastenerClass<View["layoutProvider"]>;
 
-  @Provider({
-    extends: ThemeProvider,
-    type: ThemeService,
-    observes: false,
+  @ThemeProvider({
     service: ThemeService.global(),
   })
   readonly themeProvider!: ThemeProvider<this>;
+  static readonly themeProvider: FastenerClass<View["themeProvider"]>;
 
-  @Provider({
-    extends: ModalProvider,
-    type: ModalService,
-    observes: false,
+  @ModalProvider({
     service: ModalService.global(),
   })
   readonly modalProvider!: ModalProvider<this>;
+  static readonly modalProvider: FastenerClass<View["modalProvider"]>;
 
-  @Property({type: MoodVector, value: null, inherits: true})
-  readonly mood!: Property<this, MoodVector | null>;
+  @PropertyDef({valueType: MoodVector, value: null, inherits: true})
+  readonly mood!: PropertyDef<this, {value: MoodVector | null}>;
 
-  @Property({type: ThemeMatrix, value: null, inherits: true})
-  readonly theme!: Property<this, ThemeMatrix | null>;
+  @PropertyDef({valueType: ThemeMatrix, value: null, inherits: true})
+  readonly theme!: PropertyDef<this, {value: ThemeMatrix | null}>;
 
   /** @override */
   getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel> | null): T | undefined {
@@ -1389,11 +1380,11 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     }
   }
 
-  @Property({type: MoodMatrix, value: null})
-  readonly moodModifier!: Property<this, MoodMatrix | null>;
+  @PropertyDef({valueType: MoodMatrix, value: null})
+  readonly moodModifier!: PropertyDef<this, {value: MoodMatrix | null}>;
 
-  @Property({type: MoodMatrix, value: null})
-  readonly themeModifier!: Property<this, MoodMatrix | null>;
+  @PropertyDef({valueType: MoodMatrix, value: null})
+  readonly themeModifier!: PropertyDef<this, {value: MoodMatrix | null}>;
 
   /** @internal */
   modifyMood(feel: Feel, updates: MoodVectorUpdates<Feel>, timing?: AnyTiming | boolean): void {
@@ -1453,7 +1444,7 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     if (moodModifierProperty !== null && this.mood.hasAffinity(Affinity.Intrinsic)) {
       const moodModifier = moodModifierProperty.value;
       if (moodModifier !== null) {
-        let superMood = this.mood.superValue;
+        let superMood = this.mood.inletValue;
         if (superMood === void 0 || superMood === null) {
           const themeService = this.themeProvider.service;
           if (themeService !== void 0 && themeService !== null) {
@@ -1476,7 +1467,7 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     if (themeModifierProperty !== null && this.theme.hasAffinity(Affinity.Intrinsic)) {
       const themeModifier = themeModifierProperty.value;
       if (themeModifier !== null) {
-        let superTheme = this.theme.superValue;
+        let superTheme = this.theme.inletValue;
         if (superTheme === void 0 || superTheme === null) {
           const themeService = this.themeProvider.service;
           if (themeService !== void 0 && themeService !== null) {

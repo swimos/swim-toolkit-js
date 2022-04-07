@@ -15,7 +15,7 @@
 import type {AnyTiming} from "@swim/util";
 import {AnyLength, Length, R2Box} from "@swim/math";
 import {AnyColor, Color} from "@swim/style";
-import {ThemeAnimator} from "@swim/theme";
+import {ThemeAnimatorDef} from "@swim/theme";
 import {ViewContextType, View} from "@swim/view";
 import {GraphicsView} from "../graphics/GraphicsView";
 import type {PaintingContext} from "../painting/PaintingContext";
@@ -39,26 +39,26 @@ export interface RectViewInit extends FillViewInit, StrokeViewInit {
 
 /** @public */
 export class RectView extends GraphicsView implements FillView, StrokeView {
-  @ThemeAnimator({type: Length, value: Length.zero(), updateFlags: View.NeedsRender})
-  readonly x!: ThemeAnimator<this, Length, AnyLength>;
+  @ThemeAnimatorDef({valueType: Length, value: Length.zero(), updateFlags: View.NeedsRender})
+  readonly x!: ThemeAnimatorDef<this, {value: Length, valueInit: AnyLength}>;
 
-  @ThemeAnimator({type: Length, value: Length.zero(), updateFlags: View.NeedsRender})
-  readonly y!: ThemeAnimator<this, Length, AnyLength>;
+  @ThemeAnimatorDef({valueType: Length, value: Length.zero(), updateFlags: View.NeedsRender})
+  readonly y!: ThemeAnimatorDef<this, {value: Length, valueInit: AnyLength}>;
 
-  @ThemeAnimator({type: Length, value: Length.zero(), updateFlags: View.NeedsRender})
-  readonly width!: ThemeAnimator<this, Length, AnyLength>;
+  @ThemeAnimatorDef({valueType: Length, value: Length.zero(), updateFlags: View.NeedsRender})
+  readonly width!: ThemeAnimatorDef<this, {value: Length, valueInit: AnyLength}>;
 
-  @ThemeAnimator({type: Length, value: Length.zero(), updateFlags: View.NeedsRender})
-  readonly height!: ThemeAnimator<this, Length, AnyLength>;
+  @ThemeAnimatorDef({valueType: Length, value: Length.zero(), updateFlags: View.NeedsRender})
+  readonly height!: ThemeAnimatorDef<this, {value: Length, valueInit: AnyLength}>;
 
-  @ThemeAnimator({type: Color, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly fill!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  @ThemeAnimatorDef({valueType: Color, value: null, inherits: true, updateFlags: View.NeedsRender})
+  readonly fill!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
 
-  @ThemeAnimator({type: Color, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly stroke!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  @ThemeAnimatorDef({valueType: Color, value: null, inherits: true, updateFlags: View.NeedsRender})
+  readonly stroke!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
 
-  @ThemeAnimator({type: Length, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly strokeWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
+  @ThemeAnimatorDef({valueType: Length, value: null, inherits: true, updateFlags: View.NeedsRender})
+  readonly strokeWidth!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
 
   get value(): Rect {
     return new Rect(this.x.getValue(), this.y.getValue(), this.width.getValue(), this.height.getValue());

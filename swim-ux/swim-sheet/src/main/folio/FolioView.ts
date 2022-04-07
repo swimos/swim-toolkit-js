@@ -14,8 +14,8 @@
 
 import type {Class} from "@swim/util";
 import {Length} from "@swim/math";
-import {Affinity, MemberFastenerClass, Property} from "@swim/component";
-import {ViewportInsets, ViewContextType, View, ViewRef} from "@swim/view";
+import {Affinity, FastenerClass, PropertyDef} from "@swim/component";
+import {ViewportInsets, ViewContextType, View, ViewRefDef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {BarView} from "@swim/toolbar";
 import {DrawerView} from "@swim/window";
@@ -41,36 +41,36 @@ export class FolioView extends HtmlView {
 
   override readonly observerType?: Class<FolioViewObserver>;
 
-  @Property<FolioView, FolioStyle | undefined>({
-    type: String,
+  @PropertyDef<FolioView["folioStyle"]>({
+    valueType: String,
     updateFlags: View.NeedsResize,
     didSetValue(folioStyle: FolioStyle | undefined): void {
       this.owner.callObservers("viewDidSetFolioStyle", folioStyle, this.owner);
     },
   })
-  readonly folioStyle!: Property<this, FolioStyle | undefined>;
+  readonly folioStyle!: PropertyDef<this, {value: FolioStyle | undefined}>;
 
-  @Property<FolioView, boolean>({
-    type: Boolean,
+  @PropertyDef<FolioView["fullBleed"]>({
+    valueType: Boolean,
     value: false,
     didSetValue(fullBleed: boolean): void {
       this.owner.requireUpdate(View.NeedsResize, true);
       this.owner.callObservers("viewDidSetFullBleed", fullBleed, this.owner);
     },
   })
-  readonly fullBleed!: Property<this, boolean>;
+  readonly fullBleed!: PropertyDef<this, {value: boolean}>;
 
-  @Property<FolioView, ViewportInsets | null>({
-    type: ViewportInsets,
-    inherits: true,
+  @PropertyDef<FolioView["edgeInsets"]>({
+    valueType: ViewportInsets,
     value: null,
+    inherits: true,
     updateFlags: View.NeedsResize,
     equalValues: ViewportInsets.equal,
   })
-  readonly edgeInsets!: Property<this, ViewportInsets | null>;
+  readonly edgeInsets!: PropertyDef<this, {value: ViewportInsets | null}>;
 
-  @ViewRef<FolioView, BarView>({
-    type: BarView,
+  @ViewRefDef<FolioView["appBar"]>({
+    viewType: BarView,
     binds: true,
     initView(appBarView: BarView): void {
       let folioWidth = this.owner.width.state;
@@ -97,11 +97,11 @@ export class FolioView extends HtmlView {
       this.owner.callObservers("viewDidDetachAppBar", appBarView, this.owner);
     },
   })
-  readonly appBar!: ViewRef<this, BarView>;
-  static readonly appBar: MemberFastenerClass<FolioView, "appBar">;
+  readonly appBar!: ViewRefDef<this, {view: BarView}>;
+  static readonly appBar: FastenerClass<FolioView["appBar"]>;
 
-  @ViewRef<FolioView, DrawerView>({
-    type: DrawerView,
+  @ViewRefDef<FolioView["drawer"]>({
+    viewType: DrawerView,
     binds: true,
     observes: true,
     initView(drawerView: DrawerView): void {
@@ -123,11 +123,11 @@ export class FolioView extends HtmlView {
       }
     },
   })
-  readonly drawer!: ViewRef<this, DrawerView>;
-  static readonly drawer: MemberFastenerClass<FolioView, "drawer">;
+  readonly drawer!: ViewRefDef<this, {view: DrawerView, observes: true}>;
+  static readonly drawer: FastenerClass<FolioView["drawer"]>;
 
-  @ViewRef<FolioView, StackView>({
-    type: StackView,
+  @ViewRefDef<FolioView["stack"]>({
+    viewType: StackView,
     initView(stackView: StackView): void {
       stackView.flexGrow.setState(1, Affinity.Intrinsic);
     },
@@ -138,11 +138,11 @@ export class FolioView extends HtmlView {
       this.owner.callObservers("viewDidDetachStack", stackView, this.owner);
     },
   })
-  readonly stack!: ViewRef<this, StackView>;
-  static readonly stack: MemberFastenerClass<FolioView, "stack">;
+  readonly stack!: ViewRefDef<this, {view: StackView}>;
+  static readonly stack: FastenerClass<FolioView["stack"]>;
 
-  @ViewRef<FolioView, SheetView>({
-    type: SheetView,
+  @ViewRefDef<FolioView["cover"]>({
+    viewType: SheetView,
     observes: true,
     initView(coverView: SheetView): void {
       if (this.owner.folioStyle.value === "unstacked") {
@@ -202,8 +202,8 @@ export class FolioView extends HtmlView {
       this.owner.fullBleed.setValue(fullBleed, Affinity.Intrinsic);
     },
   })
-  readonly cover!: ViewRef<this, SheetView>;
-  static readonly cover: MemberFastenerClass<FolioView, "cover">;
+  readonly cover!: ViewRefDef<this, {view: SheetView, observes: true}>;
+  static readonly cover: FastenerClass<FolioView["cover"]>;
 
   protected override onResize(viewContext: ViewContextType<this>): void {
     super.onResize(viewContext);

@@ -21,7 +21,7 @@ import type {Mood} from "../mood/Mood";
 import type {MoodVector} from "../mood/MoodVector";
 
 /** @public */
-export abstract class Look<T, U = never> implements Mood {
+export abstract class Look<T, U = T> implements Mood {
   constructor(name: string) {
     this.name = name;
   }

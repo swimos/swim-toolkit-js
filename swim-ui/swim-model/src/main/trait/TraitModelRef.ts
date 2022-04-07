@@ -14,69 +14,97 @@
 
 import type {Mutable, Class, Proto, ObserverType} from "@swim/util";
 import type {FastenerOwner} from "@swim/component";
-import {AnyTrait, TraitClass, Trait} from "./Trait";
+import {AnyTrait, TraitFactory, Trait} from "./Trait";
 import type {Model} from "../model/Model";
-import {ModelRefInit, ModelRefClass, ModelRef} from "../model/ModelRef";
-
-/** @internal */
-export type TraitModelRefType<F extends TraitModelRef<any, any, any>> =
-  F extends TraitModelRef<any, any, infer M> ? M : never;
+import {
+  ModelRefRefinement,
+  ModelRefTemplate,
+  ModelRefClass,
+  ModelRef,
+} from "../model/ModelRef";
 
 /** @public */
-export interface TraitModelRefInit<T extends Trait, M extends Model = Model> extends ModelRefInit<M> {
-  extends?: {prototype: TraitModelRef<any, any, any>} | string | boolean | null;
-  traitType?: TraitClass<T>;
-  traitKey?: string | boolean;
-  observesTrait?: boolean;
-
-  initTrait?(trait: T, model: M | null): void;
-  willAttachTrait?(trait: T, targetTrait: Trait | null, model: M | null): void;
-  didAttachTrait?(trait: T, targetTrait: Trait | null, model: M | null): void;
-
-  deinitTrait?(trait: T, model: M | null): void;
-  willDetachTrait?(trait: T, model: M | null): void;
-  didDetachTrait?(trait: T, model: M | null): void;
-
-  createTrait?(): T;
-  fromAnyTrait?(value: AnyTrait<T>): T;
-
-  detectModelTrait?(model: Model): T | null;
-  insertModelTrait?(model: Model, trait: T | null, targetTrait?: Trait | null, key?: string): void;
-
-  createModel?(trait?: T): M;
+export interface TraitModelRefRefinement extends ModelRefRefinement {
+  trait?: unknown;
+  observesTrait?: unknown;
 }
 
 /** @public */
-export type TraitModelRefDescriptor<O = unknown, T extends Trait = Trait, M extends Model = Model, I = {}> = ThisType<TraitModelRef<O, T, M> & I> & TraitModelRefInit<T, M> & Partial<I>;
+export type TraitModelRefTrait<R extends TraitModelRefRefinement | TraitModelRef<any, any, any>, D = Trait> =
+  R extends {trait: infer T} ? T :
+  R extends {extends: infer E} ? TraitModelRefTrait<E, D> :
+  R extends TraitModelRef<any, infer T, any> ? T :
+  D;
+
+/** @public */
+export type TraitModelRefModel<R extends TraitModelRefRefinement | TraitModelRef<any, any, any>, D = Model> =
+  R extends {model: infer M} ? M :
+  R extends {extends: infer E} ? TraitModelRefModel<E, D> :
+  R extends TraitModelRef<any, any, infer M> ? M :
+  D;
+
+/** @public */
+export interface TraitModelRefTemplate<T extends Trait = Trait, M extends Model = Model> extends ModelRefTemplate<M> {
+  extends?: Proto<TraitModelRef<any, any, any>> | string | boolean | null;
+  traitType?: TraitFactory<T>;
+  traitKey?: string | boolean;
+  observesTrait?: boolean;
+}
 
 /** @public */
 export interface TraitModelRefClass<F extends TraitModelRef<any, any, any> = TraitModelRef<any, any, any>> extends ModelRefClass<F> {
+  /** @override */
+  specialize(className: string, template: TraitModelRefTemplate): TraitModelRefClass;
+
+  /** @override */
+  refine(fastenerClass: TraitModelRefClass): void;
+
+  /** @override */
+  extend(className: string, template: TraitModelRefTemplate): TraitModelRefClass<F>;
+
+  /** @override */
+  specify<O, T extends Trait = Trait, M extends Model = Model>(className: string, template: ThisType<TraitModelRef<O, T, M>> & TraitModelRefTemplate<T, M> & Partial<Omit<TraitModelRef<O, T, M>, keyof TraitModelRefTemplate>>): TraitModelRefClass<F>;
+
+  /** @override */
+  <O, T extends Trait = Trait, M extends Model = Model>(template: ThisType<TraitModelRef<O, T, M>> & TraitModelRefTemplate<T, M> & Partial<Omit<TraitModelRef<O, T, M>, keyof TraitModelRefTemplate>>): PropertyDecorator;
 }
 
 /** @public */
-export interface TraitModelRefFactory<F extends TraitModelRef<any, any, any> = TraitModelRef<any, any, any>> extends TraitModelRefClass<F> {
-  extend<I = {}>(className: string, classMembers?: Partial<I> | null): TraitModelRefFactory<F> & I;
+export type TraitModelRefDef<O, R extends TraitModelRefRefinement> =
+  TraitModelRef<O, TraitModelRefTrait<R>, TraitModelRefModel<R>> &
+  {readonly name: string} & // prevent type alias simplification
+  (R extends {extends: infer E} ? E : {}) &
+  (R extends {defines: infer D} ? D : {}) &
+  (R extends {implements: infer I} ? I : {}) &
+  (R extends {observes: infer B} ? ObserverType<B extends boolean ? TraitModelRefModel<R> : B> : {}) &
+  (R extends {observesTrait: infer B} ? ObserverType<B extends boolean ? TraitModelRefTrait<R> : B> : {});
 
-  define<O, T extends Trait = Trait, M extends Model = Model>(className: string, descriptor: TraitModelRefDescriptor<O, T, M>): TraitModelRefFactory<TraitModelRef<any, T, M>>;
-  define<O, T extends Trait = Trait, M extends Model = Model>(className: string, descriptor: {observes: boolean, observesTrait: boolean} & TraitModelRefDescriptor<O, T, M, ObserverType<M | T>>): TraitModelRefFactory<TraitModelRef<any, T, M>>;
-  define<O, T extends Trait = Trait, M extends Model = Model>(className: string, descriptor: {observes: boolean} & TraitModelRefDescriptor<O, T, M, ObserverType<M>>): TraitModelRefFactory<TraitModelRef<any, T, M>>;
-  define<O, T extends Trait = Trait, M extends Model = Model>(className: string, descriptor: {observesTrait: boolean} & TraitModelRefDescriptor<O, T, M, ObserverType<T>>): TraitModelRefFactory<TraitModelRef<any, T, M>>;
-  define<O, T extends Trait = Trait, M extends Model = Model, I = {}>(className: string, descriptor: {implements: unknown} & TraitModelRefDescriptor<O, T, M, I>): TraitModelRefFactory<TraitModelRef<any, T, M> & I>;
-  define<O, T extends Trait = Trait, M extends Model = Model, I = {}>(className: string, descriptor: {implements: unknown; observes: boolean} & TraitModelRefDescriptor<O, T, M, I & ObserverType<M>>): TraitModelRefFactory<TraitModelRef<any, T, M> & I>;
-  define<O, T extends Trait = Trait, M extends Model = Model, I = {}>(className: string, descriptor: {implements: unknown; observes: boolean; observesTrait: boolean} & TraitModelRefDescriptor<O, T, M, I & ObserverType<M | T>>): TraitModelRefFactory<TraitModelRef<any, T, M> & I>;
-
-  <O, T extends Trait = Trait, M extends Model = Model>(descriptor: TraitModelRefDescriptor<O, T, M>): PropertyDecorator;
-  <O, T extends Trait = Trait, M extends Model = Model>(descriptor: {observes: boolean, observesTrait: boolean} & TraitModelRefDescriptor<O, T, M, ObserverType<M | T>>): PropertyDecorator;
-  <O, T extends Trait = Trait, M extends Model = Model>(descriptor: {observes: boolean} & TraitModelRefDescriptor<O, T, M, ObserverType<M>>): PropertyDecorator;
-  <O, T extends Trait = Trait, M extends Model = Model>(descriptor: {observesTrait: boolean} & TraitModelRefDescriptor<O, T, M, ObserverType<T>>): PropertyDecorator;
-  <O, T extends Trait = Trait, M extends Model = Model, I = {}>(descriptor: {implements: unknown} & TraitModelRefDescriptor<O, T, M, I>): PropertyDecorator;
-  <O, T extends Trait = Trait, M extends Model = Model, I = {}>(descriptor: {implements: unknown; observes: boolean; observesTrait: boolean} & TraitModelRefDescriptor<O, T, M, I & ObserverType<M | T>>): PropertyDecorator;
+/** @public */
+export function TraitModelRefDef<F extends TraitModelRef<any, any, any>>(
+  template: F extends TraitModelRefDef<infer O, infer R>
+          ? ThisType<TraitModelRefDef<O, R>>
+          & TraitModelRefTemplate<TraitModelRefTrait<R>, TraitModelRefModel<R>>
+          & Partial<Omit<TraitModelRef<O, TraitModelRefTrait<R>, TraitModelRefModel<R>>, keyof TraitModelRefTemplate>>
+          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof TraitModelRefTemplate>> & {extends: unknown}) : {})
+          & (R extends {defines: infer D} ? Partial<D> : {})
+          & (R extends {implements: infer I} ? I : {})
+          & (R extends {observes: infer B} ? (ObserverType<B extends boolean ? TraitModelRefModel<R> : B> & {observes: boolean}) : {})
+          & (R extends {observesTrait: infer B} ? (ObserverType<B extends boolean ? TraitModelRefTrait<R> : B> & {observesTrait: boolean}) : {})
+          : never
+): PropertyDecorator {
+  return TraitModelRef(template);
 }
 
 /** @public */
 export interface TraitModelRef<O = unknown, T extends Trait = Trait, M extends Model = Model> extends ModelRef<O, M> {
   /** @override */
   get fastenerType(): Proto<TraitModelRef<any, any, any>>;
+
+  /** @internal */
+  readonly traitType?: TraitFactory<T>; // optional prototype property
+
+  /** @internal */
+  readonly traitKey?: string; // optional prototype property
 
   readonly trait: T | null;
 
@@ -120,6 +148,9 @@ export interface TraitModelRef<O = unknown, T extends Trait = Trait, M extends M
 
   createTrait(): T;
 
+  /** @internal */
+  readonly observesTrait?: boolean; // optional prototype property
+
   /** @internal @protected */
   fromAnyTrait(value: AnyTrait<T>): T;
 
@@ -137,25 +168,14 @@ export interface TraitModelRef<O = unknown, T extends Trait = Trait, M extends M
 
   /** @override */
   createModel(trait?: T): M;
-
-  /** @internal @protected */
-  get traitType(): TraitClass<T> | undefined; // optional prototype property
-
-  /** @internal */
-  get traitKey(): string | undefined; // optional prototype field
-
-  /** @internal @protected */
-  get observesTrait(): boolean | undefined; // optional prototype property
 }
 
 /** @public */
 export const TraitModelRef = (function (_super: typeof ModelRef) {
-  const TraitModelRef: TraitModelRefFactory = _super.extend("TraitModelRef");
+  const TraitModelRef = _super.extend("TraitModelRef", {}) as TraitModelRefClass;
 
   Object.defineProperty(TraitModelRef.prototype, "fastenerType", {
-    get: function (this: TraitModelRef): Proto<TraitModelRef<any, any, any>> {
-      return TraitModelRef;
-    },
+    value: TraitModelRef,
     configurable: true,
   });
 
@@ -427,63 +447,32 @@ export const TraitModelRef = (function (_super: typeof ModelRef) {
     return model;
   };
 
-  TraitModelRef.construct = function <F extends TraitModelRef<any, any, any>>(fastenerClass: {prototype: F}, fastener: F | null, owner: FastenerOwner<F>): F {
-    fastener = _super.construct(fastenerClass, fastener, owner) as F;
+  TraitModelRef.construct = function <F extends TraitModelRef<any, any, any>>(fastener: F | null, owner: FastenerOwner<F>): F {
+    fastener = _super.construct.call(this, fastener, owner) as F;
     (fastener as Mutable<typeof fastener>).trait = null;
     return fastener;
   };
 
-  TraitModelRef.define = function <O, T extends Trait, M extends Model>(className: string, descriptor: TraitModelRefDescriptor<O, T, M>): TraitModelRefFactory<TraitModelRef<any, T, M>> {
-    let superClass = descriptor.extends as TraitModelRefFactory | null | undefined;
-    const affinity = descriptor.affinity;
-    const inherits = descriptor.inherits;
-    delete descriptor.extends;
-    delete descriptor.implements;
-    delete descriptor.affinity;
-    delete descriptor.inherits;
+  TraitModelRef.refine = function (fastenerClass: TraitModelRefClass): void {
+    _super.refine.call(this, fastenerClass);
+    const fastenerPrototype = fastenerClass.prototype;
 
-    if (descriptor.key === true) {
-      Object.defineProperty(descriptor, "key", {
-        value: className,
-        configurable: true,
-      });
-    } else if (descriptor.key === false) {
-      Object.defineProperty(descriptor, "key", {
-        value: void 0,
-        configurable: true,
-      });
-    }
-
-    if (descriptor.traitKey === true) {
-      Object.defineProperty(descriptor, "traitKey", {
-        value: className,
-        configurable: true,
-      });
-    } else if (descriptor.traitKey === false) {
-      Object.defineProperty(descriptor, "traitKey", {
-        value: void 0,
-        configurable: true,
-      });
-    }
-
-    if (superClass === void 0 || superClass === null) {
-      superClass = this;
-    }
-
-    const fastenerClass = superClass.extend(className, descriptor);
-
-    fastenerClass.construct = function (fastenerClass: {prototype: TraitModelRef<any, any, any>}, fastener: TraitModelRef<O, T, M> | null, owner: O): TraitModelRef<O, T, M> {
-      fastener = superClass!.construct(fastenerClass, fastener, owner);
-      if (affinity !== void 0) {
-        fastener.initAffinity(affinity);
+    if (Object.prototype.hasOwnProperty.call(fastenerPrototype, "traitKey")) {
+      const traitKey = fastenerPrototype.traitKey as string | boolean | undefined;
+      if (traitKey === true) {
+        Object.defineProperty(fastenerPrototype, "traitKey", {
+          value: fastenerClass.name,
+          enumerable: true,
+          configurable: true,
+        });
+      } else if (traitKey === false) {
+        Object.defineProperty(fastenerPrototype, "traitKey", {
+          value: void 0,
+          enumerable: true,
+          configurable: true,
+        });
       }
-      if (inherits !== void 0) {
-        fastener.initInherits(inherits);
-      }
-      return fastener;
-    };
-
-    return fastenerClass;
+    }
   };
 
   return TraitModelRef;

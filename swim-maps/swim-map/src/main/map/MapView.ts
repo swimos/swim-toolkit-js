@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import type {Class, AnyTiming} from "@swim/util";
-import type {MemberFastenerClass} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
 import type {GeoBox} from "@swim/geo";
-import {ViewContextType, ViewFlags, View, ViewRef} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewRefDef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {GraphicsViewContext, CanvasView} from "@swim/graphics";
 import type {AnyGeoPerspective} from "../geo/GeoPerspective";
@@ -31,8 +31,8 @@ export abstract class MapView extends GeoView {
 
   abstract moveTo(geoPerspective: AnyGeoPerspective, timing?: AnyTiming | boolean): void;
 
-  @ViewRef<MapView, CanvasView>({
-    type: CanvasView,
+  @ViewRefDef<MapView["canvas"]>({
+    viewType: CanvasView,
     willAttachView(canvasView: CanvasView): void {
       this.owner.callObservers("viewWillAttachMapCanvas", canvasView, this.owner);
     },
@@ -40,11 +40,11 @@ export abstract class MapView extends GeoView {
       this.owner.callObservers("viewDidDetachMapCanvas", canvasView, this.owner);
     },
   })
-  readonly canvas!: ViewRef<this, CanvasView>;
-  static readonly canvas: MemberFastenerClass<MapView, "canvas">;
+  readonly canvas!: ViewRefDef<this, {view: CanvasView}>;
+  static readonly canvas: FastenerClass<MapView["canvas"]>;
 
-  @ViewRef<MapView, HtmlView>({
-    type: HtmlView,
+  @ViewRefDef<MapView["container"]>({
+    viewType: HtmlView,
     willAttachView(containerView: HtmlView): void {
       this.owner.callObservers("viewWillAttachMapContainer", containerView, this.owner);
     },
@@ -52,8 +52,8 @@ export abstract class MapView extends GeoView {
       this.owner.callObservers("viewDidDetachMapContainer", containerView, this.owner);
     },
   })
-  readonly container!: ViewRef<this, HtmlView>;
-  static readonly container: MemberFastenerClass<MapView, "container">;
+  readonly container!: ViewRefDef<this, {view: HtmlView}>;
+  static readonly container: FastenerClass<MapView["container"]>;
 
   protected override needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
     if ((processFlags & View.NeedsResize) !== 0) {

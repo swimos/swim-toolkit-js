@@ -13,37 +13,17 @@
 // limitations under the License.
 
 export {
-  ThemeAnimatorInit,
-  ThemeAnimatorDescriptor,
+  ThemeAnimatorRefinement,
+  ThemeAnimatorTemplate,
   ThemeAnimatorClass,
-  ThemeAnimatorFactory,
+  ThemeAnimatorDef,
   ThemeAnimator,
 } from "./ThemeAnimator";
 
-export {StringThemeAnimator} from "./StringThemeAnimator";
-
-export {NumberThemeAnimator} from "./NumberThemeAnimator";
-
-export {BooleanThemeAnimator} from "./BooleanThemeAnimator";
-
-export {AngleThemeAnimator} from "./AngleThemeAnimator";
-
-export {LengthThemeAnimator} from "./LengthThemeAnimator";
-
-export {TransformThemeAnimator} from "./TransformThemeAnimator";
-
-export {ColorThemeAnimator} from "./ColorThemeAnimator";
-
-export {FontThemeAnimator} from "./FontThemeAnimator";
-
 export {
-  ThemeConstraintAnimatorInit,
-  ThemeConstraintAnimatorDescriptor,
+  ThemeConstraintAnimatorRefinement,
+  ThemeConstraintAnimatorTemplate,
   ThemeConstraintAnimatorClass,
-  ThemeConstraintAnimatorFactory,
+  ThemeConstraintAnimatorDef,
   ThemeConstraintAnimator,
 } from "./ThemeConstraintAnimator";
-
-export {NumberThemeConstraintAnimator} from "./NumberThemeConstraintAnimator";
-
-export {LengthThemeConstraintAnimator} from "./LengthThemeConstraintAnimator";

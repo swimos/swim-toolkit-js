@@ -18,7 +18,5 @@ import type {ButtonToolTrait} from "./ButtonToolTrait";
 
 /** @public */
 export interface ButtonToolTraitObserver<T extends ButtonToolTrait = ButtonToolTrait> extends ToolTraitObserver<T> {
-  traitWillSetIcon?(newIcon: Graphics | null, oldIcon: Graphics | null, trait: T): void;
-
-  traitDidSetIcon?(newIcon: Graphics | null, oldIcon: Graphics | null, trait: T): void;
+  traitDidSetIcon?(icon: Graphics | null, trait: T): void;
 }

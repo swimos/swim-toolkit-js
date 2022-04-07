@@ -13,14 +13,13 @@
 // limitations under the License.
 
 import {Class, AnyTiming, Timing} from "@swim/util";
-import {Affinity, MemberFastenerClass, Property} from "@swim/component";
-import type {Color} from "@swim/style";
-import {Look, Mood} from "@swim/theme";
-import {ViewRef} from "@swim/view";
+import {Affinity, FastenerClass, PropertyDef} from "@swim/component";
+import {Look, Mood, ColorOrLook} from "@swim/theme";
+import {ViewRefDef} from "@swim/view";
 import type {GraphicsView} from "@swim/graphics";
-import {Controller, TraitViewRef} from "@swim/controller";
+import {Controller, TraitViewRefDef} from "@swim/controller";
 import {SliceView} from "./SliceView";
-import {SliceLabel, SliceLegend, SliceTrait} from "./SliceTrait";
+import {SliceTrait} from "./SliceTrait";
 import type {SliceControllerObserver} from "./SliceControllerObserver";
 
 /** @public */
@@ -60,7 +59,7 @@ export class SliceController extends Controller {
     }
   }
 
-  protected setSliceColor(sliceColor: Look<Color> | Color | null, timing?: AnyTiming | boolean): void {
+  protected setSliceColor(sliceColor: ColorOrLook | null, timing?: AnyTiming | boolean): void {
     const sliceView = this.slice.view;
     if (sliceView !== null) {
       if (timing === void 0 || timing === true) {
@@ -79,42 +78,27 @@ export class SliceController extends Controller {
     }
   }
 
-  protected createLabelView(label: SliceLabel): GraphicsView | string | null {
-    if (typeof label === "function") {
-      return label(this.slice.trait);
-    } else {
-      return label;
-    }
-  }
-
-  protected setLabelView(label: SliceLabel | null): void {
+  protected setLabelView(label: string | undefined): void {
     const sliceView = this.slice.view;
     if (sliceView !== null) {
-      const labelView = label !== null ? this.createLabelView(label) : null;
-      sliceView.label.setView(labelView);
+      sliceView.label.setView(label !== void 0 ? label : null);
     }
   }
 
-  protected createLegendView(legend: SliceLegend): GraphicsView | string | null {
-    if (typeof legend === "function") {
-      return legend(this.slice.trait);
-    } else {
-      return legend;
-    }
-  }
-
-  protected setLegendView(legend: SliceLegend | null): void {
+  protected setLegendView(legend: string | undefined): void {
     const sliceView = this.slice.view;
     if (sliceView !== null) {
-      const legendView = legend !== null ? this.createLegendView(legend) : null;
-      sliceView.legend.setView(legendView);
+      sliceView.legend.setView(legend !== void 0 ? legend : null);
     }
   }
 
-  @Property({type: Timing, inherits: true})
-  readonly sliceTiming!: Property<this, Timing | boolean | undefined, AnyTiming>;
+  @PropertyDef({valueType: Timing, inherits: true})
+  readonly sliceTiming!: PropertyDef<this, {
+    value: Timing | boolean | undefined,
+    valueInit: AnyTiming | boolean | undefined,
+  }>;
 
-  @TraitViewRef<SliceController, SliceTrait, SliceView>({
+  @TraitViewRefDef<SliceController["slice"]>({
     traitType: SliceTrait,
     observesTrait: true,
     willAttachTrait(sliceTrait: SliceTrait): void {
@@ -135,17 +119,17 @@ export class SliceController extends Controller {
     didDetachTrait(sliceTrait: SliceTrait): void {
       this.owner.callObservers("controllerDidDetachSliceTrait", sliceTrait, this.owner);
     },
-    traitDidSetSliceValue(newValue: number, oldValue: number): void {
-      this.owner.setValue(newValue);
+    traitDidSetValue(value: number): void {
+      this.owner.setValue(value);
     },
-    traitDidSetSliceColor(newSliceColor: Look<Color> | Color | null, oldSliceColor: Look<Color> | Color | null): void {
-      this.owner.setSliceColor(newSliceColor);
+    traitDidSetSliceColor(sliceColor: ColorOrLook | null): void {
+      this.owner.setSliceColor(sliceColor);
     },
-    traitDidSetSliceLabel(newLabel: SliceLabel | null, oldLabel: SliceLabel | null): void {
-      this.owner.setLabelView(newLabel);
+    traitDidSetLabel(label: string | undefined): void {
+      this.owner.setLabelView(label);
     },
-    traitDidSetSliceLegend(newLegend: SliceLegend | null, oldLegend: SliceLegend | null): void {
-      this.owner.setLegendView(newLegend);
+    traitDidSetLegend(legend: string | undefined): void {
+      this.owner.setLegendView(legend);
     },
     viewType: SliceView,
     observesView: true,
@@ -179,36 +163,38 @@ export class SliceController extends Controller {
     didDetachView(sliceView: SliceView): void {
       this.owner.callObservers("controllerDidDetachSliceView", sliceView, this.owner);
     },
-    viewWillSetSliceValue(newValue: number, oldValue: number, sliceView: SliceView): void {
-      this.owner.callObservers("controllerWillSetSliceValue", newValue, oldValue, this.owner);
-    },
-    viewDidSetSliceValue(newValue: number, oldValue: number, sliceView: SliceView): void {
-      sliceView.setHidden(newValue === 0);
+    viewDidSetValue(value: number, sliceView: SliceView): void {
+      sliceView.setHidden(value === 0);
       const sliceTrait = this.trait;
       if (sliceTrait !== null) {
-        this.owner.updateLabel(newValue, sliceTrait);
-        this.owner.updateLegend(newValue, sliceTrait);
+        this.owner.updateLabel(value, sliceTrait);
+        this.owner.updateLegend(value, sliceTrait);
       }
-      this.owner.callObservers("controllerDidSetSliceValue", newValue, oldValue, this.owner);
+      this.owner.callObservers("controllerDidSetSliceValue", value, this.owner);
     },
-    viewWillAttachSliceLabel(labelView: GraphicsView): void {
+    viewWillAttachLabel(labelView: GraphicsView): void {
       this.owner.label.setView(labelView);
     },
-    viewDidDetachSliceLabel(labelView: GraphicsView): void {
+    viewDidDetachLabel(labelView: GraphicsView): void {
       this.owner.label.setView(null);
     },
-    viewWillAttachSliceLegend(legendView: GraphicsView): void {
+    viewWillAttachLegend(legendView: GraphicsView): void {
       this.owner.legend.setView(legendView);
     },
-    viewDidDetachSliceLegend(legendView: GraphicsView): void {
+    viewDidDetachLegend(legendView: GraphicsView): void {
       this.owner.legend.setView(null);
     },
   })
-  readonly slice!: TraitViewRef<this, SliceTrait, SliceView>;
-  static readonly slice: MemberFastenerClass<SliceController, "slice">;
+  readonly slice!: TraitViewRefDef<this, {
+    trait: SliceTrait,
+    observesTrait: true,
+    view: SliceView,
+    observesView: true,
+  }>;
+  static readonly slice: FastenerClass<SliceController["slice"]>;
 
-  @ViewRef<SliceController, GraphicsView>({
-    key: true,
+  @ViewRefDef<SliceController["label"]>({
+    viewKey: true,
     willAttachView(labelView: GraphicsView): void {
       this.owner.callObservers("controllerWillAttachSliceLabelView", labelView, this.owner);
     },
@@ -216,11 +202,11 @@ export class SliceController extends Controller {
       this.owner.callObservers("controllerDidDetachSliceLabelView", labelView, this.owner);
     },
   })
-  readonly label!: ViewRef<this, GraphicsView>;
-  static readonly label: MemberFastenerClass<SliceController, "label">;
+  readonly label!: ViewRefDef<this, {view: GraphicsView}>;
+  static readonly label: FastenerClass<SliceController["label"]>;
 
-  @ViewRef<SliceController, GraphicsView>({
-    key: true,
+  @ViewRefDef<SliceController["legend"]>({
+    viewKey: true,
     willAttachView(legendView: GraphicsView): void {
       this.owner.callObservers("controllerWillAttachSliceLegendView", legendView, this.owner);
     },
@@ -228,6 +214,6 @@ export class SliceController extends Controller {
       this.owner.callObservers("controllerDidDetachSliceLegendView", legendView, this.owner);
     },
   })
-  readonly legend!: ViewRef<this, GraphicsView>;
-  static readonly legend: MemberFastenerClass<SliceController, "legend">;
+  readonly legend!: ViewRefDef<this, {view: GraphicsView}>;
+  static readonly legend: FastenerClass<SliceController["legend"]>;
 }

@@ -61,6 +61,7 @@ swim.TraitViewControllerSet({
 
 const panelController = new ExamplePanelController();
 panelController.mount();
+panelController.tabStyle.setValue("bottom");
 panelController.panel.attachView().flexGrow(1);
 
 panelController.tabBar.insertController();

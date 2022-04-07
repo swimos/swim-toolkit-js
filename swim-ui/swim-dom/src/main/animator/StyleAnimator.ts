@@ -12,11 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, FromAny} from "@swim/util";
-import {Affinity, FastenerOwner} from "@swim/component";
-import {AnyLength, Length, AnyTransform, Transform} from "@swim/math";
-import {FontFamily, AnyColor, Color, AnyBoxShadow, BoxShadow} from "@swim/style";
-import {ThemeAnimatorInit, ThemeAnimatorClass, ThemeAnimator} from "@swim/theme";
+import type {Mutable, Proto} from "@swim/util";
+import {Affinity, FastenerOwner, AnimatorValue, AnimatorValueInit} from "@swim/component";
+import {Length, Transform} from "@swim/math";
+import {FontFamily, Color, BoxShadow} from "@swim/style";
+import {
+  ThemeAnimatorRefinement,
+  ThemeAnimatorTemplate,
+  ThemeAnimatorClass,
+  ThemeAnimator,
+} from "@swim/theme";
 import {StringStyleAnimator} from "./"; // forward import
 import {NumberStyleAnimator} from "./"; // forward import
 import {LengthStyleAnimator} from "./"; // forward import
@@ -27,45 +32,55 @@ import {BoxShadowStyleAnimator} from "./"; // forward import
 import {StyleContext} from "../"; // forward import
 
 /** @public */
-export interface StyleAnimatorInit<T = unknown, U = never> extends ThemeAnimatorInit<T, U> {
-  extends?: {prototype: StyleAnimator<any, any>} | string | boolean | null;
-  propertyNames: string | ReadonlyArray<string>;
-
-  parse?(value: string): T;
-  fromCssValue?(value: CSSStyleValue): T;
+export interface StyleAnimatorRefinement extends ThemeAnimatorRefinement {
 }
 
 /** @public */
-export type StyleAnimatorDescriptor<O = unknown, T = unknown, U = never, I = {}> = ThisType<StyleAnimator<O, T, U> & I> & StyleAnimatorInit<T, U> & Partial<I>;
-
-/** @public */
-export interface StyleAnimatorClass<A extends StyleAnimator<any, any> = StyleAnimator<any, any, any>> extends ThemeAnimatorClass<A> {
+export interface StyleAnimatorTemplate<T = unknown, U = T> extends ThemeAnimatorTemplate<T, U> {
+  extends?: Proto<StyleAnimator<any, any, any>> | string | boolean | null;
+  propertyNames?: string | ReadonlyArray<string>;
 }
 
 /** @public */
-export interface StyleAnimatorFactory<A extends StyleAnimator<any, any> = StyleAnimator<any, any, any>> extends StyleAnimatorClass<A> {
-  extend<I = {}>(className: string, classMembers?: Partial<I> | null): StyleAnimatorFactory<A> & I;
+export interface StyleAnimatorClass<A extends StyleAnimator<any, any, any> = StyleAnimator<any, any, any>> extends ThemeAnimatorClass<A> {
+  /** @override */
+  specialize(className: string, template: StyleAnimatorTemplate): StyleAnimatorClass;
 
-  specialize(type: unknown): StyleAnimatorFactory | null;
+  /** @override */
+  extend(className: string, template: StyleAnimatorTemplate): StyleAnimatorClass<A>;
 
-  define<O, T, U = never>(className: string, descriptor: StyleAnimatorDescriptor<O, T, U>): StyleAnimatorFactory<StyleAnimator<any, T, U>>;
-  define<O, T, U = never, I = {}>(className: string, descriptor: {implements: unknown} & StyleAnimatorDescriptor<O, T, U, I>): StyleAnimatorFactory<StyleAnimator<any, T, U> & I>;
+  /** @override */
+  specify<O, T = unknown, U = T>(className: string, template: ThisType<StyleAnimator<O, T, U>> & StyleAnimatorTemplate<T, U> & Partial<Omit<StyleAnimator<O, T, U>, keyof StyleAnimatorTemplate>>): StyleAnimatorClass<A>;
 
-  <O, T extends Length | null | undefined = Length | null | undefined, U extends AnyLength | null | undefined = AnyLength | null | undefined>(descriptor: {type: typeof Length} & StyleAnimatorDescriptor<O, T, U>): PropertyDecorator;
-  <O, T extends Color | null | undefined = Color | null | undefined, U extends AnyColor | null | undefined = AnyColor | null | undefined>(descriptor: {type: typeof Color} & StyleAnimatorDescriptor<O, T, U>): PropertyDecorator;
-  <O, T extends BoxShadow | null | undefined = BoxShadow | null | undefined, U extends AnyBoxShadow | null | undefined = AnyBoxShadow | null | undefined>(descriptor: {type: typeof BoxShadow} & StyleAnimatorDescriptor<O, T, U>): PropertyDecorator;
-  <O, T extends Transform | null | undefined = Transform | null | undefined, U extends AnyTransform | null | undefined = AnyTransform | null | undefined>(descriptor: {type: typeof Transform} & StyleAnimatorDescriptor<O, T, U>): PropertyDecorator;
-  <O, T extends FontFamily | ReadonlyArray<FontFamily> | null | undefined = FontFamily | ReadonlyArray<FontFamily> | null | undefined, U extends FontFamily | ReadonlyArray<FontFamily> | null | undefined = FontFamily | ReadonlyArray<FontFamily> | null | undefined>(descriptor: {type: typeof FontFamily} & StyleAnimatorDescriptor<O, T, U>): PropertyDecorator;
-  <O, T extends string | null | undefined = string | null | undefined, U extends string | null | undefined = string | null | undefined>(descriptor: {type: typeof String} & StyleAnimatorDescriptor<O, T, U>): PropertyDecorator;
-  <O, T extends number | null | undefined = number | null | undefined, U extends number | string | null | undefined = number | string | null | undefined>(descriptor: {type: typeof Number} & StyleAnimatorDescriptor<O, T, U>): PropertyDecorator;
-  <O, T, U = never>(descriptor: ({type: FromAny<T, U>} | {fromAny(value: T | U): T}) & StyleAnimatorDescriptor<O, T, U>): PropertyDecorator;
-  <O, T, U = never>(descriptor: StyleAnimatorDescriptor<O, T, U>): PropertyDecorator;
-  <O, T, U = never, I = {}>(descriptor: {implements: unknown} & StyleAnimatorDescriptor<O, T, U, I>): PropertyDecorator;
+  /** @override */
+  <O, T = unknown, U = T>(template: ThisType<StyleAnimator<O, T, U>> & StyleAnimatorTemplate<T, U> & Partial<Omit<StyleAnimator<O, T, U>, keyof StyleAnimatorTemplate>>): PropertyDecorator;
 }
 
 /** @public */
-export interface StyleAnimator<O = unknown, T = unknown, U = never> extends ThemeAnimator<O, T, U> {
-  get propertyNames(): string | ReadonlyArray<string>; // prototype property
+export type StyleAnimatorDef<O, R extends StyleAnimatorRefinement> =
+  StyleAnimator<O, AnimatorValue<R>, AnimatorValueInit<R>> &
+  {readonly name: string} & // prevent type alias simplification
+  (R extends {extends: infer E} ? E : {}) &
+  (R extends {defines: infer D} ? D : {}) &
+  (R extends {implements: infer I} ? I : {});
+
+/** @public */
+export function StyleAnimatorDef<A extends StyleAnimator<any, any, any>>(
+  template: A extends StyleAnimatorDef<infer O, infer R>
+          ? ThisType<StyleAnimatorDef<O, R>>
+          & StyleAnimatorTemplate<AnimatorValue<R>, AnimatorValueInit<R>>
+          & Partial<Omit<StyleAnimator<O, AnimatorValue<R>, AnimatorValueInit<R>>, keyof StyleAnimatorTemplate>>
+          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof StyleAnimatorTemplate>> & {extends: unknown}) : {})
+          & (R extends {defines: infer D} ? Partial<D> : {})
+          & (R extends {implements: infer I} ? I : {})
+          : never
+): PropertyDecorator {
+  return StyleAnimator(template);
+}
+
+/** @public */
+export interface StyleAnimator<O = unknown, T = unknown, U = T> extends ThemeAnimator<O, T, U> {
+  readonly propertyNames: string | ReadonlyArray<string>; // prototype property
 
   get propertyValue(): T | undefined;
 
@@ -80,6 +95,8 @@ export interface StyleAnimator<O = unknown, T = unknown, U = never> extends Them
   /** @override @protected */
   onSetValue(newValue: T, oldValue: T): void;
 
+  initPriority(): string | undefined;
+
   readonly priority: string | undefined;
 
   setPriority(priority: string | undefined): void;
@@ -91,14 +108,7 @@ export interface StyleAnimator<O = unknown, T = unknown, U = never> extends Them
 
 /** @public */
 export const StyleAnimator = (function (_super: typeof ThemeAnimator) {
-  const StyleAnimator: StyleAnimatorFactory = _super.extend("StyleAnimator");
-
-  Object.defineProperty(StyleAnimator.prototype, "propertyNames", {
-    get(this: StyleAnimator): string | ReadonlyArray<string> {
-      throw new Error("no property names");
-    },
-    configurable: true,
-  });
+  const StyleAnimator = _super.extend("StyleAnimator", {}) as StyleAnimatorClass;
 
   Object.defineProperty(StyleAnimator.prototype, "propertyValue", {
     get: function <T>(this: StyleAnimator<unknown, T>): T | undefined {
@@ -191,7 +201,11 @@ export const StyleAnimator = (function (_super: typeof ThemeAnimator) {
     _super.prototype.onSetValue.call(this, newValue, oldValue);
   };
 
-  StyleAnimator.prototype.setPriority = function (this: StyleAnimator<unknown, unknown>, priority: string | undefined): void {
+  StyleAnimator.prototype.initPriority = function (this: StyleAnimator): string | undefined {
+    return (Object.getPrototypeOf(this) as StyleAnimator).priority as string | undefined;
+  };
+
+  StyleAnimator.prototype.setPriority = function (this: StyleAnimator, priority: string | undefined): void {
     (this as Mutable<typeof this>).priority = priority;
     const styleContext = this.owner;
     const value = this.value;
@@ -215,80 +229,35 @@ export const StyleAnimator = (function (_super: typeof ThemeAnimator) {
     throw new Error();
   };
 
-  StyleAnimator.construct = function <A extends StyleAnimator<any, any, any>>(animatorClass: {prototype: A}, animator: A | null, owner: FastenerOwner<A>): A {
-    animator = _super.construct(animatorClass, animator, owner) as A;
-    (animator as Mutable<typeof animator>).priority = void 0;
+  StyleAnimator.construct = function <A extends StyleAnimator<any, any, any>>(animator: A | null, owner: FastenerOwner<A>): A {
+    animator = _super.construct.call(this, animator, owner) as A;
+    (animator as Mutable<typeof animator>).priority = animator.initPriority();
     return animator;
   };
 
-  StyleAnimator.specialize = function (type: unknown): StyleAnimatorFactory | null {
-    if (type === String) {
-      return StringStyleAnimator;
-    } else if (type === Number) {
-      return NumberStyleAnimator;
-    } else if (type === Length) {
-      return LengthStyleAnimator;
-    } else if (type === Color) {
-      return ColorStyleAnimator;
-    } else if (type === FontFamily) {
-      return FontFamilyStyleAnimator;
-    } else if (type === BoxShadow) {
-      return BoxShadowStyleAnimator;
-    } else if (type === Transform) {
-      return TransformStyleAnimator;
-    }
-    return null;
-  };
-
-  StyleAnimator.define = function <O, T, U>(className: string, descriptor: StyleAnimatorDescriptor<O, T, U>): StyleAnimatorFactory<StyleAnimator<any, T, U>> {
-    let superClass = descriptor.extends as StyleAnimatorFactory | null | undefined;
-    const affinity = descriptor.affinity;
-    const inherits = descriptor.inherits;
-    const look = descriptor.look;
-    const value = descriptor.value;
-    const initValue = descriptor.initValue;
-    delete descriptor.extends;
-    delete descriptor.implements;
-    delete descriptor.affinity;
-    delete descriptor.inherits;
-    delete descriptor.look;
-    delete descriptor.value;
-    delete descriptor.initValue;
-
+  StyleAnimator.specialize = function (className: string, template: StyleAnimatorTemplate): StyleAnimatorClass {
+    let superClass = template.extends as StyleAnimatorClass | null | undefined;
     if (superClass === void 0 || superClass === null) {
-      superClass = this.specialize(descriptor.type);
-    }
-    if (superClass === null) {
-      superClass = this;
-      if (descriptor.fromAny === void 0 && FromAny.is<T, U>(descriptor.type)) {
-        descriptor.fromAny = descriptor.type.fromAny;
+      const valueType = template.valueType;
+      if (valueType === String) {
+        superClass = StringStyleAnimator;
+      } else if (valueType === Number) {
+        superClass = NumberStyleAnimator;
+      } else if (valueType === Length) {
+        superClass = LengthStyleAnimator;
+      } else if (valueType === Color) {
+        superClass = ColorStyleAnimator;
+      } else if (valueType === FontFamily) {
+        superClass = FontFamilyStyleAnimator;
+      } else if (valueType === BoxShadow) {
+        superClass = BoxShadowStyleAnimator;
+      } else if (valueType === Transform) {
+        superClass = TransformStyleAnimator;
+      } else {
+        superClass = this;
       }
     }
-
-    const animatorClass = superClass.extend(className, descriptor);
-
-    animatorClass.construct = function (animatorClass: {prototype: StyleAnimator<any, any, any>}, animator: StyleAnimator<O, T, U> | null, owner: O): StyleAnimator<O, T, U> {
-      animator = superClass!.construct(animatorClass, animator, owner);
-      if (affinity !== void 0) {
-        animator.initAffinity(affinity);
-      }
-      if (inherits !== void 0) {
-        animator.initInherits(inherits);
-      }
-      if (look !== void 0) {
-        (animator as Mutable<typeof animator>).look = look;
-      }
-      if (initValue !== void 0) {
-        (animator as Mutable<typeof animator>).value = animator.fromAny(initValue());
-        (animator as Mutable<typeof animator>).state = animator.value;
-      } else if (value !== void 0) {
-        (animator as Mutable<typeof animator>).value = animator.fromAny(value);
-        (animator as Mutable<typeof animator>).state = animator.value;
-      }
-      return animator;
-    };
-
-    return animatorClass;
+    return superClass
   };
 
   return StyleAnimator;

@@ -18,7 +18,7 @@ import type {ViewContext} from "../view/ViewContext";
 import type {ViewFlags, View} from "../view/View";
 
 /** @public */
-export interface DisplayProvider<V extends View, S extends DisplayService<V> | null | undefined = DisplayService<V>> extends Provider<V, S> {
+export interface DisplayProvider<V extends View, S extends DisplayService<any> | null | undefined = DisplayService> extends Provider<V, S> {
   updatedViewContext(viewContext: ViewContext): ViewContext;
 
   requestUpdate(target: View, updateFlags: ViewFlags, immediate: boolean): void;
@@ -28,7 +28,9 @@ export interface DisplayProvider<V extends View, S extends DisplayService<V> | n
 
 /** @public */
 export const DisplayProvider = (function (_super: typeof Provider) {
-  const DisplayProvider = _super.extend("DisplayProvider") as ProviderClass<DisplayProvider<any, any>>;
+  const DisplayProvider = _super.extend("DisplayProvider", {
+    serviceType: DisplayService,
+  }) as ProviderClass<DisplayProvider<any, any>>;
 
   DisplayProvider.prototype.updatedViewContext = function <V extends View, S extends DisplayService<V> | null | undefined>(this: DisplayProvider<V, S>, viewContext: ViewContext): ViewContext {
     let service: DisplayService<V> | null | undefined = this.service;

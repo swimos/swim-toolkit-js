@@ -15,7 +15,7 @@
 import type {FastenerOwner} from "@swim/component";
 import {GestureInput} from "./GestureInput";
 import type {ScaleGestureInput} from "./ScaleGestureInput";
-import {ScaleGestureClass, ScaleGestureFactory, ScaleGesture} from "./ScaleGesture";
+import {ScaleGestureClass, ScaleGesture} from "./ScaleGesture";
 import type {View} from "../view/View";
 
 /** @internal */
@@ -62,7 +62,9 @@ export interface PointerScaleGesture<O = unknown, V extends View = View, X = unk
 
 /** @internal */
 export const PointerScaleGesture = (function (_super: typeof ScaleGesture) {
-  const PointerScaleGesture = _super.extend("PointerScaleGesture") as ScaleGestureFactory<PointerScaleGesture<any, any, any, any>>;
+  const PointerScaleGesture = _super.extend("PointerScaleGesture", {
+    wheel: true,
+  }) as ScaleGestureClass<PointerScaleGesture<any, any, any, any>>;
 
   PointerScaleGesture.prototype.attachHoverEvents = function (this: PointerScaleGesture, view: View): void {
     view.on("pointerenter", this.onPointerEnter as EventListener);
@@ -197,8 +199,8 @@ export const PointerScaleGesture = (function (_super: typeof ScaleGesture) {
     }
   };
 
-  PointerScaleGesture.construct = function <G extends PointerScaleGesture<any, any, any, any>>(gestureClass: ScaleGestureClass<PointerScaleGesture<any, any, any, any>>, gesture: G | null, owner: FastenerOwner<G>): G {
-    gesture = _super.construct(gestureClass, gesture, owner) as G;
+  PointerScaleGesture.construct = function <G extends PointerScaleGesture<any, any, any, any>>(gesture: G | null, owner: FastenerOwner<G>): G {
+    gesture = _super.construct.call(this, gesture, owner) as G;
     gesture.onPointerEnter = gesture.onPointerEnter.bind(gesture);
     gesture.onPointerLeave = gesture.onPointerLeave.bind(gesture);
     gesture.onPointerDown = gesture.onPointerDown.bind(gesture);

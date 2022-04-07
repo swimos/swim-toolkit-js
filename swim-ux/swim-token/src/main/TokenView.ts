@@ -13,17 +13,17 @@
 // limitations under the License.
 
 import {Mutable, Class, AnyTiming, Timing} from "@swim/util";
-import {Affinity, MemberFastenerClass, Property, Animator} from "@swim/component";
+import {Affinity, FastenerClass, PropertyDef, AnimatorDef} from "@swim/component";
 import {Length, R2Box} from "@swim/math";
 import type {Color} from "@swim/style";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
 import {
   PositionGestureInput,
-  PositionGesture,
+  PositionGestureDef,
   ViewContextType,
   ViewFlags,
   View,
-  ViewRef,
+  ViewRefDef,
 } from "@swim/view";
 import {HtmlViewInit, HtmlView, SvgView} from "@swim/dom";
 import {Graphics, PathContext, PathRenderer} from "@swim/graphics";
@@ -129,8 +129,8 @@ export class TokenView extends HtmlView {
     return this.tokenState === "collapsed" || this.tokenState === "collapsing";
   }
 
-  @Animator<TokenView, number>({
-    type: Number,
+  @AnimatorDef<TokenView["expandedPhase"]>({
+    valueType: Number,
     value: 1,
     updateFlags: View.NeedsLayout,
     didTransition(expandedPhase: number): void {
@@ -142,27 +142,27 @@ export class TokenView extends HtmlView {
       }
     },
   })
-  readonly expandedPhase!: Animator<this, number>;
+  readonly expandedPhase!: AnimatorDef<this, {value: number}>;
 
-  @ViewRef<TokenView, SvgView>({
-    key: true,
-    type: SvgView,
+  @ViewRefDef<TokenView["shape"]>({
+    viewType: SvgView,
+    viewKey: true,
     binds: true,
     didAttachView(shapeView: SvgView): void {
       this.owner.initShape(shapeView);
     },
   })
-  readonly shape!: ViewRef<this, SvgView>;
-  static readonly shape: MemberFastenerClass<TokenView, "shape">;
+  readonly shape!: ViewRefDef<this, {view: SvgView}>;
+  static readonly shape: FastenerClass<TokenView["shape"]>;
 
   /** @internal */
   get fillLook(): Look<Color> {
     return Look.accentColor;
   }
 
-  @ViewRef<TokenView, SvgView>({
-    key: true,
-    type: SvgView.forTag("path"),
+  @ViewRefDef<TokenView["head"]>({
+    viewType: SvgView.forTag("path"),
+    viewKey: true,
     observes: true,
     didAttachView(headView: SvgView): void {
       this.owner.initHead(headView);
@@ -186,10 +186,10 @@ export class TokenView extends HtmlView {
       }
     },
   })
-  readonly head!: ViewRef<this, SvgView>;
-  static readonly head: MemberFastenerClass<TokenView, "head">;
+  readonly head!: ViewRefDef<this, {view: SvgView, observes: true}>;
+  static readonly head: FastenerClass<TokenView["head"]>;
 
-  @PositionGesture<TokenView, SvgView>({
+  @PositionGestureDef<TokenView["headGesture"]>({
     didStartHovering(): void {
       const headView = this.view!;
       headView.modifyMood(Feel.default, [[Feel.hovering, 1]]);
@@ -233,13 +233,13 @@ export class TokenView extends HtmlView {
       }
     },
   })
-  readonly headGesture!: PositionGesture<this, SvgView>;
-  static readonly headGesture: MemberFastenerClass<TokenView, "headGesture">;
+  readonly headGesture!: PositionGestureDef<this, {view: SvgView}>;
+  static readonly headGesture: FastenerClass<TokenView["headGesture"]>;
 
   /** @internal */
-  @ViewRef<TokenView, SvgView>({
-    key: true,
-    type: SvgView.forTag("path"),
+  @ViewRefDef<TokenView["headIcon"]>({
+    viewType: SvgView.forTag("path"),
+    viewKey: true,
     didAttachView(headIconView: SvgView): void {
       this.owner.initHeadIcon(headIconView);
     },
@@ -250,21 +250,27 @@ export class TokenView extends HtmlView {
       }
     },
   })
-  readonly headIcon!: ViewRef<this, SvgView>;
-  static readonly headIcon: MemberFastenerClass<TokenView, "headIcon">;
+  readonly headIcon!: ViewRefDef<this, {view: SvgView}>;
+  static readonly headIcon: FastenerClass<TokenView["headIcon"]>;
 
-  @Property<TokenView, Graphics | null, never, {embossed: boolean}>({
-    implements: true,
-    type: Object,
+  @PropertyDef<TokenView["icon"]>({
+    valueType: Graphics,
     value: null,
     updateFlags: View.NeedsLayout,
-    embossed: true,
+    init(): void {
+      this.embossed = true;
+    },
   })
-  readonly icon!: Property<this, Graphics | null> & {embossed: boolean};
+  readonly icon!: PropertyDef<this, {
+    value: Graphics | null,
+    defines: {
+      embossed: boolean,
+    },
+  }>;
 
-  @ViewRef<TokenView, SvgView>({
-    key: true,
-    type: SvgView.forTag("path"),
+  @ViewRefDef<TokenView["body"]>({
+    viewType: SvgView.forTag("path"),
+    viewKey: true,
     observes: true,
     didAttachView(bodyView: SvgView): void {
       this.owner.initBody(bodyView);
@@ -287,10 +293,10 @@ export class TokenView extends HtmlView {
       }
     },
   })
-  readonly body!: ViewRef<this, SvgView>;
-  static readonly body: MemberFastenerClass<TokenView, "body">;
+  readonly body!: ViewRefDef<this, {view: SvgView, observes: true}>;
+  static readonly body: FastenerClass<TokenView["body"]>;
 
-  @PositionGesture<TokenView, SvgView>({
+  @PositionGestureDef<TokenView["bodyGesture"]>({
     didStartHovering(): void {
       const bodyView = this.view!;
       bodyView.modifyMood(Feel.default, [[Feel.hovering, 1]]);
@@ -332,12 +338,12 @@ export class TokenView extends HtmlView {
       }
     },
   })
-  readonly bodyGesture!: PositionGesture<this, SvgView>;
-  static readonly bodyGesture: MemberFastenerClass<TokenView, "bodyGesture">;
+  readonly bodyGesture!: PositionGestureDef<this, {view: SvgView}>;
+  static readonly bodyGesture: FastenerClass<TokenView["bodyGesture"]>;
 
-  @ViewRef<TokenView, SvgView>({
-    key: true,
-    type: SvgView.forTag("path"),
+  @ViewRefDef<TokenView["foot"]>({
+    viewType: SvgView.forTag("path"),
+    viewKey: true,
     observes: true,
     didAttachView(footView: SvgView): void {
       this.owner.initFoot(footView);
@@ -361,10 +367,10 @@ export class TokenView extends HtmlView {
       }
     },
   })
-  readonly foot!: ViewRef<this, SvgView>;
-  static readonly foot: MemberFastenerClass<TokenView, "foot">;
+  readonly foot!: ViewRefDef<this, {view: SvgView, observes: true}>;
+  static readonly foot: FastenerClass<TokenView["foot"]>;
 
-  @PositionGesture<TokenView, SvgView>({
+  @PositionGestureDef<TokenView["footGesture"]>({
     didStartHovering(): void {
       const footView = this.view!;
       footView.modifyMood(Feel.default, [[Feel.hovering, 1]]);
@@ -408,13 +414,13 @@ export class TokenView extends HtmlView {
       }
     },
   })
-  readonly footGesture!: PositionGesture<this, SvgView>;
-  static readonly footGesture: MemberFastenerClass<TokenView, "footGesture">;
+  readonly footGesture!: PositionGestureDef<this, {view: SvgView}>;
+  static readonly footGesture: FastenerClass<TokenView["footGesture"]>;
 
   /** @internal */
-  @ViewRef<TokenView, SvgView>({
-    key: true,
-    type: SvgView.forTag("path"),
+  @ViewRefDef<TokenView["footIcon"]>({
+    viewType: SvgView.forTag("path"),
+    viewKey: true,
     didAttachView(footIconView: SvgView): void {
       this.owner.initFootIcon(footIconView);
     },
@@ -425,34 +431,38 @@ export class TokenView extends HtmlView {
       }
     },
   })
-  readonly footIcon!: ViewRef<this, SvgView>;
-  static readonly footIcon: MemberFastenerClass<TokenView, "footIcon">;
+  readonly footIcon!: ViewRefDef<this, {view: SvgView}>;
+  static readonly footIcon: FastenerClass<TokenView["footIcon"]>;
 
-  @Property<TokenView, Graphics | null, never, {embossed: boolean}>({
-    implements: true,
-    type: Object,
+  @PropertyDef<TokenView["accessory"]>({
+    valueType: Graphics,
     value: null,
     updateFlags: View.NeedsLayout,
     init(): void {
       this.embossed = true;
     },
   })
-  readonly accessory!: Property<this, Graphics | null> & {embossed: boolean};
+  readonly accessory!: PropertyDef<this, {
+    value: Graphics | null,
+    defines: {
+      embossed: boolean,
+    },
+  }>;
 
-  @ViewRef<TokenView, HtmlView>({
-    key: true,
-    type: HtmlView,
+  @ViewRefDef<TokenView["labelContainer"]>({
+    viewType: HtmlView,
+    viewKey: true,
     binds: true,
     didAttachView(labelContainer: HtmlView): void {
       this.owner.initLabelContainer(labelContainer);
     },
   })
-  readonly labelContainer!: ViewRef<this, HtmlView>;
-  static readonly labelContainer: MemberFastenerClass<TokenView, "labelContainer">;
+  readonly labelContainer!: ViewRefDef<this, {view: HtmlView}>;
+  static readonly labelContainer: FastenerClass<TokenView["labelContainer"]>;
 
-  @ViewRef<TokenView, HtmlView>({
-    key: true,
-    type: HtmlView,
+  @ViewRefDef<TokenView["label"]>({
+    viewType: HtmlView,
+    viewKey: true,
     didAttachView(labelView: HtmlView): void {
       if (labelView.parent === null) {
         this.owner.labelContainer.insertView();
@@ -464,8 +474,8 @@ export class TokenView extends HtmlView {
       this.owner.initLabel(labelView);
     },
   })
-  readonly label!: ViewRef<this, HtmlView>;
-  static readonly label: MemberFastenerClass<TokenView, "label">;
+  readonly label!: ViewRefDef<this, {view: HtmlView}>;
+  static readonly label: FastenerClass<TokenView["label"]>;
 
   protected override needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
     if ((processFlags & View.NeedsLayout) !== 0) {

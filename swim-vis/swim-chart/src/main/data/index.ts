@@ -24,11 +24,7 @@ export {
 } from "./DataPointView";
 export {DataPointViewObserver} from "./DataPointViewObserver";
 
-export {
-  DataPointLabel,
-  DataPointLabelFunction,
-  DataPointTrait,
-} from "./DataPointTrait";
+export {DataPointTrait} from "./DataPointTrait";
 export {DataPointTraitObserver} from "./DataPointTraitObserver";
 
 export {DataSetTrait} from "./DataSetTrait";
@@ -37,8 +33,5 @@ export {DataSetTraitObserver} from "./DataSetTraitObserver";
 export {DataPointController} from "./DataPointController";
 export {DataPointControllerObserver} from "./DataPointControllerObserver";
 
-export {
-  DataSetControllerDataPointExt,
-  DataSetController,
-} from "./DataSetController";
+export {DataSetController} from "./DataSetController";
 export {DataSetControllerObserver} from "./DataSetControllerObserver";

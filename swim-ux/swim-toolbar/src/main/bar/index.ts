@@ -21,8 +21,5 @@ export {BarViewObserver} from "./BarViewObserver";
 export {BarTrait} from "./BarTrait";
 export {BarTraitObserver} from "./BarTraitObserver";
 
-export {
-  BarControllerToolExt,
-  BarController,
-} from "./BarController";
+export {BarController} from "./BarController";
 export {BarControllerObserver} from "./BarControllerObserver";

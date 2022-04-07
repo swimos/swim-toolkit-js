@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import {Class, Equivalent, Initable} from "@swim/util";
-import {Affinity, MemberFastenerClass, Animator} from "@swim/component";
+import {Affinity, FastenerClass, AnimatorDef} from "@swim/component";
 import {AnyLength, Length, AnyAngle, Angle, AnyR2Point, R2Point, R2Box} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
-import {Look, ThemeAnimator} from "@swim/theme";
-import {ViewContextType, AnyView, View, ViewRef} from "@swim/view";
+import {Look, ThemeAnimatorDef} from "@swim/theme";
+import {ViewContextType, AnyView, View, ViewRefDef} from "@swim/view";
 import {
   GraphicsViewInit,
   GraphicsView,
@@ -64,82 +64,79 @@ export interface SliceViewInit extends GraphicsViewInit {
 export class SliceView extends GraphicsView {
   override readonly observerType?: Class<SliceViewObserver>;
 
-  @Animator<SliceView, number>({
-    type: Number,
+  @AnimatorDef<SliceView["value"]>({
+    valueType: Number,
     value: 0,
     updateFlags: View.NeedsRender,
-    willSetValue(newValue: number, oldValue: number): void {
-      this.owner.callObservers("viewWillSetSliceValue", newValue, oldValue, this.owner);
-    },
-    didSetValue(newValue: number, oldValue: number): void {
-      this.owner.callObservers("viewDidSetSliceValue", newValue, oldValue, this.owner);
+    didSetValue(value: number): void {
+      this.owner.callObservers("viewDidSetValue", value, this.owner);
     },
   })
-  readonly value!: Animator<this, number>;
+  readonly value!: AnimatorDef<this, {value: number}>;
 
-  @Animator({type: Number, value: 1, updateFlags: View.NeedsRender})
-  readonly total!: Animator<this, number>;
+  @AnimatorDef({valueType: Number, value: 1, updateFlags: View.NeedsRender})
+  readonly total!: AnimatorDef<this, {value: number}>;
 
-  @Animator({type: R2Point, inherits: true, value: R2Point.origin(), updateFlags: View.NeedsRender})
-  readonly center!: Animator<this, R2Point, AnyR2Point>;
+  @AnimatorDef({valueType: R2Point, value: R2Point.origin(), inherits: true, updateFlags: View.NeedsRender})
+  readonly center!: AnimatorDef<this, {value: R2Point, valueInit: AnyR2Point}>;
 
-  @ThemeAnimator({type: Length, inherits: true, value: Length.pct(3), updateFlags: View.NeedsRender})
-  readonly innerRadius!: ThemeAnimator<this, Length, AnyLength>;
+  @ThemeAnimatorDef({valueType: Length, value: Length.pct(3), inherits: true, updateFlags: View.NeedsRender})
+  readonly innerRadius!: ThemeAnimatorDef<this, {value: Length, valueInit: AnyLength}>;
 
-  @ThemeAnimator({type: Length, inherits: true, value: Length.pct(25), updateFlags: View.NeedsRender})
-  readonly outerRadius!: ThemeAnimator<this, Length, AnyLength>;
+  @ThemeAnimatorDef({valueType: Length, value: Length.pct(25), inherits: true, updateFlags: View.NeedsRender})
+  readonly outerRadius!: ThemeAnimatorDef<this, {value: Length, valueInit: AnyLength}>;
 
-  @ThemeAnimator({type: Angle, value: Angle.zero(), updateFlags: View.NeedsRender})
-  readonly phaseAngle!: ThemeAnimator<this, Angle, AnyAngle>;
+  @ThemeAnimatorDef({valueType: Angle, value: Angle.zero(), updateFlags: View.NeedsRender})
+  readonly phaseAngle!: ThemeAnimatorDef<this, {value: Angle, valueInit: AnyAngle}>;
 
-  @ThemeAnimator({type: Angle, inherits: true, value: Angle.deg(2), updateFlags: View.NeedsRender})
-  readonly padAngle!: ThemeAnimator<this, Angle, AnyAngle>;
+  @ThemeAnimatorDef({valueType: Angle, value: Angle.deg(2), inherits: true, updateFlags: View.NeedsRender})
+  readonly padAngle!: ThemeAnimatorDef<this, {value: Angle, valueInit: AnyAngle}>;
 
-  @ThemeAnimator({type: Length, inherits: true, value: null, updateFlags: View.NeedsRender})
-  readonly padRadius!: ThemeAnimator<this, Length | null, AnyLength | null>;
+  @ThemeAnimatorDef({valueType: Length, value: null, inherits: true, updateFlags: View.NeedsRender})
+  readonly padRadius!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
 
-  @ThemeAnimator({type: Length, inherits: true, value: Length.zero(), updateFlags: View.NeedsRender})
-  readonly cornerRadius!: ThemeAnimator<this, Length, AnyLength>;
+  @ThemeAnimatorDef({valueType: Length, value: Length.zero(), inherits: true, updateFlags: View.NeedsRender})
+  readonly cornerRadius!: ThemeAnimatorDef<this, {value: Length, valueInit: AnyLength}>;
 
-  @ThemeAnimator({type: Length, inherits: true, value: Length.pct(50), updateFlags: View.NeedsRender})
-  readonly labelRadius!: ThemeAnimator<this, Length, AnyLength>;
+  @ThemeAnimatorDef({valueType: Length, value: Length.pct(50), inherits: true, updateFlags: View.NeedsRender})
+  readonly labelRadius!: ThemeAnimatorDef<this, {value: Length, valueInit: AnyLength}>;
 
-  @ThemeAnimator({type: Color, inherits: true, value: null, look: Look.accentColor, updateFlags: View.NeedsRender})
-  readonly sliceColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  @ThemeAnimatorDef({valueType: Color, value: null, look: Look.accentColor, inherits: true, updateFlags: View.NeedsRender})
+  readonly sliceColor!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
 
-  @ThemeAnimator({type: Number, inherits: true, value: 0.5, updateFlags: View.NeedsRender})
-  readonly tickAlign!: ThemeAnimator<this, number>;
+  @ThemeAnimatorDef({valueType: Number, value: 0.5, inherits: true, updateFlags: View.NeedsRender})
+  readonly tickAlign!: ThemeAnimatorDef<this, {value: number}>;
 
-  @ThemeAnimator({type: Length, inherits: true, value: Length.pct(30), updateFlags: View.NeedsRender})
-  readonly tickRadius!: ThemeAnimator<this, Length, AnyLength>;
+  @ThemeAnimatorDef({valueType: Length, value: Length.pct(30), inherits: true, updateFlags: View.NeedsRender})
+  readonly tickRadius!: ThemeAnimatorDef<this, {value: Length, valueInit: AnyLength}>;
 
-  @ThemeAnimator({type: Length, inherits: true, value: Length.pct(50), updateFlags: View.NeedsRender})
-  readonly tickLength!: ThemeAnimator<this, Length, AnyLength>;
+  @ThemeAnimatorDef({valueType: Length, value: Length.pct(50), inherits: true, updateFlags: View.NeedsRender})
+  readonly tickLength!: ThemeAnimatorDef<this, {value: Length, valueInit: AnyLength}>;
 
-  @ThemeAnimator({type: Length, inherits: true, value: Length.px(1), updateFlags: View.NeedsRender})
-  readonly tickWidth!: ThemeAnimator<this, Length, AnyLength>;
+  @ThemeAnimatorDef({valueType: Length, value: Length.px(1), inherits: true, updateFlags: View.NeedsRender})
+  readonly tickWidth!: ThemeAnimatorDef<this, {value: Length, valueInit: AnyLength}>;
 
-  @ThemeAnimator({type: Length, inherits: true, value: Length.px(2), updateFlags: View.NeedsRender})
-  readonly tickPadding!: ThemeAnimator<this, Length, AnyLength>;
+  @ThemeAnimatorDef({valueType: Length, value: Length.px(2), inherits: true, updateFlags: View.NeedsRender})
+  readonly tickPadding!: ThemeAnimatorDef<this, {value: Length, valueInit: AnyLength}>;
 
-  @ThemeAnimator({type: Color, inherits: true, value: null, look: Look.legendColor, updateFlags: View.NeedsRender})
-  readonly tickColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  @ThemeAnimatorDef({valueType: Color, value: null, look: Look.legendColor, inherits: true, updateFlags: View.NeedsRender})
+  readonly tickColor!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
 
-  @ThemeAnimator({type: Font, inherits: true, value: null, updateFlags: View.NeedsRender})
-  readonly font!: ThemeAnimator<this, Font | null, AnyFont | null>;
+  @ThemeAnimatorDef({valueType: Font, value: null, inherits: true, updateFlags: View.NeedsRender})
+  readonly font!: ThemeAnimatorDef<this, {value: Font | null, valueInit: AnyFont | null}>;
 
-  @ThemeAnimator({type: Color, inherits: true, value: null, look: Look.legendColor, updateFlags: View.NeedsRender})
-  readonly textColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  @ThemeAnimatorDef({valueType: Color, value: null, look: Look.legendColor, inherits: true, updateFlags: View.NeedsRender})
+  readonly textColor!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
 
-  @ViewRef<SliceView, GraphicsView & Initable<GraphicsViewInit | string>>({
-    key: true,
-    type: TextRunView,
+  @ViewRefDef<SliceView["label"]>({
+    viewType: TextRunView,
+    viewKey: true,
     binds: true,
     willAttachView(labelView: GraphicsView): void {
-      this.owner.callObservers("viewWillAttachSliceLabel", labelView, this.owner);
+      this.owner.callObservers("viewWillAttachLabel", labelView, this.owner);
     },
     didDetachView(labelView: GraphicsView): void {
-      this.owner.callObservers("viewDidDetachSliceLabel", labelView, this.owner);
+      this.owner.callObservers("viewDidDetachLabel", labelView, this.owner);
     },
     fromAny(value: AnyView<GraphicsView> | string): GraphicsView {
       if (typeof value === "string") {
@@ -154,18 +151,20 @@ export class SliceView extends GraphicsView {
       }
     },
   })
-  readonly label!: ViewRef<this, GraphicsView & Initable<GraphicsViewInit | string>>;
-  static readonly label: MemberFastenerClass<SliceView, "label">;
+  readonly label!: ViewRefDef<this, {
+    view: GraphicsView & Initable<GraphicsViewInit | string>,
+  }>;
+  static readonly label: FastenerClass<SliceView["label"]>;
 
-  @ViewRef<SliceView, GraphicsView & Initable<GraphicsViewInit | string>>({
-    key: true,
-    type: TextRunView,
+  @ViewRefDef<SliceView["legend"]>({
+    viewType: TextRunView,
+    viewKey: true,
     binds: true,
     willAttachView(legendView: GraphicsView): void {
-      this.owner.callObservers("viewWillAttachSliceLegend", legendView, this.owner);
+      this.owner.callObservers("viewWillAttachLegend", legendView, this.owner);
     },
     didDetachView(legendView: GraphicsView): void {
-      this.owner.callObservers("viewDidDetachSliceLegend", legendView, this.owner);
+      this.owner.callObservers("viewDidDetachLegend", legendView, this.owner);
     },
     fromAny(value: AnyView<GraphicsView> | string): GraphicsView {
       if (typeof value === "string") {
@@ -180,8 +179,10 @@ export class SliceView extends GraphicsView {
       }
     },
   })
-  readonly legend!: ViewRef<this, GraphicsView & Initable<GraphicsViewInit | string>>;
-  static readonly legend: MemberFastenerClass<SliceView, "legend">;
+  readonly legend!: ViewRefDef<this, {
+    view: GraphicsView & Initable<GraphicsViewInit | string>,
+  }>;
+  static readonly legend: FastenerClass<SliceView["legend"]>;
 
   protected override onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);

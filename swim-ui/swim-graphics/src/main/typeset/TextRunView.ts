@@ -15,7 +15,7 @@
 import type {AnyTiming} from "@swim/util";
 import {AnyR2Point, R2Point} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
-import {ThemeAnimator} from "@swim/theme";
+import {ThemeAnimatorDef} from "@swim/theme";
 import {ViewContextType, View} from "@swim/view";
 import {GraphicsView} from "../graphics/GraphicsView";
 import type {CanvasContext} from "../canvas/CanvasContext";
@@ -33,23 +33,23 @@ export interface TextRunViewInit extends TypesetViewInit {
 
 /** @public */
 export class TextRunView extends GraphicsView implements TypesetView {
-  @ThemeAnimator({type: String, value: "", updateFlags: View.NeedsRender})
-  readonly text!: ThemeAnimator<this, string>;
+  @ThemeAnimatorDef({valueType: String, value: "", updateFlags: View.NeedsRender})
+  readonly text!: ThemeAnimatorDef<this, {value: string}>;
 
-  @ThemeAnimator({type: Font, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly font!: ThemeAnimator<this, Font | null, AnyFont | null>;
+  @ThemeAnimatorDef({valueType: Font, value: null, inherits: true, updateFlags: View.NeedsRender})
+  readonly font!: ThemeAnimatorDef<this, {value: Font | null, valueInit: AnyFont | null}>;
 
-  @ThemeAnimator({type: String, inherits: true, updateFlags: View.NeedsRender})
-  readonly textAlign!: ThemeAnimator<this, CanvasTextAlign | undefined>;
+  @ThemeAnimatorDef({valueType: String, inherits: true, updateFlags: View.NeedsRender})
+  readonly textAlign!: ThemeAnimatorDef<this, {value: CanvasTextAlign | undefined}>;
 
-  @ThemeAnimator({type: String, inherits: true, updateFlags: View.NeedsRender})
-  readonly textBaseline!: ThemeAnimator<this, CanvasTextBaseline | undefined>;
+  @ThemeAnimatorDef({valueType: String, inherits: true, updateFlags: View.NeedsRender})
+  readonly textBaseline!: ThemeAnimatorDef<this, {value: CanvasTextBaseline | undefined}>;
 
-  @ThemeAnimator({type: R2Point, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly textOrigin!: ThemeAnimator<this, R2Point | null, AnyR2Point | null>;
+  @ThemeAnimatorDef({valueType: R2Point, value: null, inherits: true, updateFlags: View.NeedsRender})
+  readonly textOrigin!: ThemeAnimatorDef<this, {value: R2Point | null, valueInit: AnyR2Point | null}>;
 
-  @ThemeAnimator({type: Color, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly textColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  @ThemeAnimatorDef({valueType: Color, value: null, inherits: true, updateFlags: View.NeedsRender})
+  readonly textColor!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
 
   get value(): TextRun {
     return new TextRun(this.text.getValue(), this.font.getValue(), this.textAlign.getValue(),

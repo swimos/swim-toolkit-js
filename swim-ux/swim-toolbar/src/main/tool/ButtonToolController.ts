@@ -13,10 +13,10 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {MemberFastenerClass} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
 import type {PositionGestureInput} from "@swim/view";
 import type {Graphics} from "@swim/graphics";
-import {TraitViewRef} from "@swim/controller";
+import {TraitViewRefDef} from "@swim/controller";
 import {ToolController} from "./ToolController";
 import {ButtonToolView} from "./ButtonToolView";
 import {ButtonToolTrait} from "./ButtonToolTrait";
@@ -33,7 +33,7 @@ export class ButtonToolController extends ToolController {
     }
   }
 
-  @TraitViewRef<ButtonToolController, ButtonToolTrait, ButtonToolView>({
+  @TraitViewRefDef<ButtonToolController["tool"]>({
     extends: true,
     traitType: ButtonToolTrait,
     observesTrait: true,
@@ -43,8 +43,8 @@ export class ButtonToolController extends ToolController {
     deinitTrait(toolTrait: ButtonToolTrait): void {
       this.owner.setIcon(null);
     },
-    traitDidSetIcon(newToolIcon: Graphics | null, oldToolIcon: Graphics | null): void {
-      this.owner.setIcon(newToolIcon);
+    traitDidSetIcon(toolIcon: Graphics | null): void {
+      this.owner.setIcon(toolIcon);
     },
     viewType: ButtonToolView,
     observesView: true,
@@ -54,11 +54,8 @@ export class ButtonToolController extends ToolController {
         this.owner.setIcon(toolTrait.icon.value);
       }
     },
-    viewWillSetGraphics(newToolIcon: Graphics | null, oldToolIcon: Graphics | null): void {
-      this.owner.callObservers("controllerWillSetToolIcon", newToolIcon, oldToolIcon, this.owner);
-    },
-    viewDidSetGraphics(newToolIcon: Graphics | null, oldToolIcon: Graphics | null): void {
-      this.owner.callObservers("controllerDidSetToolIcon", newToolIcon, oldToolIcon, this.owner);
+    viewDidSetGraphics(toolIcon: Graphics | null): void {
+      this.owner.callObservers("controllerDidSetToolIcon", toolIcon, this.owner);
     },
     viewDidPress(input: PositionGestureInput, event: Event | null): void {
       this.owner.callObservers("controllerDidPressToolView", input, event, this.owner);
@@ -67,6 +64,12 @@ export class ButtonToolController extends ToolController {
       this.owner.callObservers("controllerDidLongPressToolView", input, this.owner);
     },
   })
-  override readonly tool!: TraitViewRef<this, ButtonToolTrait, ButtonToolView>;
-  static override readonly tool: MemberFastenerClass<ButtonToolController, "tool">;
+  override readonly tool!: TraitViewRefDef<this, {
+    extends: ToolController["tool"],
+    trait: ButtonToolTrait,
+    observesTrait: true,
+    view: ButtonToolView,
+    observesView: true,
+  }>;
+  static override readonly tool: FastenerClass<ButtonToolController["tool"]>;
 }

@@ -13,19 +13,19 @@
 // limitations under the License.
 
 import {Class, AnyTiming, Timing} from "@swim/util";
-import {Affinity, MemberFastenerClass, Animator} from "@swim/component";
+import {Affinity, FastenerClass, AnimatorDef} from "@swim/component";
 import {AnyLength, Length, Angle, Transform} from "@swim/math";
 import {AnyColor, Color} from "@swim/style";
-import {Look, Feel, MoodVector, ThemeMatrix, ThemeAnimator} from "@swim/theme";
+import {Look, Feel, MoodVector, ThemeMatrix, ThemeAnimatorDef} from "@swim/theme";
 import {
-  PositionGesture,
+  PositionGestureDef,
   ViewContextType,
   ViewContext,
   ViewFlags,
   View,
   ViewRef,
 } from "@swim/view";
-import type {HtmlView, HtmlViewObserver} from "@swim/dom";
+import type {HtmlViewObserver} from "@swim/dom";
 import {
   Graphics,
   Icon,
@@ -77,20 +77,20 @@ export class IconButton extends ButtonMembrane implements IconView {
     this.modifyTheme(Feel.default, [[Feel.translucent, 1]]);
   }
 
-  @Animator({type: Number, value: 0.5, updateFlags: View.NeedsLayout})
-  readonly xAlign!: Animator<this, number>;
+  @AnimatorDef({valueType: Number, value: 0.5, updateFlags: View.NeedsLayout})
+  readonly xAlign!: AnimatorDef<this, {value: number}>;
 
-  @Animator({type: Number, value: 0.5, updateFlags: View.NeedsLayout})
-  readonly yAlign!: Animator<this, number>;
+  @AnimatorDef({valueType: Number, value: 0.5, updateFlags: View.NeedsLayout})
+  readonly yAlign!: AnimatorDef<this, {value: number}>;
 
-  @ThemeAnimator({type: Length, value: Length.px(24), updateFlags: View.NeedsLayout})
-  readonly iconWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
+  @ThemeAnimatorDef({valueType: Length, value: Length.px(24), updateFlags: View.NeedsLayout})
+  readonly iconWidth!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
 
-  @ThemeAnimator({type: Length, value: Length.px(24), updateFlags: View.NeedsLayout})
-  readonly iconHeight!: ThemeAnimator<this, Length | null, AnyLength | null>;
+  @ThemeAnimatorDef({valueType: Length, value: Length.px(24), updateFlags: View.NeedsLayout})
+  readonly iconHeight!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
 
-  @ThemeAnimator<IconButton, Color | null, AnyColor | null>({
-    type: Color,
+  @ThemeAnimatorDef<IconButton["iconColor"]>({
+    valueType: Color,
     value: null,
     updateFlags: View.NeedsLayout,
     didSetValue(newIconColor: Color | null, oldIconColor: Color | null): void {
@@ -103,15 +103,19 @@ export class IconButton extends ButtonMembrane implements IconView {
       }
     },
   })
-  readonly iconColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly iconColor!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
 
-  @ThemeAnimator({extends: IconGraphicsAnimator, value: null, type: Object, updateFlags: View.NeedsLayout})
-  readonly graphics!: ThemeAnimator<this, Graphics | null>;
+  @ThemeAnimatorDef<IconButton["graphics"]>({
+    extends: IconGraphicsAnimator,
+    valueType: Graphics,
+    value: null,
+    updateFlags: View.NeedsLayout,
+  })
+  readonly graphics!: ThemeAnimatorDef<this, {value: Graphics | null}>;
 
   /** @internal */
-  static IconRef = ViewRef.define<IconButton, SvgIconView, {iconIndex: number}>("IconRef", {
-    implements: true,
-    type: SvgIconView,
+  static IconRef = ViewRef.specify<IconButton, SvgIconView>("IconRef", {
+    viewType: SvgIconView,
     observes: true,
     init(): void {
       this.iconIndex = 0;
@@ -124,7 +128,7 @@ export class IconButton extends ButtonMembrane implements IconView {
         }
       }
     },
-  });
+  } as ThisType<ViewRef<IconButton, SvgIconView> & {iconIndex: number}>);
 
   /** @internal */
   iconCount: number;
@@ -157,7 +161,7 @@ export class IconButton extends ButtonMembrane implements IconView {
     }
 
     const newIconKey = "icon" + newIconCount;
-    const newIconRef = IconButton.IconRef.create(this);
+    const newIconRef = IconButton.IconRef.create(this) as ViewRef<this, SvgIconView> & {iconIndex: number};
     Object.defineProperty(newIconRef, "name", {
       value: newIconKey,
       enumerable: true,
@@ -232,7 +236,7 @@ export class IconButton extends ButtonMembrane implements IconView {
       }
       this.backgroundColor.setState(backgroundColor, timing, Affinity.Intrinsic);
     }
-    if (!this.graphics.inherited) {
+    if (!this.graphics.derived) {
       const oldGraphics = this.graphics.value;
       if (oldGraphics instanceof Icon) {
         const newGraphics = oldGraphics.withTheme(theme, mood);
@@ -302,7 +306,7 @@ export class IconButton extends ButtonMembrane implements IconView {
     }
   }
 
-  @PositionGesture<IconButton, HtmlView>({
+  @PositionGestureDef<IconButton["gesture"]>({
     extends: true,
     didStartHovering(): void {
       if (this.owner.hovers) {
@@ -325,8 +329,10 @@ export class IconButton extends ButtonMembrane implements IconView {
       }
     },
   })
-  override readonly gesture!: PositionGesture<this, HtmlView>;
-  static override readonly gesture: MemberFastenerClass<IconButton, "gesture">;
+  override readonly gesture!: PositionGestureDef<this, {
+    extends: ButtonMembrane["gesture"],
+  }>;
+  static override readonly gesture: FastenerClass<IconButton["gesture"]>;
 
   protected onClick(event: MouseEvent): void {
     event.stopPropagation();

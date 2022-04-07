@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {AnyValue, Value} from "@swim/structure";
-import {ValueDownlinkFastener} from "@swim/client";
+import {ValueDownlinkFastenerDef} from "@swim/client";
 import {DownlinkTrait} from "./DownlinkTrait";
 
 /** @beta */
@@ -22,8 +22,7 @@ export abstract class ValueDownlinkTrait extends DownlinkTrait {
     // hook
   }
 
-  @ValueDownlinkFastener<ValueDownlinkTrait, Value, AnyValue>({
-    lazy: false,
+  @ValueDownlinkFastenerDef<ValueDownlinkTrait["downlink"]>({
     consumed: true,
     didSet(newValue: Value, oldValue: Value): void {
       if (this.owner.consuming) {
@@ -31,5 +30,5 @@ export abstract class ValueDownlinkTrait extends DownlinkTrait {
       }
     },
   })
-  readonly downlink!: ValueDownlinkFastener<this, Value, AnyValue>;
+  readonly downlink!: ValueDownlinkFastenerDef<this, {value: Value, valueInit: AnyValue}>;
 }

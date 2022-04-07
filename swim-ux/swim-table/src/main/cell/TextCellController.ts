@@ -13,31 +13,31 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {MemberFastenerClass} from "@swim/component";
-import {ViewRef} from "@swim/view";
+import type {FastenerClass} from "@swim/component";
+import {ViewRefDef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
-import {TraitViewRef} from "@swim/controller";
+import {TraitViewRefDef} from "@swim/controller";
 import {CellController} from "./CellController";
 import {TextCellView} from "./TextCellView";
-import {TextCellContent, TextCellTrait} from "./TextCellTrait";
+import {TextCellTrait} from "./TextCellTrait";
 import type {TextCellControllerObserver} from "./TextCellControllerObserver";
 
 /** @public */
 export class TextCellController extends CellController {
   override readonly observerType?: Class<TextCellControllerObserver>;
 
-  @TraitViewRef<TextCellController, TextCellTrait, TextCellView>({
+  @TraitViewRefDef<TextCellController["cell"]>({
     extends: true,
     traitType: TextCellTrait,
     observesTrait: true,
     initTrait(cellTrait: TextCellTrait): void {
-      this.owner.setContentView(cellTrait.content.value, cellTrait);
+      this.owner.setContentView(cellTrait.content.value);
     },
     deinitTrait(cellTrait: TextCellTrait): void {
-      this.owner.setContentView(null, cellTrait);
+      this.owner.setContentView(void 0);
     },
-    traitDidSetContent(newContent: TextCellContent | null, oldContent: TextCellContent | null, cellTrait: TextCellTrait): void {
-      this.owner.setContentView(newContent, cellTrait);
+    traitDidSetContent(content: string | undefined): void {
+      this.owner.setContentView(content);
     },
     viewType: TextCellView,
     observesView: true,
@@ -45,7 +45,7 @@ export class TextCellController extends CellController {
       this.owner.content.setView(cellView.content.view);
       const cellTrait = this.trait;
       if (cellTrait !== null) {
-        this.owner.setContentView(cellTrait.content.value, cellTrait);
+        this.owner.setContentView(cellTrait.content.value);
       }
     },
     deinitView(cellView: TextCellView): void {
@@ -58,27 +58,24 @@ export class TextCellController extends CellController {
       this.owner.content.setView(null);
     },
   })
-  override readonly cell!: TraitViewRef<this, TextCellTrait, TextCellView>;
-  static override readonly cell: MemberFastenerClass<TextCellController, "cell">;
+  override readonly cell!: TraitViewRefDef<this, {
+    extends: CellController["cell"],
+    trait: TextCellTrait,
+    observesTrait: true,
+    view: TextCellView,
+    observesView: true,
+  }>;
+  static override readonly cell: FastenerClass<TextCellController["cell"]>;
 
-  protected createContentView(content: TextCellContent, cellTrait: TextCellTrait): HtmlView | string | null {
-    if (typeof content === "function") {
-      return content(cellTrait);
-    } else {
-      return content;
-    }
-  }
-
-  protected setContentView(content: TextCellContent | null, cellTrait: TextCellTrait): void {
+  protected setContentView(content: string | undefined): void {
     const cellView = this.cell.view;
     if (cellView !== null) {
-      const contentView = content !== null ? this.createContentView(content, cellTrait) : null;
-      cellView.content.setView(contentView);
+      cellView.content.setView(content !== void 0 ? content : null);
     }
   }
 
-  @ViewRef<TextCellController, HtmlView>({
-    type: HtmlView,
+  @ViewRefDef<TextCellController["content"]>({
+    viewType: HtmlView,
     willAttachView(contentView: HtmlView): void {
       this.owner.callObservers("controllerWillAttachCellContentView", contentView, this.owner);
     },
@@ -86,6 +83,6 @@ export class TextCellController extends CellController {
       this.owner.callObservers("controllerDidDetachCellContentView", contentView, this.owner);
     },
   })
-  readonly content!: ViewRef<this, HtmlView>;
-  static readonly content: MemberFastenerClass<TextCellController, "content">;
+  readonly content!: ViewRefDef<this, {view: HtmlView}>;
+  static readonly content: FastenerClass<TextCellController["content"]>;
 }

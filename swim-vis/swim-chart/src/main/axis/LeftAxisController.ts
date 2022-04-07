@@ -12,19 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {MemberFastenerClass} from "@swim/component";
-import {TraitViewRef} from "@swim/controller";
+import type {FastenerClass} from "@swim/component";
+import {TraitViewRefDef} from "@swim/controller";
 import {LeftAxisTrait} from "./LeftAxisTrait";
 import {LeftAxisView} from "./LeftAxisView";
 import {AxisController} from "./AxisController";
 
 /** @public */
 export class LeftAxisController<Y = unknown> extends AxisController<Y> {
-  @TraitViewRef<LeftAxisController<Y>, LeftAxisTrait<Y>, LeftAxisView<Y>>({
+  @TraitViewRefDef<LeftAxisController<Y>["axis"]>({
     extends: true,
     traitType: LeftAxisTrait,
     viewType: LeftAxisView,
   })
-  override readonly axis!: TraitViewRef<this, LeftAxisTrait<Y>, LeftAxisView<Y>>;
-  static override readonly axis: MemberFastenerClass<LeftAxisController, "axis">;
+  override readonly axis!: TraitViewRefDef<this, {
+    extends: AxisController<Y>["axis"],
+    trait: LeftAxisTrait<Y>,
+    view: LeftAxisView<Y>,
+  }>;
+  static override readonly axis: FastenerClass<LeftAxisController["axis"]>;
 }

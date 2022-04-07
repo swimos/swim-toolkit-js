@@ -76,7 +76,7 @@ class ExampleTileTrait extends swim.GeoGridTrait {
   constructor(geoTile) {
     super(geoTile);
     const tileId = geoTile.x + "," + geoTile.y + "," + geoTile.z;
-    this.vehiclesDownlink.nodeUri(swim.Uri.path(swim.UriPath.of("/", "map", "/", tileId)));
+    this.vehiclesDownlink.setNodeUri(swim.Uri.path(swim.UriPath.of("/", "map", "/", tileId)));
   }
   createTileTrait(geoTile) {
     return new ExampleTileTrait(geoTile);
@@ -95,7 +95,7 @@ swim.MapDownlinkFastener({
   consumed: true,
   laneUri: "vehicles",
   didUpdate(key, value) {
-    console.log(this.nodeUri() + " updateVehicle " + key.toAny() + ":", value.toAny());
+    console.log(this.nodeUri + " updateVehicle " + key.toAny() + ":", value.toAny());
   },
 })(ExampleTileTrait.prototype, "vehiclesDownlink")
 

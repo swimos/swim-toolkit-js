@@ -15,12 +15,12 @@
 import type {Class} from "@swim/util";
 import type {Trait} from "@swim/model";
 import type {PositionGestureInput} from "@swim/view";
-import {MemberFastenerClass, Property} from "@swim/component";
+import {FastenerClass, PropertyDef} from "@swim/component";
 import {
   Controller,
   TraitViewRef,
-  TraitViewControllerRef,
-  TraitViewControllerSet,
+  TraitViewControllerRefDef,
+  TraitViewControllerSetDef,
 } from "@swim/controller";
 import {ToolLayout, BarLayout, ToolController, BarController} from "@swim/toolbar";
 import type {SheetView} from "../sheet/SheetView";
@@ -52,8 +52,8 @@ export class TabBarController extends BarController {
     return BarLayout.create(tools);
   }
 
-  @TraitViewControllerSet<TabBarController, Trait, SheetView, SheetController>({
-    type: SheetController,
+  @TraitViewControllerSetDef<TabBarController["tabs"]>({
+    controllerType: SheetController,
     inherits: true,
     observes: true,
     getTraitViewRef(tabController: SheetController): TraitViewRef<unknown, Trait, SheetView> {
@@ -78,11 +78,15 @@ export class TabBarController extends BarController {
       this.owner.callObservers("controllerDidLongPressTabTool", input, tabController, this.owner);
     },
   })
-  readonly tabs!: TraitViewControllerSet<this, Trait, SheetView, SheetController>;
-  static readonly tabs: MemberFastenerClass<TabBarController, "tabs">;
+  readonly tabs!: TraitViewControllerSetDef<this, {
+    view: SheetView,
+    controller: SheetController,
+    observes: true,
+  }>;
+  static readonly tabs: FastenerClass<TabBarController["tabs"]>;
 
-  @TraitViewControllerRef<TabBarController, Trait, SheetView, SheetController>({
-    type: SheetController,
+  @TraitViewControllerRefDef<TabBarController["active"]>({
+    controllerType: SheetController,
     inherits: true,
     observes: true,
     getTraitViewRef(activeController: SheetController): TraitViewRef<unknown, Trait, SheetView> {
@@ -94,23 +98,28 @@ export class TabBarController extends BarController {
     didDetachController(activeController: SheetController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
-    controllerWillAttachButtonTool(buttonToolController: ToolController, activeController: SheetController): void {
+    controllerWillAttachButtonTool(buttonToolController: ToolController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
-    controllerDidDetachButtonTool(buttonToolController: ToolController, activeController: SheetController): void {
+    controllerDidDetachButtonTool(buttonToolController: ToolController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
   })
-  readonly active!: TraitViewControllerRef<this, Trait, SheetView, SheetController>;
-  static readonly active: MemberFastenerClass<TabBarController, "active">;
+  readonly active!: TraitViewControllerRefDef<this, {
+    trait: Trait,
+    view: SheetView,
+    controller: SheetController,
+    observes: true,
+  }>;
+  static readonly active: FastenerClass<TabBarController["active"]>;
 
-  @Property<TabBarController, PanelTabStyle>({
-    type: String,
+  @PropertyDef<TabBarController["tabStyle"]>({
+    valueType: String,
     value: "none",
     inherits: true,
     didSetValue(tabStyle: PanelTabStyle): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
   })
-  readonly tabStyle!: Property<this, PanelTabStyle>;
+  readonly tabStyle!: PropertyDef<this, {value: PanelTabStyle}>;
 }

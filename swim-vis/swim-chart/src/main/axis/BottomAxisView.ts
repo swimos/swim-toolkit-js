@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {ContinuousScale} from "@swim/util";
-import {Affinity, Animator} from "@swim/component";
+import {Affinity, AnimatorDef} from "@swim/component";
 import {R2Point, R2Box} from "@swim/math";
 import {View} from "@swim/view";
 import type {PaintingContext} from "@swim/graphics";
@@ -27,14 +27,17 @@ export class BottomAxisView<X = unknown> extends AxisView<X> {
     return "bottom";
   }
 
-  @Animator({
+  @AnimatorDef<BottomAxisView<X>["scale"]>({
     extends: ContinuousScaleAnimator,
-    type: ContinuousScale,
-    inherits: "xScale",
+    valueType: ContinuousScale,
     value: null,
+    inherits: "xScale",
     updateFlags: View.NeedsLayout,
   })
-  override readonly scale!: ContinuousScaleAnimator<this, X, number>;
+  override readonly scale!: AnimatorDef<this, {
+    extends: ContinuousScaleAnimator<BottomAxisView<X>, X, number>,
+    value: ContinuousScale<X, number> | null,
+  }>;
 
   protected override layoutTick(tick: TickView<X>, origin: R2Point, frame: R2Box,
                                 scale: ContinuousScale<X, number>): void {

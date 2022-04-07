@@ -15,7 +15,7 @@
 import type {FastenerOwner} from "@swim/component";
 import {GestureInput} from "./GestureInput";
 import type {PositionGestureInput} from "./PositionGestureInput";
-import {PositionGestureClass, PositionGestureFactory, PositionGesture} from "./PositionGesture";
+import {PositionGestureClass, PositionGesture} from "./PositionGesture";
 import type {View} from "../view/View";
 
 /** @internal */
@@ -59,7 +59,7 @@ export interface PointerPositionGesture<O = unknown, V extends View = View> exte
 
 /** @internal */
 export const PointerPositionGesture = (function (_super: typeof PositionGesture) {
-  const PointerPositionGesture = _super.extend("PointerPositionGesture") as PositionGestureFactory<PointerPositionGesture<any, any>>;
+  const PointerPositionGesture = _super.extend("PointerPositionGesture", {}) as PositionGestureClass<PointerPositionGesture<any, any>>;
 
   PointerPositionGesture.prototype.attachHoverEvents = function (this: PointerPositionGesture, view: View): void {
     view.on("pointerenter", this.onPointerEnter as EventListener);
@@ -181,8 +181,8 @@ export const PointerPositionGesture = (function (_super: typeof PositionGesture)
     }
   };
 
-  PointerPositionGesture.construct = function <G extends PointerPositionGesture<any, any>>(gestureClass: PositionGestureClass<PointerPositionGesture<any, any>>, gesture: G | null, owner: FastenerOwner<G>): G {
-    gesture = _super.construct(gestureClass, gesture, owner) as G;
+  PointerPositionGesture.construct = function <G extends PointerPositionGesture<any, any>>(gesture: G | null, owner: FastenerOwner<G>): G {
+    gesture = _super.construct.call(this, gesture, owner) as G;
     gesture.onPointerEnter = gesture.onPointerEnter.bind(gesture);
     gesture.onPointerLeave = gesture.onPointerLeave.bind(gesture);
     gesture.onPointerDown = gesture.onPointerDown.bind(gesture);

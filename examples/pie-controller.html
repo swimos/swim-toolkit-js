@@ -45,9 +45,9 @@ swim.TraitViewControllerSet({
       sliceView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, void 0]], true);
     });
   },
-  controllerWillSetSliceValue(newValue, oldValue, sliceController, pieController) {
-    swim.PieController.slices.prototype.controllerWillSetSliceValue.call(this, newValue, oldValue, sliceController, pieController);
-    const label = Math.round(100 * newValue).toString();
+  controllerDidSetSliceValue(sliceValue, sliceController, pieController) {
+    swim.PieController.slices.prototype.controllerDidSetSliceValue.call(this, sliceValue, sliceController, pieController);
+    const label = Math.round(100 * sliceValue).toString();
     sliceController.slice.trait.label.setValue(label);
   },
   attachSliceLabelView(labelView, sliceController) {

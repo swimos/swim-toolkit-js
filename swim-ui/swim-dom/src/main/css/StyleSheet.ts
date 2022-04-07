@@ -13,7 +13,14 @@
 // limitations under the License.
 
 import {Mutable, Proto, AnyTiming, Timing} from "@swim/util";
-import {FastenerContext, FastenerOwner, FastenerInit, FastenerClass, Fastener} from "@swim/component";
+import {
+  FastenerContext,
+  FastenerOwner,
+  FastenerRefinement,
+  FastenerTemplate,
+  FastenerClass,
+  Fastener,
+} from "@swim/component";
 import type {
   AnyConstraintExpression,
   ConstraintVariable,
@@ -28,30 +35,53 @@ import type {CssContext} from "./CssContext";
 import {CssRule} from "./CssRule";
 
 /** @public */
-export interface StyleSheetInit extends FastenerInit {
-  extends?: {prototype: StyleSheet<any>} | string | boolean | null;
-  css?: string | (() => string | undefined);
-
-  createStylesheet?(): CSSStyleSheet;
-  initStylesheet?(stylesheet: CSSStyleSheet): void;
+export interface StyleSheetRefinement extends FastenerRefinement {
 }
 
 /** @public */
-export type StyleSheetDescriptor<O = unknown, I = {}> = ThisType<StyleSheet<O> & I> & StyleSheetInit & Partial<I>;
+export interface StyleSheetTemplate extends FastenerTemplate {
+  extends?: Proto<StyleSheet<any>> | string | boolean | null;
+  css?: string;
+}
 
 /** @public */
 export interface StyleSheetClass<F extends StyleSheet<any> = StyleSheet<any>> extends FastenerClass<F> {
+  /** @override */
+  specialize(className: string, template: StyleSheetTemplate): StyleSheetClass;
+
+  /** @override */
+  refine(fastenerClass: StyleSheetClass): void;
+
+  /** @override */
+  extend(className: string, template: StyleSheetTemplate): StyleSheetClass<F>;
+
+  /** @override */
+  specify<O>(className: string, template: ThisType<StyleSheet<O>> & StyleSheetTemplate & Partial<Omit<StyleSheet<O>, keyof StyleSheetTemplate>>): StyleSheetClass<F>;
+
+  /** @override */
+  <O>(template: ThisType<StyleSheet<O>> & StyleSheetTemplate & Partial<Omit<StyleSheet<O>, keyof StyleSheetTemplate>>): PropertyDecorator;
 }
 
 /** @public */
-export interface StyleSheetFactory<F extends StyleSheet<any> = StyleSheet<any>> extends StyleSheetClass<F> {
-  extend<I = {}>(className: string, classMembers?: Partial<I> | null): StyleSheetFactory<F> & I;
+export type StyleSheetDef<O, R extends StyleSheetRefinement> =
+  StyleSheet<O> &
+  {readonly name: string} & // prevent type alias simplification
+  (R extends {extends: infer E} ? E : {}) &
+  (R extends {defines: infer D} ? D : {}) &
+  (R extends {implements: infer I} ? I : {});
 
-  define<O>(className: string, descriptor: StyleSheetDescriptor<O>): StyleSheetFactory<StyleSheet<any>>;
-  define<O, I = {}>(className: string, descriptor: {implements: unknown} & StyleSheetDescriptor<O, I>): StyleSheetFactory<StyleSheet<any> & I>;
-
-  <O>(descriptor: StyleSheetDescriptor<O>): PropertyDecorator;
-  <O, I = {}>(descriptor: {implements: unknown} & StyleSheetDescriptor<O, I>): PropertyDecorator;
+/** @public */
+export function StyleSheetDef<P extends StyleSheet<any>>(
+  template: P extends StyleSheetDef<infer O, infer R>
+          ? ThisType<StyleSheetDef<O, R>>
+          & StyleSheetTemplate
+          & Partial<Omit<StyleSheet<O>, keyof StyleSheetTemplate>>
+          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof StyleSheetTemplate>> & {extends: unknown}) : {})
+          & (R extends {defines: infer D} ? Partial<D> : {})
+          & (R extends {implements: infer I} ? I : {})
+          : never
+): PropertyDecorator {
+  return StyleSheet(template);
 }
 
 /** @public */
@@ -59,13 +89,16 @@ export interface StyleSheet<O = unknown> extends Fastener<O>, FastenerContext, C
   /** @override */
   get fastenerType(): Proto<StyleSheet<any>>;
 
+  /** @internal */
+  initStylesheet(): CSSStyleSheet;
+
   readonly stylesheet: CSSStyleSheet;
 
   /** @override */
   getRule(index: number): CSSRule | null;
 
   /** @override */
-  insertRule(cssText: string, index?: number): number;
+  insertRule(css: string, index?: number): number;
 
   /** @override */
   removeRule(index: number): void;
@@ -93,8 +126,6 @@ export interface StyleSheet<O = unknown> extends Fastener<O>, FastenerContext, C
   getSuperFastener<F extends Fastener<any>>(fastenerName: string, fastenerBound: Proto<F>): F | null;
   /** @override */
   getSuperFastener(fastenerName: string, fastenerBound?: Proto<Fastener> | null): Fastener | null;
-  /** @internal @override */
-  getSuperFastener(): Fastener | null;
 
   /** @internal @protected */
   mountFasteners(): void;
@@ -160,34 +191,27 @@ export interface StyleSheet<O = unknown> extends Fastener<O>, FastenerContext, C
 
   /** @protected @override */
   onUnmount(): void;
-
-  /** @internal */
-  createStylesheet(): CSSStyleSheet;
-
-  /** @internal */
-  initStylesheet?(stylesheet: CSSStyleSheet): void;
-
-  /** @internal */
-  initCss?(): string | undefined;
 }
 
 /** @public */
 export const StyleSheet = (function (_super: typeof Fastener) {
-  const StyleSheet: StyleSheetFactory = _super.extend("StyleSheet");
+  const StyleSheet = _super.extend("StyleSheet", {}) as StyleSheetClass;
 
   Object.defineProperty(StyleSheet.prototype, "fastenerType", {
-    get: function (this: StyleSheet): Proto<StyleSheet<any>> {
-      return StyleSheet;
-    },
+    value: StyleSheet,
     configurable: true,
   });
+
+  StyleSheet.prototype.initStylesheet = function (this: StyleSheet): CSSStyleSheet {
+    return new CSSStyleSheet();
+  };
 
   StyleSheet.prototype.getRule = function (this: StyleSheet, index: number): CSSRule | null {
     return this.stylesheet.cssRules.item(index);
   };
 
-  StyleSheet.prototype.insertRule = function (this: StyleSheet, cssText: string, index?: number): number {
-    return this.stylesheet.insertRule(cssText, index);
+  StyleSheet.prototype.insertRule = function (this: StyleSheet, css: string, index?: number): number {
+    return this.stylesheet.insertRule(css, index);
   };
 
   StyleSheet.prototype.removeRule = function (this: StyleSheet, index: number): void {
@@ -240,12 +264,8 @@ export const StyleSheet = (function (_super: typeof Fastener) {
     return FastenerContext.getLazyFastener(this, fastenerName, fastenerBound);
   };
 
-  StyleSheet.prototype.getSuperFastener = function (this: StyleSheet, fastenerName?: string, fastenerBound?: Proto<Fastener> | null): Fastener | null {
-    if (arguments.length === 0) {
-      return _super.prototype.getSuperFastener.call(this);
-    } else {
-      return null;
-    }
+  StyleSheet.prototype.getSuperFastener = function (this: StyleSheet, fastenerName: string, fastenerBound?: Proto<Fastener> | null): Fastener | null {
+    return null;
   };
 
   StyleSheet.prototype.mountFasteners = function (this: StyleSheet): void {
@@ -395,67 +415,13 @@ export const StyleSheet = (function (_super: typeof Fastener) {
     _super.prototype.onUnmount.call(this);
   };
 
-  StyleSheet.prototype.createStylesheet = function (this: StyleSheet): CSSStyleSheet {
-    return new CSSStyleSheet();
-  };
-
-  StyleSheet.construct = function <F extends StyleSheet<any>>(sheetClass: {prototype: F}, sheet: F | null, owner: FastenerOwner<F>): F {
-    sheet = _super.construct(sheetClass, sheet, owner) as F;
+  StyleSheet.construct = function <F extends StyleSheet<any>>(sheet: F | null, owner: FastenerOwner<F>): F {
+    sheet = _super.construct.call(this, sheet, owner) as F;
     (sheet as Mutable<typeof sheet>).fasteners = null;
     (sheet as Mutable<typeof sheet>).decoherent = null;
-    (sheet as Mutable<typeof sheet>).stylesheet = null as unknown as CSSStyleSheet;
+    (sheet as Mutable<typeof sheet>).stylesheet = sheet.initStylesheet();
     FastenerContext.init(sheet);
     return sheet;
-  };
-
-  StyleSheet.define = function <O>(className: string, descriptor: StyleSheetDescriptor<O>): StyleSheetFactory<StyleSheet<any>> {
-    let superClass = descriptor.extends as StyleSheetFactory | null | undefined;
-    const affinity = descriptor.affinity;
-    const inherits = descriptor.inherits;
-    let css = descriptor.css;
-    delete descriptor.extends;
-    delete descriptor.implements;
-    delete descriptor.affinity;
-    delete descriptor.inherits;
-    delete descriptor.css;
-
-    if (superClass === void 0 || superClass === null) {
-      superClass = this;
-    }
-
-    const sheetClass = superClass.extend(className, descriptor);
-
-    if (typeof css === "function") {
-      sheetClass.prototype.initCss = css;
-      css = void 0;
-    }
-
-    sheetClass.construct = function (sheetClass: {prototype: StyleSheet<any>}, sheet: StyleSheet<O> | null, owner: O): StyleSheet<O> {
-      sheet = superClass!.construct(sheetClass, sheet, owner);
-
-      if (affinity !== void 0) {
-        sheet.initAffinity(affinity);
-      }
-      if (inherits !== void 0) {
-        sheet.initInherits(inherits);
-      }
-
-      //let cssText: string | undefined;
-      //if (css !== void 0) {
-      //  cssText = css as string;
-      //} else if (sheet.initCss !== void 0) {
-      //  cssText = sheet.initCss();
-      //}
-
-      (sheet as Mutable<typeof sheet>).stylesheet = sheet.createStylesheet();
-      if (sheet.initStylesheet !== void 0) {
-        sheet.initStylesheet(sheet.stylesheet);
-      }
-
-      return sheet;
-    };
-
-    return sheetClass;
   };
 
   return StyleSheet;

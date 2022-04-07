@@ -12,11 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, ObserverType} from "@swim/util";
+import type {Mutable, Proto, ObserverType} from "@swim/util";
 import type {FastenerOwner} from "@swim/component";
 import type {GestureInputType} from "./GestureInput";
-import type {GestureMethod} from "./Gesture";
-import {PositionGestureInit, PositionGestureClass, PositionGesture} from "./PositionGesture";
+import type {GestureView} from "./Gesture";
+import {
+  PositionGestureRefinement,
+  PositionGestureTemplate,
+  PositionGestureClass,
+  PositionGesture,
+} from "./PositionGesture";
 import {MomentumGestureInput} from "./MomentumGestureInput";
 import {MouseMomentumGesture} from "./"; // forward import
 import {TouchMomentumGesture} from "./"; // forward import
@@ -25,73 +30,34 @@ import type {ViewContext} from "../view/ViewContext";
 import {View} from "../"; // forward import
 
 /** @public */
-export interface MomentumGestureInit<V extends View = View> extends PositionGestureInit<V> {
-  extends?: {prototype: MomentumGesture<any, any>} | string | boolean | null;
-
-  /**
-   * The time delta for velocity derivation, in milliseconds.
-   */
-  hysteresis?: number;
-
-  /**
-   * The magnitude of the deceleration on coasting input points in,
-   * pixels/millisecond^2. An acceleration of zero disables coasting.
-   */
-  acceleration?: number;
-
-  /**
-   * The maximum magnitude of the velocity of coasting input points,
-   * in pixels/millisecond.
-   */
-  velocityMax?: number;
-
-  willBeginHover?(input: MomentumGestureInput, event: Event | null): void;
-  didBeginHover?(input: MomentumGestureInput, event: Event | null): void;
-  willEndHover?(input: MomentumGestureInput, event: Event | null): void;
-  didEndHover?(input: MomentumGestureInput, event: Event | null): void;
-
-  willStartInteracting?(): void;
-  didStartInteracting?(): void;
-  willStopInteracting?(): void;
-  didStopInteracting?(): void;
-
-  willBeginPress?(input: MomentumGestureInput, event: Event | null): boolean | void;
-  didBeginPress?(input: MomentumGestureInput, event: Event | null): void;
-
-  willMovePress?(input: MomentumGestureInput, event: Event | null): void;
-  didMovePress?(input: MomentumGestureInput, event: Event | null): void;
-
-  willEndPress?(input: MomentumGestureInput, event: Event | null): void;
-  didEndPress?(input: MomentumGestureInput, event: Event | null): void;
-
-  willCancelPress?(input: MomentumGestureInput, event: Event | null): void;
-  didCancelPress?(input: MomentumGestureInput, event: Event | null): void;
-
-  willPress?(input: MomentumGestureInput, event: Event | null): void;
-  didPress?(input: MomentumGestureInput, event: Event | null): void;
-
-  willLongPress?(input: MomentumGestureInput): void;
-  didLongPress?(input: MomentumGestureInput): void;
-
-  willStartCoasting?(): void;
-  didStartCoasting?(): void;
-  willStopCoasting?(): void;
-  didStopCoasting?(): void;
-
-  willBeginCoast?(input: MomentumGestureInput, event: Event | null): boolean | void;
-  didBeginCoast?(input: MomentumGestureInput, event: Event | null): void;
-  willEndCoast?(input: MomentumGestureInput, event: Event | null): void;
-  didEndCoast?(input: MomentumGestureInput, event: Event | null): void;
-
-  willCoast?(): void;
-  didCoast?(): void;
+export interface MomentumGestureRefinement extends PositionGestureRefinement {
 }
 
 /** @public */
-export type MomentumGestureDescriptor<O = unknown, V extends View = View, I = {}> = ThisType<MomentumGesture<O, V> & I> & MomentumGestureInit<V> & Partial<I>;
+export interface MomentumGestureTemplate<V extends View = View> extends PositionGestureTemplate<V> {
+  extends?: Proto<MomentumGesture<any, any>> | string | boolean | null;
+  hysteresis?: number;
+  acceleration?: number;
+  velocityMax?: number;
+}
 
 /** @public */
 export interface MomentumGestureClass<G extends MomentumGesture<any, any> = MomentumGesture<any, any>> extends PositionGestureClass<G> {
+  /** @override */
+  specialize(className: string, template: MomentumGestureTemplate): MomentumGestureClass;
+
+  /** @override */
+  refine(gestureClass: MomentumGestureClass): void;
+
+  /** @override */
+  extend(className: string, template: MomentumGestureTemplate): MomentumGestureClass<G>;
+
+  /** @override */
+  specify<O, V extends View = View>(className: string, template: ThisType<MomentumGesture<O, V>> & MomentumGestureTemplate<V> & Partial<Omit<MomentumGesture<O, V>, keyof MomentumGestureTemplate>>): MomentumGestureClass<G>;
+
+  /** @override */
+  <O, V extends View = View>(template: ThisType<MomentumGesture<O, V>> & MomentumGestureTemplate<V> & Partial<Omit<MomentumGesture<O, V>, keyof MomentumGestureTemplate>>): PropertyDecorator;
+
   /** @internal */
   readonly Hysteresis: number;
   /** @internal */
@@ -101,20 +67,27 @@ export interface MomentumGestureClass<G extends MomentumGesture<any, any> = Mome
 }
 
 /** @public */
-export interface MomentumGestureFactory<G extends MomentumGesture<any, any> = MomentumGesture<any, any>> extends MomentumGestureClass<G> {
-  extend<I = {}>(className: string, classMembers?: Partial<I> | null): MomentumGestureFactory<G> & I;
+export type MomentumGestureDef<O, R extends MomentumGestureRefinement> =
+  MomentumGesture<O, GestureView<R>> &
+  {readonly name: string} & // prevent type alias simplification
+  (R extends {extends: infer E} ? E : {}) &
+  (R extends {defines: infer D} ? D : {}) &
+  (R extends {implements: infer I} ? I : {}) &
+  (R extends {observes: infer B} ? ObserverType<B extends boolean ? GestureView<R> : B> : {});
 
-  specialize(method: GestureMethod): MomentumGestureFactory | null;
-
-  define<O, V extends View = View>(className: string, descriptor: MomentumGestureDescriptor<O, V>): MomentumGestureFactory<MomentumGesture<any, V>>;
-  define<O, V extends View = View>(className: string, descriptor: {observes: boolean} & MomentumGestureDescriptor<O, V, ObserverType<V>>): MomentumGestureFactory<MomentumGesture<any, V>>;
-  define<O, V extends View = View, I = {}>(className: string, descriptor: {implements: unknown} & MomentumGestureDescriptor<O, V, I>): MomentumGestureFactory<MomentumGesture<any, V> & I>;
-  define<O, V extends View = View, I = {}>(className: string, descriptor: {implements: unknown; observes: boolean} & MomentumGestureDescriptor<O, V, I & ObserverType<V>>): MomentumGestureFactory<MomentumGesture<any, V> & I>;
-
-  <O, V extends View = View>(descriptor: MomentumGestureDescriptor<O, V>): PropertyDecorator;
-  <O, V extends View = View>(descriptor: {observes: boolean} & MomentumGestureDescriptor<O, V, ObserverType<V>>): PropertyDecorator;
-  <O, V extends View = View, I = {}>(descriptor: {implements: unknown} & MomentumGestureDescriptor<O, V, I>): PropertyDecorator;
-  <O, V extends View = View, I = {}>(descriptor: {implements: unknown; observes: boolean} & MomentumGestureDescriptor<O, V, I & ObserverType<V>>): PropertyDecorator;
+/** @public */
+export function MomentumGestureDef<F extends MomentumGesture<any, any>>(
+  template: F extends MomentumGestureDef<infer O, infer R>
+          ? ThisType<MomentumGestureDef<O, R>>
+          & MomentumGestureTemplate<GestureView<R>>
+          & Partial<Omit<MomentumGesture<O, GestureView<R>>, keyof MomentumGestureTemplate>>
+          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof MomentumGestureTemplate>> & {extends: unknown}) : {})
+          & (R extends {defines: infer D} ? Partial<D> : {})
+          & (R extends {implements: infer I} ? I : {})
+          & (R extends {observes: infer B} ? ObserverType<B extends boolean ? GestureView<R> : B> : {})
+          : never
+): PropertyDecorator {
+  return MomentumGesture(template);
 }
 
 /** @public */
@@ -142,10 +115,30 @@ export interface MomentumGesture<O = unknown, V extends View = View> extends Pos
   /** @internal @override */
   resetInput(input: MomentumGestureInput): void;
 
+  /** @protected */
+  initHysteresis(): number;
+
+  /**
+   * The time delta for velocity derivation, in milliseconds.
+   */
   hysteresis: number;
 
+  /** @protected */
+  initAcceleration(): number;
+
+  /**
+   * The magnitude of the deceleration on coasting input points in,
+   * pixels/millisecond^2. An acceleration of zero disables coasting.
+   */
   acceleration: number;
 
+  /** @protected */
+  initVelocityMax(): number;
+
+  /**
+   * The maximum magnitude of the velocity of coasting input points,
+   * in pixels/millisecond.
+   */
   velocityMax: number;
 
   /** @internal */
@@ -275,13 +268,9 @@ export interface MomentumGesture<O = unknown, V extends View = View> extends Pos
 
 /** @public */
 export const MomentumGesture = (function (_super: typeof PositionGesture) {
-  const MomentumGesture: MomentumGestureFactory = _super.extend("MomentumGesture");
-
-  Object.defineProperty(MomentumGesture.prototype, "observes", {
-    value: true,
-    enumerable: true,
-    configurable: true,
-  });
+  const MomentumGesture = _super.extend("MomentumGesture", {
+    observes: true,
+  }) as MomentumGestureClass;
 
   MomentumGesture.prototype.createInput = function (this: MomentumGesture, inputId: string, inputType: GestureInputType, isPrimary: boolean,
                                                     x: number, y: number, t: number): MomentumGestureInput {
@@ -304,6 +293,30 @@ export const MomentumGesture = (function (_super: typeof PositionGesture) {
       this.endCoast(input, null);
     }
     PositionGesture.prototype.resetInput.call(this, input);
+  };
+
+  MomentumGesture.prototype.initHysteresis = function (this: MomentumGesture): number {
+    let hysteresis = (Object.getPrototypeOf(this) as MomentumGesture).hysteresis as number | undefined;
+    if (hysteresis === void 0) {
+      hysteresis = MomentumGesture.Hysteresis;
+    }
+    return hysteresis;
+  };
+
+  MomentumGesture.prototype.initAcceleration = function (this: MomentumGesture): number {
+    let acceleration = (Object.getPrototypeOf(this) as MomentumGesture).acceleration as number | undefined;
+    if (acceleration === void 0) {
+      acceleration = MomentumGesture.Acceleration;
+    }
+    return acceleration;
+  };
+
+  MomentumGesture.prototype.initVelocityMax = function (this: MomentumGesture): number {
+    let velocityMax = (Object.getPrototypeOf(this) as MomentumGesture).velocityMax as number | undefined;
+    if (velocityMax === void 0) {
+      velocityMax = MomentumGesture.VelocityMax;
+    }
+    return velocityMax;
   };
 
   MomentumGesture.prototype.viewWillAnimate = function (this: MomentumGesture, viewContext: ViewContext): void {
@@ -571,93 +584,34 @@ export const MomentumGesture = (function (_super: typeof PositionGesture) {
     }
   };
 
-  MomentumGesture.construct = function <G extends MomentumGesture<any, any>>(gestureClass: {prototype: G}, gesture: G | null, owner: FastenerOwner<G>): G {
-    gesture = _super.construct(gestureClass, gesture, owner) as G;
+  MomentumGesture.construct = function <G extends MomentumGesture<any, any>>(gesture: G | null, owner: FastenerOwner<G>): G {
+    gesture = _super.construct.call(this, gesture, owner) as G;
     (gesture as Mutable<typeof gesture>).coastCount = 0;
-    gesture.hysteresis = MomentumGesture.Hysteresis;
-    gesture.acceleration = MomentumGesture.Acceleration;
-    gesture.velocityMax = MomentumGesture.VelocityMax;
+    gesture.hysteresis = gesture.initHysteresis();
+    gesture.acceleration = gesture.initAcceleration();
+    gesture.velocityMax = gesture.initVelocityMax();
     return gesture;
   };
 
-  MomentumGesture.specialize = function (method: GestureMethod): MomentumGestureFactory | null {
-    if (method === "pointer") {
-      return PointerMomentumGesture;
-    } else if (method === "touch") {
-      return TouchMomentumGesture;
-    } else if (method === "mouse") {
-      return MouseMomentumGesture;
-    } else if (typeof PointerEvent !== "undefined") {
-      return PointerMomentumGesture;
-    } else if (typeof TouchEvent !== "undefined") {
-      return TouchMomentumGesture;
-    } else {
-      return MouseMomentumGesture;
-    }
-  };
-
-  MomentumGesture.define = function <O, V extends View>(className: string, descriptor: MomentumGestureDescriptor<O, V>): MomentumGestureFactory<MomentumGesture<any, V>> {
-    let superClass = descriptor.extends as MomentumGestureFactory | null | undefined;
-    const affinity = descriptor.affinity;
-    const inherits = descriptor.inherits;
-    let method = descriptor.method;
-    const hysteresis = descriptor.hysteresis;
-    const acceleration = descriptor.hysteresis;
-    const velocityMax = descriptor.hysteresis;
-    delete descriptor.extends;
-    delete descriptor.implements;
-    delete descriptor.affinity;
-    delete descriptor.inherits;
-    delete descriptor.method;
-    delete descriptor.hysteresis;
-    delete descriptor.acceleration;
-    delete descriptor.velocityMax;
-
-    if (descriptor.key === true) {
-      Object.defineProperty(descriptor, "key", {
-        value: className,
-        configurable: true,
-      });
-    } else if (descriptor.key === false) {
-      Object.defineProperty(descriptor, "key", {
-        value: void 0,
-        configurable: true,
-      });
-    }
-
-    if (method === void 0) {
-      method = "auto";
-    }
+  MomentumGesture.specialize = function (className: string, template: MomentumGestureTemplate): MomentumGestureClass {
+    let superClass = template.extends as MomentumGestureClass | null | undefined;
     if (superClass === void 0 || superClass === null) {
-      superClass = MomentumGesture.specialize(method);
+      const method = template.method;
+      if (method === "pointer") {
+        superClass = PointerMomentumGesture;
+      } else if (method === "touch") {
+        superClass = TouchMomentumGesture;
+      } else if (method === "mouse") {
+        superClass = MouseMomentumGesture;
+      } else if (typeof PointerEvent !== "undefined") {
+        superClass = PointerMomentumGesture;
+      } else if (typeof TouchEvent !== "undefined") {
+        superClass = TouchMomentumGesture;
+      } else {
+        superClass = MouseMomentumGesture;
+      }
     }
-    if (superClass === null) {
-      superClass = this;
-    }
-
-    const gestureClass = superClass.extend(className, descriptor);
-
-    gestureClass.construct = function (gestureClass: {prototype: MomentumGesture<any, any>}, gesture: MomentumGesture<O, V> | null, owner: O): MomentumGesture<O, V> {
-      gesture = superClass!.construct(gestureClass, gesture, owner);
-      if (affinity !== void 0) {
-        gesture.initAffinity(affinity);
-      }
-      if (inherits !== void 0) {
-        gesture.initInherits(inherits);
-      }
-      if (hysteresis !== void 0) {
-        gesture.hysteresis = hysteresis;
-      }
-      if (acceleration !== void 0) {
-        gesture.acceleration = acceleration;
-      }
-      if (velocityMax !== void 0) {
-        gesture.velocityMax = velocityMax;
-      }
-      return gesture;
-    };
-
-    return gestureClass;
+    return superClass
   };
 
   (MomentumGesture as Mutable<typeof MomentumGesture>).Hysteresis = 67;

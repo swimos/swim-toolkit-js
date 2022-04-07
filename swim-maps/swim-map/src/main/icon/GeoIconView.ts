@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import type {Mutable, Class, Timing} from "@swim/util";
-import {Affinity, Animator} from "@swim/component";
+import {Affinity, AnimatorDef} from "@swim/component";
 import {AnyLength, Length, AnyR2Point, R2Point, R2Segment, R2Box} from "@swim/math";
 import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
 import {AnyColor, Color} from "@swim/style";
-import {MoodVector, ThemeMatrix, ThemeAnimator} from "@swim/theme";
+import {MoodVector, ThemeMatrix, ThemeAnimatorDef} from "@swim/theme";
 import {ViewContextType, ViewFlags, View} from "@swim/view";
 import {
   Sprite,
@@ -61,92 +61,83 @@ export class GeoIconView extends GeoView implements IconView {
   /** @internal */
   sprite: Sprite | null;
 
-  @Animator<GeoIconView, GeoPoint | null, AnyGeoPoint | null>({
-    type: GeoPoint,
+  @AnimatorDef<GeoIconView["geoCenter"]>({
+    valueType: GeoPoint,
     value: null,
     didSetState(newGeoCenter: GeoPoint | null, oldGeoCenter: GeoPoint | null): void {
       this.owner.projectGeoCenter(newGeoCenter);
-    },
-    willSetValue(newGeoCenter: GeoPoint | null, oldGeoCenter: GeoPoint | null): void {
-      this.owner.callObservers("viewWillSetGeoCenter", newGeoCenter, oldGeoCenter, this.owner);
     },
     didSetValue(newGeoCenter: GeoPoint | null, oldGeoCenter: GeoPoint | null): void {
       this.owner.setGeoBounds(newGeoCenter !== null ? newGeoCenter.bounds : GeoBox.undefined());
       if (this.mounted) {
         this.owner.projectIcon(this.owner.viewContext);
       }
-      this.owner.callObservers("viewDidSetGeoCenter", newGeoCenter, oldGeoCenter, this.owner);
+      this.owner.callObservers("viewDidSetGeoCenter", newGeoCenter, this.owner);
     },
   })
-  readonly geoCenter!: Animator<this, GeoPoint | null, AnyGeoPoint | null>;
+  readonly geoCenter!: AnimatorDef<this, {value: GeoPoint | null, valueInit: AnyGeoPoint | null}>;
 
-  @Animator<GeoIconView, R2Point | null, AnyR2Point | null>({
-    type: R2Point,
-    value: R2Point.undefined(),
-    updateFlags: View.NeedsComposite,
-  })
-  readonly viewCenter!: Animator<this, R2Point | null, AnyR2Point | null>;
+  @AnimatorDef({valueType: R2Point, value: R2Point.undefined(), updateFlags: View.NeedsComposite})
+  readonly viewCenter!: AnimatorDef<this, {value: R2Point | null, valueInit: AnyR2Point | null}>;
 
-  @Animator<GeoIconView, number>({
-    type: Number,
+  @AnimatorDef<GeoIconView["xAlign"]>({
+    valueType: Number,
     value: 0.5,
     updateFlags: View.NeedsProject | View.NeedsRender | View.NeedsRasterize | View.NeedsComposite,
   })
-  readonly xAlign!: Animator<this, number>;
+  readonly xAlign!: AnimatorDef<this, {value: number}>;
 
-  @Animator<GeoIconView, number>({
-    type: Number,
+  @AnimatorDef<GeoIconView["yAlign"]>({
+    valueType: Number,
     value: 0.5,
     updateFlags: View.NeedsProject | View.NeedsRender | View.NeedsRasterize | View.NeedsComposite,
   })
-  readonly yAlign!: Animator<this, number>;
+  readonly yAlign!: AnimatorDef<this, {value: number}>;
 
-  @ThemeAnimator<GeoIconView, Length | null, AnyLength | null>({
-    type: Length,
+  @ThemeAnimatorDef<GeoIconView["iconWidth"]>({
+    valueType: Length,
     value: null,
     updateFlags: View.NeedsProject | View.NeedsRender | View.NeedsRasterize | View.NeedsComposite,
   })
-  readonly iconWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
+  readonly iconWidth!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
 
-  @ThemeAnimator<GeoIconView, Length | null, AnyLength | null>({
-    type: Length,
+  @ThemeAnimatorDef<GeoIconView["iconHeight"]>({
+    valueType: Length,
     value: null,
     updateFlags: View.NeedsProject | View.NeedsRender | View.NeedsRasterize | View.NeedsComposite,
   })
-  readonly iconHeight!: ThemeAnimator<this, Length | null, AnyLength | null>;
+  readonly iconHeight!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
 
-  @ThemeAnimator<GeoIconView, Color | null, AnyColor | null>({
-    type: Color,
+  @ThemeAnimatorDef<GeoIconView["iconColor"]>({
+    valueType: Color,
     value: null,
     updateFlags: View.NeedsRender | View.NeedsRasterize | View.NeedsComposite,
-    didSetValue(newIconColor: Color | null, oldIconColor: Color | null): void {
-      if (newIconColor !== null) {
+    didSetValue(iconColor: Color | null): void {
+      if (iconColor !== null) {
         const oldGraphics = this.owner.graphics.value;
         if (oldGraphics instanceof FilledIcon) {
-          const newGraphics = oldGraphics.withFillColor(newIconColor);
+          const newGraphics = oldGraphics.withFillColor(iconColor);
           this.owner.graphics.setState(newGraphics, Affinity.Reflexive);
         }
       }
     },
   })
-  readonly iconColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly iconColor!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
 
-  @ThemeAnimator<GeoIconView, Graphics | null>({
+  @ThemeAnimatorDef<GeoIconView["graphics"]>({
     extends: IconGraphicsAnimator,
-    type: Object,
+    valueType: Graphics,
+    value: null,
     updateFlags: View.NeedsRender | View.NeedsRasterize | View.NeedsComposite,
-    willSetValue(newGraphics: Graphics | null, oldGraphics: Graphics | null): void {
-      this.owner.callObservers("viewWillSetGraphics", newGraphics, oldGraphics, this.owner);
-    },
     didSetValue(newGraphics: Graphics | null, oldGraphics: Graphics | null): void {
-      this.owner.callObservers("viewDidSetGraphics", newGraphics, oldGraphics, this.owner);
+      this.owner.callObservers("viewDidSetGraphics", newGraphics, this.owner);
     },
   })
-  readonly graphics!: ThemeAnimator<this, Graphics | null>;
+  readonly graphics!: ThemeAnimatorDef<this, {value: Graphics | null}>;
 
   protected override onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
-    if (!this.graphics.inherited) {
+    if (!this.graphics.derived) {
       const oldGraphics = this.graphics.value;
       if (oldGraphics instanceof Icon) {
         const newGraphics = oldGraphics.withTheme(theme, mood);

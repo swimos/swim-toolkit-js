@@ -32,7 +32,7 @@ import {
   Consumable,
   Consumer,
 } from "@swim/util";
-import {FastenerContext, Fastener, Property, Provider} from "@swim/component";
+import {FastenerContext, FastenerClass, Fastener, PropertyDef} from "@swim/component";
 import {WarpRef, WarpService, WarpProvider, DownlinkFastener} from "@swim/client";
 import {ModelContextType, ModelFlags, AnyModel, Model} from "../model/Model";
 import {ModelRelation} from "../model/ModelRelation";
@@ -686,21 +686,14 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     return model !== null ? model.getBaseTrait(baseBound) : null;
   }
 
-  @Provider({
-    extends: WarpProvider,
-    type: WarpService,
-    observes: false,
+  @WarpProvider({
     service: WarpService.global(),
   })
   readonly warpProvider!: WarpProvider<this>;
+  static readonly warpProvider: FastenerClass<Trait["warpProvider"]>;
 
-  @Property({
-    type: Object,
-    inherits: true,
-    value: null,
-    updateFlags: Model.NeedsReconcile,
-  })
-  readonly warpRef!: Property<this, WarpRef | null>;
+  @PropertyDef({valueType: Object, value: null, inherits: true, updateFlags: Model.NeedsReconcile})
+  readonly warpRef!: PropertyDef<this, {value: WarpRef | null}>;
 
   get mounted(): boolean {
     return (this.flags & Trait.MountedFlag) !== 0;
