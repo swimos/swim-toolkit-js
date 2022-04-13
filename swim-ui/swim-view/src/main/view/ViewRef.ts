@@ -74,7 +74,7 @@ export type ViewRefDef<O, R extends ViewRefRefinement> =
   ViewRef<O, ViewRefView<R>> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer D} ? D : {}) &
+  (R extends {defines: infer I} ? I : {}) &
   (R extends {implements: infer I} ? I : {}) &
   (R extends {observes: infer B} ? ObserverType<B extends boolean ? ViewRefView<R> : B> : {});
 
@@ -85,7 +85,7 @@ export function ViewRefDef<F extends ViewRef<any, any>>(
           & ViewRefTemplate<ViewRefView<R>>
           & Partial<Omit<ViewRef<O, ViewRefView<R>>, keyof ViewRefTemplate>>
           & (R extends {extends: infer E} ? (Partial<Omit<E, keyof ViewRefTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer D} ? Partial<D> : {})
+          & (R extends {defines: infer I} ? Partial<I> : {})
           & (R extends {implements: infer I} ? I : {})
           & (R extends {observes: infer B} ? (ObserverType<B extends boolean ? ViewRefView<R> : B> & {observes: boolean}) : {})
           : never

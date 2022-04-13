@@ -49,7 +49,7 @@ export type MediaRuleDef<O, R extends MediaRuleRefinement> =
   MediaRule<O> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer D} ? D : {}) &
+  (R extends {defines: infer I} ? I : {}) &
   (R extends {implements: infer I} ? I : {});
 
 /** @public */
@@ -59,7 +59,7 @@ export function MediaRuleDef<P extends MediaRule<any>>(
           & MediaRuleTemplate
           & Partial<Omit<MediaRule<O>, keyof MediaRuleTemplate>>
           & (R extends {extends: infer E} ? (Partial<Omit<E, keyof MediaRuleTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer D} ? Partial<D> : {})
+          & (R extends {defines: infer I} ? Partial<I> : {})
           & (R extends {implements: infer I} ? I : {})
           : never
 ): PropertyDecorator {

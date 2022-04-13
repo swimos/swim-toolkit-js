@@ -70,7 +70,7 @@ export type ModelSetDef<O, R extends ModelSetRefinement> =
   ModelSet<O, ModelSetModel<R>> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer D} ? D : {}) &
+  (R extends {defines: infer I} ? I : {}) &
   (R extends {implements: infer I} ? I : {}) &
   (R extends {observes: infer B} ? ObserverType<B extends boolean ? ModelSetModel<R> : B> : {});
 
@@ -81,7 +81,7 @@ export function ModelSetDef<F extends ModelSet<any, any>>(
           & ModelSetTemplate<ModelSetModel<R>>
           & Partial<Omit<ModelSet<O, ModelSetModel<R>>, keyof ModelSetTemplate>>
           & (R extends {extends: infer E} ? (Partial<Omit<E, keyof ModelSetTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer D} ? Partial<D> : {})
+          & (R extends {defines: infer I} ? Partial<I> : {})
           & (R extends {implements: infer I} ? I : {})
           & (R extends {observes: infer B} ? (ObserverType<B extends boolean ? ModelSetModel<R> : B> & {observes: boolean}) : {})
           : never
@@ -208,10 +208,10 @@ export interface ModelSet<O = unknown, M extends Model = Model> extends ModelRel
   /** @internal @protected */
   modelKey(model: M): string | undefined;
 
-  get sorted(): boolean;
-
   /** @internal */
   initSorted(sorted: boolean): void;
+
+  get sorted(): boolean;
 
   sort(sorted?: boolean): this;
 
@@ -542,13 +542,6 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
     return void 0;
   };
 
-  Object.defineProperty(ModelSet.prototype, "sorted", {
-    get(this: ModelSet): boolean {
-      return (this.flags & ModelSet.SortedFlag) !== 0;
-    },
-    configurable: true,
-  });
-
   ModelSet.prototype.initSorted = function (this: ModelSet, sorted: boolean): void {
     if (sorted) {
       (this as Mutable<typeof this>).flags = this.flags | ModelSet.SortedFlag;
@@ -556,6 +549,13 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
       (this as Mutable<typeof this>).flags = this.flags & ~ModelSet.SortedFlag;
     }
   };
+
+  Object.defineProperty(ModelSet.prototype, "sorted", {
+    get(this: ModelSet): boolean {
+      return (this.flags & ModelSet.SortedFlag) !== 0;
+    },
+    configurable: true,
+  });
 
   ModelSet.prototype.sort = function (this: ModelSet, sorted?: boolean): typeof this {
     if (sorted === void 0) {

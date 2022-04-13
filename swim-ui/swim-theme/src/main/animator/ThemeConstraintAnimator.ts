@@ -84,7 +84,7 @@ export type ThemeConstraintAnimatorDef<O, R extends ThemeConstraintAnimatorRefin
   ThemeConstraintAnimator<O, AnimatorValue<R>, AnimatorValueInit<R>> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer D} ? D : {}) &
+  (R extends {defines: infer I} ? I : {}) &
   (R extends {implements: infer I} ? I : {});
 
 /** @public */
@@ -94,7 +94,7 @@ export function ThemeConstraintAnimatorDef<A extends ThemeConstraintAnimator<any
           & ThemeConstraintAnimatorTemplate<AnimatorValue<R>, AnimatorValueInit<R>>
           & Partial<Omit<ThemeConstraintAnimator<O, AnimatorValue<R>, AnimatorValueInit<R>>, keyof ThemeConstraintAnimatorTemplate>>
           & (R extends {extends: infer E} ? (Partial<Omit<E, keyof ThemeConstraintAnimatorTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer D} ? Partial<D> : {})
+          & (R extends {defines: infer I} ? Partial<I> : {})
           & (R extends {implements: infer I} ? I : {})
           : never
 ): PropertyDecorator {

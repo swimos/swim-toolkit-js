@@ -21,5 +21,3 @@ export * from "./model";
 export * from "./trait";
 
 export * from "./selectable";
-
-export * from "./downlink";

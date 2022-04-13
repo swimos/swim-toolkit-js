@@ -67,7 +67,7 @@ export type StyleSheetDef<O, R extends StyleSheetRefinement> =
   StyleSheet<O> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer D} ? D : {}) &
+  (R extends {defines: infer I} ? I : {}) &
   (R extends {implements: infer I} ? I : {});
 
 /** @public */
@@ -77,7 +77,7 @@ export function StyleSheetDef<P extends StyleSheet<any>>(
           & StyleSheetTemplate
           & Partial<Omit<StyleSheet<O>, keyof StyleSheetTemplate>>
           & (R extends {extends: infer E} ? (Partial<Omit<E, keyof StyleSheetTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer D} ? Partial<D> : {})
+          & (R extends {defines: infer I} ? Partial<I> : {})
           & (R extends {implements: infer I} ? I : {})
           : never
 ): PropertyDecorator {

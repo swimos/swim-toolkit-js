@@ -61,7 +61,7 @@ export type TraitRelationDef<O, R extends TraitRelationRefinement> =
   TraitRelation<O, TraitRelationTrait<R>> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer D} ? D : {}) &
+  (R extends {defines: infer I} ? I : {}) &
   (R extends {implements: infer I} ? I : {}) &
   (R extends {observes: infer B} ? ObserverType<B extends boolean ? TraitRelationTrait<R> : B> : {});
 
@@ -72,7 +72,7 @@ export function TraitRelationDef<F extends TraitRelation<any, any>>(
           & TraitRelationTemplate<TraitRelationTrait<R>>
           & Partial<Omit<TraitRelation<O, TraitRelationTrait<R>>, keyof TraitRelationTemplate>>
           & (R extends {extends: infer E} ? (Partial<Omit<E, keyof TraitRelationTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer D} ? Partial<D> : {})
+          & (R extends {defines: infer I} ? Partial<I> : {})
           & (R extends {implements: infer I} ? I : {})
           & (R extends {observes: infer B} ? (ObserverType<B extends boolean ? TraitRelationTrait<R> : B> & {observes: boolean}) : {})
           : never

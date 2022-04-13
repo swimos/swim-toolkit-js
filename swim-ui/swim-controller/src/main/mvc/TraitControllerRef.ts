@@ -70,7 +70,7 @@ export type TraitControllerRefDef<O, R extends TraitControllerRefRefinement> =
   TraitControllerRef<O, TraitControllerRefTrait<R>, TraitControllerRefController<R>> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer D} ? D : {}) &
+  (R extends {defines: infer I} ? I : {}) &
   (R extends {implements: infer I} ? I : {}) &
   (R extends {observes: infer B} ? ObserverType<B extends boolean ? TraitControllerRefController<R> : B> : {});
 
@@ -81,7 +81,7 @@ export function TraitControllerRefDef<F extends TraitControllerRef<any, any, any
           & TraitControllerRefTemplate<TraitControllerRefTrait<R>, TraitControllerRefController<R>>
           & Partial<Omit<TraitControllerRef<O, TraitControllerRefTrait<R>, TraitControllerRefController<R>>, keyof TraitControllerRefTemplate>>
           & (R extends {extends: infer E} ? (Partial<Omit<E, keyof TraitControllerRefTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer D} ? Partial<D> : {})
+          & (R extends {defines: infer I} ? Partial<I> : {})
           & (R extends {implements: infer I} ? I : {})
           & (R extends {observes: infer B} ? (ObserverType<B extends boolean ? TraitControllerRefController<R> : B> & {observes: boolean}) : {})
           : never

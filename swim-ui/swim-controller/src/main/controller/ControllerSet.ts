@@ -70,7 +70,7 @@ export type ControllerSetDef<O, R extends ControllerSetRefinement> =
   ControllerSet<O, ControllerSetController<R>> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer D} ? D : {}) &
+  (R extends {defines: infer I} ? I : {}) &
   (R extends {implements: infer I} ? I : {}) &
   (R extends {observes: infer B} ? ObserverType<B extends boolean ? ControllerSetController<R> : B> : {});
 
@@ -81,7 +81,7 @@ export function ControllerSetDef<F extends ControllerSet<any, any>>(
           & ControllerSetTemplate<ControllerSetController<R>>
           & Partial<Omit<ControllerSet<O, ControllerSetController<R>>, keyof ControllerSetTemplate>>
           & (R extends {extends: infer E} ? (Partial<Omit<E, keyof ControllerSetTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer D} ? Partial<D> : {})
+          & (R extends {defines: infer I} ? Partial<I> : {})
           & (R extends {implements: infer I} ? I : {})
           & (R extends {observes: infer B} ? (ObserverType<B extends boolean ? ControllerSetController<R> : B> & {observes: boolean}) : {})
           : never
@@ -204,10 +204,10 @@ export interface ControllerSet<O = unknown, C extends Controller = Controller> e
   /** @internal @protected */
   controllerKey(controller: C): string | undefined;
 
-  get sorted(): boolean;
-
   /** @internal */
   initSorted(sorted: boolean): void;
+
+  get sorted(): boolean;
 
   sort(sorted?: boolean): this;
 
@@ -522,13 +522,6 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     return void 0;
   };
 
-  Object.defineProperty(ControllerSet.prototype, "sorted", {
-    get(this: ControllerSet): boolean {
-      return (this.flags & ControllerSet.SortedFlag) !== 0;
-    },
-    configurable: true,
-  });
-
   ControllerSet.prototype.initSorted = function (this: ControllerSet, sorted: boolean): void {
     if (sorted) {
       (this as Mutable<typeof this>).flags = this.flags | ControllerSet.SortedFlag;
@@ -536,6 +529,13 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
       (this as Mutable<typeof this>).flags = this.flags & ~ControllerSet.SortedFlag;
     }
   };
+
+  Object.defineProperty(ControllerSet.prototype, "sorted", {
+    get(this: ControllerSet): boolean {
+      return (this.flags & ControllerSet.SortedFlag) !== 0;
+    },
+    configurable: true,
+  });
 
   ControllerSet.prototype.sort = function (this: ControllerSet, sorted?: boolean): typeof this {
     if (sorted === void 0) {

@@ -36,7 +36,22 @@ import {
   ComponentInit,
   Component,
 } from "@swim/component";
-import {WarpRef, WarpService, WarpProvider, DownlinkFastener} from "@swim/client";
+import {AnyValue, Value} from "@swim/structure";
+import {AnyUri, Uri} from "@swim/uri";
+import {
+  WarpDownlinkModel,
+  WarpDownlink,
+  EventDownlinkTemplate,
+  EventDownlink,
+  ValueDownlinkTemplate,
+  ValueDownlink,
+  ListDownlinkTemplate,
+  ListDownlink,
+  MapDownlinkTemplate,
+  MapDownlink,
+  WarpRef,
+  WarpClient,
+} from "@swim/client";
 import {RefreshService} from "../refresh/RefreshService";
 import {RefreshProvider} from "../refresh/RefreshProvider";
 import {SelectionService} from "../selection/SelectionService";
@@ -81,7 +96,7 @@ export interface ModelConstructor<M extends Model = Model, U = AnyModel<M>> exte
 }
 
 /** @public */
-export class Model extends Component<Model> implements Initable<ModelInit>, Consumable {
+export class Model extends Component<Model> implements Initable<ModelInit>, Consumable, WarpRef {
   constructor() {
     super();
     this.consumers = Arrays.empty;
@@ -1427,7 +1442,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
         trait = next !== null && next.model === this ? next : null;
       }
     }
-    if (fastener instanceof DownlinkFastener && fastener.consumed === true && this.consuming) {
+    if (fastener instanceof WarpDownlink && fastener.consumed === true && this.consuming) {
       fastener.consume(this);
     }
   }
@@ -1483,7 +1498,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
   /** @internal @override */
   override decohereFastener(fastener: Fastener): void {
     super.decohereFastener(fastener);
-    if (fastener instanceof DownlinkFastener) {
+    if (fastener instanceof WarpDownlink) {
       this.requireUpdate(Model.NeedsReconcile);
     } else {
       this.requireUpdate(Model.NeedsMutate);
@@ -1502,7 +1517,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
         (this as Mutable<this>).decoherent = null;
         for (let i = 0; i < decoherentCount; i += 1) {
           const fastener = decoherent[i]!;
-          if (!(fastener instanceof DownlinkFastener)) {
+          if (!(fastener instanceof WarpDownlink)) {
             fastener.recohere(t);
           } else {
             this.decohereFastener(fastener);
@@ -1521,7 +1536,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
         (this as Mutable<this>).decoherent = null;
         for (let i = 0; i < decoherentCount; i += 1) {
           const fastener = decoherent[i]!;
-          if (fastener instanceof DownlinkFastener) {
+          if (fastener instanceof WarpDownlink) {
             fastener.recohere(t);
           } else {
             this.decohereFastener(fastener);
@@ -1673,7 +1688,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
     const fasteners = this.fasteners;
     for (const fastenerName in fasteners) {
       const fastener = fasteners[fastenerName]!;
-      if (fastener instanceof DownlinkFastener && fastener.consumed === true) {
+      if (fastener instanceof WarpDownlink && fastener.consumed === true) {
         fastener.consume(this);
       }
     }
@@ -1684,7 +1699,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
     const fasteners = this.fasteners;
     for (const fastenerName in fasteners) {
       const fastener = fasteners[fastenerName]!;
-      if (fastener instanceof DownlinkFastener && fastener.consumed === true) {
+      if (fastener instanceof WarpDownlink && fastener.consumed === true) {
         fastener.unconsume(this);
       }
     }
@@ -1702,14 +1717,208 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
   readonly selectionProvider!: SelectionProvider<this>;
   static readonly selectionProvider: FastenerClass<Model["selectionProvider"]>;
 
-  @WarpProvider({
-    service: WarpService.global(),
-  })
-  readonly warpProvider!: WarpProvider<this>;
-  static readonly warpProvider: FastenerClass<Model["warpProvider"]>;
+  /** @override */
+  @PropertyDef({valueType: Uri, value: null, inherits: true, updateFlags: Model.NeedsReconcile})
+  readonly hostUri!: PropertyDef<this, {value: Uri | null, valueInit: AnyUri | null}>;
 
-  @PropertyDef({valueType: Object, value: null, inherits: true, updateFlags: Model.NeedsReconcile})
-  readonly warpRef!: PropertyDef<this, {value: WarpRef | null}>;
+  /** @override */
+  @PropertyDef({valueType: Uri, value: null, inherits: true, updateFlags: Model.NeedsReconcile})
+  readonly nodeUri!: PropertyDef<this, {value: Uri | null, valueInit: AnyUri | null}>;
+
+  /** @override */
+  @PropertyDef({valueType: Uri, value: null, inherits: true, updateFlags: Model.NeedsReconcile})
+  readonly laneUri!: PropertyDef<this, {value: Uri | null, valueInit: AnyUri | null}>;
+
+  /** @override */
+  downlink(template?: ThisType<EventDownlink<this>> & EventDownlinkTemplate & Partial<Omit<EventDownlink<this>, keyof EventDownlinkTemplate>>): EventDownlink<this> {
+    let downlinkClass = EventDownlink;
+    if (template !== void 0) {
+      downlinkClass = downlinkClass.specify("downlink", template);
+    }
+    return downlinkClass.create(this);
+  }
+
+  /** @override */
+  downlinkValue<V = Value, VU = V extends Value ? AnyValue : V>(template?: ThisType<ValueDownlink<this, V, VU>> & ValueDownlinkTemplate<V, VU> & Partial<Omit<ValueDownlink<this, V, VU>, keyof ValueDownlinkTemplate>>): ValueDownlink<this, V, VU> {
+    let downlinkClass = ValueDownlink;
+    if (template !== void 0) {
+      downlinkClass = downlinkClass.specify("downlinkValue", template);
+    }
+    return downlinkClass.create(this);
+  }
+
+  /** @override */
+  downlinkList<V = Value, VU = V extends Value ? AnyValue : V>(template?: ThisType<ListDownlink<this, V, VU>> & ListDownlinkTemplate<V, VU> & Partial<Omit<ListDownlink<this, V, VU>, keyof ListDownlinkTemplate>>): ListDownlink<this, V, VU> {
+    let downlinkClass = ListDownlink;
+    if (template !== void 0) {
+      downlinkClass = downlinkClass.specify("downlinkList", template);
+    }
+    return downlinkClass.create(this);
+  }
+
+  /** @override */
+  downlinkMap<K = Value, V = Value, KU = K extends Value ? AnyValue : K, VU = V extends Value ? AnyValue : V>(template?: ThisType<MapDownlink<this, K, V, KU, VU>> & MapDownlinkTemplate<V, VU> & Partial<Omit<MapDownlink<this, K, V, KU, VU>, keyof MapDownlinkTemplate>>): MapDownlink<this, K, V, KU, VU> {
+    let downlinkClass = MapDownlink;
+    if (template !== void 0) {
+      downlinkClass = downlinkClass.specify("downlinkMap", template);
+    }
+    return downlinkClass.create(this);
+  }
+
+  /** @override */
+  command(hostUri: AnyUri, nodeUri: AnyUri, laneUri: AnyUri, body: AnyValue): void;
+  /** @override */
+  command(nodeUri: AnyUri, laneUri: AnyUri, body: AnyValue): void;
+  /** @override */
+  command(laneUri: AnyUri, body: AnyValue): void;
+  /** @override */
+  command(body: AnyValue): void;
+  command(hostUri: AnyUri | AnyValue, nodeUri?: AnyUri | AnyValue, laneUri?: AnyUri | AnyValue, body?: AnyValue): void {
+    if (nodeUri === void 0) {
+      body = Value.fromAny(hostUri as AnyValue);
+      laneUri = this.laneUri.getValue();
+      nodeUri = this.nodeUri.getValue();
+      hostUri = this.hostUri.value;
+    } else if (laneUri === void 0) {
+      body = Value.fromAny(nodeUri as AnyValue);
+      laneUri = Uri.fromAny(hostUri as AnyUri);
+      nodeUri = this.nodeUri.getValue();
+      hostUri = this.hostUri.value;
+    } else if (body === void 0) {
+      body = Value.fromAny(laneUri as AnyValue);
+      laneUri = Uri.fromAny(nodeUri as AnyUri);
+      nodeUri = Uri.fromAny(hostUri as AnyUri);
+      hostUri = this.hostUri.value;
+    } else {
+      body = Value.fromAny(body);
+      laneUri = Uri.fromAny(laneUri as AnyUri);
+      nodeUri = Uri.fromAny(nodeUri as AnyUri);
+      hostUri = Uri.fromAny(hostUri as AnyUri);
+    }
+    if (hostUri === null) {
+      hostUri = nodeUri.endpoint();
+      nodeUri = hostUri.unresolve(nodeUri);
+    }
+    const warpRef = this.warpRef.value;
+    warpRef.command(hostUri, nodeUri, laneUri, body);
+  }
+
+  /** @override */
+  authenticate(hostUri: AnyUri, credentials: AnyValue): void;
+  /** @override */
+  authenticate(credentials: AnyValue): void;
+  authenticate(hostUri: AnyUri | AnyValue, credentials?: AnyValue): void {
+    if (credentials === void 0) {
+      credentials = Value.fromAny(hostUri as AnyValue);
+      hostUri = this.hostUri.getValue();
+    } else {
+      credentials = Value.fromAny(credentials);
+      hostUri = Uri.fromAny(hostUri as AnyUri);
+    }
+    const warpRef = this.warpRef.value;
+    warpRef.authenticate(hostUri, credentials);
+  }
+
+  /** @override */
+  hostRef(hostUri: AnyUri): WarpRef {
+    hostUri = Uri.fromAny(hostUri);
+    const childRef = new Model();
+    childRef.hostUri.setValue(hostUri);
+    this.appendChild(childRef);
+    return childRef;
+  }
+
+  /** @override */
+  nodeRef(hostUri: AnyUri, nodeUri: AnyUri): WarpRef;
+  /** @override */
+  nodeRef(nodeUri: AnyUri): WarpRef;
+  nodeRef(hostUri: AnyUri | undefined, nodeUri?: AnyUri): WarpRef {
+    if (nodeUri === void 0) {
+      nodeUri = Uri.fromAny(hostUri as AnyUri);
+      hostUri = nodeUri.endpoint();
+      if (hostUri.isDefined()) {
+        nodeUri = hostUri.unresolve(nodeUri);
+      } else {
+        hostUri = void 0;
+      }
+    } else {
+      nodeUri = Uri.fromAny(nodeUri);
+      hostUri = Uri.fromAny(hostUri as AnyUri);
+    }
+    const childRef = new Model();
+    if (hostUri !== void 0) {
+      childRef.hostUri.setValue(hostUri);
+    }
+    if (nodeUri !== void 0) {
+      childRef.nodeUri.setValue(nodeUri);
+    }
+    this.appendChild(childRef);
+    return childRef;
+  }
+
+  /** @override */
+  laneRef(hostUri: AnyUri, nodeUri: AnyUri, laneUri: AnyUri): WarpRef;
+  /** @override */
+  laneRef(nodeUri: AnyUri, laneUri: AnyUri): WarpRef;
+  /** @override */
+  laneRef(laneUri: AnyUri): WarpRef;
+  laneRef(hostUri: AnyUri | undefined, nodeUri?: AnyUri, laneUri?: AnyUri): WarpRef {
+    if (nodeUri === void 0) {
+      laneUri = Uri.fromAny(hostUri as AnyUri);
+      nodeUri = void 0;
+      hostUri = void 0;
+    } else if (laneUri === void 0) {
+      laneUri = Uri.fromAny(nodeUri);
+      nodeUri = Uri.fromAny(hostUri as AnyUri);
+      hostUri = nodeUri.endpoint();
+      if (hostUri.isDefined()) {
+        nodeUri = hostUri.unresolve(nodeUri);
+      } else {
+        hostUri = void 0;
+      }
+    } else {
+      laneUri = Uri.fromAny(laneUri);
+      nodeUri = Uri.fromAny(nodeUri);
+      hostUri = Uri.fromAny(hostUri as AnyUri);
+    }
+    const childRef = new Model();
+    if (hostUri !== void 0) {
+      childRef.hostUri.setValue(hostUri);
+    }
+    if (nodeUri !== void 0) {
+      childRef.nodeUri.setValue(nodeUri);
+    }
+    if (laneUri !== void 0) {
+      childRef.laneUri.setValue(laneUri);
+    }
+    this.appendChild(childRef);
+    return childRef;
+  }
+
+  /** @internal @override */
+  getDownlink(hostUri: Uri, nodeUri: Uri, laneUri: Uri): WarpDownlinkModel | null {
+    const warpRef = this.warpRef.value;
+    return warpRef.getDownlink(hostUri, nodeUri, laneUri);
+  }
+
+  /** @internal @override */
+  openDownlink(downlink: WarpDownlinkModel): void {
+    const warpRef = this.warpRef.value;
+    warpRef.openDownlink(downlink);
+  }
+
+  @PropertyDef<Model["warpRef"]>({
+    valueType: WarpRef,
+    inherits: true,
+    updateFlags: Model.NeedsReconcile,
+    initValue(): WarpRef {
+      return WarpClient.global();
+    },
+    equalValues(newValue: WarpRef, oldValue: WarpRef): boolean {
+      return newValue === oldValue;
+    },
+  })
+  readonly warpRef!: PropertyDef<this, {value: WarpRef}>;
 
   /** @internal */
   get superModelContext(): ModelContext {

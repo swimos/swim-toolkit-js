@@ -53,7 +53,7 @@ export type StyleRuleDef<O, R extends StyleRuleRefinement> =
   StyleRule<O> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer D} ? D : {}) &
+  (R extends {defines: infer I} ? I : {}) &
   (R extends {implements: infer I} ? I : {});
 
 /** @public */
@@ -63,7 +63,7 @@ export function StyleRuleDef<P extends StyleRule<any>>(
           & StyleRuleTemplate
           & Partial<Omit<StyleRule<O>, keyof StyleRuleTemplate>>
           & (R extends {extends: infer E} ? (Partial<Omit<E, keyof StyleRuleTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer D} ? Partial<D> : {})
+          & (R extends {defines: infer I} ? Partial<I> : {})
           & (R extends {implements: infer I} ? I : {})
           : never
 ): PropertyDecorator {

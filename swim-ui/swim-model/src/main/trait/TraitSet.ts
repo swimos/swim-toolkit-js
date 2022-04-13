@@ -71,7 +71,7 @@ export type TraitSetDef<O, R extends TraitSetRefinement> =
   TraitSet<O, TraitSetTrait<R>> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer D} ? D : {}) &
+  (R extends {defines: infer I} ? I : {}) &
   (R extends {implements: infer I} ? I : {}) &
   (R extends {observes: infer B} ? ObserverType<B extends boolean ? TraitSetTrait<R> : B> : {});
 
@@ -82,7 +82,7 @@ export function TraitSetDef<F extends TraitSet<any, any>>(
           & TraitSetTemplate<TraitSetTrait<R>>
           & Partial<Omit<TraitSet<O, TraitSetTrait<R>>, keyof TraitSetTemplate>>
           & (R extends {extends: infer E} ? (Partial<Omit<E, keyof TraitSetTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer D} ? Partial<D> : {})
+          & (R extends {defines: infer I} ? Partial<I> : {})
           & (R extends {implements: infer I} ? I : {})
           & (R extends {observes: infer B} ? (ObserverType<B extends boolean ? TraitSetTrait<R> : B> & {observes: boolean}) : {})
           : never
@@ -218,10 +218,10 @@ export interface TraitSet<O = unknown, T extends Trait = Trait> extends TraitRel
   /** @internal @protected */
   traitKey(trait: T): string | undefined;
 
-  get sorted(): boolean;
-
   /** @internal */
   initSorted(sorted: boolean): void;
+
+  get sorted(): boolean;
 
   sort(sorted?: boolean): this;
 
@@ -599,13 +599,6 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     return void 0;
   };
 
-  Object.defineProperty(TraitSet.prototype, "sorted", {
-    get(this: TraitSet): boolean {
-      return (this.flags & TraitSet.SortedFlag) !== 0;
-    },
-    configurable: true,
-  });
-
   TraitSet.prototype.initSorted = function (this: TraitSet, sorted: boolean): void {
     if (sorted) {
       (this as Mutable<typeof this>).flags = this.flags | TraitSet.SortedFlag;
@@ -613,6 +606,13 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
       (this as Mutable<typeof this>).flags = this.flags & ~TraitSet.SortedFlag;
     }
   };
+
+  Object.defineProperty(TraitSet.prototype, "sorted", {
+    get(this: TraitSet): boolean {
+      return (this.flags & TraitSet.SortedFlag) !== 0;
+    },
+    configurable: true,
+  });
 
   TraitSet.prototype.sort = function (this: TraitSet, sorted?: boolean): typeof this {
     if (sorted === void 0) {

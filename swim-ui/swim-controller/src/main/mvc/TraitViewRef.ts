@@ -83,7 +83,7 @@ export type TraitViewRefDef<O, R extends TraitViewRefRefinement> =
   TraitViewRef<O, TraitViewRefTrait<R>, TraitViewRefView<R>> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer D} ? D : {}) &
+  (R extends {defines: infer I} ? I : {}) &
   (R extends {implements: infer I} ? I : {}) &
   (R extends {observesTrait: infer B} ? ObserverType<B extends boolean ? TraitViewRefTrait<R> : B> : {}) &
   (R extends {observesView: infer B} ? ObserverType<B extends boolean ? TraitViewRefView<R> : B> : {});
@@ -95,7 +95,7 @@ export function TraitViewRefDef<F extends TraitViewRef<any, any, any>>(
           & TraitViewRefTemplate<TraitViewRefTrait<R>, TraitViewRefView<R>>
           & Partial<Omit<TraitViewRef<O, TraitViewRefTrait<R>, TraitViewRefView<R>>, keyof TraitViewRefTemplate>>
           & (R extends {extends: infer E} ? (Partial<Omit<E, keyof TraitViewRefTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer D} ? Partial<D> : {})
+          & (R extends {defines: infer I} ? Partial<I> : {})
           & (R extends {implements: infer I} ? I : {})
           & (R extends {observesTrait: infer B} ? (ObserverType<B extends boolean ? TraitViewRefTrait<R> : B> & {observesTrait: boolean}) : {})
           & (R extends {observesView: infer B} ? (ObserverType<B extends boolean ? TraitViewRefView<R> : B> & {observesView: boolean}) : {})

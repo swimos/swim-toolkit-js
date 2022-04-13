@@ -96,7 +96,7 @@ export type ScaleGestureDef<O, R extends MomentumGestureRefinement> =
   ScaleGesture<O, GestureView<R>, ScaleGestureX<R>, ScaleGestureY<R>> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer D} ? D : {}) &
+  (R extends {defines: infer I} ? I : {}) &
   (R extends {implements: infer I} ? I : {}) &
   (R extends {observes: infer B} ? ObserverType<B extends boolean ? GestureView<R> : B> : {});
 
@@ -107,7 +107,7 @@ export function ScaleGestureDef<F extends ScaleGesture<any, any, any, any>>(
           & ScaleGestureTemplate<GestureView<R>, ScaleGestureX<R>, ScaleGestureY<R>>
           & Partial<Omit<ScaleGesture<O, GestureView<R>, ScaleGestureX<R>, ScaleGestureY<R>>, keyof ScaleGestureTemplate>>
           & (R extends {extends: infer E} ? (Partial<Omit<E, keyof ScaleGestureTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer D} ? Partial<D> : {})
+          & (R extends {defines: infer I} ? Partial<I> : {})
           & (R extends {implements: infer I} ? I : {})
           & (R extends {observes: infer B} ? ObserverType<B extends boolean ? GestureView<R> : B> : {})
           : never

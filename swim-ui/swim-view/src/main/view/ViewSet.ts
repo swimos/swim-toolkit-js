@@ -70,7 +70,7 @@ export type ViewSetDef<O, R extends ViewSetRefinement> =
   ViewSet<O, ViewSetView<R>> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer D} ? D : {}) &
+  (R extends {defines: infer I} ? I : {}) &
   (R extends {implements: infer I} ? I : {}) &
   (R extends {observes: infer B} ? ObserverType<B extends boolean ? ViewSetView<R> : B> : {});
 
@@ -81,7 +81,7 @@ export function ViewSetDef<F extends ViewSet<any, any>>(
           & ViewSetTemplate<ViewSetView<R>>
           & Partial<Omit<ViewSet<O, ViewSetView<R>>, keyof ViewSetTemplate>>
           & (R extends {extends: infer E} ? (Partial<Omit<E, keyof ViewSetTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer D} ? Partial<D> : {})
+          & (R extends {defines: infer I} ? Partial<I> : {})
           & (R extends {implements: infer I} ? I : {})
           & (R extends {observes: infer B} ? (ObserverType<B extends boolean ? ViewSetView<R> : B> & {observes: boolean}) : {})
           : never
@@ -204,10 +204,10 @@ export interface ViewSet<O = unknown, V extends View = View> extends ViewRelatio
   /** @internal @protected */
   viewKey(view: V): string | undefined;
 
-  get sorted(): boolean;
-
   /** @internal */
   initSorted(sorted: boolean): void;
+
+  get sorted(): boolean;
 
   sort(sorted?: boolean): this;
 
@@ -522,13 +522,6 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     return void 0;
   };
 
-  Object.defineProperty(ViewSet.prototype, "sorted", {
-    get(this: ViewSet): boolean {
-      return (this.flags & ViewSet.SortedFlag) !== 0;
-    },
-    configurable: true,
-  });
-
   ViewSet.prototype.initSorted = function (this: ViewSet, sorted: boolean): void {
     if (sorted) {
       (this as Mutable<typeof this>).flags = this.flags | ViewSet.SortedFlag;
@@ -536,6 +529,13 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
       (this as Mutable<typeof this>).flags = this.flags & ~ViewSet.SortedFlag;
     }
   };
+
+  Object.defineProperty(ViewSet.prototype, "sorted", {
+    get(this: ViewSet): boolean {
+      return (this.flags & ViewSet.SortedFlag) !== 0;
+    },
+    configurable: true,
+  });
 
   ViewSet.prototype.sort = function (this: ViewSet, sorted?: boolean): typeof this {
     if (sorted === void 0) {

@@ -60,7 +60,7 @@ export type ControllerRelationDef<O, R extends ControllerRelationRefinement> =
   ControllerRelation<O, ControllerRelationController<R>> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer D} ? D : {}) &
+  (R extends {defines: infer I} ? I : {}) &
   (R extends {implements: infer I} ? I : {}) &
   (R extends {observes: infer B} ? ObserverType<B extends boolean ? ControllerRelationController<R> : B> : {});
 
@@ -71,7 +71,7 @@ export function ControllerRelationDef<F extends ControllerRelation<any, any>>(
           & ControllerRelationTemplate<ControllerRelationController<R>>
           & Partial<Omit<ControllerRelation<O, ControllerRelationController<R>>, keyof ControllerRelationTemplate>>
           & (R extends {extends: infer E} ? (Partial<Omit<E, keyof ControllerRelationTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer D} ? Partial<D> : {})
+          & (R extends {defines: infer I} ? Partial<I> : {})
           & (R extends {implements: infer I} ? I : {})
           & (R extends {observes: infer B} ? (ObserverType<B extends boolean ? ControllerRelationController<R> : B> & {observes: boolean}) : {})
           : never

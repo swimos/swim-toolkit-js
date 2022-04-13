@@ -59,7 +59,7 @@ export type ViewRelationDef<O, R extends ViewRelationRefinement> =
   ViewRelation<O, ViewRelationView<R>> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer D} ? D : {}) &
+  (R extends {defines: infer I} ? I : {}) &
   (R extends {implements: infer I} ? I : {}) &
   (R extends {observes: infer B} ? ObserverType<B extends boolean ? ViewRelationView<R> : B> : {});
 
@@ -70,7 +70,7 @@ export function ViewRelationDef<F extends ViewRelation<any, any>>(
           & ViewRelationTemplate<ViewRelationView<R>>
           & Partial<Omit<ViewRelation<O, ViewRelationView<R>>, keyof ViewRelationTemplate>>
           & (R extends {extends: infer E} ? (Partial<Omit<E, keyof ViewRelationTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer D} ? Partial<D> : {})
+          & (R extends {defines: infer I} ? Partial<I> : {})
           & (R extends {implements: infer I} ? I : {})
           & (R extends {observes: infer B} ? (ObserverType<B extends boolean ? ViewRelationView<R> : B> & {observes: boolean}) : {})
           : never
