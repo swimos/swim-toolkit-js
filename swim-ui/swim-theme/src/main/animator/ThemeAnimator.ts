@@ -58,7 +58,7 @@ export interface ThemeAnimatorClass<A extends ThemeAnimator<any, any> = ThemeAni
 }
 
 /** @public */
-export type ThemeAnimatorDef<O, R extends ThemeAnimatorRefinement> =
+export type ThemeAnimatorDef<O, R extends ThemeAnimatorRefinement = {}> =
   ThemeAnimator<O, AnimatorValue<R>, AnimatorValueInit<R>> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &

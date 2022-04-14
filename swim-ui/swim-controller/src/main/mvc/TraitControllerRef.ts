@@ -28,14 +28,14 @@ export interface TraitControllerRefRefinement extends ControllerRefRefinement {
 
 /** @public */
 export type TraitControllerRefTrait<R extends TraitControllerRefRefinement | TraitControllerRef<any, any, any>, D = Trait> =
-  R extends {trait: infer T} ? T :
+  R extends {trait: infer T | null} ? T :
   R extends {extends: infer E} ? TraitControllerRefTrait<E, D> :
   R extends TraitControllerRef<any, infer T, any> ? T :
   D;
 
 /** @public */
 export type TraitControllerRefController<R extends TraitControllerRefRefinement | TraitControllerRef<any, any, any>, D = Controller> =
-  R extends {controller: infer C} ? C :
+  R extends {controller: infer C | null} ? C :
   R extends {extends: infer E} ? TraitControllerRefController<E, D> :
   R extends TraitControllerRef<any, any, infer C> ? C :
   D;
@@ -66,7 +66,7 @@ export interface TraitControllerRefClass<F extends TraitControllerRef<any, any, 
 }
 
 /** @public */
-export type TraitControllerRefDef<O, R extends TraitControllerRefRefinement> =
+export type TraitControllerRefDef<O, R extends TraitControllerRefRefinement = {}> =
   TraitControllerRef<O, TraitControllerRefTrait<R>, TraitControllerRefController<R>> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &

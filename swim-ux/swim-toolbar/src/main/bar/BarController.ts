@@ -129,6 +129,29 @@ export class BarController extends Controller {
     }
   }
 
+  getTool<F extends Class<ToolController>>(key: string, toolControllerClass: F): InstanceType<F> | null;
+  getTool(key: string): ToolController | null;
+  getTool(key: string, toolControllerClass?: Class<ToolController>): ToolController | null {
+    if (toolControllerClass === void 0) {
+      toolControllerClass = ToolController;
+    }
+    const toolController = this.getChild(key);
+    return toolController instanceof toolControllerClass ? toolController : null;
+  }
+
+  getOrCreateTool<F extends Class<Instance<F, ToolController>> & Creatable<Instance<F, ToolController>>>(key: string, toolControllerClass: F): InstanceType<F> {
+    let toolController = this.getChild(key, toolControllerClass);
+    if (toolController === null) {
+      toolController = toolControllerClass.create();
+      this.setChild(key, toolController);
+    }
+    return toolController!;
+  }
+
+  setTool(key: string, toolController: ToolController | null): void {
+    this.setChild(key, toolController);
+  }
+
   getToolTrait<F extends Class<ToolTrait>>(key: string, toolTraitClass: F): InstanceType<F> | null;
   getToolTrait(key: string): ToolTrait | null;
   getToolTrait(key: string, toolTraitClass?: Class<ToolTrait>): ToolTrait | null {
@@ -144,7 +167,7 @@ export class BarController extends Controller {
     return barTrait.getOrCreateTool(key, toolTraitClass);
   }
 
-  setToolTrait(key: string, toolTrait: ToolTrait): void {
+  setToolTrait(key: string, toolTrait: ToolTrait | null): void {
     const barTrait = this.bar.trait;
     if (barTrait === null) {
       throw new Error("no bar trait");
@@ -171,7 +194,7 @@ export class BarController extends Controller {
     return barView.getOrCreateTool(key, toolViewClass);
   }
 
-  setToolView(key: string, toolView: ToolView): void {
+  setToolView(key: string, toolView: ToolView | null): void {
     let barView = this.bar.view;
     if (barView === null) {
       barView = this.bar.createView();

@@ -33,6 +33,10 @@ export interface ControllerObserver<C extends Controller = Controller> extends C
 
   controllerDidRemoveChild?(child: Controller, controller: C): void;
 
+  controllerWillReinsertChild?(child: Controller, target: Controller | null, controller: C): void;
+
+  controllerDidReinsertChild?(child: Controller, target: Controller | null, controller: C): void;
+
   controllerWillMount?(controller: Controller): void;
 
   controllerDidMount?(controller: Controller): void;
@@ -60,4 +64,12 @@ export interface ControllerObserver<C extends Controller = Controller> extends C
   controllerWillCompute?(controllerContext: ControllerContextType<C>, controller: C): void;
 
   controllerDidCompute?(controllerContext: ControllerContextType<C>, controller: C): void;
+
+  controllerWillStartConsuming?(controller: C): void;
+
+  controllerDidStartConsuming?(controller: C): void;
+
+  controllerWillStopConsuming?(controller: C): void;
+
+  controllerDidStopConsuming?(controller: C): void;
 }

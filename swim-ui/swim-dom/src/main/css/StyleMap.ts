@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Equals, Values, AnyTiming} from "@swim/util";
-import type {MemberAnimatorInit} from "@swim/component";
+import type {AnyAnimatorValue} from "@swim/component";
 import {AnyLength, Length, AnyTransform, Transform} from "@swim/math";
 import {
   FontStyle,
@@ -30,6 +30,10 @@ import {
   AnyBoxShadow,
   BoxShadow,
 } from "@swim/style";
+import {StyleAnimatorDef} from "../style/StyleAnimator";
+import {LengthStyleAnimator} from "../style/LengthStyleAnimator";
+import {StyleConstraintAnimatorDef} from "../style/StyleConstraintAnimator";
+import {LengthStyleConstraintAnimator} from "../style/LengthStyleConstraintAnimator";
 import type {
   AlignContent,
   AlignItems,
@@ -57,316 +61,314 @@ import type {
   VerticalAlign,
   Visibility,
   WhiteSpace,
-} from "../css/types";
+} from "./types";
 import type {StyleContext} from "./StyleContext";
-import {StyleAnimator} from "../animator/StyleAnimator";
-import {StyleConstraintAnimator} from "../animator/StyleConstraintAnimator";
 
 /** @public */
 export interface StyleMapInit {
-  alignContent?: MemberAnimatorInit<StyleMap, "alignContent">;
-  alignItems?: MemberAnimatorInit<StyleMap, "alignItems">;
-  alignSelf?: MemberAnimatorInit<StyleMap, "alignSelf">;
-  appearance?: MemberAnimatorInit<StyleMap, "appearance">;
-  backdropFilter?: MemberAnimatorInit<StyleMap, "backdropFilter">;
-  backgroundClip?: MemberAnimatorInit<StyleMap, "backgroundClip">;
-  backgroundColor?: MemberAnimatorInit<StyleMap, "backgroundColor">;
-  backgroundImage?: MemberAnimatorInit<StyleMap, "backgroundImage">;
-  borderCollapse?: MemberAnimatorInit<StyleMap, "borderCollapse">;
+  alignContent?: AnyAnimatorValue<StyleMap["alignContent"]>;
+  alignItems?: AnyAnimatorValue<StyleMap["alignItems"]>;
+  alignSelf?: AnyAnimatorValue<StyleMap["alignSelf"]>;
+  appearance?: AnyAnimatorValue<StyleMap["appearance"]>;
+  backdropFilter?: AnyAnimatorValue<StyleMap["backdropFilter"]>;
+  backgroundClip?: AnyAnimatorValue<StyleMap["backgroundClip"]>;
+  backgroundColor?: AnyAnimatorValue<StyleMap["backgroundColor"]>;
+  backgroundImage?: AnyAnimatorValue<StyleMap["backgroundImage"]>;
+  borderCollapse?: AnyAnimatorValue<StyleMap["borderCollapse"]>;
   borderColor?: [AnyColor | null, AnyColor | null, AnyColor | null, AnyColor | null] | AnyColor | null;
-  borderTopColor?: MemberAnimatorInit<StyleMap, "borderTopColor">;
-  borderRightColor?: MemberAnimatorInit<StyleMap, "borderRightColor">;
-  borderBottomColor?: MemberAnimatorInit<StyleMap, "borderBottomColor">;
-  borderLeftColor?: MemberAnimatorInit<StyleMap, "borderLeftColor">;
+  borderTopColor?: AnyAnimatorValue<StyleMap["borderTopColor"]>;
+  borderRightColor?: AnyAnimatorValue<StyleMap["borderRightColor"]>;
+  borderBottomColor?: AnyAnimatorValue<StyleMap["borderBottomColor"]>;
+  borderLeftColor?: AnyAnimatorValue<StyleMap["borderLeftColor"]>;
   borderRadius?: [AnyLength | null, AnyLength | null, AnyLength | null, AnyLength | null] | AnyLength | null;
-  borderTopLeftRadius?: MemberAnimatorInit<StyleMap, "borderTopLeftRadius">;
-  borderTopRightRadius?: MemberAnimatorInit<StyleMap, "borderTopRightRadius">;
-  borderBottomRightRadius?: MemberAnimatorInit<StyleMap, "borderBottomRightRadius">;
-  borderBottomLeftRadius?: MemberAnimatorInit<StyleMap, "borderBottomLeftRadius">;
-  borderSpacing?: MemberAnimatorInit<StyleMap, "borderSpacing">;
+  borderTopLeftRadius?: AnyAnimatorValue<StyleMap["borderTopLeftRadius"]>;
+  borderTopRightRadius?: AnyAnimatorValue<StyleMap["borderTopRightRadius"]>;
+  borderBottomRightRadius?: AnyAnimatorValue<StyleMap["borderBottomRightRadius"]>;
+  borderBottomLeftRadius?: AnyAnimatorValue<StyleMap["borderBottomLeftRadius"]>;
+  borderSpacing?: AnyAnimatorValue<StyleMap["borderSpacing"]>;
   borderStyle?: [BorderStyle | undefined, BorderStyle | undefined, BorderStyle | undefined, BorderStyle | undefined] | BorderStyle | undefined;
-  borderTopStyle?: MemberAnimatorInit<StyleMap, "borderTopStyle">;
-  borderRightStyle?: MemberAnimatorInit<StyleMap, "borderRightStyle">;
-  borderBottomStyle?: MemberAnimatorInit<StyleMap, "borderBottomStyle">;
-  borderLeftStyle?: MemberAnimatorInit<StyleMap, "borderLeftStyle">;
+  borderTopStyle?: AnyAnimatorValue<StyleMap["borderTopStyle"]>;
+  borderRightStyle?: AnyAnimatorValue<StyleMap["borderRightStyle"]>;
+  borderBottomStyle?: AnyAnimatorValue<StyleMap["borderBottomStyle"]>;
+  borderLeftStyle?: AnyAnimatorValue<StyleMap["borderLeftStyle"]>;
   borderWidth?: [AnyLength | null, AnyLength | null, AnyLength | null, AnyLength | null] | AnyLength | null;
-  borderTopWidth?: MemberAnimatorInit<StyleMap, "borderTopWidth">;
-  borderRightWidth?: MemberAnimatorInit<StyleMap, "borderRightWidth">;
-  borderBottomWidth?: MemberAnimatorInit<StyleMap, "borderBottomWidth">;
-  borderLeftWidth?: MemberAnimatorInit<StyleMap, "borderLeftWidth">;
-  bottom?: MemberAnimatorInit<StyleMap, "bottom">;
-  boxShadow?: MemberAnimatorInit<StyleMap, "boxShadow">;
-  boxSizing?: MemberAnimatorInit<StyleMap, "boxSizing">;
-  color?: MemberAnimatorInit<StyleMap, "color">;
-  cursor?: MemberAnimatorInit<StyleMap, "cursor">;
-  display?: MemberAnimatorInit<StyleMap, "display">;
-  filter?: MemberAnimatorInit<StyleMap, "filter">;
-  flexBasis?: MemberAnimatorInit<StyleMap, "flexBasis">;
-  flexDirection?: MemberAnimatorInit<StyleMap, "flexDirection">;
-  flexGrow?: MemberAnimatorInit<StyleMap, "flexGrow">;
-  flexShrink?: MemberAnimatorInit<StyleMap, "flexShrink">;
-  flexWrap?: MemberAnimatorInit<StyleMap, "flexWrap">;
+  borderTopWidth?: AnyAnimatorValue<StyleMap["borderTopWidth"]>;
+  borderRightWidth?: AnyAnimatorValue<StyleMap["borderRightWidth"]>;
+  borderBottomWidth?: AnyAnimatorValue<StyleMap["borderBottomWidth"]>;
+  borderLeftWidth?: AnyAnimatorValue<StyleMap["borderLeftWidth"]>;
+  bottom?: AnyAnimatorValue<StyleMap["bottom"]>;
+  boxShadow?: AnyAnimatorValue<StyleMap["boxShadow"]>;
+  boxSizing?: AnyAnimatorValue<StyleMap["boxSizing"]>;
+  color?: AnyAnimatorValue<StyleMap["color"]>;
+  cursor?: AnyAnimatorValue<StyleMap["cursor"]>;
+  display?: AnyAnimatorValue<StyleMap["display"]>;
+  filter?: AnyAnimatorValue<StyleMap["filter"]>;
+  flexBasis?: AnyAnimatorValue<StyleMap["flexBasis"]>;
+  flexDirection?: AnyAnimatorValue<StyleMap["flexDirection"]>;
+  flexGrow?: AnyAnimatorValue<StyleMap["flexGrow"]>;
+  flexShrink?: AnyAnimatorValue<StyleMap["flexShrink"]>;
+  flexWrap?: AnyAnimatorValue<StyleMap["flexWrap"]>;
   font?: AnyFont;
-  fontFamily?: MemberAnimatorInit<StyleMap, "fontFamily">;
-  fontSize?: MemberAnimatorInit<StyleMap, "fontSize">;
-  fontStretch?: MemberAnimatorInit<StyleMap, "fontStretch">;
-  fontStyle?: MemberAnimatorInit<StyleMap, "fontStyle">;
-  fontVariant?: MemberAnimatorInit<StyleMap, "fontVariant">;
-  fontWeight?: MemberAnimatorInit<StyleMap, "fontWeight">;
-  height?: MemberAnimatorInit<StyleMap, "height">;
-  justifyContent?: MemberAnimatorInit<StyleMap, "justifyContent">;
-  left?: MemberAnimatorInit<StyleMap, "left">;
-  lineHeight?: MemberAnimatorInit<StyleMap, "lineHeight">;
+  fontFamily?: AnyAnimatorValue<StyleMap["fontFamily"]>;
+  fontSize?: AnyAnimatorValue<StyleMap["fontSize"]>;
+  fontStretch?: AnyAnimatorValue<StyleMap["fontStretch"]>;
+  fontStyle?: AnyAnimatorValue<StyleMap["fontStyle"]>;
+  fontVariant?: AnyAnimatorValue<StyleMap["fontVariant"]>;
+  fontWeight?: AnyAnimatorValue<StyleMap["fontWeight"]>;
+  height?: AnyAnimatorValue<StyleMap["height"]>;
+  justifyContent?: AnyAnimatorValue<StyleMap["justifyContent"]>;
+  left?: AnyAnimatorValue<StyleMap["left"]>;
+  lineHeight?: AnyAnimatorValue<StyleMap["lineHeight"]>;
   margin?: [AnyLength | null, AnyLength | null, AnyLength | null, AnyLength | null] | AnyLength;
-  marginTop?: MemberAnimatorInit<StyleMap, "marginTop">;
-  marginRight?: MemberAnimatorInit<StyleMap, "marginRight">;
-  marginBottom?: MemberAnimatorInit<StyleMap, "marginBottom">;
-  marginLeft?: MemberAnimatorInit<StyleMap, "marginLeft">;
-  maxHeight?: MemberAnimatorInit<StyleMap, "maxHeight">;
-  maxWidth?: MemberAnimatorInit<StyleMap, "maxWidth">;
-  minHeight?: MemberAnimatorInit<StyleMap, "minHeight">;
-  minWidth?: MemberAnimatorInit<StyleMap, "minWidth">;
-  opacity?: MemberAnimatorInit<StyleMap, "opacity">;
-  order?: MemberAnimatorInit<StyleMap, "order">;
-  outlineColor?: MemberAnimatorInit<StyleMap, "outlineColor">;
-  outlineStyle?: MemberAnimatorInit<StyleMap, "outlineStyle">;
-  outlineWidth?: MemberAnimatorInit<StyleMap, "outlineWidth">;
+  marginTop?: AnyAnimatorValue<StyleMap["marginTop"]>;
+  marginRight?: AnyAnimatorValue<StyleMap["marginRight"]>;
+  marginBottom?: AnyAnimatorValue<StyleMap["marginBottom"]>;
+  marginLeft?: AnyAnimatorValue<StyleMap["marginLeft"]>;
+  maxHeight?: AnyAnimatorValue<StyleMap["maxHeight"]>;
+  maxWidth?: AnyAnimatorValue<StyleMap["maxWidth"]>;
+  minHeight?: AnyAnimatorValue<StyleMap["minHeight"]>;
+  minWidth?: AnyAnimatorValue<StyleMap["minWidth"]>;
+  opacity?: AnyAnimatorValue<StyleMap["opacity"]>;
+  order?: AnyAnimatorValue<StyleMap["order"]>;
+  outlineColor?: AnyAnimatorValue<StyleMap["outlineColor"]>;
+  outlineStyle?: AnyAnimatorValue<StyleMap["outlineStyle"]>;
+  outlineWidth?: AnyAnimatorValue<StyleMap["outlineWidth"]>;
   overflow?: [Overflow | undefined, Overflow | undefined] | Overflow | undefined;
-  overflowX?: MemberAnimatorInit<StyleMap, "overflowX">;
-  overflowY?: MemberAnimatorInit<StyleMap, "overflowY">;
-  overflowScrolling?: MemberAnimatorInit<StyleMap, "overflowScrolling">;
+  overflowX?: AnyAnimatorValue<StyleMap["overflowX"]>;
+  overflowY?: AnyAnimatorValue<StyleMap["overflowY"]>;
+  overflowScrolling?: AnyAnimatorValue<StyleMap["overflowScrolling"]>;
   overscrollBehavior?: [OverscrollBehavior | undefined, OverscrollBehavior | undefined] | OverscrollBehavior | undefined;
-  overscrollBehaviorX?: MemberAnimatorInit<StyleMap, "overscrollBehaviorX">;
-  overscrollBehaviorY?: MemberAnimatorInit<StyleMap, "overscrollBehaviorY">;
+  overscrollBehaviorX?: AnyAnimatorValue<StyleMap["overscrollBehaviorX"]>;
+  overscrollBehaviorY?: AnyAnimatorValue<StyleMap["overscrollBehaviorY"]>;
   padding?: [AnyLength | null, AnyLength | null, AnyLength | null, AnyLength | null] | AnyLength | null;
-  paddingTop?: MemberAnimatorInit<StyleMap, "paddingTop">;
-  paddingRight?: MemberAnimatorInit<StyleMap, "paddingRight">;
-  paddingBottom?: MemberAnimatorInit<StyleMap, "paddingBottom">;
-  paddingLeft?: MemberAnimatorInit<StyleMap, "paddingLeft">;
-  pointerEvents?: MemberAnimatorInit<StyleMap, "pointerEvents">;
-  position?: MemberAnimatorInit<StyleMap, "position">;
-  right?: MemberAnimatorInit<StyleMap, "right">;
-  textAlign?: MemberAnimatorInit<StyleMap, "textAlign">;
-  textDecorationColor?: MemberAnimatorInit<StyleMap, "textDecorationColor">;
-  textDecorationLine?: MemberAnimatorInit<StyleMap, "textDecorationLine">;
-  textDecorationStyle?: MemberAnimatorInit<StyleMap, "textDecorationStyle">;
-  textOverflow?: MemberAnimatorInit<StyleMap, "textOverflow">;
-  textTransform?: MemberAnimatorInit<StyleMap, "textTransform">;
-  top?: MemberAnimatorInit<StyleMap, "top">;
-  touchAction?: MemberAnimatorInit<StyleMap, "touchAction">;
-  transform?: MemberAnimatorInit<StyleMap, "transform">;
-  userSelect?: MemberAnimatorInit<StyleMap, "userSelect">;
-  verticalAlign?: MemberAnimatorInit<StyleMap, "verticalAlign">;
-  visibility?: MemberAnimatorInit<StyleMap, "visibility">;
-  whiteSpace?: MemberAnimatorInit<StyleMap, "whiteSpace">;
-  width?: MemberAnimatorInit<StyleMap, "width">;
-  zIndex?: MemberAnimatorInit<StyleMap, "zIndex">;
+  paddingTop?: AnyAnimatorValue<StyleMap["paddingTop"]>;
+  paddingRight?: AnyAnimatorValue<StyleMap["paddingRight"]>;
+  paddingBottom?: AnyAnimatorValue<StyleMap["paddingBottom"]>;
+  paddingLeft?: AnyAnimatorValue<StyleMap["paddingLeft"]>;
+  pointerEvents?: AnyAnimatorValue<StyleMap["pointerEvents"]>;
+  position?: AnyAnimatorValue<StyleMap["position"]>;
+  right?: AnyAnimatorValue<StyleMap["right"]>;
+  textAlign?: AnyAnimatorValue<StyleMap["textAlign"]>;
+  textDecorationColor?: AnyAnimatorValue<StyleMap["textDecorationColor"]>;
+  textDecorationLine?: AnyAnimatorValue<StyleMap["textDecorationLine"]>;
+  textDecorationStyle?: AnyAnimatorValue<StyleMap["textDecorationStyle"]>;
+  textOverflow?: AnyAnimatorValue<StyleMap["textOverflow"]>;
+  textTransform?: AnyAnimatorValue<StyleMap["textTransform"]>;
+  top?: AnyAnimatorValue<StyleMap["top"]>;
+  touchAction?: AnyAnimatorValue<StyleMap["touchAction"]>;
+  transform?: AnyAnimatorValue<StyleMap["transform"]>;
+  userSelect?: AnyAnimatorValue<StyleMap["userSelect"]>;
+  verticalAlign?: AnyAnimatorValue<StyleMap["verticalAlign"]>;
+  visibility?: AnyAnimatorValue<StyleMap["visibility"]>;
+  whiteSpace?: AnyAnimatorValue<StyleMap["whiteSpace"]>;
+  width?: AnyAnimatorValue<StyleMap["width"]>;
+  zIndex?: AnyAnimatorValue<StyleMap["zIndex"]>;
 }
 
 /** @public */
 export interface StyleMap extends StyleContext {
-  readonly alignContent: StyleAnimator<this, AlignContent | undefined>;
+  readonly alignContent: StyleAnimatorDef<this, {value: AlignContent | undefined}>;
 
-  readonly alignItems: StyleAnimator<this, AlignItems | undefined>;
+  readonly alignItems: StyleAnimatorDef<this, {value: AlignItems | undefined}>;
 
-  readonly alignSelf: StyleAnimator<this, AlignSelf | undefined>;
+  readonly alignSelf: StyleAnimatorDef<this, {value: AlignSelf | undefined}>;
 
-  readonly appearance: StyleAnimator<this, Appearance | undefined>;
+  readonly appearance: StyleAnimatorDef<this, {value: Appearance | undefined}>;
 
-  readonly backdropFilter: StyleAnimator<this, string | undefined>;
+  readonly backdropFilter: StyleAnimatorDef<this, {value: string | undefined}>;
 
-  readonly backgroundClip: StyleAnimator<this, BackgroundClip | undefined>;
+  readonly backgroundClip: StyleAnimatorDef<this, {value: BackgroundClip | undefined}>;
 
-  readonly backgroundColor: StyleAnimator<this, Color | null, AnyColor | null>;
+  readonly backgroundColor: StyleAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
 
-  readonly backgroundImage: StyleAnimator<this, LinearGradient | string | null, AnyLinearGradient | string | null>;
+  readonly backgroundImage: StyleAnimatorDef<this, {value: LinearGradient | string | null, valueInit: AnyLinearGradient | string | null}>;
 
-  readonly borderCollapse: StyleAnimator<this, BorderCollapse | undefined>;
+  readonly borderCollapse: StyleAnimatorDef<this, {value: BorderCollapse | undefined}>;
 
   borderColor(): [Color | null, Color | null, Color | null, Color | null] | Color | null;
   borderColor(value: [AnyColor | null, AnyColor | null, AnyColor | null, AnyColor | null] | AnyColor | null, timing?: AnyTiming | boolean, precedence?: number): this;
 
-  readonly borderTopColor: StyleAnimator<this, Color | null, AnyColor | null>;
+  readonly borderTopColor: StyleAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
 
-  readonly borderRightColor: StyleAnimator<this, Color | null, AnyColor | null>;
+  readonly borderRightColor: StyleAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
 
-  readonly borderBottomColor: StyleAnimator<this, Color | null, AnyColor | null>;
+  readonly borderBottomColor: StyleAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
 
-  readonly borderLeftColor: StyleAnimator<this, Color | null, AnyColor | null>;
+  readonly borderLeftColor: StyleAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
 
   borderRadius(): [Length | null, Length | null, Length | null, Length | null] | Length | null;
   borderRadius(value: [AnyLength | null, AnyLength | null, AnyLength | null, AnyLength | null] | AnyLength | null, timing?: AnyTiming | boolean, precedence?: number): this;
 
-  readonly borderTopLeftRadius: StyleAnimator<this, Length | null, AnyLength | null>;
+  readonly borderTopLeftRadius: StyleAnimatorDef<this, {extends: LengthStyleAnimator<StyleMap, Length | null, AnyLength | null>}>;
 
-  readonly borderTopRightRadius: StyleAnimator<this, Length | null, AnyLength | null>;
+  readonly borderTopRightRadius: StyleAnimatorDef<this, {extends: LengthStyleAnimator<StyleMap, Length | null, AnyLength | null>}>;
 
-  readonly borderBottomRightRadius: StyleAnimator<this, Length | null, AnyLength | null>;
+  readonly borderBottomRightRadius: StyleAnimatorDef<this, {extends: LengthStyleAnimator<StyleMap, Length | null, AnyLength | null>}>;
 
-  readonly borderBottomLeftRadius: StyleAnimator<this, Length | null, AnyLength | null>;
+  readonly borderBottomLeftRadius: StyleAnimatorDef<this, {extends: LengthStyleAnimator<StyleMap, Length | null, AnyLength | null>}>;
 
-  readonly borderSpacing: StyleAnimator<this, string | undefined>;
+  readonly borderSpacing: StyleAnimatorDef<this, {value: string | undefined}>;
 
   borderStyle(): [BorderStyle | undefined, BorderStyle | undefined, BorderStyle | undefined, BorderStyle | undefined] | BorderStyle | undefined;
   borderStyle(value: [BorderStyle | undefined, BorderStyle | undefined, BorderStyle | undefined, BorderStyle | undefined] | BorderStyle | undefined, timing?: AnyTiming | boolean, precedence?: number): this;
 
-  readonly borderTopStyle: StyleAnimator<this, BorderStyle | undefined>;
+  readonly borderTopStyle: StyleAnimatorDef<this, {value: BorderStyle | undefined}>;
 
-  readonly borderRightStyle: StyleAnimator<this, BorderStyle | undefined>;
+  readonly borderRightStyle: StyleAnimatorDef<this, {value: BorderStyle | undefined}>;
 
-  readonly borderBottomStyle: StyleAnimator<this, BorderStyle | undefined>;
+  readonly borderBottomStyle: StyleAnimatorDef<this, {value: BorderStyle | undefined}>;
 
-  readonly borderLeftStyle: StyleAnimator<this, BorderStyle | undefined>;
+  readonly borderLeftStyle: StyleAnimatorDef<this, {value: BorderStyle | undefined}>;
 
   borderWidth(): [Length | null, Length | null, Length | null, Length | null] | Length | null;
   borderWidth(value: [AnyLength | null, AnyLength | null, AnyLength | null, AnyLength | null] | AnyLength | null, timing?: AnyTiming | boolean, precedence?: number): this;
 
-  readonly borderTopWidth: StyleAnimator<this, Length | null, AnyLength | null>;
+  readonly borderTopWidth: StyleAnimatorDef<this, {extends: LengthStyleAnimator<StyleMap, Length | null, AnyLength | null>}>;
 
-  readonly borderRightWidth: StyleAnimator<this, Length | null, AnyLength | null>;
+  readonly borderRightWidth: StyleAnimatorDef<this, {extends: LengthStyleAnimator<StyleMap, Length | null, AnyLength | null>}>;
 
-  readonly borderBottomWidth: StyleAnimator<this, Length | null, AnyLength | null>;
+  readonly borderBottomWidth: StyleAnimatorDef<this, {extends: LengthStyleAnimator<StyleMap, Length | null, AnyLength | null>}>;
 
-  readonly borderLeftWidth: StyleAnimator<this, Length | null, AnyLength | null>;
+  readonly borderLeftWidth: StyleAnimatorDef<this, {extends: LengthStyleAnimator<StyleMap, Length | null, AnyLength | null>}>;
 
-  readonly bottom: StyleConstraintAnimator<this, Length | null, AnyLength | null>;
+  readonly bottom: StyleConstraintAnimatorDef<this, {extends: LengthStyleConstraintAnimator<StyleMap, Length | null, AnyLength | null>}>;
 
-  readonly boxShadow: StyleAnimator<this, BoxShadow | null, AnyBoxShadow | null>;
+  readonly boxShadow: StyleAnimatorDef<this, {value: BoxShadow | null, valueInit: AnyBoxShadow | null}>;
 
-  readonly boxSizing: StyleAnimator<this, BoxSizing | undefined>;
+  readonly boxSizing: StyleAnimatorDef<this, {value: BoxSizing | undefined}>;
 
-  readonly color: StyleAnimator<this, Color | null, AnyColor | null>;
+  readonly color: StyleAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
 
-  readonly cursor: StyleAnimator<this, CssCursor | undefined>;
+  readonly cursor: StyleAnimatorDef<this, {value: CssCursor | undefined}>;
 
-  readonly display: StyleAnimator<this, CssDisplay | undefined>;
+  readonly display: StyleAnimatorDef<this, {value: CssDisplay | undefined}>;
 
-  readonly filter: StyleAnimator<this, string | undefined>;
+  readonly filter: StyleAnimatorDef<this, {value: string | undefined}>;
 
-  readonly flexBasis: StyleAnimator<this, Length | FlexBasis | null, AnyLength | FlexBasis | null>;
+  readonly flexBasis: StyleAnimatorDef<this, {value: Length | FlexBasis | null, valueInit: AnyLength | FlexBasis | null}>;
 
-  readonly flexDirection: StyleAnimator<this, FlexDirection | string>;
+  readonly flexDirection: StyleAnimatorDef<this, {value: FlexDirection | string}>;
 
-  readonly flexGrow: StyleAnimator<this, number | undefined>;
+  readonly flexGrow: StyleAnimatorDef<this, {value: number | undefined}>;
 
-  readonly flexShrink: StyleAnimator<this, number | undefined>;
+  readonly flexShrink: StyleAnimatorDef<this, {value: number | undefined}>;
 
-  readonly flexWrap: StyleAnimator<this, FlexWrap | undefined>;
+  readonly flexWrap: StyleAnimatorDef<this, {value: FlexWrap | undefined}>;
 
   font(): Font | null;
   font(value: AnyFont | null, timing?: AnyTiming | boolean, precedence?: number): this;
 
-  readonly fontFamily: StyleAnimator<this, FontFamily | FontFamily[] | undefined, FontFamily | ReadonlyArray<FontFamily> | undefined>;
+  readonly fontFamily: StyleAnimatorDef<this, {value: FontFamily | FontFamily[] | undefined, valueInit: FontFamily | ReadonlyArray<FontFamily> | undefined}>;
 
-  readonly fontSize: StyleAnimator<this, Length | null, AnyLength | null>;
+  readonly fontSize: StyleAnimatorDef<this, {extends: LengthStyleAnimator<StyleMap, Length | null, AnyLength | null>}>;
 
-  readonly fontStretch: StyleAnimator<this, FontStretch | undefined>;
+  readonly fontStretch: StyleAnimatorDef<this, {value: FontStretch | undefined}>;
 
-  readonly fontStyle: StyleAnimator<this, FontStyle | undefined>;
+  readonly fontStyle: StyleAnimatorDef<this, {value: FontStyle | undefined}>;
 
-  readonly fontVariant: StyleAnimator<this, FontVariant | undefined>;
+  readonly fontVariant: StyleAnimatorDef<this, {value: FontVariant | undefined}>;
 
-  readonly fontWeight: StyleAnimator<this, FontWeight | undefined>;
+  readonly fontWeight: StyleAnimatorDef<this, {value: FontWeight | undefined}>;
 
-  readonly height: StyleConstraintAnimator<this, Length | null, AnyLength | null>;
+  readonly height: StyleConstraintAnimatorDef<this, {extends: LengthStyleConstraintAnimator<StyleMap, Length | null, AnyLength | null>}>;
 
-  readonly justifyContent: StyleAnimator<this, JustifyContent | undefined>;
+  readonly justifyContent: StyleAnimatorDef<this, {value: JustifyContent | undefined}>;
 
-  readonly left: StyleConstraintAnimator<this, Length | null, AnyLength | null>;
+  readonly left: StyleConstraintAnimatorDef<this, {extends: LengthStyleConstraintAnimator<StyleMap, Length | null, AnyLength | null>}>;
 
-  readonly lineHeight: StyleAnimator<this, Length | null, AnyLength | null>;
+  readonly lineHeight: StyleAnimatorDef<this, {extends: LengthStyleAnimator<StyleMap, Length | null, AnyLength | null>}>;
 
   margin(): [Length | null, Length | null, Length | null, Length | null] | Length | null;
   margin(value: [AnyLength | null, AnyLength | null, AnyLength | null, AnyLength | null] | AnyLength | null, timing?: AnyTiming | boolean, precedence?: number): this;
 
-  readonly marginTop: StyleConstraintAnimator<this, Length | null, AnyLength | null>;
+  readonly marginTop: StyleConstraintAnimatorDef<this, {extends: LengthStyleConstraintAnimator<StyleMap, Length | null, AnyLength | null>}>;
 
-  readonly marginRight: StyleConstraintAnimator<this, Length | null, AnyLength | null>;
+  readonly marginRight: StyleConstraintAnimatorDef<this, {extends: LengthStyleConstraintAnimator<StyleMap, Length | null, AnyLength | null>}>;
 
-  readonly marginBottom: StyleConstraintAnimator<this, Length | null, AnyLength | null>;
+  readonly marginBottom: StyleConstraintAnimatorDef<this, {extends: LengthStyleConstraintAnimator<StyleMap, Length | null, AnyLength | null>}>;
 
-  readonly marginLeft: StyleConstraintAnimator<this, Length | null, AnyLength | null>;
+  readonly marginLeft: StyleConstraintAnimatorDef<this, {extends: LengthStyleConstraintAnimator<StyleMap, Length | null, AnyLength | null>}>;
 
-  readonly maxHeight: StyleAnimator<this, Length | null, AnyLength | null>;
+  readonly maxHeight: StyleAnimatorDef<this, {extends: LengthStyleAnimator<StyleMap, Length | null, AnyLength | null>}>;
 
-  readonly maxWidth: StyleAnimator<this, Length | null, AnyLength | null>;
+  readonly maxWidth: StyleAnimatorDef<this, {extends: LengthStyleAnimator<StyleMap, Length | null, AnyLength | null>}>;
 
-  readonly minHeight: StyleAnimator<this, Length | null, AnyLength | null>;
+  readonly minHeight: StyleAnimatorDef<this, {extends: LengthStyleAnimator<StyleMap, Length | null, AnyLength | null>}>;
 
-  readonly minWidth: StyleAnimator<this, Length | null, AnyLength | null>;
+  readonly minWidth: StyleAnimatorDef<this, {extends: LengthStyleAnimator<StyleMap, Length | null, AnyLength | null>}>;
 
-  readonly opacity: StyleAnimator<this, number | undefined>;
+  readonly opacity: StyleAnimatorDef<this, {value: number | undefined}>;
 
-  readonly order: StyleAnimator<this, number | undefined>;
+  readonly order: StyleAnimatorDef<this, {value: number | undefined}>;
 
-  readonly outlineColor: StyleAnimator<this, Color | null, AnyColor | null>;
+  readonly outlineColor: StyleAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
 
-  readonly outlineStyle: StyleAnimator<this, BorderStyle | undefined>;
+  readonly outlineStyle: StyleAnimatorDef<this, {value: BorderStyle | undefined}>;
 
-  readonly outlineWidth: StyleAnimator<this, Length | null, AnyLength | null>;
+  readonly outlineWidth: StyleAnimatorDef<this, {extends: LengthStyleAnimator<StyleMap, Length | null, AnyLength | null>}>;
 
   overflow(): [Overflow | undefined, Overflow | undefined] | Overflow | undefined;
   overflow(value: [Overflow | undefined, Overflow | undefined] | Overflow | undefined, timing?: AnyTiming | boolean, precedence?: number): this;
 
-  readonly overflowX: StyleAnimator<this, Overflow | undefined>;
+  readonly overflowX: StyleAnimatorDef<this, {value: Overflow | undefined}>;
 
-  readonly overflowY: StyleAnimator<this, Overflow | undefined>;
+  readonly overflowY: StyleAnimatorDef<this, {value: Overflow | undefined}>;
 
-  readonly overflowScrolling: StyleAnimator<this, "auto" | "touch" | undefined>;
+  readonly overflowScrolling: StyleAnimatorDef<this, {value: "auto" | "touch" | undefined}>;
 
   overscrollBehavior(): [OverscrollBehavior | undefined, OverscrollBehavior | undefined] | OverscrollBehavior | undefined;
   overscrollBehavior(value: [OverscrollBehavior | undefined, OverscrollBehavior | undefined] | OverscrollBehavior | undefined, timing?: AnyTiming | boolean, precedence?: number): this;
 
-  readonly overscrollBehaviorX: StyleAnimator<this, OverscrollBehavior | undefined>;
+  readonly overscrollBehaviorX: StyleAnimatorDef<this, {value: OverscrollBehavior | undefined}>;
 
-  readonly overscrollBehaviorY: StyleAnimator<this, OverscrollBehavior | undefined>;
+  readonly overscrollBehaviorY: StyleAnimatorDef<this, {value: OverscrollBehavior | undefined}>;
 
   padding(): [Length | null, Length | null, Length | null, Length | null] | Length | null;
   padding(value: [AnyLength | null, AnyLength | null, AnyLength | null, AnyLength | null] | AnyLength | null, timing?: AnyTiming | boolean, precedence?: number): this;
 
-  readonly paddingTop: StyleConstraintAnimator<this, Length | null, AnyLength | null>;
+  readonly paddingTop: StyleConstraintAnimatorDef<this, {extends: LengthStyleConstraintAnimator<StyleMap, Length | null, AnyLength | null>}>;
 
-  readonly paddingRight: StyleConstraintAnimator<this, Length | null, AnyLength | null>;
+  readonly paddingRight: StyleConstraintAnimatorDef<this, {extends: LengthStyleConstraintAnimator<StyleMap, Length | null, AnyLength | null>}>;
 
-  readonly paddingBottom: StyleConstraintAnimator<this, Length | null, AnyLength | null>;
+  readonly paddingBottom: StyleConstraintAnimatorDef<this, {extends: LengthStyleConstraintAnimator<StyleMap, Length | null, AnyLength | null>}>;
 
-  readonly paddingLeft: StyleConstraintAnimator<this, Length | null, AnyLength | null>;
+  readonly paddingLeft: StyleConstraintAnimatorDef<this, {extends: LengthStyleConstraintAnimator<StyleMap, Length | null, AnyLength | null>}>;
 
-  readonly pointerEvents: StyleAnimator<this, PointerEvents | undefined>;
+  readonly pointerEvents: StyleAnimatorDef<this, {value: PointerEvents | undefined}>;
 
-  readonly position: StyleAnimator<this, Position | undefined>;
+  readonly position: StyleAnimatorDef<this, {value: Position | undefined}>;
 
-  readonly right: StyleConstraintAnimator<this, Length | null, AnyLength | null>;
+  readonly right: StyleConstraintAnimatorDef<this, {extends: LengthStyleConstraintAnimator<StyleMap, Length | null, AnyLength | null>}>;
 
-  readonly textAlign: StyleAnimator<this, TextAlign | undefined>;
+  readonly textAlign: StyleAnimatorDef<this, {value: TextAlign | undefined}>;
 
-  readonly textDecorationColor: StyleAnimator<this, Color | null, AnyColor | null>;
+  readonly textDecorationColor: StyleAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
 
-  readonly textDecorationLine: StyleAnimator<this, string | undefined>;
+  readonly textDecorationLine: StyleAnimatorDef<this, {value: string | undefined}>;
 
-  readonly textDecorationStyle: StyleAnimator<this, TextDecorationStyle | undefined>;
+  readonly textDecorationStyle: StyleAnimatorDef<this, {value: TextDecorationStyle | undefined}>;
 
-  readonly textOverflow: StyleAnimator<this, string | undefined>;
+  readonly textOverflow: StyleAnimatorDef<this, {value: string | undefined}>;
 
-  readonly textTransform: StyleAnimator<this, TextTransform | undefined>;
+  readonly textTransform: StyleAnimatorDef<this, {value: TextTransform | undefined}>;
 
-  readonly top: StyleConstraintAnimator<this, Length | null, AnyLength | null>;
+  readonly top: StyleConstraintAnimatorDef<this, {extends: LengthStyleConstraintAnimator<StyleMap, Length | null, AnyLength | null>}>;
 
-  readonly touchAction: StyleAnimator<this, TouchAction | undefined>;
+  readonly touchAction: StyleAnimatorDef<this, {value: TouchAction | undefined}>;
 
-  readonly transform: StyleAnimator<this, Transform | null, AnyTransform | null>;
+  readonly transform: StyleAnimatorDef<this, {value: Transform | null, valueInit: AnyTransform | null}>;
 
-  readonly userSelect: StyleAnimator<this, UserSelect | undefined>;
+  readonly userSelect: StyleAnimatorDef<this, {value: UserSelect | undefined}>;
 
-  readonly verticalAlign: StyleAnimator<this, VerticalAlign | undefined, AnyLength | VerticalAlign | undefined>;
+  readonly verticalAlign: StyleAnimatorDef<this, {value: VerticalAlign | undefined, valueInit: AnyLength | VerticalAlign | undefined}>;
 
-  readonly visibility: StyleAnimator<this, Visibility | undefined>;
+  readonly visibility: StyleAnimatorDef<this, {value: Visibility | undefined}>;
 
-  readonly whiteSpace: StyleAnimator<this, WhiteSpace | undefined>;
+  readonly whiteSpace: StyleAnimatorDef<this, {value: WhiteSpace | undefined}>;
 
-  readonly width: StyleConstraintAnimator<this, Length | null, AnyLength | null>;
+  readonly width: StyleConstraintAnimatorDef<this, {extends: LengthStyleConstraintAnimator<StyleMap, Length | null, AnyLength | null>}>;
 
-  readonly zIndex: StyleAnimator<this, number | undefined>;
+  readonly zIndex: StyleAnimatorDef<this, {value: number | undefined}>;
 }
 
 /** @public */
@@ -377,12 +379,16 @@ export const StyleMap = (function () {
 
     /** @internal */
     define(prototype: StyleMap): void;
+
+    /** @internal */
+    pctWidthUnit(node: Node | undefined): number;
+
+    /** @internal */
+    pctHeightUnit(node: Node | undefined): number;
   };
 
   StyleMap.init = function (map: StyleMap, init: StyleMapInit): void {
     if (init.alignContent !== void 0) {
-      const foo = init.alignContent;
-      foo;
       map.alignContent(init.alignContent);
     }
     if (init.alignItems !== void 0) {
@@ -676,21 +682,43 @@ export const StyleMap = (function () {
   };
 
   StyleMap.define = function (prototype: StyleMap): void {
-    StyleAnimator({propertyNames: "align-content", valueType: String})(prototype, "alignContent");
+    StyleAnimatorDef<StyleMap["alignContent"]>({
+      propertyNames: "align-content",
+      valueType: String,
+    })(prototype, "alignContent");
 
-    StyleAnimator({propertyNames: "align-items", valueType: String})(prototype, "alignItems");
+    StyleAnimatorDef<StyleMap["alignItems"]>({
+      propertyNames: "align-items",
+      valueType: String,
+    })(prototype, "alignItems");
 
-    StyleAnimator({propertyNames: "align-self", valueType: String})(prototype, "alignSelf");
+    StyleAnimatorDef<StyleMap["alignSelf"]>({
+      propertyNames: "align-self",
+      valueType: String,
+    })(prototype, "alignSelf");
 
-    StyleAnimator({propertyNames: ["appearance", "-webkit-appearance"], valueType: String})(prototype, "appearance");
+    StyleAnimatorDef<StyleMap["appearance"]>({
+      propertyNames: ["appearance", "-webkit-appearance"],
+      valueType: String,
+    })(prototype, "appearance");
 
-    StyleAnimator({propertyNames: ["backdrop-filter", "-webkit-backdrop-filter"], valueType: String})(prototype, "backdropFilter");
+    StyleAnimatorDef<StyleMap["backdropFilter"]>({
+      propertyNames: ["backdrop-filter", "-webkit-backdrop-filter"],
+      valueType: String,
+    })(prototype, "backdropFilter");
 
-    StyleAnimator({propertyNames: ["background-clip", "-webkit-background-clip"], valueType: String})(prototype, "backgroundClip");
+    StyleAnimatorDef<StyleMap["backgroundClip"]>({
+      propertyNames: ["background-clip", "-webkit-background-clip"],
+      valueType: String,
+    })(prototype, "backgroundClip");
 
-    StyleAnimator({propertyNames: "background-color", valueType: Color, value: null})(prototype, "backgroundColor");
+    StyleAnimatorDef<StyleMap["backgroundColor"]>({
+      propertyNames: "background-color",
+      valueType: Color,
+      value: null,
+    })(prototype, "backgroundColor");
 
-    StyleAnimator<StyleMap, LinearGradient | string | null, AnyLinearGradient | string | null>({
+    StyleAnimatorDef<StyleMap["backgroundImage"]>({
       propertyNames: "background-image",
       value: null,
       parse(value: string): LinearGradient | string | null {
@@ -713,249 +741,533 @@ export const StyleMap = (function () {
       },
     })(prototype, "backgroundImage");
 
-    StyleAnimator({propertyNames: "border-collapse", valueType: String})(prototype, "borderCollapse");
+    StyleAnimatorDef<StyleMap["borderCollapse"]>({
+      propertyNames: "border-collapse",
+      valueType: String,
+    })(prototype, "borderCollapse");
 
     prototype.borderColor = borderColor;
 
-    StyleAnimator({propertyNames: "border-top-color", valueType: Color, value: null})(prototype, "borderTopColor");
+    StyleAnimatorDef<StyleMap["borderTopColor"]>({
+      propertyNames: "border-top-color",
+      valueType: Color,
+      value: null,
+    })(prototype, "borderTopColor");
 
-    StyleAnimator({propertyNames: "border-right-color", valueType: Color, value: null})(prototype, "borderRightColor");
+    StyleAnimatorDef<StyleMap["borderRightColor"]>({
+      propertyNames: "border-right-color",
+      valueType: Color,
+      value: null,
+    })(prototype, "borderRightColor");
 
-    StyleAnimator({propertyNames: "border-bottom-color", valueType: Color, value: null})(prototype, "borderBottomColor");
+    StyleAnimatorDef<StyleMap["borderBottomColor"]>({
+      propertyNames: "border-bottom-color",
+      valueType: Color,
+      value: null,
+    })(prototype, "borderBottomColor");
 
-    StyleAnimator({propertyNames: "border-left-color", valueType: Color, value: null})(prototype, "borderLeftColor");
+    StyleAnimatorDef<StyleMap["borderLeftColor"]>({
+      propertyNames: "border-left-color",
+      valueType: Color,
+      value: null,
+    })(prototype, "borderLeftColor");
 
     prototype.borderRadius = borderRadius;
 
-    StyleAnimator({propertyNames: "border-top-left-radius", valueType: Length, value: null})(prototype, "borderTopLeftRadius");
+    StyleAnimatorDef<StyleMap["borderTopLeftRadius"]>({
+      extends: LengthStyleAnimator,
+      propertyNames: "border-top-left-radius",
+      valueType: Length,
+      value: null,
+    })(prototype, "borderTopLeftRadius");
 
-    StyleAnimator({propertyNames: "border-top-right-radius", valueType: Length, value: null})(prototype, "borderTopRightRadius");
+    StyleAnimatorDef<StyleMap["borderTopRightRadius"]>({
+      extends: LengthStyleAnimator,
+      propertyNames: "border-top-right-radius",
+      valueType: Length,
+      value: null,
+    })(prototype, "borderTopRightRadius");
 
-    StyleAnimator({propertyNames: "border-bottom-right-radius", valueType: Length, value: null})(prototype, "borderBottomRightRadius");
+    StyleAnimatorDef<StyleMap["borderBottomRightRadius"]>({
+      extends: LengthStyleAnimator,
+      propertyNames: "border-bottom-right-radius",
+      valueType: Length,
+      value: null,
+    })(prototype, "borderBottomRightRadius");
 
-    StyleAnimator({propertyNames: "border-bottom-left-radius", valueType: Length, value: null})(prototype, "borderBottomLeftRadius");
+    StyleAnimatorDef<StyleMap["borderBottomLeftRadius"]>({
+      extends: LengthStyleAnimator,
+      propertyNames: "border-bottom-left-radius",
+      valueType: Length,
+      value: null,
+    })(prototype, "borderBottomLeftRadius");
 
-    StyleAnimator({propertyNames: "border-spacing", valueType: String})(prototype, "borderSpacing");
+    StyleAnimatorDef<StyleMap["borderSpacing"]>({
+      propertyNames: "border-spacing",
+      valueType: String,
+    })(prototype, "borderSpacing");
 
     prototype.borderStyle = borderStyle;
 
-    StyleAnimator({propertyNames: "border-top-style", valueType: String})(prototype, "borderTopStyle");
+    StyleAnimatorDef<StyleMap["borderTopStyle"]>({
+      propertyNames: "border-top-style",
+      valueType: String,
+    })(prototype, "borderTopStyle");
 
-    StyleAnimator({propertyNames: "border-right-style", valueType: String})(prototype, "borderRightStyle");
+    StyleAnimatorDef<StyleMap["borderRightStyle"]>({
+      propertyNames: "border-right-style",
+      valueType: String,
+    })(prototype, "borderRightStyle");
 
-    StyleAnimator({propertyNames: "border-bottom-style", valueType: String})(prototype, "borderBottomStyle");
+    StyleAnimatorDef<StyleMap["borderBottomStyle"]>({
+      propertyNames: "border-bottom-style",
+      valueType: String,
+    })(prototype, "borderBottomStyle");
 
-    StyleAnimator({propertyNames: "border-left-style", valueType: String})(prototype, "borderLeftStyle");
+    StyleAnimatorDef<StyleMap["borderLeftStyle"]>({
+      propertyNames: "border-left-style",
+      valueType: String,
+    })(prototype, "borderLeftStyle");
 
     prototype.borderWidth = borderWidth;
 
-    StyleAnimator({propertyNames: "border-top-width", valueType: Length, value: null})(prototype, "borderTopWidth");
+    StyleAnimatorDef<StyleMap["borderTopWidth"]>({
+      extends: LengthStyleAnimator,
+      propertyNames: "border-top-width",
+      valueType: Length,
+      value: null,
+    })(prototype, "borderTopWidth");
 
-    StyleAnimator({propertyNames: "border-right-width", valueType: Length, value: null})(prototype, "borderRightWidth");
+    StyleAnimatorDef<StyleMap["borderRightWidth"]>({
+      extends: LengthStyleAnimator,
+      propertyNames: "border-right-width",
+      valueType: Length,
+      value: null,
+    })(prototype, "borderRightWidth");
 
-    StyleAnimator({propertyNames: "border-bottom-width", valueType: Length, value: null})(prototype, "borderBottomWidth");
+    StyleAnimatorDef<StyleMap["borderBottomWidth"]>({
+      extends: LengthStyleAnimator,
+      propertyNames: "border-bottom-width",
+      valueType: Length,
+      value: null,
+    })(prototype, "borderBottomWidth");
 
-    StyleAnimator({propertyNames: "border-left-width", valueType: Length, value: null})(prototype, "borderLeftWidth");
+    StyleAnimatorDef<StyleMap["borderLeftWidth"]>({
+      extends: LengthStyleAnimator,
+      propertyNames: "border-left-width",
+      valueType: Length,
+      value: null,
+    })(prototype, "borderLeftWidth");
 
-    StyleConstraintAnimator<StyleMap, Length | null>({
+    StyleConstraintAnimatorDef<StyleMap["bottom"]>({
+      extends: LengthStyleConstraintAnimator,
       propertyNames: "bottom",
       valueType: Length,
       value: null,
-      get constraintValue(): Length | null {
-        const node = this.owner.node;
-        if (node instanceof HTMLElement) {
-          const offsetParent = node.offsetParent;
-          const offsetBounds = offsetParent !== null ? offsetParent.getBoundingClientRect()
-                             : node === document.body ? node.getBoundingClientRect() : null;
-          if (offsetBounds !== null) {
-            const bounds = node.getBoundingClientRect();
-            return Length.px(bounds.bottom - offsetBounds.bottom);
-          }
-        }
-        return null;
+      get pctUnit(): number {
+        return StyleMap.pctHeightUnit(this.owner.node);
       },
     })(prototype, "bottom");
 
-    StyleAnimator({propertyNames: "box-shadow", valueType: BoxShadow, value: null})(prototype, "boxShadow");
+    StyleAnimatorDef<StyleMap["boxShadow"]>({
+      propertyNames: "box-shadow",
+      valueType: BoxShadow,
+      value: null,
+    })(prototype, "boxShadow");
 
-    StyleAnimator({propertyNames: "box-sizing", valueType: String})(prototype, "boxSizing");
+    StyleAnimatorDef<StyleMap["boxSizing"]>({
+      propertyNames: "box-sizing",
+      valueType: String,
+    })(prototype, "boxSizing");
 
-    StyleAnimator({propertyNames: "color", valueType: Color, value: null})(prototype, "color");
+    StyleAnimatorDef<StyleMap["color"]>({
+      propertyNames: "color",
+      valueType: Color,
+      value: null,
+    })(prototype, "color");
 
-    StyleAnimator({propertyNames: "cursor", valueType: String})(prototype, "cursor");
+    StyleAnimatorDef<StyleMap["cursor"]>({
+      propertyNames: "cursor",
+      valueType: String,
+    })(prototype, "cursor");
 
-    StyleAnimator({propertyNames: "display", valueType: String})(prototype, "display");
+    StyleAnimatorDef<StyleMap["display"]>({
+      propertyNames: "display",
+      valueType: String,
+    })(prototype, "display");
 
-    StyleAnimator({propertyNames: "filter", valueType: String})(prototype, "filter");
+    StyleAnimatorDef<StyleMap["filter"]>({
+      propertyNames: "filter",
+      valueType: String,
+    })(prototype, "filter");
 
-    StyleAnimator({propertyNames: "flex-basis", valueType: Length, value: null})(prototype, "flexBasis");
+    StyleAnimatorDef<StyleMap["flexBasis"]>({
+      propertyNames: "flex-basis",
+      valueType: Length,
+      value: null,
+    })(prototype, "flexBasis");
 
-    StyleAnimator({propertyNames: "flex-direction", valueType: String})(prototype, "flexDirection");
+    StyleAnimatorDef<StyleMap["flexDirection"]>({
+      propertyNames: "flex-direction",
+      valueType: String,
+    })(prototype, "flexDirection");
 
-    StyleAnimator({propertyNames: "flex-grow", valueType: Number})(prototype, "flexGrow");
+    StyleAnimatorDef<StyleMap["flexGrow"]>({
+      propertyNames: "flex-grow",
+      valueType: Number,
+    })(prototype, "flexGrow");
 
-    StyleAnimator({propertyNames: "flex-shrink", valueType: Number})(prototype, "flexShrink");
+    StyleAnimatorDef<StyleMap["flexShrink"]>({
+      propertyNames: "flex-shrink",
+      valueType: Number,
+    })(prototype, "flexShrink");
 
-    StyleAnimator({propertyNames: "flex-wrap", valueType: String})(prototype, "flexWrap");
+    StyleAnimatorDef<StyleMap["flexWrap"]>({
+      propertyNames: "flex-wrap",
+      valueType: String,
+    })(prototype, "flexWrap");
 
     prototype.font = font;
 
-    StyleAnimator({propertyNames: "font-family", valueType: FontFamily})(prototype, "fontFamily");
+    StyleAnimatorDef<StyleMap["fontFamily"]>({
+      propertyNames: "font-family",
+      valueType: FontFamily,
+    })(prototype, "fontFamily");
 
-    StyleAnimator({propertyNames: "font-size", valueType: Length, value: null})(prototype, "fontSize");
+    StyleAnimatorDef<StyleMap["fontSize"]>({
+      extends: LengthStyleAnimator,
+      propertyNames: "font-size",
+      valueType: Length,
+      value: null,
+    })(prototype, "fontSize");
 
-    StyleAnimator({propertyNames: "font-stretch", valueType: String})(prototype, "fontStretch");
+    StyleAnimatorDef<StyleMap["fontStretch"]>({
+      propertyNames: "font-stretch",
+      valueType: String,
+    })(prototype, "fontStretch");
 
-    StyleAnimator({propertyNames: "font-style", valueType: String})(prototype, "fontStyle");
+    StyleAnimatorDef<StyleMap["fontStyle"]>({
+      propertyNames: "font-style",
+      valueType: String,
+    })(prototype, "fontStyle");
 
-    StyleAnimator({propertyNames: "font-variant", valueType: String})(prototype, "fontVariant");
+    StyleAnimatorDef<StyleMap["fontVariant"]>({
+      propertyNames: "font-variant",
+      valueType: String,
+    })(prototype, "fontVariant");
 
-    StyleAnimator({propertyNames: "font-weight", valueType: String})(prototype, "fontWeight");
+    StyleAnimatorDef<StyleMap["fontWeight"]>({
+      propertyNames: "font-weight",
+      valueType: String,
+    })(prototype, "fontWeight");
 
-    StyleConstraintAnimator<StyleMap, Length | null>({
+    StyleConstraintAnimatorDef<StyleMap["height"]>({
+      extends: LengthStyleConstraintAnimator,
       propertyNames: "height",
       valueType: Length,
       value: null,
-      get constraintValue(): Length | null {
-        const node = this.owner.node;
-        return node instanceof HTMLElement ? Length.px(node.offsetHeight) : null;
+      get pctUnit(): number {
+        return StyleMap.pctHeightUnit(this.owner.node);
       },
     })(prototype, "height");
 
-    StyleAnimator({propertyNames: "justify-content", valueType: String})(prototype, "justifyContent");
+    StyleAnimatorDef<StyleMap["justifyContent"]>({
+      propertyNames: "justify-content",
+      valueType: String,
+    })(prototype, "justifyContent");
 
-    StyleConstraintAnimator<StyleMap, Length | null>({
+    StyleConstraintAnimatorDef<StyleMap["left"]>({
+      extends: LengthStyleConstraintAnimator,
       propertyNames: "left",
       valueType: Length,
       value: null,
-      get constraintValue(): Length | null {
-        const node = this.owner.node;
-        return node instanceof HTMLElement ? Length.px(node.offsetLeft) : null;
+      get pctUnit(): number {
+        return StyleMap.pctWidthUnit(this.owner.node);
       },
     })(prototype, "left");
 
-    StyleAnimator({propertyNames: "line-height", valueType: Length, value: null})(prototype, "lineHeight");
+    StyleAnimatorDef<StyleMap["lineHeight"]>({
+      extends: LengthStyleAnimator,
+      propertyNames: "line-height",
+      valueType: Length,
+      value: null,
+    })(prototype, "lineHeight");
 
     prototype.margin = margin;
 
-    StyleConstraintAnimator({propertyNames: "margin-top", valueType: Length, value: null})(prototype, "marginTop");
+    StyleConstraintAnimatorDef<StyleMap["marginTop"]>({
+      extends: LengthStyleConstraintAnimator,
+      propertyNames: "margin-top",
+      valueType: Length,
+      value: null,
+      get pctUnit(): number {
+        return StyleMap.pctWidthUnit(this.owner.node);
+      },
+    })(prototype, "marginTop");
 
-    StyleConstraintAnimator({propertyNames: "margin-right", valueType: Length, value: null})(prototype, "marginRight");
+    StyleConstraintAnimatorDef<StyleMap["marginRight"]>({
+      extends: LengthStyleConstraintAnimator,
+      propertyNames: "margin-right",
+      valueType: Length,
+      value: null,
+      get pctUnit(): number {
+        return StyleMap.pctWidthUnit(this.owner.node);
+      },
+    })(prototype, "marginRight");
 
-    StyleConstraintAnimator({propertyNames: "margin-bottom", valueType: Length, value: null})(prototype, "marginBottom");
+    StyleConstraintAnimatorDef<StyleMap["marginBottom"]>({
+      extends: LengthStyleConstraintAnimator,
+      propertyNames: "margin-bottom",
+      valueType: Length,
+      value: null,
+      get pctUnit(): number {
+        return StyleMap.pctWidthUnit(this.owner.node);
+      },
+    })(prototype, "marginBottom");
 
-    StyleConstraintAnimator({propertyNames: "margin-left", valueType: Length, value: null})(prototype, "marginLeft");
+    StyleConstraintAnimatorDef<StyleMap["marginLeft"]>({
+      extends: LengthStyleConstraintAnimator,
+      propertyNames: "margin-left",
+      valueType: Length,
+      value: null,
+      get pctUnit(): number {
+        return StyleMap.pctWidthUnit(this.owner.node);
+      },
+    })(prototype, "marginLeft");
 
-    StyleAnimator({propertyNames: "max-height", valueType: Length, value: null})(prototype, "maxHeight");
+    StyleAnimatorDef<StyleMap["maxHeight"]>({
+      extends: LengthStyleAnimator,
+      propertyNames: "max-height",
+      valueType: Length,
+      value: null,
+    })(prototype, "maxHeight");
 
-    StyleAnimator({propertyNames: "max-width", valueType: Length, value: null})(prototype, "maxWidth");
+    StyleAnimatorDef<StyleMap["maxWidth"]>({
+      extends: LengthStyleAnimator,
+      propertyNames: "max-width",
+      valueType: Length,
+      value: null,
+    })(prototype, "maxWidth");
 
-    StyleAnimator({propertyNames: "min-height", valueType: Length, value: null})(prototype, "minHeight");
+    StyleAnimatorDef<StyleMap["minHeight"]>({
+      extends: LengthStyleAnimator,
+      propertyNames: "min-height",
+      valueType: Length,
+      value: null,
+    })(prototype, "minHeight");
 
-    StyleAnimator({propertyNames: "min-width", valueType: Length, value: null})(prototype, "minWidth");
+    StyleAnimatorDef<StyleMap["minWidth"]>({
+      extends: LengthStyleAnimator,
+      propertyNames: "min-width",
+      valueType: Length,
+      value: null,
+    })(prototype, "minWidth");
 
-    StyleAnimator({propertyNames: "opacity", valueType: Number})(prototype, "opacity");
+    StyleAnimatorDef<StyleMap["opacity"]>({
+      propertyNames: "opacity",
+      valueType: Number,
+    })(prototype, "opacity");
 
-    StyleAnimator({propertyNames: "order", valueType: Number})(prototype, "order");
+    StyleAnimatorDef<StyleMap["order"]>({
+      propertyNames: "order",
+      valueType: Number,
+    })(prototype, "order");
 
-    StyleAnimator({propertyNames: "outline-color", valueType: Color, value: null})(prototype, "outlineColor");
+    StyleAnimatorDef<StyleMap["outlineColor"]>({
+      propertyNames: "outline-color",
+      valueType: Color,
+      value: null,
+    })(prototype, "outlineColor");
 
-    StyleAnimator({propertyNames: "outline-style", valueType: String})(prototype, "outlineStyle");
+    StyleAnimatorDef<StyleMap["outlineStyle"]>({
+      propertyNames: "outline-style",
+      valueType: String,
+    })(prototype, "outlineStyle");
 
-    StyleAnimator({propertyNames: "outline-width", valueType: Length, value: null})(prototype, "outlineWidth");
+    StyleAnimatorDef<StyleMap["outlineWidth"]>({
+      extends: LengthStyleAnimator,
+      propertyNames: "outline-width",
+      valueType: Length,
+      value: null,
+    })(prototype, "outlineWidth");
 
     prototype.overflow = overflow;
 
-    StyleAnimator({propertyNames: "overflow-x", valueType: String})(prototype, "overflowX");
+    StyleAnimatorDef<StyleMap["overflowX"]>({
+      propertyNames: "overflow-x",
+      valueType: String,
+    })(prototype, "overflowX");
 
-    StyleAnimator({propertyNames: "overflow-y", valueType: String})(prototype, "overflowY");
+    StyleAnimatorDef<StyleMap["overflowY"]>({
+      propertyNames: "overflow-y",
+      valueType: String,
+    })(prototype, "overflowY");
 
-    StyleAnimator({propertyNames: "-webkit-overflow-scrolling", valueType: String})(prototype, "overflowScrolling");
+    StyleAnimatorDef<StyleMap["overflowScrolling"]>({
+      propertyNames: "-webkit-overflow-scrolling",
+      valueType: String,
+    })(prototype, "overflowScrolling");
 
     prototype.overscrollBehavior = overscrollBehavior;
 
-    StyleAnimator({propertyNames: "overscroll-behavior-x", valueType: String})(prototype, "overscrollBehaviorX");
+    StyleAnimatorDef<StyleMap["overscrollBehaviorX"]>({
+      propertyNames: "overscroll-behavior-x",
+      valueType: String,
+    })(prototype, "overscrollBehaviorX");
 
-    StyleAnimator({propertyNames: "overscroll-behavior-y", valueType: String})(prototype, "overscrollBehaviorY");
+    StyleAnimatorDef<StyleMap["overscrollBehaviorY"]>({
+      propertyNames: "overscroll-behavior-y",
+      valueType: String,
+    })(prototype, "overscrollBehaviorY");
 
     prototype.padding = padding;
 
-    StyleConstraintAnimator({propertyNames: "padding-top", valueType: Length, value: null})(prototype, "paddingTop");
+    StyleConstraintAnimatorDef<StyleMap["paddingTop"]>({
+      extends: LengthStyleConstraintAnimator,
+      propertyNames: "padding-top",
+      valueType: Length,
+      value: null,
+      get pctUnit(): number {
+        return StyleMap.pctWidthUnit(this.owner.node);
+      },
+    })(prototype, "paddingTop");
 
-    StyleConstraintAnimator({propertyNames: "padding-right", valueType: Length, value: null})(prototype, "paddingRight");
+    StyleConstraintAnimatorDef<StyleMap["paddingRight"]>({
+      extends: LengthStyleConstraintAnimator,
+      propertyNames: "padding-right",
+      valueType: Length,
+      value: null,
+      get pctUnit(): number {
+        return StyleMap.pctWidthUnit(this.owner.node);
+      },
+    })(prototype, "paddingRight");
 
-    StyleConstraintAnimator({propertyNames: "padding-bottom", valueType: Length, value: null})(prototype, "paddingBottom");
+    StyleConstraintAnimatorDef<StyleMap["paddingBottom"]>({
+      extends: LengthStyleConstraintAnimator,
+      propertyNames: "padding-bottom",
+      valueType: Length,
+      value: null,
+      get pctUnit(): number {
+        return StyleMap.pctWidthUnit(this.owner.node);
+      },
+    })(prototype, "paddingBottom");
 
-    StyleConstraintAnimator({propertyNames: "padding-left", valueType: Length, value: null})(prototype, "paddingLeft");
+    StyleConstraintAnimatorDef<StyleMap["paddingLeft"]>({
+      extends: LengthStyleConstraintAnimator,
+      propertyNames: "padding-left",
+      valueType: Length,
+      value: null,
+      get pctUnit(): number {
+        return StyleMap.pctWidthUnit(this.owner.node);
+      },
+    })(prototype, "paddingLeft");
 
-    StyleAnimator({propertyNames: "pointer-events", valueType: String})(prototype, "pointerEvents");
+    StyleAnimatorDef<StyleMap["pointerEvents"]>({
+      propertyNames: "pointer-events",
+      valueType: String,
+    })(prototype, "pointerEvents");
 
-    StyleAnimator({propertyNames: "position", valueType: String})(prototype, "position");
+    StyleAnimatorDef<StyleMap["position"]>({
+      propertyNames: "position",
+      valueType: String,
+    })(prototype, "position");
 
-    StyleConstraintAnimator<StyleMap, Length | null>({
+    StyleConstraintAnimatorDef<StyleMap["right"]>({
+      extends: LengthStyleConstraintAnimator,
       propertyNames: "right",
       valueType: Length,
       value: null,
-      get constraintValue(): Length | null {
-        const node = this.owner.node;
-        if (node instanceof HTMLElement) {
-          const offsetParent = node.offsetParent;
-          const offsetBounds = offsetParent !== null ? offsetParent.getBoundingClientRect()
-                             : node === document.body ? node.getBoundingClientRect() : null;
-          if (offsetBounds !== null) {
-            const bounds = node.getBoundingClientRect();
-            return Length.px(bounds.right - offsetBounds.right);
-          }
-        }
-        return null;
+      get pctUnit(): number {
+        return StyleMap.pctWidthUnit(this.owner.node);
       },
     })(prototype, "right");
 
-    StyleAnimator({propertyNames: "text-align", valueType: String})(prototype, "textAlign");
+    StyleAnimatorDef<StyleMap["textAlign"]>({
+      propertyNames: "text-align",
+      valueType: String,
+    })(prototype, "textAlign");
 
-    StyleAnimator({propertyNames: "text-decoration-color", valueType: Color, value: null})(prototype, "textDecorationColor");
+    StyleAnimatorDef<StyleMap["textDecorationColor"]>({
+      propertyNames: "text-decoration-color",
+      valueType: Color,
+      value: null,
+    })(prototype, "textDecorationColor");
 
-    StyleAnimator({propertyNames: "text-decoration-line", valueType: String})(prototype, "textDecorationLine");
+    StyleAnimatorDef<StyleMap["textDecorationLine"]>({
+      propertyNames: "text-decoration-line",
+      valueType: String,
+    })(prototype, "textDecorationLine");
 
-    StyleAnimator({propertyNames: "text-decoration-style", valueType: String})(prototype, "textDecorationStyle");
+    StyleAnimatorDef<StyleMap["textDecorationStyle"]>({
+      propertyNames: "text-decoration-style",
+      valueType: String,
+    })(prototype, "textDecorationStyle");
 
-    StyleAnimator({propertyNames: "text-overflow", valueType: String})(prototype, "textOverflow");
+    StyleAnimatorDef<StyleMap["textOverflow"]>({
+      propertyNames: "text-overflow",
+      valueType: String,
+    })(prototype, "textOverflow");
 
-    StyleAnimator({propertyNames: "text-transform", valueType: String})(prototype, "textTransform");
+    StyleAnimatorDef<StyleMap["textTransform"]>({
+      propertyNames: "text-transform",
+      valueType: String,
+    })(prototype, "textTransform");
 
-    StyleConstraintAnimator<StyleMap, Length | null>({
+    StyleConstraintAnimatorDef<StyleMap["top"]>({
+      extends: LengthStyleConstraintAnimator,
       propertyNames: "top",
       valueType: Length,
       value: null,
-      get constraintValue(): Length | null {
-        const node = this.owner.node;
-        return node instanceof HTMLElement ? Length.px(node.offsetTop) : null;
+      get pctUnit(): number {
+        return StyleMap.pctHeightUnit(this.owner.node);
       },
     })(prototype, "top");
 
-    StyleAnimator({propertyNames: "touch-action", valueType: String})(prototype, "touchAction");
+    StyleAnimatorDef<StyleMap["touchAction"]>({
+      propertyNames: "touch-action",
+      valueType: String,
+    })(prototype, "touchAction");
 
-    StyleAnimator({propertyNames: "transform", valueType: Transform, value: null})(prototype, "transform");
+    StyleAnimatorDef<StyleMap["transform"]>({
+      propertyNames: "transform",
+      valueType: Transform,
+      value: null,
+    })(prototype, "transform");
 
-    StyleAnimator({propertyNames: ["user-select", "-webkit-user-select", "-moz-user-select", "-ms-user-select"], valueType: String})(prototype, "userSelect");
+    StyleAnimatorDef<StyleMap["userSelect"]>({
+      propertyNames: ["user-select", "-webkit-user-select", "-moz-user-select", "-ms-user-select"],
+      valueType: String,
+    })(prototype, "userSelect");
 
-    StyleAnimator({propertyNames: "vertical-align", valueType: String})(prototype, "verticalAlign");
+    StyleAnimatorDef<StyleMap["verticalAlign"]>({
+      propertyNames: "vertical-align",
+      valueType: String,
+    })(prototype, "verticalAlign");
 
-    StyleAnimator({propertyNames: "visibility", valueType: String})(prototype, "visibility");
+    StyleAnimatorDef<StyleMap["visibility"]>({
+      propertyNames: "visibility",
+      valueType: String,
+    })(prototype, "visibility");
 
-    StyleAnimator({propertyNames: "white-space", valueType: String})(prototype, "whiteSpace");
+    StyleAnimatorDef<StyleMap["whiteSpace"]>({
+      propertyNames: "white-space",
+      valueType: String,
+    })(prototype, "whiteSpace");
 
-    StyleConstraintAnimator<StyleMap, Length | null>({
+    StyleConstraintAnimatorDef<StyleMap["width"]>({
+      extends: LengthStyleConstraintAnimator,
       propertyNames: "width",
       valueType: Length,
       value: null,
-      get constraintValue(): Length | null {
-        const node = this.owner.node;
-        return node instanceof HTMLElement ? Length.px(node.offsetWidth) : null;
+      get pctUnit(): number {
+        return StyleMap.pctWidthUnit(this.owner.node);
       },
     })(prototype, "width");
 
-    StyleAnimator({propertyNames: "z-index", valueType: Number})(prototype, "zIndex");
+    StyleAnimatorDef<StyleMap["zIndex"]>({
+      propertyNames: "z-index",
+      valueType: Number,
+    })(prototype, "zIndex");
   };
 
   function borderColor(this: StyleMap): [Color | null, Color | null, Color | null, Color | null] | Color | null;
@@ -1296,6 +1608,32 @@ export const StyleMap = (function () {
       return this;
     }
   }
+
+  StyleMap.pctWidthUnit = function (node: Node | undefined): number {
+    if (node instanceof HTMLElement) {
+      const offsetParent = node.offsetParent;
+      if (offsetParent instanceof HTMLElement) {
+        return offsetParent.offsetWidth;
+      }
+    }
+    if (node === document.body || node === document.documentElement) {
+      return window.innerWidth;
+    }
+    return 0;
+  };
+
+  StyleMap.pctHeightUnit = function (node: Node | undefined): number {
+    if (node instanceof HTMLElement) {
+      const offsetParent = node.offsetParent;
+      if (offsetParent instanceof HTMLElement) {
+        return offsetParent.offsetHeight;
+      }
+    }
+    if (node === document.body || node === document.documentElement) {
+      return window.innerHeight;
+    }
+    return 0;
+  };
 
   return StyleMap;
 })();

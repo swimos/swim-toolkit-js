@@ -33,7 +33,7 @@ export interface GestureRefinement extends FastenerRefinement {
 
 /** @public */
 export type GestureView<R extends GestureRefinement | Gesture<any, any>, D = View> =
-  R extends {view: infer V} ? V :
+  R extends {view: infer V | null} ? V :
   R extends {extends: infer E} ? GestureView<E, D> :
   R extends Gesture<any, infer V> ? V :
   D;
@@ -67,7 +67,7 @@ export interface GestureClass<G extends Gesture<any, any> = Gesture<any, any>> e
 }
 
 /** @public */
-export type GestureDef<O, R extends GestureRefinement> =
+export type GestureDef<O, R extends GestureRefinement = {}> =
   Gesture<O, GestureView<R>> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &

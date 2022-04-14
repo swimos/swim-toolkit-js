@@ -8,6 +8,7 @@
     {"path": "./swim-table"},
     {"path": "./swim-window"},
     {"path": "./swim-sheet"},
+    {"path": "./swim-panel"},
     {"path": "./src/main"}
   ]
 }

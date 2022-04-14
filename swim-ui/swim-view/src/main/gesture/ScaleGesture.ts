@@ -92,7 +92,7 @@ export interface ScaleGestureClass<G extends ScaleGesture<any, any, any, any> = 
 }
 
 /** @public */
-export type ScaleGestureDef<O, R extends MomentumGestureRefinement> =
+export type ScaleGestureDef<O, R extends MomentumGestureRefinement = {}> =
   ScaleGesture<O, GestureView<R>, ScaleGestureX<R>, ScaleGestureY<R>> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &

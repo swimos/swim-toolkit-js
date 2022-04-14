@@ -57,7 +57,7 @@ export interface ModelRelationClass<F extends ModelRelation<any, any> = ModelRel
 }
 
 /** @public */
-export type ModelRelationDef<O, R extends ModelRelationRefinement> =
+export type ModelRelationDef<O, R extends ModelRelationRefinement = {}> =
   ModelRelation<O, ModelRelationModel<R>> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &

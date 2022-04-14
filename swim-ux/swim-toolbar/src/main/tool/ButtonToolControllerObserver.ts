@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {PositionGestureInput} from "@swim/view";
 import type {Graphics} from "@swim/graphics";
 import type {ToolControllerObserver} from "./ToolControllerObserver";
 import type {ButtonToolView} from "./ButtonToolView";
@@ -30,8 +29,4 @@ export interface ButtonToolControllerObserver<C extends ButtonToolController = B
   controllerDidDetachToolView?(toolView: ButtonToolView, controller: C): void;
 
   controllerDidSetToolIcon?(toolIcon: Graphics | null, controller: C): void;
-
-  controllerDidPressToolView?(input: PositionGestureInput, event: Event | null, controller: C): void;
-
-  controllerDidLongPressToolView?(input: PositionGestureInput, controller: C): void;
 }

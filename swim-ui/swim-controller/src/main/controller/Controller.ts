@@ -12,8 +12,43 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, Instance, FromAny, Creatable, InitType, Initable} from "@swim/util";
-import {FastenerClass, Fastener, ComponentFlags, ComponentInit, Component} from "@swim/component";
+import {
+  Mutable,
+  Class,
+  Instance,
+  Arrays,
+  FromAny,
+  Creatable,
+  InitType,
+  Initable,
+  ConsumerType,
+  Consumable,
+  Consumer,
+} from "@swim/util";
+import {
+  FastenerClass,
+  Fastener,
+  PropertyDef,
+  ComponentFlags,
+  ComponentInit,
+  Component,
+} from "@swim/component";
+import {AnyValue, Value} from "@swim/structure";
+import {AnyUri, Uri} from "@swim/uri";
+import {
+  WarpDownlinkModel,
+  WarpDownlink,
+  EventDownlinkTemplate,
+  EventDownlink,
+  ValueDownlinkTemplate,
+  ValueDownlink,
+  ListDownlinkTemplate,
+  ListDownlink,
+  MapDownlinkTemplate,
+  MapDownlink,
+  WarpRef,
+  WarpClient,
+} from "@swim/client";
 import {ExecuteService} from "../execute/ExecuteService";
 import {ExecuteProvider} from "../execute/ExecuteProvider";
 import {HistoryService} from "../history/HistoryService";
@@ -59,12 +94,20 @@ export interface ControllerConstructor<C extends Controller = Controller, U = An
 }
 
 /** @public */
-export class Controller extends Component<Controller> implements Initable<ControllerInit> {
+export class Controller extends Component<Controller> implements Initable<ControllerInit>, Consumable, WarpRef {
+  constructor() {
+    super();
+    this.consumers = Arrays.empty;
+  }
+
   override get componentType(): Class<Controller> {
     return Controller;
   }
 
   override readonly observerType?: Class<ControllerObserver>;
+
+  /** @override */
+  readonly consumerType?: Class<Consumer>;
 
   readonly contextType?: Class<ControllerContext>;
 
@@ -150,6 +193,10 @@ export class Controller extends Component<Controller> implements Initable<Contro
     return super.insertChild(child, target, key);
   }
 
+  override reinsertChild(child: Controller, target: Controller | null): void {
+    super.reinsertChild(child, target);
+  }
+
   override replaceChild<C extends Controller>(newChild: Controller, oldChild: C): C;
   override replaceChild<C extends Controller>(newChild: AnyController, oldChild: C): C;
   override replaceChild(newChild: AnyController, oldChild: Controller): Controller {
@@ -223,6 +270,32 @@ export class Controller extends Component<Controller> implements Initable<Contro
       }
     }
     super.didRemoveChild(child);
+  }
+
+  protected override willReinsertChild(child: Controller, target: Controller | null): void {
+    super.willReinsertChild(child, target);
+    const observers = this.observers;
+    for (let i = 0, n = observers.length; i < n; i += 1) {
+      const observer = observers[i]!;
+      if (observer.controllerWillReinsertChild !== void 0) {
+        observer.controllerWillReinsertChild(child, target, this);
+      }
+    }
+  }
+
+  protected override onReinsertChild(child: Controller, target: Controller | null): void {
+    super.onReinsertChild(child, target);
+  }
+
+  protected override didReinsertChild(child: Controller, target: Controller | null): void {
+    const observers = this.observers;
+    for (let i = 0, n = observers.length; i < n; i += 1) {
+      const observer = observers[i]!;
+      if (observer.controllerDidReinsertChild !== void 0) {
+        observer.controllerDidReinsertChild(child, target, this);
+      }
+    }
+    super.didReinsertChild(child, target);
   }
 
   protected override willMount(): void {
@@ -631,6 +704,13 @@ export class Controller extends Component<Controller> implements Initable<Contro
     child.cascadeExecute(executeFlags, controllerContext);
   }
 
+  protected override bindFastener(fastener: Fastener): void {
+    super.bindFastener(fastener);
+    if (fastener instanceof WarpDownlink && fastener.consumed === true && this.consuming) {
+      fastener.consume(this);
+    }
+  }
+
   /** @internal */
   protected override bindChildFastener(fastener: Fastener, child: Controller, target: Controller | null): void {
     super.bindChildFastener(fastener, child, target);
@@ -653,6 +733,165 @@ export class Controller extends Component<Controller> implements Initable<Contro
     this.requireUpdate(Controller.NeedsRevise);
   }
 
+  /** @internal */
+  readonly consumers: ReadonlyArray<ConsumerType<this>>;
+
+  /** @override */
+  consume(consumer: ConsumerType<this>): void {
+    const oldConsumers = this.consumers;
+    const newConsumers = Arrays.inserted(consumer, oldConsumers);
+    if (oldConsumers !== newConsumers) {
+      this.willConsume(consumer);
+      (this as Mutable<this>).consumers = newConsumers;
+      this.onConsume(consumer);
+      this.didConsume(consumer);
+      if (oldConsumers.length === 0 && this.mounted) {
+        this.startConsuming();
+      }
+    }
+  }
+
+  protected willConsume(consumer: ConsumerType<this>): void {
+    // hook
+  }
+
+  protected onConsume(consumer: ConsumerType<this>): void {
+    // hook
+  }
+
+  protected didConsume(consumer: ConsumerType<this>): void {
+    // hook
+  }
+
+  /** @override */
+  unconsume(consumer: ConsumerType<this>): void {
+    const oldConsumers = this.consumers;
+    const newConsumers = Arrays.removed(consumer, oldConsumers);
+    if (oldConsumers !== newConsumers) {
+      this.willUnconsume(consumer);
+      (this as Mutable<this>).consumers = newConsumers;
+      this.onUnconsume(consumer);
+      this.didUnconsume(consumer);
+      if (newConsumers.length === 0) {
+        this.stopConsuming();
+      }
+    }
+  }
+
+  protected willUnconsume(consumer: ConsumerType<this>): void {
+    // hook
+  }
+
+  protected onUnconsume(consumer: ConsumerType<this>): void {
+    // hook
+  }
+
+  protected didUnconsume(consumer: ConsumerType<this>): void {
+    // hook
+  }
+
+  get consuming(): boolean {
+    return (this.flags & Controller.ConsumingFlag) !== 0;
+  }
+
+  get startConsumingFlags(): ControllerFlags {
+    return (this.constructor as typeof Controller).StartConsumingFlags;
+  }
+
+  protected startConsuming(): void {
+    if ((this.flags & Controller.ConsumingFlag) === 0) {
+      this.willStartConsuming();
+      this.setFlags(this.flags | Controller.ConsumingFlag);
+      this.onStartConsuming();
+      this.didStartConsuming();
+    }
+  }
+
+  protected willStartConsuming(): void {
+    const observers = this.observers;
+    for (let i = 0, n = observers.length; i < n; i += 1) {
+      const observer = observers[i]!;
+      if (observer.controllerWillStartConsuming !== void 0) {
+        observer.controllerWillStartConsuming(this);
+      }
+    }
+  }
+
+  protected onStartConsuming(): void {
+    this.requireUpdate(this.startConsumingFlags);
+    this.startConsumingFasteners();
+  }
+
+  protected didStartConsuming(): void {
+    const observers = this.observers;
+    for (let i = 0, n = observers.length; i < n; i += 1) {
+      const observer = observers[i]!;
+      if (observer.controllerDidStartConsuming !== void 0) {
+        observer.controllerDidStartConsuming(this);
+      }
+    }
+  }
+
+  get stopConsumingFlags(): ControllerFlags {
+    return (this.constructor as typeof Controller).StopConsumingFlags;
+  }
+
+  protected stopConsuming(): void {
+    if ((this.flags & Controller.ConsumingFlag) !== 0) {
+      this.willStopConsuming();
+      this.setFlags(this.flags & ~Controller.ConsumingFlag);
+      this.onStopConsuming();
+      this.didStopConsuming();
+    }
+  }
+
+  protected willStopConsuming(): void {
+    const observers = this.observers;
+    for (let i = 0, n = observers.length; i < n; i += 1) {
+      const observer = observers[i]!;
+      if (observer.controllerWillStopConsuming !== void 0) {
+        observer.controllerWillStopConsuming(this);
+      }
+    }
+  }
+
+  protected onStopConsuming(): void {
+    this.requireUpdate(this.stopConsumingFlags);
+    this.stopConsumingFasteners();
+  }
+
+  protected didStopConsuming(): void {
+    const observers = this.observers;
+    for (let i = 0, n = observers.length; i < n; i += 1) {
+      const observer = observers[i]!;
+      if (observer.controllerDidStopConsuming !== void 0) {
+        observer.controllerDidStopConsuming(this);
+      }
+    }
+  }
+
+  /** @internal */
+  protected startConsumingFasteners(): void {
+    const fasteners = this.fasteners;
+    for (const fastenerName in fasteners) {
+      const fastener = fasteners[fastenerName]!;
+      if (fastener instanceof WarpDownlink && fastener.consumed === true) {
+        fastener.consume(this);
+      }
+    }
+  }
+
+  /** @internal */
+  protected stopConsumingFasteners(): void {
+    const fasteners = this.fasteners;
+    for (const fastenerName in fasteners) {
+      const fastener = fasteners[fastenerName]!;
+      if (fastener instanceof WarpDownlink && fastener.consumed === true) {
+        fastener.unconsume(this);
+      }
+    }
+  }
+
   @ExecuteProvider({
     service: ExecuteService.global(),
   })
@@ -670,6 +909,209 @@ export class Controller extends Component<Controller> implements Initable<Contro
   })
   readonly storageProvider!: StorageProvider<this>;
   static readonly storageProvider: FastenerClass<Controller["storageProvider"]>;
+
+  /** @override */
+  @PropertyDef({valueType: Uri, value: null, inherits: true, updateFlags: Controller.NeedsRevise})
+  readonly hostUri!: PropertyDef<this, {value: Uri | null, valueInit: AnyUri | null}>;
+
+  /** @override */
+  @PropertyDef({valueType: Uri, value: null, inherits: true, updateFlags: Controller.NeedsRevise})
+  readonly nodeUri!: PropertyDef<this, {value: Uri | null, valueInit: AnyUri | null}>;
+
+  /** @override */
+  @PropertyDef({valueType: Uri, value: null, inherits: true, updateFlags: Controller.NeedsRevise})
+  readonly laneUri!: PropertyDef<this, {value: Uri | null, valueInit: AnyUri | null}>;
+
+  /** @override */
+  downlink(template?: ThisType<EventDownlink<this>> & EventDownlinkTemplate & Partial<Omit<EventDownlink<this>, keyof EventDownlinkTemplate>>): EventDownlink<this> {
+    let downlinkClass = EventDownlink;
+    if (template !== void 0) {
+      downlinkClass = downlinkClass.specify("downlink", template);
+    }
+    return downlinkClass.create(this);
+  }
+
+  /** @override */
+  downlinkValue<V = Value, VU = V extends Value ? AnyValue : V>(template?: ThisType<ValueDownlink<this, V, VU>> & ValueDownlinkTemplate<V, VU> & Partial<Omit<ValueDownlink<this, V, VU>, keyof ValueDownlinkTemplate>>): ValueDownlink<this, V, VU> {
+    let downlinkClass = ValueDownlink;
+    if (template !== void 0) {
+      downlinkClass = downlinkClass.specify("downlinkValue", template);
+    }
+    return downlinkClass.create(this);
+  }
+
+  /** @override */
+  downlinkList<V = Value, VU = V extends Value ? AnyValue : V>(template?: ThisType<ListDownlink<this, V, VU>> & ListDownlinkTemplate<V, VU> & Partial<Omit<ListDownlink<this, V, VU>, keyof ListDownlinkTemplate>>): ListDownlink<this, V, VU> {
+    let downlinkClass = ListDownlink;
+    if (template !== void 0) {
+      downlinkClass = downlinkClass.specify("downlinkList", template);
+    }
+    return downlinkClass.create(this);
+  }
+
+  /** @override */
+  downlinkMap<K = Value, V = Value, KU = K extends Value ? AnyValue : K, VU = V extends Value ? AnyValue : V>(template?: ThisType<MapDownlink<this, K, V, KU, VU>> & MapDownlinkTemplate<V, VU> & Partial<Omit<MapDownlink<this, K, V, KU, VU>, keyof MapDownlinkTemplate>>): MapDownlink<this, K, V, KU, VU> {
+    let downlinkClass = MapDownlink;
+    if (template !== void 0) {
+      downlinkClass = downlinkClass.specify("downlinkMap", template);
+    }
+    return downlinkClass.create(this);
+  }
+
+  /** @override */
+  command(hostUri: AnyUri, nodeUri: AnyUri, laneUri: AnyUri, body: AnyValue): void;
+  /** @override */
+  command(nodeUri: AnyUri, laneUri: AnyUri, body: AnyValue): void;
+  /** @override */
+  command(laneUri: AnyUri, body: AnyValue): void;
+  /** @override */
+  command(body: AnyValue): void;
+  command(hostUri: AnyUri | AnyValue, nodeUri?: AnyUri | AnyValue, laneUri?: AnyUri | AnyValue, body?: AnyValue): void {
+    if (nodeUri === void 0) {
+      body = Value.fromAny(hostUri as AnyValue);
+      laneUri = this.laneUri.getValue();
+      nodeUri = this.nodeUri.getValue();
+      hostUri = this.hostUri.value;
+    } else if (laneUri === void 0) {
+      body = Value.fromAny(nodeUri as AnyValue);
+      laneUri = Uri.fromAny(hostUri as AnyUri);
+      nodeUri = this.nodeUri.getValue();
+      hostUri = this.hostUri.value;
+    } else if (body === void 0) {
+      body = Value.fromAny(laneUri as AnyValue);
+      laneUri = Uri.fromAny(nodeUri as AnyUri);
+      nodeUri = Uri.fromAny(hostUri as AnyUri);
+      hostUri = this.hostUri.value;
+    } else {
+      body = Value.fromAny(body);
+      laneUri = Uri.fromAny(laneUri as AnyUri);
+      nodeUri = Uri.fromAny(nodeUri as AnyUri);
+      hostUri = Uri.fromAny(hostUri as AnyUri);
+    }
+    if (hostUri === null) {
+      hostUri = nodeUri.endpoint();
+      nodeUri = hostUri.unresolve(nodeUri);
+    }
+    const warpRef = this.warpRef.value;
+    warpRef.command(hostUri, nodeUri, laneUri, body);
+  }
+
+  /** @override */
+  authenticate(hostUri: AnyUri, credentials: AnyValue): void;
+  /** @override */
+  authenticate(credentials: AnyValue): void;
+  authenticate(hostUri: AnyUri | AnyValue, credentials?: AnyValue): void {
+    if (credentials === void 0) {
+      credentials = Value.fromAny(hostUri as AnyValue);
+      hostUri = this.hostUri.getValue();
+    } else {
+      credentials = Value.fromAny(credentials);
+      hostUri = Uri.fromAny(hostUri as AnyUri);
+    }
+    const warpRef = this.warpRef.value;
+    warpRef.authenticate(hostUri, credentials);
+  }
+
+  /** @override */
+  hostRef(hostUri: AnyUri): WarpRef {
+    hostUri = Uri.fromAny(hostUri);
+    const childRef = new Controller();
+    childRef.hostUri.setValue(hostUri);
+    this.appendChild(childRef);
+    return childRef;
+  }
+
+  /** @override */
+  nodeRef(hostUri: AnyUri, nodeUri: AnyUri): WarpRef;
+  /** @override */
+  nodeRef(nodeUri: AnyUri): WarpRef;
+  nodeRef(hostUri: AnyUri | undefined, nodeUri?: AnyUri): WarpRef {
+    if (nodeUri === void 0) {
+      nodeUri = Uri.fromAny(hostUri as AnyUri);
+      hostUri = nodeUri.endpoint();
+      if (hostUri.isDefined()) {
+        nodeUri = hostUri.unresolve(nodeUri);
+      } else {
+        hostUri = void 0;
+      }
+    } else {
+      nodeUri = Uri.fromAny(nodeUri);
+      hostUri = Uri.fromAny(hostUri as AnyUri);
+    }
+    const childRef = new Controller();
+    if (hostUri !== void 0) {
+      childRef.hostUri.setValue(hostUri);
+    }
+    if (nodeUri !== void 0) {
+      childRef.nodeUri.setValue(nodeUri);
+    }
+    this.appendChild(childRef);
+    return childRef;
+  }
+
+  /** @override */
+  laneRef(hostUri: AnyUri, nodeUri: AnyUri, laneUri: AnyUri): WarpRef;
+  /** @override */
+  laneRef(nodeUri: AnyUri, laneUri: AnyUri): WarpRef;
+  /** @override */
+  laneRef(laneUri: AnyUri): WarpRef;
+  laneRef(hostUri: AnyUri | undefined, nodeUri?: AnyUri, laneUri?: AnyUri): WarpRef {
+    if (nodeUri === void 0) {
+      laneUri = Uri.fromAny(hostUri as AnyUri);
+      nodeUri = void 0;
+      hostUri = void 0;
+    } else if (laneUri === void 0) {
+      laneUri = Uri.fromAny(nodeUri);
+      nodeUri = Uri.fromAny(hostUri as AnyUri);
+      hostUri = nodeUri.endpoint();
+      if (hostUri.isDefined()) {
+        nodeUri = hostUri.unresolve(nodeUri);
+      } else {
+        hostUri = void 0;
+      }
+    } else {
+      laneUri = Uri.fromAny(laneUri);
+      nodeUri = Uri.fromAny(nodeUri);
+      hostUri = Uri.fromAny(hostUri as AnyUri);
+    }
+    const childRef = new Controller();
+    if (hostUri !== void 0) {
+      childRef.hostUri.setValue(hostUri);
+    }
+    if (nodeUri !== void 0) {
+      childRef.nodeUri.setValue(nodeUri);
+    }
+    if (laneUri !== void 0) {
+      childRef.laneUri.setValue(laneUri);
+    }
+    this.appendChild(childRef);
+    return childRef;
+  }
+
+  /** @internal @override */
+  getDownlink(hostUri: Uri, nodeUri: Uri, laneUri: Uri): WarpDownlinkModel | null {
+    const warpRef = this.warpRef.value;
+    return warpRef.getDownlink(hostUri, nodeUri, laneUri);
+  }
+
+  /** @internal @override */
+  openDownlink(downlink: WarpDownlinkModel): void {
+    const warpRef = this.warpRef.value;
+    warpRef.openDownlink(downlink);
+  }
+
+  @PropertyDef<Controller["warpRef"]>({
+    valueType: WarpRef,
+    inherits: true,
+    updateFlags: Controller.NeedsRevise,
+    initValue(): WarpRef {
+      return WarpClient.global();
+    },
+    equalValues(newValue: WarpRef, oldValue: WarpRef): boolean {
+      return newValue === oldValue;
+    },
+  })
+  readonly warpRef!: PropertyDef<this, {value: WarpRef}>;
 
   /** @internal */
   get superControllerContext(): ControllerContext {
@@ -732,17 +1174,19 @@ export class Controller extends Component<Controller> implements Initable<Contro
   }
 
   /** @internal */
-  static override uid: () => number = (function () {
+  static override uid: () => string = (function () {
     let nextId = 1;
-    return function uid(): number {
+    return function uid(): string {
       const id = ~~nextId;
       nextId += 1;
-      return id;
+      return "controller" + id;
     }
   })();
 
   /** @internal */
   static override readonly MountedFlag: ControllerFlags = Component.MountedFlag;
+  /** @internal */
+  static override readonly InsertingFlag: ControllerFlags = Component.InsertingFlag;
   /** @internal */
   static override readonly RemovingFlag: ControllerFlags = Component.RemovingFlag;
   /** @internal */
@@ -752,28 +1196,31 @@ export class Controller extends Component<Controller> implements Initable<Contro
   /** @internal */
   static readonly ContextualFlag: ControllerFlags = 1 << (Component.FlagShift + 2);
   /** @internal */
+  static readonly ConsumingFlag: ControllerFlags = 1 << (Component.FlagShift + 3);
+  /** @internal */
   static readonly UpdatingMask: ControllerFlags = Controller.CompilingFlag
                                                 | Controller.ExecutingFlag;
   /** @internal */
   static readonly StatusMask: ControllerFlags = Controller.MountedFlag
+                                              | Controller.InsertingFlag
                                               | Controller.RemovingFlag
                                               | Controller.CompilingFlag
                                               | Controller.ExecutingFlag
                                               | Controller.ContextualFlag;
 
-  static readonly NeedsCompile: ControllerFlags = 1 << (Component.FlagShift + 3);
-  static readonly NeedsResolve: ControllerFlags = 1 << (Component.FlagShift + 4);
-  static readonly NeedsGenerate: ControllerFlags = 1 << (Component.FlagShift + 5);
-  static readonly NeedsAssemble: ControllerFlags = 1 << (Component.FlagShift + 6);
+  static readonly NeedsCompile: ControllerFlags = 1 << (Component.FlagShift + 4);
+  static readonly NeedsResolve: ControllerFlags = 1 << (Component.FlagShift + 5);
+  static readonly NeedsGenerate: ControllerFlags = 1 << (Component.FlagShift + 6);
+  static readonly NeedsAssemble: ControllerFlags = 1 << (Component.FlagShift + 7);
   /** @internal */
   static readonly CompileMask: ControllerFlags = Controller.NeedsCompile
                                                | Controller.NeedsResolve
                                                | Controller.NeedsGenerate
                                                | Controller.NeedsAssemble;
 
-  static readonly NeedsExecute: ControllerFlags = 1 << (Component.FlagShift + 7);
-  static readonly NeedsRevise: ControllerFlags = 1 << (Component.FlagShift + 8);
-  static readonly NeedsCompute: ControllerFlags = 1 << (Component.FlagShift + 9);
+  static readonly NeedsExecute: ControllerFlags = 1 << (Component.FlagShift + 8);
+  static readonly NeedsRevise: ControllerFlags = 1 << (Component.FlagShift + 9);
+  static readonly NeedsCompute: ControllerFlags = 1 << (Component.FlagShift + 10);
   /** @internal */
   static readonly ExecuteMask: ControllerFlags = Controller.NeedsExecute
                                                | Controller.NeedsRevise
@@ -784,11 +1231,14 @@ export class Controller extends Component<Controller> implements Initable<Contro
                                               | Controller.ExecuteMask;
 
   /** @internal */
-  static override readonly FlagShift: number = Component.FlagShift + 10;
+  static override readonly FlagShift: number = Component.FlagShift + 11;
   /** @internal */
   static override readonly FlagMask: ControllerFlags = (1 << Controller.FlagShift) - 1;
 
   static override readonly MountFlags: ControllerFlags = 0;
   static override readonly InsertChildFlags: ControllerFlags = 0;
   static override readonly RemoveChildFlags: ControllerFlags = 0;
+  static override readonly ReinsertChildFlags: ControllerFlags = 0;
+  static readonly StartConsumingFlags: ControllerFlags = 0;
+  static readonly StopConsumingFlags: ControllerFlags = 0;
 }

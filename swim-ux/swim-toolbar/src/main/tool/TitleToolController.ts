@@ -70,7 +70,7 @@ export class TitleToolController extends ToolController {
   protected setContentView(content: string | undefined): void {
     const toolView = this.tool.view;
     if (toolView !== null) {
-      toolView.content.setView(content !== void 0 ? content : null);
+      toolView.content.setContent(content);
     }
   }
 

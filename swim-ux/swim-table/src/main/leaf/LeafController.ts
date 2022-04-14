@@ -114,6 +114,29 @@ export class LeafController extends Controller {
   }>;
   static readonly leaf: FastenerClass<LeafController["leaf"]>;
 
+  getCell<F extends Class<CellController>>(key: string, cellControllerClass: F): InstanceType<F> | null;
+  getCell(key: string): CellController | null;
+  getCell(key: string, cellControllerClass?: Class<CellController>): CellController | null {
+    if (cellControllerClass === void 0) {
+      cellControllerClass = CellController;
+    }
+    const cellController = this.getChild(key);
+    return cellController instanceof cellControllerClass ? cellController : null;
+  }
+
+  getOrCreateCell<F extends Class<Instance<F, CellController>> & Creatable<Instance<F, CellController>>>(key: string, cellControllerClass: F): InstanceType<F> {
+    let cellController = this.getChild(key, cellControllerClass);
+    if (cellController === null) {
+      cellController = cellControllerClass.create();
+      this.setChild(key, cellController);
+    }
+    return cellController!;
+  }
+
+  setCell(key: string, cellController: CellController | null): void {
+    this.setChild(key, cellController);
+  }
+
   getCellTrait<F extends Class<CellTrait>>(key: string, cellTraitClass: F): InstanceType<F> | null;
   getCellTrait(key: string): CellTrait | null;
   getCellTrait(key: string, cellTraitClass?: Class<CellTrait>): CellTrait | null {
@@ -129,7 +152,7 @@ export class LeafController extends Controller {
     return leafTrait.getOrCreateCell(key, cellTraitClass);
   }
 
-  setCellTrait(key: string, cellTrait: CellTrait): void {
+  setCellTrait(key: string, cellTrait: CellTrait | null): void {
     const leafTrait = this.leaf.trait;
     if (leafTrait === null) {
       throw new Error("no leaf trait");
@@ -156,7 +179,7 @@ export class LeafController extends Controller {
     return leafView.getOrCreateCell(key, cellViewClass);
   }
 
-  setCellView(key: string, cellView: CellView): void {
+  setCellView(key: string, cellView: CellView | null): void {
     let leafView = this.leaf.view;
     if (leafView === null) {
       leafView = this.leaf.createView();

@@ -40,6 +40,10 @@ export interface ToolLayoutInterpolator extends Interpolator<ToolLayout> {
   /** @internal */
   readonly presenceInterpolator: Interpolator<Presence>;
   /** @internal */
+  readonly inPresenceInterpolator: Interpolator<Presence | null>;
+  /** @internal */
+  readonly outPresenceInterpolator: Interpolator<Presence | null>;
+  /** @internal */
   readonly widthInterpolator: Interpolator<Length | null>;
   /** @internal */
   readonly leftInterpolator: Interpolator<Length | null>;
@@ -67,11 +71,14 @@ export const ToolLayoutInterpolator = (function (_super: typeof Interpolator) {
       const overlap = interpolator.overlapInterpolator(u === 0 ? 0 : 1);
       const overpad = interpolator.overpadInterpolator(u);
       const presence = interpolator.presenceInterpolator(u);
+      const inPresence = interpolator.inPresenceInterpolator(u);
+      const outPresence = interpolator.outPresenceInterpolator(u);
       const width = interpolator.widthInterpolator(u);
       const left = interpolator.leftInterpolator(u);
       const right = interpolator.rightInterpolator(u);
       return new ToolLayout(key, grow, shrink, basis, align, inAlign, outAlign,
-                            overlap, overpad, presence, width, left, right);
+                            overlap, overpad, presence, inPresence, outPresence,
+                            width, left, right);
     } as ToolLayoutInterpolator;
     Object.setPrototypeOf(interpolator, ToolLayoutInterpolator.prototype);
     (interpolator as Mutable<typeof interpolator>).key = l1.key;
@@ -84,6 +91,8 @@ export const ToolLayoutInterpolator = (function (_super: typeof Interpolator) {
     (interpolator as Mutable<typeof interpolator>).overlapInterpolator = Interpolator(l0.overlap, l1.overlap);
     (interpolator as Mutable<typeof interpolator>).overpadInterpolator = l0.overpad.interpolateTo(l1.overpad);
     (interpolator as Mutable<typeof interpolator>).presenceInterpolator = l0.presence.interpolateTo(l1.presence);
+    (interpolator as Mutable<typeof interpolator>).inPresenceInterpolator = Interpolator(l0.inPresence, l1.inPresence);
+    (interpolator as Mutable<typeof interpolator>).outPresenceInterpolator = Interpolator(l0.outPresence, l1.outPresence);
     const width0 = l0.width;
     const width1 = l1.width;
     if (l0.align !== l1.align && width0 instanceof PxLength && width1 instanceof PxLength) {
@@ -117,11 +126,14 @@ export const ToolLayoutInterpolator = (function (_super: typeof Interpolator) {
       const overlap = this.overlapInterpolator[0];
       const overpad = this.overpadInterpolator[0];
       const presence = this.presenceInterpolator[0];
+      const inPresence = this.inPresenceInterpolator[0];
+      const outPresence = this.outPresenceInterpolator[0];
       const width = this.widthInterpolator[0];
       const left = this.leftInterpolator[0];
       const right = this.rightInterpolator[0];
       return new ToolLayout(key, grow, shrink, basis, align, inAlign, outAlign,
-                            overlap, overpad, presence, width, left, right);
+                            overlap, overpad, presence, inPresence, outPresence,
+                            width, left, right);
     },
     configurable: true,
   });
@@ -138,11 +150,14 @@ export const ToolLayoutInterpolator = (function (_super: typeof Interpolator) {
       const overlap = this.overlapInterpolator[1];
       const overpad = this.overpadInterpolator[1];
       const presence = this.presenceInterpolator[1];
+      const inPresence = this.inPresenceInterpolator[1];
+      const outPresence = this.outPresenceInterpolator[1];
       const width = this.widthInterpolator[1];
       const left = this.leftInterpolator[1];
       const right = this.rightInterpolator[1];
       return new ToolLayout(key, grow, shrink, basis, align, inAlign, outAlign,
-                            overlap, overpad, presence, width, left, right);
+                            overlap, overpad, presence, inPresence, outPresence,
+                            width, left, right);
     },
     configurable: true,
   });
@@ -161,6 +176,8 @@ export const ToolLayoutInterpolator = (function (_super: typeof Interpolator) {
           && this.overlapInterpolator.equals(that.overlapInterpolator)
           && this.overpadInterpolator.equals(that.overpadInterpolator)
           && this.presenceInterpolator.equals(that.presenceInterpolator)
+          && this.inPresenceInterpolator.equals(that.inPresenceInterpolator)
+          && this.outPresenceInterpolator.equals(that.outPresenceInterpolator)
           && this.widthInterpolator.equals(that.widthInterpolator)
           && this.leftInterpolator.equals(that.leftInterpolator)
           && this.rightInterpolator.equals(that.rightInterpolator);

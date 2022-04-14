@@ -33,21 +33,21 @@ export interface TraitViewControllerSetRefinement extends ControllerSetRefinemen
 
 /** @public */
 export type TraitViewControllerSetTrait<R extends TraitViewControllerSetRefinement | TraitViewControllerSet<any, any, any, any>, D = Trait> =
-  R extends {trait: infer T} ? T :
+  R extends {trait: infer T | null} ? T :
   R extends {extends: infer E} ? TraitViewControllerSetTrait<E, D> :
   R extends TraitViewControllerSet<any, infer T, any, any> ? T :
   D;
 
 /** @public */
 export type TraitViewControllerSetView<R extends TraitViewControllerSetRefinement | TraitViewControllerSet<any, any, any, any>, D = View> =
-  R extends {view: infer V} ? V :
+  R extends {view: infer V | null} ? V :
   R extends {extends: infer E} ? TraitViewControllerSetView<E, D> :
   R extends TraitViewControllerSet<any, any, infer V, any> ? V :
   D;
 
 /** @public */
 export type TraitViewControllerSetController<R extends TraitViewControllerSetRefinement | TraitViewControllerSet<any, any, any, any>, D = Controller> =
-  R extends {controller: infer C} ? C :
+  R extends {controller: infer C | null} ? C :
   R extends {extends: infer E} ? TraitViewControllerSetController<E, D> :
   R extends TraitViewControllerSet<any, any, any, infer C> ? C :
   D;
@@ -78,7 +78,7 @@ export interface TraitViewControllerSetClass<F extends TraitViewControllerSet<an
 }
 
 /** @public */
-export type TraitViewControllerSetDef<O, R extends TraitViewControllerSetRefinement> =
+export type TraitViewControllerSetDef<O, R extends TraitViewControllerSetRefinement = {}> =
   TraitViewControllerSet<O, TraitViewControllerSetTrait<R>, TraitViewControllerSetView<R>, TraitViewControllerSetController<R>> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &
@@ -104,7 +104,7 @@ export function TraitViewControllerSetDef<F extends TraitViewControllerSet<any, 
 /** @public */
 export interface TraitViewControllerSet<O = unknown, T extends Trait = Trait, V extends View = View, C extends Controller = Controller> extends ControllerSet<O, C> {
   /** @internal */
-  readonly traitControllers: {readonly [traitId: number]: C | undefined};
+  readonly traitControllers: {readonly [traitId: string]: C | undefined};
 
   /** @internal */
   getTraitViewRef(controller: C): TraitViewRef<unknown, T, V>;
@@ -116,7 +116,7 @@ export interface TraitViewControllerSet<O = unknown, T extends Trait = Trait, V 
 
   addTrait(trait: T, targetTrait?: Trait | null, key?: string): C;
 
-  addTraits(traits: {readonly [traitId: number]: T | undefined}, targetTrait?: Trait | null): void;
+  addTraits(traits: {readonly [traitId: string]: T | undefined}, targetTrait?: Trait | null): void;
 
   attachTrait(trait: T, targetTrait?: Trait | null, controller?: C): C;
 
@@ -132,7 +132,7 @@ export interface TraitViewControllerSet<O = unknown, T extends Trait = Trait, V 
   /** @protected */
   didAttachTrait(trait: T, targetTrait: Trait | null, controller: C): void;
 
-  attachTraits(traits: {readonly [traitId: number]: T | undefined}, targetTrait?: Trait | null): void;
+  attachTraits(traits: {readonly [traitId: string]: T | undefined}, targetTrait?: Trait | null): void;
 
   detachTrait(trait: T): C | null;
 
@@ -148,21 +148,25 @@ export interface TraitViewControllerSet<O = unknown, T extends Trait = Trait, V 
   /** @protected */
   didDetachTrait(trait: T, controller: C): void;
 
-  detachTraits(traits: {readonly [traitId: number]: T | undefined}): void;
+  detachTraits(traits: {readonly [traitId: string]: T | undefined}): void;
 
   removeTrait(trait: T): C | null;
 
-  removeTraits(traits: {readonly [traitId: number]: T | undefined}): void;
+  removeTraits(traits: {readonly [traitId: string]: T | undefined}): void;
 
   deleteTrait(trait: T): C | null;
 
-  deleteTraits(traits: {readonly [traitId: number]: T | undefined}): void;
+  deleteTraits(traits: {readonly [traitId: string]: T | undefined}): void;
+
+  reinsertTrait(trait: T, targetTrait?: T | null): void;
 
   consumeTraits(consumer: ConsumerType<T>): void;
 
   unconsumeTraits(consumer: ConsumerType<T>): void;
 
   createTrait(): T;
+
+  getTargetView(controller: C): V | null;
 
   /** @protected @override */
   onAttachController(controller: C, targetController: Controller | null): void;
@@ -189,7 +193,7 @@ export const TraitViewControllerSet = (function (_super: typeof ControllerSet) {
   };
 
   TraitViewControllerSet.prototype.addTrait = function <T extends Trait, V extends View, C extends Controller>(this: TraitViewControllerSet<unknown, T, V, C>, trait: T, targetTrait?: Trait | null, key?: string): C {
-    const traitControllers = this.traitControllers as {[traitId: number]: C | undefined};
+    const traitControllers = this.traitControllers as {[traitId: string]: C | undefined};
     let controller = traitControllers[trait.uid];
     if (controller === void 0) {
       controller = this.createController(trait);
@@ -206,14 +210,14 @@ export const TraitViewControllerSet = (function (_super: typeof ControllerSet) {
     return controller;
   };
 
-  TraitViewControllerSet.prototype.addTraits = function <T extends Trait, C extends Controller>(this: TraitViewControllerSet<unknown, T, View, C>, newTraits: {readonly [traitId: number]: T | undefined}, target?: Trait | null): void {
+  TraitViewControllerSet.prototype.addTraits = function <T extends Trait, C extends Controller>(this: TraitViewControllerSet<unknown, T, View, C>, newTraits: {readonly [traitId: string]: T | undefined}, target?: Trait | null): void {
     for (const traitId in newTraits) {
       this.addTrait(newTraits[traitId]!, target);
     }
   };
 
   TraitViewControllerSet.prototype.attachTrait = function <T extends Trait, C extends Controller>(this: TraitViewControllerSet<unknown, T, View, C>, trait: T, targetTrait?: Trait | null, controller?: C): C {
-    const traitControllers = this.traitControllers as {[traitId: number]: C | undefined};
+    const traitControllers = this.traitControllers as {[traitId: string]: C | undefined};
     if (controller === void 0) {
       controller = traitControllers[trait.uid];
     }
@@ -253,14 +257,14 @@ export const TraitViewControllerSet = (function (_super: typeof ControllerSet) {
     // hook
   };
 
-  TraitViewControllerSet.prototype.attachTraits = function <T extends Trait, C extends Controller>(this: TraitViewControllerSet<unknown, T, View, C>, newTraits: {readonly [traitId: number]: T | undefined}, target?: Trait | null): void {
+  TraitViewControllerSet.prototype.attachTraits = function <T extends Trait, C extends Controller>(this: TraitViewControllerSet<unknown, T, View, C>, newTraits: {readonly [traitId: string]: T | undefined}, target?: Trait | null): void {
     for (const traitId in newTraits) {
       this.attachTrait(newTraits[traitId]!, target);
     }
   };
 
   TraitViewControllerSet.prototype.detachTrait = function <T extends Trait, C extends Controller>(this: TraitViewControllerSet<unknown, T, View, C>, trait: T): C | null {
-    const traitControllers = this.traitControllers as {[traitId: number]: C | undefined};
+    const traitControllers = this.traitControllers as {[traitId: string]: C | undefined};
     const controller = traitControllers[trait.uid];
     if (controller !== void 0) {
       delete traitControllers[trait.uid];
@@ -289,7 +293,7 @@ export const TraitViewControllerSet = (function (_super: typeof ControllerSet) {
     // hook
   };
 
-  TraitViewControllerSet.prototype.detachTraits = function <T extends Trait, C extends Controller>(this: TraitViewControllerSet<unknown, T, View, C>, traits: {readonly [traitId: number]: T | undefined}): void {
+  TraitViewControllerSet.prototype.detachTraits = function <T extends Trait, C extends Controller>(this: TraitViewControllerSet<unknown, T, View, C>, traits: {readonly [traitId: string]: T | undefined}): void {
     for (const traitId in traits) {
       this.detachTrait(traits[traitId]!);
     }
@@ -308,7 +312,7 @@ export const TraitViewControllerSet = (function (_super: typeof ControllerSet) {
     return null;
   };
 
-  TraitViewControllerSet.prototype.removeTraits = function <T extends Trait, C extends Controller>(this: TraitViewControllerSet<unknown, T, View, C>, traits: {readonly [traitId: number]: T | undefined}): void {
+  TraitViewControllerSet.prototype.removeTraits = function <T extends Trait, C extends Controller>(this: TraitViewControllerSet<unknown, T, View, C>, traits: {readonly [traitId: string]: T | undefined}): void {
     for (const traitId in traits) {
       this.removeTrait(traits[traitId]!);
     }
@@ -327,9 +331,17 @@ export const TraitViewControllerSet = (function (_super: typeof ControllerSet) {
     return null;
   };
 
-  TraitViewControllerSet.prototype.deleteTraits = function <T extends Trait, C extends Controller>(this: TraitViewControllerSet<unknown, T, View, C>, traits: {readonly [traitId: number]: T | undefined}): void {
+  TraitViewControllerSet.prototype.deleteTraits = function <T extends Trait, C extends Controller>(this: TraitViewControllerSet<unknown, T, View, C>, traits: {readonly [traitId: string]: T | undefined}): void {
     for (const traitId in traits) {
       this.deleteTrait(traits[traitId]!);
+    }
+  };
+
+  TraitViewControllerSet.prototype.reinsertTrait = function <T extends Trait, C extends Controller>(this: TraitViewControllerSet<unknown, T, View, C>, trait: T, targetTrait: T | null): void {
+    const controller = this.traitControllers[trait.uid];
+    if (controller !== void 0) {
+      const targetController = targetTrait !== null ? this.traitControllers[targetTrait.uid] : void 0;
+      this.reinsertController(controller, targetController !== void 0 ? targetController : null);
     }
   };
 
@@ -370,6 +382,16 @@ export const TraitViewControllerSet = (function (_super: typeof ControllerSet) {
       throw new Error(message);
     }
     return trait;
+  };
+
+  TraitViewControllerSet.prototype.getTargetView = function <V extends View, C extends Controller>(this: TraitViewControllerSet<unknown, Trait, V, C>, controller: C): V | null {
+    if ((this.flags & ControllerSet.SortedFlag) !== 0) {
+      const nextController = controller.nextSibling;
+      if (nextController !== null && this.controllers[nextController.uid] !== void 0) {
+        return this.getTraitViewRef(nextController as C).view;
+      }
+    }
+    return null;
   };
 
   Object.defineProperty(TraitViewControllerSet.prototype, "parentView", {

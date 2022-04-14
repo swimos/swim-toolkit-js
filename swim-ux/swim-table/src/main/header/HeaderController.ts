@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class} from "@swim/util";
+import type {Class, Instance, Creatable} from "@swim/util";
 import type {FastenerClass} from "@swim/component";
-import type {TraitConstructor, TraitClass, Trait} from "@swim/model";
+import type {Trait} from "@swim/model";
 import type {View} from "@swim/view";
-import type {HtmlViewClass, HtmlView} from "@swim/dom";
+import type {HtmlView} from "@swim/dom";
 import {
   Controller,
   TraitViewRefDef,
@@ -92,24 +92,45 @@ export class HeaderController extends Controller {
   }>;
   static readonly header: FastenerClass<HeaderController["header"]>;
 
+  getCol<F extends Class<ColController>>(key: string, colControllerClass: F): InstanceType<F> | null;
+  getCol(key: string): ColController | null;
+  getCol(key: string, colControllerClass?: Class<ColController>): ColController | null {
+    if (colControllerClass === void 0) {
+      colControllerClass = ColController;
+    }
+    const colController = this.getChild(key);
+    return colController instanceof colControllerClass ? colController : null;
+  }
+
+  getOrCreateCol<F extends Class<Instance<F, ColController>> & Creatable<Instance<F, ColController>>>(key: string, colControllerClass: F): InstanceType<F> {
+    let colController = this.getChild(key, colControllerClass);
+    if (colController === null) {
+      colController = colControllerClass.create();
+      this.setChild(key, colController);
+    }
+    return colController!;
+  }
+
+  setCol(key: string, colController: ColController | null): void {
+    this.setChild(key, colController);
+  }
+
+  getColTrait<F extends Class<ColTrait>>(key: string, colTraitClass: F): InstanceType<F> | null;
   getColTrait(key: string): ColTrait | null;
-  getColTrait<T extends ColTrait>(key: string, colTraitClass: TraitClass<T>): T | null;
-  getColTrait(key: string, colTraitClass?: TraitClass<ColTrait>): ColTrait | null {
+  getColTrait(key: string, colTraitClass?: Class<ColTrait>): ColTrait | null {
     const headerTrait = this.header.trait;
     return headerTrait !== null ? headerTrait.getCol(key, colTraitClass!) : null;
   }
 
-  getOrCreateColTrait(key: string): ColTrait;
-  getOrCreateColTrait<T extends ColTrait>(key: string, colTraitConstructor: TraitConstructor<T>): T;
-  getOrCreateColTrait(key: string, colTraitConstructor?: TraitConstructor<ColTrait>): ColTrait {
+  getOrCreateColTrait<F extends Class<Instance<F, ColTrait>> & Creatable<Instance<F, ColTrait>>>(key: string, colTraitClass: F): InstanceType<F> {
     const headerTrait = this.header.trait;
     if (headerTrait === null) {
       throw new Error("no header trait");
     }
-    return headerTrait.getOrCreateCol(key, colTraitConstructor!);
+    return headerTrait.getOrCreateCol(key, colTraitClass);
   }
 
-  setColTrait(key: string, colTrait: ColTrait): void {
+  setColTrait(key: string, colTrait: ColTrait | null): void {
     const headerTrait = this.header.trait;
     if (headerTrait === null) {
       throw new Error("no header trait");
@@ -117,16 +138,14 @@ export class HeaderController extends Controller {
     headerTrait.setCol(key, colTrait);
   }
 
+  getColView<F extends Class<ColView>>(key: string, colViewClass: F): InstanceType<F> | null;
   getColView(key: string): ColView | null;
-  getColView<V extends ColView>(key: string, colViewClass: Class<V>): V | null;
   getColView(key: string, colViewClass?: Class<ColView>): ColView | null {
     const headerView = this.header.view;
     return headerView !== null ? headerView.getCol(key, colViewClass!) : null;
   }
 
-  getOrCreateColView(key: string): ColView;
-  getOrCreateColView<V extends ColView>(key: string, colViewClass: HtmlViewClass<V>): V;
-  getOrCreateColView(key: string, colViewClass?: HtmlViewClass<ColView>): ColView {
+  getOrCreateColView<F extends Class<Instance<F, ColView>> & Creatable<Instance<F, ColView>>>(key: string, colViewClass: F): InstanceType<F> {
     let headerView = this.header.view;
     if (headerView === null) {
       headerView = this.header.createView();
@@ -135,10 +154,10 @@ export class HeaderController extends Controller {
       }
       this.header.setView(headerView);
     }
-    return headerView.getOrCreateCol(key, colViewClass!);
+    return headerView.getOrCreateCol(key, colViewClass);
   }
 
-  setColView(key: string, colView: ColView): void {
+  setColView(key: string, colView: ColView | null): void {
     let headerView = this.header.view;
     if (headerView === null) {
       headerView = this.header.createView();

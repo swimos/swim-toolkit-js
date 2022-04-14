@@ -64,10 +64,10 @@ export const BarLayoutInterpolator = (function (_super: typeof Interpolator) {
     for (let i = 0; i < tools0.length; i += 1) {
       let tool0 = tools0[i]!;
       let tool1 = l1.getTool(tool0.key);
-      if (tool1 === null && !tool0.presence.dismissed) {
-        tool0 = tool0.withPresence(tool0.presence.asDismissing());
-        tool1 = tool0.withPresence(Presence.dismissed());
+      if (tool1 === null && !tool0.presence.dismissed && tool0.outPresence !== null) {
+        tool1 = tool0.withPresence(tool0.outPresence);
         tool1 = tool1.withAlign(tool1.outAlign);
+        tool0 = tool0.withPresence(tool0.presence.asDismissing());
       } else if (tool1 !== null && tool0.presence.dismissed) {
         tool0 = tool0.withPresence(tool0.presence.asPresenting());
       }
@@ -79,7 +79,8 @@ export const BarLayoutInterpolator = (function (_super: typeof Interpolator) {
       let tool1 = tools1[i]!;
       let tool0 = l0.getTool(tool1.key);
       if (tool0 === null) {
-        tool0 = tool1.withPresence(tool1.presence.phase !== 1 ? tool1.presence.asPresenting() : Presence.presenting());
+        const inPresence = tool1.inPresence !== null ? tool1.inPresence : tool1.presence;
+        tool0 = tool1.withPresence(inPresence.asPresenting());
         tool1 = tool1.withPresence(Presence.presented());
         tool0 = tool0.withAlign(tool0.inAlign);
         toolInterpolators.push(tool0.interpolateTo(tool1));

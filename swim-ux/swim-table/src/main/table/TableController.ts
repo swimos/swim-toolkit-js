@@ -128,7 +128,8 @@ export class TableController extends Controller {
         const rowController = rowControllers[controllerId]!;
         const rowView = rowController.row.view;
         if (rowView !== null && rowView.parent === null) {
-          rowController.row.insertView(tableView);
+          const targetView = this.owner.rows.getTargetView(rowController);
+          rowController.row.insertView(tableView, void 0, targetView);
         }
       }
       const tableTrait = this.trait;
@@ -401,6 +402,16 @@ export class TableController extends Controller {
     },
     didDetachController(rowController: RowController): void {
       this.owner.callObservers("controllerDidDetachRow", rowController, this.owner);
+    },
+    controllerDidAttachParent(parent: Controller, rowController: RowController): void {
+      const tableView = this.owner.table.view;
+      const rowView = rowController.row.view;
+      if (tableView !== null && rowView !== null) {
+        const targetController = rowController.getNextSibling(RowController);
+        const targetView = targetController !== null ? targetController.row.view : null;
+        tableView.reinsertChild(rowView, targetView);
+        //tableView.requireUpdate(View.NeedsScroll | View.NeedsLayout);
+      }
     },
     controllerWillAttachRowTrait(rowTrait: RowTrait, rowController: RowController): void {
       this.owner.callObservers("controllerWillAttachRowTrait", rowTrait, rowController, this.owner);

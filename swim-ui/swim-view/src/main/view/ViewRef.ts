@@ -40,7 +40,7 @@ export interface ViewRefRefinement extends ViewRelationRefinement {
 
 /** @public */
 export type ViewRefView<R extends ViewRefRefinement | ViewRef<any, any>, D = View> =
-  R extends {view: infer V} ? V :
+  R extends {view: infer V | null} ? V :
   R extends {extends: infer E} ? ViewRefView<E, D> :
   R extends ViewRef<any, infer V> ? V :
   D;
@@ -70,7 +70,7 @@ export interface ViewRefClass<F extends ViewRef<any, any> = ViewRef<any, any>> e
 }
 
 /** @public */
-export type ViewRefDef<O, R extends ViewRefRefinement> =
+export type ViewRefDef<O, R extends ViewRefRefinement = {}> =
   ViewRef<O, ViewRefView<R>> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &

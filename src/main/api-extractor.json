@@ -17,6 +17,7 @@
     "@swim/table",
     "@swim/window",
     "@swim/sheet",
+    "@swim/panel",
     "@swim/ux",
 
     "@swim/gauge",

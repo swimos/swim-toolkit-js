@@ -12,15 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Class, Initable} from "@swim/util";
+import {Mutable, Class, Objects} from "@swim/util";
 import {Affinity, FastenerClass, PropertyDef} from "@swim/component";
 import type {Trait} from "@swim/model";
 import {Look} from "@swim/theme";
 import type {PositionGestureInput, ViewContextType} from "@swim/view";
-import {Graphics} from "@swim/graphics";
+import type {Graphics} from "@swim/graphics";
 import {
-  AnyController,
-  ControllerInit,
   Controller,
   ControllerRefDef,
   TraitViewRefDef,
@@ -141,14 +139,74 @@ export class SheetController extends Controller {
   @TraitViewControllerRefDef<SheetController["titleTool"]>({
     controllerType: ToolController,
     binds: true,
+    observes: true,
     getTraitViewRef(toolController: ToolController): TraitViewRef<unknown, ToolTrait, ToolView> {
       return toolController.tool;
     },
-    willAttachController(titleToolController: ToolController): void {
-      this.owner.callObservers("controllerWillAttachTitleTool", titleToolController, this.owner);
+    willAttachController(toolController: ToolController): void {
+      this.owner.callObservers("controllerWillAttachTitleTool", toolController, this.owner);
     },
-    didDetachController(titleToolController: ToolController): void {
-      this.owner.callObservers("controllerDidDetachTitleTool", titleToolController, this.owner);
+    didAttachController(toolController: ToolController): void {
+      const toolTrait = toolController.tool.trait;
+      if (toolTrait !== null) {
+        this.attachToolTrait(toolTrait, toolController);
+      }
+      const toolView = toolController.tool.view;
+      if (toolView !== null) {
+        this.attachToolView(toolView, toolController);
+      }
+    },
+    willDetachController(toolController: ToolController): void {
+      const toolView = toolController.tool.view;
+      if (toolView !== null) {
+        this.detachToolView(toolView, toolController);
+      }
+      const toolTrait = toolController.tool.trait;
+      if (toolTrait !== null) {
+        this.detachToolTrait(toolTrait, toolController);
+      }
+    },
+    didDetachController(toolController: ToolController): void {
+      this.owner.callObservers("controllerDidDetachTitleTool", toolController, this.owner);
+    },
+    controllerWillAttachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void {
+      this.attachToolTrait(toolTrait, toolController);
+    },
+    controllerDidDetachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void {
+      this.detachToolTrait(toolTrait, toolController);
+    },
+    attachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void {
+      // hook
+    },
+    detachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void {
+      // hook
+    },
+    controllerWillAttachToolView(toolView: ToolView, toolController: ToolController): void {
+      this.attachToolView(toolView, toolController);
+    },
+    controllerDidDetachToolView(toolView: ToolView, toolController: ToolController): void {
+      this.detachToolView(toolView, toolController);
+    },
+    attachToolView(toolView: ToolView, toolController: ToolController): void {
+      // hook
+    },
+    detachToolView(toolView: ToolView, toolController: ToolController): void {
+      // hook
+    },
+    controllerDidPressToolView(input: PositionGestureInput, event: Event | null): void {
+      this.owner.callObservers("controllerDidPressTitleTool", input, event, this.owner);
+    },
+    controllerDidLongPressToolView(input: PositionGestureInput): void {
+      this.owner.callObservers("controllerDidLongPressTitleTool", input, this.owner);
+    },
+    setTitle(title: string | undefined): void {
+      let toolController = this.controller as TitleToolController | null;
+      if (toolController === null) {
+        toolController = this.createController() as TitleToolController;
+        this.setController(toolController);
+      }
+      const toolView = toolController.tool.attachView();
+      toolView.content.setContent(title);
     },
     createController(): ToolController {
       const toolController = TitleToolController.create();
@@ -156,21 +214,19 @@ export class SheetController extends Controller {
       toolView.fontSize.setState(14, Affinity.Intrinsic);
       return toolController;
     },
-    fromAny(value: AnyController<ToolController> | string): ToolController {
-      if (typeof value === "string") {
-        const toolController = this.createController() as TitleToolController;
-        const toolView = toolController.tool.attachView();
-        toolView.content.setView(value);
-        return toolController;
-      } else {
-        return ToolController.fromAny(value);
-      }
-    },
   })
   readonly titleTool!: TraitViewControllerRefDef<this, {
     trait: ToolTrait,
     view: ToolView,
-    controller: ToolController & Initable<ControllerInit | string>,
+    controller: ToolController,
+    implements: {
+      attachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void,
+      detachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void,
+      attachToolView(toolView: ToolView, toolController: ToolController): void,
+      detachToolView(toolView: ToolView, toolController: ToolController): void,
+      setTitle(title: string | undefined): void,
+    },
+    observes: true,
   }>;
   static readonly titleTool: FastenerClass<SheetController["titleTool"]>;
 
@@ -184,20 +240,62 @@ export class SheetController extends Controller {
     init(): void {
       (this as Mutable<typeof this>).active = false;
     },
-    initController(buttonToolController: ToolController): void {
+    initController(toolController: ToolController): void {
       const buttonToolView = this.view;
       if (buttonToolView !== null) {
         this.updateActive(this.active, buttonToolView);
       }
     },
-    willAttachController(buttonToolController: ToolController): void {
-      this.owner.callObservers("controllerWillAttachButtonTool", buttonToolController, this.owner);
+    willAttachController(toolController: ToolController): void {
+      this.owner.callObservers("controllerWillAttachButtonTool", toolController, this.owner);
     },
-    didDetachController(buttonToolController: ToolController): void {
-      this.owner.callObservers("controllerDidDetachButtonTool", buttonToolController, this.owner);
+    didAttachController(toolController: ToolController): void {
+      const toolTrait = toolController.tool.trait;
+      if (toolTrait !== null) {
+        this.attachToolTrait(toolTrait, toolController);
+      }
+      const toolView = toolController.tool.view;
+      if (toolView !== null) {
+        this.attachToolView(toolView, toolController);
+      }
     },
-    controllerWillAttachToolView(buttonToolView: ToolView): void {
-      this.updateActive(this.active, buttonToolView);
+    willDetachController(toolController: ToolController): void {
+      const toolView = toolController.tool.view;
+      if (toolView !== null) {
+        this.detachToolView(toolView, toolController);
+      }
+      const toolTrait = toolController.tool.trait;
+      if (toolTrait !== null) {
+        this.detachToolTrait(toolTrait, toolController);
+      }
+    },
+    didDetachController(toolController: ToolController): void {
+      this.owner.callObservers("controllerDidDetachButtonTool", toolController, this.owner);
+    },
+    controllerWillAttachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void {
+      this.attachToolTrait(toolTrait, toolController);
+    },
+    controllerDidDetachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void {
+      this.detachToolTrait(toolTrait, toolController);
+    },
+    attachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void {
+      // hook
+    },
+    detachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void {
+      // hook
+    },
+    controllerWillAttachToolView(toolView: ToolView, toolController: ToolController): void {
+      this.attachToolView(toolView, toolController);
+      this.updateActive(this.active, toolView);
+    },
+    controllerDidDetachToolView(toolView: ToolView, toolController: ToolController): void {
+      this.detachToolView(toolView, toolController);
+    },
+    attachToolView(toolView: ToolView, toolController: ToolController): void {
+      // hook
+    },
+    detachToolView(toolView: ToolView, toolController: ToolController): void {
+      // hook
     },
     controllerDidPressToolView(input: PositionGestureInput, event: Event | null): void {
       this.owner.callObservers("controllerDidPressButtonTool", input, event, this.owner);
@@ -214,42 +312,48 @@ export class SheetController extends Controller {
     },
     updateActive(active: boolean, buttonToolView: ToolView): void {
       if (buttonToolView instanceof ButtonToolView) {
+        const timing = !buttonToolView.inserting ? buttonToolView.getLook(Look.timing) : false;
         if (active) {
-          buttonToolView.iconColor.setLook(Look.accentColor, Affinity.Intrinsic);
+          buttonToolView.iconColor.setLook(Look.accentColor, timing, Affinity.Intrinsic);
         } else {
-          buttonToolView.iconColor.setLook(Look.iconColor, Affinity.Intrinsic);
+          buttonToolView.iconColor.setLook(Look.iconColor, timing, Affinity.Intrinsic);
         }
       }
     },
+    setIcon(icon: Graphics | null): void {
+      let toolController = this.controller as ButtonToolController | null;
+      if (toolController === null) {
+        toolController = this.createController() as ButtonToolController;
+        this.setController(toolController);
+      }
+      const toolView = toolController.tool.attachView();
+      toolView.graphics.setState(icon, Affinity.Intrinsic);
+    },
     createController(): ToolController {
       const toolController = ButtonToolController.create();
-      toolController.layout.setValue(ToolLayout.create("", 0, 0, 36));
+      const toolLayout = ToolLayout.create("", 0, 0, 36);
+      toolController.layout.setValue(toolLayout);
       const toolView = toolController.tool.attachView();
       toolView.iconWidth.setState(24, Affinity.Intrinsic);
       toolView.iconHeight.setState(24, Affinity.Intrinsic);
       return toolController;
     },
-    fromAny(value: AnyController<ToolController> | Graphics): ToolController {
-      if (!(value instanceof Controller) && Graphics.is(value)) {
-        const toolController = this.createController() as ButtonToolController;
-        const toolView = toolController.tool.attachView();
-        toolView.graphics.setState(value, Affinity.Intrinsic);
-        return toolController;
-      } else {
-        return ToolController.fromAny(value);
-      }
-    },
   })
   readonly buttonTool!: TraitViewControllerRefDef<this, {
     trait: ToolTrait,
     view: ToolView,
-    controller: ToolController & Initable<ControllerInit | Graphics>,
+    controller: ToolController,
     defines: {
       readonly active: boolean;
     },
     implements: {
-      setActive(active: boolean): void;
-      updateActive(active: boolean, buttonToolView: ToolView): void;
+      attachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void,
+      detachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void,
+      attachToolView(toolView: ToolView, toolController: ToolController): void,
+      detachToolView(toolView: ToolView, toolController: ToolController): void,
+      setActive(active: boolean): void,
+      updateActive(active: boolean, buttonToolView: ToolView): void,
+      setIcon(icon: Graphics | null): void,
     },
     observes: ToolController & ButtonToolController,
   }>;
@@ -258,62 +362,67 @@ export class SheetController extends Controller {
   @TraitViewControllerSetDef<SheetController["modeTools"]>({
     controllerType: ToolController,
     binds: false,
+    ordered: true,
     observes: true,
-    getTraitViewRef(modeToolController: ToolController): TraitViewRef<unknown, ToolTrait, ToolView> {
-      return modeToolController.tool;
+    getTraitViewRef(toolController: ToolController): TraitViewRef<unknown, ToolTrait, ToolView> {
+      return toolController.tool;
     },
-    willAttachController(modeToolController: ToolController): void {
-      this.owner.callObservers("controllerWillAttachModeTool", modeToolController, this.owner);
+    willAttachController(toolController: ToolController): void {
+      let targetToolController: ToolController | null | undefined = Objects.getNextValue(this.controllers, toolController.uid);
+      if (targetToolController === void 0) {
+        targetToolController = null;
+      }
+      this.owner.callObservers("controllerWillAttachModeTool", toolController, targetToolController, this.owner);
     },
-    didAttachController(modeToolController: ToolController): void {
-      const modeToolTrait = modeToolController.tool.trait;
-      if (modeToolTrait !== null) {
-        this.attachModeToolTrait(modeToolTrait, modeToolController);
+    didAttachController(toolController: ToolController): void {
+      const toolTrait = toolController.tool.trait;
+      if (toolTrait !== null) {
+        this.attachToolTrait(toolTrait, toolController);
       }
-      const modeToolView = modeToolController.tool.view;
-      if (modeToolView !== null) {
-        this.attachModeToolView(modeToolView, modeToolController);
-      }
-    },
-    willDetachController(modeToolController: ToolController): void {
-      const modeToolView = modeToolController.tool.view;
-      if (modeToolView !== null) {
-        this.detachModeToolView(modeToolView, modeToolController);
-      }
-      const modeToolTrait = modeToolController.tool.trait;
-      if (modeToolTrait !== null) {
-        this.detachModeToolTrait(modeToolTrait, modeToolController);
+      const toolView = toolController.tool.view;
+      if (toolView !== null) {
+        this.attachToolView(toolView, toolController);
       }
     },
-    didDetachController(modeToolController: ToolController): void {
-      this.owner.callObservers("controllerDidDetachModeTool", modeToolController, this.owner);
+    willDetachController(toolController: ToolController): void {
+      const toolView = toolController.tool.view;
+      if (toolView !== null) {
+        this.detachToolView(toolView, toolController);
+      }
+      const toolTrait = toolController.tool.trait;
+      if (toolTrait !== null) {
+        this.detachToolTrait(toolTrait, toolController);
+      }
     },
-    controllerWillAttachToolTrait(modeToolTrait: ToolTrait, modeToolController: ToolController): void {
-      this.owner.callObservers("controllerWillAttachModeToolTrait", modeToolTrait, modeToolController, this.owner);
-      this.attachModeToolTrait(modeToolTrait, modeToolController);
+    didDetachController(toolController: ToolController): void {
+      this.owner.callObservers("controllerDidDetachModeTool", toolController, this.owner);
     },
-    controllerDidDetachToolTrait(modeToolTrait: ToolTrait, modeToolController: ToolController): void {
-      this.detachModeToolTrait(modeToolTrait, modeToolController);
-      this.owner.callObservers("controllerDidDetachModeToolTrait", modeToolTrait, modeToolController, this.owner);
+    controllerWillAttachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void {
+      this.owner.callObservers("controllerWillAttachModeToolTrait", toolTrait, toolController, this.owner);
+      this.attachToolTrait(toolTrait, toolController);
     },
-    attachModeToolTrait(modeToolTrait: ToolTrait, modeToolController: ToolController): void {
+    controllerDidDetachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void {
+      this.detachToolTrait(toolTrait, toolController);
+      this.owner.callObservers("controllerDidDetachModeToolTrait", toolTrait, toolController, this.owner);
+    },
+    attachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void {
       // hook
     },
-    detachModeToolTrait(modeToolTrait: ToolTrait, modeToolController: ToolController): void {
+    detachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void {
       // hook
     },
-    controllerWillAttachToolView(modeToolView: ToolView, modeToolController: ToolController): void {
-      this.owner.callObservers("controllerWillAttachModeToolView", modeToolView, modeToolController, this.owner);
-      this.attachModeToolView(modeToolView, modeToolController);
+    controllerWillAttachToolView(toolView: ToolView, toolController: ToolController): void {
+      this.owner.callObservers("controllerWillAttachModeToolView", toolView, toolController, this.owner);
+      this.attachToolView(toolView, toolController);
     },
-    controllerDidDetachToolView(modeToolView: ToolView, modeToolController: ToolController): void {
-      this.detachModeToolView(modeToolView, modeToolController);
-      this.owner.callObservers("controllerDidDetachModeToolView", modeToolView, modeToolController, this.owner);
+    controllerDidDetachToolView(toolView: ToolView, toolController: ToolController): void {
+      this.detachToolView(toolView, toolController);
+      this.owner.callObservers("controllerDidDetachModeToolView", toolView, toolController, this.owner);
     },
-    attachModeToolView(modeToolView: ToolView, modeToolController: ToolController): void {
+    attachToolView(toolView: ToolView, toolController: ToolController): void {
       // hook
     },
-    detachModeToolView(modeToolView: ToolView, modeToolController: ToolController): void {
+    detachToolView(toolView: ToolView, toolController: ToolController): void {
       // hook
     },
   })
@@ -322,10 +431,10 @@ export class SheetController extends Controller {
     view: ToolView,
     controller: ToolController,
     implements: {
-      attachModeToolTrait(modeToolTrait: ToolTrait, modeToolController: ToolController): void;
-      detachModeToolTrait(modeToolTrait: ToolTrait, modeToolController: ToolController): void;
-      attachModeToolView(modeToolView: ToolView, modeToolController: ToolController): void;
-      detachModeToolView(modeToolView: ToolView, modeToolController: ToolController): void;
+      attachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void,
+      detachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void,
+      attachToolView(toolView: ToolView, toolController: ToolController): void,
+      detachToolView(toolView: ToolView, toolController: ToolController): void,
     },
     observes: true,
   }>;

@@ -14,6 +14,7 @@
 
 import type {Class} from "@swim/util";
 import {Affinity, FastenerClass, PropertyDef} from "@swim/component";
+import type {PositionGestureInput} from "@swim/view";
 import {Controller, TraitViewRefDef} from "@swim/controller";
 import {AnyToolLayout, ToolLayout} from "../layout/ToolLayout";
 import {ToolView} from "./ToolView";
@@ -40,17 +41,25 @@ export class ToolController extends Controller {
       this.owner.layout.setValue(toolLayout, Affinity.Intrinsic);
     },
     viewType: ToolView,
+    observesView: true,
     willAttachView(toolView: ToolView): void {
       this.owner.callObservers("controllerWillAttachToolView", toolView, this.owner);
     },
     didDetachView(toolView: ToolView): void {
       this.owner.callObservers("controllerDidDetachToolView", toolView, this.owner);
     },
+    viewDidPress(input: PositionGestureInput, event: Event | null): void {
+      this.owner.callObservers("controllerDidPressToolView", input, event, this.owner);
+    },
+    viewDidLongPress(input: PositionGestureInput): void {
+      this.owner.callObservers("controllerDidLongPressToolView", input, this.owner);
+    },
   })
   readonly tool!: TraitViewRefDef<this, {
     trait: ToolTrait,
     observesTrait: true,
     view: ToolView,
+    observesView: true,
   }>;
   static readonly tool: FastenerClass<ToolController["tool"]>;
 

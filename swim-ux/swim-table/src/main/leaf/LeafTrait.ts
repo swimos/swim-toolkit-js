@@ -41,7 +41,7 @@ export class LeafTrait extends Trait {
     return cellTrait!;
   }
 
-  setCell(key: string, cellTrait: CellTrait): void {
+  setCell(key: string, cellTrait: CellTrait | null): void {
     this.setTrait(key, cellTrait);
   }
 

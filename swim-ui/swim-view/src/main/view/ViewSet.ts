@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Proto, ObserverType} from "@swim/util";
+import {Mutable, Proto, Objects, Comparator, ObserverType} from "@swim/util";
 import {Affinity, FastenerFlags, FastenerOwner, Fastener} from "@swim/component";
 import type {AnyView, View} from "./View";
 import {
@@ -28,7 +28,7 @@ export interface ViewSetRefinement extends ViewRelationRefinement {
 
 /** @public */
 export type ViewSetView<R extends ViewSetRefinement | ViewSet<any, any>, D = View> =
-  R extends {view: infer V} ? V :
+  R extends {view: infer V | null} ? V :
   R extends {extends: infer E} ? ViewSetView<E, D> :
   R extends ViewSet<any, infer V> ? V :
   D;
@@ -36,6 +36,7 @@ export type ViewSetView<R extends ViewSetRefinement | ViewSet<any, any>, D = Vie
 /** @public */
 export interface ViewSetTemplate<V extends View = View> extends ViewRelationTemplate<V> {
   extends?: Proto<ViewSet<any, any>> | string | boolean | null;
+  ordered?: boolean;
   sorted?: boolean;
 }
 
@@ -57,6 +58,8 @@ export interface ViewSetClass<F extends ViewSet<any, any> = ViewSet<any, any>> e
   <O, V extends View = View>(template: ThisType<ViewSet<O, V>> & ViewSetTemplate<V> & Partial<Omit<ViewSet<O, V>, keyof ViewSetTemplate>>): PropertyDecorator;
 
   /** @internal */
+  readonly OrderedFlag: FastenerFlags;
+  /** @internal */
   readonly SortedFlag: FastenerFlags;
 
   /** @internal @override */
@@ -66,7 +69,7 @@ export interface ViewSetClass<F extends ViewSet<any, any> = ViewSet<any, any>> e
 }
 
 /** @public */
-export type ViewSetDef<O, R extends ViewSetRefinement> =
+export type ViewSetDef<O, R extends ViewSetRefinement = {}> =
   ViewSet<O, ViewSetView<R>> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &
@@ -151,7 +154,13 @@ export interface ViewSet<O = unknown, V extends View = View> extends ViewRelatio
   detachOutlet(outlet: ViewSet<unknown, V>): void;
 
   /** @internal */
-  readonly views: {readonly [viewId: number]: V | undefined};
+  readonly views: {readonly [viewId: string]: V | undefined};
+
+  /** @internal */
+  insertViewMap(newView: V, target: View | null): void;
+
+  /** @internal */
+  removeViewMap(oldView: V): void;
 
   readonly viewCount: number;
 
@@ -159,29 +168,31 @@ export interface ViewSet<O = unknown, V extends View = View> extends ViewRelatio
 
   addView(view?: AnyView<V>, target?: View | null, key?: string): V;
 
-  addViews(views: {readonly [viewId: number]: V | undefined}, target?: View | null): void;
+  addViews(views: {readonly [viewId: string]: V | undefined}, target?: View | null): void;
 
-  setViews(views: {readonly [viewId: number]: V | undefined}, target?: View | null): void;
+  setViews(views: {readonly [viewId: string]: V | undefined}, target?: View | null): void;
 
   attachView(view?: AnyView<V>, target?: View | null): V;
 
-  attachViews(views: {readonly [viewId: number]: V | undefined}, target?: View | null): void;
+  attachViews(views: {readonly [viewId: string]: V | undefined}, target?: View | null): void;
 
   detachView(view: V): V | null;
 
-  detachViews(views?: {readonly [viewId: number]: V | undefined}): void;
+  detachViews(views?: {readonly [viewId: string]: V | undefined}): void;
 
   insertView(parent?: View | null, view?: AnyView<V>, target?: View | null, key?: string): V;
 
-  insertViews(parent: View | null, views: {readonly [viewId: number]: V | undefined}, target?: View | null): void;
+  insertViews(parent: View | null, views: {readonly [viewId: string]: V | undefined}, target?: View | null): void;
 
   removeView(view: V): V | null;
 
-  removeViews(views?: {readonly [viewId: number]: V | undefined}): void;
+  removeViews(views?: {readonly [viewId: string]: V | undefined}): void;
 
   deleteView(view: V): V | null;
 
-  deleteViews(views?: {readonly [viewId: number]: V | undefined}): void;
+  deleteViews(views?: {readonly [viewId: string]: V | undefined}): void;
+
+  reinsertView(view: V, target?: View | null): void;
 
   /** @internal @override */
   bindView(view: View, target: View | null): void;
@@ -205,6 +216,13 @@ export interface ViewSet<O = unknown, V extends View = View> extends ViewRelatio
   viewKey(view: V): string | undefined;
 
   /** @internal */
+  initOrdered(ordered: boolean): void;
+
+  get ordered(): boolean;
+
+  order(ordered?: boolean): this;
+
+  /** @internal */
   initSorted(sorted: boolean): void;
 
   get sorted(): boolean;
@@ -220,13 +238,19 @@ export interface ViewSet<O = unknown, V extends View = View> extends ViewRelatio
   /** @protected */
   didSort(parent: View | null): void;
 
-  /** @internal @protected */
-  sortChildren(parent: View): void;
+  /** @internal */
+  sortChildren(parent: View, comparator?: Comparator<V>): void;
+
+  /** @internal */
+  getTargetChild(parent: View, child: V): View | null;
 
   /** @internal */
   compareChildren(a: View, b: View): number;
 
-  /** @internal @protected */
+  /** @internal */
+  compareTargetChild(a: View, b: View): number;
+
+  /** @protected */
   compare(a: V, b: V): number;
 }
 
@@ -272,6 +296,20 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     }
   };
 
+  ViewSet.prototype.insertViewMap = function <V extends View>(this: ViewSet<unknown, V>, newView: V, target: View | null): void {
+    const views = this.views as {[viewId: string]: V | undefined};
+    if (target !== null && (this.flags & ViewSet.OrderedFlag) !== 0) {
+      (this as Mutable<typeof this>).views = Objects.inserted(views, newView.uid, newView, target);
+    } else {
+      views[newView.uid] = newView;
+    }
+  };
+
+  ViewSet.prototype.removeViewMap = function <V extends View>(this: ViewSet<unknown, V>, oldView: V): void {
+    const views = this.views as {[viewId: string]: V | undefined};
+    delete views[oldView.uid];
+  };
+
   ViewSet.prototype.hasView = function (this: ViewSet, view: View): boolean {
     return this.views[view.uid] !== void 0;
   };
@@ -287,14 +325,16 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     }
     let parent: View | null;
     if (this.binds && (parent = this.parentView, parent !== null)) {
+      if (target === null) {
+        target = this.getTargetChild(parent, newView);
+      }
       if (key === void 0) {
         key = this.viewKey(newView);
       }
       this.insertChild(parent, newView, target, key);
     }
-    const views = this.views as {[viewId: number]: V | undefined};
-    if (views[newView.uid] === void 0) {
-      views[newView.uid] = newView;
+    if (this.views[newView.uid] === void 0) {
+      this.insertViewMap(newView, target);
       (this as Mutable<typeof this>).viewCount += 1;
       this.willAttachView(newView, target);
       this.onAttachView(newView, target);
@@ -306,22 +346,36 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     return newView;
   };
 
-  ViewSet.prototype.addViews = function <V extends View>(this: ViewSet, newViews: {readonly [viewId: number]: V | undefined}, target?: View | null): void {
+  ViewSet.prototype.addViews = function <V extends View>(this: ViewSet, newViews: {readonly [viewId: string]: V | undefined}, target?: View | null): void {
     for (const viewId in newViews) {
       this.addView(newViews[viewId]!, target);
     }
   };
 
-  ViewSet.prototype.setViews = function <V extends View>(this: ViewSet, newViews: {readonly [viewId: number]: V | undefined}, target?: View | null): void {
+  ViewSet.prototype.setViews = function <V extends View>(this: ViewSet, newViews: {readonly [viewId: string]: V | undefined}, target?: View | null): void {
     const views = this.views;
     for (const viewId in views) {
       if (newViews[viewId] === void 0) {
         this.detachView(views[viewId]!);
       }
     }
-    for (const viewId in newViews) {
-      if (views[viewId] === void 0) {
-        this.attachView(newViews[viewId]!, target);
+    if ((this.flags & ViewSet.OrderedFlag) !== 0) {
+      const orderedViews = new Array<V>();
+      for (const viewId in newViews) {
+        orderedViews.push(newViews[viewId]!);
+      }
+      for (let i = 0, n = orderedViews.length; i < n; i += 1) {
+        const newView = orderedViews[i]!;
+        if (views[newView.uid] === void 0) {
+          const targetView = i < n + 1 ? orderedViews[i + 1] : target;
+          this.attachView(newView, targetView);
+        }
+      }
+    } else {
+      for (const viewId in newViews) {
+        if (views[viewId] === void 0) {
+          this.attachView(newViews[viewId]!, target);
+        }
       }
     }
   };
@@ -332,12 +386,11 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     } else {
       newView = this.createView();
     }
-    const views = this.views as {[viewId: number]: V | undefined};
-    if (views[newView.uid] === void 0) {
+    if (this.views[newView.uid] === void 0) {
       if (target === void 0) {
         target = null;
       }
-      views[newView.uid] = newView;
+      this.insertViewMap(newView, target);
       (this as Mutable<typeof this>).viewCount += 1;
       this.willAttachView(newView, target);
       this.onAttachView(newView, target);
@@ -349,17 +402,16 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     return newView;
   };
 
-  ViewSet.prototype.attachViews = function <V extends View>(this: ViewSet, newViews: {readonly [viewId: number]: V | undefined}, target?: View | null): void {
+  ViewSet.prototype.attachViews = function <V extends View>(this: ViewSet, newViews: {readonly [viewId: string]: V | undefined}, target?: View | null): void {
     for (const viewId in newViews) {
       this.attachView(newViews[viewId]!, target);
     }
   };
 
   ViewSet.prototype.detachView = function <V extends View>(this: ViewSet<unknown, V>, oldView: V): V | null {
-    const views = this.views as {[viewId: number]: V | undefined};
-    if (views[oldView.uid] !== void 0) {
+    if (this.views[oldView.uid] !== void 0) {
       (this as Mutable<typeof this>).viewCount -= 1;
-      delete views[oldView.uid];
+      this.removeViewMap(oldView);
       this.willDetachView(oldView);
       this.onDetachView(oldView);
       this.deinitView(oldView);
@@ -371,7 +423,7 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     return null;
   };
 
-  ViewSet.prototype.detachViews = function <V extends View>(this: ViewSet<unknown, V>, views?: {readonly [viewId: number]: V | undefined}): void {
+  ViewSet.prototype.detachViews = function <V extends View>(this: ViewSet<unknown, V>, views?: {readonly [viewId: string]: V | undefined}): void {
     if (views === void 0) {
       views = this.views;
     }
@@ -396,11 +448,13 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
       key = this.viewKey(newView);
     }
     if (parent !== null && (newView.parent !== parent || newView.key !== key)) {
+      if (target === null) {
+        target = this.getTargetChild(parent, newView);
+      }
       this.insertChild(parent, newView, target, key);
     }
-    const views = this.views as {[viewId: number]: V | undefined};
-    if (views[newView.uid] === void 0) {
-      views[newView.uid] = newView;
+    if (this.views[newView.uid] === void 0) {
+      this.insertViewMap(newView, target);
       (this as Mutable<typeof this>).viewCount += 1;
       this.willAttachView(newView, target);
       this.onAttachView(newView, target);
@@ -412,7 +466,7 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     return newView;
   };
 
-  ViewSet.prototype.insertViews = function <V extends View>(this: ViewSet, parent: View | null, newViews: {readonly [viewId: number]: V | undefined}, target?: View | null): void {
+  ViewSet.prototype.insertViews = function <V extends View>(this: ViewSet, parent: View | null, newViews: {readonly [viewId: string]: V | undefined}, target?: View | null): void {
     for (const viewId in newViews) {
       this.insertView(parent, newViews[viewId]!, target);
     }
@@ -426,7 +480,7 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     return null;
   };
 
-  ViewSet.prototype.removeViews = function <V extends View>(this: ViewSet<unknown, V>, views?: {readonly [viewId: number]: V | undefined}): void {
+  ViewSet.prototype.removeViews = function <V extends View>(this: ViewSet<unknown, V>, views?: {readonly [viewId: string]: V | undefined}): void {
     if (views === void 0) {
       views = this.views;
     }
@@ -443,7 +497,7 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     return oldView;
   };
 
-  ViewSet.prototype.deleteViews = function <V extends View>(this: ViewSet<unknown, V>, views?: {readonly [viewId: number]: V | undefined}): void {
+  ViewSet.prototype.deleteViews = function <V extends View>(this: ViewSet<unknown, V>, views?: {readonly [viewId: string]: V | undefined}): void {
     if (views === void 0) {
       views = this.views;
     }
@@ -452,12 +506,23 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     }
   };
 
+  ViewSet.prototype.reinsertView = function <V extends View>(this: ViewSet<unknown, V>, view: V, target?: View | null): void {
+    if (this.views[view.uid] !== void 0 && (target !== void 0 || (this.flags & ViewSet.SortedFlag) !== 0)) {
+      const parent = view.parent;
+      if (parent !== null) {
+        if (target === void 0) {
+          target = this.getTargetChild(parent, view);
+        }
+        parent.reinsertChild(view, target);
+      }
+    }
+  };
+
   ViewSet.prototype.bindView = function <V extends View>(this: ViewSet<unknown, V>, view: View, target: View | null): void {
     if (this.binds) {
       const newView = this.detectView(view);
-      const views = this.views as {[viewId: number]: V | undefined};
-      if (newView !== null && views[newView.uid] === void 0) {
-        views[newView.uid] = newView;
+      if (newView !== null && this.views[newView.uid] === void 0) {
+        this.insertViewMap(newView, target);
         (this as Mutable<typeof this>).viewCount += 1;
         this.willAttachView(newView, target);
         this.onAttachView(newView, target);
@@ -472,10 +537,9 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
   ViewSet.prototype.unbindView = function <V extends View>(this: ViewSet<unknown, V>, view: View): void {
     if (this.binds) {
       const oldView = this.detectView(view);
-      const views = this.views as {[viewId: number]: V | undefined};
-      if (oldView !== null && views[oldView.uid] !== void 0) {
+      if (oldView !== null && this.views[oldView.uid] !== void 0) {
         (this as Mutable<typeof this>).viewCount -= 1;
-        delete views[oldView.uid];
+        this.removeViewMap(oldView);
         this.willDetachView(oldView);
         this.onDetachView(oldView);
         this.deinitView(oldView);
@@ -522,6 +586,33 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     return void 0;
   };
 
+  ViewSet.prototype.initOrdered = function (this: ViewSet, ordered: boolean): void {
+    if (ordered) {
+      (this as Mutable<typeof this>).flags = this.flags | ViewSet.OrderedFlag;
+    } else {
+      (this as Mutable<typeof this>).flags = this.flags & ~ViewSet.OrderedFlag;
+    }
+  };
+
+  Object.defineProperty(ViewSet.prototype, "ordered", {
+    get(this: ViewSet): boolean {
+      return (this.flags & ViewSet.OrderedFlag) !== 0;
+    },
+    configurable: true,
+  });
+
+  ViewSet.prototype.order = function (this: ViewSet, ordered?: boolean): typeof this {
+    if (ordered === void 0) {
+      ordered = true;
+    }
+    if (ordered) {
+      this.setFlags(this.flags | ViewSet.OrderedFlag);
+    } else {
+      this.setFlags(this.flags & ~ViewSet.OrderedFlag);
+    }
+    return this;
+  };
+
   ViewSet.prototype.initSorted = function (this: ViewSet, sorted: boolean): void {
     if (sorted) {
       (this as Mutable<typeof this>).flags = this.flags | ViewSet.SortedFlag;
@@ -541,15 +632,14 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     if (sorted === void 0) {
       sorted = true;
     }
-    const flags = this.flags;
-    if (sorted && (flags & ViewSet.SortedFlag) === 0) {
+    if (sorted) {
       const parent = this.parentView;
       this.willSort(parent);
-      this.setFlags(flags | ViewSet.SortedFlag);
+      this.setFlags(this.flags | ViewSet.SortedFlag);
       this.onSort(parent);
       this.didSort(parent);
-    } else if (!sorted && (flags & ViewSet.SortedFlag) !== 0) {
-      this.setFlags(flags & ~ViewSet.SortedFlag);
+    } else {
+      this.setFlags(this.flags & ~ViewSet.SortedFlag);
     }
     return this;
   };
@@ -568,8 +658,16 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     // hook
   };
 
-  ViewSet.prototype.sortChildren = function <V extends View>(this: ViewSet<unknown, V>, parent: View): void {
+  ViewSet.prototype.sortChildren = function <V extends View>(this: ViewSet<unknown, V>, parent: View, comparator?: Comparator<V>): void {
     parent.sortChildren(this.compareChildren.bind(this));
+  };
+
+  ViewSet.prototype.getTargetChild = function <V extends View>(this: ViewSet<unknown, V>, parent: View, child: V): View | null {
+    if ((this.flags & ViewSet.SortedFlag) !== 0) {
+      return parent.getTargetChild(child, this.compareTargetChild.bind(this));
+    } else {
+      return null;
+    }
   };
 
   ViewSet.prototype.compareChildren = function <V extends View>(this: ViewSet<unknown, V>, a: View, b: View): number {
@@ -580,6 +678,16 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
       return this.compare(x, y);
     } else {
       return x !== void 0 ? 1 : y !== void 0 ? -1 : 0;
+    }
+  };
+
+  ViewSet.prototype.compareTargetChild = function <V extends View>(this: ViewSet<unknown, V>, a: V, b: View): number {
+    const views = this.views;
+    const y = views[b.uid];
+    if (y !== void 0) {
+      return this.compare(a, y);
+    } else {
+      return y !== void 0 ? -1 : 0;
     }
   };
 
@@ -599,6 +707,7 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     fastener = _super.construct.call(this, fastener, owner) as F;
     const flagsInit = fastener.flagsInit;
     if (flagsInit !== void 0) {
+      fastener.initOrdered((flagsInit & ViewSet.OrderedFlag) !== 0);
       fastener.initSorted((flagsInit & ViewSet.SortedFlag) !== 0);
     }
     Object.defineProperty(fastener, "inlet", { // override getter
@@ -617,6 +726,18 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
     let flagsInit = fastenerPrototype.flagsInit;
+
+    if (Object.prototype.hasOwnProperty.call(fastenerPrototype, "ordered")) {
+      if (flagsInit === void 0) {
+        flagsInit = 0;
+      }
+      if (fastenerPrototype.ordered) {
+        flagsInit |= ViewSet.OrderedFlag;
+      } else {
+        flagsInit &= ~ViewSet.OrderedFlag;
+      }
+      delete (fastenerPrototype as ViewSetTemplate).ordered;
+    }
 
     if (Object.prototype.hasOwnProperty.call(fastenerPrototype, "sorted")) {
       if (flagsInit === void 0) {
@@ -638,9 +759,10 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     }
   };
 
-  (ViewSet as Mutable<typeof ViewSet>).SortedFlag = 1 << (_super.FlagShift + 0);
+  (ViewSet as Mutable<typeof ViewSet>).OrderedFlag = 1 << (_super.FlagShift + 0);
+  (ViewSet as Mutable<typeof ViewSet>).SortedFlag = 1 << (_super.FlagShift + 1);
 
-  (ViewSet as Mutable<typeof ViewSet>).FlagShift = _super.FlagShift + 1;
+  (ViewSet as Mutable<typeof ViewSet>).FlagShift = _super.FlagShift + 2;
   (ViewSet as Mutable<typeof ViewSet>).FlagMask = (1 << ViewSet.FlagShift) - 1;
 
   return ViewSet;

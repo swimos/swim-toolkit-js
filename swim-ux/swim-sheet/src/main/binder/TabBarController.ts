@@ -36,15 +36,20 @@ export class TabBarController extends BarController {
     const tools = new Array<ToolLayout>();
     tools.push(ToolLayout.create("leftPadding", 0.5, 0, 0, 0));
 
+    const tabControllers = new Array<SheetController>();
+    for (const controllerId in this.tabs.controllers) {
+      tabControllers.push(this.tabs.controllers[controllerId]!);
+    }
     if (this.tabStyle.value === "bottom") {
-      const tabControllers = this.tabs.controllers;
-      for (const controllerId in tabControllers) {
-        const tabController = tabControllers[controllerId]!;
+      for (let i = 0, n = tabControllers.length; i < n; i += 1) {
+        const tabController = tabControllers[i]!;
         const tabToolView = tabController.buttonTool.attachView();
         const tabKey = "tab" + tabToolView.uid;
         const tabToolLayout = ToolLayout.create(tabKey, 1, 0, 0, 0.5);
         tools.push(tabToolLayout);
-        tabController.buttonTool.insertView(this.bar.view, void 0, void 0, tabKey);
+        const targetTabController = i + 1 < n ? tabControllers[i + 1] : null;
+        const targetToolView = targetTabController !== null ? tabController.buttonTool.view : null;
+        tabController.buttonTool.insertView(this.bar.view, void 0, targetToolView, tabKey);
       }
     }
 
@@ -54,6 +59,7 @@ export class TabBarController extends BarController {
 
   @TraitViewControllerSetDef<TabBarController["tabs"]>({
     controllerType: SheetController,
+    ordered: true,
     inherits: true,
     observes: true,
     getTraitViewRef(tabController: SheetController): TraitViewRef<unknown, Trait, SheetView> {

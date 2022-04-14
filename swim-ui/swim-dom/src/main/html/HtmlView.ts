@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import {Class, Instance, AnyTiming, Timing, Creatable, InitType} from "@swim/util";
-import {Affinity, MemberAnimatorInit} from "@swim/component";
+import {Affinity, AnyAnimatorValue} from "@swim/component";
 import {Transform} from "@swim/math";
 import {Look, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewFlags, AnyView, View} from "@swim/view";
-import {AttributeAnimatorDef} from "../animator/AttributeAnimator";
+import {AttributeAnimatorDef} from "../attribute/AttributeAnimator";
 import {StyleMapInit, StyleMap} from "../css/StyleMap";
 import type {ViewNodeType} from "../node/NodeView";
 import {
@@ -48,16 +48,16 @@ export interface HtmlViewInit extends ElementViewInit {
 
 /** @public */
 export interface HtmlViewAttributesInit {
-  autocomplete?: MemberAnimatorInit<HtmlView, "autocomplete">;
-  checked?: MemberAnimatorInit<HtmlView, "checked">;
-  colspan?: MemberAnimatorInit<HtmlView, "colspan">;
-  disabled?: MemberAnimatorInit<HtmlView, "disabled">;
-  placeholder?: MemberAnimatorInit<HtmlView, "placeholder">;
-  rowspan?: MemberAnimatorInit<HtmlView, "rowspan">;
-  selected?: MemberAnimatorInit<HtmlView, "selected">;
-  title?: MemberAnimatorInit<HtmlView, "title">;
-  type?: MemberAnimatorInit<HtmlView, "type">;
-  value?: MemberAnimatorInit<HtmlView, "value">;
+  autocomplete?: AnyAnimatorValue<HtmlView["autocomplete"]>;
+  checked?: AnyAnimatorValue<HtmlView["checked"]>;
+  colspan?: AnyAnimatorValue<HtmlView["colspan"]>;
+  disabled?: AnyAnimatorValue<HtmlView["disabled"]>;
+  placeholder?: AnyAnimatorValue<HtmlView["placeholder"]>;
+  rowspan?: AnyAnimatorValue<HtmlView["rowspan"]>;
+  selected?: AnyAnimatorValue<HtmlView["selected"]>;
+  title?: AnyAnimatorValue<HtmlView["title"]>;
+  type?: AnyAnimatorValue<HtmlView["type"]>;
+  value?: AnyAnimatorValue<HtmlView["value"]>;
 }
 
 /** @public */

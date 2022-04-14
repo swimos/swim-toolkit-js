@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Proto, ObserverType} from "@swim/util";
+import {Mutable, Proto, Objects, Comparator, ObserverType} from "@swim/util";
 import {Affinity, FastenerOwner, FastenerFlags, Fastener} from "@swim/component";
 import type {AnyController, Controller} from "./Controller";
 import {
@@ -28,7 +28,7 @@ export interface ControllerSetRefinement extends ControllerRelationRefinement {
 
 /** @public */
 export type ControllerSetController<R extends ControllerSetRefinement | ControllerSet<any, any>, D = Controller> =
-  R extends {controller: infer C} ? C :
+  R extends {controller: infer C | null} ? C :
   R extends {extends: infer E} ? ControllerSetController<E, D> :
   R extends ControllerSet<any, infer C> ? C :
   D;
@@ -36,6 +36,7 @@ export type ControllerSetController<R extends ControllerSetRefinement | Controll
 /** @public */
 export interface ControllerSetTemplate<C extends Controller = Controller> extends ControllerRelationTemplate<C> {
   extends?: Proto<ControllerSet<any, any>> | string | boolean | null;
+  ordered?: boolean;
   sorted?: boolean;
 }
 
@@ -57,6 +58,8 @@ export interface ControllerSetClass<F extends ControllerSet<any, any> = Controll
   <O, C extends Controller = Controller>(template: ThisType<ControllerSet<O, C>> & ControllerSetTemplate<C> & Partial<Omit<ControllerSet<O, C>, keyof ControllerSetTemplate>>): PropertyDecorator;
 
   /** @internal */
+  readonly OrderedFlag: FastenerFlags;
+  /** @internal */
   readonly SortedFlag: FastenerFlags;
 
   /** @internal @override */
@@ -66,7 +69,7 @@ export interface ControllerSetClass<F extends ControllerSet<any, any> = Controll
 }
 
 /** @public */
-export type ControllerSetDef<O, R extends ControllerSetRefinement> =
+export type ControllerSetDef<O, R extends ControllerSetRefinement = {}> =
   ControllerSet<O, ControllerSetController<R>> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &
@@ -151,37 +154,45 @@ export interface ControllerSet<O = unknown, C extends Controller = Controller> e
   detachOutlet(outlet: ControllerSet<unknown, C>): void;
 
   /** @internal */
-  readonly controllers: {readonly [controllerId: number]: C | undefined};
+  readonly controllers: {readonly [controllerId: string]: C | undefined};
 
   readonly controllerCount: number;
+
+  /** @internal */
+  insertControllerMap(newController: C, target: Controller | null): void;
+
+  /** @internal */
+  removeControllerMap(oldController: C): void;
 
   hasController(controller: Controller): boolean;
 
   addController(controller?: AnyController<C>, target?: Controller | null, key?: string): C;
 
-  addControllers(controllers: {readonly [controllerId: number]: C | undefined}, target?: Controller | null): void;
+  addControllers(controllers: {readonly [controllerId: string]: C | undefined}, target?: Controller | null): void;
 
-  setControllers(controllers: {readonly [controllerId: number]: C | undefined}, target?: Controller | null): void;
+  setControllers(controllers: {readonly [controllerId: string]: C | undefined}, target?: Controller | null): void;
 
   attachController(controller?: AnyController<C>, target?: Controller | null): C;
 
-  attachControllers(controllers: {readonly [controllerId: number]: C | undefined}, target?: Controller | null): void;
+  attachControllers(controllers: {readonly [controllerId: string]: C | undefined}, target?: Controller | null): void;
 
   detachController(controller: C): C | null;
 
-  detachControllers(controllers?: {readonly [controllerId: number]: C | undefined}): void;
+  detachControllers(controllers?: {readonly [controllerId: string]: C | undefined}): void;
 
   insertController(parent?: Controller | null, controller?: AnyController<C>, target?: Controller | null, key?: string): C;
 
-  insertControllers(parent: Controller | null, controllers: {readonly [controllerId: number]: C | undefined}, target?: Controller | null): void;
+  insertControllers(parent: Controller | null, controllers: {readonly [controllerId: string]: C | undefined}, target?: Controller | null): void;
 
   removeController(controller: C): C | null;
 
-  removeControllers(controllers?: {readonly [controllerId: number]: C | undefined}): void;
+  removeControllers(controllers?: {readonly [controllerId: string]: C | undefined}): void;
 
   deleteController(controller: C): C | null;
 
-  deleteControllers(controllers?: {readonly [controllerId: number]: C | undefined}): void;
+  deleteControllers(controllers?: {readonly [controllerId: string]: C | undefined}): void;
+
+  reinsertController(controller: C, target?: Controller | null): void;
 
   /** @internal @override */
   bindController(controller: Controller, target: Controller | null): void;
@@ -205,6 +216,13 @@ export interface ControllerSet<O = unknown, C extends Controller = Controller> e
   controllerKey(controller: C): string | undefined;
 
   /** @internal */
+  initOrdered(ordered: boolean): void;
+
+  get ordered(): boolean;
+
+  order(ordered?: boolean): this;
+
+  /** @internal */
   initSorted(sorted: boolean): void;
 
   get sorted(): boolean;
@@ -220,13 +238,19 @@ export interface ControllerSet<O = unknown, C extends Controller = Controller> e
   /** @protected */
   didSort(parent: Controller | null): void;
 
-  /** @internal @protected */
-  sortChildren(parent: Controller): void;
+  /** @internal */
+  sortChildren(parent: Controller, comparator?: Comparator<C>): void;
+
+  /** @internal */
+  getTargetChild(parent: Controller, child: C): Controller | null;
 
   /** @internal */
   compareChildren(a: Controller, b: Controller): number;
 
-  /** @internal @protected */
+  /** @internal */
+  compareTargetChild(a: Controller, b: Controller): number;
+
+  /** @protected */
   compare(a: C, b: C): number;
 }
 
@@ -272,6 +296,20 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     }
   };
 
+  ControllerSet.prototype.insertControllerMap = function <C extends Controller>(this: ControllerSet<unknown, C>, newController: C, target: Controller | null): void {
+    const controllers = this.controllers as {[controllerId: string]: C | undefined};
+    if (target !== null && (this.flags & ControllerSet.OrderedFlag) !== 0) {
+      (this as Mutable<typeof this>).controllers = Objects.inserted(controllers, newController.uid, newController, target);
+    } else {
+      controllers[newController.uid] = newController;
+    }
+  };
+
+  ControllerSet.prototype.removeControllerMap = function <C extends Controller>(this: ControllerSet<unknown, C>, oldController: C): void {
+    const controllers = this.controllers as {[controllerId: string]: C | undefined};
+    delete controllers[oldController.uid];
+  };
+
   ControllerSet.prototype.hasController = function (this: ControllerSet, controller: Controller): boolean {
     return this.controllers[controller.uid] !== void 0;
   };
@@ -287,14 +325,16 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     }
     let parent: Controller | null;
     if (this.binds && (parent = this.parentController, parent !== null)) {
+      if (target === null) {
+        target = this.getTargetChild(parent, newController);
+      }
       if (key === void 0) {
         key = this.controllerKey(newController);
       }
       this.insertChild(parent, newController, target, key);
     }
-    const controllers = this.controllers as {[comtrollerId: number]: C | undefined};
-    if (controllers[newController.uid] === void 0) {
-      controllers[newController.uid] = newController;
+    if (this.controllers[newController.uid] === void 0) {
+      this.insertControllerMap(newController, target);
       (this as Mutable<typeof this>).controllerCount += 1;
       this.willAttachController(newController, target);
       this.onAttachController(newController, target);
@@ -306,22 +346,36 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     return newController;
   };
 
-  ControllerSet.prototype.addControllers = function <C extends Controller>(this: ControllerSet, newControllers: {readonly [controllerId: number]: C | undefined}, target?: Controller | null): void {
+  ControllerSet.prototype.addControllers = function <C extends Controller>(this: ControllerSet, newControllers: {readonly [controllerId: string]: C | undefined}, target?: Controller | null): void {
     for (const controllerId in newControllers) {
       this.addController(newControllers[controllerId]!, target);
     }
   };
 
-  ControllerSet.prototype.setControllers = function <C extends Controller>(this: ControllerSet, newControllers: {readonly [controllerId: number]: C | undefined}, target?: Controller | null): void {
+  ControllerSet.prototype.setControllers = function <C extends Controller>(this: ControllerSet, newControllers: {readonly [controllerId: string]: C | undefined}, target?: Controller | null): void {
     const controllers = this.controllers;
     for (const controllerId in controllers) {
       if (newControllers[controllerId] === void 0) {
         this.detachController(controllers[controllerId]!);
       }
     }
-    for (const controllerId in newControllers) {
-      if (controllers[controllerId] === void 0) {
-        this.attachController(newControllers[controllerId]!, target);
+    if ((this.flags & ControllerSet.OrderedFlag) !== 0) {
+      const orderedControllers = new Array<C>();
+      for (const controllerId in newControllers) {
+        orderedControllers.push(newControllers[controllerId]!);
+      }
+      for (let i = 0, n = orderedControllers.length; i < n; i += 1) {
+        const newController = orderedControllers[i]!;
+        if (controllers[newController.uid] === void 0) {
+          const targetController = i < n + 1 ? orderedControllers[i + 1] : target;
+          this.attachController(newController, targetController);
+        }
+      }
+    } else {
+      for (const controllerId in newControllers) {
+        if (controllers[controllerId] === void 0) {
+          this.attachController(newControllers[controllerId]!, target);
+        }
       }
     }
   };
@@ -332,12 +386,11 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     } else {
       newController = this.createController();
     }
-    const controllers = this.controllers as {[comtrollerId: number]: C | undefined};
-    if (controllers[newController.uid] === void 0) {
+    if (this.controllers[newController.uid] === void 0) {
       if (target === void 0) {
         target = null;
       }
-      controllers[newController.uid] = newController;
+      this.insertControllerMap(newController, target);
       (this as Mutable<typeof this>).controllerCount += 1;
       this.willAttachController(newController, target);
       this.onAttachController(newController, target);
@@ -349,17 +402,16 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     return newController;
   };
 
-  ControllerSet.prototype.attachControllers = function <C extends Controller>(this: ControllerSet, newControllers: {readonly [controllerId: number]: C | undefined}, target?: Controller | null): void {
+  ControllerSet.prototype.attachControllers = function <C extends Controller>(this: ControllerSet, newControllers: {readonly [controllerId: string]: C | undefined}, target?: Controller | null): void {
     for (const controllerId in newControllers) {
       this.attachController(newControllers[controllerId]!, target);
     }
   };
 
   ControllerSet.prototype.detachController = function <C extends Controller>(this: ControllerSet<unknown, C>, oldController: C): C | null {
-    const controllers = this.controllers as {[comtrollerId: number]: C | undefined};
-    if (controllers[oldController.uid] !== void 0) {
+    if (this.controllers[oldController.uid] !== void 0) {
       (this as Mutable<typeof this>).controllerCount -= 1;
-      delete controllers[oldController.uid];
+      this.removeControllerMap(oldController);
       this.willDetachController(oldController);
       this.onDetachController(oldController);
       this.deinitController(oldController);
@@ -371,7 +423,7 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     return null;
   };
 
-  ControllerSet.prototype.detachControllers = function <C extends Controller>(this: ControllerSet<unknown, C>, controllers?: {readonly [controllerId: number]: C | undefined}): void {
+  ControllerSet.prototype.detachControllers = function <C extends Controller>(this: ControllerSet<unknown, C>, controllers?: {readonly [controllerId: string]: C | undefined}): void {
     if (controllers === void 0) {
       controllers = this.controllers;
     }
@@ -396,11 +448,13 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
       key = this.controllerKey(newController);
     }
     if (parent !== null && (newController.parent !== parent || newController.key !== key)) {
+      if (target === null) {
+        target = this.getTargetChild(parent, newController);
+      }
       this.insertChild(parent, newController, target, key);
     }
-    const controllers = this.controllers as {[comtrollerId: number]: C | undefined};
-    if (controllers[newController.uid] === void 0) {
-      controllers[newController.uid] = newController;
+    if (this.controllers[newController.uid] === void 0) {
+      this.insertControllerMap(newController, target);
       (this as Mutable<typeof this>).controllerCount += 1;
       this.willAttachController(newController, target);
       this.onAttachController(newController, target);
@@ -412,7 +466,7 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     return newController;
   };
 
-  ControllerSet.prototype.insertControllers = function <C extends Controller>(this: ControllerSet, parent: Controller | null, newControllers: {readonly [controllerId: number]: C | undefined}, target?: Controller | null): void {
+  ControllerSet.prototype.insertControllers = function <C extends Controller>(this: ControllerSet, parent: Controller | null, newControllers: {readonly [controllerId: string]: C | undefined}, target?: Controller | null): void {
     for (const controllerId in newControllers) {
       this.insertController(parent, newControllers[controllerId]!, target);
     }
@@ -426,7 +480,7 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     return null;
   };
 
-  ControllerSet.prototype.removeControllers = function <C extends Controller>(this: ControllerSet<unknown, C>, controllers?: {readonly [controllerId: number]: C | undefined}): void {
+  ControllerSet.prototype.removeControllers = function <C extends Controller>(this: ControllerSet<unknown, C>, controllers?: {readonly [controllerId: string]: C | undefined}): void {
     if (controllers === void 0) {
       controllers = this.controllers;
     }
@@ -443,7 +497,7 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     return oldController;
   };
 
-  ControllerSet.prototype.deleteControllers = function <C extends Controller>(this: ControllerSet<unknown, C>, controllers?: {readonly [controllerId: number]: C | undefined}): void {
+  ControllerSet.prototype.deleteControllers = function <C extends Controller>(this: ControllerSet<unknown, C>, controllers?: {readonly [controllerId: string]: C | undefined}): void {
     if (controllers === void 0) {
       controllers = this.controllers;
     }
@@ -452,12 +506,23 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     }
   };
 
+  ControllerSet.prototype.reinsertController = function <C extends Controller>(this: ControllerSet<unknown, C>, controller: C, target?: Controller | null): void {
+    if (this.controllers[controller.uid] !== void 0 && (target !== void 0 || (this.flags & ControllerSet.SortedFlag) !== 0)) {
+      const parent = controller.parent;
+      if (parent !== null) {
+        if (target === void 0) {
+          target = this.getTargetChild(parent, controller);
+        }
+        parent.reinsertChild(controller, target);
+      }
+    }
+  };
+
   ControllerSet.prototype.bindController = function <C extends Controller>(this: ControllerSet<unknown, C>, controller: Controller, target: Controller | null): void {
     if (this.binds) {
       const newController = this.detectController(controller);
-      const controllers = this.controllers as {[comtrollerId: number]: C | undefined};
-      if (newController !== null && controllers[newController.uid] === void 0) {
-        controllers[newController.uid] = newController;
+      if (newController !== null && this.controllers[newController.uid] === void 0) {
+        this.insertControllerMap(newController, target);
         (this as Mutable<typeof this>).controllerCount += 1;
         this.willAttachController(newController, target);
         this.onAttachController(newController, target);
@@ -472,10 +537,9 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
   ControllerSet.prototype.unbindController = function <C extends Controller>(this: ControllerSet<unknown, C>, controller: Controller): void {
     if (this.binds) {
       const oldController = this.detectController(controller);
-      const controllers = this.controllers as {[comtrollerId: number]: C | undefined};
-      if (oldController !== null && controllers[oldController.uid] !== void 0) {
+      if (oldController !== null && this.controllers[oldController.uid] !== void 0) {
         (this as Mutable<typeof this>).controllerCount -= 1;
-        delete controllers[oldController.uid];
+        this.removeControllerMap(oldController);
         this.willDetachController(oldController);
         this.onDetachController(oldController);
         this.deinitController(oldController);
@@ -530,6 +594,33 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     }
   };
 
+  ControllerSet.prototype.initOrdered = function (this: ControllerSet, ordered: boolean): void {
+    if (ordered) {
+      (this as Mutable<typeof this>).flags = this.flags | ControllerSet.OrderedFlag;
+    } else {
+      (this as Mutable<typeof this>).flags = this.flags & ~ControllerSet.OrderedFlag;
+    }
+  };
+
+  Object.defineProperty(ControllerSet.prototype, "ordered", {
+    get(this: ControllerSet): boolean {
+      return (this.flags & ControllerSet.OrderedFlag) !== 0;
+    },
+    configurable: true,
+  });
+
+  ControllerSet.prototype.order = function (this: ControllerSet, ordered?: boolean): typeof this {
+    if (ordered === void 0) {
+      ordered = true;
+    }
+    if (ordered) {
+      this.setFlags(this.flags | ControllerSet.OrderedFlag);
+    } else {
+      this.setFlags(this.flags & ~ControllerSet.OrderedFlag);
+    }
+    return this;
+  };
+
   Object.defineProperty(ControllerSet.prototype, "sorted", {
     get(this: ControllerSet): boolean {
       return (this.flags & ControllerSet.SortedFlag) !== 0;
@@ -541,15 +632,14 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     if (sorted === void 0) {
       sorted = true;
     }
-    const flags = this.flags;
-    if (sorted && (flags & ControllerSet.SortedFlag) === 0) {
+    if (sorted) {
       const parent = this.parentController;
       this.willSort(parent);
-      this.setFlags(flags | ControllerSet.SortedFlag);
+      this.setFlags(this.flags | ControllerSet.SortedFlag);
       this.onSort(parent);
       this.didSort(parent);
-    } else if (!sorted && (flags & ControllerSet.SortedFlag) !== 0) {
-      this.setFlags(flags & ~ControllerSet.SortedFlag);
+    } else {
+      this.setFlags(this.flags & ~ControllerSet.SortedFlag);
     }
     return this;
   };
@@ -568,8 +658,16 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     // hook
   };
 
-  ControllerSet.prototype.sortChildren = function <C extends Controller>(this: ControllerSet<unknown, C>, parent: Controller): void {
+  ControllerSet.prototype.sortChildren = function <C extends Controller>(this: ControllerSet<unknown, C>, parent: Controller, comparator?: Comparator<C>): void {
     parent.sortChildren(this.compareChildren.bind(this));
+  };
+
+  ControllerSet.prototype.getTargetChild = function <C extends Controller>(this: ControllerSet<unknown, C>, parent: Controller, child: C): Controller | null {
+    if ((this.flags & ControllerSet.SortedFlag) !== 0) {
+      return parent.getTargetChild(child, this.compareTargetChild.bind(this));
+    } else {
+      return null;
+    }
   };
 
   ControllerSet.prototype.compareChildren = function <C extends Controller>(this: ControllerSet<unknown, C>, a: Controller, b: Controller): number {
@@ -580,6 +678,16 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
       return this.compare(x, y);
     } else {
       return x !== void 0 ? 1 : y !== void 0 ? -1 : 0;
+    }
+  };
+
+  ControllerSet.prototype.compareTargetChild = function <C extends Controller>(this: ControllerSet<unknown, C>, a: C, b: Controller): number {
+    const controllers = this.controllers;
+    const y = controllers[b.uid];
+    if (y !== void 0) {
+      return this.compare(a, y);
+    } else {
+      return y !== void 0 ? -1 : 0;
     }
   };
 
@@ -599,6 +707,7 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     fastener = _super.construct.call(this, fastener, owner) as F;
     const flagsInit = fastener.flagsInit;
     if (flagsInit !== void 0) {
+      fastener.initOrdered((flagsInit & ControllerSet.OrderedFlag) !== 0);
       fastener.initSorted((flagsInit & ControllerSet.SortedFlag) !== 0);
     }
     Object.defineProperty(fastener, "inlet", { // override getter
@@ -617,6 +726,18 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
     let flagsInit = fastenerPrototype.flagsInit;
+
+    if (Object.prototype.hasOwnProperty.call(fastenerPrototype, "ordered")) {
+      if (flagsInit === void 0) {
+        flagsInit = 0;
+      }
+      if (fastenerPrototype.ordered) {
+        flagsInit |= ControllerSet.OrderedFlag;
+      } else {
+        flagsInit &= ~ControllerSet.OrderedFlag;
+      }
+      delete (fastenerPrototype as ControllerSetTemplate).ordered;
+    }
 
     if (Object.prototype.hasOwnProperty.call(fastenerPrototype, "sorted")) {
       if (flagsInit === void 0) {
@@ -638,9 +759,10 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     }
   };
 
-  (ControllerSet as Mutable<typeof ControllerSet>).SortedFlag = 1 << (_super.FlagShift + 0);
+  (ControllerSet as Mutable<typeof ControllerSet>).OrderedFlag = 1 << (_super.FlagShift + 0);
+  (ControllerSet as Mutable<typeof ControllerSet>).SortedFlag = 1 << (_super.FlagShift + 1);
 
-  (ControllerSet as Mutable<typeof ControllerSet>).FlagShift = _super.FlagShift + 1;
+  (ControllerSet as Mutable<typeof ControllerSet>).FlagShift = _super.FlagShift + 2;
   (ControllerSet as Mutable<typeof ControllerSet>).FlagMask = (1 << ControllerSet.FlagShift) - 1;
 
   return ControllerSet;

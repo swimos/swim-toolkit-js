@@ -35,6 +35,10 @@ export interface ViewObserver<V extends View = View> extends ComponentObserver<V
 
   viewDidRemoveChild?(child: View, view: V): void;
 
+  viewWillReinsertChild?(child: View, target: View | null, view: V): void;
+
+  viewDidReinsertChild?(child: View, target: View | null, view: V): void;
+
   viewWillMount?(view: V): void;
 
   viewDidMount?(view: V): void;

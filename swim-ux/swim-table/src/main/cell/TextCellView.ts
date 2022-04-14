@@ -38,21 +38,28 @@ export class TextCellView extends CellView {
     didDetachView(contentView: HtmlView): void {
       this.owner.callObservers("viewDidDetachContent", contentView, this.owner);
     },
-    create(value?: string): HtmlView {
+    setContent(content: string | undefined): void {
+      let contentView = this.view;
+      if (contentView === null) {
+        contentView = this.createView();
+        this.setView(contentView);
+      }
+      contentView.text(content);
+    },
+    createView(): HtmlView {
       const contentView = HtmlView.fromTag("span");
       contentView.alignSelf.setState("center", Affinity.Intrinsic);
       contentView.whiteSpace.setState("nowrap", Affinity.Intrinsic);
       contentView.textOverflow.setState("ellipsis", Affinity.Intrinsic);
       contentView.overflowX.setState("hidden", Affinity.Intrinsic);
       contentView.overflowY.setState("hidden", Affinity.Intrinsic);
-      if (value !== void 0) {
-        contentView.text(value);
-      }
       return contentView;
     },
     fromAny(value: AnyView<HtmlView> | string): HtmlView {
       if (typeof value === "string") {
-        return this.create(value);
+        const contentView = this.createView();
+        contentView.text(value);
+        return contentView;
       } else {
         return HtmlView.fromAny(value);
       }
@@ -61,7 +68,7 @@ export class TextCellView extends CellView {
   readonly content!: ViewRefDef<this, {
     view: HtmlView & Initable<HtmlViewInit | string>,
     implements: {
-      create(value?: string): HtmlView,
+      setContent(content: string | undefined): void,
     },
   }>;
   static readonly content: FastenerClass<TextCellView["content"]>;

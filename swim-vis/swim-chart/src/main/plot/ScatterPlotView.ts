@@ -362,17 +362,16 @@ export abstract class ScatterPlotView<X = unknown, Y = unknown> extends Graphics
     if ((displayFlags & View.NeedsLayout) !== 0 &&
         (xScale = this.xScale.value, xScale !== null) &&
         (yScale = this.yScale.value, yScale !== null)) {
-      this.layoutChildViews(xScale, yScale, displayFlags, viewContext, displayChild);
+      this.layoutChildren(xScale, yScale, displayFlags, viewContext, displayChild);
     } else {
       super.displayChildren(displayFlags, viewContext, displayChild);
     }
   }
 
-  protected layoutChildViews(xScale: ContinuousScale<X, number>,
-                             yScale: ContinuousScale<Y, number>,
-                             displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                             displayChild: (this: this, childView: View, displayFlags: ViewFlags,
-                                            viewContext: ViewContextType<this>) => void): void {
+  protected layoutChildren(xScale: ContinuousScale<X, number>, yScale: ContinuousScale<Y, number>,
+                           displayFlags: ViewFlags, viewContext: ViewContextType<this>,
+                           displayChild: (this: this, childView: View, displayFlags: ViewFlags,
+                                          viewContext: ViewContextType<this>) => void): void {
     // Recompute extrema when laying out child views.
     const frame = this.viewFrame;
     const size = Math.min(frame.width, frame.height);
@@ -387,8 +386,8 @@ export abstract class ScatterPlotView<X = unknown, Y = unknown> extends Graphics
 
     let point0 = null as DataPointView<X, Y> | null;
     type self = this;
-    function layoutChildView(this: self, point1: View, displayFlags: ViewFlags,
-                             viewContext: ViewContextType<self>): void {
+    function layoutChild(this: self, point1: View, displayFlags: ViewFlags,
+                         viewContext: ViewContextType<self>): void {
       if (point1 instanceof DataPointView) {
         const x1 = point1.x.getValue();
         const y1 = point1.y.getValue();
@@ -437,7 +436,7 @@ export abstract class ScatterPlotView<X = unknown, Y = unknown> extends Graphics
 
       displayChild.call(this, point1, displayFlags, viewContext);
     }
-    super.displayChildren(displayFlags, viewContext, layoutChildView);
+    super.displayChildren(displayFlags, viewContext, layoutChild);
 
     this.setXDataDomain(point0 !== null ? Domain<X>(xDataDomainMin!, xDataDomainMax!) : null);
     this.setYDataDomain(point0 !== null ? Domain<Y>(yDataDomainMin!, yDataDomainMax!) : null);

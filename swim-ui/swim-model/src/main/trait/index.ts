@@ -61,3 +61,13 @@ export {
   TraitModelRefDef,
   TraitModelRef,
 } from "./TraitModelRef";
+
+export {
+  TraitModelSetRefinement,
+  TraitModelSetTrait,
+  TraitModelSetModel,
+  TraitModelSetTemplate,
+  TraitModelSetClass,
+  TraitModelSetDef,
+  TraitModelSet,
+} from "./TraitModelSet";

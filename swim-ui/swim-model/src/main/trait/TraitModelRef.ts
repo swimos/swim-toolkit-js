@@ -14,8 +14,8 @@
 
 import type {Mutable, Class, Proto, ObserverType} from "@swim/util";
 import type {FastenerOwner} from "@swim/component";
-import {AnyTrait, TraitFactory, Trait} from "./Trait";
 import type {Model} from "../model/Model";
+import {AnyTrait, TraitFactory, Trait} from "./Trait";
 import {
   ModelRefRefinement,
   ModelRefTemplate,
@@ -25,20 +25,20 @@ import {
 
 /** @public */
 export interface TraitModelRefRefinement extends ModelRefRefinement {
-  trait?: unknown;
+  trait?: Trait;
   observesTrait?: unknown;
 }
 
 /** @public */
 export type TraitModelRefTrait<R extends TraitModelRefRefinement | TraitModelRef<any, any, any>, D = Trait> =
-  R extends {trait: infer T} ? T :
+  R extends {trait: infer T | null} ? T :
   R extends {extends: infer E} ? TraitModelRefTrait<E, D> :
   R extends TraitModelRef<any, infer T, any> ? T :
   D;
 
 /** @public */
 export type TraitModelRefModel<R extends TraitModelRefRefinement | TraitModelRef<any, any, any>, D = Model> =
-  R extends {model: infer M} ? M :
+  R extends {model: infer M | null} ? M :
   R extends {extends: infer E} ? TraitModelRefModel<E, D> :
   R extends TraitModelRef<any, any, infer M> ? M :
   D;
@@ -70,7 +70,7 @@ export interface TraitModelRefClass<F extends TraitModelRef<any, any, any> = Tra
 }
 
 /** @public */
-export type TraitModelRefDef<O, R extends TraitModelRefRefinement> =
+export type TraitModelRefDef<O, R extends TraitModelRefRefinement = {}> =
   TraitModelRef<O, TraitModelRefTrait<R>, TraitModelRefModel<R>> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &
@@ -115,30 +115,30 @@ export interface TraitModelRef<O = unknown, T extends Trait = Trait, M extends M
   attachTrait(trait?: AnyTrait<T>, targetTrait?: Trait | null): T;
 
   /** @protected */
-  initTrait(trait: T, model: M | null): void;
+  initTrait(trait: T): void;
 
   /** @protected */
-  willAttachTrait(trait: T, targetTrait: Trait | null, model: M | null): void;
+  willAttachTrait(trait: T, targetTrait: Trait | null): void;
 
   /** @protected */
-  onAttachTrait(trait: T, targetTrait: Trait | null, model: M | null): void;
+  onAttachTrait(trait: T, targetTrait: Trait | null): void;
 
   /** @protected */
-  didAttachTrait(trait: T, targetTrait: Trait | null, model: M | null): void;
+  didAttachTrait(trait: T, targetTrait: Trait | null): void;
 
   detachTrait(): T | null;
 
   /** @protected */
-  deinitTrait(trait: T, model: M | null): void;
+  deinitTrait(trait: T): void;
 
   /** @protected */
-  willDetachTrait(trait: T, model: M | null): void;
+  willDetachTrait(trait: T): void;
 
   /** @protected */
-  onDetachTrait(trait: T, model: M | null): void;
+  onDetachTrait(trait: T): void;
 
   /** @protected */
-  didDetachTrait(trait: T, model: M | null): void;
+  didDetachTrait(trait: T): void;
 
   insertTrait(model?: M | null, trait?: AnyTrait<T>, targetTrait?: Trait | null, traitKey?: string): T;
 
@@ -225,17 +225,17 @@ export const TraitModelRef = (function (_super: typeof ModelRef) {
       if (oldTrait !== newTrait) {
         if (oldTrait !== null) {
           (this as Mutable<typeof this>).trait = null;
-          this.willDetachTrait(oldTrait, model);
-          this.onDetachTrait(oldTrait, model);
-          this.deinitTrait(oldTrait, model);
-          this.didDetachTrait(oldTrait, model);
+          this.willDetachTrait(oldTrait);
+          this.onDetachTrait(oldTrait);
+          this.deinitTrait(oldTrait);
+          this.didDetachTrait(oldTrait);
         }
         if (newTrait !== null) {
           (this as Mutable<typeof this>).trait = newTrait;
-          this.willAttachTrait(newTrait, targetTrait, model);
-          this.onAttachTrait(newTrait, targetTrait, model);
-          this.initTrait(newTrait, model);
-          this.didAttachTrait(newTrait, targetTrait, model);
+          this.willAttachTrait(newTrait, targetTrait);
+          this.onAttachTrait(newTrait, targetTrait);
+          this.initTrait(newTrait);
+          this.didAttachTrait(newTrait, targetTrait);
         }
       }
     }
@@ -264,66 +264,65 @@ export const TraitModelRef = (function (_super: typeof ModelRef) {
     if (oldTrait !== newTrait) {
       if (oldTrait !== null) {
         (this as Mutable<typeof this>).trait = null;
-        this.willDetachTrait(oldTrait, model);
-        this.onDetachTrait(oldTrait, model);
-        this.deinitTrait(oldTrait, model);
-        this.didDetachTrait(oldTrait, model);
+        this.willDetachTrait(oldTrait);
+        this.onDetachTrait(oldTrait);
+        this.deinitTrait(oldTrait);
+        this.didDetachTrait(oldTrait);
       }
       (this as Mutable<typeof this>).trait = newTrait;
-      this.willAttachTrait(newTrait, targetTrait, model);
-      this.onAttachTrait(newTrait, targetTrait, model);
-      this.initTrait(newTrait, model);
-      this.didAttachTrait(newTrait, targetTrait, model);
+      this.willAttachTrait(newTrait, targetTrait);
+      this.onAttachTrait(newTrait, targetTrait);
+      this.initTrait(newTrait);
+      this.didAttachTrait(newTrait, targetTrait);
     }
     return newTrait;
   };
 
-  TraitModelRef.prototype.initTrait = function <T extends Trait, M extends Model>(this: TraitModelRef<unknown, T, M>, trait: T, model: M): void {
+  TraitModelRef.prototype.initTrait = function <T extends Trait, M extends Model>(this: TraitModelRef<unknown, T, M>, trait: T): void {
     // hook
   };
 
-  TraitModelRef.prototype.willAttachTrait = function <T extends Trait, M extends Model>(this: TraitModelRef<unknown, T, M>, trait: T, targetTrait: Trait | null, model: M): void {
+  TraitModelRef.prototype.willAttachTrait = function <T extends Trait, M extends Model>(this: TraitModelRef<unknown, T, M>, trait: T, targetTrait: Trait | null): void {
     // hook
   };
 
-  TraitModelRef.prototype.onAttachTrait = function <T extends Trait, M extends Model>(this: TraitModelRef<unknown, T, M>, trait: T, targetTrait: Trait | null, model: M): void {
+  TraitModelRef.prototype.onAttachTrait = function <T extends Trait, M extends Model>(this: TraitModelRef<unknown, T, M>, trait: T, targetTrait: Trait | null): void {
     if (this.observesTrait === true) {
       trait.observe(this as ObserverType<T>);
     }
   };
 
-  TraitModelRef.prototype.didAttachTrait = function <T extends Trait, M extends Model>(this: TraitModelRef<unknown, T, M>, trait: T, targetTrait: Trait | null, model: M): void {
+  TraitModelRef.prototype.didAttachTrait = function <T extends Trait, M extends Model>(this: TraitModelRef<unknown, T, M>, trait: T, targetTrait: Trait | null): void {
     // hook
   };
 
   TraitModelRef.prototype.detachTrait = function <T extends Trait, M extends Model>(this: TraitModelRef<unknown, T, M>): T | null {
     const oldTrait = this.trait;
     if (oldTrait !== null) {
-      const model = this.model;
       (this as Mutable<typeof this>).trait = null;
-      this.willDetachTrait(oldTrait, model);
-      this.onDetachTrait(oldTrait, model);
-      this.deinitTrait(oldTrait, model);
-      this.didDetachTrait(oldTrait, model);
+      this.willDetachTrait(oldTrait);
+      this.onDetachTrait(oldTrait);
+      this.deinitTrait(oldTrait);
+      this.didDetachTrait(oldTrait);
     }
     return oldTrait;
   };
 
-  TraitModelRef.prototype.deinitTrait = function <T extends Trait, M extends Model>(this: TraitModelRef<unknown, T, M>, trait: T, model: M): void {
+  TraitModelRef.prototype.deinitTrait = function <T extends Trait, M extends Model>(this: TraitModelRef<unknown, T, M>, trait: T): void {
     // hook
   };
 
-  TraitModelRef.prototype.willDetachTrait = function <T extends Trait, M extends Model>(this: TraitModelRef<unknown, T, M>, trait: T, model: M): void {
+  TraitModelRef.prototype.willDetachTrait = function <T extends Trait, M extends Model>(this: TraitModelRef<unknown, T, M>, trait: T): void {
     // hook
   };
 
-  TraitModelRef.prototype.onDetachTrait = function <T extends Trait, M extends Model>(this: TraitModelRef<unknown, T, M>, trait: T, model: M): void {
+  TraitModelRef.prototype.onDetachTrait = function <T extends Trait, M extends Model>(this: TraitModelRef<unknown, T, M>, trait: T): void {
     if (this.observesTrait === true) {
       trait.unobserve(this as ObserverType<T>);
     }
   };
 
-  TraitModelRef.prototype.didDetachTrait = function <T extends Trait, M extends Model>(this: TraitModelRef<unknown, T, M>, trait: T, model: M): void {
+  TraitModelRef.prototype.didDetachTrait = function <T extends Trait, M extends Model>(this: TraitModelRef<unknown, T, M>, trait: T): void {
     // hook
   };
 
@@ -356,17 +355,17 @@ export const TraitModelRef = (function (_super: typeof ModelRef) {
     if (oldTrait !== newTrait) {
       if (oldTrait !== null) {
         (this as Mutable<typeof this>).trait = null;
-        this.willDetachTrait(oldTrait, model);
-        this.onDetachTrait(oldTrait, model);
-        this.deinitTrait(oldTrait, model);
-        this.didDetachTrait(oldTrait, model);
+        this.willDetachTrait(oldTrait);
+        this.onDetachTrait(oldTrait);
+        this.deinitTrait(oldTrait);
+        this.didDetachTrait(oldTrait);
         oldTrait.remove();
       }
       (this as Mutable<typeof this>).trait = newTrait;
-      this.willAttachTrait(newTrait, targetTrait, model);
-      this.onAttachTrait(newTrait, targetTrait, model);
-      this.initTrait(newTrait, model);
-      this.didAttachTrait(newTrait, targetTrait, model);
+      this.willAttachTrait(newTrait, targetTrait);
+      this.onAttachTrait(newTrait, targetTrait);
+      this.initTrait(newTrait);
+      this.didAttachTrait(newTrait, targetTrait);
     }
     return newTrait;
   };

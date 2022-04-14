@@ -57,19 +57,25 @@ export class AppBarController extends BarController {
       }
     }
 
-    const modeToolControllers = this.modeTools.controllers;
-    let modeToolCount = 0;
-    for (const controllerId in modeToolControllers) {
-      const modeToolController = modeToolControllers[controllerId]!;
+    const modeToolControllers = new Array<ToolController>();
+    for (const controllerId in this.modeTools.controllers) {
+      modeToolControllers.push(this.modeTools.controllers[controllerId]!);
+    }
+    const modeToolCount = modeToolControllers.length;
+
+    for (let i = 0; i < modeToolCount; i += 1) {
+      const modeToolController = modeToolControllers[i]!;
       let modeToolLayout = modeToolController.layout.value;
       if (modeToolLayout !== null) {
         const modeToolKey = "mode" + modeToolController.uid;
         modeToolLayout = modeToolLayout.withKey(modeToolKey);
+        modeToolLayout = modeToolLayout.withPresence(void 0, null, null);
         tools.push(modeToolLayout);
         if (modeToolController.tool.view !== null) {
-          modeToolController.tool.insertView(this.bar.view, void 0, void 0, modeToolKey);
+          const targetToolController = i + 1 < modeToolCount ? modeToolControllers[i + 1] : null;
+          const targetToolView = targetToolController !== null ? modeToolController.tool.view : null;
+          modeToolController.tool.insertView(this.bar.view, void 0, targetToolView, modeToolKey);
         }
-        modeToolCount += 1;
       }
     }
 
@@ -119,7 +125,8 @@ export class AppBarController extends BarController {
     },
     createController(): ToolController {
       const toolController = new ButtonToolController();
-      toolController.layout.setValue(ToolLayout.create(this.viewKey!, 0, 0, 48));
+      const toolLayout = ToolLayout.create(this.viewKey!, 0, 0, 48);
+      toolController.layout.setValue(toolLayout);
       const toolView = toolController.tool.attachView()!;
       toolView.iconWidth.setState(24, Affinity.Intrinsic);
       toolView.iconHeight.setState(24, Affinity.Intrinsic);
@@ -155,7 +162,8 @@ export class AppBarController extends BarController {
     },
     createController(): ToolController {
       const toolController = new ButtonToolController();
-      toolController.layout.setValue(ToolLayout.create(this.viewKey!, 0, 0, 48));
+      const toolLayout = ToolLayout.create(this.viewKey!, 0, 0, 48);
+      toolController.layout.setValue(toolLayout);
       const toolView = toolController.tool.attachView()!;
       toolView.iconWidth.setState(24, Affinity.Intrinsic);
       toolView.iconHeight.setState(24, Affinity.Intrinsic);
@@ -203,21 +211,22 @@ export class AppBarController extends BarController {
 
   @TraitViewControllerSetDef<AppBarController["modeTools"]>({
     controllerType: ToolController,
+    ordered: true,
     inherits: true,
     observes: true,
-    getTraitViewRef(modeToolController: ToolController): TraitViewRef<unknown, ToolTrait, ToolView> {
-      return modeToolController.tool;
+    getTraitViewRef(toolController: ToolController): TraitViewRef<unknown, ToolTrait, ToolView> {
+      return toolController.tool;
     },
-    willAttachController(modeToolController: ToolController): void {
+    willAttachController(toolController: ToolController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
-    didDetachController(modeToolController: ToolController): void {
+    didDetachController(toolController: ToolController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
-    controllerWillAttachToolView(modeToolView: ToolView, modeToolController: ToolController): void {
+    controllerWillAttachToolView(toolView: ToolView, toolController: ToolController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
-    controllerDidDetachToolView(modeToolView: ToolView, modeToolController: ToolController): void {
+    controllerDidDetachToolView(toolView: ToolView, toolController: ToolController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
   })

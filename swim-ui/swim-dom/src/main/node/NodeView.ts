@@ -92,6 +92,7 @@ export class NodeView extends View {
         oldChild.setFlags(oldChild.flags & ~View.RemovingFlag);
       }
 
+      newChild.setFlags(newChild.flags | View.InsertingFlag);
       newChild.setKey(oldChild.key);
       this.willInsertChild(newChild, target);
       if (newChild instanceof NodeView) {
@@ -119,6 +120,7 @@ export class NodeView extends View {
       this.onInsertChild(newChild, target);
       this.didInsertChild(newChild, target);
       newChild.cascadeInsert();
+      newChild.setFlags(newChild.flags & ~View.InsertingFlag);
     } else if (newChild !== oldChild || newChild !== null && newChild.key !== key) {
       if (oldChild !== null) { // remove
         target = oldChild.nextSibling;
@@ -142,6 +144,7 @@ export class NodeView extends View {
       if (newChild !== null) { // insert
         newChild.remove();
 
+        newChild.setFlags(newChild.flags | View.InsertingFlag);
         newChild.setKey(key);
         this.willInsertChild(newChild, target);
         if (newChild instanceof NodeView) {
@@ -163,6 +166,7 @@ export class NodeView extends View {
         this.onInsertChild(newChild, target);
         this.didInsertChild(newChild, target);
         newChild.cascadeInsert();
+        newChild.setFlags(newChild.flags & ~View.InsertingFlag);
       }
     }
 
@@ -184,6 +188,7 @@ export class NodeView extends View {
       this.removeChild(key);
     }
 
+    child.setFlags(child.flags | View.InsertingFlag);
     child.setKey(key);
     this.willInsertChild(child, null);
     if (child instanceof NodeView) {
@@ -194,6 +199,7 @@ export class NodeView extends View {
     this.onInsertChild(child, null);
     this.didInsertChild(child, null);
     child.cascadeInsert();
+    child.setFlags(child.flags & ~View.InsertingFlag);
 
     return child;
   }
@@ -214,6 +220,7 @@ export class NodeView extends View {
     }
     const target = this.firstChild;
 
+    child.setFlags(child.flags | View.InsertingFlag);
     child.setKey(key);
     this.willInsertChild(child, target);
     if (child instanceof NodeView) {
@@ -224,6 +231,7 @@ export class NodeView extends View {
     this.onInsertChild(child, target);
     this.didInsertChild(child, target);
     child.cascadeInsert();
+    child.setFlags(child.flags & ~View.InsertingFlag);
 
     return child;
   }
@@ -233,7 +241,7 @@ export class NodeView extends View {
   override insertChild(child: AnyView | Node, target: View | Node | null, key?: string): View;
   override insertChild(child: AnyView | Node, target: View | Node | null, key?: string): View {
     if (target instanceof View && target.parent !== this || target instanceof Node && target.parentNode !== this.node) {
-      throw new TypeError("" + target);
+      target = null;
     }
 
     if (child instanceof Node) {
@@ -265,6 +273,7 @@ export class NodeView extends View {
       targetNode = null;
     }
 
+    child.setFlags(child.flags | View.InsertingFlag);
     child.setKey(key);
     this.willInsertChild(child, targetView);
     if (child instanceof NodeView) {
@@ -285,6 +294,7 @@ export class NodeView extends View {
     this.onInsertChild(child, targetView);
     this.didInsertChild(child, targetView);
     child.cascadeInsert();
+    child.setFlags(child.flags & ~View.InsertingFlag);
 
     return child;
   }
@@ -316,6 +326,7 @@ export class NodeView extends View {
       } while (next !== null);
     }
 
+    child.setFlags(child.flags | View.InsertingFlag);
     child.setKey(key);
     this.willInsertChild(child, target);
     this.insertChildMap(child);
@@ -323,6 +334,7 @@ export class NodeView extends View {
     this.onInsertChild(child, target);
     this.didInsertChild(child, target);
     child.cascadeInsert();
+    child.setFlags(child.flags & ~View.InsertingFlag);
 
     return child;
   }
@@ -355,6 +367,7 @@ export class NodeView extends View {
         oldChild.setFlags(oldChild.flags & ~View.RemovingFlag);
       }
 
+      newChild.setFlags(newChild.flags | View.InsertingFlag);
       newChild.setKey(oldChild.key);
       this.willInsertChild(newChild, target);
       if (newChild instanceof NodeView) {
@@ -382,6 +395,7 @@ export class NodeView extends View {
       this.onInsertChild(newChild, target);
       this.didInsertChild(newChild, target);
       newChild.cascadeInsert();
+      newChild.setFlags(newChild.flags & ~View.InsertingFlag);
     }
 
     return oldChild;
@@ -450,6 +464,26 @@ export class NodeView extends View {
     }
   }
 
+  override reinsertChild(child: View, target: View | null): void {
+    if (child.parent !== this) {
+      throw new Error("not a child");
+    }
+    if (target !== null && target.parent !== this) {
+      throw new Error("reinsert target is not a child");
+    }
+
+    if (child.nextSibling !== target) {
+      this.willReinsertChild(child, target);
+      if (child instanceof NodeView) {
+        this.node.removeChild(child.node);
+        this.node.insertBefore(child.node, target instanceof NodeView ? target.node : null);
+      }
+      child.reattachParent(target);
+      this.onReinsertChild(child, target);
+      this.didReinsertChild(child, target);
+    }
+  }
+
   /** @internal */
   static isRootView(node: Node): boolean {
     do {
@@ -497,8 +531,10 @@ export class NodeView extends View {
           }
           targetNode = targetNode.nextSibling;
         }
+        view.setFlags(view.flags | View.InsertingFlag);
         view.attachParent(parentView, targetView);
         view.cascadeInsert();
+        view.setFlags(view.flags & ~View.InsertingFlag);
       } else {
         view.mount();
       }
@@ -508,8 +544,10 @@ export class NodeView extends View {
   /** @internal */
   override mount(): void {
     if (!this.mounted && NodeView.isNodeMounted(this.node) && NodeView.isRootView(this.node)) {
+      this.setFlags(this.flags | View.InsertingFlag);
       this.cascadeMount();
       this.cascadeInsert();
+      this.setFlags(this.flags & ~View.InsertingFlag);
     }
   }
 

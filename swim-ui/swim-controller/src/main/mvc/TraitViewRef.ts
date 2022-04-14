@@ -33,14 +33,14 @@ export interface TraitViewRefRefinement extends FastenerRefinement {
 
 /** @public */
 export type TraitViewRefTrait<R extends TraitViewRefRefinement | TraitViewRef<any, any, any>, D = Trait> =
-  R extends {trait: infer T} ? T :
+  R extends {trait: infer T | null} ? T :
   R extends {extends: infer E} ? TraitViewRefTrait<E, D> :
   R extends TraitViewRef<any, infer T, any> ? T :
   D;
 
 /** @public */
 export type TraitViewRefView<R extends TraitViewRefRefinement | TraitViewRef<any, any, any>, D = View> =
-  R extends {view: infer V} ? V :
+  R extends {view: infer V | null} ? V :
   R extends {extends: infer E} ? TraitViewRefView<E, D> :
   R extends TraitViewRef<any, any, infer V> ? V :
   D;
@@ -79,7 +79,7 @@ export interface TraitViewRefClass<F extends TraitViewRef<any, any, any> = Trait
 }
 
 /** @public */
-export type TraitViewRefDef<O, R extends TraitViewRefRefinement> =
+export type TraitViewRefDef<O, R extends TraitViewRefRefinement = {}> =
   TraitViewRef<O, TraitViewRefTrait<R>, TraitViewRefView<R>> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &

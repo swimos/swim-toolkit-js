@@ -15,7 +15,13 @@
 import type {Class, Initable} from "@swim/util";
 import {Affinity, FastenerClass} from "@swim/component";
 import {Length} from "@swim/math";
-import {ViewContextType, AnyView, ViewRefDef} from "@swim/view";
+import {
+  PositionGestureInput,
+  PositionGestureDef,
+  ViewContextType,
+  AnyView,
+  ViewRefDef,
+} from "@swim/view";
 import {HtmlViewInit, HtmlView} from "@swim/dom";
 import {ToolView} from "./ToolView";
 import type {TitleToolViewObserver} from "./TitleToolViewObserver";
@@ -26,7 +32,6 @@ export class TitleToolView extends ToolView {
     super.initTool();
     this.addClass("tool-title");
     this.overflowX.setState("hidden", Affinity.Intrinsic);
-    this.pointerEvents.setState("none", Affinity.Intrinsic);
   }
 
   override readonly observerType?: Class<TitleToolViewObserver>;
@@ -46,21 +51,28 @@ export class TitleToolView extends ToolView {
     didDetachView(contentView: HtmlView): void {
       this.owner.callObservers("viewDidDetachContent", contentView, this.owner);
     },
-    create(value?: string): HtmlView {
+    setContent(content: string | undefined): void {
+      let contentView = this.view;
+      if (contentView === null) {
+        contentView = this.createView();
+        this.setView(contentView);
+      }
+      contentView.text(content);
+    },
+    createView(): HtmlView {
       const contentView = HtmlView.fromTag("span");
       contentView.display.setState("block", Affinity.Intrinsic);
       contentView.whiteSpace.setState("nowrap", Affinity.Intrinsic);
       contentView.textOverflow.setState("ellipsis", Affinity.Intrinsic);
       contentView.overflowX.setState("hidden", Affinity.Intrinsic);
       contentView.overflowY.setState("hidden", Affinity.Intrinsic);
-      if (value !== void 0) {
-        contentView.text(value);
-      }
       return contentView;
     },
     fromAny(value: AnyView<HtmlView> | string): HtmlView {
       if (typeof value === "string") {
-        return this.create(value);
+        const contentView = this.createView();
+        contentView.text(value);
+        return contentView;
       } else {
         return HtmlView.fromAny(value);
       }
@@ -69,7 +81,7 @@ export class TitleToolView extends ToolView {
   readonly content!: ViewRefDef<this, {
     view: HtmlView & Initable<HtmlViewInit | string>,
     implements: {
-      create(value?: string): HtmlView,
+      setContent(content: string | undefined): void,
     },
   }>;
   static readonly content: FastenerClass<TitleToolView["content"]>;
@@ -100,5 +112,40 @@ export class TitleToolView extends ToolView {
         this.effectiveWidth.setValue(contentWidth);
       }
     }
+  }
+
+  @PositionGestureDef<TitleToolView["gesture"]>({
+    bindsOwner: true,
+    observes: true,
+    didPress(input: PositionGestureInput, event: Event | null): void {
+      if (!input.defaultPrevented && this.owner.clientBounds.contains(input.x, input.y)) {
+        this.owner.onPress(input, event);
+        this.owner.didPress(input, event);
+      }
+    },
+    didLongPress(input: PositionGestureInput): void {
+      if (!input.defaultPrevented) {
+        this.owner.onLongPress(input);
+        this.owner.didLongPress(input);
+      }
+    },
+  })
+  readonly gesture!: PositionGestureDef<this, {view: HtmlView, observes: true}>;
+  static readonly gesture: FastenerClass<TitleToolView["gesture"]>;
+
+  onPress(input: PositionGestureInput, event: Event | null): void {
+    // hook
+  }
+
+  didPress(input: PositionGestureInput, event: Event | null): void {
+    this.callObservers("viewDidPress", input, event, this);
+  }
+
+  onLongPress(input: PositionGestureInput): void {
+    // hook
+  }
+
+  didLongPress(input: PositionGestureInput): void {
+    this.callObservers("viewDidLongPress", input, this);
   }
 }

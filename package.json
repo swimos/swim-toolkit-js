@@ -68,6 +68,7 @@
     "./swim-ux/swim-table",
     "./swim-ux/swim-window",
     "./swim-ux/swim-sheet",
+    "./swim-ux/swim-panel",
     "./swim-ux",
     "./swim-vis/swim-gauge",
     "./swim-vis/swim-pie",

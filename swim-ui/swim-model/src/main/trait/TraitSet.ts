@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Proto, ObserverType, ConsumerType} from "@swim/util";
+import {Mutable, Proto, Objects, Comparator, ObserverType, ConsumerType} from "@swim/util";
 import {Affinity, FastenerFlags, FastenerOwner, Fastener} from "@swim/component";
 import type {Model} from "../model/Model";
 import type {AnyTrait, Trait} from "./Trait";
@@ -37,6 +37,7 @@ export type TraitSetTrait<R extends TraitSetRefinement | TraitSet<any, any>, D =
 /** @public */
 export interface TraitSetTemplate<T extends Trait = Trait> extends TraitRelationTemplate<T> {
   extends?: Proto<TraitSet<any, any>> | string | boolean | null;
+  ordered?: boolean;
   sorted?: boolean;
 }
 
@@ -58,6 +59,8 @@ export interface TraitSetClass<F extends TraitSet<any, any> = TraitSet<any, any>
   <O, T extends Trait = Trait>(template: ThisType<TraitSet<O, T>> & TraitSetTemplate<T> & Partial<Omit<TraitSet<O, T>, keyof TraitSetTemplate>>): PropertyDecorator;
 
   /** @internal */
+  readonly OrderedFlag: FastenerFlags;
+  /** @internal */
   readonly SortedFlag: FastenerFlags;
 
   /** @internal @override */
@@ -67,7 +70,7 @@ export interface TraitSetClass<F extends TraitSet<any, any> = TraitSet<any, any>
 }
 
 /** @public */
-export type TraitSetDef<O, R extends TraitSetRefinement> =
+export type TraitSetDef<O, R extends TraitSetRefinement = {}> =
   TraitSet<O, TraitSetTrait<R>> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &
@@ -152,37 +155,45 @@ export interface TraitSet<O = unknown, T extends Trait = Trait> extends TraitRel
   detachOutlet(outlet: TraitSet<unknown, T>): void;
 
   /** @internal */
-  readonly traits: {readonly [traitId: number]: T | undefined};
+  readonly traits: {readonly [traitId: string]: T | undefined};
 
   readonly traitCount: number;
+
+  /** @internal */
+  insertTraitMap(newTrait: T, target: Trait | null): void;
+
+  /** @internal */
+  removeTraitMap(oldTrait: T): void;
 
   hasTrait(trait: Trait): boolean;
 
   addTrait(trait?: AnyTrait<T>, target?: Trait | null, key?: string): T;
 
-  addTraits(traits: {readonly [traitId: number]: T | undefined}, target?: Trait | null): void;
+  addTraits(traits: {readonly [traitId: string]: T | undefined}, target?: Trait | null): void;
 
-  setTraits(traits: {readonly [traitId: number]: T | undefined}, target?: Trait | null): void;
+  setTraits(traits: {readonly [traitId: string]: T | undefined}, target?: Trait | null): void;
 
   attachTrait(trait?: AnyTrait<T>, target?: Trait | null): T;
 
-  attachTraits(traits: {readonly [traitId: number]: T | undefined}, target?: Trait | null): void;
+  attachTraits(traits: {readonly [traitId: string]: T | undefined}, target?: Trait | null): void;
 
   detachTrait(trait: T): T | null;
 
-  detachTraits(traits?: {readonly [traitId: number]: T | undefined}): void;
+  detachTraits(traits?: {readonly [traitId: string]: T | undefined}): void;
 
   insertTrait(model?: Model | null, trait?: AnyTrait<T>, target?: Trait | null, key?: string): T;
 
-  insertTraits(model: Model | null, traits: {readonly [traitId: number]: T | undefined}, target?: Trait | null): void;
+  insertTraits(model: Model | null, traits: {readonly [traitId: string]: T | undefined}, target?: Trait | null): void;
 
   removeTrait(trait: T): T | null;
 
-  removeTraits(traits?: {readonly [traitId: number]: T | undefined}): void;
+  removeTraits(traits?: {readonly [traitId: string]: T | undefined}): void;
 
   deleteTrait(trait: T): T | null;
 
-  deleteTraits(traits?: {readonly [traitId: number]: T | undefined}): void;
+  deleteTraits(traits?: {readonly [traitId: string]: T | undefined}): void;
+
+  reinsertTrait(trait: T, target?: Trait | null): void;
 
   /** @internal @override */
   bindModel(model: Model, target: Model | null): void;
@@ -219,6 +230,13 @@ export interface TraitSet<O = unknown, T extends Trait = Trait> extends TraitRel
   traitKey(trait: T): string | undefined;
 
   /** @internal */
+  initOrdered(ordered: boolean): void;
+
+  get ordered(): boolean;
+
+  order(ordered?: boolean): this;
+
+  /** @internal */
   initSorted(sorted: boolean): void;
 
   get sorted(): boolean;
@@ -234,13 +252,19 @@ export interface TraitSet<O = unknown, T extends Trait = Trait> extends TraitRel
   /** @protected */
   didSort(parent: Model | null): void;
 
-  /** @internal @protected */
-  sortChildren(parent: Model): void;
+  /** @internal */
+  sortChildren(parent: Model, comparator?: Comparator<T>): void;
 
   /** @internal */
-  compareChildren(a: Trait, b: Trait): number;
+  getTargetChild(parent: Model, child: T): Trait | null;
 
-  /** @internal @protected */
+  /** @internal */
+  compareChildren(a: Model, b: Model): number;
+
+  /** @internal */
+  compareTargetChild(a: Model, b: Model): number;
+
+  /** @protected */
   compare(a: T, b: T): number;
 }
 
@@ -286,6 +310,20 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     }
   };
 
+  TraitSet.prototype.insertTraitMap = function <T extends Trait>(this: TraitSet<unknown, T>, newTrait: T, target: Trait | null): void {
+    const traits = this.traits as {[traitId: string]: T | undefined};
+    if (target !== null && (this.flags & TraitSet.OrderedFlag) !== 0) {
+      (this as Mutable<typeof this>).traits = Objects.inserted(traits, newTrait.uid, newTrait, target);
+    } else {
+      traits[newTrait.uid] = newTrait;
+    }
+  };
+
+  TraitSet.prototype.removeTraitMap = function <T extends Trait>(this: TraitSet<unknown, T>, oldTrait: T): void {
+    const traits = this.traits as {[traitId: string]: T | undefined};
+    delete traits[oldTrait.uid];
+  };
+
   TraitSet.prototype.hasTrait = function (this: TraitSet, trait: Trait): boolean {
     return this.traits[trait.uid] !== void 0;
   };
@@ -301,14 +339,16 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     }
     let model: Model | null;
     if (this.binds && (model = this.parentModel, model !== null)) {
+      if (target === null) {
+        target = this.getTargetChild(model, newTrait);
+      }
       if (key === void 0) {
         key = this.traitKey(newTrait);
       }
       this.insertChild(model, newTrait, target, key);
     }
-    const traits = this.traits as {[traitId: number]: T | undefined};
-    if (traits[newTrait.uid] === void 0) {
-      traits[newTrait.uid] = newTrait;
+    if (this.traits[newTrait.uid] === void 0) {
+      this.insertTraitMap(newTrait, target);
       (this as Mutable<typeof this>).traitCount += 1;
       this.willAttachTrait(newTrait, target);
       this.onAttachTrait(newTrait, target);
@@ -320,22 +360,36 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     return newTrait;
   };
 
-  TraitSet.prototype.addTraits = function <T extends Trait>(this: TraitSet, newTraits: {readonly [traitId: number]: T | undefined}, target?: Trait | null): void {
+  TraitSet.prototype.addTraits = function <T extends Trait>(this: TraitSet, newTraits: {readonly [traitId: string]: T | undefined}, target?: Trait | null): void {
     for (const traitId in newTraits) {
       this.addTrait(newTraits[traitId]!, target);
     }
   };
 
-  TraitSet.prototype.setTraits = function <T extends Trait>(this: TraitSet, newTraits: {readonly [traitId: number]: T | undefined}, target?: Trait | null): void {
+  TraitSet.prototype.setTraits = function <T extends Trait>(this: TraitSet, newTraits: {readonly [traitId: string]: T | undefined}, target?: Trait | null): void {
     const traits = this.traits;
     for (const traitId in traits) {
       if (newTraits[traitId] === void 0) {
         this.detachTrait(traits[traitId]!);
       }
     }
-    for (const traitId in newTraits) {
-      if (traits[traitId] === void 0) {
-        this.attachTrait(newTraits[traitId]!, target);
+    if ((this.flags & TraitSet.OrderedFlag) !== 0) {
+      const orderedTraits = new Array<T>();
+      for (const traitId in newTraits) {
+        orderedTraits.push(newTraits[traitId]!);
+      }
+      for (let i = 0, n = orderedTraits.length; i < n; i += 1) {
+        const newTrait = orderedTraits[i]!;
+        if (traits[newTrait.uid] === void 0) {
+          const targetTrait = i < n + 1 ? orderedTraits[i + 1] : target;
+          this.attachTrait(newTrait, targetTrait);
+        }
+      }
+    } else {
+      for (const traitId in newTraits) {
+        if (traits[traitId] === void 0) {
+          this.attachTrait(newTraits[traitId]!, target);
+        }
       }
     }
   };
@@ -346,12 +400,11 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     } else {
       newTrait = this.createTrait();
     }
-    const traits = this.traits as {[traitId: number]: T | undefined};
-    if (traits[newTrait.uid] === void 0) {
+    if (this.traits[newTrait.uid] === void 0) {
       if (target === void 0) {
         target = null;
       }
-      traits[newTrait.uid] = newTrait;
+      this.insertTraitMap(newTrait, target);
       (this as Mutable<typeof this>).traitCount += 1;
       this.willAttachTrait(newTrait, target);
       this.onAttachTrait(newTrait, target);
@@ -363,17 +416,16 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     return newTrait;
   };
 
-  TraitSet.prototype.attachTraits = function <T extends Trait>(this: TraitSet, newTraits: {readonly [traitId: number]: T | undefined}, target?: Trait | null): void {
+  TraitSet.prototype.attachTraits = function <T extends Trait>(this: TraitSet, newTraits: {readonly [traitId: string]: T | undefined}, target?: Trait | null): void {
     for (const traitId in newTraits) {
       this.attachTrait(newTraits[traitId]!, target);
     }
   };
 
   TraitSet.prototype.detachTrait = function <T extends Trait>(this: TraitSet<unknown, T>, oldTrait: T): T | null {
-    const traits = this.traits as {[traitId: number]: T | undefined};
-    if (traits[oldTrait.uid] !== void 0) {
+    if (this.traits[oldTrait.uid] !== void 0) {
       (this as Mutable<typeof this>).traitCount -= 1;
-      delete traits[oldTrait.uid];
+      this.removeTraitMap(oldTrait);
       this.willDetachTrait(oldTrait);
       this.onDetachTrait(oldTrait);
       this.deinitTrait(oldTrait);
@@ -385,7 +437,7 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     return null;
   };
 
-  TraitSet.prototype.detachTraits = function <T extends Trait>(this: TraitSet<unknown, T>, traits?: {readonly [traitId: number]: T | undefined}): void {
+  TraitSet.prototype.detachTraits = function <T extends Trait>(this: TraitSet<unknown, T>, traits?: {readonly [traitId: string]: T | undefined}): void {
     if (traits === void 0) {
       traits = this.traits;
     }
@@ -410,11 +462,13 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
       key = this.traitKey(newTrait);
     }
     if (model !== null && (newTrait.model !== model || newTrait.key !== key)) {
+      if (target === null) {
+        target = this.getTargetChild(model, newTrait);
+      }
       this.insertChild(model, newTrait, target, key);
     }
-    const traits = this.traits as {[traitId: number]: T | undefined};
-    if (traits[newTrait.uid] === void 0) {
-      traits[newTrait.uid] = newTrait;
+    if (this.traits[newTrait.uid] === void 0) {
+      this.insertTraitMap(newTrait, target);
       (this as Mutable<typeof this>).traitCount += 1;
       this.willAttachTrait(newTrait, target);
       this.onAttachTrait(newTrait, target);
@@ -426,7 +480,7 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     return newTrait;
   };
 
-  TraitSet.prototype.insertTraits = function <T extends Trait>(this: TraitSet, model: Model | null, newTraits: {readonly [traitId: number]: T | undefined}, target?: Trait | null): void {
+  TraitSet.prototype.insertTraits = function <T extends Trait>(this: TraitSet, model: Model | null, newTraits: {readonly [traitId: string]: T | undefined}, target?: Trait | null): void {
     for (const traitId in newTraits) {
       this.insertTrait(model, newTraits[traitId]!, target);
     }
@@ -440,7 +494,7 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     return null;
   };
 
-  TraitSet.prototype.removeTraits = function <T extends Trait>(this: TraitSet<unknown, T>, traits?: {readonly [traitId: number]: T | undefined}): void {
+  TraitSet.prototype.removeTraits = function <T extends Trait>(this: TraitSet<unknown, T>, traits?: {readonly [traitId: string]: T | undefined}): void {
     if (traits === void 0) {
       traits = this.traits;
     }
@@ -457,7 +511,7 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     return oldTrait;
   };
 
-  TraitSet.prototype.deleteTraits = function <T extends Trait>(this: TraitSet<unknown, T>, traits?: {readonly [traitId: number]: T | undefined}): void {
+  TraitSet.prototype.deleteTraits = function <T extends Trait>(this: TraitSet<unknown, T>, traits?: {readonly [traitId: string]: T | undefined}): void {
     if (traits === void 0) {
       traits = this.traits;
     }
@@ -466,12 +520,26 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     }
   };
 
+  TraitSet.prototype.reinsertTrait = function <T extends Trait>(this: TraitSet<unknown, T>, trait: T, target?: Trait | null): void {
+    if (this.traits[trait.uid] !== void 0 && (target !== void 0 || (this.flags & TraitSet.SortedFlag) !== 0)) {
+      const model = trait.model;
+      if (model !== null) {
+        const parent = trait.parent;
+        if (parent !== null) {
+          if (target === void 0) {
+            target = this.getTargetChild(parent, trait);
+          }
+          parent.reinsertChild(model, target !== null ? target.model : null);
+        }
+      }
+    }
+  };
+
   TraitSet.prototype.bindModel = function <T extends Trait>(this: TraitSet<unknown, T>, model: Model, target: Model | null): void {
     if (this.binds) {
       const newTrait = this.detectModel(model);
-      const traits = this.traits as {[traitId: number]: T | undefined};
-      if (newTrait !== null && traits[newTrait.uid] === void 0) {
-        traits[newTrait.uid] = newTrait;
+      if (newTrait !== null && this.traits[newTrait.uid] === void 0) {
+        this.insertTraitMap(newTrait, null);
         (this as Mutable<typeof this>).traitCount += 1;
         this.willAttachTrait(newTrait, null);
         this.onAttachTrait(newTrait, null);
@@ -486,10 +554,9 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
   TraitSet.prototype.unbindModel = function <T extends Trait>(this: TraitSet<unknown, T>, model: Model): void {
     if (this.binds) {
       const oldTrait = this.detectModel(model);
-      const traits = this.traits as {[traitId: number]: T | undefined};
-      if (oldTrait !== null && traits[oldTrait.uid] !== void 0) {
+      if (oldTrait !== null && this.traits[oldTrait.uid] !== void 0) {
         (this as Mutable<typeof this>).traitCount -= 1;
-        delete traits[oldTrait.uid];
+        this.removeTraitMap(oldTrait);
         this.willDetachTrait(oldTrait);
         this.onDetachTrait(oldTrait);
         this.deinitTrait(oldTrait);
@@ -507,9 +574,8 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
   TraitSet.prototype.bindTrait = function <T extends Trait>(this: TraitSet<unknown, T>, trait: Trait, target: Trait | null): void {
     if (this.binds) {
       const newTrait = this.detectTrait(trait);
-      const traits = this.traits as {[traitId: number]: T | undefined};
-      if (newTrait !== null && traits[newTrait.uid] === void 0) {
-        traits[newTrait.uid] = newTrait;
+      if (newTrait !== null && this.traits[newTrait.uid] === void 0) {
+        this.insertTraitMap(newTrait, target);
         (this as Mutable<typeof this>).traitCount += 1;
         this.willAttachTrait(newTrait, target);
         this.onAttachTrait(newTrait, target);
@@ -524,10 +590,9 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
   TraitSet.prototype.unbindTrait = function <T extends Trait>(this: TraitSet<unknown, T>, trait: Trait): void {
     if (this.binds) {
       const oldTrait = this.detectTrait(trait);
-      const traits = this.traits as {[traitId: number]: T | undefined};
-      if (oldTrait !== null && traits[oldTrait.uid] !== void 0) {
+      if (oldTrait !== null && this.traits[oldTrait.uid] !== void 0) {
         (this as Mutable<typeof this>).traitCount -= 1;
-        delete traits[oldTrait.uid];
+        this.removeTraitMap(oldTrait);
         this.willDetachTrait(oldTrait);
         this.onDetachTrait(oldTrait);
         this.deinitTrait(oldTrait);
@@ -561,15 +626,6 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     }
   };
 
-  TraitSet.prototype.detachTraits = function <T extends Trait>(this: TraitSet<unknown, T>, traits?: {readonly [traitId: number]: T | undefined}): void {
-    if (traits === void 0) {
-      traits = this.traits;
-    }
-    for (const traitId in traits) {
-      this.detachTrait(traits[traitId]!);
-    }
-  };
-
   TraitSet.prototype.decohereOutlets = function (this: TraitSet): void {
     const outlets = this.outlets;
     for (let i = 0, n = outlets !== null ? outlets.length : 0; i < n; i += 1) {
@@ -599,6 +655,33 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     return void 0;
   };
 
+  TraitSet.prototype.initOrdered = function (this: TraitSet, ordered: boolean): void {
+    if (ordered) {
+      (this as Mutable<typeof this>).flags = this.flags | TraitSet.OrderedFlag;
+    } else {
+      (this as Mutable<typeof this>).flags = this.flags & ~TraitSet.OrderedFlag;
+    }
+  };
+
+  Object.defineProperty(TraitSet.prototype, "ordered", {
+    get(this: TraitSet): boolean {
+      return (this.flags & TraitSet.OrderedFlag) !== 0;
+    },
+    configurable: true,
+  });
+
+  TraitSet.prototype.order = function (this: TraitSet, ordered?: boolean): typeof this {
+    if (ordered === void 0) {
+      ordered = true;
+    }
+    if (ordered) {
+      this.setFlags(this.flags | TraitSet.OrderedFlag);
+    } else {
+      this.setFlags(this.flags & ~TraitSet.OrderedFlag);
+    }
+    return this;
+  };
+
   TraitSet.prototype.initSorted = function (this: TraitSet, sorted: boolean): void {
     if (sorted) {
       (this as Mutable<typeof this>).flags = this.flags | TraitSet.SortedFlag;
@@ -618,15 +701,14 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     if (sorted === void 0) {
       sorted = true;
     }
-    const flags = this.flags;
-    if (sorted && (flags & TraitSet.SortedFlag) === 0) {
+    if (sorted) {
       const parent = this.parentModel;
       this.willSort(parent);
-      this.setFlags(flags | TraitSet.SortedFlag);
+      this.setFlags(this.flags | TraitSet.SortedFlag);
       this.onSort(parent);
       this.didSort(parent);
-    } else if (!sorted && (flags & TraitSet.SortedFlag) !== 0) {
-      this.setFlags(flags & ~TraitSet.SortedFlag);
+    } else {
+      this.setFlags(this.flags & ~TraitSet.SortedFlag);
     }
     return this;
   };
@@ -645,14 +727,39 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     // hook
   };
 
-  TraitSet.prototype.sortChildren = function <T extends Trait>(this: TraitSet<unknown, T>, parent: Model): void {
-    parent.sortTraits(this.compareChildren.bind(this));
+  TraitSet.prototype.sortChildren = function <T extends Trait>(this: TraitSet<unknown, T>, parent: Model, comparator?: Comparator<T>): void {
+    parent.sortChildren(this.compareChildren.bind(this));
   };
 
-  TraitSet.prototype.compareChildren = function <T extends Trait>(this: TraitSet<unknown, T>, a: Trait, b: Trait): number {
+  TraitSet.prototype.getTargetChild = function <T extends Trait>(this: TraitSet<unknown, T>, parent: Model, child: T): Trait | null {
+    if ((this.flags & TraitSet.SortedFlag) !== 0 && child.model !== null) {
+      const targetModel = parent.getTargetChild(child.model, this.compareTargetChild.bind(this));
+      if (targetModel !== null) {
+        return this.detectModel(targetModel);
+      }
+    }
+    return null;
+  };
+
+  TraitSet.prototype.compareChildren = function <T extends Trait>(this: TraitSet<unknown, T>, a: Model, b: Model): number {
     const traits = this.traits;
-    const x = traits[a.uid];
-    const y = traits[b.uid];
+    const p = this.detectModel(a);
+    const q = this.detectModel(b);
+    const x = p !== null ? traits[p.uid] : void 0;
+    const y = q !== null ? traits[q.uid] : void 0;
+    if (x !== void 0 && y !== void 0) {
+      return this.compare(x, y);
+    } else {
+      return x !== void 0 ? 1 : y !== void 0 ? -1 : 0;
+    }
+  };
+
+  TraitSet.prototype.compareTargetChild = function <T extends Trait>(this: TraitSet<unknown, T>, a: Model, b: Model): number {
+    const traits = this.traits;
+    const p = this.detectModel(a);
+    const q = this.detectModel(b);
+    const x = p !== null ? p : void 0;
+    const y = q !== null ? traits[q.uid] : void 0;
     if (x !== void 0 && y !== void 0) {
       return this.compare(x, y);
     } else {
@@ -676,6 +783,7 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     fastener = _super.construct.call(this, fastener, owner) as F;
     const flagsInit = fastener.flagsInit;
     if (flagsInit !== void 0) {
+      fastener.initOrdered((flagsInit & TraitSet.OrderedFlag) !== 0);
       fastener.initSorted((flagsInit & TraitSet.SortedFlag) !== 0);
     }
     Object.defineProperty(fastener, "inlet", { // override getter
@@ -694,6 +802,18 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
     let flagsInit = fastenerPrototype.flagsInit;
+
+    if (Object.prototype.hasOwnProperty.call(fastenerPrototype, "ordered")) {
+      if (flagsInit === void 0) {
+        flagsInit = 0;
+      }
+      if (fastenerPrototype.ordered) {
+        flagsInit |= TraitSet.OrderedFlag;
+      } else {
+        flagsInit &= ~TraitSet.OrderedFlag;
+      }
+      delete (fastenerPrototype as TraitSetTemplate).ordered;
+    }
 
     if (Object.prototype.hasOwnProperty.call(fastenerPrototype, "sorted")) {
       if (flagsInit === void 0) {
@@ -715,9 +835,10 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     }
   };
 
-  (TraitSet as Mutable<typeof TraitSet>).SortedFlag = 1 << (_super.FlagShift + 0);
+  (TraitSet as Mutable<typeof TraitSet>).OrderedFlag = 1 << (_super.FlagShift + 0);
+  (TraitSet as Mutable<typeof TraitSet>).SortedFlag = 1 << (_super.FlagShift + 1);
 
-  (TraitSet as Mutable<typeof TraitSet>).FlagShift = _super.FlagShift + 1;
+  (TraitSet as Mutable<typeof TraitSet>).FlagShift = _super.FlagShift + 2;
   (TraitSet as Mutable<typeof TraitSet>).FlagMask = (1 << TraitSet.FlagShift) - 1;
 
   return TraitSet;

@@ -34,6 +34,10 @@ export interface ModelObserver<M extends Model = Model> extends ComponentObserve
 
   modelDidRemoveChild?(child: Model, model: M): void;
 
+  modelWillReinsertChild?(child: Model, target: Model | null, model: M): void;
+
+  modelDidReinsertChild?(child: Model, target: Model | null, model: M): void;
+
   modelWillInsertTrait?(trait: Trait, target: Trait | null, model: M): void;
 
   modelDidInsertTrait?(trait: Trait, target: Trait | null, model: M): void;

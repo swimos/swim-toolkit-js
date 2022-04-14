@@ -141,7 +141,7 @@ export class BarView extends HtmlView {
     return toolView!;
   }
 
-  setTool(key: string, toolView: ToolView): void {
+  setTool(key: string, toolView: ToolView | null): void {
     this.setChild(key, toolView);
   }
 
@@ -287,15 +287,15 @@ export class BarView extends HtmlView {
                                      displayChild: (this: this, child: View, displayFlags: ViewFlags,
                                                     viewContext: ViewContextType<this>) => void): void {
     if ((displayFlags & View.NeedsLayout) !== 0) {
-      this.layoutChildViews(displayFlags, viewContext, displayChild);
+      this.layoutChildren(displayFlags, viewContext, displayChild);
     } else {
       super.displayChildren(displayFlags, viewContext, displayChild);
     }
   }
 
-  protected layoutChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                             displayChild: (this: this, child: View, displayFlags: ViewFlags,
-                                            viewContext: ViewContextType<this>) => void): void {
+  protected layoutChildren(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
+                           displayChild: (this: this, child: View, displayFlags: ViewFlags,
+                                          viewContext: ViewContextType<this>) => void): void {
     const layout = this.layout.value;
     let height: Length | number | null = this.height.state;
     height = height instanceof Length ? height.pxValue() : this.node.offsetHeight;
@@ -304,8 +304,8 @@ export class BarView extends HtmlView {
     const toolBottom = edgeInsets !== null ? Length.px(edgeInsets.insetBottom) : null;
     const toolHeight = this.barHeight.value;
     type self = this;
-    function layoutChildView(this: self, child: View, displayFlags: ViewFlags,
-                             viewContext: ViewContextType<self>): void {
+    function layoutChild(this: self, child: View, displayFlags: ViewFlags,
+                         viewContext: ViewContextType<self>): void {
       if (child instanceof ToolView) {
         const key = child.key;
         const tool = layout !== null && key !== void 0 ? layout.getTool(key) : null;
@@ -334,7 +334,7 @@ export class BarView extends HtmlView {
       }
       displayChild.call(this, child, displayFlags, viewContext);
     }
-    super.displayChildren(displayFlags, viewContext, layoutChildView);
+    super.displayChildren(displayFlags, viewContext, layoutChild);
   }
 
   protected override didLayout(viewContext: ViewContextType<this>): void {

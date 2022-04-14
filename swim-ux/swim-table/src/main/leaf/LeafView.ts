@@ -156,7 +156,7 @@ export class LeafView extends HtmlView {
     return cellView!;
   }
 
-  setCell(key: string, cellView: CellView): void {
+  setCell(key: string, cellView: CellView | null): void {
     this.setChild(key, cellView);
   }
 
@@ -197,21 +197,21 @@ export class LeafView extends HtmlView {
                                      displayChild: (this: this, child: View, displayFlags: ViewFlags,
                                                     viewContext: ViewContextType<this>) => void): void {
     if ((displayFlags & View.NeedsLayout) !== 0) {
-      this.layoutChildViews(displayFlags, viewContext, displayChild);
+      this.layoutChildren(displayFlags, viewContext, displayChild);
     } else {
       super.displayChildren(displayFlags, viewContext, displayChild);
     }
   }
 
-  protected layoutChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                             displayChild: (this: this, child: View, displayFlags: ViewFlags,
-                                            viewContext: ViewContextType<this>) => void): void {
+  protected layoutChildren(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
+                           displayChild: (this: this, child: View, displayFlags: ViewFlags,
+                                          viewContext: ViewContextType<this>) => void): void {
     const layout = this.layout.value;
     const height = this.height.state;
     const stretch = this.stretch.getPhaseOr(1);
     type self = this;
-    function layoutChildView(this: self, child: View, displayFlags: ViewFlags,
-                             viewContext: ViewContextType<self>): void {
+    function layoutChild(this: self, child: View, displayFlags: ViewFlags,
+                         viewContext: ViewContextType<self>): void {
       if (child instanceof CellView) {
         const key = child.key;
         const col = layout !== null && key !== void 0 ? layout.getCol(key) : null;
@@ -238,7 +238,7 @@ export class LeafView extends HtmlView {
       }
       displayChild.call(this, child, displayFlags, viewContext);
     }
-    super.displayChildren(displayFlags, viewContext, layoutChildView);
+    super.displayChildren(displayFlags, viewContext, layoutChild);
   }
 
   @PropertyDef({valueType: Boolean, value: true, inherits: true})

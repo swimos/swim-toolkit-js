@@ -62,7 +62,7 @@ export interface CssRuleClass<F extends CssRule<any> = CssRule<any>> extends Fas
 }
 
 /** @public */
-export type CssRuleDef<O, R extends CssRuleRefinement> =
+export type CssRuleDef<O, R extends CssRuleRefinement = {}> =
   CssRule<O> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &

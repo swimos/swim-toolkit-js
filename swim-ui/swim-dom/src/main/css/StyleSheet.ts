@@ -63,7 +63,7 @@ export interface StyleSheetClass<F extends StyleSheet<any> = StyleSheet<any>> ex
 }
 
 /** @public */
-export type StyleSheetDef<O, R extends StyleSheetRefinement> =
+export type StyleSheetDef<O, R extends StyleSheetRefinement = {}> =
   StyleSheet<O> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &

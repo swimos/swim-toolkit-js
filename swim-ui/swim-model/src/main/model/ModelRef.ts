@@ -28,7 +28,7 @@ export interface ModelRefRefinement extends ModelRelationRefinement {
 
 /** @public */
 export type ModelRefModel<R extends ModelRefRefinement | ModelRef<any, any>, D = Model> =
-  R extends {model: infer M} ? M :
+  R extends {model: infer M | null} ? M :
   R extends {extends: infer E} ? ModelRefModel<E, D> :
   R extends ModelRef<any, infer M> ? M :
   D;
@@ -58,7 +58,7 @@ export interface ModelRefClass<F extends ModelRef<any, any> = ModelRef<any, any>
 }
 
 /** @public */
-export type ModelRefDef<O, R extends ModelRefRefinement> =
+export type ModelRefDef<O, R extends ModelRefRefinement = {}> =
   ModelRef<O, ModelRefModel<R>> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &

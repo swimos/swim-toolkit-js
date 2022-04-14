@@ -1085,17 +1085,16 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
     if ((displayFlags & View.NeedsLayout) !== 0 &&
         (xScale = this.xScale.value, xScale !== null) &&
         (yScale = this.yScale.value, yScale !== null)) {
-      this.layoutChildViews(xScale, yScale, displayFlags, viewContext, displayChild);
+      this.layoutChildren(xScale, yScale, displayFlags, viewContext, displayChild);
     } else {
       super.displayChildren(displayFlags, viewContext, displayChild);
     }
   }
 
-  protected layoutChildViews(xScale: ContinuousScale<X, number>,
-                             yScale: ContinuousScale<Y, number>,
-                             displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                             displayChild: (this: this, childView: View, displayFlags: ViewFlags,
-                                            viewContext: ViewContextType<this>) => void): void {
+  protected layoutChildren(xScale: ContinuousScale<X, number>, yScale: ContinuousScale<Y, number>,
+                           displayFlags: ViewFlags, viewContext: ViewContextType<this>,
+                           displayChild: (this: this, childView: View, displayFlags: ViewFlags,
+                                          viewContext: ViewContextType<this>) => void): void {
     // Recompute extrema when laying out child views.
     let xDataDomainMin: X | undefined;
     let xDataDomainMax: X | undefined;
@@ -1109,8 +1108,8 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
     let yCount = 0;
 
     type self = this;
-    function layoutChildView(this: self, childView: View, displayFlags: ViewFlags,
-                             viewContext: ViewContextType<self>): void {
+    function layoutChild(this: self, childView: View, displayFlags: ViewFlags,
+                         viewContext: ViewContextType<self>): void {
       displayChild.call(this, childView, displayFlags, viewContext);
       if (ScaledXView.is<X>(childView) && childView.xScale.derived) {
         const childXDataDomain = childView.xDataDomain;
@@ -1153,7 +1152,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
         }
       }
     }
-    super.displayChildren(displayFlags, viewContext, layoutChildView);
+    super.displayChildren(displayFlags, viewContext, layoutChild);
 
     this.setXDataDomain(xCount !== 0 ? Domain<X>(xDataDomainMin!, xDataDomainMax!) : null);
     this.setYDataDomain(yCount !== 0 ? Domain<Y>(yDataDomainMin!, yDataDomainMax!) : null);

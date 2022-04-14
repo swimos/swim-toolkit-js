@@ -49,7 +49,7 @@ export interface StyleRuleClass<F extends StyleRule<any> = StyleRule<any>> exten
 }
 
 /** @public */
-export type StyleRuleDef<O, R extends StyleRuleRefinement> =
+export type StyleRuleDef<O, R extends StyleRuleRefinement = {}> =
   StyleRule<O> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &

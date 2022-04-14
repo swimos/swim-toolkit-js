@@ -31,7 +31,7 @@ Theme.dark = (function (): ThemeMatrix {
   const placeholderColor = Color.parse("#ffffff").alpha(0.25);
   const highlightColor = Color.white(0.1);
 
-  const accentColor = Color.parse("#6c6d6e");
+  const accentColor = Color.parse("#a1a3a4");
   const primaryColor = Color.parse("#66ffdd");
   const secondaryColor = Color.parse("#32c5ff");
 
@@ -41,7 +41,7 @@ Theme.dark = (function (): ThemeMatrix {
   const alertColor = Color.parse("#f6511d");
 
   const backgroundColor = Color.parse("#181818");
-  const selectedColor = backgroundColor.darker(1);
+  const selectedColor = Color.parse("#2b6458");
   const borderColor = Color.parse("#ffffff").alpha(0.1);
 
   const raisedColor = Color.parse("#212121");

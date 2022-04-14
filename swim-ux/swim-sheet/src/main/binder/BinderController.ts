@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class} from "@swim/util";
+import {Class, Objects} from "@swim/util";
 import {Affinity, FastenerClass, PropertyDef} from "@swim/component";
 import type {PositionGestureInput} from "@swim/view";
 import type {Trait} from "@swim/model";
 import {
+  Controller,
   TraitViewRefDef,
   TraitViewRef,
   TraitViewControllerRefDef,
@@ -247,9 +248,30 @@ export class BinderController extends SheetController {
   }>;
   static readonly tabBar: FastenerClass<BinderController["tabBar"]>;
 
+  setTab(key: string, newTabController: SheetController | null): void {
+    const oldTabController = this.getChild(key, SheetController);
+    const active = oldTabController === this.active.controller;
+
+    let targetTabController: Controller | null;
+    if (oldTabController !== null) {
+      targetTabController = oldTabController.nextSibling;
+      this.tabs.deleteController(oldTabController);
+    } else {
+      targetTabController = null;
+    }
+
+    if (newTabController !== null) {
+      this.tabs.insertController(null, newTabController, targetTabController, key);
+      if (active) {
+        this.active.setController(newTabController);
+      }
+    }
+  }
+
   @TraitViewControllerSetDef<BinderController["tabs"]>({
     controllerType: SheetController,
     binds: false,
+    ordered: true,
     observes: true,
     get parentView(): BinderView | null {
       return this.owner.binder.view;
@@ -345,7 +367,9 @@ export class BinderController extends SheetController {
     attachButtonTool(buttonToolController: ToolController, tabController: SheetController): void {
       const tabStyle = this.owner.tabStyle.value;
       if (tabStyle === "mode") {
-        this.owner.modeTools.attachController(buttonToolController);
+        const targetTabController = Objects.getNextValue(this.controllers, tabController.uid);
+        const targetToolController = targetTabController !== void 0 ? targetTabController.buttonTool.controller : null;
+        this.owner.modeTools.attachController(buttonToolController, targetToolController);
       }
     },
     detachButtonTool(buttonToolController: ToolController, tabController: SheetController): void {
@@ -359,7 +383,9 @@ export class BinderController extends SheetController {
       const tabToolController = tabController.buttonTool.controller;
       if (tabToolController !== null) {
         if (tabStyle === "mode") {
-          this.owner.modeTools.attachController(tabToolController);
+          const targetTabController = Objects.getNextValue(this.controllers, tabController.uid);
+          const targetToolController = targetTabController !== void 0 ? targetTabController.buttonTool.controller : null;
+          this.owner.modeTools.attachController(tabToolController, targetToolController);
         } else {
           this.owner.modeTools.detachController(tabToolController);
         }
@@ -454,6 +480,9 @@ export class BinderController extends SheetController {
     },
     controllerDidSetFullBleed(fullBleed: boolean, activeController: SheetController): void {
       this.owner.fullBleed.setValue(fullBleed, Affinity.Intrinsic);
+    },
+    controllerDidScrollSheetView(activeView: SheetView, activeController: SheetController): void {
+      this.owner.callObservers("controllerDidScrollSheetView", activeView, this.owner);
     },
   })
   readonly active!: TraitViewControllerRefDef<this, {

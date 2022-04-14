@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Class, Instance, AnyTiming, Creatable, InitType} from "@swim/util";
-import type {MemberAnimatorInit} from "@swim/component";
+import type {AnyAnimatorValue} from "@swim/component";
 import {AnyLength, Length, AnyTransform, Transform} from "@swim/math";
 import {
   FontStyle,
@@ -27,8 +27,8 @@ import {
   Color,
 } from "@swim/style";
 import {AnyView, View} from "@swim/view";
-import {AttributeAnimatorDef} from "../animator/AttributeAnimator";
-import {StyleAnimatorDef} from "../animator/StyleAnimator";
+import {AttributeAnimatorDef} from "../attribute/AttributeAnimator";
+import {StyleAnimatorDef} from "../style/StyleAnimator";
 import type {
   AlignmentBaseline,
   CssCursor,
@@ -66,67 +66,67 @@ export interface SvgViewInit extends ElementViewInit {
 
 /** @public */
 export interface SvgViewAttributesInit {
-  alignmentBaseline?: MemberAnimatorInit<SvgView, "alignmentBaseline">;
-  clipPath?: MemberAnimatorInit<SvgView, "clipPath">;
-  cursor?: MemberAnimatorInit<SvgView, "cursor">;
-  cx?: MemberAnimatorInit<SvgView, "cx">;
-  cy?: MemberAnimatorInit<SvgView, "cy">;
-  d?: MemberAnimatorInit<SvgView, "d">;
-  dx?: MemberAnimatorInit<SvgView, "dx">;
-  dy?: MemberAnimatorInit<SvgView, "dy">;
-  edgeMode?: MemberAnimatorInit<SvgView, "edgeMode">;
-  fill?: MemberAnimatorInit<SvgView, "fill">;
-  fillOpacity?: MemberAnimatorInit<SvgView, "fillOpacity">;
-  fillRule?: MemberAnimatorInit<SvgView, "fillRule">;
-  floodColor?: MemberAnimatorInit<SvgView, "floodColor">;
-  floodOpacity?: MemberAnimatorInit<SvgView, "floodOpacity">;
-  height?: MemberAnimatorInit<SvgView, "height">;
-  in?: MemberAnimatorInit<SvgView, "in">;
-  in2?: MemberAnimatorInit<SvgView, "in2">;
-  lengthAdjust?: MemberAnimatorInit<SvgView, "lengthAdjust">;
-  mode?: MemberAnimatorInit<SvgView, "mode">;
-  opacity?: MemberAnimatorInit<SvgView, "opacity">;
-  pointerEvents?: MemberAnimatorInit<SvgView, "pointerEvents">;
-  points?: MemberAnimatorInit<SvgView, "points">;
-  preserveAspectRatio?: MemberAnimatorInit<SvgView, "preserveAspectRatio">;
-  r?: MemberAnimatorInit<SvgView, "r">;
-  result?: MemberAnimatorInit<SvgView, "result">;
-  stdDeviation?: MemberAnimatorInit<SvgView, "stdDeviation">;
-  stroke?: MemberAnimatorInit<SvgView, "stroke">;
-  strokeDasharray?: MemberAnimatorInit<SvgView, "strokeDasharray">;
-  strokeDashoffset?: MemberAnimatorInit<SvgView, "strokeDashoffset">;
-  strokeLinecap?: MemberAnimatorInit<SvgView, "strokeLinecap">;
-  strokeLinejoin?: MemberAnimatorInit<SvgView, "strokeLinejoin">;
-  strokeMiterlimit?: MemberAnimatorInit<SvgView, "strokeMiterlimit">;
-  strokeOpacity?: MemberAnimatorInit<SvgView, "strokeOpacity">;
-  strokeWidth?: MemberAnimatorInit<SvgView, "strokeWidth">;
-  textAnchor?: MemberAnimatorInit<SvgView, "textAnchor">;
-  textLength?: MemberAnimatorInit<SvgView, "textLength">;
-  transform?: MemberAnimatorInit<SvgView, "transform">;
-  type?: MemberAnimatorInit<SvgView, "type">;
-  values?: MemberAnimatorInit<SvgView, "values">;
-  viewBox?: MemberAnimatorInit<SvgView, "viewBox">;
-  width?: MemberAnimatorInit<SvgView, "width">;
-  x?: MemberAnimatorInit<SvgView, "x">;
-  x1?: MemberAnimatorInit<SvgView, "x1">;
-  x2?: MemberAnimatorInit<SvgView, "x2">;
-  y?: MemberAnimatorInit<SvgView, "y">;
-  y1?: MemberAnimatorInit<SvgView, "y1">;
-  y2?: MemberAnimatorInit<SvgView, "y2">;
+  alignmentBaseline?: AnyAnimatorValue<SvgView["alignmentBaseline"]>;
+  clipPath?: AnyAnimatorValue<SvgView["clipPath"]>;
+  cursor?: AnyAnimatorValue<SvgView["cursor"]>;
+  cx?: AnyAnimatorValue<SvgView["cx"]>;
+  cy?: AnyAnimatorValue<SvgView["cy"]>;
+  d?: AnyAnimatorValue<SvgView["d"]>;
+  dx?: AnyAnimatorValue<SvgView["dx"]>;
+  dy?: AnyAnimatorValue<SvgView["dy"]>;
+  edgeMode?: AnyAnimatorValue<SvgView["edgeMode"]>;
+  fill?: AnyAnimatorValue<SvgView["fill"]>;
+  fillOpacity?: AnyAnimatorValue<SvgView["fillOpacity"]>;
+  fillRule?: AnyAnimatorValue<SvgView["fillRule"]>;
+  floodColor?: AnyAnimatorValue<SvgView["floodColor"]>;
+  floodOpacity?: AnyAnimatorValue<SvgView["floodOpacity"]>;
+  height?: AnyAnimatorValue<SvgView["height"]>;
+  in?: AnyAnimatorValue<SvgView["in"]>;
+  in2?: AnyAnimatorValue<SvgView["in2"]>;
+  lengthAdjust?: AnyAnimatorValue<SvgView["lengthAdjust"]>;
+  mode?: AnyAnimatorValue<SvgView["mode"]>;
+  opacity?: AnyAnimatorValue<SvgView["opacity"]>;
+  pointerEvents?: AnyAnimatorValue<SvgView["pointerEvents"]>;
+  points?: AnyAnimatorValue<SvgView["points"]>;
+  preserveAspectRatio?: AnyAnimatorValue<SvgView["preserveAspectRatio"]>;
+  r?: AnyAnimatorValue<SvgView["r"]>;
+  result?: AnyAnimatorValue<SvgView["result"]>;
+  stdDeviation?: AnyAnimatorValue<SvgView["stdDeviation"]>;
+  stroke?: AnyAnimatorValue<SvgView["stroke"]>;
+  strokeDasharray?: AnyAnimatorValue<SvgView["strokeDasharray"]>;
+  strokeDashoffset?: AnyAnimatorValue<SvgView["strokeDashoffset"]>;
+  strokeLinecap?: AnyAnimatorValue<SvgView["strokeLinecap"]>;
+  strokeLinejoin?: AnyAnimatorValue<SvgView["strokeLinejoin"]>;
+  strokeMiterlimit?: AnyAnimatorValue<SvgView["strokeMiterlimit"]>;
+  strokeOpacity?: AnyAnimatorValue<SvgView["strokeOpacity"]>;
+  strokeWidth?: AnyAnimatorValue<SvgView["strokeWidth"]>;
+  textAnchor?: AnyAnimatorValue<SvgView["textAnchor"]>;
+  textLength?: AnyAnimatorValue<SvgView["textLength"]>;
+  transform?: AnyAnimatorValue<SvgView["transform"]>;
+  type?: AnyAnimatorValue<SvgView["type"]>;
+  values?: AnyAnimatorValue<SvgView["values"]>;
+  viewBox?: AnyAnimatorValue<SvgView["viewBox"]>;
+  width?: AnyAnimatorValue<SvgView["width"]>;
+  x?: AnyAnimatorValue<SvgView["x"]>;
+  x1?: AnyAnimatorValue<SvgView["x1"]>;
+  x2?: AnyAnimatorValue<SvgView["x2"]>;
+  y?: AnyAnimatorValue<SvgView["y"]>;
+  y1?: AnyAnimatorValue<SvgView["y1"]>;
+  y2?: AnyAnimatorValue<SvgView["y2"]>;
 }
 
 /** @public */
 export interface SvgViewStyleInit {
-  cssTransform?: MemberAnimatorInit<SvgView, "cssTransform">;
-  filter?: MemberAnimatorInit<SvgView, "filter">;
-  fontFamily?: MemberAnimatorInit<SvgView, "fontFamily">;
-  fontSize?: MemberAnimatorInit<SvgView, "fontSize">;
-  fontStretch?: MemberAnimatorInit<SvgView, "fontStretch">;
-  fontStyle?: MemberAnimatorInit<SvgView, "fontStyle">;
-  fontVariant?: MemberAnimatorInit<SvgView, "fontVariant">;
-  fontWeight?: MemberAnimatorInit<SvgView, "fontWeight">;
-  lineHeight?: MemberAnimatorInit<SvgView, "lineHeight">;
-  touchAction?: MemberAnimatorInit<SvgView, "touchAction">;
+  cssTransform?: AnyAnimatorValue<SvgView["cssTransform"]>;
+  filter?: AnyAnimatorValue<SvgView["filter"]>;
+  fontFamily?: AnyAnimatorValue<SvgView["fontFamily"]>;
+  fontSize?: AnyAnimatorValue<SvgView["fontSize"]>;
+  fontStretch?: AnyAnimatorValue<SvgView["fontStretch"]>;
+  fontStyle?: AnyAnimatorValue<SvgView["fontStyle"]>;
+  fontVariant?: AnyAnimatorValue<SvgView["fontVariant"]>;
+  fontWeight?: AnyAnimatorValue<SvgView["fontWeight"]>;
+  lineHeight?: AnyAnimatorValue<SvgView["lineHeight"]>;
+  touchAction?: AnyAnimatorValue<SvgView["touchAction"]>;
 }
 
 /** @public */

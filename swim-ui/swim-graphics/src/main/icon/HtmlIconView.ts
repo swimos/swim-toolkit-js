@@ -71,12 +71,13 @@ export class HtmlIconView extends HtmlView implements IconView {
     valueType: Color,
     value: null,
     updateFlags: View.NeedsLayout,
-    didSetValue(newIconColor: Color | null, oldIconColor: Color | null): void {
-      if (newIconColor !== null) {
+    didSetState(iconColor: Color | null): void {
+      if (iconColor !== null) {
         const oldGraphics = this.owner.graphics.value;
         if (oldGraphics instanceof FilledIcon) {
-          const newGraphics = oldGraphics.withFillColor(newIconColor);
-          this.owner.graphics.setState(newGraphics, Affinity.Reflexive);
+          const newGraphics = oldGraphics.withFillColor(iconColor);
+          const timing = this.timing !== null ? this.timing : false;
+          this.owner.graphics.setState(newGraphics, timing, Affinity.Reflexive);
         }
       }
     },

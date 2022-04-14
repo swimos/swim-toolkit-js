@@ -29,7 +29,6 @@ import {
   Affinity,
   FastenerClass,
   Fastener,
-  MemberPropertyInitMap,
   PropertyDef,
   Property,
   Animator,
@@ -269,6 +268,10 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     return super.insertChild(child, target, key);
   }
 
+  override reinsertChild(child: View, target: View | null): void {
+    super.reinsertChild(child, target);
+  }
+
   override replaceChild<V extends View>(newChild: View, oldChild: V): V;
   override replaceChild<V extends View>(newChild: AnyView, oldChild: V): V;
   override replaceChild(newChild: AnyView, oldChild: View): View {
@@ -342,6 +345,32 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
       }
     }
     super.didRemoveChild(child);
+  }
+
+  protected override willReinsertChild(child: View, target: View | null): void {
+    super.willReinsertChild(child, target);
+    const observers = this.observers;
+    for (let i = 0, n = observers.length; i < n; i += 1) {
+      const observer = observers[i]!;
+      if (observer.viewWillReinsertChild !== void 0) {
+        observer.viewWillReinsertChild(child, target, this);
+      }
+    }
+  }
+
+  protected override onReinsertChild(child: View, target: View | null): void {
+    super.onReinsertChild(child, target);
+  }
+
+  protected override didReinsertChild(child: View, target: View | null): void {
+    const observers = this.observers;
+    for (let i = 0, n = observers.length; i < n; i += 1) {
+      const observer = observers[i]!;
+      if (observer.viewDidReinsertChild !== void 0) {
+        observer.viewDidReinsertChild(child, target, this);
+      }
+    }
+    super.didReinsertChild(child, target);
   }
 
   /** @internal */
@@ -1335,7 +1364,9 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
 
   /** @internal */
   applyTheme(theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean): void {
-    if (timing === void 0 || timing === true) {
+    if (timing === void 0 && this.inserting) {
+      timing = false;
+    } else if (timing === void 0 || timing === true) {
       timing = theme.getOr(Look.timing, Mood.ambient, false);
     } else {
       timing = Timing.fromAny(timing);
@@ -1735,31 +1766,6 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   }
 
   /** @internal */
-  setProperty(key: string, value: unknown, timing?: AnyTiming | boolean | null, affinity?: Affinity): void {
-    const property = this.getLazyFastener(key, Property);
-    if (property !== null) {
-      if (property instanceof Animator) {
-        property.setState(value, timing, affinity);
-      } else {
-        property.setValue(value, affinity);
-      }
-    }
-  }
-
-  setProperties(properties: MemberPropertyInitMap<this>, timingOrAffinity: Affinity | AnyTiming | boolean | null | undefined): void;
-  setProperties(properties: MemberPropertyInitMap<this>, timing?: AnyTiming | boolean | null, affinity?: Affinity): void;
-  setProperties(properties: MemberPropertyInitMap<this>, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
-    if (typeof timing === "number") {
-      affinity = timing;
-      timing = void 0;
-    }
-    for (const key in properties) {
-      const value = properties[key];
-      this.setProperty(key, value, timing, affinity);
-    }
-  }
-
-  /** @internal */
   get superViewContext(): ViewContext {
     const parent = this.parent;
     if (parent !== null) {
@@ -2060,17 +2066,19 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   }
 
   /** @internal */
-  static override uid: () => number = (function () {
+  static override uid: () => string = (function () {
     let nextId = 1;
-    return function uid(): number {
+    return function uid(): string {
       const id = ~~nextId;
       nextId += 1;
-      return id;
+      return "view" + id;
     }
   })();
 
   /** @internal */
   static override readonly MountedFlag: ViewFlags = Component.MountedFlag;
+  /** @internal */
+  static override readonly InsertingFlag: ViewFlags = Component.InsertingFlag;
   /** @internal */
   static override readonly RemovingFlag: ViewFlags = Component.RemovingFlag;
   /** @internal */
@@ -2102,6 +2110,7 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
                                           | View.DisplayingFlag;
   /** @internal */
   static readonly StatusMask: ViewFlags = View.MountedFlag
+                                        | View.InsertingFlag
                                         | View.RemovingFlag
                                         | View.ProcessingFlag
                                         | View.DisplayingFlag
@@ -2152,4 +2161,5 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   static readonly UnhideFlags: ViewFlags = View.NeedsLayout;
   static override readonly InsertChildFlags: ViewFlags = Component.InsertChildFlags | View.NeedsLayout;
   static override readonly RemoveChildFlags: ViewFlags = Component.RemoveChildFlags | View.NeedsLayout;
+  static override readonly ReinsertChildFlags: ViewFlags = Component.InsertChildFlags | View.NeedsLayout;
 }

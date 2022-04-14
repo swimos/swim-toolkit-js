@@ -232,6 +232,10 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
     return super.insertChild(child, target, key);
   }
 
+  override reinsertChild(child: Model, target: Model | null): void {
+    super.reinsertChild(child, target);
+  }
+
   override replaceChild<M extends Model>(newChild: Model, oldChild: M): M;
   override replaceChild<M extends Model>(newChild: AnyModel, oldChild: M): M;
   override replaceChild(newChild: AnyModel, oldChild: Model): Model {
@@ -341,6 +345,44 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
       }
     }
     super.didRemoveChild(child);
+  }
+
+  protected override willReinsertChild(child: Model, target: Model | null): void {
+    super.willReinsertChild(child, target);
+    const observers = this.observers;
+    for (let i = 0, n = observers.length; i < n; i += 1) {
+      const observer = observers[i]!;
+      if (observer.modelWillReinsertChild !== void 0) {
+        observer.modelWillReinsertChild(child, target, this);
+      }
+    }
+    let trait = this.firstTrait;
+    while (trait !== null) {
+      const next = trait.nextTrait;
+      trait.willReinsertChild(child, target);
+      trait = next !== null && next.model === this ? next : null;
+    }
+  }
+
+  protected override onReinsertChild(child: Model, target: Model | null): void {
+    super.onReinsertChild(child, target);
+  }
+
+  protected override didReinsertChild(child: Model, target: Model | null): void {
+    let trait = this.firstTrait;
+    while (trait !== null) {
+      const next = trait.nextTrait;
+      trait.didReinsertChild(child, target);
+      trait = next !== null && next.model === this ? next : null;
+    }
+    const observers = this.observers;
+    for (let i = 0, n = observers.length; i < n; i += 1) {
+      const observer = observers[i]!;
+      if (observer.modelDidReinsertChild !== void 0) {
+        observer.modelDidReinsertChild(child, target, this);
+      }
+    }
+    super.didReinsertChild(child, target);
   }
 
   /** @internal */
@@ -1090,12 +1132,14 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
       this.didRemoveTrait(oldTrait);
       oldTrait.setKey(void 0);
 
+      newTrait.setFlags(newTrait.flags | Trait.InsertingFlag);
       newTrait.setKey(oldTrait.key);
       this.willInsertTrait(newTrait, target);
       this.insertTraitMap(newTrait);
       newTrait.attachModel(this, target);
       this.onInsertTrait(newTrait, target);
       this.didInsertTrait(newTrait, target);
+      newTrait.setFlags(newTrait.flags & ~Trait.InsertingFlag);
     } else if (oldTrait !== newTrait || newTrait !== null && newTrait.key !== key) {
       if (oldTrait !== null) { // remove
         target = oldTrait.nextTrait;
@@ -1112,12 +1156,14 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
       if (newTrait !== null) { // insert
         newTrait.remove();
 
+        newTrait.setFlags(newTrait.flags | Trait.InsertingFlag);
         newTrait.setKey(key);
         this.willInsertTrait(newTrait, target);
         this.insertTraitMap(newTrait);
         newTrait.attachModel(this, target);
         this.onInsertTrait(newTrait, target);
         this.didInsertTrait(newTrait, target);
+        newTrait.setFlags(newTrait.flags & ~Trait.InsertingFlag);
       }
     }
 
@@ -1135,12 +1181,14 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
       this.removeChild(key);
     }
 
+    trait.setFlags(trait.flags | Trait.InsertingFlag);
     trait.setKey(key);
     this.willInsertTrait(trait, null);
     this.insertTraitMap(trait);
     trait.attachModel(this, null);
     this.onInsertTrait(trait, null);
     this.didInsertTrait(trait, null);
+    trait.setFlags(trait.flags & ~Trait.InsertingFlag);
 
     return trait;
   }
@@ -1157,12 +1205,14 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
     }
     const target = this.firstTrait;
 
+    trait.setFlags(trait.flags | Trait.InsertingFlag);
     trait.setKey(key);
     this.willInsertTrait(trait, target);
     this.insertTraitMap(trait);
     trait.attachModel(this, target);
     this.onInsertTrait(trait, target);
     this.didInsertTrait(trait, target);
+    trait.setFlags(trait.flags & ~Trait.InsertingFlag);
 
     return trait;
   }
@@ -1181,12 +1231,14 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
       this.removeChild(key);
     }
 
+    trait.setFlags(trait.flags | Trait.InsertingFlag);
     trait.setKey(key);
     this.willInsertTrait(trait, target);
     this.insertTraitMap(trait);
     trait.attachModel(this, target);
     this.onInsertTrait(trait, target);
     this.didInsertTrait(trait, target);
+    trait.setFlags(trait.flags & ~Trait.InsertingFlag);
 
     return trait;
   }
@@ -1210,12 +1262,14 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
       this.didRemoveTrait(oldTrait);
       oldTrait.setKey(void 0);
 
+      newTrait.setFlags(newTrait.flags | Trait.InsertingFlag);
       newTrait.setKey(oldTrait.key);
       this.willInsertTrait(newTrait, target);
       this.insertTraitMap(newTrait);
       newTrait.attachModel(this, target);
       this.onInsertTrait(newTrait, target);
       this.didInsertTrait(newTrait, target);
+      newTrait.setFlags(newTrait.flags & ~Trait.InsertingFlag);
     }
 
     return oldTrait;
@@ -1981,17 +2035,19 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
   }
 
   /** @internal */
-  static override uid: () => number = (function () {
+  static override uid: () => string = (function () {
     let nextId = 1;
-    return function uid(): number {
+    return function uid(): string {
       const id = ~~nextId;
       nextId += 1;
-      return id;
+      return "model" + id;
     }
   })();
 
   /** @internal */
   static override readonly MountedFlag: ModelFlags = Component.MountedFlag;
+  /** @internal */
+  static override readonly InsertingFlag: ModelFlags = Component.InsertingFlag;
   /** @internal */
   static override readonly RemovingFlag: ModelFlags = Component.RemovingFlag;
   /** @internal */
@@ -2007,6 +2063,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
                                            | Model.RefreshingFlag;
   /** @internal */
   static readonly StatusMask: ModelFlags = Model.MountedFlag
+                                         | Model.InsertingFlag
                                          | Model.RemovingFlag
                                          | Model.AnalyzingFlag
                                          | Model.RefreshingFlag
@@ -2043,6 +2100,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
   static override readonly MountFlags: ModelFlags = 0;
   static override readonly InsertChildFlags: ModelFlags = 0;
   static override readonly RemoveChildFlags: ModelFlags = 0;
+  static override readonly ReinsertChildFlags: ModelFlags = 0;
   static readonly InsertTraitFlags: ModelFlags = 0;
   static readonly RemoveTraitFlags: ModelFlags = 0;
   static readonly StartConsumingFlags: ModelFlags = 0;

@@ -55,7 +55,7 @@ export interface ViewRelationClass<F extends ViewRelation<any, any> = ViewRelati
 }
 
 /** @public */
-export type ViewRelationDef<O, R extends ViewRelationRefinement> =
+export type ViewRelationDef<O, R extends ViewRelationRefinement = {}> =
   ViewRelation<O, ViewRelationView<R>> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &

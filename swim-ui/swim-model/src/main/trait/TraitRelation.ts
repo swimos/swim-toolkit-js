@@ -25,7 +25,7 @@ export interface TraitRelationRefinement extends FastenerRefinement {
 
 /** @public */
 export type TraitRelationTrait<R extends TraitRelationRefinement | TraitRelation<any, any>, D = Trait> =
-  R extends {trait: infer T} ? T :
+  R extends {trait: infer T | null} ? T :
   R extends {extends: infer E} ? TraitRelationTrait<E, D> :
   R extends TraitRelation<any, infer T> ? T :
   D;
@@ -57,7 +57,7 @@ export interface TraitRelationClass<F extends TraitRelation<any, any> = TraitRel
 }
 
 /** @public */
-export type TraitRelationDef<O, R extends TraitRelationRefinement> =
+export type TraitRelationDef<O, R extends TraitRelationRefinement = {}> =
   TraitRelation<O, TraitRelationTrait<R>> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &

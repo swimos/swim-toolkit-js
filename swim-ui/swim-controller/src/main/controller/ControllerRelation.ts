@@ -56,7 +56,7 @@ export interface ControllerRelationClass<F extends ControllerRelation<any, any> 
 }
 
 /** @public */
-export type ControllerRelationDef<O, R extends ControllerRelationRefinement> =
+export type ControllerRelationDef<O, R extends ControllerRelationRefinement = {}> =
   ControllerRelation<O, ControllerRelationController<R>> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &

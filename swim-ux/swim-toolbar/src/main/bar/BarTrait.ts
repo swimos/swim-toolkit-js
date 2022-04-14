@@ -41,7 +41,7 @@ export class BarTrait extends Trait {
     return toolTrait!;
   }
 
-  setTool(key: string, toolTrait: ToolTrait): void {
+  setTool(key: string, toolTrait: ToolTrait | null): void {
     this.setTrait(key, toolTrait);
   }
 

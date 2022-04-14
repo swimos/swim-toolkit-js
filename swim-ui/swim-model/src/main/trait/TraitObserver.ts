@@ -42,6 +42,10 @@ export interface TraitObserver<T extends Trait = Trait> extends Observer<T> {
 
   traitDidRemoveChild?(child: Model, trait: T): void;
 
+  traitWillReinsertChild?(child: Model, target: Model | null, trait: T): void;
+
+  traitDidReinsertChild?(child: Model, target: Model | null, trait: T): void;
+
   traitWillInsertTrait?(member: Trait, target: Trait | null, trait: T): void;
 
   traitDidInsertTrait?(member: Trait, target: Trait | null, trait: T): void;

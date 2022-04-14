@@ -94,7 +94,7 @@ export class RowView extends HtmlView {
     return leafView.getOrCreateCell(key, cellViewClass);
   }
 
-  setCell(key: string, cellView: CellView): void {
+  setCell(key: string, cellView: CellView | null): void {
     const leafView = this.leaf.insertView();
     if (leafView === null) {
       throw new Error("no leaf view");

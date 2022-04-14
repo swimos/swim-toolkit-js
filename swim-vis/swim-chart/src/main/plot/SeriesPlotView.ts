@@ -464,17 +464,16 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
     if ((displayFlags & View.NeedsLayout) !== 0 &&
         (xScale = this.xScale.value, xScale !== null) &&
         (yScale = this.yScale.value, yScale !== null)) {
-      this.layoutChildViews(xScale, yScale, displayFlags, viewContext, displayChild);
+      this.layoutChildren(xScale, yScale, displayFlags, viewContext, displayChild);
     } else {
       super.displayChildren(displayFlags, viewContext, displayChild);
     }
   }
 
-  protected layoutChildViews(xScale: ContinuousScale<X, number>,
-                             yScale: ContinuousScale<Y, number>,
-                             displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                             displayChild: (this: this, child: View, displayFlags: ViewFlags,
-                                            viewContext: ViewContextType<this>) => void): void {
+  protected layoutChildren(xScale: ContinuousScale<X, number>, yScale: ContinuousScale<Y, number>,
+                           displayFlags: ViewFlags, viewContext: ViewContextType<this>,
+                           displayChild: (this: this, child: View, displayFlags: ViewFlags,
+                                          viewContext: ViewContextType<this>) => void): void {
     // Recompute extrema when laying out child views.
     const frame = this.viewFrame;
     let xDataDomainMin: X | undefined;
@@ -488,8 +487,8 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
     let y0: Y | undefined;
     let y1: Y | undefined;
     type self = this;
-    function layoutChildView(this: self, child: View, displayFlags: ViewFlags,
-                             viewContext: ViewContextType<self>): void {
+    function layoutChild(this: self, child: View, displayFlags: ViewFlags,
+                         viewContext: ViewContextType<self>): void {
       const point2 = child as DataPointView<X, Y>;
       const x2 = point2.x.getValue();
       const y2 = point2.y.getValue();
@@ -566,7 +565,7 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
 
       displayChild.call(this, child, displayFlags, viewContext);
     }
-    super.displayChildren(displayFlags, viewContext, layoutChildView);
+    super.displayChildren(displayFlags, viewContext, layoutChild);
 
     if (point1 !== null) {
       let category: DataPointCategory;

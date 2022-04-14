@@ -53,6 +53,10 @@ export interface SheetControllerObserver<C extends SheetController = SheetContro
 
   controllerDidDetachTitleTool?(titleToolController: ToolController, controller: C): void;
 
+  controllerDidPressTitleTool?(input: PositionGestureInput, event: Event | null, controller: C): void;
+
+  controllerDidLongPressTitleTool?(input: PositionGestureInput, controller: C): void;
+
   controllerWillAttachButtonTool?(buttonToolController: ToolController, controller: C): void;
 
   controllerDidDetachButtonTool?(buttonToolController: ToolController, controller: C): void;
@@ -61,7 +65,7 @@ export interface SheetControllerObserver<C extends SheetController = SheetContro
 
   controllerDidLongPressButtonTool?(input: PositionGestureInput, controller: C): void;
 
-  controllerWillAttachModeTool?(modeToolController: ToolController, controller: C): void;
+  controllerWillAttachModeTool?(modeToolController: ToolController, targetToolController: ToolController | null, controller: C): void;
 
   controllerDidDetachModeTool?(modeToolController: ToolController, controller: C): void;
 

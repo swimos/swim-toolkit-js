@@ -14,7 +14,6 @@
 
 import type {Class} from "@swim/util";
 import type {FastenerClass} from "@swim/component";
-import type {PositionGestureInput} from "@swim/view";
 import type {Graphics} from "@swim/graphics";
 import {TraitViewRefDef} from "@swim/controller";
 import {ToolController} from "./ToolController";
@@ -56,12 +55,6 @@ export class ButtonToolController extends ToolController {
     },
     viewDidSetGraphics(toolIcon: Graphics | null): void {
       this.owner.callObservers("controllerDidSetToolIcon", toolIcon, this.owner);
-    },
-    viewDidPress(input: PositionGestureInput, event: Event | null): void {
-      this.owner.callObservers("controllerDidPressToolView", input, event, this.owner);
-    },
-    viewDidLongPress(input: PositionGestureInput): void {
-      this.owner.callObservers("controllerDidLongPressToolView", input, this.owner);
     },
   })
   override readonly tool!: TraitViewRefDef<this, {

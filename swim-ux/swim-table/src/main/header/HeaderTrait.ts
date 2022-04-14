@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class} from "@swim/util";
+import type {Class, Instance, Creatable} from "@swim/util";
 import type {FastenerClass} from "@swim/component";
-import {Model, TraitConstructor, TraitClass, Trait, TraitSetDef} from "@swim/model";
+import {Model, Trait, TraitSetDef} from "@swim/model";
 import {ColTrait} from "../col/ColTrait";
 import type {HeaderTraitObserver} from "./HeaderTraitObserver";
 
@@ -22,9 +22,9 @@ import type {HeaderTraitObserver} from "./HeaderTraitObserver";
 export class HeaderTrait extends Trait {
   override readonly observerType?: Class<HeaderTraitObserver>;
 
+  getCol<F extends Class<ColTrait>>(key: string, colTraitClass: F): InstanceType<F> | null;
   getCol(key: string): ColTrait | null;
-  getCol<T extends ColTrait>(key: string, colTraitClass: TraitClass<T>): T | null;
-  getCol(key: string, colTraitClass?: TraitClass<ColTrait>): ColTrait | null {
+  getCol(key: string, colTraitClass?: Class<ColTrait>): ColTrait | null {
     if (colTraitClass === void 0) {
       colTraitClass = ColTrait;
     }
@@ -32,21 +32,16 @@ export class HeaderTrait extends Trait {
     return colTrait instanceof colTraitClass ? colTrait : null;
   }
 
-  getOrCreateCol(key: string): ColTrait;
-  getOrCreateCol<T extends ColTrait>(key: string, colTraitConstructor: TraitConstructor<T>): T;
-  getOrCreateCol(key: string, colTraitConstructor?: TraitConstructor<ColTrait>): ColTrait {
-    if (colTraitConstructor === void 0) {
-      colTraitConstructor = ColTrait;
-    }
-    let colTrait = this.getTrait(key) as ColTrait | null;
-    if (!(colTrait instanceof colTraitConstructor)) {
-      colTrait = new colTraitConstructor();
+  getOrCreateCol<F extends Class<Instance<F, ColTrait>> & Creatable<Instance<F, ColTrait>>>(key: string, colTraitClass: F): InstanceType<F> {
+    let colTrait = this.getTrait(key, colTraitClass);
+    if (colTrait === null) {
+      colTrait = colTraitClass.create();
       this.setTrait(key, colTrait);
     }
-    return colTrait;
+    return colTrait!;
   }
 
-  setCol(key: string, colTrait: ColTrait): void {
+  setCol(key: string, colTrait: ColTrait | null): void {
     this.setTrait(key, colTrait);
   }
 

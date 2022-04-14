@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class} from "@swim/util";
+import type {Class, Instance, Creatable} from "@swim/util";
 import {Affinity, FastenerClass, PropertyDef, AnimatorDef} from "@swim/component";
 import {AnyLength, Length} from "@swim/math";
 import {AnyExpansion, Expansion, ExpansionAnimator} from "@swim/style";
 import {Look, ThemeConstraintAnimatorDef} from "@swim/theme";
 import {ViewContextType, ViewFlags, View, ViewSetDef} from "@swim/view";
-import {HtmlViewClass, HtmlView} from "@swim/dom";
+import {HtmlView} from "@swim/dom";
 import {AnyTableLayout, TableLayout} from "../layout/TableLayout";
 import {ColView} from "../col/ColView";
 import type {HeaderViewObserver} from "./HeaderViewObserver";
@@ -61,8 +61,8 @@ export class HeaderView extends HtmlView {
     extends: ExpansionAnimator<HeaderView, Expansion | null, AnyExpansion | null>,
   }>;
 
+  getCol<F extends Class<ColView>>(key: string, colViewClass: F): InstanceType<F> | null;
   getCol(key: string): ColView | null;
-  getCol<V extends ColView>(key: string, colViewClass: Class<V>): V | null;
   getCol(key: string, colViewClass?: Class<ColView>): ColView | null {
     if (colViewClass === void 0) {
       colViewClass = ColView;
@@ -71,21 +71,16 @@ export class HeaderView extends HtmlView {
     return colView instanceof colViewClass ? colView : null;
   }
 
-  getOrCreateCol(key: string): ColView;
-  getOrCreateCol<V extends ColView>(key: string, colViewClass: HtmlViewClass<V>): V;
-  getOrCreateCol(key: string, colViewClass?: HtmlViewClass<ColView>): ColView {
-    if (colViewClass === void 0) {
-      colViewClass = ColView;
-    }
-    let colView = this.getChild(key) as ColView | null;
-    if (!(colView instanceof colViewClass)) {
+  getOrCreateCol<F extends Class<Instance<F, ColView>> & Creatable<Instance<F, ColView>>>(key: string, colViewClass: F): InstanceType<F> {
+    let colView = this.getChild(key, colViewClass);
+    if (colView === null) {
       colView = colViewClass.create();
       this.setChild(key, colView);
     }
-    return colView;
+    return colView!;
   }
 
-  setCol(key: string, colView: ColView): void {
+  setCol(key: string, colView: ColView | null): void {
     this.setChild(key, colView);
   }
 
@@ -126,21 +121,21 @@ export class HeaderView extends HtmlView {
                                      displayChild: (this: this, child: View, displayFlags: ViewFlags,
                                                     viewContext: ViewContextType<this>) => void): void {
     if ((displayFlags & View.NeedsLayout) !== 0) {
-      this.layoutChildViews(displayFlags, viewContext, displayChild);
+      this.layoutChildren(displayFlags, viewContext, displayChild);
     } else {
       super.displayChildren(displayFlags, viewContext, displayChild);
     }
   }
 
-  protected layoutChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                             displayChild: (this: this, child: View, displayFlags: ViewFlags,
-                                            viewContext: ViewContextType<this>) => void): void {
+  protected layoutChildren(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
+                           displayChild: (this: this, child: View, displayFlags: ViewFlags,
+                                          viewContext: ViewContextType<this>) => void): void {
     const layout = this.layout.value;
     const height = this.height.state;
     const stretch = this.stretch.getPhaseOr(1);
     type self = this;
-    function layoutChildView(this: self, child: View, displayFlags: ViewFlags,
-                             viewContext: ViewContextType<self>): void {
+    function layoutChild(this: self, child: View, displayFlags: ViewFlags,
+                         viewContext: ViewContextType<self>): void {
       if (child instanceof ColView) {
         const key = child.key;
         const col = layout !== null && key !== void 0 ? layout.getCol(key) : null;
@@ -167,6 +162,6 @@ export class HeaderView extends HtmlView {
       }
       displayChild.call(this, child, displayFlags, viewContext);
     }
-    super.displayChildren(displayFlags, viewContext, layoutChildView);
+    super.displayChildren(displayFlags, viewContext, layoutChild);
   }
 }

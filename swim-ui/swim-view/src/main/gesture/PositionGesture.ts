@@ -56,7 +56,7 @@ export interface PositionGestureClass<G extends PositionGesture<any, any> = Posi
 }
 
 /** @public */
-export type PositionGestureDef<O, R extends PositionGestureRefinement> =
+export type PositionGestureDef<O, R extends PositionGestureRefinement = {}> =
   PositionGesture<O, GestureView<R>> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &

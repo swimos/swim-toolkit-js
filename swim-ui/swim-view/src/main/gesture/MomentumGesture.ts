@@ -67,7 +67,7 @@ export interface MomentumGestureClass<G extends MomentumGesture<any, any> = Mome
 }
 
 /** @public */
-export type MomentumGestureDef<O, R extends MomentumGestureRefinement> =
+export type MomentumGestureDef<O, R extends MomentumGestureRefinement = {}> =
   MomentumGesture<O, GestureView<R>> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &

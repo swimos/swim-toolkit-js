@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {
+  Murmur3,
   Mutable,
   Class,
   Instance,
@@ -113,7 +114,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   readonly consumerType?: Class<Consumer>;
 
   /** @internal */
-  readonly uid: number;
+  readonly uid: string;
 
   readonly key: string | undefined;
 
@@ -394,6 +395,15 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     }
   }
 
+  reinsertChild(child: Model, target: Model | null): void {
+    const model = this.model;
+    if (model !== null) {
+      model.reinsertChild(child, target);
+    } else {
+      throw new Error("no model");
+    }
+  }
+
   replaceChild<M extends Model>(newChild: Model, oldChild: M): M;
   replaceChild<M extends Model>(newChild: AnyModel, oldChild: M): M;
   replaceChild(newChild: AnyModel, oldChild: Model): Model {
@@ -480,6 +490,37 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     }
   }
 
+  get reinsertChildFlags(): ModelFlags {
+    return (this.constructor as typeof Trait).ReinsertChildFlags;
+  }
+
+  /** @protected */
+  willReinsertChild(child: Model, target: Model | null): void {
+    const observers = this.observers;
+    for (let i = 0, n = observers.length; i < n; i += 1) {
+      const observer = observers[i]!;
+      if (observer.traitWillReinsertChild !== void 0) {
+        observer.traitWillReinsertChild(child, target, this);
+      }
+    }
+  }
+
+  /** @protected */
+  onReinsertChild(child: Model, target: Model | null): void {
+    this.requireUpdate(this.reinsertChildFlags);
+  }
+
+  /** @protected */
+  didReinsertChild(child: Model, target: Model | null): void {
+    const observers = this.observers;
+    for (let i = 0, n = observers.length; i < n; i += 1) {
+      const observer = observers[i]!;
+      if (observer.traitDidReinsertChild !== void 0) {
+        observer.traitDidReinsertChild(child, target, this);
+      }
+    }
+  }
+
   removeChildren(): void {
     const model = this.model;
     if (model !== null) {
@@ -491,6 +532,15 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     const model = this.model;
     if (model !== null) {
       return model.sortChildren(comparator);
+    }
+  }
+
+  getTargetChild(child: Model, comparator: Comparator<Model>): Model | null {
+    const model = this.model;
+    if (model !== null) {
+      return model.getTargetChild(child, comparator);
+    } else {
+      return null;
     }
   }
 
@@ -613,6 +663,10 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     return (this.constructor as typeof Trait).InsertTraitFlags;
   }
 
+  get inserting(): boolean {
+    return (this.flags & Trait.InsertingFlag) !== 0;
+  }
+
   /** @protected */
   willInsertTrait(trait: Trait, target: Trait | null): void {
     const observers = this.observers;
@@ -654,6 +708,10 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   get removeTraitFlags(): ModelFlags {
     return (this.constructor as typeof Trait).RemoveTraitFlags;
+  }
+
+  get removing(): boolean {
+    return (this.flags & Trait.RemovingFlag) !== 0;
   }
 
   /** @protected */
@@ -1775,7 +1833,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @override */
   hashCode(): number {
-    return this.uid;
+    return Murmur3.mash(Murmur3.mixString(0, this.uid));
   }
 
   /** @override */
@@ -1816,28 +1874,33 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   }
 
   /** @internal */
-  static uid: () => number = (function () {
+  static uid: () => string = (function () {
     let nextId = 1;
-    return function uid(): number {
+    return function uid(): string {
       const id = ~~nextId;
       nextId += 1;
-      return id;
+      return "trait" + id;
     }
   })();
 
   /** @internal */
   static readonly MountedFlag: TraitFlags = 1 << 0;
   /** @internal */
-  static readonly ConsumingFlag: TraitFlags = 1 << 1;
+  static readonly InsertingFlag: TraitFlags = 1 << 1;
+  /** @internal */
+  static readonly RemovingFlag: TraitFlags = 1 << 2;
+  /** @internal */
+  static readonly ConsumingFlag: TraitFlags = 1 << 3;
 
   /** @internal */
-  static readonly FlagShift: number = 2;
+  static readonly FlagShift: number = 4;
   /** @internal */
   static readonly FlagMask: ModelFlags = (1 << Trait.FlagShift) - 1;
 
   static readonly MountFlags: ModelFlags = 0;
   static readonly InsertChildFlags: ModelFlags = 0;
   static readonly RemoveChildFlags: ModelFlags = 0;
+  static readonly ReinsertChildFlags: ModelFlags = 0;
   static readonly InsertTraitFlags: ModelFlags = 0;
   static readonly RemoveTraitFlags: ModelFlags = 0;
   static readonly StartConsumingFlags: TraitFlags = 0;

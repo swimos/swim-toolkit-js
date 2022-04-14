@@ -1,7 +1,7 @@
 {
   "name": "@swim/sheet",
   "version": "4.0.0-dev.20210927.1",
-  "description": "Navigation views and controllers",
+  "description": "Navigation stacks, master-detail folios, and tabbed binder views and controllers",
   "homepage": "https://github.com/swimos/swim/tree/main/swim-js/swim-toolkit/swim-ux/swim-sheet",
   "author": "Chris Sachs <chris@swimos.org>",
   "copyright": "2015-2022 Swim.inc",

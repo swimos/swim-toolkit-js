@@ -45,7 +45,7 @@ export interface MediaRuleClass<F extends MediaRule<any> = MediaRule<any>> exten
 }
 
 /** @public */
-export type MediaRuleDef<O, R extends MediaRuleRefinement> =
+export type MediaRuleDef<O, R extends MediaRuleRefinement = {}> =
   MediaRule<O> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &

@@ -22,7 +22,14 @@ import {
   TraitViewControllerRefDef,
   TraitViewControllerSetDef,
 } from "@swim/controller";
-import {ToolView, ToolTrait, ToolController, BarView, BarTrait, BarController} from "@swim/toolbar";
+import {
+  ToolView,
+  ToolTrait,
+  ToolController,
+  BarView,
+  BarTrait,
+  BarController,
+} from "@swim/toolbar";
 import {DrawerView} from "@swim/window";
 import type {SheetView} from "../sheet/SheetView";
 import {SheetController} from "../sheet/SheetController";
@@ -245,7 +252,6 @@ export class FolioController extends StackController {
     initController(navBarController: BarController): void {
       StackController.navBar.prototype.initController.call(this, navBarController);
       this.updateFolioStyle(this.owner.folioStyle.value, navBarController);
-      this.frontViewDidScroll;
     },
     updateFolioStyle(folioStyle: FolioStyle | undefined, navBarController: BarController): void {
       // hook
@@ -334,12 +340,19 @@ export class FolioController extends StackController {
       if (folioView !== null && folioView.appBar.view === null) {
         folioView.appBar.setView(appBarView);
       }
+      const coverView = this.owner.cover.view;
+      if (coverView !== null) {
+        this.coverViewDidScroll(coverView, appBarController);
+      }
     },
     detachAppBarView(appBarView: BarView, appBarController: BarController): void {
       appBarView.remove();
     },
     updateFolioStyle(folioStyle: FolioStyle | undefined, appBarController: BarController): void {
       appBarController.updateLayout();
+    },
+    coverViewDidScroll(coverView: SheetView, appBarController: BarController): void {
+      // hook
     },
     controllerDidPressMenuTool(input: PositionGestureInput, event: Event | null): void {
       this.owner.didPressMenuTool(input, event);
@@ -361,6 +374,7 @@ export class FolioController extends StackController {
       attachAppBarView(appBarView: BarView, appBarController: BarController): void;
       detachAppBarView(appBarView: BarView, appBarController: BarController): void;
       updateFolioStyle(folioStyle: FolioStyle | undefined, appBarController: BarController): void;
+      coverViewDidScroll(coverView: SheetView, appBarController: BarController): void;
     },
     observes: BarController & AppBarController,
   }>;
@@ -466,18 +480,28 @@ export class FolioController extends StackController {
       if (folioView !== null) {
         folioView.cover.setView(coverView);
       }
+      const appBarController = this.owner.appBar.controller;
+      if (appBarController !== null) {
+        this.owner.appBar.coverViewDidScroll(coverView, appBarController);
+      }
     },
     detachCoverView(coverView: SheetView, coverController: SheetController): void {
       // hook
     },
-    controllerDidSetFullBleed(fullBleed: boolean, sheetController: SheetController): void {
+    controllerDidSetFullBleed(fullBleed: boolean): void {
       this.owner.fullBleed.setValue(fullBleed, Affinity.Intrinsic);
     },
-    controllerWillAttachModeTool(modeToolController: ToolController, coverController: SheetController): void {
-      this.owner.modeTools.attachController(modeToolController);
+    controllerWillAttachModeTool(toolController: ToolController, targetToolController: ToolController | null): void {
+      this.owner.modeTools.attachController(toolController, targetToolController);
     },
-    controllerDidDetachModeTool(modeToolController: ToolController, coverController: SheetController): void {
-      this.owner.modeTools.detachController(modeToolController);
+    controllerDidDetachModeTool(toolController: ToolController): void {
+      this.owner.modeTools.detachController(toolController);
+    },
+    controllerDidScrollSheetView(coverView: SheetView): void {
+      const appBarController = this.owner.appBar.controller;
+      if (appBarController !== null) {
+        this.owner.appBar.coverViewDidScroll(coverView, appBarController);
+      }
     },
     present(timing?: AnyTiming | boolean): SheetView | null {
       if (this.owner.folioStyle.value === "stacked") {
@@ -511,62 +535,63 @@ export class FolioController extends StackController {
   @TraitViewControllerSetDef<FolioController["modeTools"]>({
     controllerType: ToolController,
     binds: false,
+    ordered: true,
     observes: true,
-    getTraitViewRef(modeToolController: ToolController): TraitViewRef<unknown, ToolTrait, ToolView> {
-      return modeToolController.tool;
+    getTraitViewRef(toolController: ToolController): TraitViewRef<unknown, ToolTrait, ToolView> {
+      return toolController.tool;
     },
-    willAttachController(modeToolController: ToolController): void {
-      this.owner.callObservers("controllerWillAttachCoverModeTool", modeToolController, this.owner);
+    willAttachController(toolController: ToolController): void {
+      this.owner.callObservers("controllerWillAttachCoverModeTool", toolController, this.owner);
     },
-    didAttachController(modeToolController: ToolController): void {
-      const modeToolTrait = modeToolController.tool.trait;
-      if (modeToolTrait !== null) {
-        this.attachModeToolTrait(modeToolTrait, modeToolController);
+    didAttachController(toolController: ToolController): void {
+      const toolTrait = toolController.tool.trait;
+      if (toolTrait !== null) {
+        this.attachToolTrait(toolTrait, toolController);
       }
-      const modeToolView = modeToolController.tool.view;
-      if (modeToolView !== null) {
-        this.attachModeToolView(modeToolView, modeToolController);
-      }
-    },
-    willDetachController(modeToolController: ToolController): void {
-      const modeToolView = modeToolController.tool.view;
-      if (modeToolView !== null) {
-        this.detachModeToolView(modeToolView, modeToolController);
-      }
-      const modeToolTrait = modeToolController.tool.trait;
-      if (modeToolTrait !== null) {
-        this.detachModeToolTrait(modeToolTrait, modeToolController);
+      const toolView = toolController.tool.view;
+      if (toolView !== null) {
+        this.attachToolView(toolView, toolController);
       }
     },
-    didDetachController(modeToolController: ToolController): void {
-      this.owner.callObservers("controllerDidDetachCoverModeTool", modeToolController, this.owner);
+    willDetachController(toolController: ToolController): void {
+      const toolView = toolController.tool.view;
+      if (toolView !== null) {
+        this.detachToolView(toolView, toolController);
+      }
+      const toolTrait = toolController.tool.trait;
+      if (toolTrait !== null) {
+        this.detachToolTrait(toolTrait, toolController);
+      }
     },
-    controllerWillAttachToolTrait(modeToolTrait: ToolTrait, modeToolController: ToolController): void {
-      this.owner.callObservers("controllerWillAttachCoverModeToolTrait", modeToolTrait, modeToolController, this.owner);
-      this.attachModeToolTrait(modeToolTrait, modeToolController);
+    didDetachController(toolController: ToolController): void {
+      this.owner.callObservers("controllerDidDetachCoverModeTool", toolController, this.owner);
     },
-    controllerDidDetachToolTrait(modeToolTrait: ToolTrait, modeToolController: ToolController): void {
-      this.detachModeToolTrait(modeToolTrait, modeToolController);
-      this.owner.callObservers("controllerDidDetachCoverModeToolTrait", modeToolTrait, modeToolController, this.owner);
+    controllerWillAttachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void {
+      this.owner.callObservers("controllerWillAttachCoverModeToolTrait", toolTrait, toolController, this.owner);
+      this.attachToolTrait(toolTrait, toolController);
     },
-    attachModeToolTrait(modeToolTrait: ToolTrait, modeToolController: ToolController): void {
+    controllerDidDetachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void {
+      this.detachToolTrait(toolTrait, toolController);
+      this.owner.callObservers("controllerDidDetachCoverModeToolTrait", toolTrait, toolController, this.owner);
+    },
+    attachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void {
       // hook
     },
-    detachModeToolTrait(modeToolTrait: ToolTrait, modeToolController: ToolController): void {
+    detachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void {
       // hook
     },
-    controllerWillAttachToolView(modeToolView: ToolView, modeToolController: ToolController): void {
-      this.owner.callObservers("controllerWillAttachCoverModeToolView", modeToolView, modeToolController, this.owner);
-      this.attachModeToolView(modeToolView, modeToolController);
+    controllerWillAttachToolView(toolView: ToolView, toolController: ToolController): void {
+      this.owner.callObservers("controllerWillAttachCoverModeToolView", toolView, toolController, this.owner);
+      this.attachToolView(toolView, toolController);
     },
-    controllerDidDetachToolView(modeToolView: ToolView, modeToolController: ToolController): void {
-      this.detachModeToolView(modeToolView, modeToolController);
-      this.owner.callObservers("controllerDidDetachCoverModeToolView", modeToolView, modeToolController, this.owner);
+    controllerDidDetachToolView(toolView: ToolView, toolController: ToolController): void {
+      this.detachToolView(toolView, toolController);
+      this.owner.callObservers("controllerDidDetachCoverModeToolView", toolView, toolController, this.owner);
     },
-    attachModeToolView(modeToolView: ToolView, modeToolController: ToolController): void {
+    attachToolView(toolView: ToolView, toolController: ToolController): void {
       // hook
     },
-    detachModeToolView(modeToolView: ToolView, modeToolController: ToolController): void {
+    detachToolView(toolView: ToolView, toolController: ToolController): void {
       // hook
     },
   })
@@ -575,10 +600,10 @@ export class FolioController extends StackController {
     view: ToolView,
     controller: ToolController,
     implements: {
-      attachModeToolTrait(modeToolTrait: ToolTrait, modeToolController: ToolController): void;
-      detachModeToolTrait(modeToolTrait: ToolTrait, modeToolController: ToolController): void;
-      attachModeToolView(modeToolView: ToolView, modeToolController: ToolController): void;
-      detachModeToolView(modeToolView: ToolView, modeToolController: ToolController): void;
+      attachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void;
+      detachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void;
+      attachToolView(toolView: ToolView, toolController: ToolController): void;
+      detachToolView(toolView: ToolView, toolController: ToolController): void;
     },
     observes: true,
   }>;

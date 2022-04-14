@@ -307,16 +307,16 @@ export class TableView extends HtmlView {
                                                     viewContext: ViewContextType<this>) => void): void {
     if (!this.culled) {
       if ((processFlags & View.NeedsScroll) !== 0) {
-        this.scrollChildViews(processFlags, viewContext, processChild);
+        this.scrollChildren(processFlags, viewContext, processChild);
       } else {
         this.processVisibleViews(processFlags, viewContext, processChild);
       }
     }
   }
 
-  protected scrollChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
-                             processChild: (this: this, child: View, processFlags: ViewFlags,
-                                            viewContext: ViewContextType<this>) => void): void {
+  protected scrollChildren(processFlags: ViewFlags, viewContext: ViewContextType<this>,
+                           processChild: (this: this, child: View, processFlags: ViewFlags,
+                                          viewContext: ViewContextType<this>) => void): void {
     const rowHeight = this.rowHeight.getValue();
     const rowSpacing = this.rowSpacing.getValue().pxValue(rowHeight.pxValue());
     const disclosingPhase = this.disclosing.getPhaseOr(1);
@@ -333,8 +333,8 @@ export class TableView extends HtmlView {
     let rowIndex = 0;
 
     type self = this;
-    function scrollChildView(this: self, child: View, processFlags: ViewFlags,
-                             viewContext: ViewContextType<self>): void {
+    function scrollChild(this: self, child: View, processFlags: ViewFlags,
+                         viewContext: ViewContextType<self>): void {
       if (child instanceof RowView || child instanceof HeaderView) {
         if (rowIndex !== 0) {
           yValue += rowSpacing * disclosingPhase;
@@ -376,7 +376,7 @@ export class TableView extends HtmlView {
         rowIndex += 1;
       }
     }
-    super.processChildren(processFlags, viewContext, scrollChildView);
+    super.processChildren(processFlags, viewContext, scrollChild);
   }
 
   protected displayVisibleViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
@@ -400,21 +400,22 @@ export class TableView extends HtmlView {
                                      displayChild: (this: this, child: View, displayFlags: ViewFlags,
                                                     viewContext: ViewContextType<this>) => void): void {
     if ((displayFlags & View.NeedsLayout) !== 0) {
-      this.layoutChildViews(displayFlags, viewContext, displayChild);
+      this.layoutChildren(displayFlags, viewContext, displayChild);
     } else {
       this.displayVisibleViews(displayFlags, viewContext, displayChild);
     }
   }
 
-  protected layoutChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                             displayChild: (this: this, child: View, displayFlags: ViewFlags,
-                                            viewContext: ViewContextType<this>) => void): void {
+  protected layoutChildren(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
+                           displayChild: (this: this, child: View, displayFlags: ViewFlags,
+                                          viewContext: ViewContextType<this>) => void): void {
     this.resizeTable();
     const layout = this.layout.value;
     const width = layout !== null ? layout.width : null;
     const rowHeight = this.rowHeight.getValue();
     const rowSpacing = this.rowSpacing.getValue().pxValue(rowHeight.pxValue());
     const disclosingPhase = this.disclosing.getPhaseOr(1);
+    const timing = !this.disclosing.tweening ? this.getLook(Look.timing) : null;
 
     const visibleViews = this.visibleViews as View[];
     visibleViews.length = 0;
@@ -428,15 +429,19 @@ export class TableView extends HtmlView {
     let rowIndex = 0;
 
     type self = this;
-    function layoutChildView(this: self, child: View, displayFlags: ViewFlags,
-                             viewContext: ViewContextType<self>): void {
+    function layoutChild(this: self, child: View, displayFlags: ViewFlags,
+                         viewContext: ViewContextType<self>): void {
       if (child instanceof RowView || child instanceof HeaderView) {
         if (rowIndex !== 0) {
           yValue += rowSpacing * disclosingPhase;
           yState += rowSpacing;
         }
         if (child.top.hasAffinity(Affinity.Intrinsic)) {
-          child.top.setInterpolatedValue(Length.px(yValue), Length.px(yState));
+          if (yValue !== yState) {
+            child.top.setInterpolatedValue(Length.px(yValue), Length.px(yState));
+          } else {
+            child.top.setState(yState, timing, Affinity.Intrinsic);
+          }
         }
         child.width.setState(width, Affinity.Intrinsic);
       }
@@ -472,7 +477,7 @@ export class TableView extends HtmlView {
         rowIndex += 1;
       }
     }
-    super.displayChildren(displayFlags, viewContext, layoutChildView);
+    super.displayChildren(displayFlags, viewContext, layoutChild);
 
     if (this.height.hasAffinity(Affinity.Intrinsic)) {
       this.height.setInterpolatedValue(Length.px(yValue), Length.px(yState));

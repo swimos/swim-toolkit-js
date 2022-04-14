@@ -28,7 +28,7 @@ export interface ControllerRefRefinement extends ControllerRelationRefinement {
 
 /** @public */
 export type ControllerRefController<R extends ControllerRefRefinement | ControllerRef<any, any>, D = Controller> =
-  R extends {controller: infer C} ? C :
+  R extends {controller: infer C | null} ? C :
   R extends {extends: infer E} ? ControllerRefController<E, D> :
   R extends ControllerRef<any, infer C> ? C :
   D;
@@ -58,7 +58,7 @@ export interface ControllerRefClass<F extends ControllerRef<any, any> = Controll
 }
 
 /** @public */
-export type ControllerRefDef<O, R extends ControllerRefRefinement> =
+export type ControllerRefDef<O, R extends ControllerRefRefinement = {}> =
   ControllerRef<O, ControllerRefController<R>> &
   {readonly name: string} & // prevent type alias simplification
   (R extends {extends: infer E} ? E : {}) &
