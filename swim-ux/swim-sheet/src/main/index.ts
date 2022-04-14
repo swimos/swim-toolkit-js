@@ -18,4 +18,4 @@ export * from "./stack";
 
 export * from "./folio";
 
-export * from "./panel";
+export * from "./binder";

@@ -16,11 +16,11 @@ import type {View} from "@swim/view";
 import type {BarView} from "@swim/toolbar";
 import type {SheetView} from "../sheet/SheetView";
 import type {SheetViewObserver} from "../sheet/SheetViewObserver";
-import type {PanelTabStyle, PanelView} from "./PanelView";
+import type {BinderTabStyle, BinderView} from "./BinderView";
 
 /** @public */
-export interface PanelViewObserver<V extends PanelView = PanelView> extends SheetViewObserver<V> {
-  viewDidSetTabStyle?(tabStyle: PanelTabStyle, view: V): void;
+export interface BinderViewObserver<V extends BinderView = BinderView> extends SheetViewObserver<V> {
+  viewDidSetTabStyle?(tabStyle: BinderTabStyle, view: V): void;
 
   viewWillAttachTabBar?(tabBarView: BarView, targetView: View | null, view: V): void;
 

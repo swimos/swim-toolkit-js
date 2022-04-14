@@ -18,50 +18,50 @@ import {Length} from "@swim/math";
 import {ViewContextType, View, ViewRefDef, ViewSetDef} from "@swim/view";
 import {BarView} from "@swim/toolbar";
 import {SheetView} from "../sheet/SheetView";
-import type {PanelViewObserver} from "./PanelViewObserver";
+import type {BinderViewObserver} from "./BinderViewObserver";
 
 /** @public */
-export type PanelTabStyle = "bottom" | "mode" | "none";
+export type BinderTabStyle = "bottom" | "mode" | "none";
 
 /** @public */
-export class PanelView extends SheetView {
+export class BinderView extends SheetView {
   constructor(node: HTMLElement) {
     super(node);
-    this.initPanel();
+    this.initBinder();
   }
 
-  protected initPanel(): void {
-    this.addClass("panel");
+  protected initBinder(): void {
+    this.addClass("binder");
     this.position.setState("relative", Affinity.Intrinsic);
     this.overflowX.setState("hidden", Affinity.Intrinsic);
     this.overflowY.setState("hidden", Affinity.Intrinsic);
   }
 
-  override readonly observerType?: Class<PanelViewObserver>;
+  override readonly observerType?: Class<BinderViewObserver>;
 
-  @PropertyDef<PanelView["tabStyle"]>({
+  @PropertyDef<BinderView["tabStyle"]>({
     valueType: String,
     value: "none",
     updateFlags: View.NeedsResize,
-    didSetValue(tabStyle: PanelTabStyle): void {
+    didSetValue(tabStyle: BinderTabStyle): void {
       this.owner.callObservers("viewDidSetTabStyle", tabStyle, this.owner);
     },
   })
-  readonly tabStyle!: PropertyDef<this, {value: PanelTabStyle}>;
+  readonly tabStyle!: PropertyDef<this, {value: BinderTabStyle}>;
 
-  @ViewRefDef<PanelView["tabBar"]>({
+  @ViewRefDef<BinderView["tabBar"]>({
     viewType: BarView,
     binds: true,
     observes: true,
     initView(tabBarView: BarView): void {
-      let panelWidth = this.owner.width.state;
-      panelWidth = panelWidth instanceof Length ? panelWidth : Length.px(this.owner.node.offsetWidth);
+      let binderWidth = this.owner.width.state;
+      binderWidth = binderWidth instanceof Length ? binderWidth : Length.px(this.owner.node.offsetWidth);
 
       tabBarView.placement.setValue("bottom", Affinity.Intrinsic);
       tabBarView.position.setState("absolute", Affinity.Intrinsic);
       tabBarView.left.setState(0, Affinity.Intrinsic);
       tabBarView.bottom.setState(0, Affinity.Intrinsic);
-      tabBarView.width.setState(panelWidth, Affinity.Intrinsic);
+      tabBarView.width.setState(binderWidth, Affinity.Intrinsic);
       tabBarView.zIndex.setState(1, Affinity.Intrinsic);
     },
     willAttachView(tabBarView: BarView, targetView: View | null): void {
@@ -75,17 +75,17 @@ export class PanelView extends SheetView {
     },
   })
   readonly tabBar!: ViewRefDef<this, {view: BarView, observes: true}>;
-  static readonly tabBar: FastenerClass<PanelView["tabBar"]>;
+  static readonly tabBar: FastenerClass<BinderView["tabBar"]>;
 
-  @ViewSetDef<PanelView["tabs"]>({
+  @ViewSetDef<BinderView["tabs"]>({
     viewType: SheetView,
     binds: false,
     observes: true,
     initView(tabView: SheetView): void {
-      let panelWidth = this.owner.width.state;
-      panelWidth = panelWidth instanceof Length ? panelWidth : Length.px(this.owner.node.offsetWidth);
-      let panelHeight = this.owner.height.state;
-      panelHeight = panelHeight instanceof Length ? panelHeight : Length.px(this.owner.node.offsetHeight);
+      let binderWidth = this.owner.width.state;
+      binderWidth = binderWidth instanceof Length ? binderWidth : Length.px(this.owner.node.offsetWidth);
+      let binderHeight = this.owner.height.state;
+      binderHeight = binderHeight instanceof Length ? binderHeight : Length.px(this.owner.node.offsetHeight);
       let edgeInsets = this.owner.edgeInsets.value;
       if (edgeInsets === void 0 && this.owner.edgeInsets.hasAffinity(Affinity.Intrinsic)) {
         edgeInsets = this.owner.viewport.safeArea;
@@ -109,8 +109,8 @@ export class PanelView extends SheetView {
       tabView.position.setState("absolute", Affinity.Intrinsic);
       tabView.left.setState(0, Affinity.Intrinsic);
       tabView.top.setState(0, Affinity.Intrinsic);
-      tabView.width.setState(panelWidth, Affinity.Intrinsic);
-      tabView.height.setState(panelHeight, Affinity.Intrinsic);
+      tabView.width.setState(binderWidth, Affinity.Intrinsic);
+      tabView.height.setState(binderHeight, Affinity.Intrinsic);
       tabView.paddingBottom.setState(tabBarHeight, Affinity.Intrinsic);
       tabView.boxSizing.setState("border-box", Affinity.Intrinsic);
       tabView.zIndex.setState(0, Affinity.Intrinsic);
@@ -132,9 +132,9 @@ export class PanelView extends SheetView {
     },
   })
   readonly tabs!: ViewSetDef<this, {view: SheetView, observes: true}>;
-  static readonly tabs: FastenerClass<PanelView["tabs"]>;
+  static readonly tabs: FastenerClass<BinderView["tabs"]>;
 
-  @ViewRefDef<PanelView["active"]>({
+  @ViewRefDef<BinderView["active"]>({
     viewType: SheetView,
     binds: false,
     observes: true,
@@ -155,18 +155,18 @@ export class PanelView extends SheetView {
     },
   })
   readonly active!: ViewRefDef<this, {view: SheetView, observes: true}>;
-  static readonly active: FastenerClass<PanelView["active"]>;
+  static readonly active: FastenerClass<BinderView["active"]>;
 
   protected override onResize(viewContext: ViewContextType<this>): void {
     super.onResize(viewContext);
-    this.resizePanel(viewContext);
+    this.resizeBinder(viewContext);
   }
 
-  protected resizePanel(viewContext: ViewContextType<this>): void {
-    let panelWidth = this.width.state;
-    panelWidth = panelWidth instanceof Length ? panelWidth : Length.px(this.node.offsetWidth);
-    let panelHeight = this.height.state;
-    panelHeight = panelHeight instanceof Length ? panelHeight : Length.px(this.node.offsetHeight);
+  protected resizeBinder(viewContext: ViewContextType<this>): void {
+    let binderWidth = this.width.state;
+    binderWidth = binderWidth instanceof Length ? binderWidth : Length.px(this.node.offsetWidth);
+    let binderHeight = this.height.state;
+    binderHeight = binderHeight instanceof Length ? binderHeight : Length.px(this.node.offsetHeight);
     let edgeInsets = this.edgeInsets.value;
     if (edgeInsets === void 0 && this.edgeInsets.hasAffinity(Affinity.Intrinsic)) {
       edgeInsets = viewContext.viewport.safeArea;
@@ -175,7 +175,7 @@ export class PanelView extends SheetView {
     const tabBarView = this.tabBar.view;
     let tabBarHeight: Length | null = null;
     if (tabBarView !== null) {
-      let tabBarWidth = panelWidth;
+      let tabBarWidth = binderWidth;
       tabBarHeight = tabBarView.height.state;
       tabBarHeight = tabBarHeight instanceof Length ? tabBarHeight : Length.px(tabBarView.node.offsetHeight);
       const paddingLeft = this.paddingLeft.value;
@@ -202,8 +202,8 @@ export class PanelView extends SheetView {
     const tabViews = this.tabs.views;
     for (const viewId in tabViews) {
       const tabView = tabViews[viewId]!;
-      tabView.width.setState(panelWidth, Affinity.Intrinsic);
-      tabView.height.setState(panelHeight, Affinity.Intrinsic);
+      tabView.width.setState(binderWidth, Affinity.Intrinsic);
+      tabView.height.setState(binderHeight, Affinity.Intrinsic);
       tabView.paddingTop.setState(this.paddingTop.state, Affinity.Intrinsic);
       tabView.paddingBottom.setState(tabBarHeight, Affinity.Intrinsic);
       tabView.edgeInsets.setValue(edgeInsets, Affinity.Intrinsic);
@@ -212,10 +212,10 @@ export class PanelView extends SheetView {
 
   protected override onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);
-    this.layoutPanel(viewContext);
+    this.layoutBinder(viewContext);
   }
 
-  protected layoutPanel(viewContext: ViewContextType<this>): void {
+  protected layoutBinder(viewContext: ViewContextType<this>): void {
     const tabBarView = this.tabBar.view;
     let tabBarHeight: Length | null = null;
     if (tabBarView !== null) {

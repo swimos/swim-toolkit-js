@@ -16,10 +16,10 @@ export {TabBarController} from "./TabBarController";
 export {TabBarControllerObserver} from "./TabBarControllerObserver";
 
 export {
-  PanelTabStyle,
-  PanelView,
-} from "./PanelView";
-export {PanelViewObserver} from "./PanelViewObserver";
+  BinderTabStyle,
+  BinderView,
+} from "./BinderView";
+export {BinderViewObserver} from "./BinderViewObserver";
 
-export {PanelController} from "./PanelController";
-export {PanelControllerObserver} from "./PanelControllerObserver";
+export {BinderController} from "./BinderController";
+export {BinderControllerObserver} from "./BinderControllerObserver";

@@ -26,7 +26,7 @@ import {ToolLayout, BarLayout, ToolController, BarController} from "@swim/toolba
 import type {SheetView} from "../sheet/SheetView";
 import {SheetController} from "../sheet/SheetController";
 import type {TabBarControllerObserver} from "./TabBarControllerObserver";
-import type {PanelTabStyle} from "./PanelView";
+import type {BinderTabStyle} from "./BinderView";
 
 /** @public */
 export class TabBarController extends BarController {
@@ -117,9 +117,9 @@ export class TabBarController extends BarController {
     valueType: String,
     value: "none",
     inherits: true,
-    didSetValue(tabStyle: PanelTabStyle): void {
+    didSetValue(tabStyle: BinderTabStyle): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
   })
-  readonly tabStyle!: PropertyDef<this, {value: PanelTabStyle}>;
+  readonly tabStyle!: PropertyDef<this, {value: BinderTabStyle}>;
 }

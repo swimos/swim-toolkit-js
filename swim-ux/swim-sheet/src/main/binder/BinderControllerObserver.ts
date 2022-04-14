@@ -18,20 +18,20 @@ import type {ToolController, BarView, BarTrait, BarController} from "@swim/toolb
 import type {SheetView} from "../sheet/SheetView";
 import type {SheetController} from "../sheet/SheetController";
 import type {SheetControllerObserver} from "../sheet/SheetControllerObserver";
-import type {PanelTabStyle, PanelView} from "./PanelView";
-import type {PanelController} from "./PanelController";
+import type {BinderTabStyle, BinderView} from "./BinderView";
+import type {BinderController} from "./BinderController";
 
 /** @public */
-export interface PanelControllerObserver<C extends PanelController = PanelController> extends SheetControllerObserver<C> {
-  controllerWillAttachPanelTrait?(panelTrait: Trait, controller: C): void;
+export interface BinderControllerObserver<C extends BinderController = BinderController> extends SheetControllerObserver<C> {
+  controllerWillAttachBinderTrait?(binderTrait: Trait, controller: C): void;
 
-  controllerDidDetachPanelTrait?(panelTrait: Trait, controller: C): void;
+  controllerDidDetachBinderTrait?(binderTrait: Trait, controller: C): void;
 
-  controllerWillAttachPanelView?(panelView: PanelView, controller: C): void;
+  controllerWillAttachBinderView?(binderView: BinderView, controller: C): void;
 
-  controllerDidDetachPanelView?(panelView: PanelView, controller: C): void;
+  controllerDidDetachBinderView?(binderView: BinderView, controller: C): void;
 
-  controllerDidSetTabStyle(tabStyle: PanelTabStyle, controller: C): void;
+  controllerDidSetTabStyle(tabStyle: BinderTabStyle, controller: C): void;
 
   controllerWillAttachTabBar?(tabBarController: BarController, controller: C): void;
 

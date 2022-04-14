@@ -27,14 +27,14 @@ import type {SheetView} from "../sheet/SheetView";
 import {SheetController} from "../sheet/SheetController";
 import type {FolioStyle} from "../folio/FolioView";
 import {TabBarController} from "./TabBarController";
-import {PanelTabStyle, PanelView} from "./PanelView";
-import type {PanelControllerObserver} from "./PanelControllerObserver";
+import {BinderTabStyle, BinderView} from "./BinderView";
+import type {BinderControllerObserver} from "./BinderControllerObserver";
 
 /** @public */
-export class PanelController extends SheetController {
-  override readonly observerType?: Class<PanelControllerObserver>;
+export class BinderController extends SheetController {
+  override readonly observerType?: Class<BinderControllerObserver>;
 
-  @PropertyDef<PanelController["folioStyle"]>({
+  @PropertyDef<BinderController["folioStyle"]>({
     valueType: String,
     inherits: true,
     lazy: false,
@@ -48,10 +48,10 @@ export class PanelController extends SheetController {
   })
   readonly folioStyle!: PropertyDef<this, {value: FolioStyle | undefined}>;
 
-  @PropertyDef<PanelController["tabStyle"]>({
+  @PropertyDef<BinderController["tabStyle"]>({
     valueType: String,
     value: "none",
-    didSetValue(tabStyle: PanelTabStyle): void {
+    didSetValue(tabStyle: BinderTabStyle): void {
       const tabBarController = this.owner.tabBar.controller;
       if (tabBarController !== null) {
         this.owner.tabBar.updateTabStyle(tabStyle, tabBarController);
@@ -62,57 +62,57 @@ export class PanelController extends SheetController {
         this.owner.tabs.updateTabStyle(tabStyle, tabController);
       }
       this.owner.callObservers("controllerDidSetTabStyle", tabStyle, this.owner);
-      const panelView = this.owner.panel.view;
-      if (panelView !== null) {
-        panelView.tabStyle.setValue(tabStyle, Affinity.Inherited);
+      const binderView = this.owner.binder.view;
+      if (binderView !== null) {
+        binderView.tabStyle.setValue(tabStyle, Affinity.Inherited);
       }
     },
   })
-  readonly tabStyle!: PropertyDef<this, {value: PanelTabStyle}>;
+  readonly tabStyle!: PropertyDef<this, {value: BinderTabStyle}>;
 
-  @TraitViewRefDef<PanelController["panel"]>({
-    willAttachTrait(panelTrait: Trait): void {
-      this.owner.callObservers("controllerWillAttachPanelTrait", panelTrait, this.owner);
+  @TraitViewRefDef<BinderController["binder"]>({
+    willAttachTrait(binderTrait: Trait): void {
+      this.owner.callObservers("controllerWillAttachBinderTrait", binderTrait, this.owner);
     },
-    didDetachTrait(panelTrait: Trait): void {
-      this.owner.callObservers("controllerDidDetachPanelTrait", panelTrait, this.owner);
+    didDetachTrait(binderTrait: Trait): void {
+      this.owner.callObservers("controllerDidDetachBinderTrait", binderTrait, this.owner);
     },
-    viewType: PanelView,
+    viewType: BinderView,
     observesView: true,
-    initView(panelView: PanelView): void {
-      panelView.tabStyle.setValue(this.owner.tabStyle.value, Affinity.Inherited);
+    initView(binderView: BinderView): void {
+      binderView.tabStyle.setValue(this.owner.tabStyle.value, Affinity.Inherited);
       const tabBarController = this.owner.tabBar.controller;
       if (tabBarController !== null) {
-        panelView.tabBar.setView(tabBarController.bar.view);
+        binderView.tabBar.setView(tabBarController.bar.view);
       }
       const activeController = this.owner.active.controller;
       if (activeController !== null) {
-        panelView.active.setView(activeController.sheet.attachView());
+        binderView.active.setView(activeController.sheet.attachView());
       }
     },
-    willAttachView(panelView: PanelView): void {
-      this.owner.callObservers("controllerWillAttachPanelView", panelView, this.owner);
+    willAttachView(binderView: BinderView): void {
+      this.owner.callObservers("controllerWillAttachBinderView", binderView, this.owner);
       if (this.owner.sheet.view === null) {
-        this.owner.sheet.setView(panelView);
+        this.owner.sheet.setView(binderView);
       }
     },
-    didAttachView(panelView: PanelView): void {
-      //this.owner.tabStyle.setValue(panelView.tabStyle.value, Affinity.Intrinsic);
+    didAttachView(binderView: BinderView): void {
+      //this.owner.tabStyle.setValue(binderView.tabStyle.value, Affinity.Intrinsic);
       const activeController = this.owner.active.controller;
       if (activeController !== null) {
         activeController.sheet.removeView();
       }
     },
-    willDetachView(panelView: PanelView): void {
+    willDetachView(binderView: BinderView): void {
       this.owner.active.setController(null);
     },
-    didDetachView(panelView: PanelView): void {
-      if (this.owner.sheet.view === panelView) {
+    didDetachView(binderView: BinderView): void {
+      if (this.owner.sheet.view === binderView) {
         this.owner.sheet.detachView();
       }
-      this.owner.callObservers("controllerDidDetachPanelView", panelView, this.owner);
+      this.owner.callObservers("controllerDidDetachBinderView", binderView, this.owner);
     },
-    //viewDidSetTabStyle(tabStyle: PanelTabStyle, panelView: PanelView): void {
+    //viewDidSetTabStyle(tabStyle: BinderTabStyle, binderView: BinderView): void {
     //  this.owner.tabStyle.setValue(tabStyle, Affinity.Intrinsic);
     //},
     viewWillAttachTabBar(tabBarView: BarView): void {
@@ -128,11 +128,11 @@ export class PanelController extends SheetController {
       }
     },
   })
-  readonly panel!: TraitViewRefDef<this, {
-    view: PanelView,
+  readonly binder!: TraitViewRefDef<this, {
+    view: BinderView,
     observesView: true,
   }>;
-  static readonly panel: FastenerClass<PanelController["panel"]>;
+  static readonly binder: FastenerClass<BinderController["binder"]>;
 
   protected didPressTabTool(input: PositionGestureInput, event: Event | null, tabController: SheetController): void {
     this.callObservers("controllerDidPressTabTool", input, event, tabController, this);
@@ -145,12 +145,12 @@ export class PanelController extends SheetController {
     this.callObservers("controllerDidLongPressTabTool", input, tabController, this);
   }
 
-  @TraitViewControllerRefDef<PanelController["tabBar"]>({
+  @TraitViewControllerRefDef<BinderController["tabBar"]>({
     controllerType: BarController,
     binds: true,
     observes: true,
-    get parentView(): PanelView | null {
-      return this.owner.panel.view;
+    get parentView(): BinderView | null {
+      return this.owner.binder.view;
     },
     getTraitViewRef(tabBarController: BarController): TraitViewRef<unknown, BarTrait, BarView> {
       return tabBarController.bar;
@@ -207,9 +207,9 @@ export class PanelController extends SheetController {
       this.owner.callObservers("controllerDidDetachTabBarView", tabBarView, this.owner);
     },
     attachTabBarView(tabBarView: BarView, tabBarController: BarController): void {
-      const panelView = this.owner.panel.view;
-      if (panelView !== null && panelView.tabBar.view === null) {
-        panelView.tabBar.attachView(tabBarView);
+      const binderView = this.owner.binder.view;
+      if (binderView !== null && binderView.tabBar.view === null) {
+        binderView.tabBar.attachView(tabBarView);
       }
     },
     detachTabBarView(tabBarView: BarView, tabBarController: BarController): void {
@@ -221,7 +221,7 @@ export class PanelController extends SheetController {
     controllerDidLongPressTabTool(input: PositionGestureInput, tabController: SheetController): void {
       this.owner.didLongPressTabTool(input, tabController);
     },
-    updateTabStyle(tabStyle: PanelTabStyle, tabBarController: BarController): void {
+    updateTabStyle(tabStyle: BinderTabStyle, tabBarController: BarController): void {
       if (tabStyle === "bottom") {
         this.insertView();
       } else {
@@ -241,18 +241,18 @@ export class PanelController extends SheetController {
       detachTabBarTrait(tabBarTrait: BarTrait, tabBarController: BarController): void;
       attachTabBarView(tabBarView: BarView, tabBarController: BarController): void;
       detachTabBarView(tabBarView: BarView, tabBarController: BarController): void;
-      updateTabStyle(tabStyle: PanelTabStyle, tabBarController: BarController): void;
+      updateTabStyle(tabStyle: BinderTabStyle, tabBarController: BarController): void;
     },
     observes: BarController & TabBarController,
   }>;
-  static readonly tabBar: FastenerClass<PanelController["tabBar"]>;
+  static readonly tabBar: FastenerClass<BinderController["tabBar"]>;
 
-  @TraitViewControllerSetDef<PanelController["tabs"]>({
+  @TraitViewControllerSetDef<BinderController["tabs"]>({
     controllerType: SheetController,
     binds: false,
     observes: true,
-    get parentView(): PanelView | null {
-      return this.owner.panel.view;
+    get parentView(): BinderView | null {
+      return this.owner.binder.view;
     },
     getTraitViewRef(tabController: SheetController): TraitViewRef<unknown, Trait, SheetView> {
       return tabController.sheet;
@@ -323,15 +323,15 @@ export class PanelController extends SheetController {
       this.owner.callObservers("controllerDidDetachTabView", tabView, tabController, this.owner);
     },
     attachTabView(tabView: SheetView, tabController: SheetController): void {
-      const panelView = this.owner.panel.view;
-      if (panelView !== null) {
-        panelView.tabs.attachView(tabView);
+      const binderView = this.owner.binder.view;
+      if (binderView !== null) {
+        binderView.tabs.attachView(tabView);
       }
     },
     detachTabView(tabView: SheetView, tabController: SheetController): void {
-      const panelView = this.owner.panel.view;
-      if (panelView !== null) {
-        panelView.tabs.deleteView(tabView);
+      const binderView = this.owner.binder.view;
+      if (binderView !== null) {
+        binderView.tabs.deleteView(tabView);
       }
     },
     controllerWillAttachButtonTool(buttonToolController: ToolController, tabController: SheetController): void {
@@ -355,7 +355,7 @@ export class PanelController extends SheetController {
       }
       buttonToolController.remove();
     },
-    updateTabStyle(tabStyle: PanelTabStyle, tabController: SheetController): void {
+    updateTabStyle(tabStyle: BinderTabStyle, tabController: SheetController): void {
       const tabToolController = tabController.buttonTool.controller;
       if (tabToolController !== null) {
         if (tabStyle === "mode") {
@@ -376,13 +376,13 @@ export class PanelController extends SheetController {
       detachTabView(tabView: SheetView, tabController: SheetController): void;
       attachButtonTool(buttonToolController: ToolController, tabController: SheetController): void;
       detachButtonTool(buttonToolController: ToolController, tabController: SheetController): void;
-      updateTabStyle(tabStyle: PanelTabStyle, tabController: SheetController): void;
+      updateTabStyle(tabStyle: BinderTabStyle, tabController: SheetController): void;
     },
     observes: true,
   }>;
-  static readonly tabs: FastenerClass<PanelController["tabs"]>;
+  static readonly tabs: FastenerClass<BinderController["tabs"]>;
 
-  @TraitViewControllerRefDef<PanelController["active"]>({
+  @TraitViewControllerRefDef<BinderController["active"]>({
     controllerType: SheetController,
     binds: false,
     observes: true,
@@ -441,15 +441,15 @@ export class PanelController extends SheetController {
       this.owner.callObservers("controllerDidDetachActiveView", activeView, this.owner);
     },
     attachActiveView(activeView: SheetView, activeController: SheetController): void {
-      const panelView = this.owner.panel.view;
-      if (panelView !== null) {
-        panelView.active.setView(activeView);
+      const binderView = this.owner.binder.view;
+      if (binderView !== null) {
+        binderView.active.setView(activeView);
       }
     },
     detachActiveView(activeView: SheetView, activeController: SheetController): void {
-      const panelView = this.owner.panel.view;
-      if (panelView !== null) {
-        panelView.active.deleteView();
+      const binderView = this.owner.binder.view;
+      if (binderView !== null) {
+        binderView.active.deleteView();
       }
     },
     controllerDidSetFullBleed(fullBleed: boolean, activeController: SheetController): void {
@@ -467,5 +467,5 @@ export class PanelController extends SheetController {
     },
     observes: true,
   }>;
-  static readonly active: FastenerClass<PanelController["active"]>;
+  static readonly active: FastenerClass<BinderController["active"]>;
 }
