@@ -37,6 +37,14 @@ export interface LengthStyleAnimator<O = unknown, T extends Length | null = Leng
 
   pctValue(basis?: LengthBasis | number): number;
 
+  pxState(basis?: LengthBasis | number): number;
+
+  emState(basis?: LengthBasis | number): number;
+
+  remState(basis?: LengthBasis | number): number;
+
+  pctState(basis?: LengthBasis | number): number;
+
   px(basis?: LengthBasis | number): PxLength;
 
   em(basis?: LengthBasis | number): EmLength;
@@ -119,6 +127,54 @@ export const LengthStyleAnimator = (function (_super: typeof StyleAnimator) {
 
   LengthStyleAnimator.prototype.pctValue = function (this: LengthStyleAnimator, basis?: LengthBasis | number): number {
     const value = this.cssValue;
+    if (value !== null) {
+      if (basis === void 0) {
+        basis = this;
+      }
+      return value.pctValue(basis);
+    } else {
+      return 0;
+    }
+  };
+
+  LengthStyleAnimator.prototype.pxState = function (this: LengthStyleAnimator, basis?: LengthBasis | number): number {
+    const value = this.cssState;
+    if (value !== null) {
+      if (basis === void 0) {
+        basis = this;
+      }
+      return value.pxValue(basis);
+    } else {
+      return 0;
+    }
+  };
+
+  LengthStyleAnimator.prototype.emState = function (this: LengthStyleAnimator, basis?: LengthBasis | number): number {
+    const value = this.cssState;
+    if (value !== null) {
+      if (basis === void 0) {
+        basis = this;
+      }
+      return value.emValue(basis);
+    } else {
+      return 0;
+    }
+  };
+
+  LengthStyleAnimator.prototype.remState = function (this: LengthStyleAnimator, basis?: LengthBasis | number): number {
+    const value = this.cssState;
+    if (value !== null) {
+      if (basis === void 0) {
+        basis = this;
+      }
+      return value.remValue(basis);
+    } else {
+      return 0;
+    }
+  };
+
+  LengthStyleAnimator.prototype.pctState = function (this: LengthStyleAnimator, basis?: LengthBasis | number): number {
+    const value = this.cssState;
     if (value !== null) {
       if (basis === void 0) {
         basis = this;

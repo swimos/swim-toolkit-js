@@ -37,6 +37,14 @@ export interface LengthStyleConstraintAnimator<O = unknown, T extends Length | n
 
   pctValue(basis?: LengthBasis | number): number;
 
+  pxState(basis?: LengthBasis | number): number;
+
+  emState(basis?: LengthBasis | number): number;
+
+  remState(basis?: LengthBasis | number): number;
+
+  pctState(basis?: LengthBasis | number): number;
+
   px(basis?: LengthBasis | number): PxLength;
 
   em(basis?: LengthBasis | number): EmLength;
@@ -119,6 +127,54 @@ export const LengthStyleConstraintAnimator = (function (_super: typeof StyleCons
 
   LengthStyleConstraintAnimator.prototype.pctValue = function (this: LengthStyleConstraintAnimator, basis?: LengthBasis | number): number {
     const value = this.cssValue;
+    if (value !== null) {
+      if (basis === void 0) {
+        basis = this;
+      }
+      return value.pctValue(basis);
+    } else {
+      return 0;
+    }
+  };
+
+  LengthStyleConstraintAnimator.prototype.pxState = function (this: LengthStyleConstraintAnimator, basis?: LengthBasis | number): number {
+    const value = this.cssState;
+    if (value !== null) {
+      if (basis === void 0) {
+        basis = this;
+      }
+      return value.pxValue(basis);
+    } else {
+      return 0;
+    }
+  };
+
+  LengthStyleConstraintAnimator.prototype.emState = function (this: LengthStyleConstraintAnimator, basis?: LengthBasis | number): number {
+    const value = this.cssState;
+    if (value !== null) {
+      if (basis === void 0) {
+        basis = this;
+      }
+      return value.emValue(basis);
+    } else {
+      return 0;
+    }
+  };
+
+  LengthStyleConstraintAnimator.prototype.remState = function (this: LengthStyleConstraintAnimator, basis?: LengthBasis | number): number {
+    const value = this.cssState;
+    if (value !== null) {
+      if (basis === void 0) {
+        basis = this;
+      }
+      return value.remValue(basis);
+    } else {
+      return 0;
+    }
+  };
+
+  LengthStyleConstraintAnimator.prototype.pctState = function (this: LengthStyleConstraintAnimator, basis?: LengthBasis | number): number {
+    const value = this.cssState;
     if (value !== null) {
       if (basis === void 0) {
         basis = this;

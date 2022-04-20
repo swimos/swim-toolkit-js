@@ -94,6 +94,10 @@ export interface StyleAnimator<O = unknown, T = unknown, U = T> extends ThemeAni
 
   getCssValue(): NonNullable<T>;
 
+  get cssState(): T;
+
+  getCssState(): NonNullable<T>;
+
   /** @override @protected */
   onSetValue(newValue: T, oldValue: T): void;
 
@@ -151,7 +155,7 @@ export const StyleAnimator = (function (_super: typeof ThemeAnimator) {
   };
 
   Object.defineProperty(StyleAnimator.prototype, "computedValue", {
-    get: function <T>(this: StyleAnimator<unknown, T>): T | undefined {
+    get: function <T>(this: StyleAnimator<unknown, T>): T {
       let computedValue: T | undefined;
       const styleContext = this.owner;
       let node: Node | undefined;
@@ -174,7 +178,11 @@ export const StyleAnimator = (function (_super: typeof ThemeAnimator) {
           }
         }
       }
-      return computedValue;
+      if (computedValue !== void 0) {
+        return computedValue;
+      } else {
+        return (Object.getPrototypeOf(this) as StyleAnimator<unknown, T>).value;
+      }
     },
     configurable: true,
   });
@@ -214,6 +222,30 @@ export const StyleAnimator = (function (_super: typeof ThemeAnimator) {
       throw new TypeError(message);
     }
     return cssValue as NonNullable<T>;
+  };
+
+  Object.defineProperty(StyleAnimator.prototype, "cssState", {
+    get<T>(this: StyleAnimator<unknown, T>): T {
+      let state = this.state;
+      if (!this.definedValue(state)) {
+        state = this.computedValue;
+      }
+      return state;
+    },
+    configurable: true,
+  });
+
+  StyleAnimator.prototype.getCssState = function <T>(this: StyleAnimator<unknown, T>): NonNullable<T> {
+    const cssState = this.cssState;
+    if (cssState === void 0 || cssState === null) {
+      let message = cssState + " ";
+      if (this.name.length !== 0) {
+        message += this.name + " ";
+      }
+      message += "css state";
+      throw new TypeError(message);
+    }
+    return cssState as NonNullable<T>;
   };
 
   StyleAnimator.prototype.onSetValue = function <T>(this: StyleAnimator<unknown, T>, newValue: T, oldValue: T): void {

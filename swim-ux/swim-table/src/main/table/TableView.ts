@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Class} from "@swim/util";
+import type {Mutable, Class, Instance, Creatable} from "@swim/util";
 import {Affinity, FastenerClass, PropertyDef, AnimatorDef} from "@swim/component";
 import {AnyLength, Length, R2Box} from "@swim/math";
 import {AnyExpansion, Expansion, ExpansionAnimator} from "@swim/style";
@@ -143,6 +143,34 @@ export class TableView extends HtmlView {
   readonly header!: ViewRefDef<this, {view: HeaderView}>;
   static readonly header: FastenerClass<TableView["header"]>;
 
+  getRow<F extends Class<RowView>>(key: string, rowViewClass: F): InstanceType<F> | null;
+  getRow(key: string): RowView | null;
+  getRow(key: string, rowViewClass?: Class<RowView>): RowView | null {
+    if (rowViewClass === void 0) {
+      rowViewClass = RowView;
+    }
+    const rowView = this.getChild(key);
+    return rowView instanceof rowViewClass ? rowView : null;
+  }
+
+  getOrCreateRow<F extends Class<Instance<F, RowView>> & Creatable<Instance<F, RowView>>>(key: string, rowViewClass: F): InstanceType<F>;
+  getOrCreateRow(key: string): RowView;
+  getOrCreateRow(key: string, rowViewClass?: Class<RowView> & Creatable<RowView>): RowView {
+    if (rowViewClass === void 0) {
+      rowViewClass = RowView;
+    }
+    let rowView = this.getChild(key, rowViewClass);
+    if (rowView === null) {
+      rowView = rowViewClass.create();
+      this.setChild(key, rowView);
+    }
+    return rowView!;
+  }
+
+  setRow(key: string, rowView: RowView | null): void {
+    this.setChild(key, rowView);
+  }
+
   @ViewSetDef<TableView["rows"]>({
     viewType: RowView,
     binds: true,
@@ -268,14 +296,11 @@ export class TableView extends HtmlView {
         width = superLayout.width.pxValue();
       }
       if (width === null) {
-        width = this.width.state;
-        width = width instanceof Length ? width.pxValue() : this.node.offsetWidth;
+        width = this.width.pxState();
       }
       const edgeInsets = this.edgeInsets.value;
-      let paddingLeft: Length | number | null = this.paddingLeft.state;
-      paddingLeft = paddingLeft instanceof Length ? paddingLeft.pxValue(width) : 0;
-      let paddingRight: Length | number | null = this.paddingRight.state;
-      paddingRight = paddingRight instanceof Length ? paddingRight.pxValue(width) : 0;
+      const paddingLeft = this.paddingLeft.pxState();
+      const paddingRight = this.paddingRight.pxState();
       let left = edgeInsets !== null ? edgeInsets.insetLeft : 0;
       left += paddingLeft;
       let right = edgeInsets !== null ? edgeInsets.insetRight : 0;
@@ -437,7 +462,7 @@ export class TableView extends HtmlView {
           yState += rowSpacing;
         }
         if (child.top.hasAffinity(Affinity.Intrinsic)) {
-          if (yValue !== yState) {
+          if (child.top.pxValue() === 0 || yValue !== yState) {
             child.top.setInterpolatedValue(Length.px(yValue), Length.px(yState));
           } else {
             child.top.setState(yState, timing, Affinity.Intrinsic);
