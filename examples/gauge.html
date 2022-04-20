@@ -25,19 +25,18 @@ const canvasView = swim.CanvasView.create()
     .touchEventsEnabled(true)
     .touchAction("manipulation");
 
-const gaugeView = canvasView.appendChild(swim.GaugeView)
-    .font("14px sans-serif")
-    .title(swim.TextRunView.fromAny("Gauge").font("20px sans-serif"));
+const gaugeView = canvasView.appendChild(swim.GaugeView).font("14px sans-serif");
+gaugeView.title.setText("Gauge").font("20px sans-serif");
 
 const dialView = gaugeView.appendChild(swim.DialView)
     .value(0.33)
-    .legend("Legend")
     .on("pointerenter", function (event) {
       dialView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, 1]], true);
     })
     .on("pointerleave", function (event) {
       dialView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, void 0]], true);
     });
+dialView.legend.setText("Legend");
 
 setInterval(function () {
   const timing = swim.Easing.linear.withDuration(1000);

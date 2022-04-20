@@ -36,6 +36,7 @@ export class BoardView extends SheetView {
     observes: true,
     initView(panelView: PanelView): void {
       panelView.position.setState("absolute", Affinity.Intrinsic);
+      panelView.visibility.setState("hidden", Affinity.Intrinsic);
     },
     willAttachView(panelView: PanelView, target: View | null): void {
       this.owner.callObservers("viewWillAttachPanel", panelView, target, this.owner);
@@ -44,43 +45,34 @@ export class BoardView extends SheetView {
       this.owner.callObservers("viewDidDetachPanel", panelView, this.owner);
     },
     viewDidSetUnitWidth(unitWidth: number, panelView: PanelView): void {
-      this.owner.requireUpdate(View.NeedsLayout);
+      this.owner.requireUpdate(View.NeedsResize);
     },
     viewDidSetUnitHeight(unitHeight: number, panelView: PanelView): void {
-      this.owner.requireUpdate(View.NeedsLayout);
+      this.owner.requireUpdate(View.NeedsResize);
     },
   })
   readonly panels!: ViewSetDef<this, {view: PanelView, observes: true}>;
   static readonly panels: FastenerClass<BoardView["panels"]>;
 
-  protected override onResize(viewContext: ViewContextType<this>): void {
-    super.onResize(viewContext);
-    this.resizeBoard(viewContext);
-  }
-
-  protected resizeBoard(viewContext: ViewContextType<this>): void {
-    this.requireUpdate(View.NeedsLayout);
-  }
-
-  protected override displayChildren(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                                     displayChild: (this: this, child: View, displayFlags: ViewFlags,
+  protected override processChildren(processFlags: ViewFlags, viewContext: ViewContextType<this>,
+                                     processChild: (this: this, child: View, processFlags: ViewFlags,
                                                     viewContext: ViewContextType<this>) => void): void {
-    if ((displayFlags & View.NeedsLayout) !== 0) {
-      this.layoutChildren(displayFlags, viewContext, displayChild);
+    if ((processFlags & View.NeedsResize) !== 0) {
+      this.resizeChildren(processFlags, viewContext, processChild);
     } else {
-      super.displayChildren(displayFlags, viewContext, displayChild);
+      super.processChildren(processFlags, viewContext, processChild);
     }
   }
 
-  protected layoutChildren(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                           displayChild: (this: this, child: View, displayFlags: ViewFlags,
+  protected resizeChildren(processFlags: ViewFlags, viewContext: ViewContextType<this>,
+                           processChild: (this: this, child: View, processFlags: ViewFlags,
                                           viewContext: ViewContextType<this>) => void): void {
     const x = this.paddingLeft.pxValue();
     let y = this.paddingTop.pxValue();
     const width = this.width.pxValue() - this.marginLeft.pxValue() - x - this.paddingRight.pxValue() - this.marginRight.pxValue();
     const height = this.height.pxValue() - y - this.paddingBottom.pxValue();
     type self = this;
-    function layoutChild(this: self, child: View, displayFlags: ViewFlags,
+    function resizeChild(this: self, child: View, processFlags: ViewFlags,
                          viewContext: ViewContextType<self>): void {
       if (child instanceof PanelView) {
         const panelHeight = Math.max(child.minPanelHeight.value, child.unitHeight.value * height);
@@ -97,11 +89,12 @@ export class BoardView extends SheetView {
       if (child instanceof HtmlView) {
         child.paddingBottom.setState(child.nextSibling === null ? this.paddingBottom.value : null, Affinity.Transient);
       }
-      displayChild.call(this, child, displayFlags, viewContext);
+      processChild.call(this, child, processFlags, viewContext);
       if (child instanceof PanelView) {
+        child.visibility.setState(void 0, Affinity.Intrinsic);
         y += child.marginTop.pxValue() + child.height.pxValue() + child.marginBottom.pxValue();
       }
     }
-    super.displayChildren(displayFlags, viewContext, layoutChild);
+    super.processChildren(processFlags, viewContext, resizeChild);
   }
 }

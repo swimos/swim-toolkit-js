@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Initable} from "@swim/util";
+import type {Class} from "@swim/util";
 import {Affinity, FastenerClass} from "@swim/component";
-import {AnyView, ViewRefDef} from "@swim/view";
-import {HtmlViewInit, HtmlView} from "@swim/dom";
+import {ViewRefDef} from "@swim/view";
+import {HtmlView} from "@swim/dom";
 import {CellView} from "./CellView";
 import type {TextCellViewObserver} from "./TextCellViewObserver";
 
@@ -38,13 +38,14 @@ export class TextCellView extends CellView {
     didDetachView(contentView: HtmlView): void {
       this.owner.callObservers("viewDidDetachContent", contentView, this.owner);
     },
-    setContent(content: string | undefined): void {
+    setText(content: string | undefined): HtmlView {
       let contentView = this.view;
       if (contentView === null) {
         contentView = this.createView();
         this.setView(contentView);
       }
       contentView.text(content);
+      return contentView;
     },
     createView(): HtmlView {
       const contentView = HtmlView.fromTag("span");
@@ -55,20 +56,11 @@ export class TextCellView extends CellView {
       contentView.overflowY.setState("hidden", Affinity.Intrinsic);
       return contentView;
     },
-    fromAny(value: AnyView<HtmlView> | string): HtmlView {
-      if (typeof value === "string") {
-        const contentView = this.createView();
-        contentView.text(value);
-        return contentView;
-      } else {
-        return HtmlView.fromAny(value);
-      }
-    },
   })
   readonly content!: ViewRefDef<this, {
-    view: HtmlView & Initable<HtmlViewInit | string>,
+    view: HtmlView,
     implements: {
-      setContent(content: string | undefined): void,
+      setText(content: string | undefined): HtmlView,
     },
   }>;
   static readonly content: FastenerClass<TextCellView["content"]>;

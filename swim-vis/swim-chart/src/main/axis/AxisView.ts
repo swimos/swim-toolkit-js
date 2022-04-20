@@ -194,7 +194,11 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     if (tickView !== null) {
       const tickLabel = this.createTickLabel(tickValue, tickView);
       if (tickLabel !== null) {
-        tickView.label(tickLabel);
+        if (typeof tickLabel === "string") {
+          tickView.label.setText(tickLabel);
+        } else {
+          tickView.label.setView(tickLabel);
+        }
         tickView.preserve(false);
       }
     }

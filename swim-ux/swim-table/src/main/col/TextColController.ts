@@ -70,7 +70,7 @@ export class TextColController extends ColController {
   protected setLabelView(label: string | undefined): void {
     const colView = this.col.view;
     if (colView !== null) {
-      colView.label.setView(label !== void 0 ? label : null);
+      colView.label.setText(label);
     }
   }
 

@@ -37,7 +37,7 @@ export class GaugeController extends Controller {
   protected setTitleView(title: string | undefined): void {
     const gaugeView = this.gauge.view;
     if (gaugeView !== null) {
-      gaugeView.title.setView(title !== void 0 ? title : null);
+      gaugeView.title.setText(title);
     }
   }
 

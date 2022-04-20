@@ -12,21 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Initable, AnyTiming} from "@swim/util";
+import type {Class, AnyTiming} from "@swim/util";
 import {Affinity, FastenerClass, PropertyDef, AnimatorDef} from "@swim/component";
 import {AnyLength, Length, AnyR2Point, R2Point, R2Box} from "@swim/math";
 import {AnyGeoPoint, GeoPointInit, GeoPointTuple, GeoPoint} from "@swim/geo";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {ThemeAnimatorDef} from "@swim/theme";
-import {ViewContextType, ViewFlags, AnyView, View, ViewRefDef} from "@swim/view";
-import {
-  GraphicsViewInit,
-  GraphicsView,
-  TypesetView,
-  TextRunView,
-  CanvasContext,
-  CanvasRenderer,
-} from "@swim/graphics";
+import {ViewContextType, ViewFlags, View, ViewRefDef} from "@swim/view";
+import {GraphicsView, TypesetView, TextRunView, CanvasContext, CanvasRenderer} from "@swim/graphics";
 import {GeoViewInit, GeoView} from "../geo/GeoView";
 import {GeoRippleOptions, GeoRippleView} from "../effect/GeoRippleView";
 import type {GeoPointViewObserver} from "./GeoPointViewObserver";
@@ -109,21 +102,23 @@ export class GeoPointView extends GeoView {
     didDetachView(labelView: GraphicsView): void {
       this.owner.callObservers("viewDidDetachGeoLabel", labelView, this.owner);
     },
-    fromAny(value: AnyView<GraphicsView> | string): GraphicsView {
-      if (typeof value === "string") {
-        if (this.view instanceof TextRunView) {
-          this.view.text(value);
-          return this.view;
-        } else {
-          return TextRunView.fromAny(value);
-        }
-      } else {
-        return GraphicsView.fromAny(value);
+    setText(label: string | undefined): GraphicsView {
+      let labelView = this.view;
+      if (labelView === null) {
+        labelView = this.createView();
+        this.setView(labelView);
       }
+      if (labelView instanceof TextRunView) {
+        labelView.text(label !== void 0 ? label : "");
+      }
+      return labelView;
     },
   })
   readonly label!: ViewRefDef<this, {
-    view: GraphicsView & Initable<GraphicsViewInit | string>,
+    view: GraphicsView,
+    implements: {
+      setText(label: string | undefined): GraphicsView,
+    },
   }>;
   static readonly label: FastenerClass<GeoPointView["label"]>;
 
@@ -180,8 +175,10 @@ export class GeoPointView extends GeoView {
       this.textColor(init.textColor, timing);
     }
 
-    if (init.label !== void 0) {
-      this.label(init.label);
+    if (typeof init.label === "string") {
+      this.label.setText(init.label);
+    } else if (init.label !== void 0) {
+      this.label.setView(init.label);
     }
   }
 

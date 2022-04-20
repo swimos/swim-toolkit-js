@@ -50,14 +50,14 @@ const vehiclesLink = warp.downlinkMap({
     if (sliceValue > 0) {
       let sliceView = pieView.getChild(id);
       if (sliceView === null) {
-        sliceView = pieView.appendChild(swim.SliceView, id)
-            .sliceColor(sliceColor)
-            .label(sliceValue.toFixed())
-            .legend(id);
+        sliceView = pieView.appendChild(swim.SliceView, id);
+        sliceView.sliceColor(sliceColor);
+        sliceView.label.setText(sliceValue.toFixed());
+        sliceView.legend.setText(id);
         sliceView.label.view.textColor.setLook(swim.Look.backgroundColor);
       }
-      sliceView.value(sliceValue, timing);
-      sliceView.label(sliceValue.toFixed());
+      sliceView.value.setState(sliceValue, timing);
+      sliceView.label.setText(sliceValue.toFixed());
     }
   },
 }).open();

@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Class, Initable, Timing} from "@swim/util";
+import type {Mutable, Class, Timing} from "@swim/util";
 import {FastenerClass, AnimatorDef} from "@swim/component";
 import {AnyR2Point, R2Point, R2Box} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {ThemeAnimatorDef} from "@swim/theme";
-import {ViewContextType, AnyView, View, ViewRefDef} from "@swim/view";
+import {ViewContextType, View, ViewRefDef} from "@swim/view";
 import {
   GraphicsViewInit,
   GraphicsView,
@@ -132,21 +132,23 @@ export abstract class TickView<D = unknown> extends GraphicsView {
     didDetachView(labelView: GraphicsView): void {
       this.owner.callObservers("viewDidDetachTickLabel", labelView, this.owner);
     },
-    fromAny(value: AnyView<GraphicsView> | string): GraphicsView {
-      if (typeof value === "string") {
-        if (this.view instanceof TextRunView) {
-          this.view.text(value);
-          return this.view;
-        } else {
-          return TextRunView.fromAny(value);
-        }
-      } else {
-        return GraphicsView.fromAny(value);
+    setText(label: string | undefined): GraphicsView {
+      let labelView = this.view;
+      if (labelView === null) {
+        labelView = this.createView();
+        this.setView(labelView);
       }
+      if (labelView instanceof TextRunView) {
+        labelView.text(label !== void 0 ? label : "");
+      }
+      return labelView;
     },
   })
   readonly label!: ViewRefDef<this, {
-    view: GraphicsView & Initable<GraphicsViewInit | string>,
+    view: GraphicsView,
+    implements: {
+      setText(label: string | undefined): GraphicsView,
+    },
   }>;
   static readonly label: FastenerClass<TickView["label"]>;
 
@@ -251,8 +253,10 @@ export abstract class TickView<D = unknown> extends GraphicsView {
       this.textColor(init.textColor);
     }
 
-    if (init.label !== void 0) {
-      this.label(init.label);
+    if (typeof init.label === "string") {
+      this.label.setText(init.label);
+    } else if (init.label !== void 0) {
+      this.label.setView(init.label);
     }
   }
 

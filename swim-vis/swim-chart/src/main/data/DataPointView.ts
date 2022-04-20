@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Class, Instance, Initable, AnyTiming} from "@swim/util";
+import type {Mutable, Class, Instance, AnyTiming} from "@swim/util";
 import {Affinity, FastenerClass, PropertyDef, AnimatorDef} from "@swim/component";
 import {AnyLength, Length, R2Point, R2Box} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
@@ -160,21 +160,23 @@ export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
     didDetachView(labelView: GraphicsView): void {
       this.owner.callObservers("viewDidDetachLabel", labelView, this.owner);
     },
-    fromAny(value: AnyView<GraphicsView> | string): GraphicsView {
-      if (typeof value === "string") {
-        if (this.view instanceof TextRunView) {
-          this.view.text(value);
-          return this.view;
-        } else {
-          return TextRunView.fromAny(value);
-        }
-      } else {
-        return GraphicsView.fromAny(value);
+    setText(label: string | undefined): GraphicsView {
+      let labelView = this.view;
+      if (labelView === null) {
+        labelView = this.createView();
+        this.setView(labelView);
       }
+      if (labelView instanceof TextRunView) {
+        labelView.text(label !== void 0 ? label : "");
+      }
+      return labelView;
     },
   })
   readonly label!: ViewRefDef<this, {
-    view: GraphicsView & Initable<GraphicsViewInit | string>,
+    view: GraphicsView,
+    implements: {
+      setText(label: string | undefined): GraphicsView,
+    },
   }>;
   static readonly label: FastenerClass<DataPointView["label"]>;
 
@@ -222,8 +224,10 @@ export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
     if (point.labelPlacement !== void 0) {
       this.labelPlacement(point.labelPlacement);
     }
-    if (point.label !== void 0) {
-      this.label(point.label);
+    if (typeof point.label === "string") {
+      this.label.setText(point.label);
+    } else if (point.label !== void 0) {
+      this.label.setView(point.label);
     }
   }
 

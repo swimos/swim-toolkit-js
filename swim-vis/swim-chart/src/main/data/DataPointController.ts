@@ -132,7 +132,7 @@ export class DataPointController<X = unknown, Y = unknown> extends Controller {
   protected setLabelView(label: string | undefined): void {
     const dataPointView = this.dataPoint.view;
     if (dataPointView !== null) {
-      dataPointView.label.setView(label !== void 0 ? label : null);
+      dataPointView.label.setText(label);
     }
   }
 

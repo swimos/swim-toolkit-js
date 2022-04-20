@@ -199,14 +199,15 @@ export class SheetController extends Controller {
     controllerDidLongPressToolView(input: PositionGestureInput): void {
       this.owner.callObservers("controllerDidLongPressTitleTool", input, this.owner);
     },
-    setTitle(title: string | undefined): void {
+    setText(title: string | undefined): ToolView {
       let toolController = this.controller as TitleToolController | null;
       if (toolController === null) {
         toolController = this.createController() as TitleToolController;
         this.setController(toolController);
       }
       const toolView = toolController.tool.attachView();
-      toolView.content.setContent(title);
+      toolView.content.setText(title);
+      return toolView;
     },
     createController(): ToolController {
       const toolController = TitleToolController.create();
@@ -224,7 +225,7 @@ export class SheetController extends Controller {
       detachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void,
       attachToolView(toolView: ToolView, toolController: ToolController): void,
       detachToolView(toolView: ToolView, toolController: ToolController): void,
-      setTitle(title: string | undefined): void,
+      setText(title: string | undefined): ToolView,
     },
     observes: true,
   }>;

@@ -38,7 +38,7 @@ export class FrameView extends PanelView {
     valueType: String,
     value: "block",
     inherits: true,
-    updateFlags: View.NeedsLayout,
+    updateFlags: View.NeedsResize,
     didSetValue(frameStyle: FrameStyle): void {
       this.owner.callObservers("viewDidSetFrameStyle", frameStyle, this.owner);
     },
@@ -49,7 +49,7 @@ export class FrameView extends PanelView {
     valueType: Number,
     value: 720,
     inherits: true,
-    updateFlags: View.NeedsLayout,
+    updateFlags: View.NeedsResize,
   })
   readonly minBlockWidth!: PropertyDef<this, {value: number}>;
 
@@ -57,14 +57,14 @@ export class FrameView extends PanelView {
     valueType: Number,
     value: 540,
     inherits: true,
-    updateFlags: View.NeedsLayout,
+    updateFlags: View.NeedsResize,
   })
   readonly minBlockHeight!: PropertyDef<this, {value: number}>;
 
-  @PropertyDef({valueType: Number, updateFlags: View.NeedsLayout})
+  @PropertyDef({valueType: Number, updateFlags: View.NeedsResize})
   readonly widthBasis!: PropertyDef<this, {value: number | undefined}>;
 
-  @PropertyDef({valueType: Number, updateFlags: View.NeedsLayout})
+  @PropertyDef({valueType: Number, updateFlags: View.NeedsResize})
   readonly heightBasis!: PropertyDef<this, {value: number | undefined}>;
 
   @ViewSetDef<FrameView["panes"]>({
@@ -73,6 +73,7 @@ export class FrameView extends PanelView {
     observes: true,
     initView(paneView: PanelView): void {
       paneView.position.setState("absolute", Affinity.Intrinsic);
+      paneView.visibility.setState("hidden", Affinity.Intrinsic);
     },
     willAttachView(paneView: PanelView, target: View | null): void {
       this.owner.callObservers("viewWillAttachPane", paneView, target, this.owner);
@@ -81,13 +82,13 @@ export class FrameView extends PanelView {
       this.owner.callObservers("viewDidDetachPane", paneView, this.owner);
     },
     viewDidSetUnitWidth(unitWidth: number, paneView: PanelView): void {
-      this.owner.requireUpdate(View.NeedsLayout);
+      this.owner.requireUpdate(View.NeedsResize);
     },
     viewDidSetUnitHeight(unitHeight: number, paneView: PanelView): void {
-      this.owner.requireUpdate(View.NeedsLayout);
+      this.owner.requireUpdate(View.NeedsResize);
     },
     viewDidSetMinPanelHeight(minPanelHeight: number, paneView: PanelView): void {
-      this.owner.requireUpdate(View.NeedsLayout);
+      this.owner.requireUpdate(View.NeedsResize);
     },
   })
   readonly panes!: ViewSetDef<this, {view: PanelView, observes: true}>;
@@ -99,15 +100,6 @@ export class FrameView extends PanelView {
   }
 
   protected resizeFrame(viewContext: ViewContextType<this>): void {
-    this.requireUpdate(View.NeedsLayout);
-  }
-
-  protected override onLayout(viewContext: ViewContextType<this>): void {
-    super.onLayout(viewContext);
-    this.layoutFrame(viewContext);
-  }
-
-  protected layoutFrame(viewContext: ViewContextType<this>): void {
     if (!this.frameStyle.derived) {
       const widthBasis = this.widthBasis.value;
       const heightBasis = this.heightBasis.value;
@@ -134,24 +126,24 @@ export class FrameView extends PanelView {
     }
   }
 
-  protected override displayChildren(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                                     displayChild: (this: this, child: View, displayFlags: ViewFlags,
+  protected override processChildren(processFlags: ViewFlags, viewContext: ViewContextType<this>,
+                                     processChild: (this: this, child: View, processFlags: ViewFlags,
                                                     viewContext: ViewContextType<this>) => void): void {
-    if ((displayFlags & View.NeedsLayout) !== 0 && this.panes.viewCount !== 0) {
+    if ((processFlags & View.NeedsResize) !== 0 && this.panes.viewCount !== 0) {
       this.frameStyle.recohere(viewContext.updateTime);
       const frameStyle = this.frameStyle.value;
       if (frameStyle === "block") {
-        this.layoutBlockChildren(displayFlags, viewContext, displayChild);
+        this.resizeBlockChildren(processFlags, viewContext, processChild);
       } else {
-        this.layoutStackChildren(displayFlags, viewContext, displayChild);
+        this.resizeStackChildren(processFlags, viewContext, processChild);
       }
     } else {
-      super.displayChildren(displayFlags, viewContext, displayChild);
+      super.processChildren(processFlags, viewContext, processChild);
     }
   }
 
-  protected layoutBlockChildren(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                                displayChild: (this: this, child: View, displayFlags: ViewFlags,
+  protected resizeBlockChildren(processFlags: ViewFlags, viewContext: ViewContextType<this>,
+                                processChild: (this: this, child: View, processFlags: ViewFlags,
                                                viewContext: ViewContextType<this>) => void): void {
     let x = this.paddingLeft.pxValue();
     let y = this.paddingTop.pxValue();
@@ -165,7 +157,7 @@ export class FrameView extends PanelView {
     let rightView: PanelView | null = null;
 
     type self = this;
-    function layoutBlockChild(this: self, child: View, displayFlags: ViewFlags,
+    function resizeBlockChild(this: self, child: View, processFlags: ViewFlags,
                               viewContext: ViewContextType<self>): void {
       if (child instanceof PanelView) {
         if (rightView === null) { // allocate row
@@ -194,10 +186,11 @@ export class FrameView extends PanelView {
           child.width.setState(panelWidth - child.marginLeft.pxValue() - child.marginRight.pxValue(), Affinity.Intrinsic);
           child.height.setState(panelHeight - child.marginTop.pxValue() - child.marginBottom.pxValue(), Affinity.Intrinsic);
         }
+        child.visibility.setState(void 0, Affinity.Intrinsic);
         x += panelWidth;
       }
 
-      displayChild.call(this, child, displayFlags, viewContext);
+      processChild.call(this, child, processFlags, viewContext);
 
       if (child instanceof PanelView) {
         rowHeight = Math.max(rowHeight, child.marginTop.pxValue() + child.height.pxValue() + child.marginBottom.pxValue());
@@ -209,7 +202,7 @@ export class FrameView extends PanelView {
         }
       }
     }
-    super.displayChildren(displayFlags, viewContext, layoutBlockChild);
+    super.processChildren(processFlags, viewContext, resizeBlockChild);
 
     if (widthBasis !== void 0) {
       this.width.setState(width, Affinity.Intrinsic);
@@ -219,8 +212,8 @@ export class FrameView extends PanelView {
     }
   }
 
-  protected layoutStackChildren(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                                displayChild: (this: this, child: View, displayFlags: ViewFlags,
+  protected resizeStackChildren(processFlags: ViewFlags, viewContext: ViewContextType<this>,
+                                processChild: (this: this, child: View, processFlags: ViewFlags,
                                                viewContext: ViewContextType<this>) => void): void {
     const x = this.paddingLeft.pxValue();
     let y = this.paddingTop.pxValue();
@@ -230,7 +223,7 @@ export class FrameView extends PanelView {
     const height = (heightBasis !== void 0 ? heightBasis : this.height.pxValue()) - y;
 
     type self = this;
-    function layoutStackChild(this: self, child: View, displayFlags: ViewFlags,
+    function resizeStackChild(this: self, child: View, processFlags: ViewFlags,
                               viewContext: ViewContextType<self>): void {
       if (child instanceof PanelView) {
         const panelHeight = Math.max(child.minPanelHeight.value, child.unitHeight.value * height);
@@ -244,12 +237,13 @@ export class FrameView extends PanelView {
           child.height.setState(panelHeight - child.marginTop.pxValue() - child.marginBottom.pxValue(), Affinity.Intrinsic);
         }
       }
-      displayChild.call(this, child, displayFlags, viewContext);
+      processChild.call(this, child, processFlags, viewContext);
       if (child instanceof PanelView) {
+        child.visibility.setState(void 0, Affinity.Intrinsic);
         y += child.marginTop.pxValue() + child.height.pxValue() + child.marginBottom.pxValue();
       }
     }
-    super.displayChildren(displayFlags, viewContext, layoutStackChild);
+    super.processChildren(processFlags, viewContext, resizeStackChild);
 
     if (widthBasis !== void 0) {
       this.width.setState(width, Affinity.Intrinsic);

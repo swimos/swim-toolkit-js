@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, Equivalent, Initable} from "@swim/util";
+import {Class, Equivalent} from "@swim/util";
 import {Affinity, FastenerClass, AnimatorDef} from "@swim/component";
 import {AnyLength, Length, AnyAngle, Angle, AnyR2Point, R2Point, R2Box} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {Look, ThemeAnimatorDef} from "@swim/theme";
-import {ViewContextType, AnyView, View, ViewRefDef} from "@swim/view";
+import {ViewContextType, View, ViewRefDef} from "@swim/view";
 import {
   GraphicsViewInit,
   GraphicsView,
@@ -138,21 +138,23 @@ export class SliceView extends GraphicsView {
     didDetachView(labelView: GraphicsView): void {
       this.owner.callObservers("viewDidDetachLabel", labelView, this.owner);
     },
-    fromAny(value: AnyView<GraphicsView> | string): GraphicsView {
-      if (typeof value === "string") {
-        if (this.view instanceof TextRunView) {
-          this.view.text(value);
-          return this.view;
-        } else {
-          return TextRunView.fromAny(value);
-        }
-      } else {
-        return GraphicsView.fromAny(value);
+    setText(label: string | undefined): GraphicsView {
+      let labelView = this.view;
+      if (labelView === null) {
+        labelView = this.createView();
+        this.setView(labelView);
       }
+      if (labelView instanceof TextRunView) {
+        labelView.text(label !== void 0 ? label : "");
+      }
+      return labelView;
     },
   })
   readonly label!: ViewRefDef<this, {
-    view: GraphicsView & Initable<GraphicsViewInit | string>,
+    view: GraphicsView,
+    implements: {
+      setText(label: string | undefined): GraphicsView,
+    },
   }>;
   static readonly label: FastenerClass<SliceView["label"]>;
 
@@ -166,21 +168,23 @@ export class SliceView extends GraphicsView {
     didDetachView(legendView: GraphicsView): void {
       this.owner.callObservers("viewDidDetachLegend", legendView, this.owner);
     },
-    fromAny(value: AnyView<GraphicsView> | string): GraphicsView {
-      if (typeof value === "string") {
-        if (this.view instanceof TextRunView) {
-          this.view.text(value);
-          return this.view;
-        } else {
-          return TextRunView.fromAny(value);
-        }
-      } else {
-        return GraphicsView.fromAny(value);
+    setText(legend: string | undefined): GraphicsView {
+      let legendView = this.view;
+      if (legendView === null) {
+        legendView = this.createView();
+        this.setView(legendView);
       }
+      if (legendView instanceof TextRunView) {
+        legendView.text(legend !== void 0 ? legend : "");
+      }
+      return legendView;
     },
   })
   readonly legend!: ViewRefDef<this, {
-    view: GraphicsView & Initable<GraphicsViewInit | string>,
+    view: GraphicsView,
+    implements: {
+      setText(legend: string | undefined): GraphicsView,
+    },
   }>;
   static readonly legend: FastenerClass<SliceView["legend"]>;
 
@@ -411,11 +415,15 @@ export class SliceView extends GraphicsView {
     if (init.textColor !== void 0) {
       this.textColor(init.textColor);
     }
-    if (init.label !== void 0) {
-      this.label(init.label);
+    if (typeof init.label === "string") {
+      this.label.setText(init.label);
+    } else if (init.label !== void 0) {
+      this.label.setView(init.label);
     }
-    if (init.legend !== void 0) {
-      this.legend(init.legend);
+    if (typeof init.legend === "string") {
+      this.legend.setText(init.legend);
+    } else if (init.legend !== void 0) {
+      this.legend.setView(init.legend);
     }
   }
 }

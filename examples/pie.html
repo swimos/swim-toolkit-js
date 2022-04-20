@@ -30,26 +30,26 @@ const pieView = canvasView.appendChild(swim.PieView)
 
 const slice0View = pieView.appendChild(swim.SliceView, "slice0")
     .value(1)
-    .label("Label 0")
-    .legend("Legend 0")
     .on("pointerenter", function (event) {
       slice0View.modifyMood(swim.Feel.default, [[swim.Feel.primary, 1]], true);
     })
     .on("pointerleave", function (event) {
       slice0View.modifyMood(swim.Feel.default, [[swim.Feel.primary, void 0]], true);
     });
+slice0View.label.setText("Label 0")
+slice0View.legend.setText("Legend 0")
 slice0View.label.view.textColor.setLook(swim.Look.backgroundColor);
 
 const slice1View = pieView.appendChild(swim.SliceView, "slice1")
     .value(2)
-    .label("Label 1")
-    .legend("Legend 1")
     .on("pointerenter", function (event) {
       slice1View.modifyMood(swim.Feel.default, [[swim.Feel.secondary, 1]], true);
     })
     .on("pointerleave", function (event) {
       slice1View.modifyMood(swim.Feel.default, [[swim.Feel.secondary, void 0]], true);
     });
+slice1View.label.setText("Label 1")
+slice1View.legend.setText("Legend 1")
 slice1View.label.view.textColor.setLook(swim.Look.backgroundColor);
 
 setInterval(function () {

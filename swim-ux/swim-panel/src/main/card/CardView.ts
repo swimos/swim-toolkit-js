@@ -13,8 +13,10 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {Affinity} from "@swim/component";
+import {Affinity, FastenerClass} from "@swim/component";
 import {Look, Feel} from "@swim/theme";
+import {View, ViewRefDef} from "@swim/view";
+import {HtmlView} from "@swim/dom";
 import {FrameView} from "../frame/FrameView";
 import type {CardViewObserver} from "./CardViewObserver";
 
@@ -37,4 +39,115 @@ export class CardView extends FrameView {
   }
 
   override readonly observerType?: Class<CardViewObserver>;
+
+  @ViewRefDef<CardView["header"]>({
+    viewType: HtmlView,
+    viewKey: true,
+    binds: true,
+    setTitle(title: string | undefined): HtmlView {
+      this.insertView();
+      return this.owner.headerTitle.setText(title);
+    },
+    setSubtitle(subtitle: string | undefined): HtmlView {
+      this.insertView();
+      return this.owner.headerSubtitle.setText(subtitle);
+    },
+    insertChild(parent: View, child: HtmlView, target: View | null, key: string | undefined): void {
+      if (target !== null) {
+        parent.insertChild(child, target, key);
+      } else {
+        parent.prependChild(child, key);
+      }
+    },
+    createView(): HtmlView {
+      const headerView = HtmlView.create();
+      headerView.addClass("header");
+      headerView.display.setState("flex", Affinity.Intrinsic);
+      headerView.justifyContent.setState("space-between", Affinity.Intrinsic);
+      headerView.position.setState("absolute");
+      headerView.left.setState(0, Affinity.Intrinsic);
+      headerView.top.setState(0, Affinity.Intrinsic);
+      headerView.width.setState("100%", Affinity.Intrinsic);
+      headerView.height.setState(30, Affinity.Intrinsic);
+      headerView.paddingLeft.setState(12, Affinity.Intrinsic);
+      headerView.paddingRight.setState(12, Affinity.Intrinsic);
+      headerView.boxSizing.setState("border-box", Affinity.Intrinsic);
+      headerView.zIndex.setState(1, Affinity.Intrinsic);
+      return headerView;
+    }
+  })
+  readonly header!: ViewRefDef<this, {
+    view: HtmlView,
+    implements: {
+      setTitle(title: string | undefined): HtmlView,
+      setSubtitle(subtitle: string | undefined): HtmlView,
+    },
+  }>;
+  static readonly header: FastenerClass<CardView["header"]>;
+
+  @ViewRefDef<CardView["headerTitle"]>({
+    viewType: HtmlView,
+    viewKey: "title",
+    get parentView(): HtmlView | null {
+      return this.owner.header.view;
+    },
+    setText(title: string | undefined): HtmlView {
+      let titleView = this.view;
+      if (titleView === null) {
+        titleView = this.insertView(titleView);
+      }
+      titleView.text(title);
+      return titleView;
+    },
+    insertChild(parent: View, child: HtmlView, target: View | null, key: string | undefined): void {
+      if (target === null) {
+        target = this.owner.headerSubtitle.view;
+      }
+      parent.insertChild(child, target, key);
+    },
+    createView(): HtmlView {
+      const titleView = HtmlView.create();
+      titleView.addClass("header-title");
+      titleView.alignSelf.setState("center", Affinity.Intrinsic);
+      titleView.color.setLook(Look.legendColor, Affinity.Intrinsic);
+      return titleView;
+    },
+  })
+  readonly headerTitle!: ViewRefDef<this, {
+    view: HtmlView,
+    implements: {
+      setText(tite: string | undefined): HtmlView,
+    },
+  }>;
+  static readonly headerTitle: FastenerClass<CardView["headerTitle"]>;
+
+  @ViewRefDef<CardView["headerSubtitle"]>({
+    viewType: HtmlView,
+    viewKey: "subtitle",
+    get parentView(): HtmlView | null {
+      return this.owner.header.view;
+    },
+    setText(title: string | undefined): HtmlView {
+      let subtitleView = this.view;
+      if (subtitleView === null) {
+        subtitleView = this.insertView();
+      }
+      subtitleView.text(title);
+      return subtitleView;
+    },
+    createView(): HtmlView {
+      const subtitleView = HtmlView.create();
+      subtitleView.addClass("header-subtitle");
+      subtitleView.alignSelf.setState("center", Affinity.Intrinsic);
+      subtitleView.color.setLook(Look.legendColor, Affinity.Intrinsic);
+      return subtitleView;
+    },
+  })
+  readonly headerSubtitle!: ViewRefDef<this, {
+    view: HtmlView,
+    implements: {
+      setText(subtitle: string | undefined): HtmlView,
+    },
+  }>;
+  static readonly headerSubtitle: FastenerClass<CardView["headerSubtitle"]>;
 }

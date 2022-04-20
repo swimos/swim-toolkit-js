@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Initable} from "@swim/util";
+import type {Class} from "@swim/util";
 import {Affinity, FastenerClass} from "@swim/component";
 import {Look} from "@swim/theme";
-import {AnyView, ViewRefDef} from "@swim/view";
-import {HtmlViewInit, HtmlView} from "@swim/dom";
+import {ViewRefDef} from "@swim/view";
+import {HtmlView} from "@swim/dom";
 import {ColView} from "./ColView";
 import type {TextColViewObserver} from "./TextColViewObserver";
 
@@ -39,7 +39,16 @@ export class TextColView extends ColView {
     didDetachView(labelView: HtmlView): void {
       this.owner.callObservers("viewDidDetachLabel", labelView, this.owner);
     },
-    createView(value?: string): HtmlView {
+    setText(label: string | undefined): HtmlView {
+      let labelView = this.view;
+      if (labelView === null) {
+        labelView = this.createView();
+        this.setView(labelView);
+      }
+      labelView.text(label);
+      return labelView;
+    },
+    createView(): HtmlView {
       const labelView = HtmlView.fromTag("span");
       labelView.alignSelf.setState("center", Affinity.Intrinsic);
       labelView.whiteSpace.setState("nowrap", Affinity.Intrinsic);
@@ -47,23 +56,13 @@ export class TextColView extends ColView {
       labelView.overflowX.setState("hidden", Affinity.Intrinsic);
       labelView.overflowY.setState("hidden", Affinity.Intrinsic);
       labelView.color.setLook(Look.legendColor, Affinity.Intrinsic);
-      if (value !== void 0) {
-        labelView.text(value);
-      }
       return labelView;
-    },
-    fromAny(value: AnyView<HtmlView> | string): HtmlView {
-      if (typeof value === "string") {
-        return this.createView(value);
-      } else {
-        return HtmlView.fromAny(value);
-      }
     },
   })
   readonly label!: ViewRefDef<this, {
-    view: HtmlView & Initable<HtmlViewInit | string>,
+    view: HtmlView,
     implements: {
-      createView(value?: string): HtmlView,
+      setText(label: string | undefined): HtmlView,
     },
   }>;
   static readonly label: FastenerClass<TextColView["label"]>;

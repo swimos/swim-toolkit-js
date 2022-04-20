@@ -115,14 +115,14 @@ export class DialController extends Controller {
   protected setLabelView(label: string | undefined): void {
     const dialView = this.dial.view;
     if (dialView !== null) {
-      dialView.label.setView(label !== void 0 ? label : null);
+      dialView.label.setText(label);
     }
   }
 
   protected setLegendView(legend: string | undefined): void {
     const dialView = this.dial.view;
     if (dialView !== null) {
-      dialView.legend.setView(legend !== void 0 ? legend : null);
+      dialView.legend.setText(legend);
     }
   }
 

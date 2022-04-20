@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Initable} from "@swim/util";
+import type {Class} from "@swim/util";
 import {Affinity, FastenerClass, AnimatorDef} from "@swim/component";
 import {AnyLength, Length, AnyAngle, Angle, AnyR2Point, R2Point, R2Box} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {Look, ThemeAnimatorDef} from "@swim/theme";
-import {ViewContextType, AnyView, View, ViewRefDef, ViewSetDef} from "@swim/view";
+import {ViewContextType, View, ViewRefDef, ViewSetDef} from "@swim/view";
 import {GraphicsViewInit, GraphicsView, TypesetView, TextRunView} from "@swim/graphics";
 import {AnySliceView, SliceView} from "../slice/SliceView";
 import type {PieViewObserver} from "./PieViewObserver";
@@ -124,21 +124,23 @@ export class PieView extends GraphicsView {
     didDetachView(titleView: GraphicsView): void {
       this.owner.callObservers("viewDidDetachTitle", titleView, this.owner);
     },
-    fromAny(value: AnyView<GraphicsView> | string): GraphicsView {
-      if (typeof value === "string") {
-        if (this.view instanceof TextRunView) {
-          this.view.text(value);
-          return this.view;
-        } else {
-          return TextRunView.fromAny(value);
-        }
-      } else {
-        return GraphicsView.fromAny(value);
+    setText(title: string | undefined): GraphicsView {
+      let titleView = this.view;
+      if (titleView === null) {
+        titleView = this.createView();
+        this.setView(titleView);
       }
+      if (titleView instanceof TextRunView) {
+        titleView.text(title !== void 0 ? title : "");
+      }
+      return titleView;
     },
   })
   readonly title!: ViewRefDef<this, {
-    view: GraphicsView & Initable<GraphicsViewInit | string>,
+    view: GraphicsView,
+    implements: {
+      setText(title: string | undefined): GraphicsView,
+    },
   }>;
   static readonly title: FastenerClass<PieView["title"]>;
 
@@ -310,8 +312,10 @@ export class PieView extends GraphicsView {
     if (init.textColor !== void 0) {
       this.textColor(init.textColor);
     }
-    if (init.title !== void 0) {
-      this.title(init.title);
+    if (typeof init.title === "string") {
+      this.title.setText(init.title);
+    } else if (init.title !== void 0) {
+      this.title.setView(init.title);
     }
     const slices = init.slices;
     if (slices !== void 0) {

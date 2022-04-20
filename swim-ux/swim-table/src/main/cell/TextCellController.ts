@@ -70,7 +70,7 @@ export class TextCellController extends CellController {
   protected setContentView(content: string | undefined): void {
     const cellView = this.cell.view;
     if (cellView !== null) {
-      cellView.content.setContent(content);
+      cellView.content.setText(content);
     }
   }
 

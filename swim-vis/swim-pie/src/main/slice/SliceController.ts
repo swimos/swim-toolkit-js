@@ -81,14 +81,14 @@ export class SliceController extends Controller {
   protected setLabelView(label: string | undefined): void {
     const sliceView = this.slice.view;
     if (sliceView !== null) {
-      sliceView.label.setView(label !== void 0 ? label : null);
+      sliceView.label.setText(label);
     }
   }
 
   protected setLegendView(legend: string | undefined): void {
     const sliceView = this.slice.view;
     if (sliceView !== null) {
-      sliceView.legend.setView(legend !== void 0 ? legend : null);
+      sliceView.legend.setText(legend);
     }
   }
 

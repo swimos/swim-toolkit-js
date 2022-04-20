@@ -134,6 +134,7 @@ export class BinderView extends SheetView {
       tabView.top.setState(0, Affinity.Intrinsic);
       tabView.width.setState(binderWidth, Affinity.Intrinsic);
       tabView.height.setState(binderHeight, Affinity.Intrinsic);
+      tabView.paddingTop.setState(this.owner.paddingTop.state, Affinity.Intrinsic);
       tabView.paddingBottom.setState(tabBarHeight, Affinity.Intrinsic);
       tabView.boxSizing.setState("border-box", Affinity.Intrinsic);
       tabView.zIndex.setState(0, Affinity.Intrinsic);
