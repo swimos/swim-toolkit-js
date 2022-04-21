@@ -72,6 +72,7 @@ export class CardView extends FrameView {
       headerView.paddingLeft.setState(12, Affinity.Intrinsic);
       headerView.paddingRight.setState(12, Affinity.Intrinsic);
       headerView.boxSizing.setState("border-box", Affinity.Intrinsic);
+      headerView.userSelect.setState("none", Affinity.Intrinsic);
       headerView.zIndex.setState(1, Affinity.Intrinsic);
       return headerView;
     }
