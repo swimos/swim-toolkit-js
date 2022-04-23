@@ -12,13 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Trait, TraitObserver} from "@swim/model";
-import type {ToolTrait} from "../tool/ToolTrait";
-import type {BarTrait} from "./BarTrait";
+import type {HtmlView} from "@swim/dom";
+import type {ToolViewObserver} from "./ToolViewObserver";
+import type {SearchToolView} from "./SearchToolView";
 
 /** @public */
-export interface BarTraitObserver<T extends BarTrait = BarTrait> extends TraitObserver<T> {
-  traitWillAttachTool?(toolTrait: ToolTrait, targetTrait: Trait | null, trait: T): void;
+export interface SearchToolViewObserver<V extends SearchToolView = SearchToolView> extends ToolViewObserver<V> {
+  viewWillAttachInput?(inputView: HtmlView, view: V): void;
 
-  traitDidDetachTool?(toolTrait: ToolTrait, trait: T): void;
+  viewDidDetachInput?(inputView: HtmlView, view: V): void;
+
+  viewDidUpdateSearch?(query: string, inputView: HtmlView, view: V): void;
+
+  viewDidSubmitSearch?(query: string, inputView: HtmlView, view: V): void;
+
+  viewDidCancelSearch?(inputView: HtmlView, view: V): void;
 }

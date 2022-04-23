@@ -69,13 +69,13 @@ export function MediaRuleDef<P extends MediaRule<any>>(
 /** @public */
 export interface MediaRule<O = unknown> extends CssRule<O>, CssContext {
   /** @internal */
-  initRule(): CSSMediaRule;
+  initRule(): CSSMediaRule | null;
 
   /** @internal */
   createRule(css: string): CSSMediaRule;
 
   /** @override */
-  readonly rule: CSSMediaRule;
+  readonly rule: CSSMediaRule | null;
 
   /** @override */
   getRule(index: number): CSSRule | null;
@@ -110,15 +110,30 @@ export const MediaRule = (function (_super: typeof CssRule) {
   };
 
   MediaRule.prototype.getRule = function (this: MediaRule, index: number): CSSRule | null {
-    return this.rule.cssRules.item(index);
+    const rule = this.rule;
+    if (rule !== null) {
+      return rule.cssRules.item(index);
+    } else {
+      throw new Error("no media rule");
+    }
   };
 
   MediaRule.prototype.insertRule = function (this: MediaRule, css: string, index?: number): number {
-    return this.rule.insertRule(css, index);
+    const rule = this.rule;
+    if (rule !== null) {
+      return rule.insertRule(css, index);
+    } else {
+      throw new Error("no media rule");
+    }
   };
 
   MediaRule.prototype.removeRule = function (this: MediaRule, index: number): void {
-    this.rule.deleteRule(index);
+    const rule = this.rule;
+    if (rule !== null) {
+      rule.deleteRule(index);
+    } else {
+      throw new Error("no media rule");
+    }
   };
 
   MediaRule.prototype.applyTheme = function (theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean | null): void {

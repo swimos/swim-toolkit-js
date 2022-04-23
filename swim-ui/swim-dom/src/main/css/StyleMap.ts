@@ -131,6 +131,7 @@ export interface StyleMapInit {
   opacity?: AnyAnimatorValue<StyleMap["opacity"]>;
   order?: AnyAnimatorValue<StyleMap["order"]>;
   outlineColor?: AnyAnimatorValue<StyleMap["outlineColor"]>;
+  outlineOffset?: AnyAnimatorValue<StyleMap["outlineOffset"]>;
   outlineStyle?: AnyAnimatorValue<StyleMap["outlineStyle"]>;
   outlineWidth?: AnyAnimatorValue<StyleMap["outlineWidth"]>;
   overflow?: [Overflow | undefined, Overflow | undefined] | Overflow | undefined;
@@ -302,6 +303,8 @@ export interface StyleMap extends StyleContext {
   readonly order: StyleAnimatorDef<this, {value: number | undefined}>;
 
   readonly outlineColor: StyleAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
+
+  readonly outlineOffset: StyleAnimatorDef<this, {extends: LengthStyleAnimator<StyleMap, Length | null, AnyLength | null>}>;
 
   readonly outlineStyle: StyleAnimatorDef<this, {value: BorderStyle | undefined}>;
 
@@ -582,6 +585,9 @@ export const StyleMap = (function () {
     }
     if (init.outlineColor !== void 0) {
       map.outlineColor(init.outlineColor);
+    }
+    if (init.outlineOffset !== void 0) {
+      map.outlineOffset(init.outlineOffset);
     }
     if (init.outlineStyle !== void 0) {
       map.outlineStyle(init.outlineStyle);
@@ -1078,6 +1084,13 @@ export const StyleMap = (function () {
       valueType: Color,
       value: null,
     })(prototype, "outlineColor");
+
+    StyleAnimatorDef<StyleMap["outlineOffset"]>({
+      extends: LengthStyleAnimator,
+      propertyNames: "outline-offset",
+      valueType: Length,
+      value: null,
+    })(prototype, "outlineOffset");
 
     StyleAnimatorDef<StyleMap["outlineStyle"]>({
       propertyNames: "outline-style",

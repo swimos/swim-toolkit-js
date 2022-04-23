@@ -25,18 +25,16 @@ import {
   TraitViewRefDef,
   TraitViewRef,
   TraitViewControllerSetDef,
-  TraitViewControllerSet
 } from "@swim/controller";
 import type {ToolLayout} from "../layout/ToolLayout";
 import {BarLayout} from "../layout/BarLayout";
 import type {ToolView} from "../tool/ToolView";
 import {TitleToolView} from "../tool/TitleToolView";
-import type {ToolTrait} from "../tool/ToolTrait";
 import {ToolController} from "../tool/ToolController";
 import type {TitleToolController} from "../tool/TitleToolController";
 import type {ButtonToolController} from "../tool/ButtonToolController";
+import type {SearchToolController} from "../tool/SearchToolController";
 import {BarView} from "./BarView";
-import {BarTrait} from "./BarTrait";
 import type {BarControllerObserver} from "./BarControllerObserver";
 
 /** @public */
@@ -44,26 +42,6 @@ export class BarController extends Controller {
   override readonly observerType?: Class<BarControllerObserver>;
 
   @TraitViewRefDef<BarController["bar"]>({
-    traitType: BarTrait,
-    observesTrait: true,
-    willAttachTrait(barTrait: BarTrait): void {
-      this.owner.callObservers("controllerWillAttachBarTrait", barTrait, this.owner);
-    },
-    didAttachTrait(barTrait: BarTrait): void {
-      this.owner.tools.addTraits(barTrait.tools.traits);
-    },
-    willDetachTrait(barTrait: BarTrait): void {
-      this.owner.tools.deleteTraits(barTrait.tools.traits);
-    },
-    didDetachTrait(barTrait: BarTrait): void {
-      this.owner.callObservers("controllerDidDetachBarTrait", barTrait, this.owner);
-    },
-    traitWillAttachTool(toolTrait: ToolTrait, targetTrait: Trait | null): void {
-      this.owner.tools.addTrait(toolTrait, targetTrait);
-    },
-    traitDidDetachTool(toolTrait: ToolTrait): void {
-      this.owner.tools.deleteTrait(toolTrait);
-    },
     viewType: BarView,
     observesView: true,
     initView(barView: BarView): void {
@@ -72,10 +50,7 @@ export class BarController extends Controller {
         const toolController = toolControllers[controllerId]!;
         const toolView = toolController.tool.view;
         if (toolView !== null && toolView.parent === null) {
-          const toolTrait = toolController.tool.trait;
-          if (toolTrait !== null) {
-            toolController.tool.insertView(barView, void 0, void 0, toolTrait.key);
-          }
+          toolController.tool.insertView(barView);
         }
       }
     },
@@ -96,8 +71,6 @@ export class BarController extends Controller {
     },
   })
   readonly bar!: TraitViewRefDef<this, {
-    trait: BarTrait,
-    observesTrait: true,
     view: BarView,
     observesView: true,
   }>;
@@ -152,29 +125,6 @@ export class BarController extends Controller {
     this.setChild(key, toolController);
   }
 
-  getToolTrait<F extends Class<ToolTrait>>(key: string, toolTraitClass: F): InstanceType<F> | null;
-  getToolTrait(key: string): ToolTrait | null;
-  getToolTrait(key: string, toolTraitClass?: Class<ToolTrait>): ToolTrait | null {
-    const barTrait = this.bar.trait;
-    return barTrait !== null ? barTrait.getTool(key, toolTraitClass!) : null;
-  }
-
-  getOrCreateToolTrai<F extends Class<Instance<F, ToolTrait>> & Creatable<Instance<F, ToolTrait>>>(key: string, toolTraitClass: F): InstanceType<F> {
-    const barTrait = this.bar.trait;
-    if (barTrait === null) {
-      throw new Error("no bar trait");
-    }
-    return barTrait.getOrCreateTool(key, toolTraitClass);
-  }
-
-  setToolTrait(key: string, toolTrait: ToolTrait | null): void {
-    const barTrait = this.bar.trait;
-    if (barTrait === null) {
-      throw new Error("no bar trait");
-    }
-    barTrait.setTool(key, toolTrait);
-  }
-
   getToolView<F extends Class<ToolView>>(key: string, toolViewClass: F): InstanceType<F> | null;
   getToolView(key: string): ToolView | null;
   getToolView(key: string, toolViewClass?: Class<ToolView>): ToolView | null {
@@ -213,17 +163,13 @@ export class BarController extends Controller {
     get parentView(): BarView | null {
       return this.owner.bar.view;
     },
-    getTraitViewRef(toolController: ToolController): TraitViewRef<unknown, ToolTrait, ToolView> {
+    getTraitViewRef(toolController: ToolController): TraitViewRef<unknown, Trait, ToolView> {
       return toolController.tool;
     },
     willAttachController(toolController: ToolController): void {
       this.owner.callObservers("controllerWillAttachTool", toolController, this.owner);
     },
     didAttachController(toolController: ToolController): void {
-      const toolTrait = toolController.tool.trait;
-      if (toolTrait !== null) {
-        this.attachToolTrait(toolTrait, toolController);
-      }
       const toolView = toolController.tool.view;
       if (toolView !== null) {
         this.attachToolView(toolView, toolController);
@@ -235,28 +181,10 @@ export class BarController extends Controller {
       if (toolView !== null) {
         this.detachToolView(toolView, toolController);
       }
-      const toolTrait = toolController.tool.trait;
-      if (toolTrait !== null) {
-        this.detachToolTrait(toolTrait, toolController);
-      }
     },
     didDetachController(toolController: ToolController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
       this.owner.callObservers("controllerDidDetachTool", toolController, this.owner);
-    },
-    controllerWillAttachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void {
-      this.owner.callObservers("controllerWillAttachToolTrait", toolTrait, toolController, this.owner);
-      this.attachToolTrait(toolTrait, toolController);
-    },
-    controllerDidDetachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void {
-      this.detachToolTrait(toolTrait, toolController);
-      this.owner.callObservers("controllerDidDetachToolTrait", toolTrait, toolController, this.owner);
-    },
-    attachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void {
-      // hook
-    },
-    detachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void {
-      // hook
     },
     controllerWillAttachToolView(toolView: ToolView, toolController: ToolController): void {
       this.owner.callObservers("controllerWillAttachToolView", toolView, toolController, this.owner);
@@ -304,33 +232,32 @@ export class BarController extends Controller {
     controllerDidSetToolIcon(toolIcon: Graphics | null, toolController: ToolController): void {
       this.owner.callObservers("controllerDidSetToolIcon", toolIcon, toolController, this.owner);
     },
+    controllerDidUpdateSearch(query: string, inputView: HtmlView, toolController: ToolController): void {
+      this.owner.callObservers("controllerDidUpdateSearchTool", query, inputView, toolController, this.owner);
+    },
+    controllerDidSubmitSearch(query: string, inputView: HtmlView, toolController: ToolController): void {
+      this.owner.callObservers("controllerDidSubmitSearchTool", query, inputView, toolController, this.owner);
+    },
+    controllerDidCancelSearch(inputView: HtmlView, toolController: ToolController): void {
+      this.owner.callObservers("controllerDidCancelSearchTool", inputView, toolController, this.owner);
+    },
     controllerDidPressToolView(input: PositionGestureInput, event: Event | null, toolController: ToolController): void {
       this.owner.callObservers("controllerDidPressToolView", input, event, toolController, this.owner);
     },
     controllerDidLongPressToolView(input: PositionGestureInput, toolController: ToolController): void {
       this.owner.callObservers("controllerDidLongPressToolView", input, toolController, this.owner);
     },
-    createController(toolTrait?: ToolTrait): ToolController {
-      if (toolTrait !== void 0) {
-        return toolTrait.createToolController();
-      } else {
-        return TraitViewControllerSet.prototype.createController.call(this);
-      }
-    },
   })
   readonly tools!: TraitViewControllerSetDef<this, {
-    trait: ToolTrait,
     view: ToolView,
     controller: ToolController,
     implements: {
-      attachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void;
-      detachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void;
       attachToolView(toolView: ToolView, toolController: ToolController): void;
       detachToolView(toolView: ToolView, toolController: ToolController): void;
       attachToolContentView(toolContentView: HtmlView, toolController: ToolController): void;
       detachToolContentView(toolContentView: HtmlView, toolController: ToolController): void;
     },
-    observes: ToolController & TitleToolController & ButtonToolController,
+    observes: ToolController & TitleToolController & ButtonToolController & SearchToolController,
   }>;
   static readonly tools: FastenerClass<BarController["tools"]>;
 

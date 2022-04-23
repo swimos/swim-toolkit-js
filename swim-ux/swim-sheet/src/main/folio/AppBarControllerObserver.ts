@@ -18,7 +18,7 @@ import type {AppBarController} from "./AppBarController";
 
 /** @public */
 export interface AppBarControllerObserver<C extends AppBarController = AppBarController> extends BarControllerObserver<C> {
-  controllerDidPressMenuTool?(input: PositionGestureInput, event: Event | null, controller: C): void;
+  controllerDidPressMenuButton?(input: PositionGestureInput, event: Event | null, controller: C): void;
 
-  controllerDidPressActionTool?(input: PositionGestureInput, event: Event | null, controller: C): void;
+  controllerDidPressActionButton?(input: PositionGestureInput, event: Event | null, controller: C): void;
 }

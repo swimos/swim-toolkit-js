@@ -15,7 +15,7 @@
 import type {Trait} from "@swim/model";
 import type {PositionGestureInput} from "@swim/view";
 import type {ControllerObserver} from "@swim/controller";
-import type {ToolView, ToolTrait, ToolController} from "@swim/toolbar";
+import type {ToolView, ToolController} from "@swim/toolbar";
 import type {SheetView} from "./SheetView";
 import type {SheetController} from "./SheetController";
 
@@ -49,29 +49,33 @@ export interface SheetControllerObserver<C extends SheetController = SheetContro
 
   controllerDidSetFullBleed?(fullBleed: boolean, controller: C): void;
 
-  controllerWillAttachTitleTool?(titleToolController: ToolController, controller: C): void;
+  controllerDidSetSearchable?(searchable: boolean, controller: C): void;
 
-  controllerDidDetachTitleTool?(titleToolController: ToolController, controller: C): void;
+  controllerDidSetSearching?(searching: boolean, controller: C): void;
 
-  controllerDidPressTitleTool?(input: PositionGestureInput, event: Event | null, controller: C): void;
+  controllerDidUpdateSearch?(query: string, controller: C): void;
 
-  controllerDidLongPressTitleTool?(input: PositionGestureInput, controller: C): void;
+  controllerDidSubmitSearch?(query: string, controller: C): void;
 
-  controllerWillAttachButtonTool?(buttonToolController: ToolController, controller: C): void;
+  controllerWillAttachTitle?(titleController: ToolController, controller: C): void;
 
-  controllerDidDetachButtonTool?(buttonToolController: ToolController, controller: C): void;
+  controllerDidDetachTitle?(titleController: ToolController, controller: C): void;
 
-  controllerDidPressButtonTool?(input: PositionGestureInput, event: Event | null, controller: C): void;
+  controllerDidPressTitle?(input: PositionGestureInput, event: Event | null, controller: C): void;
 
-  controllerDidLongPressButtonTool?(input: PositionGestureInput, controller: C): void;
+  controllerDidLongPressTitle?(input: PositionGestureInput, controller: C): void;
+
+  controllerWillAttachHandle?(handleController: ToolController, controller: C): void;
+
+  controllerDidDetachHandle?(handleController: ToolController, controller: C): void;
+
+  controllerDidPressHandle?(input: PositionGestureInput, event: Event | null, controller: C): void;
+
+  controllerDidLongPressHandle?(input: PositionGestureInput, controller: C): void;
 
   controllerWillAttachModeTool?(modeToolController: ToolController, targetToolController: ToolController | null, controller: C): void;
 
   controllerDidDetachModeTool?(modeToolController: ToolController, controller: C): void;
-
-  controllerWillAttachModeToolTrait?(modeToolTrait: ToolTrait, modeToolController: ToolController, controller: C): void;
-
-  controllerDidDetachModeToolTrait?(modeToolTrait: ToolTrait, modeToolController: ToolController, controller: C): void;
 
   controllerWillAttachModeToolView?(modeToolView: ToolView, modeToolController: ToolController, controller: C): void;
 

@@ -94,12 +94,12 @@ export interface CssRule<O = unknown> extends Fastener<O>, FastenerContext, Cons
   readonly css?: string; // optional prototype property
 
   /** @internal */
-  initRule(): CSSRule;
+  initRule(): CSSRule | null;
 
   /** @internal */
   createRule(css: string): CSSRule;
 
-  readonly rule: CSSRule;
+  readonly rule: CSSRule | null;
 
   /** @internal */
   readonly fasteners: {[fastenerName: string]: Fastener | undefined} | null;
@@ -185,10 +185,16 @@ export interface CssRule<O = unknown> extends Fastener<O>, FastenerContext, Cons
   applyTheme(theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean): void;
 
   /** @protected @override */
+  willMount(): void;
+
+  /** @protected @override */
   onMount(): void;
 
   /** @protected @override */
   onUnmount(): void;
+
+  /** @protected @override */
+  didUnmount(): void;
 }
 
 /** @public */
@@ -208,7 +214,7 @@ export const CssRule = (function (_super: typeof Fastener) {
     return css;
   };
 
-  CssRule.prototype.initRule = function (this: CssRule): CSSRule {
+  CssRule.prototype.initRule = function (this: CssRule): CSSRule | null {
     return this.createRule(this.initCss());
   };
 
@@ -403,6 +409,11 @@ export const CssRule = (function (_super: typeof Fastener) {
     // hook
   };
 
+  CssRule.prototype.willMount = function (this: CssRule): void {
+    _super.prototype.willMount.call(this);
+    (this as Mutable<typeof this>).rule = this.initRule();
+  };
+
   CssRule.prototype.onMount = function (this: CssRule): void {
     _super.prototype.onMount.call(this);
     this.mountFasteners();
@@ -413,11 +424,16 @@ export const CssRule = (function (_super: typeof Fastener) {
     _super.prototype.onUnmount.call(this);
   };
 
+  CssRule.prototype.didUnmount = function (this: CssRule): void {
+    (this as Mutable<typeof this>).rule = null;
+    _super.prototype.didUnmount.call(this);
+  };
+
   CssRule.construct = function <F extends CssRule<any>>(rule: F | null, owner: FastenerOwner<F>): F {
     rule = _super.construct.call(this, rule, owner) as F;
     (rule as Mutable<typeof rule>).fasteners = null;
     (rule as Mutable<typeof rule>).decoherent = null;
-    (rule as Mutable<typeof rule>).rule = rule.initRule();
+    (rule as Mutable<typeof rule>).rule = null;
     FastenerContext.init(rule);
     return rule;
   };

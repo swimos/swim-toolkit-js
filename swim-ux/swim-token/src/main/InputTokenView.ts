@@ -82,7 +82,7 @@ export class InputTokenView extends TokenView {
       this.owner.initStylesheet(styleView);
     },
   })
-  readonly stylesheet!: ViewRefDef<this, { view: StyleView, observes: true}>;
+  readonly stylesheet!: ViewRefDef<this, {view: StyleView, observes: true}>;
   static readonly stylesheet: FastenerClass<InputTokenView["stylesheet"]>;
 
   @ViewRefDef<InputTokenView["label"]>({

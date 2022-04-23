@@ -19,7 +19,6 @@ import {HtmlView} from "@swim/dom";
 import {TraitViewRefDef} from "@swim/controller";
 import {ToolController} from "./ToolController";
 import {TitleToolView} from "./TitleToolView";
-import {TitleToolTrait} from "./TitleToolTrait";
 import type {TitleToolControllerObserver} from "./TitleToolControllerObserver";
 
 /** @public */
@@ -28,25 +27,10 @@ export class TitleToolController extends ToolController {
 
   @TraitViewRefDef<TitleToolController["tool"]>({
     extends: true,
-    traitType: TitleToolTrait,
-    observesTrait: true,
-    initTrait(toolTrait: TitleToolTrait): void {
-      this.owner.setContentView(toolTrait.content.value);
-    },
-    deinitTrait(toolTrait: TitleToolTrait): void {
-      this.owner.setContentView(void 0);
-    },
-    traitDidSetContent(content: string | undefined): void {
-      this.owner.setContentView(content);
-    },
     viewType: TitleToolView,
     observesView: true,
     initView(toolView: TitleToolView): void {
       this.owner.content.setView(toolView.content.view);
-      const toolTrait = this.trait;
-      if (toolTrait !== null) {
-        this.owner.setContentView(toolTrait.content.value);
-      }
     },
     deinitView(toolView: TitleToolView): void {
       this.owner.content.setView(null);
@@ -60,19 +44,10 @@ export class TitleToolController extends ToolController {
   })
   override readonly tool!: TraitViewRefDef<this, {
     extends: ToolController["tool"],
-    trait: TitleToolTrait,
-    observesTrait: true,
     view: TitleToolView,
     observesView: true,
   }>;
   static override readonly tool: FastenerClass<TitleToolController["tool"]>;
-
-  protected setContentView(content: string | undefined): void {
-    const toolView = this.tool.view;
-    if (toolView !== null) {
-      toolView.content.setText(content);
-    }
-  }
 
   @ViewRefDef<TitleToolController["content"]>({
     viewType: HtmlView,

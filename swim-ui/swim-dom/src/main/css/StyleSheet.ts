@@ -90,9 +90,9 @@ export interface StyleSheet<O = unknown> extends Fastener<O>, FastenerContext, C
   get fastenerType(): Proto<StyleSheet<any>>;
 
   /** @internal */
-  initStylesheet(): CSSStyleSheet;
+  initStylesheet(): CSSStyleSheet | null;
 
-  readonly stylesheet: CSSStyleSheet;
+  readonly stylesheet: CSSStyleSheet | null;
 
   /** @override */
   getRule(index: number): CSSRule | null;
@@ -187,10 +187,16 @@ export interface StyleSheet<O = unknown> extends Fastener<O>, FastenerContext, C
   applyTheme(theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean | null): void;
 
   /** @protected @override */
+  willMount(): void;
+
+  /** @protected @override */
   onMount(): void;
 
   /** @protected @override */
   onUnmount(): void;
+
+  /** @protected @override */
+  didUnmount(): void;
 }
 
 /** @public */
@@ -202,20 +208,35 @@ export const StyleSheet = (function (_super: typeof Fastener) {
     configurable: true,
   });
 
-  StyleSheet.prototype.initStylesheet = function (this: StyleSheet): CSSStyleSheet {
-    return new CSSStyleSheet();
+  StyleSheet.prototype.initStylesheet = function (this: StyleSheet): CSSStyleSheet | null {
+    return null;
   };
 
   StyleSheet.prototype.getRule = function (this: StyleSheet, index: number): CSSRule | null {
-    return this.stylesheet.cssRules.item(index);
+    const stylesheet = this.stylesheet;
+    if (stylesheet !== null) {
+      return stylesheet.cssRules.item(index);
+    } else {
+      throw new Error("no stylesheet");
+    }
   };
 
   StyleSheet.prototype.insertRule = function (this: StyleSheet, css: string, index?: number): number {
-    return this.stylesheet.insertRule(css, index);
+    const stylesheet = this.stylesheet;
+    if (stylesheet !== null) {
+      return stylesheet.insertRule(css, index);
+    } else {
+      throw new Error("no stylesheet");
+    }
   };
 
   StyleSheet.prototype.removeRule = function (this: StyleSheet, index: number): void {
-    this.stylesheet.deleteRule(index);
+    const stylesheet = this.stylesheet;
+    if (stylesheet !== null) {
+      stylesheet.deleteRule(index);
+    } else {
+      throw new Error("no stylesheet");
+    }
   };
 
   StyleSheet.prototype.hasFastener = function (this: StyleSheet, fastenerName: string, fastenerBound?: Proto<Fastener> | null): boolean {
@@ -405,6 +426,11 @@ export const StyleSheet = (function (_super: typeof Fastener) {
     }
   };
 
+  StyleSheet.prototype.willMount = function (this: StyleSheet): void {
+    _super.prototype.willMount.call(this);
+    (this as Mutable<typeof this>).stylesheet = this.initStylesheet();
+  };
+
   StyleSheet.prototype.onMount = function (this: StyleSheet): void {
     _super.prototype.onMount.call(this);
     this.mountFasteners();
@@ -415,11 +441,16 @@ export const StyleSheet = (function (_super: typeof Fastener) {
     _super.prototype.onUnmount.call(this);
   };
 
+  StyleSheet.prototype.didUnmount = function (this: StyleSheet): void {
+    (this as Mutable<typeof this>).stylesheet = null;
+    _super.prototype.didUnmount.call(this);
+  };
+
   StyleSheet.construct = function <F extends StyleSheet<any>>(sheet: F | null, owner: FastenerOwner<F>): F {
     sheet = _super.construct.call(this, sheet, owner) as F;
     (sheet as Mutable<typeof sheet>).fasteners = null;
     (sheet as Mutable<typeof sheet>).decoherent = null;
-    (sheet as Mutable<typeof sheet>).stylesheet = sheet.initStylesheet();
+    (sheet as Mutable<typeof sheet>).stylesheet = null;
     FastenerContext.init(sheet);
     return sheet;
   };

@@ -42,7 +42,8 @@ Theme.dark = (function (): ThemeMatrix {
 
   const backgroundColor = Color.parse("#181818");
   const selectedColor = Color.parse("#2b6458");
-  const borderColor = Color.parse("#ffffff").alpha(0.1);
+  const borderColor = Color.parse("#ffffff").alpha(0.25);
+  const focusColor = primaryColor.alpha(0.5);
 
   const raisedColor = Color.parse("#212121");
   const coveredColor = Color.parse("#363636");
@@ -69,6 +70,7 @@ Theme.dark = (function (): ThemeMatrix {
 
     [Look.backgroundColor, backgroundColor],
     [Look.borderColor, borderColor],
+    [Look.focusColor, focusColor],
 
     [Look.etchColor, etchColor],
     [Look.maskColor, maskColor],
@@ -94,6 +96,7 @@ Theme.dark = (function (): ThemeMatrix {
 
     [Look.backgroundColor, backgroundColor],
     [Look.borderColor, borderColor],
+    [Look.focusColor, focusColor],
 
     [Look.etchColor, etchColor],
     [Look.maskColor, maskColor],
@@ -216,12 +219,10 @@ Theme.dark = (function (): ThemeMatrix {
     [Look.statusColor, Color.black(0.8)],
     [Look.accentColor, Color.black(0.8)],
     [Look.backgroundColor, Color.black(0.8)],
-    [Look.borderColor, Color.black(0.8)],
   );
 
   const transparentFeel = FeelVector.of(
     [Look.backgroundColor, Color.black(0)],
-    [Look.borderColor, Color.black(0)],
   );
 
   const navigatingFeel = FeelVector.of(

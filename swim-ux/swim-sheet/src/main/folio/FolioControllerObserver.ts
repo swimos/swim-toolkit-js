@@ -14,7 +14,7 @@
 
 import type {Trait} from "@swim/model";
 import type {PositionGestureInput} from "@swim/view";
-import type {ToolTrait, ToolView, ToolController, BarView, BarTrait, BarController} from "@swim/toolbar";
+import type {ToolView, ToolController, BarView, BarController} from "@swim/toolbar";
 import type {DrawerView} from "@swim/window";
 import type {SheetView} from "../sheet/SheetView";
 import type {SheetController} from "../sheet/SheetController";
@@ -42,10 +42,6 @@ export interface FolioControllerObserver<C extends FolioController = FolioContro
 
   controllerDidDetachAppBar?(appBarController: BarController, controller: C): void;
 
-  controllerWillAttachAppBarTrait?(appBarTrait: BarTrait, controller: C): void;
-
-  controllerDidDetachAppBarTrait?(appBarTrait: BarTrait, controller: C): void;
-
   controllerWillAttachAppBarView?(appBarView: BarView, controller: C): void;
 
   controllerDidDetachAppBarView?(appBarView: BarView, controller: C): void;
@@ -54,9 +50,9 @@ export interface FolioControllerObserver<C extends FolioController = FolioContro
 
   controllerDidDetachDrawerView?(drawerView: DrawerView, controller: C): void;
 
-  controllerDidPressMenuTool?(input: PositionGestureInput, event: Event | null, controller: C): void;
+  controllerDidPressMenuButton?(input: PositionGestureInput, event: Event | null, controller: C): void;
 
-  controllerDidPressActionTool?(input: PositionGestureInput, event: Event | null, controller: C): void;
+  controllerDidPressActionButton?(input: PositionGestureInput, event: Event | null, controller: C): void;
 
   controllerWillAttachCover?(coverController: SheetController, controller: C): void;
 
@@ -73,10 +69,6 @@ export interface FolioControllerObserver<C extends FolioController = FolioContro
   controllerWillAttachCoverModeTool?(modeToolController: ToolController, controller: C): void;
 
   controllerDidDetachCoverModeTool?(modeToolController: ToolController, controller: C): void;
-
-  controllerWillAttachCoverModeToolTrait?(modeToolTrait: ToolTrait, modeToolController: ToolController, controller: C): void;
-
-  controllerDidDetachCoverModeToolTrait?(modeToolTrait: ToolTrait, modeToolController: ToolController, controller: C): void;
 
   controllerWillAttachCoverModeToolView?(modeToolView: ToolView, modeToolController: ToolController, controller: C): void;
 

@@ -16,6 +16,7 @@ import {Mutable, Proto, AnyTiming, Timing} from "@swim/util";
 import type {FastenerOwner} from "@swim/component";
 import {ToStyleString, ToCssValue} from "@swim/style";
 import {Look, Mood, MoodVector, ThemeMatrix, ThemeAnimator} from "@swim/theme";
+import {StyleAnimator} from "../style/StyleAnimator";
 import {StyleMapInit, StyleMap} from "./StyleMap";
 import {CssContext} from "./CssContext";
 import {CssRuleRefinement, CssRuleTemplate, CssRuleClass, CssRule} from "./CssRule";
@@ -76,13 +77,13 @@ export interface StyleRule<O = unknown> extends CssRule<O>, StyleMap {
   (property: string, value: unknown): O;
 
   /** @internal @override */
-  initRule(): CSSStyleRule;
+  initRule(): CSSStyleRule | null;
 
   /** @internal @override */
   createRule(css: string): CSSStyleRule;
 
   /** @override */
-  readonly rule: CSSStyleRule;
+  readonly rule: CSSStyleRule | null;
 
   get selector(): string;
 
@@ -108,6 +109,12 @@ export interface StyleRule<O = unknown> extends CssRule<O>, StyleMap {
 
   /** @override */
   applyTheme(theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean | null): void;
+
+  /** @internal */
+  applyStyles(): void;
+
+  /** @protected @override */
+  onMount(): void;
 }
 
 /** @public */
@@ -131,71 +138,88 @@ export const StyleRule = (function (_super: typeof CssRule) {
 
   Object.defineProperty(StyleRule.prototype, "selector", {
     get: function (this: StyleRule): string {
-      return this.rule.selectorText;
+      const rule = this.rule;
+      if (rule !== null) {
+        return rule.selectorText;
+      } else {
+        throw new Error("no style rule");
+      }
     },
     configurable: true,
   });
 
   StyleRule.prototype.setSelector = function (this: StyleRule, selector: string): void {
-    this.rule.selectorText = selector;
+    const rule = this.rule;
+    if (rule !== null) {
+      rule.selectorText = selector;
+    } else {
+      throw new Error("no style rule");
+    }
   };
 
   StyleRule.prototype.getStyle = function (this: StyleRule, propertyNames: string | ReadonlyArray<string>): CSSStyleValue | string | undefined {
-    if (typeof CSSStyleValue !== "undefined") { // CSS Typed OM support
-      const style = this.rule.styleMap;
-      if (typeof propertyNames === "string") {
-        return style.get(propertyNames);
-      } else {
-        for (let i = 0, n = propertyNames.length; i < n; i += 1) {
-          const value = style.get(propertyNames[i]!);
-          if (value !== void 0) {
-            return value;
+    const rule = this.rule;
+    if (rule !== null) {
+      if (typeof CSSStyleValue !== "undefined") { // CSS Typed OM support
+        const style = rule.styleMap;
+        if (typeof propertyNames === "string") {
+          return style.get(propertyNames);
+        } else {
+          for (let i = 0, n = propertyNames.length; i < n; i += 1) {
+            const value = style.get(propertyNames[i]!);
+            if (value !== void 0) {
+              return value;
+            }
           }
+          return "";
         }
-        return "";
-      }
-    } else {
-      const style = this.rule.style;
-      if (typeof propertyNames === "string") {
-        return style.getPropertyValue(propertyNames);
       } else {
-        for (let i = 0, n = propertyNames.length; i < n; i += 1) {
-          const value = style.getPropertyValue(propertyNames[i]!);
-          if (value.length !== 0) {
-            return value;
+        const style = rule.style;
+        if (typeof propertyNames === "string") {
+          return style.getPropertyValue(propertyNames);
+        } else {
+          for (let i = 0, n = propertyNames.length; i < n; i += 1) {
+            const value = style.getPropertyValue(propertyNames[i]!);
+            if (value.length !== 0) {
+              return value;
+            }
           }
+          return "";
         }
-        return "";
       }
     }
+    return void 0;
   };
 
   StyleRule.prototype.setStyle = function (this: StyleRule, propertyName: string, value: unknown, priority?: string): StyleRule {
-    this.willSetStyle(propertyName, value, priority);
-    if (typeof CSSStyleValue !== "undefined") { // CSS Typed OM support
-      if (value !== void 0 && value !== null) {
-        const cssValue = ToCssValue(value);
-        if (cssValue !== null) {
-          try {
-            this.rule.styleMap.set(propertyName, cssValue);
-          } catch (e) {
-            // swallow
+    const rule = this.rule;
+    if (rule !== null) {
+      this.willSetStyle(propertyName, value, priority);
+      if (typeof CSSStyleValue !== "undefined") { // CSS Typed OM support
+        if (value !== void 0 && value !== null) {
+          const cssValue = ToCssValue(value);
+          if (cssValue !== null) {
+            try {
+              rule.styleMap.set(propertyName, cssValue);
+            } catch (e) {
+              // swallow
+            }
+          } else {
+            rule.style.setProperty(propertyName, ToStyleString(value), priority);
           }
         } else {
-          this.rule.style.setProperty(propertyName, ToStyleString(value), priority);
+          rule.styleMap.delete(propertyName);
         }
       } else {
-        this.rule.styleMap.delete(propertyName);
+        if (value !== void 0 && value !== null) {
+          rule.style.setProperty(propertyName, ToStyleString(value), priority);
+        } else {
+          rule.style.removeProperty(propertyName);
+        }
       }
-    } else {
-      if (value !== void 0 && value !== null) {
-        this.rule.style.setProperty(propertyName, ToStyleString(value), priority);
-      } else {
-        this.rule.style.removeProperty(propertyName);
-      }
+      this.onSetStyle(propertyName, value, priority);
+      this.didSetStyle(propertyName, value, priority);
     }
-    this.onSetStyle(propertyName, value, priority);
-    this.didSetStyle(propertyName, value, priority);
     return this;
   };
 
@@ -211,7 +235,7 @@ export const StyleRule = (function (_super: typeof CssRule) {
     // hook
   };
 
-  StyleRule.prototype.applyTheme = function (theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean | null): void {
+  StyleRule.prototype.applyTheme = function (this: StyleRule, theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean | null): void {
     if (timing === void 0 || timing === true) {
       timing = theme.getOr(Look.timing, Mood.ambient, false);
     } else {
@@ -224,6 +248,21 @@ export const StyleRule = (function (_super: typeof CssRule) {
         fastener.applyTheme(theme, mood, timing as Timing | boolean);
       }
     }
+  };
+
+  StyleRule.prototype.applyStyles = function(this: StyleRule): void {
+    const fasteners = this.fasteners;
+    for (const fastenerName in fasteners) {
+      const fastener = fasteners[fastenerName]!;
+      if (fastener instanceof StyleAnimator) {
+        fastener.applyStyle(fastener.value, fastener.priority);
+      }
+    }
+  };
+
+  StyleRule.prototype.onMount = function (this: StyleRule): void {
+    _super.prototype.onMount.call(this);
+    this.applyStyles();
   };
 
   StyleMap.define(StyleRule.prototype);

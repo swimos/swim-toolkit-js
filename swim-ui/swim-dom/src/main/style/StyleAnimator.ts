@@ -107,6 +107,9 @@ export interface StyleAnimator<O = unknown, T = unknown, U = T> extends ThemeAni
 
   setPriority(priority: string | undefined): void;
 
+  /** @internal */
+  applyStyle(value: T, priority: string | undefined): void;
+
   parse(value: string): T;
 
   fromCssValue(value: CSSStyleValue): T;
@@ -249,17 +252,7 @@ export const StyleAnimator = (function (_super: typeof ThemeAnimator) {
   };
 
   StyleAnimator.prototype.onSetValue = function <T>(this: StyleAnimator<unknown, T>, newValue: T, oldValue: T): void {
-    const styleContext = this.owner;
-    if (StyleContext.is(styleContext)) {
-      const propertyNames = this.propertyNames;
-      if (typeof propertyNames === "string") {
-        styleContext.setStyle(propertyNames, newValue, this.priority);
-      } else {
-        for (let i = 0, n = propertyNames.length; i < n; i += 1) {
-          styleContext.setStyle(propertyNames[i]!, newValue, this.priority);
-        }
-      }
-    }
+    this.applyStyle(newValue, this.priority);
     _super.prototype.onSetValue.call(this, newValue, oldValue);
   };
 
@@ -269,9 +262,12 @@ export const StyleAnimator = (function (_super: typeof ThemeAnimator) {
 
   StyleAnimator.prototype.setPriority = function (this: StyleAnimator, priority: string | undefined): void {
     (this as Mutable<typeof this>).priority = priority;
+    this.applyStyle(this.value, priority);
+  };
+
+  StyleAnimator.prototype.applyStyle = function <T>(this: StyleAnimator<unknown, T>, value: T, priority: string | undefined): void {
     const styleContext = this.owner;
-    const value = this.value;
-    if (StyleContext.is(styleContext) && this.definedValue(value)) {
+    if (StyleContext.is(styleContext)) {
       const propertyNames = this.propertyNames;
       if (typeof propertyNames === "string") {
         styleContext.setStyle(propertyNames, value, priority);

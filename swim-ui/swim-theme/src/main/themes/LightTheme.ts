@@ -42,7 +42,8 @@ Theme.light = (function (): ThemeMatrix {
 
   const backgroundColor = Color.parse("#f9f9f9");
   const selectedColor = Color.parse("#a3e0db");
-  const borderColor = Color.parse("#000000").alpha(0.1);
+  const borderColor = Color.parse("#000000").alpha(0.25);
+  const focusColor = primaryColor.alpha(0.5);
 
   const raisedColor = Color.parse("#f1f1f1");
   const coveredColor = Color.parse("#ffffff");
@@ -69,6 +70,7 @@ Theme.light = (function (): ThemeMatrix {
 
     [Look.backgroundColor, backgroundColor],
     [Look.borderColor, borderColor],
+    [Look.focusColor, focusColor],
 
     [Look.etchColor, etchColor],
     [Look.maskColor, maskColor],
@@ -94,6 +96,7 @@ Theme.light = (function (): ThemeMatrix {
 
     [Look.backgroundColor, backgroundColor],
     [Look.borderColor, borderColor],
+    [Look.focusColor, focusColor],
 
     [Look.etchColor, etchColor],
     [Look.maskColor, maskColor],
@@ -167,31 +170,6 @@ Theme.light = (function (): ThemeMatrix {
     [Look.shadow, BoxShadow.create(0, 2, 4, 0, Color.black(0.5))],
   );
 
-  const embossedFeel = FeelVector.of(
-    [Look.iconColor, Color.black(1)],
-    [Look.statusColor, Color.black(1)],
-    [Look.accentColor, Color.black(1)],
-  );
-
-  const nestedFeel = FeelVector.of(
-    [Look.backgroundColor, Color.black(1 / 24)],
-    [Look.borderColor, Color.black(1 / 24)],
-  );
-
-  const hoveringFeel = FeelVector.of(
-    [Look.backgroundColor, backgroundColor.darker(1 / 4)],
-    [Look.etchColor, etchColor.darker(1 / 4)],
-    [Look.maskColor, etchColor.darker(1 / 4)],
-  );
-
-  const translucentFeel = FeelVector.of(
-    [Look.iconColor, Color.black(0.8)],
-    [Look.statusColor, Color.black(0.8)],
-    [Look.accentColor, Color.black(0.8)],
-    [Look.backgroundColor, Color.black(0.8)],
-    [Look.borderColor, Color.black(0.8)],
-  );
-
   const darkerFeel = FeelVector.of(
     [Look.backgroundColor, Color.black(1)],
     [Look.iconColor, Color.black(1)],
@@ -219,9 +197,32 @@ Theme.light = (function (): ThemeMatrix {
     [Look.maskColor, Color.black(1)],
   );
 
+  const embossedFeel = FeelVector.of(
+    [Look.iconColor, Color.black(1)],
+    [Look.statusColor, Color.black(1)],
+    [Look.accentColor, Color.black(1)],
+  );
+
+  const nestedFeel = FeelVector.of(
+    [Look.backgroundColor, Color.black(1 / 24)],
+    [Look.borderColor, Color.black(1 / 24)],
+  );
+
+  const hoveringFeel = FeelVector.of(
+    [Look.backgroundColor, backgroundColor.darker(1 / 4)],
+    [Look.etchColor, etchColor.darker(1 / 4)],
+    [Look.maskColor, etchColor.darker(1 / 4)],
+  );
+
+  const translucentFeel = FeelVector.of(
+    [Look.iconColor, Color.black(0.8)],
+    [Look.statusColor, Color.black(0.8)],
+    [Look.accentColor, Color.black(0.8)],
+    [Look.backgroundColor, Color.black(0.8)],
+  );
+
   const transparentFeel = FeelVector.of(
     [Look.backgroundColor, Color.black(0)],
-    [Look.borderColor, Color.black(0)],
   );
 
   const navigatingFeel = FeelVector.of(

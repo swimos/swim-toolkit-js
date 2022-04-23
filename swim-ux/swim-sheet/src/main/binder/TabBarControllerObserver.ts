@@ -19,7 +19,7 @@ import type {TabBarController} from "./TabBarController";
 
 /** @public */
 export interface TabBarControllerObserver<C extends TabBarController = TabBarController> extends BarControllerObserver<C> {
-  controllerDidPressTabTool?(input: PositionGestureInput, event: Event | null, tabController: SheetController, controller: C): void;
+  controllerDidPressTabHandle?(input: PositionGestureInput, event: Event | null, tabController: SheetController, controller: C): void;
 
-  controllerDidLongPressTabTool?(input: PositionGestureInput, tabController: SheetController, controller: C): void;
+  controllerDidLongPressTabHandle?(input: PositionGestureInput, tabController: SheetController, controller: C): void;
 }

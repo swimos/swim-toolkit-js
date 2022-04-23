@@ -18,49 +18,22 @@ import type {Graphics} from "@swim/graphics";
 import {TraitViewRefDef} from "@swim/controller";
 import {ToolController} from "./ToolController";
 import {ButtonToolView} from "./ButtonToolView";
-import {ButtonToolTrait} from "./ButtonToolTrait";
 import type {ButtonToolControllerObserver} from "./ButtonToolControllerObserver";
 
 /** @public */
 export class ButtonToolController extends ToolController {
   override readonly observerType?: Class<ButtonToolControllerObserver>;
 
-  protected setIcon(icon: Graphics | null): void {
-    const toolView = this.tool.view;
-    if (toolView !== null) {
-      toolView.graphics.setState(icon);
-    }
-  }
-
   @TraitViewRefDef<ButtonToolController["tool"]>({
     extends: true,
-    traitType: ButtonToolTrait,
-    observesTrait: true,
-    initTrait(toolTrait: ButtonToolTrait): void {
-      this.owner.setIcon(toolTrait.icon.value);
-    },
-    deinitTrait(toolTrait: ButtonToolTrait): void {
-      this.owner.setIcon(null);
-    },
-    traitDidSetIcon(toolIcon: Graphics | null): void {
-      this.owner.setIcon(toolIcon);
-    },
     viewType: ButtonToolView,
     observesView: true,
-    initView(toolView: ButtonToolView): void {
-      const toolTrait = this.trait;
-      if (toolTrait !== null) {
-        this.owner.setIcon(toolTrait.icon.value);
-      }
-    },
     viewDidSetGraphics(toolIcon: Graphics | null): void {
       this.owner.callObservers("controllerDidSetToolIcon", toolIcon, this.owner);
     },
   })
   override readonly tool!: TraitViewRefDef<this, {
     extends: ToolController["tool"],
-    trait: ButtonToolTrait,
-    observesTrait: true,
     view: ButtonToolView,
     observesView: true,
   }>;

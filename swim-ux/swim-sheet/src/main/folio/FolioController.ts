@@ -14,8 +14,9 @@
 
 import type {Class, AnyTiming} from "@swim/util";
 import {Affinity, FastenerClass, PropertyDef} from "@swim/component";
-import {Trait} from "@swim/model";
+import type {Trait} from "@swim/model";
 import {PositionGestureInput, View, ViewRefDef} from "@swim/view";
+import type {HtmlView} from "@swim/dom";
 import {
   TraitViewRefDef,
   TraitViewRef,
@@ -24,15 +25,15 @@ import {
 } from "@swim/controller";
 import {
   ToolView,
-  ToolTrait,
   ToolController,
+  SearchToolController,
   BarView,
-  BarTrait,
   BarController,
 } from "@swim/toolbar";
 import {DrawerView} from "@swim/window";
 import type {SheetView} from "../sheet/SheetView";
 import {SheetController} from "../sheet/SheetController";
+import {NavBarController} from "../stack/NavBarController";
 import type {StackView} from "../stack/StackView";
 import {StackController} from "../stack/StackController";
 import {AppBarController} from "./AppBarController";
@@ -132,7 +133,6 @@ export class FolioController extends StackController {
   readonly fullScreen!: PropertyDef<this, {value: boolean}>;
 
   @TraitViewRefDef<FolioController["folio"]>({
-    traitType: Trait,
     willAttachTrait(folioTrait: Trait): void {
       this.owner.callObservers("controllerWillAttachFolioTrait", folioTrait, this.owner);
     },
@@ -256,6 +256,39 @@ export class FolioController extends StackController {
     updateFolioStyle(folioStyle: FolioStyle | undefined, navBarController: BarController): void {
       // hook
     },
+    controllerDidPressSearchButton(input: PositionGestureInput, event: Event | null, navBarController: BarController): void {
+      const frontController = this.owner.front.controller;
+      if (frontController !== null) {
+        frontController.searching.setValue(true);
+      }
+      if (navBarController instanceof NavBarController) {
+        const searchInputController = navBarController.searchInput.controller;
+        if (searchInputController instanceof SearchToolController) {
+          const inputView = searchInputController.input.view;
+          if (inputView !== null) {
+            inputView.node.focus();
+          }
+        }
+      }
+    },
+    controllerDidUpdateSearch(query: string, inputView: HtmlView, navBarController: BarController): void {
+      const frontController = this.owner.front.controller;
+      if (frontController !== null) {
+        frontController.updateSearch(query, inputView);
+      }
+    },
+    controllerDidSubmitSearch(query: string, inputView: HtmlView, navBarController: BarController): void {
+      const frontController = this.owner.front.controller;
+      if (frontController !== null) {
+        frontController.submitSearch(query, inputView);
+      }
+    },
+    controllerDidCancelSearch(inputView: HtmlView | null, navBarController: BarController): void {
+      const frontController = this.owner.front.controller;
+      if (frontController !== null) {
+        frontController.searching.setValue(false);
+      }
+    },
   })
   override readonly navBar!: TraitViewControllerRefDef<this, {
     extends: StackController["navBar"];
@@ -265,13 +298,13 @@ export class FolioController extends StackController {
   }>;
   static override readonly navBar: FastenerClass<FolioController["navBar"]>;
 
-  protected didPressMenuTool(input: PositionGestureInput, event: Event | null): void {
+  protected didPressMenuButton(input: PositionGestureInput, event: Event | null): void {
     this.fullScreen.setValue(!this.fullScreen.value, Affinity.Intrinsic);
-    this.callObservers("controllerDidPressMenuTool", input, event, this);
+    this.callObservers("controllerDidPressMenuButton", input, event, this);
   }
 
-  protected didPressActionTool(input: PositionGestureInput, event: Event | null): void {
-    this.callObservers("controllerDidPressActionTool", input, event, this);
+  protected didPressActionButton(input: PositionGestureInput, event: Event | null): void {
+    this.callObservers("controllerDidPressActionButton", input, event, this);
   }
 
   @TraitViewControllerRefDef<FolioController["appBar"]>({
@@ -281,7 +314,7 @@ export class FolioController extends StackController {
     get parentView(): FolioView | null {
       return this.owner.folio.view;
     },
-    getTraitViewRef(appBarController: BarController): TraitViewRef<unknown, BarTrait, BarView> {
+    getTraitViewRef(appBarController: BarController): TraitViewRef<unknown, Trait, BarView> {
       return appBarController.bar;
     },
     initController(appBarController: BarController): void {
@@ -291,10 +324,6 @@ export class FolioController extends StackController {
       this.owner.callObservers("controllerWillAttachAppBar", appBarController, this.owner);
     },
     didAttachController(appBarController: BarController): void {
-      const appBarTrait = appBarController.bar.trait;
-      if (appBarTrait !== null) {
-        this.attachAppBarTrait(appBarTrait, appBarController);
-      }
       const appBarView = appBarController.bar.view;
       if (appBarView !== null) {
         this.attachAppBarView(appBarView, appBarController);
@@ -305,27 +334,9 @@ export class FolioController extends StackController {
       if (appBarView !== null) {
         this.detachAppBarView(appBarView, appBarController);
       }
-      const appBarTrait = appBarController.bar.trait;
-      if (appBarTrait !== null) {
-        this.detachAppBarTrait(appBarTrait, appBarController);
-      }
     },
     didDetachController(appBarController: BarController): void {
       this.owner.callObservers("controllerDidDetachAppBar", appBarController, this.owner);
-    },
-    controllerWillAttachBarTrait(appBarTrait: BarTrait, appBarController: BarController): void {
-      this.owner.callObservers("controllerWillAttachAppBarTrait", appBarTrait, this.owner);
-      this.attachAppBarTrait(appBarTrait, appBarController);
-    },
-    controllerDidDetachBarTrait(appBarTrait: BarTrait, appBarController: BarController): void {
-      this.detachAppBarTrait(appBarTrait, appBarController);
-      this.owner.callObservers("controllerDidDetachAppBarTrait", appBarTrait, this.owner);
-    },
-    attachAppBarTrait(appBarTrait: BarTrait, appBarController: BarController): void {
-      // hook
-    },
-    detachAppBarTrait(appBarTrait: BarTrait, appBarController: BarController): void {
-      // hook
     },
     controllerWillAttachBarView(appBarView: BarView, appBarController: BarController): void {
       this.owner.callObservers("controllerWillAttachAppBarView", appBarView, this.owner);
@@ -354,23 +365,20 @@ export class FolioController extends StackController {
     coverViewDidScroll(coverView: SheetView, appBarController: BarController): void {
       // hook
     },
-    controllerDidPressMenuTool(input: PositionGestureInput, event: Event | null): void {
-      this.owner.didPressMenuTool(input, event);
+    controllerDidPressMenuButton(input: PositionGestureInput, event: Event | null): void {
+      this.owner.didPressMenuButton(input, event);
     },
-    controllerDidPressActionTool(input: PositionGestureInput, event: Event | null): void {
-      this.owner.didPressActionTool(input, event);
+    controllerDidPressActionButton(input: PositionGestureInput, event: Event | null): void {
+      this.owner.didPressActionButton(input, event);
     },
     createController(): BarController {
       return new AppBarController();
     },
   })
   readonly appBar!: TraitViewControllerRefDef<this, {
-    trait: BarTrait,
     view: BarView,
     controller: BarController,
     implements: {
-      attachAppBarTrait(appBarTrait: BarTrait, appBarController: BarController): void;
-      detachAppBarTrait(appBarTrait: BarTrait, appBarController: BarController): void;
       attachAppBarView(appBarView: BarView, appBarController: BarController): void;
       detachAppBarView(appBarView: BarView, appBarController: BarController): void;
       updateFolioStyle(folioStyle: FolioStyle | undefined, appBarController: BarController): void;
@@ -537,17 +545,13 @@ export class FolioController extends StackController {
     binds: false,
     ordered: true,
     observes: true,
-    getTraitViewRef(toolController: ToolController): TraitViewRef<unknown, ToolTrait, ToolView> {
+    getTraitViewRef(toolController: ToolController): TraitViewRef<unknown, Trait, ToolView> {
       return toolController.tool;
     },
     willAttachController(toolController: ToolController): void {
       this.owner.callObservers("controllerWillAttachCoverModeTool", toolController, this.owner);
     },
     didAttachController(toolController: ToolController): void {
-      const toolTrait = toolController.tool.trait;
-      if (toolTrait !== null) {
-        this.attachToolTrait(toolTrait, toolController);
-      }
       const toolView = toolController.tool.view;
       if (toolView !== null) {
         this.attachToolView(toolView, toolController);
@@ -558,27 +562,9 @@ export class FolioController extends StackController {
       if (toolView !== null) {
         this.detachToolView(toolView, toolController);
       }
-      const toolTrait = toolController.tool.trait;
-      if (toolTrait !== null) {
-        this.detachToolTrait(toolTrait, toolController);
-      }
     },
     didDetachController(toolController: ToolController): void {
       this.owner.callObservers("controllerDidDetachCoverModeTool", toolController, this.owner);
-    },
-    controllerWillAttachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void {
-      this.owner.callObservers("controllerWillAttachCoverModeToolTrait", toolTrait, toolController, this.owner);
-      this.attachToolTrait(toolTrait, toolController);
-    },
-    controllerDidDetachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void {
-      this.detachToolTrait(toolTrait, toolController);
-      this.owner.callObservers("controllerDidDetachCoverModeToolTrait", toolTrait, toolController, this.owner);
-    },
-    attachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void {
-      // hook
-    },
-    detachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void {
-      // hook
     },
     controllerWillAttachToolView(toolView: ToolView, toolController: ToolController): void {
       this.owner.callObservers("controllerWillAttachCoverModeToolView", toolView, toolController, this.owner);
@@ -596,12 +582,9 @@ export class FolioController extends StackController {
     },
   })
   readonly modeTools!: TraitViewControllerSetDef<this, {
-    trait: ToolTrait,
     view: ToolView,
     controller: ToolController,
     implements: {
-      attachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void;
-      detachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void;
       attachToolView(toolView: ToolView, toolController: ToolController): void;
       detachToolView(toolView: ToolView, toolController: ToolController): void;
     },

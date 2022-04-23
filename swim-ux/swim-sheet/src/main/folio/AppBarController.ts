@@ -28,7 +28,6 @@ import {
   ToolLayout,
   BarLayout,
   ToolView,
-  ToolTrait,
   ToolController,
   ButtonToolView,
   ButtonToolController,
@@ -46,14 +45,14 @@ export class AppBarController extends BarController {
   protected override createLayout(): BarLayout | null {
     const tools = new Array<ToolLayout>();
 
-    const menuToolController = this.menuTool.controller;
-    if (menuToolController !== null) {
-      const menuToolLayout = menuToolController.layout.value;
-      if (menuToolLayout !== null) {
-        tools.push(menuToolLayout);
+    const menuButtonController = this.menuButton.controller;
+    if (menuButtonController !== null) {
+      const menuButtonLayout = menuButtonController.layout.value;
+      if (menuButtonLayout !== null) {
+        tools.push(menuButtonLayout);
       }
-      if (menuToolController.tool.view !== null) {
-        this.menuTool.insertView();
+      if (menuButtonController.tool.view !== null) {
+        this.menuButton.insertView();
       }
     }
 
@@ -87,7 +86,7 @@ export class AppBarController extends BarController {
     tools.push(coverLayout);
     const coverController = this.cover.controller;
     if (coverController !== null) {
-      const coverTitleView = coverController.titleTool.insertView(this.bar.view, void 0, void 0, "cover");
+      const coverTitleView = coverController.title.insertView(this.bar.view, void 0, void 0, "cover");
       if (coverTitleView !== null) {
         const timing = coverTitleView.getLookOr(Look.timing, Mood.navigating, false);
         coverTitleView.color.setLook(Look.textColor, timing, Affinity.Intrinsic);
@@ -95,33 +94,33 @@ export class AppBarController extends BarController {
       }
     }
 
-    const actionToolController = this.actionTool.controller;
-    if (actionToolController !== null) {
-      const actionToolLayout = actionToolController.layout.value;
-      if (actionToolLayout !== null) {
-        tools.push(actionToolLayout);
+    const actionButtonController = this.actionButton.controller;
+    if (actionButtonController !== null) {
+      const actionButtonLayout = actionButtonController.layout.value;
+      if (actionButtonLayout !== null) {
+        tools.push(actionButtonLayout);
       }
-      if (actionToolController.tool.view !== null) {
-        this.actionTool.insertView();
+      if (actionButtonController.tool.view !== null) {
+        this.actionButton.insertView();
       }
     }
 
     return BarLayout.create(tools);
   }
 
-  @TraitViewControllerRefDef<AppBarController["menuTool"]>({
+  @TraitViewControllerRefDef<AppBarController["menuButton"]>({
     controllerType: ToolController,
     binds: true,
+    viewKey: "menuButton",
     observes: true,
-    viewKey: "menu",
     get parentView(): BarView | null {
       return this.owner.bar.view;
     },
-    getTraitViewRef(toolController: ToolController): TraitViewRef<unknown, ToolTrait, ToolView> {
+    getTraitViewRef(toolController: ToolController): TraitViewRef<unknown, Trait, ToolView> {
       return toolController.tool;
     },
     controllerDidPressToolView(input: PositionGestureInput, event: Event | null): void {
-      this.owner.callObservers("controllerDidPressMenuTool", input, event, this.owner);
+      this.owner.callObservers("controllerDidPressMenuButton", input, event, this.owner);
     },
     createController(): ToolController {
       const toolController = new ButtonToolController();
@@ -138,27 +137,26 @@ export class AppBarController extends BarController {
       return toolController;
     },
   })
-  readonly menuTool!: TraitViewControllerRefDef<this, {
-    trait: ToolTrait,
+  readonly menuButton!: TraitViewControllerRefDef<this, {
     view: ToolView,
     controller: ToolController,
     observes: ToolController & ButtonToolController,
   }>;
-  static readonly menuTool: FastenerClass<AppBarController["menuTool"]>;
+  static readonly menuButton: FastenerClass<AppBarController["menuButton"]>;
 
-  @TraitViewControllerRefDef<AppBarController["actionTool"]>({
+  @TraitViewControllerRefDef<AppBarController["actionButton"]>({
     controllerType: ToolController,
     binds: true,
+    viewKey: "actionButton",
     observes: true,
-    viewKey: "action",
     get parentView(): BarView | null {
       return this.owner.bar.view;
     },
-    getTraitViewRef(toolController: ToolController): TraitViewRef<unknown, ToolTrait, ToolView> {
+    getTraitViewRef(toolController: ToolController): TraitViewRef<unknown, Trait, ToolView> {
       return toolController.tool;
     },
     controllerDidPressToolView(input: PositionGestureInput, event: Event | null): void {
-      this.owner.callObservers("controllerDidPressActionTool", input, event, this.owner);
+      this.owner.callObservers("controllerDidPressActionButton", input, event, this.owner);
     },
     createController(): ToolController {
       const toolController = new ButtonToolController();
@@ -171,13 +169,12 @@ export class AppBarController extends BarController {
       return toolController;
     },
   })
-  readonly actionTool!: TraitViewControllerRefDef<this, {
-    trait: ToolTrait,
+  readonly actionButton!: TraitViewControllerRefDef<this, {
     view: ToolView,
     controller: ToolController,
     observes: ToolController & ButtonToolController,
   }>;
-  static readonly actionTool: FastenerClass<AppBarController["actionTool"]>;
+  static readonly actionButton: FastenerClass<AppBarController["actionButton"]>;
 
   @TraitViewControllerRefDef<AppBarController["cover"]>({
     controllerType: SheetController,
@@ -195,10 +192,10 @@ export class AppBarController extends BarController {
         this.owner.requireUpdate(Controller.NeedsAssemble);
       }
     },
-    controllerWillAttachTitleTool(titleToolController: ToolController, coverController: SheetController): void {
+    controllerWillAttachTitle(titleController: ToolController, coverController: SheetController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
-    controllerDidDetachTitleTool(titleToolController: ToolController, coverController: SheetController): void {
+    controllerDidDetachTitle(titleController: ToolController, coverController: SheetController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
   })
@@ -214,7 +211,7 @@ export class AppBarController extends BarController {
     ordered: true,
     inherits: true,
     observes: true,
-    getTraitViewRef(toolController: ToolController): TraitViewRef<unknown, ToolTrait, ToolView> {
+    getTraitViewRef(toolController: ToolController): TraitViewRef<unknown, Trait, ToolView> {
       return toolController.tool;
     },
     willAttachController(toolController: ToolController): void {
@@ -231,7 +228,6 @@ export class AppBarController extends BarController {
     },
   })
   readonly modeTools!: TraitViewControllerSetDef<this, {
-    trait: ToolTrait,
     view: ToolView,
     controller: ToolController,
     observes: true,
@@ -243,7 +239,7 @@ export class AppBarController extends BarController {
     value: false,
     inherits: true,
     didSetValue(fullScreen: boolean): void {
-      const toolView = this.owner.menuTool.view;
+      const toolView = this.owner.menuButton.view;
       if (toolView instanceof ButtonToolView) {
         if (fullScreen) {
           toolView.graphics.setState(this.owner.menuIcon, Affinity.Intrinsic);

@@ -14,7 +14,7 @@
 
 import type {Trait} from "@swim/model";
 import type {PositionGestureInput} from "@swim/view";
-import type {ToolController, BarView, BarTrait, BarController} from "@swim/toolbar";
+import type {ToolController, BarView, BarController} from "@swim/toolbar";
 import type {SheetView} from "../sheet/SheetView";
 import type {SheetController} from "../sheet/SheetController";
 import type {SheetControllerObserver} from "../sheet/SheetControllerObserver";
@@ -37,10 +37,6 @@ export interface BinderControllerObserver<C extends BinderController = BinderCon
 
   controllerDidDetachTabBar?(tabBarController: BarController, controller: C): void;
 
-  controllerWillAttachTabBarTrait?(tabBarTrait: BarTrait, controller: C): void;
-
-  controllerDidDetachTabBarTrait?(tabBarTrait: BarTrait, controller: C): void;
-
   controllerWillAttachTabBarView?(tabBarView: BarView, controller: C): void;
 
   controllerDidDetachTabBarView?(tabBarView: BarView, controller: C): void;
@@ -57,13 +53,13 @@ export interface BinderControllerObserver<C extends BinderController = BinderCon
 
   controllerDidDetachTabView?(tabView: SheetView, tabController: SheetController, controller: C): void;
 
-  controllerWillAttachTabButtonTool?(buttonToolController: ToolController, tabController: SheetController, controller: C): void;
+  controllerWillAttachTabHandle?(tabHandleController: ToolController, tabController: SheetController, controller: C): void;
 
-  controllerDidDetachTabButtonTool?(buttonToolController: ToolController, tabController: SheetController, controller: C): void;
+  controllerDidDetachTabHandle?(tabHandleController: ToolController, tabController: SheetController, controller: C): void;
 
-  controllerDidPressTabTool?(input: PositionGestureInput, event: Event | null, tabController: SheetController, controller: C): void;
+  controllerDidPressTabHandle?(input: PositionGestureInput, event: Event | null, tabController: SheetController, controller: C): void;
 
-  controllerDidLongPressTabTool?(input: PositionGestureInput, tabController: SheetController, controller: C): void;
+  controllerDidLongPressTabHandle?(input: PositionGestureInput, tabController: SheetController, controller: C): void;
 
   controllerWillAttachActive?(activeController: SheetController, controller: C): void;
 

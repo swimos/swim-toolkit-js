@@ -15,15 +15,10 @@
 import type {Graphics} from "@swim/graphics";
 import type {ToolControllerObserver} from "./ToolControllerObserver";
 import type {ButtonToolView} from "./ButtonToolView";
-import type {ButtonToolTrait} from "./ButtonToolTrait";
 import type {ButtonToolController} from "./ButtonToolController";
 
 /** @public */
 export interface ButtonToolControllerObserver<C extends ButtonToolController = ButtonToolController> extends ToolControllerObserver<C> {
-  controllerWillAttachToolTrait?(toolTrait: ButtonToolTrait, controller: C): void;
-
-  controllerDidDetachToolTrait?(toolTrait: ButtonToolTrait, controller: C): void;
-
   controllerWillAttachToolView?(toolView: ButtonToolView, controller: C): void;
 
   controllerDidDetachToolView?(toolView: ButtonToolView, controller: C): void;

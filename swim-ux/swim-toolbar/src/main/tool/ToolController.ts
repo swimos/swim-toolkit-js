@@ -13,12 +13,11 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {Affinity, FastenerClass, PropertyDef} from "@swim/component";
+import {FastenerClass, PropertyDef} from "@swim/component";
 import type {PositionGestureInput} from "@swim/view";
 import {Controller, TraitViewRefDef} from "@swim/controller";
 import {AnyToolLayout, ToolLayout} from "../layout/ToolLayout";
 import {ToolView} from "./ToolView";
-import {ToolTrait} from "./ToolTrait";
 import type {ToolControllerObserver} from "./ToolControllerObserver";
 
 /** @public */
@@ -26,20 +25,6 @@ export class ToolController extends Controller {
   override readonly observerType?: Class<ToolControllerObserver>;
 
   @TraitViewRefDef<ToolController["tool"]>({
-    traitType: ToolTrait,
-    observesTrait: true,
-    initTrait(toolTrait: ToolTrait): void {
-      this.owner.layout.setValue(toolTrait.layout.value, Affinity.Intrinsic);
-    },
-    willAttachTrait(toolTrait: ToolTrait): void {
-      this.owner.callObservers("controllerWillAttachToolTrait", toolTrait, this.owner);
-    },
-    didDetachTrait(toolTrait: ToolTrait): void {
-      this.owner.callObservers("controllerDidDetachToolTrait", toolTrait, this.owner);
-    },
-    traitDidSetToolLayout(toolLayout: ToolLayout | null): void {
-      this.owner.layout.setValue(toolLayout, Affinity.Intrinsic);
-    },
     viewType: ToolView,
     observesView: true,
     willAttachView(toolView: ToolView): void {
@@ -56,8 +41,6 @@ export class ToolController extends Controller {
     },
   })
   readonly tool!: TraitViewRefDef<this, {
-    trait: ToolTrait,
-    observesTrait: true,
     view: ToolView,
     observesView: true,
   }>;

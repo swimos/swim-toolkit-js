@@ -43,13 +43,13 @@ export class TabBarController extends BarController {
     if (this.tabStyle.value === "bottom") {
       for (let i = 0, n = tabControllers.length; i < n; i += 1) {
         const tabController = tabControllers[i]!;
-        const tabToolView = tabController.buttonTool.attachView();
-        const tabKey = "tab" + tabToolView.uid;
-        const tabToolLayout = ToolLayout.create(tabKey, 1, 0, 0, 0.5);
-        tools.push(tabToolLayout);
+        const tabHandleView = tabController.handle.attachView();
+        const tabKey = "tab" + tabHandleView.uid;
+        const tabHandleLayout = ToolLayout.create(tabKey, 1, 0, 0, 0.5);
+        tools.push(tabHandleLayout);
         const targetTabController = i + 1 < n ? tabControllers[i + 1] : null;
-        const targetToolView = targetTabController !== null ? tabController.buttonTool.view : null;
-        tabController.buttonTool.insertView(this.bar.view, void 0, targetToolView, tabKey);
+        const targetToolView = targetTabController !== null ? tabController.handle.view : null;
+        tabController.handle.insertView(this.bar.view, void 0, targetToolView, tabKey);
       }
     }
 
@@ -71,17 +71,17 @@ export class TabBarController extends BarController {
     didDetachController(tabController: SheetController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
-    controllerWillAttachButtonTool(buttonToolController: ToolController, tabController: SheetController): void {
+    controllerWillAttachHandle(tabHandleController: ToolController, tabController: SheetController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
-    controllerDidDetachButtonTool(buttonToolController: ToolController, tabController: SheetController): void {
+    controllerDidDetachHandle(tabHandleController: ToolController, tabController: SheetController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
-    controllerDidPressButtonTool(input: PositionGestureInput, event: Event | null, tabController: SheetController): void {
-      this.owner.callObservers("controllerDidPressTabTool", input, event, tabController, this.owner);
+    controllerDidPressHandle(input: PositionGestureInput, event: Event | null, tabController: SheetController): void {
+      this.owner.callObservers("controllerDidPressTabHandle", input, event, tabController, this.owner);
     },
-    controllerDidLongPressButtonTool(input: PositionGestureInput, tabController: SheetController): void {
-      this.owner.callObservers("controllerDidLongPressTabTool", input, tabController, this.owner);
+    controllerDidLongPressHandle(input: PositionGestureInput, tabController: SheetController): void {
+      this.owner.callObservers("controllerDidLongPressTabHandle", input, tabController, this.owner);
     },
   })
   readonly tabs!: TraitViewControllerSetDef<this, {
@@ -104,10 +104,10 @@ export class TabBarController extends BarController {
     didDetachController(activeController: SheetController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
-    controllerWillAttachButtonTool(buttonToolController: ToolController): void {
+    controllerWillAttachHandle(tabHandleController: ToolController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
-    controllerDidDetachButtonTool(buttonToolController: ToolController): void {
+    controllerDidDetachHandle(tabHandleController: ToolController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
   })

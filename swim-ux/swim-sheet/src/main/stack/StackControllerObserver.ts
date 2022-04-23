@@ -15,7 +15,7 @@
 import type {Trait} from "@swim/model";
 import type {PositionGestureInput} from "@swim/view";
 import type {ControllerObserver} from "@swim/controller";
-import type {ToolController, BarView, BarTrait, BarController} from "@swim/toolbar";
+import type {ToolController, BarView, BarController} from "@swim/toolbar";
 import type {SheetView} from "../sheet/SheetView";
 import type {SheetController} from "../sheet/SheetController";
 import type {StackView} from "./StackView";
@@ -35,19 +35,15 @@ export interface StackControllerObserver<C extends StackController = StackContro
 
   controllerDidDetachNavBar?(navBarController: BarController, controller: C): void;
 
-  controllerWillAttachNavBarTrait?(navBarTrait: BarTrait, controller: C): void;
-
-  controllerDidDetachNavBarTrait?(navBarTrait: BarTrait, controller: C): void;
-
   controllerWillAttachNavBarView?(navBarView: BarView, controller: C): void;
 
   controllerDidDetachNavBarView?(navBarView: BarView, controller: C): void;
 
-  controllerDidPressCloseTool?(input: PositionGestureInput, event: Event | null, controller: C): void;
+  controllerDidPressCloseButton?(input: PositionGestureInput, event: Event | null, controller: C): void;
 
-  controllerDidPressBackTool?(input: PositionGestureInput, event: Event | null, controller: C): void;
+  controllerDidPressBackButton?(input: PositionGestureInput, event: Event | null, controller: C): void;
 
-  controllerDidPressMoreTool?(input: PositionGestureInput, event: Event | null, controller: C): void;
+  controllerDidPressSearchButton?(input: PositionGestureInput, event: Event | null, controller: C): void;
 
   controllerWillAttachSheet?(sheetController: SheetController, controller: C): void;
 
@@ -61,9 +57,9 @@ export interface StackControllerObserver<C extends StackController = StackContro
 
   controllerDidDetachSheetView?(sheetView: SheetView, sheetController: SheetController, controller: C): void;
 
-  controllerWillAttachSheetTitleTool?(titleToolController: ToolController, sheetController: SheetController, controller: C): void;
+  controllerWillAttachSheetTitle?(titleController: ToolController, sheetController: SheetController, controller: C): void;
 
-  controllerDidDetachSheetTitleTool?(titleToolController: ToolController, sheetController: SheetController, controller: C): void;
+  controllerDidDetachSheetTitle?(titleController: ToolController, sheetController: SheetController, controller: C): void;
 
   controllerWillAttachFront?(frontController: SheetController, controller: C): void;
 

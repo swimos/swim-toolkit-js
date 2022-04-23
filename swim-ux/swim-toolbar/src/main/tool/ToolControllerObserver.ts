@@ -16,15 +16,10 @@ import type {PositionGestureInput} from "@swim/view";
 import type {ControllerObserver} from "@swim/controller";
 import type {ToolLayout} from "../layout/ToolLayout";
 import type {ToolView} from "./ToolView";
-import type {ToolTrait} from "./ToolTrait";
 import type {ToolController} from "./ToolController";
 
 /** @public */
 export interface ToolControllerObserver<C extends ToolController = ToolController> extends ControllerObserver<C> {
-  controllerWillAttachToolTrait?(toolTrait: ToolTrait, controller: C): void;
-
-  controllerDidDetachToolTrait?(toolTrait: ToolTrait, controller: C): void;
-
   controllerWillAttachToolView?(toolView: ToolView, controller: C): void;
 
   controllerDidDetachToolView?(toolView: ToolView, controller: C): void;

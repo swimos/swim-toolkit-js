@@ -18,15 +18,18 @@ import type {Trait} from "@swim/model";
 import {Presence} from "@swim/style";
 import {Look, Mood} from "@swim/theme";
 import type {PositionGestureInput} from "@swim/view";
+import type {HtmlView} from "@swim/dom";
 import {VectorIcon} from "@swim/graphics";
 import {Controller, TraitViewRef, TraitViewControllerRefDef} from "@swim/controller";
 import {
   ToolLayout,
   BarLayout,
   ToolView,
-  ToolTrait,
+  SearchToolView,
   ToolController,
+  TitleToolController,
   ButtonToolController,
+  SearchToolController,
   BarView,
   BarController,
 } from "@swim/toolbar";
@@ -42,47 +45,56 @@ export class NavBarController extends BarController {
   readonly showBackTitle!: PropertyDef<this, {value: boolean}>;
 
   protected override createLayout(): BarLayout | null {
+    const frontController = this.front.controller;
+    if (frontController === null || !frontController.searching.value) {
+      return this.createNavLayout();
+    } else {
+      return this.createSearchLayout();
+    }
+  }
+
+  protected createNavLayout(): BarLayout | null {
     const tools = new Array<ToolLayout>();
 
     const frontController = this.front.controller;
-    const frontKey = frontController !== null ? "title" + frontController.uid : void 0;
+    const frontKey = frontController !== null ? "title" + frontController.uid : "";
     const backController = frontController !== null ? frontController.back.controller : null;
     const backKey = backController !== null ? "title" + backController.uid : void 0;
     const showBackTitle = this.showBackTitle.value;
 
     if (frontController === null || backController === null) {
-      const closeToolController = this.closeTool.controller;
-      if (closeToolController !== null) {
-        const closeToolLayout = closeToolController.layout.value;
-        if (closeToolLayout !== null) {
-          tools.push(closeToolLayout);
+      const closeButtonController = this.closeButton.controller;
+      if (closeButtonController !== null) {
+        const closeButtonLayout = closeButtonController.layout.value;
+        if (closeButtonLayout !== null) {
+          tools.push(closeButtonLayout);
         }
-        const closeToolView = closeToolController.tool.view;
-        if (closeToolView !== null) {
-          this.closeTool.insertView();
-          closeToolView.zIndex.setState(2, Affinity.Intrinsic);
+        const closeButtonView = closeButtonController.tool.view;
+        if (closeButtonView !== null) {
+          this.closeButton.insertView();
+          closeButtonView.zIndex.setState(2, Affinity.Intrinsic);
         }
       }
     } else {
-      const backToolController = this.backTool.controller;
-      if (backToolController !== null) {
-        let backToolLayout = backToolController.layout.value;
-        if (backToolLayout !== null) {
+      const backButtonController = this.backButton.controller;
+      if (backButtonController !== null) {
+        let backButtonLayout = backButtonController.layout.value;
+        if (backButtonLayout !== null) {
           if (showBackTitle) {
-            backToolLayout = backToolLayout.withOverlap(backKey).withOverpad(16);
+            backButtonLayout = backButtonLayout.withOverlap(backKey).withOverpad(16);
           }
-          tools.push(backToolLayout);
+          tools.push(backButtonLayout);
         }
-        const backToolView = this.backTool.insertView();
-        backToolView.zIndex.setState(2, Affinity.Intrinsic);
+        const backButtonView = this.backButton.insertView();
+        backButtonView.zIndex.setState(2, Affinity.Intrinsic);
       }
     }
 
     if (showBackTitle) {
       if (backController !== null) {
-        const backLayout = ToolLayout.create(backKey!, 0, 0, 0, 0, -1, -1);
-        tools.push(backLayout);
-        const backTitleView = backController.titleTool.insertView(this.bar.view, void 0, void 0, backKey);
+        const backTitleLayout = ToolLayout.create(backKey!, 0, 0, 0, 0, -1, -1);
+        tools.push(backTitleLayout);
+        const backTitleView = backController.title.insertView(this.bar.view, void 0, void 0, backKey);
         if (backTitleView !== null) {
           const timing = backTitleView.getLookOr(Look.timing, Mood.navigating, false);
           backTitleView.color.setLook(Look.accentColor, timing, Affinity.Intrinsic);
@@ -90,10 +102,10 @@ export class NavBarController extends BarController {
           backTitleView.pointerEvents.setState("none", Affinity.Intrinsic);
         }
       }
+      const frontTitleLayout = ToolLayout.create(frontKey, 1, 0, 0, 0.5, 1, 1);
+      tools.push(frontTitleLayout);
       if (frontController !== null) {
-        const frontLayout = ToolLayout.create(frontKey!, 1, 0, 0, 0.5, 1, 1);
-        tools.push(frontLayout);
-        const frontTitleView = frontController.titleTool.insertView(this.bar.view, void 0, void 0, frontKey);
+        const frontTitleView = frontController.title.insertView(this.bar.view, void 0, void 0, frontKey);
         if (frontTitleView !== null) {
           const timing = frontTitleView.getLookOr(Look.timing, Mood.navigating, false);
           frontTitleView.color.setLook(Look.textColor, timing, Affinity.Intrinsic);
@@ -106,18 +118,18 @@ export class NavBarController extends BarController {
       const oldBarLayout = barView !== null ? barView.layout.value : null;
       const oldBackLayout = oldBarLayout !== null && backKey !== void 0 ? oldBarLayout.getTool(backKey) : null;
       if (backController !== null && oldBackLayout !== null) {
-        const backLayout = ToolLayout.create(backKey!, 0, 0, 0, 0, -1, -1).withPresence(Presence.dismissed());
-        tools.push(backLayout);
+        const backTitleLayout = ToolLayout.create(backKey!, 0, 0, 0, 0, -1, -1).withPresence(Presence.dismissed());
+        tools.push(backTitleLayout);
       }
+      let frontTitleLayout: ToolLayout;
+      if (oldBackLayout === null) {
+        frontTitleLayout = ToolLayout.create(frontKey, 1, 0, 0, 0.5, 0, 1);
+      } else {
+        frontTitleLayout = ToolLayout.create(frontKey, 1, 0, 0, 0.5, 1, 1);
+      }
+      tools.push(frontTitleLayout);
       if (frontController !== null) {
-        let frontLayout: ToolLayout;
-        if (oldBackLayout === null) {
-          frontLayout = ToolLayout.create(frontKey!, 1, 0, 0, 0.5, 0, 1);
-        } else {
-          frontLayout = ToolLayout.create(frontKey!, 1, 0, 0, 0.5, 1, 1);
-        }
-        tools.push(frontLayout);
-        const frontTitleView = frontController.titleTool.insertView(this.bar.view, void 0, void 0, frontKey);
+        const frontTitleView = frontController.title.insertView(this.bar.view, void 0, void 0, frontKey);
         if (frontTitleView !== null) {
           const timing = frontTitleView.getLookOr(Look.timing, Mood.navigating, false);
           frontTitleView.color.setLook(Look.textColor, timing, Affinity.Intrinsic);
@@ -127,33 +139,63 @@ export class NavBarController extends BarController {
       }
     }
 
-    const moreToolController = this.moreTool.controller;
-    if (moreToolController !== null) {
-      const moreToolLayout = moreToolController.layout.value;
-      if (moreToolLayout !== null) {
-        tools.push(moreToolLayout);
+    const searchButtonController = this.searchButton.controller;
+    if (searchButtonController !== null) {
+      const searchable = frontController !== null && frontController.searchable.value;
+      let searchButtonLayout = searchButtonController.layout.value;
+      if (searchButtonLayout !== null) {
+        if (!searchable) {
+          searchButtonLayout = searchButtonLayout.withKey("");
+        }
+        tools.push(searchButtonLayout);
       }
-      if (moreToolController.tool.view !== null) {
-        this.moreTool.insertView();
+      if (searchable) {
+        this.searchButton.insertView();
       }
     }
 
     return BarLayout.create(tools);
   }
 
-  @TraitViewControllerRefDef<NavBarController["closeTool"]>({
+  protected createSearchLayout(): BarLayout | null {
+    const tools = new Array<ToolLayout>();
+
+    const searchInputController = this.searchInput.controller;
+    if (searchInputController !== null) {
+      const searchInputLayout = searchInputController.layout.value;
+      if (searchInputLayout !== null) {
+        tools.push(searchInputLayout);
+      }
+      this.searchInput.insertView();
+    }
+
+    const cancelSearchController = this.cancelSearch.controller;
+    if (cancelSearchController !== null) {
+      const cancelSearchLayout = cancelSearchController.layout.value;
+      if (cancelSearchLayout !== null) {
+        tools.push(cancelSearchLayout);
+      }
+      if (cancelSearchController.tool.view !== null) {
+        this.cancelSearch.insertView();
+      }
+    }
+
+    return BarLayout.create(tools);
+  }
+
+  @TraitViewControllerRefDef<NavBarController["closeButton"]>({
     controllerType: ToolController,
     binds: true,
+    viewKey: "closeButton",
     observes: true,
-    viewKey: "close",
     get parentView(): BarView | null {
       return this.owner.bar.view;
     },
-    getTraitViewRef(toolController: ToolController): TraitViewRef<unknown, ToolTrait, ToolView> {
+    getTraitViewRef(toolController: ToolController): TraitViewRef<unknown, Trait, ToolView> {
       return toolController.tool;
     },
     controllerDidPressToolView(input: PositionGestureInput, event: Event | null): void {
-      this.owner.callObservers("controllerDidPressCloseTool", input, event, this.owner);
+      this.owner.callObservers("controllerDidPressCloseButton", input, event, this.owner);
     },
     createController(): ToolController {
       const toolController = new ButtonToolController();
@@ -166,27 +208,26 @@ export class NavBarController extends BarController {
       return toolController;
     },
   })
-  readonly closeTool!: TraitViewControllerRefDef<this, {
-    trait: ToolTrait,
+  readonly closeButton!: TraitViewControllerRefDef<this, {
     view: ToolView,
     controller: ToolController,
     observes: ToolController & ButtonToolController,
   }>;
-  static readonly closeTool: FastenerClass<NavBarController["closeTool"]>;
+  static readonly closeButton: FastenerClass<NavBarController["closeButton"]>;
 
-  @TraitViewControllerRefDef<NavBarController["backTool"]>({
+  @TraitViewControllerRefDef<NavBarController["backButton"]>({
     controllerType: ToolController,
     binds: true,
+    viewKey: "backButton",
     observes: true,
-    viewKey: "back",
     get parentView(): BarView | null {
       return this.owner.bar.view;
     },
-    getTraitViewRef(toolController: ToolController): TraitViewRef<unknown, ToolTrait, ToolView> {
+    getTraitViewRef(toolController: ToolController): TraitViewRef<unknown, Trait, ToolView> {
       return toolController.tool;
     },
     controllerDidPressToolView(input: PositionGestureInput, event: Event | null): void {
-      this.owner.callObservers("controllerDidPressBackTool", input, event, this.owner);
+      this.owner.callObservers("controllerDidPressBackButton", input, event, this.owner);
     },
     createController(): ToolController {
       const toolController = new ButtonToolController();
@@ -199,27 +240,26 @@ export class NavBarController extends BarController {
       return toolController;
     },
   })
-  readonly backTool!: TraitViewControllerRefDef<this, {
-    trait: ToolTrait,
+  readonly backButton!: TraitViewControllerRefDef<this, {
     view: ToolView,
     controller: ToolController,
     observes: ToolController & ButtonToolController,
   }>;
-  static readonly backTool: FastenerClass<NavBarController["backTool"]>;
+  static readonly backButton: FastenerClass<NavBarController["backButton"]>;
 
-  @TraitViewControllerRefDef<NavBarController["moreTool"]>({
+  @TraitViewControllerRefDef<NavBarController["searchButton"]>({
     controllerType: ToolController,
     binds: true,
+    viewKey: "searchButton",
     observes: true,
-    viewKey: "more",
     get parentView(): BarView | null {
       return this.owner.bar.view;
     },
-    getTraitViewRef(toolController: ToolController): TraitViewRef<unknown, ToolTrait, ToolView> {
+    getTraitViewRef(toolController: ToolController): TraitViewRef<unknown, Trait, ToolView> {
       return toolController.tool;
     },
     controllerDidPressToolView(input: PositionGestureInput, event: Event | null): void {
-      this.owner.callObservers("controllerDidPressMoreTool", input, event, this.owner);
+      this.owner.callObservers("controllerDidPressSearchButton", input, event, this.owner);
     },
     createController(): ToolController {
       const toolController = new ButtonToolController();
@@ -228,17 +268,90 @@ export class NavBarController extends BarController {
       const toolView = toolController.tool.attachView()!;
       toolView.iconWidth.setState(24, Affinity.Intrinsic);
       toolView.iconHeight.setState(24, Affinity.Intrinsic);
-      toolView.graphics.setState(this.owner.moreIcon, Affinity.Intrinsic);
+      toolView.graphics.setState(this.owner.searchIcon, Affinity.Intrinsic);
       return toolController;
     },
   })
-  readonly moreTool!: TraitViewControllerRefDef<this, {
-    trait: ToolTrait,
+  readonly searchButton!: TraitViewControllerRefDef<this, {
     view: ToolView,
     controller: ToolController,
     observes: ToolController & ButtonToolController,
   }>;
-  static readonly moreTool: FastenerClass<NavBarController["moreTool"]>;
+  static readonly searchButton: FastenerClass<NavBarController["searchButton"]>;
+
+  @TraitViewControllerRefDef<NavBarController["searchInput"]>({
+    controllerType: ToolController,
+    binds: true,
+    viewKey: "searchInput",
+    observes: true,
+    get parentView(): BarView | null {
+      return this.owner.bar.view;
+    },
+    getTraitViewRef(toolController: ToolController): TraitViewRef<unknown, Trait, ToolView> {
+      return toolController.tool;
+    },
+    controllerDidUpdateSearch(query: string, inputView: HtmlView): void {
+      this.owner.callObservers("controllerDidUpdateSearch", query, inputView, this.owner);
+    },
+    controllerDidSubmitSearch(query: string, inputView: HtmlView): void {
+      this.owner.callObservers("controllerDidSubmitSearch", query, inputView, this.owner);
+    },
+    controllerDidCancelSearch(inputView: HtmlView): void {
+      this.owner.callObservers("controllerDidCancelSearch", inputView, this.owner);
+    },
+    createController(): ToolController {
+      const toolController = new SearchToolController();
+      const toolLayout = ToolLayout.create(this.viewKey!, 1, 0, 0, 0.5);
+      toolController.layout.setValue(toolLayout);
+      const toolView = toolController.tool.attachView()!;
+      toolView.stylesheet.insertView();
+      const inputView = toolView.input.insertView();
+      inputView.marginLeft.setState(8, Affinity.Intrinsic);
+      inputView.marginRight.setState(8, Affinity.Intrinsic);
+      inputView.placeholder.setState("Search", Affinity.Intrinsic);
+      return toolController;
+    },
+  })
+  readonly searchInput!: TraitViewControllerRefDef<this, {
+    view: ToolView,
+    controller: ToolController,
+    observes: ToolController & SearchToolController,
+  }>;
+  static readonly searchInput: FastenerClass<NavBarController["searchInput"]>;
+
+  @TraitViewControllerRefDef<NavBarController["cancelSearch"]>({
+    controllerType: ToolController,
+    binds: true,
+    viewKey: "cancelSearch",
+    observes: true,
+    get parentView(): BarView | null {
+      return this.owner.bar.view;
+    },
+    getTraitViewRef(toolController: ToolController): TraitViewRef<unknown, Trait, ToolView> {
+      return toolController.tool;
+    },
+    controllerDidPressToolView(input: PositionGestureInput, event: Event | null): void {
+      const searchInputView = this.owner.searchInput.view;
+      const inputView = searchInputView instanceof SearchToolView ? searchInputView.input.view : null;
+      this.owner.callObservers("controllerDidCancelSearch", inputView, this.owner);
+    },
+    createController(): ToolController {
+      const toolController = new TitleToolController();
+      const toolLayout = ToolLayout.create(this.viewKey!, 0, 0, 72, 0.5);
+      toolController.layout.setValue(toolLayout);
+      const toolView = toolController.tool.attachView()!;
+      toolView.color.setLook(Look.accentColor, Affinity.Intrinsic);
+      toolView.cursor.setState("pointer", Affinity.Intrinsic);
+      toolView.content.setText("Cancel");
+      return toolController;
+    },
+  })
+  readonly cancelSearch!: TraitViewControllerRefDef<this, {
+    view: ToolView,
+    controller: ToolController,
+    observes: true,
+  }>;
+  static readonly cancelSearch: FastenerClass<NavBarController["cancelSearch"]>;
 
   @TraitViewControllerRefDef<NavBarController["front"]>({
     controllerType: SheetController,
@@ -256,10 +369,20 @@ export class NavBarController extends BarController {
         this.owner.requireUpdate(Controller.NeedsAssemble);
       }
     },
-    controllerWillAttachTitleTool(titleToolController: ToolController, frontController: SheetController): void {
+    controllerDidSetSearchable(searchable: boolean, frontController: SheetController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
-    controllerDidDetachTitleTool(titleToolController: ToolController, frontController: SheetController): void {
+    controllerDidSetSearching(searching: boolean, frontController: SheetController): void {
+      if (searching) {
+        this.owner.updateLayout();
+      } else {
+        this.owner.requireUpdate(Controller.NeedsAssemble);
+      }
+    },
+    controllerWillAttachTitle(titleController: ToolController, frontController: SheetController): void {
+      this.owner.requireUpdate(Controller.NeedsAssemble);
+    },
+    controllerDidDetachTitle(titleController: ToolController, frontController: SheetController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
   })
@@ -278,8 +401,8 @@ export class NavBarController extends BarController {
     return NavBarController.backIcon;
   }
 
-  get moreIcon(): VectorIcon {
-    return NavBarController.moreIcon;
+  get searchIcon(): VectorIcon {
+    return NavBarController.searchIcon;
   }
 
   /** @internal */
@@ -296,7 +419,7 @@ export class NavBarController extends BarController {
 
   /** @internal */
   @Lazy
-  static get moreIcon(): VectorIcon {
-    return VectorIcon.create(24, 24, "M6,10c-1.1,0,-2,.9,-2,2s.9,2,2,2,2,-.9,2,-2,-.9,-2,-2,-2Zm12,0c-1.1,0,-2,.9,-2,2s.9,2,2,2,2,-.9,2,-2,-.9,-2,-2,-2Zm-6,0c-1.1,0,-2,.9,-2,2s.9,2,2,2,2,-.9,2,-2,-.9,-2,-2,-2Z");
+  static get searchIcon(): VectorIcon {
+    return VectorIcon.create(24, 24, "M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z");
   }
 }

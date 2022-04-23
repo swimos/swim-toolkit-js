@@ -21,14 +21,8 @@ export {TitleToolViewObserver} from "./TitleToolViewObserver";
 export {ButtonToolView} from "./ButtonToolView";
 export {ButtonToolViewObserver} from "./ButtonToolViewObserver";
 
-export {ToolTrait} from "./ToolTrait";
-export {ToolTraitObserver} from "./ToolTraitObserver";
-
-export {TitleToolTrait} from "./TitleToolTrait";
-export {TitleToolTraitObserver} from "./TitleToolTraitObserver";
-
-export {ButtonToolTrait} from "./ButtonToolTrait";
-export {ButtonToolTraitObserver} from "./ButtonToolTraitObserver";
+export {SearchToolView} from "./SearchToolView";
+export {SearchToolViewObserver} from "./SearchToolViewObserver";
 
 export {ToolController} from "./ToolController";
 export {ToolControllerObserver} from "./ToolControllerObserver";
@@ -38,3 +32,6 @@ export {TitleToolControllerObserver} from "./TitleToolControllerObserver";
 
 export {ButtonToolController} from "./ButtonToolController";
 export {ButtonToolControllerObserver} from "./ButtonToolControllerObserver";
+
+export {SearchToolController} from "./SearchToolController";
+export {SearchToolControllerObserver} from "./SearchToolControllerObserver";
