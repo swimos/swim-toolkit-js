@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Class, Lazy, ObserverType} from "@swim/util";
+import {Mutable, Class, Lazy, Observes} from "@swim/util";
 import {Service} from "@swim/component";
 import {R2Box} from "@swim/math";
 import type {ViewportIdiom} from "./ViewportIdiom";
@@ -143,7 +143,7 @@ export class ViewportService<V extends View = View> extends Service<V> {
     }
   }
 
-  protected override onObserve(observer: ObserverType<this>): void {
+  protected override onObserve(observer: Observes<this>): void {
     super.onObserve(observer);
     if (this.attached) {
       this.updateViewportIdiom(this.viewport);

@@ -16,8 +16,15 @@ import {AnyTransform, Transform} from "@swim/math";
 import {AttributeAnimatorClass, AttributeAnimator} from "./AttributeAnimator";
 
 /** @internal */
+export interface TransformAttributeAnimator<O = unknown, T extends Transform | null = Transform | null, U extends AnyTransform | null = AnyTransform | T> extends AttributeAnimator<O, T, U> {
+}
+
+/** @internal */
 export const TransformAttributeAnimator = (function (_super: typeof AttributeAnimator) {
-  const TransformAttributeAnimator = _super.extend("TransformAttributeAnimator", {}) as AttributeAnimatorClass<AttributeAnimator<any, Transform | null, AnyTransform | null>>;
+  const TransformAttributeAnimator = _super.extend("TransformAttributeAnimator", {
+    valueType: Transform,
+    value: null,
+  }) as AttributeAnimatorClass<TransformAttributeAnimator<any, any, any>>;
 
   TransformAttributeAnimator.prototype.equalValues = function (newValue: Transform | null, oldValue: Transform | null): boolean {
     if (newValue !== void 0 && newValue !== null) {

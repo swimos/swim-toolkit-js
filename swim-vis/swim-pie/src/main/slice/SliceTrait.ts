@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {PropertyDef} from "@swim/component";
+import {Property} from "@swim/component";
 import {Trait} from "@swim/model";
 import {AnyColorOrLook, ColorOrLook, ColorLook} from "@swim/theme";
 import type {SliceTraitObserver} from "./SliceTraitObserver";
@@ -22,45 +22,45 @@ import type {SliceTraitObserver} from "./SliceTraitObserver";
 export class SliceTrait extends Trait {
   override readonly observerType?: Class<SliceTraitObserver>;
 
-  @PropertyDef<SliceTrait["value"]>({
+  @Property<SliceTrait["value"]>({
     valueType: Number,
     value: 0,
     didSetValue(value: number): void {
       this.owner.callObservers("traitDidSetValue", value, this.owner);
     },
   })
-  readonly value!: PropertyDef<this, {value: number}>;
+  readonly value!: Property<this, number>;
 
-  @PropertyDef<SliceTrait["sliceColor"]>({
+  @Property<SliceTrait["sliceColor"]>({
     valueType: ColorLook,
     value: null,
     didSetValue(sliceColor: ColorOrLook | null): void {
       this.owner.callObservers("traitDidSetSliceColor", sliceColor, this.owner);
     },
   })
-  readonly sliceColor!: PropertyDef<this, {value: ColorOrLook | null, valueInit: AnyColorOrLook | null}>;
+  readonly sliceColor!: Property<this, ColorOrLook | null,AnyColorOrLook | null>;
 
   formatLabel(value: number): string | undefined {
     return void 0;
   }
 
-  @PropertyDef<SliceTrait["label"]>({
+  @Property<SliceTrait["label"]>({
     valueType: String,
     didSetValue(label: string | undefined): void {
       this.owner.callObservers("traitDidSetLabel", label, this.owner);
     },
   })
-  readonly label!: PropertyDef<this, {value: string | undefined}>;
+  readonly label!: Property<this, string | undefined>;
 
   formatLegend(value: number): string | undefined {
     return void 0;
   }
 
-  @PropertyDef<SliceTrait["legend"]>({
+  @Property<SliceTrait["legend"]>({
     valueType: String,
     didSetValue(legend: string | undefined): void {
       this.owner.callObservers("traitDidSetLegend", legend, this.owner);
     },
   })
-  readonly legend!: PropertyDef<this, {value: string | undefined}>;
+  readonly legend!: Property<this, string | undefined>;
 }

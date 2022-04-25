@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {PropertyDef} from "@swim/component";
+import {Property} from "@swim/component";
 import {AnyColorOrLook, ColorOrLook, ColorLook} from "@swim/theme";
 import {SeriesPlotTrait} from "./SeriesPlotTrait";
 import type {AreaPlotTraitObserver} from "./AreaPlotTraitObserver";
@@ -24,14 +24,14 @@ import {AreaPlotController} from "./"; // forward import
 export class AreaPlotTrait<X = unknown, Y = unknown> extends SeriesPlotTrait<X, Y> {
   override readonly observerType?: Class<AreaPlotTraitObserver<X, Y>>;
 
-  @PropertyDef<AreaPlotTrait<X, Y>["fill"]>({
+  @Property<AreaPlotTrait<X, Y>["fill"]>({
     valueType: ColorLook,
     value: null,
     didSetValue(fill: ColorOrLook | null): void {
       this.owner.callObservers("traitDidSetFill", fill, this.owner);
     },
   })
-  readonly fill!: PropertyDef<this, {value: ColorOrLook | null, valueInit: AnyColorOrLook | null}>;
+  readonly fill!: Property<this, ColorOrLook | null, AnyColorOrLook | null>;
 
   override createPlotController(): SeriesPlotController<X, Y> {
     return new AreaPlotController<X, Y>();

@@ -15,8 +15,14 @@
 import {AttributeAnimatorClass, AttributeAnimator} from "./AttributeAnimator";
 
 /** @internal */
+export interface BooleanAttributeAnimator<O = unknown, T extends boolean | undefined = boolean | undefined, U extends boolean | string | undefined = boolean | string | T> extends AttributeAnimator<O, T, U> {
+}
+
+/** @internal */
 export const BooleanAttributeAnimator = (function (_super: typeof AttributeAnimator) {
-  const BooleanAttributeAnimator = _super.extend("BooleanAttributeAnimator", {}) as AttributeAnimatorClass<AttributeAnimator<any, boolean | undefined, string>>;
+  const BooleanAttributeAnimator = _super.extend("BooleanAttributeAnimator", {
+    valueType: Boolean,
+  }) as AttributeAnimatorClass<BooleanAttributeAnimator<any, any, any>>;
 
   BooleanAttributeAnimator.prototype.equalValues = function (newValue: boolean | undefined, oldValue: boolean | undefined): boolean {
     return newValue === oldValue;

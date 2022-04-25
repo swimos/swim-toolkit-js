@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import type {Mutable, Class} from "@swim/util";
-import {PropertyDef} from "@swim/component";
+import {Property} from "@swim/component";
 import {R2Box, Transform} from "@swim/math";
-import {ThemeConstraintAnimatorDef} from "@swim/theme";
+import {ThemeConstraintAnimator} from "@swim/theme";
 import {ViewContextType, ViewFlags, View} from "@swim/view";
 import type {AnyGraphicsRenderer, GraphicsRendererType, GraphicsRenderer} from "../graphics/GraphicsRenderer";
 import type {GraphicsViewContext} from "../graphics/GraphicsViewContext";
@@ -48,11 +48,11 @@ export class RasterView extends GraphicsView {
 
   override readonly contextType?: Class<RasterViewContext>;
 
-  @ThemeConstraintAnimatorDef({valueType: Number, value: 1, updateFlags: View.NeedsComposite})
-  readonly opacity!: ThemeConstraintAnimatorDef<this, {value: number}>;
+  @ThemeConstraintAnimator({valueType: Number, value: 1, updateFlags: View.NeedsComposite})
+  readonly opacity!: ThemeConstraintAnimator<this, number>;
 
-  @PropertyDef({valueType: String, value: "source-over", updateFlags: View.NeedsComposite})
-  readonly compositeOperation!: PropertyDef<this, {value: CanvasCompositeOperation}>;
+  @Property({valueType: String, value: "source-over", updateFlags: View.NeedsComposite})
+  readonly compositeOperation!: Property<this, CanvasCompositeOperation>;
 
   get pixelRatio(): number {
     return window.devicePixelRatio || 1;

@@ -16,8 +16,15 @@ import {AnyColor, Color} from "@swim/style";
 import {AttributeAnimatorClass, AttributeAnimator} from "./AttributeAnimator";
 
 /** @internal */
+export interface ColorAttributeAnimator<O = unknown, T extends Color | null = Color | null, U extends AnyColor | null = AnyColor | T> extends AttributeAnimator<O, T, U> {
+}
+
+/** @internal */
 export const ColorAttributeAnimator = (function (_super: typeof AttributeAnimator) {
-  const ColorAttributeAnimator = _super.extend("ColorAttributeAnimator", {}) as AttributeAnimatorClass<AttributeAnimator<any, Color | null, AnyColor | null>>;
+  const ColorAttributeAnimator = _super.extend("ColorAttributeAnimator", {
+    valueType: Color,
+    value: null,
+  }) as AttributeAnimatorClass<ColorAttributeAnimator<any, any, any>>;
 
   ColorAttributeAnimator.prototype.equalValues = function (newValue: Color | null, oldValue: Color | null): boolean {
     if (newValue !== void 0 && newValue !== null) {

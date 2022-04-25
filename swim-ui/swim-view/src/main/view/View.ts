@@ -21,15 +21,14 @@ import {
   AnyTiming,
   Timing,
   Creatable,
-  InitType,
+  Inits,
   Initable,
-  ObserverType,
+  Observes,
 } from "@swim/util";
 import {
   Affinity,
   FastenerClass,
   Fastener,
-  PropertyDef,
   Property,
   Animator,
   ComponentFlags,
@@ -110,7 +109,7 @@ export type ViewContextType<V extends View> =
 export type ViewFlags = ComponentFlags;
 
 /** @public */
-export type AnyView<V extends View = View> = V | ViewFactory<V> | InitType<V>;
+export type AnyView<V extends View = View> = V | ViewFactory<V> | Inits<V>;
 
 /** @public */
 export interface ViewInit extends ComponentInit {
@@ -126,7 +125,7 @@ export interface ViewInit extends ComponentInit {
 
 /** @public */
 export interface ViewFactory<V extends View = View, U = AnyView<V>> extends Creatable<V>, FromAny<V, U> {
-  fromInit(init: InitType<V>): V;
+  fromInit(init: Inits<V>): V;
 }
 
 /** @public */
@@ -1315,11 +1314,11 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   readonly modalProvider!: ModalProvider<this>;
   static readonly modalProvider: FastenerClass<View["modalProvider"]>;
 
-  @PropertyDef({valueType: MoodVector, value: null, inherits: true})
-  readonly mood!: PropertyDef<this, {value: MoodVector | null}>;
+  @Property({valueType: MoodVector, value: null, inherits: true})
+  readonly mood!: Property<this, MoodVector | null>;
 
-  @PropertyDef({valueType: ThemeMatrix, value: null, inherits: true})
-  readonly theme!: PropertyDef<this, {value: ThemeMatrix | null}>;
+  @Property({valueType: ThemeMatrix, value: null, inherits: true})
+  readonly theme!: Property<this, ThemeMatrix | null>;
 
   /** @override */
   getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel> | null): T | undefined {
@@ -1411,11 +1410,11 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     }
   }
 
-  @PropertyDef({valueType: MoodMatrix, value: null})
-  readonly moodModifier!: PropertyDef<this, {value: MoodMatrix | null}>;
+  @Property({valueType: MoodMatrix, value: null})
+  readonly moodModifier!: Property<this, MoodMatrix | null>;
 
-  @PropertyDef({valueType: MoodMatrix, value: null})
-  readonly themeModifier!: PropertyDef<this, {value: MoodMatrix | null}>;
+  @Property({valueType: MoodMatrix, value: null})
+  readonly themeModifier!: Property<this, MoodMatrix | null>;
 
   /** @internal */
   modifyMood(feel: Feel, updates: MoodVectorUpdates<Feel>, timing?: AnyTiming | boolean): void {
@@ -1877,7 +1876,7 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   /** @internal */
   readonly observerCache: ViewObserverCache<this>;
 
-  protected override onObserve(observer: ObserverType<this>): void {
+  protected override onObserve(observer: Observes<this>): void {
     super.onObserve(observer);
     if (observer.viewWillInsertChild !== void 0) {
       this.observerCache.viewWillInsertChildObservers = Arrays.inserted(observer as ViewWillInsertChild, this.observerCache.viewWillInsertChildObservers);
@@ -1947,7 +1946,7 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     }
   }
 
-  protected override onUnobserve(observer: ObserverType<this>): void {
+  protected override onUnobserve(observer: Observes<this>): void {
     super.onUnobserve(observer);
     if (observer.viewWillInsertChild !== void 0) {
       this.observerCache.viewWillInsertChildObservers = Arrays.removed(observer as ViewWillInsertChild, this.observerCache.viewWillInsertChildObservers);
@@ -2037,7 +2036,7 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     return new this();
   }
 
-  static override fromInit<S extends Class<Instance<S, View>>>(this: S, init: InitType<InstanceType<S>>): InstanceType<S> {
+  static override fromInit<S extends Class<Instance<S, View>>>(this: S, init: Inits<InstanceType<S>>): InstanceType<S> {
     let type: Creatable<View>;
     if ((typeof init === "object" && init !== null || typeof init === "function") && Creatable.is((init as ViewInit).type)) {
       type = (init as ViewInit).type!;

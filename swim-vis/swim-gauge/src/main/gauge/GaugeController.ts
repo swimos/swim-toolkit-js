@@ -12,17 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, AnyTiming, Timing} from "@swim/util";
-import {FastenerClass, PropertyDef} from "@swim/component";
+import {Class, AnyTiming, Timing, Observes} from "@swim/util";
+import {FastenerClass, Property} from "@swim/component";
 import type {Trait} from "@swim/model";
-import {ViewRefDef} from "@swim/view";
+import {ViewRef} from "@swim/view";
 import type {GraphicsView} from "@swim/graphics";
-import {
-  Controller,
-  TraitViewRefDef,
-  TraitViewRef,
-  TraitViewControllerSetDef,
-} from "@swim/controller";
+import {Controller, TraitViewRef, TraitViewControllerSet} from "@swim/controller";
 import type {DialView} from "../dial/DialView";
 import type {DialTrait} from "../dial/DialTrait";
 import {DialController} from "../dial/DialController";
@@ -48,7 +43,7 @@ export class GaugeController extends Controller {
     }
   }
 
-  @TraitViewRefDef<GaugeController["gauge"]>({
+  @TraitViewRef<GaugeController["gauge"]>({
     traitType: GaugeTrait,
     observesTrait: true,
     willAttachTrait(gaugeTrait: GaugeTrait): void {
@@ -119,15 +114,10 @@ export class GaugeController extends Controller {
       this.owner.title.setView(null);
     },
   })
-  readonly gauge!: TraitViewRefDef<this, {
-    trait: GaugeTrait,
-    observesTrait: true,
-    view: GaugeView,
-    observesView: true,
-  }>;
+  readonly gauge!: TraitViewRef<this, GaugeTrait, GaugeView> & Observes<GaugeTrait & GaugeView>;
   static readonly gauge: FastenerClass<GaugeController["gauge"]>;
 
-  @ViewRefDef<GaugeController["title"]>({
+  @ViewRef<GaugeController["title"]>({
     viewKey: true,
     willAttachView(titleView: GraphicsView): void {
       this.owner.callObservers("controllerWillAttachGaugeTitleView", titleView, this.owner);
@@ -136,16 +126,13 @@ export class GaugeController extends Controller {
       this.owner.callObservers("controllerDidDetachGaugeTitleView", titleView, this.owner);
     },
   })
-  readonly title!: ViewRefDef<this, {view: GraphicsView}>;
+  readonly title!: ViewRef<this, GraphicsView>;
   static readonly title: FastenerClass<GaugeController["title"]>;
 
-  @PropertyDef({valueType: Timing, value: true})
-  readonly dialTiming!: PropertyDef<this, {
-    value: Timing | boolean | undefined,
-    valueInit: AnyTiming | boolean | undefined,
-  }>;
+  @Property({valueType: Timing, value: true})
+  readonly dialTiming!: Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined>;
 
-  @TraitViewControllerSetDef<GaugeController["dials"]>({
+  @TraitViewControllerSet<GaugeController["dials"]>({
     controllerType: DialController,
     binds: true,
     observes: true,
@@ -259,21 +246,15 @@ export class GaugeController extends Controller {
       // hook
     },
   })
-  readonly dials!: TraitViewControllerSetDef<this, {
-    trait: DialTrait,
-    view: DialView,
-    controller: DialController,
-    implements: {
-      attachDialTrait(dialTrait: DialTrait, dialController: DialController): void;
-      detachDialTrait(dialTrait: DialTrait, dialController: DialController): void;
-      attachDialView(dialView: DialView, dialController: DialController): void;
-      detachDialView(dialView: DialView, dialController: DialController): void;
-      attachDialLabelView(labelView: GraphicsView, dialController: DialController): void;
-      detachDialLabelView(labelView: GraphicsView, dialController: DialController): void;
-      attachDialLegendView(legendView: GraphicsView, dialController: DialController): void;
-      detachDialLegendView(legendView: GraphicsView, dialController: DialController): void;
-    },
-    observes: true,
-  }>;
+  readonly dials!: TraitViewControllerSet<this, DialTrait, DialView, DialController> & Observes<DialController> & {
+    attachDialTrait(dialTrait: DialTrait, dialController: DialController): void;
+    detachDialTrait(dialTrait: DialTrait, dialController: DialController): void;
+    attachDialView(dialView: DialView, dialController: DialController): void;
+    detachDialView(dialView: DialView, dialController: DialController): void;
+    attachDialLabelView(labelView: GraphicsView, dialController: DialController): void;
+    detachDialLabelView(labelView: GraphicsView, dialController: DialController): void;
+    attachDialLegendView(legendView: GraphicsView, dialController: DialController): void;
+    detachDialLegendView(legendView: GraphicsView, dialController: DialController): void;
+  };
   static readonly dials: FastenerClass<GaugeController["dials"]>;
 }

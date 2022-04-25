@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {Affinity, PropertyDef} from "@swim/component";
+import {Affinity, Property} from "@swim/component";
 import {HtmlView} from "@swim/dom";
 import type {PanelViewObserver} from "./PanelViewObserver";
 
@@ -32,25 +32,25 @@ export class PanelView extends HtmlView {
 
   override readonly observerType?: Class<PanelViewObserver>;
 
-  @PropertyDef<PanelView["unitWidth"]>({
+  @Property<PanelView["unitWidth"]>({
     valueType: Number,
     value: 1,
     didSetValue(unitWidth: number): void {
       this.owner.callObservers("viewDidSetUnitWidth", unitWidth, this.owner);
     },
   })
-  readonly unitWidth!: PropertyDef<this, {value: number}>;
+  readonly unitWidth!: Property<this, number>;
 
-  @PropertyDef<PanelView["unitHeight"]>({
+  @Property<PanelView["unitHeight"]>({
     valueType: Number,
     value: 1,
     didSetValue(unitHeight: number): void {
       this.owner.callObservers("viewDidSetUnitHeight", unitHeight, this.owner);
     },
   })
-  readonly unitHeight!: PropertyDef<this, {value: number}>;
+  readonly unitHeight!: Property<this, number>;
 
-  @PropertyDef<PanelView["minPanelHeight"]>({
+  @Property<PanelView["minPanelHeight"]>({
     valueType: Number,
     value: 180,
     inherits: true,
@@ -58,5 +58,5 @@ export class PanelView extends HtmlView {
       this.owner.callObservers("viewDidSetMinPanelHeight", minPanelHeight, this.owner);
     },
   })
-  readonly minPanelHeight!: PropertyDef<this, {value: number}>;
+  readonly minPanelHeight!: Property<this, number>;
 }

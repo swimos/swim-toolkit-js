@@ -12,39 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Class, Proto, ObserverType, ConsumerType} from "@swim/util";
+import type {Mutable, Class, Proto, Observes, Consumes} from "@swim/util";
 import type {FastenerOwner} from "@swim/component";
-import type {Model} from "../model/Model";
+import type {ModelFactory, Model} from "../model/Model";
 import {AnyTrait, TraitFactory, Trait} from "./Trait";
-import {
-  ModelSetRefinement,
-  ModelSetTemplate,
-  ModelSetClass,
-  ModelSet,
-} from "../model/ModelSet";
+import {ModelSetDescriptor, ModelSetClass, ModelSet} from "../model/ModelSet";
 
 /** @public */
-export interface TraitModelSetRefinement extends ModelSetRefinement {
-  trait?: Trait;
-  observesTrait?: unknown;
-}
+export type TraitModelSetTrait<F extends TraitModelSet<any, any, any>> =
+  F extends {traitType?: TraitFactory<infer T>} ? T : never;
 
 /** @public */
-export type TraitModelSetTrait<R extends TraitModelSetRefinement | TraitModelSet<any, any, any>, D = Trait> =
-  R extends {trait: infer T | null} ? T :
-  R extends {extends: infer E} ? TraitModelSetTrait<E, D> :
-  R extends TraitModelSet<any, infer T, any> ? T :
-  D;
+export type TraitModelSetModel<F extends TraitModelSet<any, any, any>> =
+  F extends {modelType?: ModelFactory<infer M>} ? M : never;
 
 /** @public */
-export type TraitModelSetModel<R extends TraitModelSetRefinement | TraitModelSet<any, any, any>, D = Model> =
-  R extends {model: infer M | null} ? M :
-  R extends {extends: infer E} ? TraitModelSetModel<E, D> :
-  R extends TraitModelSet<any, any, infer M> ? M :
-  D;
-
-/** @public */
-export interface TraitModelSetTemplate<T extends Trait = Trait, M extends Model = Model> extends ModelSetTemplate<M> {
+export interface TraitModelSetDescriptor<T extends Trait = Trait, M extends Model = Model> extends ModelSetDescriptor<M> {
   extends?: Proto<TraitModelSet<any, any, any>> | string | boolean | null;
   traitType?: TraitFactory<T>;
   traitKey?: string | boolean;
@@ -52,47 +35,29 @@ export interface TraitModelSetTemplate<T extends Trait = Trait, M extends Model 
 }
 
 /** @public */
+export type TraitModelSetTemplate<F extends TraitModelSet<any, any, any>> =
+  ThisType<F> &
+  TraitModelSetDescriptor<TraitModelSetTrait<F>, TraitModelSetModel<F>> &
+  Partial<Omit<F, keyof TraitModelSetDescriptor>>;
+
+/** @public */
 export interface TraitModelSetClass<F extends TraitModelSet<any, any, any> = TraitModelSet<any, any, any>> extends ModelSetClass<F> {
   /** @override */
-  specialize(className: string, template: TraitModelSetTemplate): TraitModelSetClass;
+  specialize(template: TraitModelSetDescriptor<any, any>): TraitModelSetClass<F>;
 
   /** @override */
-  refine(fastenerClass: TraitModelSetClass): void;
+  refine(fastenerClass: TraitModelSetClass<any>): void;
 
   /** @override */
-  extend(className: string, template: TraitModelSetTemplate): TraitModelSetClass<F>;
+  extend<F2 extends F>(className: string, template: TraitModelSetTemplate<F2>): TraitModelSetClass<F2>;
+  extend<F2 extends F>(className: string, template: TraitModelSetTemplate<F2>): TraitModelSetClass<F2>;
 
   /** @override */
-  specify<O, T extends Trait = Trait, M extends Model = Model>(className: string, template: ThisType<TraitModelSet<O, T, M>> & TraitModelSetTemplate<T, M> & Partial<Omit<TraitModelSet<O, T, M>, keyof TraitModelSetTemplate>>): TraitModelSetClass<F>;
+  define<F2 extends F>(className: string, template: TraitModelSetTemplate<F2>): TraitModelSetClass<F2>;
+  define<F2 extends F>(className: string, template: TraitModelSetTemplate<F2>): TraitModelSetClass<F2>;
 
   /** @override */
-  <O, T extends Trait = Trait, M extends Model = Model>(template: ThisType<TraitModelSet<O, T, M>> & TraitModelSetTemplate<T, M> & Partial<Omit<TraitModelSet<O, T, M>, keyof TraitModelSetTemplate>>): PropertyDecorator;
-}
-
-/** @public */
-export type TraitModelSetDef<O, R extends TraitModelSetRefinement = {}> =
-  TraitModelSet<O, TraitModelSetTrait<R>, TraitModelSetModel<R>> &
-  {readonly name: string} & // prevent type alias simplification
-  (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer I} ? I : {}) &
-  (R extends {implements: infer I} ? I : {}) &
-  (R extends {observes: infer B} ? ObserverType<B extends boolean ? TraitModelSetModel<R> : B> : {}) &
-  (R extends {observesTrait: infer B} ? ObserverType<B extends boolean ? TraitModelSetTrait<R> : B> : {});
-
-/** @public */
-export function TraitModelSetDef<F extends TraitModelSet<any, any, any>>(
-  template: F extends TraitModelSetDef<infer O, infer R>
-          ? ThisType<TraitModelSetDef<O, R>>
-          & TraitModelSetTemplate<TraitModelSetTrait<R>, TraitModelSetModel<R>>
-          & Partial<Omit<TraitModelSet<O, TraitModelSetTrait<R>, TraitModelSetModel<R>>, keyof TraitModelSetTemplate>>
-          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof TraitModelSetTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer I} ? Partial<I> : {})
-          & (R extends {implements: infer I} ? I : {})
-          & (R extends {observes: infer B} ? (ObserverType<B extends boolean ? TraitModelSetModel<R> : B> & {observes: boolean}) : {})
-          & (R extends {observesTrait: infer B} ? (ObserverType<B extends boolean ? TraitModelSetTrait<R> : B> & {observesTrait: boolean}) : {})
-          : never
-): PropertyDecorator {
-  return TraitModelSet(template);
+  <F2 extends F>(template: TraitModelSetTemplate<F2>): PropertyDecorator;
 }
 
 /** @public */
@@ -165,9 +130,9 @@ export interface TraitModelSet<O = unknown, T extends Trait = Trait, M extends M
 
   reinsertTrait(trait: T, targetTrait?: T | null): void;
 
-  consumeTraits(consumer: ConsumerType<T>): void;
+  consumeTraits(consumer: Consumes<T>): void;
 
-  unconsumeTraits(consumer: ConsumerType<T>): void;
+  unconsumeTraits(consumer: Consumes<T>): void;
 
   createTrait(): T;
 
@@ -285,7 +250,7 @@ export const TraitModelSet = (function (_super: typeof ModelSet) {
 
   TraitModelSet.prototype.onAttachTrait = function <T extends Trait>(this: TraitModelSet<unknown, T>, trait: T, targetModel: Model | null): void {
     if (this.observesTrait === true) {
-      trait.observe(this as ObserverType<T>);
+      trait.observe(this as Observes<T>);
     }
   };
 
@@ -327,7 +292,7 @@ export const TraitModelSet = (function (_super: typeof ModelSet) {
 
   TraitModelSet.prototype.onDetachTrait = function <T extends Trait>(this: TraitModelSet<unknown, T>, trait: T): void {
     if (this.observesTrait === true) {
-      trait.unobserve(this as ObserverType<T>);
+      trait.unobserve(this as Observes<T>);
     }
   };
 
@@ -406,7 +371,7 @@ export const TraitModelSet = (function (_super: typeof ModelSet) {
     }
   };
 
-  TraitModelSet.prototype.consumeTraits = function <T extends Trait>(this: TraitModelSet<unknown, T>, consumer: ConsumerType<T>): void {
+  TraitModelSet.prototype.consumeTraits = function <T extends Trait>(this: TraitModelSet<unknown, T>, consumer: Consumes<T>): void {
     const traits = this.traits;
     for (const traitId in traits) {
       const trait = traits[traitId]!;
@@ -414,7 +379,7 @@ export const TraitModelSet = (function (_super: typeof ModelSet) {
     }
   };
 
-  TraitModelSet.prototype.unconsumeTraits = function <T extends Trait>(this: TraitModelSet<unknown, T>, consumer: ConsumerType<T>): void {
+  TraitModelSet.prototype.unconsumeTraits = function <T extends Trait>(this: TraitModelSet<unknown, T>, consumer: Consumes<T>): void {
     const traits = this.traits;
     for (const traitId in traits) {
       const trait = traits[traitId]!;
@@ -512,7 +477,7 @@ export const TraitModelSet = (function (_super: typeof ModelSet) {
     return fastener;
   };
 
-  TraitModelSet.refine = function (fastenerClass: TraitModelSetClass): void {
+  TraitModelSet.refine = function (fastenerClass: TraitModelSetClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

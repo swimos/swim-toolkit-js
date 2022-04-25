@@ -16,8 +16,7 @@ import {Mutable, Proto, AnyTiming, Timing} from "@swim/util";
 import {
   FastenerContext,
   FastenerOwner,
-  FastenerRefinement,
-  FastenerTemplate,
+  FastenerDescriptor,
   FastenerClass,
   Fastener,
 } from "@swim/component";
@@ -35,53 +34,35 @@ import type {CssContext} from "./CssContext";
 import {CssRule} from "./CssRule";
 
 /** @public */
-export interface StyleSheetRefinement extends FastenerRefinement {
-}
-
-/** @public */
-export interface StyleSheetTemplate extends FastenerTemplate {
+export interface StyleSheetDescriptor extends FastenerDescriptor {
   extends?: Proto<StyleSheet<any>> | string | boolean | null;
   css?: string;
 }
 
 /** @public */
+export type StyleSheetTemplate<F extends StyleSheet<any>> =
+  ThisType<F> &
+  StyleSheetDescriptor &
+  Partial<Omit<F, keyof StyleSheetDescriptor>>;
+
+/** @public */
 export interface StyleSheetClass<F extends StyleSheet<any> = StyleSheet<any>> extends FastenerClass<F> {
   /** @override */
-  specialize(className: string, template: StyleSheetTemplate): StyleSheetClass;
+  specialize(template: StyleSheetDescriptor): StyleSheetClass<F>;
 
   /** @override */
-  refine(fastenerClass: StyleSheetClass): void;
+  refine(fastenerClass: StyleSheetClass<any>): void;
 
   /** @override */
-  extend(className: string, template: StyleSheetTemplate): StyleSheetClass<F>;
+  extend<F2 extends F>(className: string, template: StyleSheetTemplate<F2>): StyleSheetClass<F2>;
+  extend<F2 extends F>(className: string, template: StyleSheetTemplate<F2>): StyleSheetClass<F2>;
 
   /** @override */
-  specify<O>(className: string, template: ThisType<StyleSheet<O>> & StyleSheetTemplate & Partial<Omit<StyleSheet<O>, keyof StyleSheetTemplate>>): StyleSheetClass<F>;
+  define<F2 extends F>(className: string, template: StyleSheetTemplate<F2>): StyleSheetClass<F2>;
+  define<F2 extends F>(className: string, template: StyleSheetTemplate<F2>): StyleSheetClass<F2>;
 
   /** @override */
-  <O>(template: ThisType<StyleSheet<O>> & StyleSheetTemplate & Partial<Omit<StyleSheet<O>, keyof StyleSheetTemplate>>): PropertyDecorator;
-}
-
-/** @public */
-export type StyleSheetDef<O, R extends StyleSheetRefinement = {}> =
-  StyleSheet<O> &
-  {readonly name: string} & // prevent type alias simplification
-  (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer I} ? I : {}) &
-  (R extends {implements: infer I} ? I : {});
-
-/** @public */
-export function StyleSheetDef<P extends StyleSheet<any>>(
-  template: P extends StyleSheetDef<infer O, infer R>
-          ? ThisType<StyleSheetDef<O, R>>
-          & StyleSheetTemplate
-          & Partial<Omit<StyleSheet<O>, keyof StyleSheetTemplate>>
-          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof StyleSheetTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer I} ? Partial<I> : {})
-          & (R extends {implements: infer I} ? I : {})
-          : never
-): PropertyDecorator {
-  return StyleSheet(template);
+  <F2 extends F>(template: StyleSheetTemplate<F2>): PropertyDecorator;
 }
 
 /** @public */

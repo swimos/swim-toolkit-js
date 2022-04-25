@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, AnyTiming, Timing} from "@swim/util";
-import {Affinity, FastenerClass, PropertyDef} from "@swim/component";
+import {Class, AnyTiming, Timing, Observes} from "@swim/util";
+import {Affinity, FastenerClass, Property} from "@swim/component";
 import {Look, Mood, ColorOrLook} from "@swim/theme";
-import {ViewRefDef} from "@swim/view";
+import {ViewRef} from "@swim/view";
 import type {GraphicsView} from "@swim/graphics";
-import {Controller, TraitViewRefDef} from "@swim/controller";
+import {Controller, TraitViewRef} from "@swim/controller";
 import {DialView} from "./DialView";
 import {DialTrait} from "./DialTrait";
 import type {DialControllerObserver} from "./DialControllerObserver";
@@ -126,13 +126,10 @@ export class DialController extends Controller {
     }
   }
 
-  @PropertyDef({valueType: Timing, inherits: true})
-  readonly dialTiming!: PropertyDef<this, {
-    value: Timing | boolean | undefined,
-    valueInit: AnyTiming | boolean | undefined,
-  }>;
+  @Property({valueType: Timing, inherits: true})
+  readonly dialTiming!: Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined>;
 
-  @TraitViewRefDef<DialController["dial"]>({
+  @TraitViewRef<DialController["dial"]>({
     traitType: DialTrait,
     observesTrait: true,
     willAttachTrait(dialTrait: DialTrait): void {
@@ -244,15 +241,10 @@ export class DialController extends Controller {
       this.owner.legend.setView(null);
     },
   })
-  readonly dial!: TraitViewRefDef<this, {
-    trait: DialTrait,
-    observesTrait: true,
-    view: DialView,
-    observesView: true,
-  }>;
+  readonly dial!: TraitViewRef<this, DialTrait, DialView> & Observes<DialTrait & DialView>;
   static readonly dial: FastenerClass<DialController["dial"]>;
 
-  @ViewRefDef<DialController["label"]>({
+  @ViewRef<DialController["label"]>({
     viewKey: true,
     willAttachView(labelView: GraphicsView): void {
       this.owner.callObservers("controllerWillAttachDialLabelView", labelView, this.owner);
@@ -261,10 +253,10 @@ export class DialController extends Controller {
       this.owner.callObservers("controllerDidDetachDialLabelView", labelView, this.owner);
     },
   })
-  readonly label!: ViewRefDef<this, {view: GraphicsView}>;
+  readonly label!: ViewRef<this, GraphicsView>;
   static readonly label: FastenerClass<DialController["label"]>;
 
-  @ViewRefDef<DialController["legend"]>({
+  @ViewRef<DialController["legend"]>({
     viewKey: true,
     willAttachView(legendView: GraphicsView): void {
       this.owner.callObservers("controllerWillAttachDialLegendView", legendView, this.owner);
@@ -273,6 +265,6 @@ export class DialController extends Controller {
       this.owner.callObservers("controllerDidDetachDialLegendView", legendView, this.owner);
     },
   })
-  readonly legend!: ViewRefDef<this, {view: GraphicsView}>;
+  readonly legend!: ViewRef<this, GraphicsView>;
   static readonly legend: FastenerClass<DialController["legend"]>;
 }

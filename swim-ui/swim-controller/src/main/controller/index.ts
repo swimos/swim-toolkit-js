@@ -27,28 +27,25 @@ export {
 export {ControllerObserver} from "./ControllerObserver";
 
 export {
-  ControllerRelationRefinement,
   ControllerRelationController,
+  ControllerRelationDescriptor,
   ControllerRelationTemplate,
   ControllerRelationClass,
-  ControllerRelationDef,
   ControllerRelation,
 } from "./ControllerRelation";
 
 export {
-  ControllerRefRefinement,
   ControllerRefController,
+  ControllerRefDescriptor,
   ControllerRefTemplate,
   ControllerRefClass,
-  ControllerRefDef,
   ControllerRef,
 } from "./ControllerRef";
 
 export {
-  ControllerSetRefinement,
   ControllerSetController,
+  ControllerSetDescriptor,
   ControllerSetTemplate,
   ControllerSetClass,
-  ControllerSetDef,
   ControllerSet,
 } from "./ControllerSet";

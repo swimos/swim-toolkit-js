@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {PropertyDef} from "@swim/component";
+import {Property} from "@swim/component";
 import {AnyLength, Length} from "@swim/math";
 import {AnyColorOrLook, ColorOrLook, ColorLook} from "@swim/theme";
 import type {GeoController} from "../geo/GeoController";
@@ -25,23 +25,23 @@ import {GeoLineController} from "./"; // forward import
 export abstract class GeoLineTrait extends GeoPathTrait {
   override readonly observerType?: Class<GeoLineTraitObserver>;
 
-  @PropertyDef<GeoLineTrait["stroke"]>({
+  @Property<GeoLineTrait["stroke"]>({
     valueType: ColorLook,
     value: null,
     didSetValue(stroke: ColorOrLook | null): void {
       this.owner.callObservers("traitDidSetStroke", stroke, this.owner);
     },
   })
-  readonly stroke!: PropertyDef<this, {value: ColorOrLook | null, valueInit: AnyColorOrLook | null}>;
+  readonly stroke!: Property<this, ColorOrLook | null, AnyColorOrLook | null>;
 
-  @PropertyDef<GeoLineTrait["strokeWidth"]>({
+  @Property<GeoLineTrait["strokeWidth"]>({
     valueType: Length,
     value: null,
     didSetValue(strokeWidth: Length | null): void {
       this.owner.callObservers("traitDidSetStrokeWidth", strokeWidth, this.owner);
     },
   })
-  readonly strokeWidth!: PropertyDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  readonly strokeWidth!: Property<this, Length | null, AnyLength | null>;
 
   override createGeoController(): GeoController {
     return new GeoLineController();

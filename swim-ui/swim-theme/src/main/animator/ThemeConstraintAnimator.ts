@@ -33,40 +33,39 @@ import {
   ConstraintScope,
   ConstraintSolver,
 } from "@swim/constraint";
-import {
-  ThemeAnimatorRefinement,
-  ThemeAnimatorTemplate,
-  ThemeAnimatorClass,
-  ThemeAnimator,
-} from "./ThemeAnimator";
+import {ThemeAnimatorDescriptor, ThemeAnimatorClass, ThemeAnimator} from "./ThemeAnimator";
 
 /** @public */
-export interface ThemeConstraintAnimatorRefinement extends ThemeAnimatorRefinement {
-}
-
-/** @public */
-export interface ThemeConstraintAnimatorTemplate<T = unknown, U = T> extends ThemeAnimatorTemplate<T, U> {
+export interface ThemeConstraintAnimatorDescriptor<T = unknown, U = T> extends ThemeAnimatorDescriptor<T, U> {
   extends?: Proto<ThemeConstraintAnimator<any, any, any>> | string | boolean | null;
   strength?: AnyConstraintStrength;
   constrained?: boolean;
 }
 
 /** @public */
+export type ThemeConstraintAnimatorTemplate<A extends ThemeConstraintAnimator<any, any, any>> =
+  ThisType<A> &
+  ThemeConstraintAnimatorDescriptor<AnimatorValue<A>, AnimatorValueInit<A>> &
+  Partial<Omit<A, keyof ThemeConstraintAnimatorDescriptor>>;
+
+/** @public */
 export interface ThemeConstraintAnimatorClass<A extends ThemeConstraintAnimator<any, any> = ThemeConstraintAnimator<any, any>> extends ThemeAnimatorClass<A> {
   /** @override */
-  specialize(className: string, template: ThemeConstraintAnimatorTemplate): ThemeConstraintAnimatorClass;
+  specialize(template: ThemeConstraintAnimatorDescriptor<any, any>): ThemeConstraintAnimatorClass<A>;
 
   /** @override */
-  refine(animatorClass: ThemeConstraintAnimatorClass): void;
+  refine(animatorClass: ThemeConstraintAnimatorClass<any>): void;
 
   /** @override */
-  extend(className: string, template: ThemeConstraintAnimatorTemplate): ThemeConstraintAnimatorClass<A>;
+  extend<A2 extends A>(className: string, template: ThemeConstraintAnimatorTemplate<A2>): ThemeConstraintAnimatorClass<A2>;
+  extend<A2 extends A>(className: string, template: ThemeConstraintAnimatorTemplate<A2>): ThemeConstraintAnimatorClass<A2>;
 
   /** @override */
-  specify<O, T = unknown, U = T>(className: string, template: ThisType<ThemeConstraintAnimator<O, T, U>> & ThemeConstraintAnimatorTemplate<T, U> & Partial<Omit<ThemeConstraintAnimator<O, T, U>, keyof ThemeConstraintAnimatorTemplate>>): ThemeConstraintAnimatorClass<A>;
+  define<A2 extends A>(className: string, template: ThemeConstraintAnimatorTemplate<A2>): ThemeConstraintAnimatorClass<A2>;
+  define<A2 extends A>(className: string, template: ThemeConstraintAnimatorTemplate<A2>): ThemeConstraintAnimatorClass<A2>;
 
   /** @override */
-  <O, T = unknown, U = T>(template: ThisType<ThemeConstraintAnimator<O, T, U>> & ThemeConstraintAnimatorTemplate<T, U> & Partial<Omit<ThemeConstraintAnimator<O, T, U>, keyof ThemeConstraintAnimatorTemplate>>): PropertyDecorator;
+  <A2 extends A>(template: ThemeConstraintAnimatorTemplate<A2>): PropertyDecorator;
 
   /** @internal */
   readonly ConstrainedFlag: FastenerFlags;
@@ -77,28 +76,6 @@ export interface ThemeConstraintAnimatorClass<A extends ThemeConstraintAnimator<
   readonly FlagShift: number;
   /** @internal @override */
   readonly FlagMask: FastenerFlags;
-}
-
-/** @public */
-export type ThemeConstraintAnimatorDef<O, R extends ThemeConstraintAnimatorRefinement = {}> =
-  ThemeConstraintAnimator<O, AnimatorValue<R>, AnimatorValueInit<R>> &
-  {readonly name: string} & // prevent type alias simplification
-  (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer I} ? I : {}) &
-  (R extends {implements: infer I} ? I : {});
-
-/** @public */
-export function ThemeConstraintAnimatorDef<A extends ThemeConstraintAnimator<any, any, any>>(
-  template: A extends ThemeConstraintAnimatorDef<infer O, infer R>
-          ? ThisType<ThemeConstraintAnimatorDef<O, R>>
-          & ThemeConstraintAnimatorTemplate<AnimatorValue<R>, AnimatorValueInit<R>>
-          & Partial<Omit<ThemeConstraintAnimator<O, AnimatorValue<R>, AnimatorValueInit<R>>, keyof ThemeConstraintAnimatorTemplate>>
-          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof ThemeConstraintAnimatorTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer I} ? Partial<I> : {})
-          & (R extends {implements: infer I} ? I : {})
-          : never
-): PropertyDecorator {
-  return ThemeConstraintAnimator(template);
 }
 
 /** @public */
@@ -456,7 +433,7 @@ export const ThemeConstraintAnimator = (function (_super: typeof ThemeAnimator) 
     return animator;
   };
 
-  ThemeConstraintAnimator.refine = function (animatorClass: ThemeConstraintAnimatorClass): void {
+  ThemeConstraintAnimator.refine = function (animatorClass: ThemeConstraintAnimatorClass<any>): void {
     _super.refine.call(this, animatorClass);
     const animatorPrototype = animatorClass.prototype;
     let flagsInit = animatorPrototype.flagsInit;
@@ -470,7 +447,7 @@ export const ThemeConstraintAnimator = (function (_super: typeof ThemeAnimator) 
       } else {
         flagsInit &= ~ThemeConstraintAnimator.ConstrainedFlag;
       }
-      delete (animatorPrototype as ThemeConstraintAnimatorTemplate).constrained;
+      delete (animatorPrototype as ThemeConstraintAnimatorDescriptor).constrained;
     }
 
     if (flagsInit !== void 0) {

@@ -17,10 +17,9 @@ import {
   Affinity,
   FastenerOwner,
   Property,
-  AnimatorRefinement,
   AnimatorValue,
   AnimatorValueInit,
-  AnimatorTemplate,
+  AnimatorDescriptor,
   AnimatorClass,
   Animator,
 } from "@swim/component";
@@ -30,53 +29,35 @@ import type {ThemeMatrix} from "../theme/ThemeMatrix";
 import {ThemeContext} from "../theme/ThemeContext";
 
 /** @public */
-export interface ThemeAnimatorRefinement extends AnimatorRefinement {
-}
-
-/** @public */
-export interface ThemeAnimatorTemplate<T = unknown, U = T> extends AnimatorTemplate<T, U> {
+export interface ThemeAnimatorDescriptor<T = unknown, U = T> extends AnimatorDescriptor<T, U> {
   extends?: Proto<ThemeAnimator<any, any, any>> | string | boolean | null;
   look?: Look<T, any>;
 }
 
 /** @public */
+export type ThemeAnimatorTemplate<A extends ThemeAnimator<any, any, any>> =
+  ThisType<A> &
+  ThemeAnimatorDescriptor<AnimatorValue<A>, AnimatorValueInit<A>> &
+  Partial<Omit<A, keyof ThemeAnimatorDescriptor>>;
+
+/** @public */
 export interface ThemeAnimatorClass<A extends ThemeAnimator<any, any> = ThemeAnimator<any, any>> extends AnimatorClass<A> {
   /** @override */
-  specialize(className: string, template: ThemeAnimatorTemplate): ThemeAnimatorClass;
+  specialize(template: ThemeAnimatorDescriptor<any, any>): ThemeAnimatorClass<A>;
 
   /** @override */
-  refine(animatorClass: ThemeAnimatorClass): void;
+  refine(animatorClass: ThemeAnimatorClass<any>): void;
 
   /** @override */
-  extend(className: string, template: ThemeAnimatorTemplate): ThemeAnimatorClass<A>;
+  extend<A2 extends A>(className: string, template: ThemeAnimatorTemplate<A2>): ThemeAnimatorClass<A2>;
+  extend<A2 extends A>(className: string, template: ThemeAnimatorTemplate<A2>): ThemeAnimatorClass<A2>;
 
   /** @override */
-  specify<O, T = unknown, U = T>(className: string, template: ThisType<ThemeAnimator<O, T, U>> & ThemeAnimatorTemplate<T, U> & Partial<Omit<ThemeAnimator<O, T, U>, keyof ThemeAnimatorTemplate>>): ThemeAnimatorClass<A>;
+  define<A2 extends A>(className: string, template: ThemeAnimatorTemplate<A2>): ThemeAnimatorClass<A2>;
+  define<A2 extends A>(className: string, template: ThemeAnimatorTemplate<A2>): ThemeAnimatorClass<A2>;
 
   /** @override */
-  <O, T = unknown, U = T>(template: ThisType<ThemeAnimator<O, T, U>> & ThemeAnimatorTemplate<T, U> & Partial<Omit<ThemeAnimator<O, T, U>, keyof ThemeAnimatorTemplate>>): PropertyDecorator;
-}
-
-/** @public */
-export type ThemeAnimatorDef<O, R extends ThemeAnimatorRefinement = {}> =
-  ThemeAnimator<O, AnimatorValue<R>, AnimatorValueInit<R>> &
-  {readonly name: string} & // prevent type alias simplification
-  (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer I} ? I : {}) &
-  (R extends {implements: infer I} ? I : {});
-
-/** @public */
-export function ThemeAnimatorDef<A extends ThemeAnimator<any, any, any>>(
-  template: A extends ThemeAnimatorDef<infer O, infer R>
-          ? ThisType<ThemeAnimatorDef<O, R>>
-          & ThemeAnimatorTemplate<AnimatorValue<R>, AnimatorValueInit<R>>
-          & Partial<Omit<ThemeAnimator<O, AnimatorValue<R>, AnimatorValueInit<R>>, keyof ThemeAnimatorTemplate>>
-          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof ThemeAnimatorTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer I} ? Partial<I> : {})
-          & (R extends {implements: infer I} ? I : {})
-          : never
-): PropertyDecorator {
-  return ThemeAnimator(template);
+  <A2 extends A>(template: ThemeAnimatorTemplate<A2>): PropertyDecorator;
 }
 
 /** @public */

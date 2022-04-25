@@ -12,51 +12,47 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Proto, Objects, Comparator, ObserverType, ConsumerType} from "@swim/util";
+import {Mutable, Proto, Objects, Comparator, Consumes} from "@swim/util";
 import {Affinity, FastenerFlags, FastenerOwner, Fastener} from "@swim/component";
 import type {Model} from "../model/Model";
-import type {AnyTrait, Trait} from "./Trait";
-import {
-  TraitRelationRefinement,
-  TraitRelationTemplate,
-  TraitRelationClass,
-  TraitRelation,
-} from "./TraitRelation";
+import type {AnyTrait, TraitFactory, Trait} from "./Trait";
+import {TraitRelationDescriptor, TraitRelationClass, TraitRelation} from "./TraitRelation";
 
 /** @public */
-export interface TraitSetRefinement extends TraitRelationRefinement {
-}
+export type TraitSetTrait<F extends TraitSet<any, any>> =
+  F extends {traitType?: TraitFactory<infer T>} ? T : never;
 
 /** @public */
-export type TraitSetTrait<R extends TraitSetRefinement | TraitSet<any, any>, D = Trait> =
-  R extends {trait: infer M} ? M :
-  R extends {extends: infer E} ? TraitSetTrait<E, D> :
-  R extends TraitSet<any, infer M> ? M :
-  D;
-
-/** @public */
-export interface TraitSetTemplate<T extends Trait = Trait> extends TraitRelationTemplate<T> {
+export interface TraitSetDescriptor<T extends Trait = Trait> extends TraitRelationDescriptor<T> {
   extends?: Proto<TraitSet<any, any>> | string | boolean | null;
   ordered?: boolean;
   sorted?: boolean;
 }
 
 /** @public */
+export type TraitSetTemplate<F extends TraitSet<any, any>> =
+  ThisType<F> &
+  TraitSetDescriptor<TraitSetTrait<F>> &
+  Partial<Omit<F, keyof TraitSetDescriptor>>;
+
+/** @public */
 export interface TraitSetClass<F extends TraitSet<any, any> = TraitSet<any, any>> extends TraitRelationClass<F> {
   /** @override */
-  specialize(className: string, template: TraitSetTemplate): TraitSetClass;
+  specialize(template: TraitSetDescriptor<any>): TraitSetClass<F>;
 
   /** @override */
-  refine(fastenerClass: TraitSetClass): void;
+  refine(fastenerClass: TraitSetClass<any>): void;
 
   /** @override */
-  extend(className: string, template: TraitSetTemplate): TraitSetClass<F>;
+  extend<F2 extends F>(className: string, template: TraitSetTemplate<F2>): TraitSetClass<F2>;
+  extend<F2 extends F>(className: string, template: TraitSetTemplate<F2>): TraitSetClass<F2>;
 
   /** @override */
-  specify<O, T extends Trait = Trait>(className: string, template: ThisType<TraitSet<O, T>> & TraitSetTemplate<T> & Partial<Omit<TraitSet<O, T>, keyof TraitSetTemplate>>): TraitSetClass<F>;
+  define<F2 extends F>(className: string, template: TraitSetTemplate<F2>): TraitSetClass<F2>;
+  define<F2 extends F>(className: string, template: TraitSetTemplate<F2>): TraitSetClass<F2>;
 
   /** @override */
-  <O, T extends Trait = Trait>(template: ThisType<TraitSet<O, T>> & TraitSetTemplate<T> & Partial<Omit<TraitSet<O, T>, keyof TraitSetTemplate>>): PropertyDecorator;
+  <F2 extends F>(template: TraitSetTemplate<F2>): PropertyDecorator;
 
   /** @internal */
   readonly OrderedFlag: FastenerFlags;
@@ -67,30 +63,6 @@ export interface TraitSetClass<F extends TraitSet<any, any> = TraitSet<any, any>
   readonly FlagShift: number;
   /** @internal @override */
   readonly FlagMask: FastenerFlags;
-}
-
-/** @public */
-export type TraitSetDef<O, R extends TraitSetRefinement = {}> =
-  TraitSet<O, TraitSetTrait<R>> &
-  {readonly name: string} & // prevent type alias simplification
-  (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer I} ? I : {}) &
-  (R extends {implements: infer I} ? I : {}) &
-  (R extends {observes: infer B} ? ObserverType<B extends boolean ? TraitSetTrait<R> : B> : {});
-
-/** @public */
-export function TraitSetDef<F extends TraitSet<any, any>>(
-  template: F extends TraitSetDef<infer O, infer R>
-          ? ThisType<TraitSetDef<O, R>>
-          & TraitSetTemplate<TraitSetTrait<R>>
-          & Partial<Omit<TraitSet<O, TraitSetTrait<R>>, keyof TraitSetTemplate>>
-          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof TraitSetTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer I} ? Partial<I> : {})
-          & (R extends {implements: infer I} ? I : {})
-          & (R extends {observes: infer B} ? (ObserverType<B extends boolean ? TraitSetTrait<R> : B> & {observes: boolean}) : {})
-          : never
-): PropertyDecorator {
-  return TraitSet(template);
 }
 
 /** @public */
@@ -213,9 +185,9 @@ export interface TraitSet<O = unknown, T extends Trait = Trait> extends TraitRel
   /** @override */
   detectTrait(trait: Trait): T | null;
 
-  consumeTraits(consumer: ConsumerType<T>): void;
+  consumeTraits(consumer: Consumes<T>): void;
 
-  unconsumeTraits(consumer: ConsumerType<T>): void;
+  unconsumeTraits(consumer: Consumes<T>): void;
 
   /** @internal @protected */
   decohereOutlets(): void;
@@ -610,7 +582,7 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     return null;
   };
 
-  TraitSet.prototype.consumeTraits = function <T extends Trait>(this: TraitSet<unknown, T>, consumer: ConsumerType<T>): void {
+  TraitSet.prototype.consumeTraits = function <T extends Trait>(this: TraitSet<unknown, T>, consumer: Consumes<T>): void {
     const traits = this.traits;
     for (const traitId in traits) {
       const trait = traits[traitId]!;
@@ -618,7 +590,7 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     }
   };
 
-  TraitSet.prototype.unconsumeTraits = function <T extends Trait>(this: TraitSet<unknown, T>, consumer: ConsumerType<T>): void {
+  TraitSet.prototype.unconsumeTraits = function <T extends Trait>(this: TraitSet<unknown, T>, consumer: Consumes<T>): void {
     const traits = this.traits;
     for (const traitId in traits) {
       const trait = traits[traitId]!;
@@ -798,7 +770,7 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     return fastener;
   };
 
-  TraitSet.refine = function (fastenerClass: TraitSetClass): void {
+  TraitSet.refine = function (fastenerClass: TraitSetClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
     let flagsInit = fastenerPrototype.flagsInit;
@@ -812,7 +784,7 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
       } else {
         flagsInit &= ~TraitSet.OrderedFlag;
       }
-      delete (fastenerPrototype as TraitSetTemplate).ordered;
+      delete (fastenerPrototype as TraitSetDescriptor).ordered;
     }
 
     if (Object.prototype.hasOwnProperty.call(fastenerPrototype, "sorted")) {
@@ -824,7 +796,7 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
       } else {
         flagsInit &= ~TraitSet.SortedFlag;
       }
-      delete (fastenerPrototype as TraitSetTemplate).sorted;
+      delete (fastenerPrototype as TraitSetDescriptor).sorted;
     }
 
     if (flagsInit !== void 0) {

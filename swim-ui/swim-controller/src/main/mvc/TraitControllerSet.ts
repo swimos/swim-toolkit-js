@@ -12,81 +12,50 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Proto, ObserverType, ConsumerType} from "@swim/util";
+import type {Mutable, Proto, Consumes} from "@swim/util";
 import type {FastenerOwner} from "@swim/component";
 import type {TraitFactory, Trait, TraitRef} from "@swim/model";
-import type {Controller} from "../controller/Controller";
-import {
-  ControllerSetRefinement,
-  ControllerSetTemplate,
-  ControllerSetClass,
-  ControllerSet,
-} from "../controller/ControllerSet";
+import type {ControllerFactory, Controller} from "../controller/Controller";
+import {ControllerSetDescriptor, ControllerSetClass, ControllerSet} from "../controller/ControllerSet";
 
 /** @public */
-export interface TraitControllerSetRefinement extends ControllerSetRefinement {
-}
+export type TraitControllerSetTrait<F extends TraitControllerSet<any, any, any>> =
+  F extends {traitType?: TraitFactory<infer T>} ? T : never;
 
 /** @public */
-export type TraitControllerSetTrait<R extends TraitControllerSetRefinement | TraitControllerSet<any, any, any>, D = Trait> =
-  R extends {trait: infer T | null} ? T :
-  R extends {extends: infer E} ? TraitControllerSetTrait<E, D> :
-  R extends TraitControllerSet<any, infer T, any> ? T :
-  D;
+export type TraitControllerSetController<F extends TraitControllerSet<any, any, any>> =
+  F extends {controllerType?: ControllerFactory<infer C>} ? C : never;
 
 /** @public */
-export type TraitControllerSetController<R extends TraitControllerSetRefinement | TraitControllerSet<any, any, any>, D = Controller> =
-  R extends {controller: infer C | null} ? C :
-  R extends {extends: infer E} ? TraitControllerSetController<E, D> :
-  R extends TraitControllerSet<any, any, infer C> ? C :
-  D;
-
-/** @public */
-export interface TraitControllerSetTemplate<T extends Trait = Trait, C extends Controller = Controller> extends ControllerSetTemplate<C> {
+export interface TraitControllerSetDescriptor<T extends Trait = Trait, C extends Controller = Controller> extends ControllerSetDescriptor<C> {
   extends?: Proto<TraitControllerSet<any, any, any>> | string | boolean | null;
   traitType?: TraitFactory<T>;
 }
 
 /** @public */
+export type TraitControllerSetTemplate<F extends TraitControllerSet<any, any, any>> =
+  ThisType<F> &
+  TraitControllerSetDescriptor<TraitControllerSetTrait<F>, TraitControllerSetController<F>> &
+  Partial<Omit<F, keyof TraitControllerSetDescriptor>>;
+
+/** @public */
 export interface TraitControllerSetClass<F extends TraitControllerSet<any, any, any> = TraitControllerSet<any, any, any>> extends ControllerSetClass<F> {
   /** @override */
-  specialize(className: string, template: TraitControllerSetTemplate): TraitControllerSetClass;
+  specialize(template: TraitControllerSetDescriptor<any>): TraitControllerSetClass<F>;
 
   /** @override */
-  refine(fastenerClass: TraitControllerSetClass): void;
+  refine(fastenerClass: TraitControllerSetClass<any>): void;
 
   /** @override */
-  extend(className: string, template: TraitControllerSetTemplate): TraitControllerSetClass<F>;
+  extend<F2 extends F>(className: string, template: TraitControllerSetTemplate<F2>): TraitControllerSetClass<F2>;
+  extend<F2 extends F>(className: string, template: TraitControllerSetTemplate<F2>): TraitControllerSetClass<F2>;
 
   /** @override */
-  specify<O, T extends Trait = Trait, C extends Controller = Controller>(className: string, template: ThisType<TraitControllerSet<O, T, C>> & TraitControllerSetTemplate<T, C> & Partial<Omit<TraitControllerSet<O, T, C>, keyof TraitControllerSetTemplate>>): TraitControllerSetClass<F>;
+  define<F2 extends F>(className: string, template: TraitControllerSetTemplate<F2>): TraitControllerSetClass<F2>;
+  define<F2 extends F>(className: string, template: TraitControllerSetTemplate<F2>): TraitControllerSetClass<F2>;
 
   /** @override */
-  <O, T extends Trait = Trait, C extends Controller = Controller>(template: ThisType<TraitControllerSet<O, T, C>> & TraitControllerSetTemplate<T, C> & Partial<Omit<TraitControllerSet<O, T, C>, keyof TraitControllerSetTemplate>>): PropertyDecorator;
-}
-
-/** @public */
-export type TraitControllerSetDef<O, R extends TraitControllerSetRefinement = {}> =
-  TraitControllerSet<O, TraitControllerSetTrait<R>, TraitControllerSetController<R>> &
-  {readonly name: string} & // prevent type alias simplification
-  (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer I} ? I : {}) &
-  (R extends {implements: infer I} ? I : {}) &
-  (R extends {observes: infer B} ? ObserverType<B extends boolean ? TraitControllerSetController<R> : B> : {});
-
-/** @public */
-export function TraitControllerSetDef<F extends TraitControllerSet<any, any, any>>(
-  template: F extends TraitControllerSetDef<infer O, infer R>
-          ? ThisType<TraitControllerSetDef<O, R>>
-          & TraitControllerSetTemplate<TraitControllerSetTrait<R>, TraitControllerSetController<R>>
-          & Partial<Omit<TraitControllerSet<O, TraitControllerSetTrait<R>, TraitControllerSetController<R>>, keyof TraitControllerSetTemplate>>
-          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof TraitControllerSetTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer I} ? Partial<I> : {})
-          & (R extends {implements: infer I} ? I : {})
-          & (R extends {observes: infer B} ? (ObserverType<B extends boolean ? TraitControllerSetController<R> : B> & {observes: boolean}) : {})
-          : never
-): PropertyDecorator {
-  return TraitControllerSet(template);
+  <F2 extends F>(template: TraitControllerSetTemplate<F2>): PropertyDecorator;
 }
 
 /** @public */
@@ -148,9 +117,9 @@ export interface TraitControllerSet<O = unknown, T extends Trait = Trait, C exte
 
   reinsertTrait(trait: T, targetTrait?: T | null): void;
 
-  consumeTraits(consumer: ConsumerType<T>): void;
+  consumeTraits(consumer: Consumes<T>): void;
 
-  unconsumeTraits(consumer: ConsumerType<T>): void;
+  unconsumeTraits(consumer: Consumes<T>): void;
 
   createTrait(): T;
 
@@ -324,7 +293,7 @@ export const TraitControllerSet = (function (_super: typeof ControllerSet) {
     }
   };
 
-  TraitControllerSet.prototype.consumeTraits = function <T extends Trait, C extends Controller>(this: TraitControllerSet<unknown, T, C>, consumer: ConsumerType<T>): void {
+  TraitControllerSet.prototype.consumeTraits = function <T extends Trait, C extends Controller>(this: TraitControllerSet<unknown, T, C>, consumer: Consumes<T>): void {
     const controllers = this.controllers;
     for (const controllerId in controllers) {
       const controller = controllers[controllerId]!;
@@ -335,7 +304,7 @@ export const TraitControllerSet = (function (_super: typeof ControllerSet) {
     }
   };
 
-  TraitControllerSet.prototype.unconsumeTraits = function <T extends Trait, C extends Controller>(this: TraitControllerSet<unknown, T, C>, consumer: ConsumerType<T>): void {
+  TraitControllerSet.prototype.unconsumeTraits = function <T extends Trait, C extends Controller>(this: TraitControllerSet<unknown, T, C>, consumer: Consumes<T>): void {
     const controllers = this.controllers;
     for (const controllerId in controllers) {
       const controller = controllers[controllerId]!;

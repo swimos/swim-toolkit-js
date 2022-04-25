@@ -14,9 +14,9 @@
 
 import type {Class} from "@swim/util";
 import {AnyLength, Length, R2Box} from "@swim/math";
-import {PropertyDef} from "@swim/component";
+import {Property} from "@swim/component";
 import {AnyColor, Color} from "@swim/style";
-import {ThemeAnimatorDef} from "@swim/theme";
+import {ThemeAnimator} from "@swim/theme";
 import {ViewContextType, View} from "@swim/view";
 import {
   GraphicsView,
@@ -39,7 +39,7 @@ export interface GeoLineViewInit extends GeoPathViewInit, StrokeViewInit {
 export class GeoLineView extends GeoPathView implements StrokeView {
   override readonly observerType?: Class<GeoLineViewObserver>;
 
-  @ThemeAnimatorDef<GeoLineView["stroke"]>({
+  @ThemeAnimator<GeoLineView["stroke"]>({
     valueType: Color,
     value: null,
     inherits: true,
@@ -48,9 +48,9 @@ export class GeoLineView extends GeoPathView implements StrokeView {
       this.owner.callObservers("viewDidSetStroke", stroke, this.owner);
     },
   })
-  readonly stroke!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
+  readonly stroke!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @ThemeAnimatorDef<GeoLineView["strokeWidth"]>({
+  @ThemeAnimator<GeoLineView["strokeWidth"]>({
     valueType: Length,
     value: null,
     inherits: true,
@@ -59,10 +59,10 @@ export class GeoLineView extends GeoPathView implements StrokeView {
       this.owner.callObservers("viewDidSetStrokeWidth", strokeWIdth, this.owner);
     },
   })
-  readonly strokeWidth!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  readonly strokeWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
 
-  @PropertyDef({valueType: Number})
-  readonly hitWidth!: PropertyDef<this, {value: number | undefined}>;
+  @Property({valueType: Number})
+  readonly hitWidth!: Property<this, number | undefined>;
 
   protected override onRender(viewContext: ViewContextType<this>): void {
     super.onRender(viewContext);

@@ -12,18 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Instance, Creatable} from "@swim/util";
+import type {Class, Instance, Creatable, Observes} from "@swim/util";
 import type {FastenerClass} from "@swim/component";
 import type {Trait} from "@swim/model";
 import type {View} from "@swim/view";
 import type {HtmlView} from "@swim/dom";
-import {
-  Controller,
-  TraitViewRefDef,
-  TraitViewRef,
-  TraitViewControllerSetDef,
-  TraitViewControllerSet,
-} from "@swim/controller";
+import {Controller, TraitViewRef, TraitViewControllerSet} from "@swim/controller";
 import type {ColLayout} from "../layout/ColLayout";
 import type {ColView} from "../col/ColView";
 import {TextColView} from "../col/TextColView";
@@ -38,7 +32,7 @@ import type {HeaderControllerObserver} from "./HeaderControllerObserver";
 export class HeaderController extends Controller {
   override readonly observerType?: Class<HeaderControllerObserver>;
 
-  @TraitViewRefDef<HeaderController["header"]>({
+  @TraitViewRef<HeaderController["header"]>({
     traitType: HeaderTrait,
     observesTrait: true,
     willAttachTrait(headerTrait: HeaderTrait): void {
@@ -84,12 +78,7 @@ export class HeaderController extends Controller {
       parent.prependChild(childView, key);
     },
   })
-  readonly header!: TraitViewRefDef<this, {
-    trait: HeaderTrait,
-    observesTrait: true,
-    view: HeaderView,
-    observesView: true,
-  }>;
+  readonly header!: TraitViewRef<this, HeaderTrait, HeaderView> & Observes<HeaderTrait & HeaderView>;
   static readonly header: FastenerClass<HeaderController["header"]>;
 
   getCol<F extends Class<ColController>>(key: string, colControllerClass: F): InstanceType<F> | null;
@@ -169,7 +158,7 @@ export class HeaderController extends Controller {
     headerView.setCol(key, colView);
   }
 
-  @TraitViewControllerSetDef<HeaderController["cols"]>({
+  @TraitViewControllerSet<HeaderController["cols"]>({
     controllerType: ColController,
     binds: true,
     observes: true,
@@ -269,19 +258,13 @@ export class HeaderController extends Controller {
       }
     },
   })
-  readonly cols!: TraitViewControllerSetDef<this, {
-    trait: ColTrait,
-    view: ColView,
-    controller: ColController,
-    implements: {
-      attachColTrait(colTrait: ColTrait, colController: ColController): void;
-      detachColTrait(colTrait: ColTrait, colController: ColController): void;
-      attachColView(colView: ColView, colController: ColController): void;
-      detachColView(colView: ColView, colController: ColController): void;
-      attachColLabelView(colLabelView: HtmlView, colController: ColController): void;
-      detachColLabelView(colLabelView: HtmlView, colController: ColController): void;
-    },
-    observes: ColController & TextColController,
-  }>;
+  readonly cols!: TraitViewControllerSet<this, ColTrait, ColView, ColController> & Observes<ColController & TextColController> & {
+    attachColTrait(colTrait: ColTrait, colController: ColController): void;
+    detachColTrait(colTrait: ColTrait, colController: ColController): void;
+    attachColView(colView: ColView, colController: ColController): void;
+    detachColView(colView: ColView, colController: ColController): void;
+    attachColLabelView(colLabelView: HtmlView, colController: ColController): void;
+    detachColLabelView(colLabelView: HtmlView, colController: ColController): void;
+  };
   static readonly cols: FastenerClass<HeaderController["cols"]>;
 }

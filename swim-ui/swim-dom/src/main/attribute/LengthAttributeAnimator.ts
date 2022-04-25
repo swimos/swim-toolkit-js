@@ -16,8 +16,15 @@ import {AnyLength, Length} from "@swim/math";
 import {AttributeAnimatorClass, AttributeAnimator} from "./AttributeAnimator";
 
 /** @internal */
+export interface LengthAttributeAnimator<O = unknown, T extends Length | null = Length | null, U extends AnyLength | null = AnyLength | T> extends AttributeAnimator<O, T, U> {
+}
+
+/** @internal */
 export const LengthAttributeAnimator = (function (_super: typeof AttributeAnimator) {
-  const LengthAttributeAnimator = _super.extend("LengthAttributeAnimator", {}) as AttributeAnimatorClass<AttributeAnimator<any, Length | null, AnyLength | null>>;
+  const LengthAttributeAnimator = _super.extend("LengthAttributeAnimator", {
+    valueType: Length,
+    value: null,
+  }) as AttributeAnimatorClass<LengthAttributeAnimator<any, any, any>>;
 
   LengthAttributeAnimator.prototype.equalValues = function (newValue: Length | null, oldValue: Length | null): boolean {
     if (newValue !== void 0 && newValue !== null) {

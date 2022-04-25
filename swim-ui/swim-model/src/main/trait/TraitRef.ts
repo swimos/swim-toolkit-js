@@ -12,74 +12,46 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Proto, ObserverType} from "@swim/util";
+import type {Mutable, Proto} from "@swim/util";
 import {Affinity, FastenerOwner, Fastener} from "@swim/component";
 import type {Model} from "../model/Model";
-import type {AnyTrait, Trait} from "./Trait";
-import {
-  TraitRelationRefinement,
-  TraitRelationTemplate,
-  TraitRelationClass,
-  TraitRelation,
-} from "./TraitRelation";
+import type {AnyTrait, TraitFactory, Trait} from "./Trait";
+import {TraitRelationDescriptor, TraitRelationClass, TraitRelation} from "./TraitRelation";
 
 /** @public */
-export interface TraitRefRefinement extends TraitRelationRefinement {
-}
+export type TraitRefTrait<F extends TraitRef<any, any>> =
+  F extends {traitType?: TraitFactory<infer T>} ? T : never;
 
 /** @public */
-export type TraitRefTrait<R extends TraitRefRefinement | TraitRef<any, any>, D = Trait> =
-  R extends {trait: infer M | null} ? M :
-  R extends {extends: infer E} ? TraitRefTrait<E, D> :
-  R extends TraitRef<any, infer M> ? M :
-  D;
-
-/** @public */
-export interface TraitRefTemplate<T extends Trait = Trait> extends TraitRelationTemplate<T> {
+export interface TraitRefDescriptor<T extends Trait = Trait> extends TraitRelationDescriptor<T> {
   extends?: Proto<TraitRef<any, any>> | string | boolean | null;
   traitKey?: string | boolean;
 }
 
 /** @public */
+export type TraitRefTemplate<F extends TraitRef<any, any>> =
+  ThisType<F> &
+  TraitRefDescriptor<TraitRefTrait<F>> &
+  Partial<Omit<F, keyof TraitRefDescriptor>>;
+
+/** @public */
 export interface TraitRefClass<F extends TraitRef<any, any> = TraitRef<any, any>> extends TraitRelationClass<F> {
   /** @override */
-  specialize(className: string, template: TraitRefTemplate): TraitRefClass;
+  specialize(template: TraitRefDescriptor<any>): TraitRefClass<F>;
 
   /** @override */
-  refine(fastenerClass: TraitRefClass): void;
+  refine(fastenerClass: TraitRefClass<any>): void;
 
   /** @override */
-  extend(className: string, template: TraitRefTemplate): TraitRefClass<F>;
+  extend<F2 extends F>(className: string, template: TraitRefTemplate<F2>): TraitRefClass<F2>;
+  extend<F2 extends F>(className: string, template: TraitRefTemplate<F2>): TraitRefClass<F2>;
 
   /** @override */
-  specify<O, T extends Trait = Trait>(className: string, template: ThisType<TraitRef<O, T>> & TraitRefTemplate<T> & Partial<Omit<TraitRef<O, T>, keyof TraitRefTemplate>>): TraitRefClass<F>;
+  define<F2 extends F>(className: string, template: TraitRefTemplate<F2>): TraitRefClass<F2>;
+  define<F2 extends F>(className: string, template: TraitRefTemplate<F2>): TraitRefClass<F2>;
 
   /** @override */
-  <O, T extends Trait = Trait>(template: ThisType<TraitRef<O, T>> & TraitRefTemplate<T> & Partial<Omit<TraitRef<O, T>, keyof TraitRefTemplate>>): PropertyDecorator;
-}
-
-/** @public */
-export type TraitRefDef<O, R extends TraitRefRefinement = {}> =
-  TraitRef<O, TraitRefTrait<R>> &
-  {readonly name: string} & // prevent type alias simplification
-  (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer I} ? I : {}) &
-  (R extends {implements: infer I} ? I : {}) &
-  (R extends {observes: infer B} ? ObserverType<B extends boolean ? TraitRefTrait<R> : B> : {});
-
-/** @public */
-export function TraitRefDef<F extends TraitRef<any, any>>(
-  template: F extends TraitRefDef<infer O, infer R>
-          ? ThisType<TraitRefDef<O, R>>
-          & TraitRefTemplate<TraitRefTrait<R>>
-          & Partial<Omit<TraitRef<O, TraitRefTrait<R>>, keyof TraitRefTemplate>>
-          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof TraitRefTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer I} ? Partial<I> : {})
-          & (R extends {implements: infer I} ? I : {})
-          & (R extends {observes: infer B} ? (ObserverType<B extends boolean ? TraitRefTrait<R> : B> & {observes: boolean}) : {})
-          : never
-): PropertyDecorator {
-  return TraitRef(template);
+  <F2 extends F>(template: TraitRefTemplate<F2>): PropertyDecorator;
 }
 
 /** @public */
@@ -550,7 +522,7 @@ export const TraitRef = (function (_super: typeof TraitRelation) {
     return fastener;
   };
 
-  TraitRef.refine = function (fastenerClass: TraitRefClass): void {
+  TraitRef.refine = function (fastenerClass: TraitRefClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

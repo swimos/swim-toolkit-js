@@ -12,16 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Proto, ObserverType} from "@swim/util";
+import type {Mutable, Proto} from "@swim/util";
 import type {FastenerOwner} from "@swim/component";
 import type {GestureInputType} from "./GestureInput";
 import type {GestureView} from "./Gesture";
-import {
-  PositionGestureRefinement,
-  PositionGestureTemplate,
-  PositionGestureClass,
-  PositionGesture,
-} from "./PositionGesture";
+import {PositionGestureDescriptor, PositionGestureClass, PositionGesture} from "./PositionGesture";
 import {MomentumGestureInput} from "./MomentumGestureInput";
 import {MouseMomentumGesture} from "./"; // forward import
 import {TouchMomentumGesture} from "./"; // forward import
@@ -30,11 +25,7 @@ import type {ViewContext} from "../view/ViewContext";
 import {View} from "../"; // forward import
 
 /** @public */
-export interface MomentumGestureRefinement extends PositionGestureRefinement {
-}
-
-/** @public */
-export interface MomentumGestureTemplate<V extends View = View> extends PositionGestureTemplate<V> {
+export interface MomentumGestureDescriptor<V extends View = View> extends PositionGestureDescriptor<V> {
   extends?: Proto<MomentumGesture<any, any>> | string | boolean | null;
   hysteresis?: number;
   acceleration?: number;
@@ -42,21 +33,29 @@ export interface MomentumGestureTemplate<V extends View = View> extends Position
 }
 
 /** @public */
+export type MomentumGestureTemplate<G extends MomentumGesture<any, any>> =
+  ThisType<G> &
+  MomentumGestureDescriptor<GestureView<G>> &
+  Partial<Omit<G, keyof MomentumGestureDescriptor>>;
+
+/** @public */
 export interface MomentumGestureClass<G extends MomentumGesture<any, any> = MomentumGesture<any, any>> extends PositionGestureClass<G> {
   /** @override */
-  specialize(className: string, template: MomentumGestureTemplate): MomentumGestureClass;
+  specialize(template: MomentumGestureDescriptor<any>): MomentumGestureClass<G>;
 
   /** @override */
-  refine(gestureClass: MomentumGestureClass): void;
+  refine(gestureClass: MomentumGestureClass<any>): void;
 
   /** @override */
-  extend(className: string, template: MomentumGestureTemplate): MomentumGestureClass<G>;
+  extend<G2 extends G>(className: string, template: MomentumGestureTemplate<G2>): MomentumGestureClass<G2>;
+  extend<G2 extends G>(className: string, template: MomentumGestureTemplate<G2>): MomentumGestureClass<G2>;
 
   /** @override */
-  specify<O, V extends View = View>(className: string, template: ThisType<MomentumGesture<O, V>> & MomentumGestureTemplate<V> & Partial<Omit<MomentumGesture<O, V>, keyof MomentumGestureTemplate>>): MomentumGestureClass<G>;
+  define<G2 extends G>(className: string, template: MomentumGestureTemplate<G2>): MomentumGestureClass<G2>;
+  define<G2 extends G>(className: string, template: MomentumGestureTemplate<G2>): MomentumGestureClass<G2>;
 
   /** @override */
-  <O, V extends View = View>(template: ThisType<MomentumGesture<O, V>> & MomentumGestureTemplate<V> & Partial<Omit<MomentumGesture<O, V>, keyof MomentumGestureTemplate>>): PropertyDecorator;
+  <G2 extends G>(template: MomentumGestureTemplate<G2>): PropertyDecorator;
 
   /** @internal */
   readonly Hysteresis: number;
@@ -64,30 +63,6 @@ export interface MomentumGestureClass<G extends MomentumGesture<any, any> = Mome
   readonly Acceleration: number;
   /** @internal */
   readonly VelocityMax: number;
-}
-
-/** @public */
-export type MomentumGestureDef<O, R extends MomentumGestureRefinement = {}> =
-  MomentumGesture<O, GestureView<R>> &
-  {readonly name: string} & // prevent type alias simplification
-  (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer I} ? I : {}) &
-  (R extends {implements: infer I} ? I : {}) &
-  (R extends {observes: infer B} ? ObserverType<B extends boolean ? GestureView<R> : B> : {});
-
-/** @public */
-export function MomentumGestureDef<F extends MomentumGesture<any, any>>(
-  template: F extends MomentumGestureDef<infer O, infer R>
-          ? ThisType<MomentumGestureDef<O, R>>
-          & MomentumGestureTemplate<GestureView<R>>
-          & Partial<Omit<MomentumGesture<O, GestureView<R>>, keyof MomentumGestureTemplate>>
-          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof MomentumGestureTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer I} ? Partial<I> : {})
-          & (R extends {implements: infer I} ? I : {})
-          & (R extends {observes: infer B} ? ObserverType<B extends boolean ? GestureView<R> : B> : {})
-          : never
-): PropertyDecorator {
-  return MomentumGesture(template);
 }
 
 /** @public */
@@ -593,7 +568,7 @@ export const MomentumGesture = (function (_super: typeof PositionGesture) {
     return gesture;
   };
 
-  MomentumGesture.specialize = function (className: string, template: MomentumGestureTemplate): MomentumGestureClass {
+  MomentumGesture.specialize = function (template: MomentumGestureDescriptor<any>): MomentumGestureClass {
     let superClass = template.extends as MomentumGestureClass | null | undefined;
     if (superClass === void 0 || superClass === null) {
       const method = template.method;

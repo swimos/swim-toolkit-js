@@ -16,8 +16,15 @@ import {AnyBoxShadow, BoxShadow} from "@swim/style";
 import {StyleAnimatorClass, StyleAnimator} from "./StyleAnimator";
 
 /** @internal */
+export interface BoxShadowStyleAnimator<O = unknown, T extends BoxShadow | null = BoxShadow | null, U extends AnyBoxShadow | null = AnyBoxShadow | T> extends StyleAnimator<O, T, U> {
+}
+
+/** @internal */
 export const BoxShadowStyleAnimator = (function (_super: typeof StyleAnimator) {
-  const BoxShadowStyleAnimator = _super.extend("BoxShadowStyleAnimator", {}) as StyleAnimatorClass<StyleAnimator<any, BoxShadow | null, AnyBoxShadow | null>>;
+  const BoxShadowStyleAnimator = _super.extend("BoxShadowStyleAnimator", {
+    valueType: BoxShadow,
+    value: null,
+  }) as StyleAnimatorClass<BoxShadowStyleAnimator<any, any, any>>;
 
   BoxShadowStyleAnimator.prototype.equalValues = function (newValue: BoxShadow | null, oldValue: BoxShadow | null): boolean {
     if (newValue !== void 0 && newValue !== null) {

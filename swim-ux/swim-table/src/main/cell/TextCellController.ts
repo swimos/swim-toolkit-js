@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class} from "@swim/util";
+import type {Class, Observes} from "@swim/util";
 import type {FastenerClass} from "@swim/component";
-import {ViewRefDef} from "@swim/view";
+import {ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
-import {TraitViewRefDef} from "@swim/controller";
+import {TraitViewRef} from "@swim/controller";
 import {CellController} from "./CellController";
 import {TextCellView} from "./TextCellView";
 import {TextCellTrait} from "./TextCellTrait";
@@ -26,7 +26,7 @@ import type {TextCellControllerObserver} from "./TextCellControllerObserver";
 export class TextCellController extends CellController {
   override readonly observerType?: Class<TextCellControllerObserver>;
 
-  @TraitViewRefDef<TextCellController["cell"]>({
+  @TraitViewRef<TextCellController["cell"]>({
     extends: true,
     traitType: TextCellTrait,
     observesTrait: true,
@@ -58,13 +58,7 @@ export class TextCellController extends CellController {
       this.owner.content.setView(null);
     },
   })
-  override readonly cell!: TraitViewRefDef<this, {
-    extends: CellController["cell"],
-    trait: TextCellTrait,
-    observesTrait: true,
-    view: TextCellView,
-    observesView: true,
-  }>;
+  override readonly cell!: TraitViewRef<this, TextCellTrait, TextCellView> & CellController["cell"] & Observes<TextCellTrait & TextCellView>;
   static override readonly cell: FastenerClass<TextCellController["cell"]>;
 
   protected setContentView(content: string | undefined): void {
@@ -74,7 +68,7 @@ export class TextCellController extends CellController {
     }
   }
 
-  @ViewRefDef<TextCellController["content"]>({
+  @ViewRef<TextCellController["content"]>({
     viewType: HtmlView,
     willAttachView(contentView: HtmlView): void {
       this.owner.callObservers("controllerWillAttachCellContentView", contentView, this.owner);
@@ -83,6 +77,6 @@ export class TextCellController extends CellController {
       this.owner.callObservers("controllerDidDetachCellContentView", contentView, this.owner);
     },
   })
-  readonly content!: ViewRefDef<this, {view: HtmlView}>;
+  readonly content!: ViewRef<this, HtmlView>;
   static readonly content: FastenerClass<TextCellController["content"]>;
 }

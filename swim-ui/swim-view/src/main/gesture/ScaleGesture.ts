@@ -12,17 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Proto, ObserverType, AnyTiming, ContinuousScale} from "@swim/util";
+import type {Mutable, Proto, AnyTiming, ContinuousScale} from "@swim/util";
 import type {FastenerFlags, FastenerOwner} from "@swim/component";
 import type {R2Box} from "@swim/math";
 import type {GestureInputType} from "./GestureInput";
 import type {GestureView} from "./Gesture";
-import {
-  MomentumGestureRefinement,
-  MomentumGestureTemplate,
-  MomentumGestureClass,
-  MomentumGesture,
-} from "./MomentumGesture";
+import {MomentumGestureDescriptor, MomentumGestureClass, MomentumGesture} from "./MomentumGesture";
 import {ScaleGestureInput} from "./ScaleGestureInput";
 import {MouseScaleGesture} from "./"; // forward import
 import {TouchScaleGesture} from "./"; // forward import
@@ -31,27 +26,15 @@ import type {ViewContext} from "../view/ViewContext";
 import {View} from "../"; // forward import
 
 /** @public */
-export interface ScaleGestureRefinement extends MomentumGestureRefinement {
-  x?: unknown;
-  y?: unknown;
-}
+export type ScaleGestureX<R extends ScaleGesture<any, any, any, any>> =
+  R extends ScaleGesture<any, any, infer X, any> ? X : never;
 
 /** @public */
-export type ScaleGestureX<R extends ScaleGestureRefinement | ScaleGesture<any, any, any, any>, D = unknown> =
-  R extends {x: infer X} ? X :
-  R extends {extends: infer E} ? ScaleGestureX<E, D> :
-  R extends ScaleGesture<any, any, infer X, any> ? X :
-  D;
+export type ScaleGestureY<R extends ScaleGesture<any, any, any, any>> =
+  R extends ScaleGesture<any, any, any, infer Y> ? Y : never;
 
 /** @public */
-export type ScaleGestureY<R extends ScaleGestureRefinement | ScaleGesture<any, any, any, any>, D = unknown> =
-  R extends {y: infer Y} ? Y :
-  R extends {extends: infer E} ? ScaleGestureY<E, D> :
-  R extends ScaleGesture<any, any, any, infer Y> ? Y :
-  D;
-
-/** @public */
-export interface ScaleGestureTemplate<V extends View = View, X = unknown, Y = unknown> extends MomentumGestureTemplate<V> {
+export interface ScaleGestureDescriptor<V extends View = View, X = unknown, Y = unknown> extends MomentumGestureDescriptor<V> {
   extends?: Proto<ScaleGesture<any, any, any, any>> | string | boolean | null;
   distanceMin?: number;
   preserveAspectRatio?: boolean;
@@ -59,21 +42,29 @@ export interface ScaleGestureTemplate<V extends View = View, X = unknown, Y = un
 }
 
 /** @public */
+export type ScaleGestureTemplate<G extends ScaleGesture<any, any, any, any>> =
+  ThisType<G> &
+  ScaleGestureDescriptor<GestureView<G>, ScaleGestureX<G>, ScaleGestureY<G>> &
+  Partial<Omit<G, keyof ScaleGestureDescriptor>>;
+
+/** @public */
 export interface ScaleGestureClass<G extends ScaleGesture<any, any, any, any> = ScaleGesture<any, any, any, any>> extends MomentumGestureClass<G> {
   /** @override */
-  specialize(className: string, template: ScaleGestureTemplate): ScaleGestureClass;
+  specialize(template: ScaleGestureDescriptor<any>): ScaleGestureClass<G>;
 
   /** @override */
-  refine(gestureClass: ScaleGestureClass): void;
+  refine(gestureClass: ScaleGestureClass<any>): void;
 
   /** @override */
-  extend(className: string, template: ScaleGestureTemplate): ScaleGestureClass<G>;
+  extend<G2 extends G>(className: string, template: ScaleGestureTemplate<G2>): ScaleGestureClass<G2>;
+  extend<G2 extends G>(className: string, template: ScaleGestureTemplate<G2>): ScaleGestureClass<G2>;
 
   /** @override */
-  specify<O, V extends View = View, X = unknown, Y = unknown>(className: string, template: ThisType<ScaleGesture<O, V, X, Y>> & ScaleGestureTemplate<V, X, Y> & Partial<Omit<ScaleGesture<O, V, X, Y>, keyof ScaleGestureTemplate>>): ScaleGestureClass<G>;
+  define<G2 extends G>(className: string, template: ScaleGestureTemplate<G2>): ScaleGestureClass<G2>;
+  define<G2 extends G>(className: string, template: ScaleGestureTemplate<G2>): ScaleGestureClass<G2>;
 
   /** @override */
-  <O, V extends View = View, X = unknown, Y = unknown>(template: ThisType<ScaleGesture<O, V, X, Y>> & ScaleGestureTemplate<V, X, Y> & Partial<Omit<ScaleGesture<O, V, X, Y>, keyof ScaleGestureTemplate>>): PropertyDecorator;
+  <G2 extends G>(template: ScaleGestureTemplate<G2>): PropertyDecorator;
 
   /** @internal */
   readonly DistanceMin: number;
@@ -89,30 +80,6 @@ export interface ScaleGestureClass<G extends ScaleGesture<any, any, any, any> = 
   readonly FlagShift: number;
   /** @internal @override */
   readonly FlagMask: FastenerFlags;
-}
-
-/** @public */
-export type ScaleGestureDef<O, R extends MomentumGestureRefinement = {}> =
-  ScaleGesture<O, GestureView<R>, ScaleGestureX<R>, ScaleGestureY<R>> &
-  {readonly name: string} & // prevent type alias simplification
-  (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer I} ? I : {}) &
-  (R extends {implements: infer I} ? I : {}) &
-  (R extends {observes: infer B} ? ObserverType<B extends boolean ? GestureView<R> : B> : {});
-
-/** @public */
-export function ScaleGestureDef<F extends ScaleGesture<any, any, any, any>>(
-  template: F extends ScaleGestureDef<infer O, infer R>
-          ? ThisType<ScaleGestureDef<O, R>>
-          & ScaleGestureTemplate<GestureView<R>, ScaleGestureX<R>, ScaleGestureY<R>>
-          & Partial<Omit<ScaleGesture<O, GestureView<R>, ScaleGestureX<R>, ScaleGestureY<R>>, keyof ScaleGestureTemplate>>
-          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof ScaleGestureTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer I} ? Partial<I> : {})
-          & (R extends {implements: infer I} ? I : {})
-          & (R extends {observes: infer B} ? ObserverType<B extends boolean ? GestureView<R> : B> : {})
-          : never
-): PropertyDecorator {
-  return ScaleGesture(template);
 }
 
 /** @public */
@@ -273,7 +240,7 @@ export interface ScaleGesture<O = unknown, V extends View = View, X = unknown, Y
 
 /** @public */
 export const ScaleGesture = (function (_super: typeof MomentumGesture) {
-  const ScaleGesture = _super.extend("ScaleGesture", {} as ScaleGestureTemplate) as ScaleGestureClass;
+  const ScaleGesture = _super.extend("ScaleGesture", {} as ScaleGestureDescriptor) as ScaleGestureClass;
 
   ScaleGesture.prototype.createInput = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>, inputId: string, inputType: GestureInputType, isPrimary: boolean,
                                                        x: number, y: number, t: number): ScaleGestureInput<X, Y> {
@@ -1119,7 +1086,7 @@ export const ScaleGesture = (function (_super: typeof MomentumGesture) {
     return gesture;
   };
 
-  ScaleGesture.specialize = function (className: string, template: ScaleGestureTemplate): ScaleGestureClass {
+  ScaleGesture.specialize = function (template: ScaleGestureDescriptor<any>): ScaleGestureClass {
     let superClass = template.extends as ScaleGestureClass | null | undefined;
     if (superClass === void 0 || superClass === null) {
       const method = template.method;
@@ -1140,7 +1107,7 @@ export const ScaleGesture = (function (_super: typeof MomentumGesture) {
     return superClass
   };
 
-  ScaleGesture.refine = function (gestureClass: ScaleGestureClass): void {
+  ScaleGesture.refine = function (gestureClass: ScaleGestureClass<any>): void {
     _super.refine.call(this, gestureClass);
     const fastenerPrototype = gestureClass.prototype;
     let flagsInit = fastenerPrototype.flagsInit;
@@ -1154,7 +1121,7 @@ export const ScaleGesture = (function (_super: typeof MomentumGesture) {
       } else {
         flagsInit &= ~ScaleGesture.PreserveAspectRatioFlag;
       }
-      delete (fastenerPrototype as ScaleGestureTemplate).preserveAspectRatio;
+      delete (fastenerPrototype as ScaleGestureDescriptor).preserveAspectRatio;
     }
 
     if (Object.prototype.hasOwnProperty.call(fastenerPrototype, "wheel")) {
@@ -1166,7 +1133,7 @@ export const ScaleGesture = (function (_super: typeof MomentumGesture) {
       } else {
         flagsInit &= ~ScaleGesture.WheelFlag;
       }
-      delete (fastenerPrototype as ScaleGestureTemplate).wheel;
+      delete (fastenerPrototype as ScaleGestureDescriptor).wheel;
     }
 
     if (flagsInit !== void 0) {

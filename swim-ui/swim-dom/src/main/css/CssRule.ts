@@ -16,8 +16,7 @@ import type {Mutable, Proto, AnyTiming} from "@swim/util";
 import {
   FastenerContext,
   FastenerOwner,
-  FastenerRefinement,
-  FastenerTemplate,
+  FastenerDescriptor,
   FastenerClass,
   Fastener,
 } from "@swim/component";
@@ -34,53 +33,35 @@ import {Look, Feel, MoodVector, ThemeMatrix, ThemeContext} from "@swim/theme";
 import {CssContext} from "./CssContext";
 
 /** @public */
-export interface CssRuleRefinement extends FastenerRefinement {
-}
-
-/** @public */
-export interface CssRuleTemplate extends FastenerTemplate {
+export interface CssRuleDescriptor extends FastenerDescriptor {
   extends?: Proto<CssRule<any>> | string | boolean | null;
   css?: string;
 }
 
 /** @public */
+export type CssRuleTemplate<F extends CssRule<any>> =
+  ThisType<F> &
+  CssRuleDescriptor &
+  Partial<Omit<F, keyof CssRuleDescriptor>>;
+
+/** @public */
 export interface CssRuleClass<F extends CssRule<any> = CssRule<any>> extends FastenerClass<F> {
   /** @override */
-  specialize(className: string, template: CssRuleTemplate): CssRuleClass;
+  specialize(template: CssRuleDescriptor): CssRuleClass<F>;
 
   /** @override */
-  refine(fastenerClass: CssRuleClass): void;
+  refine(fastenerClass: CssRuleClass<any>): void;
 
   /** @override */
-  extend(className: string, template: CssRuleTemplate): CssRuleClass<F>;
+  extend<F2 extends F>(className: string, template: CssRuleTemplate<F2>): CssRuleClass<F2>;
+  extend<F2 extends F>(className: string, template: CssRuleTemplate<F2>): CssRuleClass<F2>;
 
   /** @override */
-  specify<O>(className: string, template: ThisType<CssRule<O>> & CssRuleTemplate & Partial<Omit<CssRule<O>, keyof CssRuleTemplate>>): CssRuleClass<F>;
+  define<F2 extends F>(className: string, template: CssRuleTemplate<F2>): CssRuleClass<F2>;
+  define<F2 extends F>(className: string, template: CssRuleTemplate<F2>): CssRuleClass<F2>;
 
   /** @override */
-  <O>(template: ThisType<CssRule<O>> & CssRuleTemplate & Partial<Omit<CssRule<O>, keyof CssRuleTemplate>>): PropertyDecorator;
-}
-
-/** @public */
-export type CssRuleDef<O, R extends CssRuleRefinement = {}> =
-  CssRule<O> &
-  {readonly name: string} & // prevent type alias simplification
-  (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer I} ? I : {}) &
-  (R extends {implements: infer I} ? I : {});
-
-/** @public */
-export function CssRuleDef<P extends CssRule<any>>(
-  template: P extends CssRuleDef<infer O, infer R>
-          ? ThisType<CssRuleDef<O, R>>
-          & CssRuleTemplate
-          & Partial<Omit<CssRule<O>, keyof CssRuleTemplate>>
-          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof CssRuleTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer I} ? Partial<I> : {})
-          & (R extends {implements: infer I} ? I : {})
-          : never
-): PropertyDecorator {
-  return CssRule(template);
+  <F2 extends F>(template: CssRuleTemplate<F2>): PropertyDecorator;
 }
 
 /** @public */

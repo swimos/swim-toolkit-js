@@ -13,10 +13,9 @@
 // limitations under the License.
 
 export {
-  AttributeAnimatorRefinement,
+  AttributeAnimatorDescriptor,
   AttributeAnimatorTemplate,
   AttributeAnimatorClass,
-  AttributeAnimatorDef,
   AttributeAnimator,
 } from "./AttributeAnimator";
 export {StringAttributeAnimator} from "./StringAttributeAnimator";

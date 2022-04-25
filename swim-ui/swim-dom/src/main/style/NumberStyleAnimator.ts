@@ -15,8 +15,14 @@
 import {StyleAnimatorClass, StyleAnimator} from "./StyleAnimator";
 
 /** @internal */
+export interface NumberStyleAnimator<O = unknown, T extends number | undefined = number | undefined, U extends number | string | undefined = number | string | T> extends StyleAnimator<O, T, U> {
+}
+
+/** @internal */
 export const NumberStyleAnimator = (function (_super: typeof StyleAnimator) {
-  const NumberStyleAnimator = _super.extend("NumberStyleAnimator", {}) as StyleAnimatorClass<StyleAnimator<any, number | undefined, string>>;
+  const NumberStyleAnimator = _super.extend("NumberStyleAnimator", {
+    valueType: Number,
+  }) as StyleAnimatorClass<NumberStyleAnimator<any, any, any>>;
 
   NumberStyleAnimator.prototype.equalValues = function (newValue: number | undefined, oldValue: number | undefined): boolean {
     return newValue === oldValue;

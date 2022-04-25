@@ -15,7 +15,7 @@
 import type {Class} from "@swim/util";
 import type {R2Box} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
-import {ThemeAnimatorDef} from "@swim/theme";
+import {ThemeAnimator} from "@swim/theme";
 import {ViewContextType, View} from "@swim/view";
 import {GraphicsView, CanvasContext, CanvasRenderer} from "@swim/graphics";
 import {ScaledViewInit, ScaledView} from "../scaled/ScaledView";
@@ -37,11 +37,11 @@ export interface GraphViewInit<X = unknown, Y = unknown> extends ScaledViewInit<
 export class GraphView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
   override readonly observerType?: Class<GraphViewObserver<X, Y>>;
 
-  @ThemeAnimatorDef({valueType: Font, value: null, inherits: true})
-  readonly font!: ThemeAnimatorDef<this, {value: Font | null, valueInit: AnyFont | null}>;
+  @ThemeAnimator({valueType: Font, value: null, inherits: true})
+  readonly font!: ThemeAnimator<this, Font | null, AnyFont | null>;
 
-  @ThemeAnimatorDef({valueType: Color, value: null, inherits: true})
-  readonly textColor!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
+  @ThemeAnimator({valueType: Color, value: null, inherits: true})
+  readonly textColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
   addPlot(plot: AnyPlotView<X, Y>, key?: string): void {
     if (key === void 0 && typeof plot === "object" && plot !== null) {

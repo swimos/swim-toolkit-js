@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Class, AnyTiming, Timing, Easing} from "@swim/util";
-import {Affinity, FastenerClass, AnimatorDef} from "@swim/component";
+import {Mutable, Class, AnyTiming, Timing, Easing, Observes} from "@swim/util";
+import {Affinity, FastenerClass, Animator} from "@swim/component";
 import {AnyLength, Length, AnyR2Point, R2Point, R2Box} from "@swim/math";
 import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
 import {AnyColor, Color} from "@swim/style";
-import {Look, Mood, AnyColorOrLook, ThemeAnimatorDef} from "@swim/theme";
-import {ViewContextType, View, ViewRefDef} from "@swim/view";
+import {Look, Mood, AnyColorOrLook, ThemeAnimator} from "@swim/theme";
+import {ViewContextType, View, ViewRef} from "@swim/view";
 import {StrokeView, PaintingContext, PaintingRenderer} from "@swim/graphics";
 import {GeoView} from "../geo/GeoView";
 import type {GeoRippleViewObserver} from "./GeoRippleViewObserver";
@@ -49,33 +49,33 @@ export class GeoRippleView extends GeoView implements StrokeView {
 
   override readonly observerType?: Class<GeoRippleViewObserver>;
 
-  @AnimatorDef<GeoRippleView["geoCenter"]>({
+  @Animator<GeoRippleView["geoCenter"]>({
     valueType: GeoPoint,
     value: null,
-    didSetState(newGeoCenter: GeoPoint | null, oldGeoCenter: GeoPoint | null): void {
-      this.owner.projectGeoCenter(newGeoCenter);
+    didSetState(geoCenter: GeoPoint | null): void {
+      this.owner.projectGeoCenter(geoCenter);
     },
-    didSetValue(newGeoCenter: GeoPoint | null, oldGeoCenter: GeoPoint | null): void {
-      this.owner.setGeoBounds(newGeoCenter !== null ? newGeoCenter.bounds : GeoBox.undefined());
+    didSetValue(geoCenter: GeoPoint | null): void {
+      this.owner.setGeoBounds(geoCenter !== null ? geoCenter.bounds : GeoBox.undefined());
       if (this.mounted) {
         this.owner.projectRipple(this.owner.viewContext);
       }
-      this.owner.callObservers("viewDidSetGeoCenter", newGeoCenter, this.owner);
+      this.owner.callObservers("viewDidSetGeoCenter", geoCenter, this.owner);
     },
   })
-  readonly geoCenter!: AnimatorDef<this, {value: GeoPoint | null, valueInit: AnyGeoPoint | null}>;
+  readonly geoCenter!: Animator<this, GeoPoint | null, AnyGeoPoint | null>;
 
-  @AnimatorDef<GeoRippleView["viewCenter"]>({
+  @Animator<GeoRippleView["viewCenter"]>({
     valueType: R2Point,
     value: R2Point.undefined(),
     updateFlags: View.NeedsRender,
-    didSetValue(newViewCenter: R2Point | null, oldViewCenter: R2Point | null): void {
+    didSetValue(viewCenter: R2Point | null): void {
       this.owner.updateViewBounds();
     },
   })
-  readonly viewCenter!: AnimatorDef<this, {value: R2Point | null, valueInit: AnyR2Point | null}>;
+  readonly viewCenter!: Animator<this, R2Point | null, AnyR2Point | null>;
 
-  @ThemeAnimatorDef<GeoRippleView["radius"]>({
+  @ThemeAnimator<GeoRippleView["radius"]>({
     valueType: Length,
     value: Length.zero(),
     updateFlags: View.NeedsRender,
@@ -84,15 +84,15 @@ export class GeoRippleView extends GeoView implements StrokeView {
       this.owner.remove();
     },
   })
-  readonly radius!: ThemeAnimatorDef<this, {value: Length, valueInit: AnyLength}>;
+  readonly radius!: ThemeAnimator<this, Length, AnyLength>;
 
-  @ThemeAnimatorDef({valueType: Color, value: null, look: Look.accentColor, inherits: true, updateFlags: View.NeedsRender})
-  readonly stroke!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
+  @ThemeAnimator({valueType: Color, value: null, look: Look.accentColor, inherits: true, updateFlags: View.NeedsRender})
+  readonly stroke!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @ThemeAnimatorDef({valueType: Length, value: Length.px(1), inherits: true, updateFlags: View.NeedsRender})
-  readonly strokeWidth!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  @ThemeAnimator({valueType: Length, value: Length.px(1), inherits: true, updateFlags: View.NeedsRender})
+  readonly strokeWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
 
-  @ViewRefDef<GeoRippleView["source"]>({
+  @ViewRef<GeoRippleView["source"]>({
     observes: true,
     didAttachView(sourceView: GeoView): void {
       this.owner.geoCenter.setState(sourceView.geoBounds.center, Affinity.Intrinsic);
@@ -100,11 +100,11 @@ export class GeoRippleView extends GeoView implements StrokeView {
     viewDidUnmount(sourceView: GeoView): void {
       this.owner.remove();
     },
-    viewDidSetGeoBounds(newGeoBounds: GeoBox, oldGeoBounds: GeoBox, sourceView: GeoView): void {
-      this.owner.geoCenter.setState(newGeoBounds.center, Affinity.Intrinsic);
+    viewDidSetGeoBounds(geoBounds: GeoBox): void {
+      this.owner.geoCenter.setState(geoBounds.center, Affinity.Intrinsic);
     },
   })
-  readonly source!: ViewRefDef<this, {view: GeoView, observes: true}>;
+  readonly source!: ViewRef<this, GeoView> & Observes<GeoView>;
   static readonly source: FastenerClass<GeoRippleView["source"]>;
 
   protected override onProject(viewContext: ViewContextType<this>): void {

@@ -12,14 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Proto, ObserverType} from "@swim/util";
-import {
-  FastenerOwner,
-  FastenerRefinement,
-  FastenerTemplate,
-  FastenerClass,
-  Fastener,
-} from "@swim/component";
+import type {Mutable, Proto, Observes} from "@swim/util";
+import {FastenerOwner, FastenerDescriptor, FastenerClass, Fastener} from "@swim/component";
 import {GestureInputType, GestureInput} from "./GestureInput";
 import {View} from "../"; // forward import
 
@@ -27,19 +21,11 @@ import {View} from "../"; // forward import
 export type GestureMethod = "auto" | "pointer" | "touch" | "mouse";
 
 /** @public */
-export interface GestureRefinement extends FastenerRefinement {
-  view?: View;
-}
+export type GestureView<G extends Gesture<any, any>> =
+  G extends {view: infer V | null} ? V : never;
 
 /** @public */
-export type GestureView<R extends GestureRefinement | Gesture<any, any>, D = View> =
-  R extends {view: infer V | null} ? V :
-  R extends {extends: infer E} ? GestureView<E, D> :
-  R extends Gesture<any, infer V> ? V :
-  D;
-
-/** @public */
-export interface GestureTemplate<V extends View = View> extends FastenerTemplate {
+export interface GestureDescriptor<V extends View = View> extends FastenerDescriptor {
   extends?: Proto<Gesture<any, any>> | string | boolean | null;
   method?: GestureMethod;
   viewKey?: string | boolean;
@@ -49,45 +35,29 @@ export interface GestureTemplate<V extends View = View> extends FastenerTemplate
 }
 
 /** @public */
+export type GestureTemplate<G extends Gesture<any, any>> =
+  ThisType<G> &
+  GestureDescriptor<GestureView<G>> &
+  Partial<Omit<G, keyof GestureDescriptor>>;
+
+/** @public */
 export interface GestureClass<G extends Gesture<any, any> = Gesture<any, any>> extends FastenerClass<G> {
   /** @override */
-  specialize(className: string, template: GestureTemplate): GestureClass;
+  specialize(template: GestureDescriptor<any>): GestureClass<G>;
 
   /** @override */
-  refine(gestureClass: GestureClass): void;
+  refine(gestureClass: GestureClass<any>): void;
 
   /** @override */
-  extend(className: string, template: GestureTemplate): GestureClass<G>;
+  extend<G2 extends G>(className: string, template: GestureTemplate<G2>): GestureClass<G2>;
+  extend<G2 extends G>(className: string, template: GestureTemplate<G2>): GestureClass<G2>;
 
   /** @override */
-  specify<O, V extends View = View>(className: string, template: ThisType<Gesture<O, V>> & GestureTemplate & Partial<Omit<Gesture<O, V>, keyof GestureTemplate>>): GestureClass<G>;
+  define<G2 extends G>(className: string, template: GestureTemplate<G2>): GestureClass<G2>;
+  define<G2 extends G>(className: string, template: GestureTemplate<G2>): GestureClass<G2>;
 
   /** @override */
-  <O, V extends View = View>(template: ThisType<Gesture<O, V>> & GestureTemplate & Partial<Omit<Gesture<O, V>, keyof GestureTemplate>>): PropertyDecorator;
-}
-
-/** @public */
-export type GestureDef<O, R extends GestureRefinement = {}> =
-  Gesture<O, GestureView<R>> &
-  {readonly name: string} & // prevent type alias simplification
-  (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer I} ? I : {}) &
-  (R extends {implements: infer I} ? I : {}) &
-  (R extends {observes: infer B} ? ObserverType<B extends boolean ? GestureView<R> : B> : {});
-
-/** @public */
-export function GestureDef<F extends Gesture<any, any>>(
-  template: F extends GestureDef<infer O, infer R>
-          ? ThisType<GestureDef<O, R>>
-          & GestureTemplate<GestureView<R>>
-          & Partial<Omit<Gesture<O, GestureView<R>>, keyof GestureTemplate>>
-          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof GestureTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer I} ? Partial<I> : {})
-          & (R extends {implements: infer I} ? I : {})
-          & (R extends {observes: infer B} ? ObserverType<B extends boolean ? GestureView<R> : B> : {})
-          : never
-): PropertyDecorator {
-  return Gesture(template);
+  <G2 extends G>(template: GestureTemplate<G2>): PropertyDecorator;
 }
 
 /** @public */
@@ -228,7 +198,7 @@ export const Gesture = (function (_super: typeof Fastener) {
   Gesture.prototype.onAttachView = function <V extends View>(this: Gesture<unknown, V>, view: V, target: View | null): void {
     this.attachEvents(view);
     if (this.observes === true) {
-      view.observe(this as ObserverType<V>);
+      view.observe(this as Observes<V>);
     }
   };
 
@@ -243,7 +213,7 @@ export const Gesture = (function (_super: typeof Fastener) {
   Gesture.prototype.onDetachView = function <V extends View>(this: Gesture<unknown, V>, view: V): void {
     this.clearInputs();
     if (this.observes === true) {
-      view.unobserve(this as ObserverType<V>);
+      view.unobserve(this as Observes<V>);
     }
     this.detachEvents(view);
   };
@@ -364,7 +334,7 @@ export const Gesture = (function (_super: typeof Fastener) {
     return gesture;
   };
 
-  Gesture.refine = function (fastenerClass: GestureClass): void {
+  Gesture.refine = function (fastenerClass: GestureClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

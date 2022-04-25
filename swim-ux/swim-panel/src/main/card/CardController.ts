@@ -14,7 +14,7 @@
 
 import type {Class} from "@swim/util";
 import type {FastenerClass} from "@swim/component";
-import {TraitViewRefDef} from "@swim/controller";
+import {TraitViewRef} from "@swim/controller";
 import {FrameController} from "../frame/FrameController";
 import {CardView} from "./CardView";
 import {CardTrait} from "./CardTrait";
@@ -24,15 +24,11 @@ import type {CardControllerObserver} from "./CardControllerObserver";
 export class CardController extends FrameController {
   override readonly observerType?: Class<CardControllerObserver>;
 
-  @TraitViewRefDef<CardController["panel"]>({
+  @TraitViewRef<CardController["panel"]>({
     extends: true,
     traitType: CardTrait,
     viewType: CardView,
   })
-  override readonly panel!: TraitViewRefDef<this, {
-    extends: FrameController["panel"],
-    trait: CardTrait,
-    view: CardView,
-  }>;
+  override readonly panel!: TraitViewRef<this, CardTrait, CardView> & FrameController["panel"];
   static override readonly panel: FastenerClass<CardController["panel"]>;
 }

@@ -15,7 +15,7 @@
 import type {Class, AnyTiming} from "@swim/util";
 import type {FastenerClass} from "@swim/component";
 import type {GeoBox} from "@swim/geo";
-import {ViewContextType, ViewFlags, View, ViewRefDef} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {GraphicsViewContext, CanvasView} from "@swim/graphics";
 import type {AnyGeoPerspective} from "../geo/GeoPerspective";
@@ -31,7 +31,7 @@ export abstract class MapView extends GeoView {
 
   abstract moveTo(geoPerspective: AnyGeoPerspective, timing?: AnyTiming | boolean): void;
 
-  @ViewRefDef<MapView["canvas"]>({
+  @ViewRef<MapView["canvas"]>({
     viewType: CanvasView,
     willAttachView(canvasView: CanvasView): void {
       this.owner.callObservers("viewWillAttachMapCanvas", canvasView, this.owner);
@@ -40,10 +40,10 @@ export abstract class MapView extends GeoView {
       this.owner.callObservers("viewDidDetachMapCanvas", canvasView, this.owner);
     },
   })
-  readonly canvas!: ViewRefDef<this, {view: CanvasView}>;
+  readonly canvas!: ViewRef<this, CanvasView>;
   static readonly canvas: FastenerClass<MapView["canvas"]>;
 
-  @ViewRefDef<MapView["container"]>({
+  @ViewRef<MapView["container"]>({
     viewType: HtmlView,
     willAttachView(containerView: HtmlView): void {
       this.owner.callObservers("viewWillAttachMapContainer", containerView, this.owner);
@@ -52,7 +52,7 @@ export abstract class MapView extends GeoView {
       this.owner.callObservers("viewDidDetachMapContainer", containerView, this.owner);
     },
   })
-  readonly container!: ViewRefDef<this, {view: HtmlView}>;
+  readonly container!: ViewRef<this, HtmlView>;
   static readonly container: FastenerClass<MapView["container"]>;
 
   protected override needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {

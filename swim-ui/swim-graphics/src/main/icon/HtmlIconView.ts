@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import type {Timing} from "@swim/util";
-import {Affinity, AnimatorDef} from "@swim/component";
+import {Affinity, Animator} from "@swim/component";
 import {AnyLength, Length} from "@swim/math";
 import {AnyColor, Color} from "@swim/style";
 import type {MoodVector, ThemeMatrix} from "@swim/theme";
-import {ThemeAnimatorDef} from "@swim/theme";
+import {ThemeAnimator} from "@swim/theme";
 import {ViewContextType, ViewFlags, View} from "@swim/view";
 import {HtmlViewInit, HtmlView} from "@swim/dom";
 import {Graphics} from "../graphics/Graphics";
@@ -55,19 +55,19 @@ export class HtmlIconView extends HtmlView implements IconView {
     return svgView instanceof SvgIconView ? svgView : null;
   }
 
-  @AnimatorDef({valueType: Number, value: 0.5, updateFlags: View.NeedsLayout})
-  readonly xAlign!: AnimatorDef<this, {value: number}>;
+  @Animator({valueType: Number, value: 0.5, updateFlags: View.NeedsLayout})
+  readonly xAlign!: Animator<this, number>;
 
-  @AnimatorDef({valueType: Number, value: 0.5, updateFlags: View.NeedsLayout})
-  readonly yAlign!: AnimatorDef<this, {value: number}>;
+  @Animator({valueType: Number, value: 0.5, updateFlags: View.NeedsLayout})
+  readonly yAlign!: Animator<this, number>;
 
-  @ThemeAnimatorDef({valueType: Length, value: null, updateFlags: View.NeedsLayout})
-  readonly iconWidth!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  @ThemeAnimator({valueType: Length, value: null, updateFlags: View.NeedsLayout})
+  readonly iconWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
 
-  @ThemeAnimatorDef({valueType: Length, value: null, updateFlags: View.NeedsLayout})
-  readonly iconHeight!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  @ThemeAnimator({valueType: Length, value: null, updateFlags: View.NeedsLayout})
+  readonly iconHeight!: ThemeAnimator<this, Length | null, AnyLength | null>;
 
-  @ThemeAnimatorDef<HtmlIconView["iconColor"]>({
+  @ThemeAnimator<HtmlIconView["iconColor"]>({
     valueType: Color,
     value: null,
     updateFlags: View.NeedsLayout,
@@ -82,15 +82,15 @@ export class HtmlIconView extends HtmlView implements IconView {
       }
     },
   })
-  readonly iconColor!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
+  readonly iconColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @ThemeAnimatorDef<HtmlIconView["graphics"]>({
+  @ThemeAnimator<HtmlIconView["graphics"]>({
     extends: IconGraphicsAnimator,
     valueType: Graphics,
     value: null,
     updateFlags: View.NeedsLayout,
   })
-  readonly graphics!: ThemeAnimatorDef<this, {value: Graphics | null}>;
+  readonly graphics!: ThemeAnimator<this, Graphics | null>;
 
   protected override onInsertChild(child: View, target: View | null): void {
     super.onInsertChild(child, target);

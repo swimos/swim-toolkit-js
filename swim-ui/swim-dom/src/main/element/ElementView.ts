@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, Instance, Arrays, Creatable, ObserverType, AnyTiming} from "@swim/util";
-import {Affinity, FastenerClass, ProviderDef} from "@swim/component";
+import {Class, Instance, Arrays, Creatable, Observes, AnyTiming} from "@swim/util";
+import {Affinity, FastenerClass} from "@swim/component";
 import {R2Box} from "@swim/math";
 import {ThemeMatrix, Theme} from "@swim/theme";
 import {ToAttributeString, ToStyleString, ToCssValue} from "@swim/style";
-import {View, Viewport} from "@swim/view";
+import {ThemeProvider, View, Viewport} from "@swim/view";
 import type {StyleContext} from "../css/StyleContext";
 import {
   ViewNodeType,
@@ -79,13 +79,11 @@ export class ElementView extends NodeView implements StyleContext {
 
   override readonly node!: Element & ElementCSSInlineStyle;
 
-  @ProviderDef<ElementView["themeProvider"]>({
+  @ThemeProvider({
+    extends: true,
     lazy: false,
-    extends: NodeView["themeProvider"],
   })
-  override readonly themeProvider!: ProviderDef<this, {
-    extends: NodeView["themeProvider"],
-  }>;
+  override readonly themeProvider!: ThemeProvider<this>;
   static override readonly themeProvider: FastenerClass<ElementView["themeProvider"]>;
 
   protected detectTheme(): void {
@@ -338,7 +336,7 @@ export class ElementView extends NodeView implements StyleContext {
   /** @internal */
   override readonly observerCache!: ElementViewObserverCache<this>;
 
-  protected override onObserve(observer: ObserverType<this>): void {
+  protected override onObserve(observer: Observes<this>): void {
     super.onObserve(observer);
     if (observer.viewWillSetAttribute !== void 0) {
       this.observerCache.viewWillSetAttributeObservers = Arrays.inserted(observer as ViewWillSetAttribute, this.observerCache.viewWillSetAttributeObservers);
@@ -354,7 +352,7 @@ export class ElementView extends NodeView implements StyleContext {
     }
   }
 
-  protected override onUnobserve(observer: ObserverType<this>): void {
+  protected override onUnobserve(observer: Observes<this>): void {
     super.onUnobserve(observer);
     if (observer.viewWillSetAttribute !== void 0) {
       this.observerCache.viewWillSetAttributeObservers = Arrays.removed(observer as ViewWillSetAttribute, this.observerCache.viewWillSetAttributeObservers);

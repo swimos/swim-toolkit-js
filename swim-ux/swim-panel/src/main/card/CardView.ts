@@ -15,7 +15,7 @@
 import type {Class} from "@swim/util";
 import {Affinity, FastenerClass} from "@swim/component";
 import {Look, Feel} from "@swim/theme";
-import {View, ViewRefDef} from "@swim/view";
+import {View, ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {FrameView} from "../frame/FrameView";
 import type {CardViewObserver} from "./CardViewObserver";
@@ -40,7 +40,7 @@ export class CardView extends FrameView {
 
   override readonly observerType?: Class<CardViewObserver>;
 
-  @ViewRefDef<CardView["header"]>({
+  @ViewRef<CardView["header"]>({
     viewType: HtmlView,
     viewKey: true,
     binds: true,
@@ -77,16 +77,13 @@ export class CardView extends FrameView {
       return headerView;
     }
   })
-  readonly header!: ViewRefDef<this, {
-    view: HtmlView,
-    implements: {
-      setTitle(title: string | undefined): HtmlView,
-      setSubtitle(subtitle: string | undefined): HtmlView,
-    },
-  }>;
+  readonly header!: ViewRef<this, HtmlView> & {
+    setTitle(title: string | undefined): HtmlView,
+    setSubtitle(subtitle: string | undefined): HtmlView,
+  };
   static readonly header: FastenerClass<CardView["header"]>;
 
-  @ViewRefDef<CardView["headerTitle"]>({
+  @ViewRef<CardView["headerTitle"]>({
     viewType: HtmlView,
     viewKey: "title",
     get parentView(): HtmlView | null {
@@ -114,15 +111,12 @@ export class CardView extends FrameView {
       return titleView;
     },
   })
-  readonly headerTitle!: ViewRefDef<this, {
-    view: HtmlView,
-    implements: {
-      setText(tite: string | undefined): HtmlView,
-    },
-  }>;
+  readonly headerTitle!: ViewRef<this, HtmlView> & {
+    setText(tite: string | undefined): HtmlView,
+  };
   static readonly headerTitle: FastenerClass<CardView["headerTitle"]>;
 
-  @ViewRefDef<CardView["headerSubtitle"]>({
+  @ViewRef<CardView["headerSubtitle"]>({
     viewType: HtmlView,
     viewKey: "subtitle",
     get parentView(): HtmlView | null {
@@ -144,11 +138,8 @@ export class CardView extends FrameView {
       return subtitleView;
     },
   })
-  readonly headerSubtitle!: ViewRefDef<this, {
-    view: HtmlView,
-    implements: {
-      setText(subtitle: string | undefined): HtmlView,
-    },
-  }>;
+  readonly headerSubtitle!: ViewRef<this, HtmlView> & {
+    setText(subtitle: string | undefined): HtmlView,
+  };
   static readonly headerSubtitle: FastenerClass<CardView["headerSubtitle"]>;
 }

@@ -12,25 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Proto, ObserverType} from "@swim/util";
-import {FastenerRefinement, FastenerTemplate, FastenerClass, Fastener} from "@swim/component";
+import type {Proto, Observes} from "@swim/util";
+import {FastenerDescriptor, FastenerClass, Fastener} from "@swim/component";
 import {AnyController, ControllerFactory, Controller} from "./Controller";
 
 /** @public */
-export interface ControllerRelationRefinement extends FastenerRefinement {
-  controller?: Controller;
-  observes?: unknown;
-}
+export type ControllerRelationController<F extends ControllerRelation<any, any>> =
+  F extends {controllerType?: ControllerFactory<infer C>} ? C : never;
 
 /** @public */
-export type ControllerRelationController<R extends ControllerRelationRefinement | ControllerRelation<any, any>, D = Controller> =
-  R extends {controller: infer C} ? C :
-  R extends {extends: infer E} ? ControllerRelationController<E, D> :
-  R extends ControllerRelation<any, infer C> ? C :
-  D;
-
-/** @public */
-export interface ControllerRelationTemplate<C extends Controller = Controller> extends FastenerTemplate {
+export interface ControllerRelationDescriptor<C extends Controller = Controller> extends FastenerDescriptor {
   extends?: Proto<ControllerRelation<any, any>> | string | boolean | null;
   controllerType?: ControllerFactory<C>;
   binds?: boolean;
@@ -38,45 +29,29 @@ export interface ControllerRelationTemplate<C extends Controller = Controller> e
 }
 
 /** @public */
+export type ControllerRelationTemplate<F extends ControllerRelation<any, any>> =
+  ThisType<F> &
+  ControllerRelationDescriptor<ControllerRelationController<F>> &
+  Partial<Omit<F, keyof ControllerRelationDescriptor>>;
+
+/** @public */
 export interface ControllerRelationClass<F extends ControllerRelation<any, any> = ControllerRelation<any, any>> extends FastenerClass<F> {
   /** @override */
-  specialize(className: string, template: ControllerRelationTemplate): ControllerRelationClass;
+  specialize(template: ControllerRelationDescriptor<any>): ControllerRelationClass<F>;
 
   /** @override */
-  refine(fastenerClass: ControllerRelationClass): void;
+  refine(fastenerClass: ControllerRelationClass<any>): void;
 
   /** @override */
-  extend(className: string, template: ControllerRelationTemplate): ControllerRelationClass<F>;
+  extend<F2 extends F>(className: string, template: ControllerRelationTemplate<F2>): ControllerRelationClass<F2>;
+  extend<F2 extends F>(className: string, template: ControllerRelationTemplate<F2>): ControllerRelationClass<F2>;
 
   /** @override */
-  specify<O, C extends Controller = Controller>(className: string, template: ThisType<ControllerRelation<O, C>> & ControllerRelationTemplate<C> & Partial<Omit<ControllerRelation<O, C>, keyof ControllerRelationTemplate>>): ControllerRelationClass<F>;
+  define<F2 extends F>(className: string, template: ControllerRelationTemplate<F2>): ControllerRelationClass<F2>;
+  define<F2 extends F>(className: string, template: ControllerRelationTemplate<F2>): ControllerRelationClass<F2>;
 
   /** @override */
-  <O, C extends Controller = Controller>(template: ThisType<ControllerRelation<O, C>> & ControllerRelationTemplate<C> & Partial<Omit<ControllerRelation<O, C>, keyof ControllerRelationTemplate>>): PropertyDecorator;
-}
-
-/** @public */
-export type ControllerRelationDef<O, R extends ControllerRelationRefinement = {}> =
-  ControllerRelation<O, ControllerRelationController<R>> &
-  {readonly name: string} & // prevent type alias simplification
-  (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer I} ? I : {}) &
-  (R extends {implements: infer I} ? I : {}) &
-  (R extends {observes: infer B} ? ObserverType<B extends boolean ? ControllerRelationController<R> : B> : {});
-
-/** @public */
-export function ControllerRelationDef<F extends ControllerRelation<any, any>>(
-  template: F extends ControllerRelationDef<infer O, infer R>
-          ? ThisType<ControllerRelationDef<O, R>>
-          & ControllerRelationTemplate<ControllerRelationController<R>>
-          & Partial<Omit<ControllerRelation<O, ControllerRelationController<R>>, keyof ControllerRelationTemplate>>
-          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof ControllerRelationTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer I} ? Partial<I> : {})
-          & (R extends {implements: infer I} ? I : {})
-          & (R extends {observes: infer B} ? (ObserverType<B extends boolean ? ControllerRelationController<R> : B> & {observes: boolean}) : {})
-          : never
-): PropertyDecorator {
-  return ControllerRelation(template);
+  <F2 extends F>(template: ControllerRelationTemplate<F2>): PropertyDecorator;
 }
 
 /** @public */
@@ -156,7 +131,7 @@ export const ControllerRelation = (function (_super: typeof Fastener) {
 
   ControllerRelation.prototype.onAttachController = function <C extends Controller>(this: ControllerRelation<unknown, C>, controller: C, target: Controller | null): void {
     if (this.observes === true) {
-      controller.observe(this as ObserverType<C>);
+      controller.observe(this as Observes<C>);
     }
   };
 
@@ -174,7 +149,7 @@ export const ControllerRelation = (function (_super: typeof Fastener) {
 
   ControllerRelation.prototype.onDetachController = function <C extends Controller>(this: ControllerRelation<unknown, C>, controller: C): void {
     if (this.observes === true) {
-      controller.unobserve(this as ObserverType<C>);
+      controller.unobserve(this as Observes<C>);
     }
   };
 

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Mutable, Class} from "@swim/util";
-import {Affinity, PropertyDef, AnimatorDef} from "@swim/component";
+import {Affinity, Property, Animator} from "@swim/component";
 import {
   AnyLength,
   Length,
@@ -26,7 +26,7 @@ import {
 } from "@swim/math";
 import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
 import {AnyColor, Color} from "@swim/style";
-import {ThemeAnimatorDef} from "@swim/theme";
+import {ThemeAnimator} from "@swim/theme";
 import {ViewContextType, View} from "@swim/view";
 import {
   GraphicsView,
@@ -68,7 +68,7 @@ export class GeoCircleView extends GeoView implements FillView, StrokeView {
 
   override readonly observerType?: Class<GeoCircleViewObserver>;
 
-  @AnimatorDef<GeoCircleView["geoCenter"]>({
+  @Animator<GeoCircleView["geoCenter"]>({
     valueType: GeoPoint,
     value: null,
     didSetState(newGeoCenter: GeoPoint | null, oldGeoCenter: GeoPoint | null): void {
@@ -82,25 +82,25 @@ export class GeoCircleView extends GeoView implements FillView, StrokeView {
       this.owner.callObservers("viewDidSetGeoCenter", newGeoCenter, this.owner);
     },
   })
-  readonly geoCenter!: AnimatorDef<this, {value: GeoPoint | null, valueInit: AnyGeoPoint | null}>;
+  readonly geoCenter!: Animator<this, GeoPoint | null, AnyGeoPoint | null>;
 
-  @AnimatorDef({valueType: R2Point, value: R2Point.undefined(), updateFlags: View.NeedsRender})
-  readonly viewCenter!: AnimatorDef<this, {value: R2Point | null, valueInit: AnyR2Point | null}>;
+  @Animator({valueType: R2Point, value: R2Point.undefined(), updateFlags: View.NeedsRender})
+  readonly viewCenter!: Animator<this, R2Point | null, AnyR2Point | null>;
 
-  @ThemeAnimatorDef({valueType: Length, value: Length.zero(), updateFlags: View.NeedsRender})
-  readonly radius!: ThemeAnimatorDef<this, {value: Length, valueInit: AnyLength}>;
+  @ThemeAnimator({valueType: Length, value: Length.zero(), updateFlags: View.NeedsRender})
+  readonly radius!: ThemeAnimator<this, Length, AnyLength>;
 
-  @ThemeAnimatorDef({valueType: Color, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly fill!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
+  @ThemeAnimator({valueType: Color, value: null, inherits: true, updateFlags: View.NeedsRender})
+  readonly fill!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @ThemeAnimatorDef({valueType: Color, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly stroke!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
+  @ThemeAnimator({valueType: Color, value: null, inherits: true, updateFlags: View.NeedsRender})
+  readonly stroke!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @ThemeAnimatorDef({valueType: Length, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly strokeWidth!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  @ThemeAnimator({valueType: Length, value: null, inherits: true, updateFlags: View.NeedsRender})
+  readonly strokeWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
 
-  @PropertyDef({valueType: Number})
-  readonly hitRadius!: PropertyDef<this, {value: number | undefined}>;
+  @Property({valueType: Number})
+  readonly hitRadius!: Property<this, number | undefined>;
 
   protected override onProject(viewContext: ViewContextType<this>): void {
     super.onProject(viewContext);

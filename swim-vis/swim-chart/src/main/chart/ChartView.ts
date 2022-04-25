@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import {Class, Initable, Range, AnyTiming, Timing, Easing, LinearRange} from "@swim/util";
-import {Affinity, FastenerClass, PropertyDef} from "@swim/component";
+import {Affinity, FastenerClass, Property} from "@swim/component";
 import {AnyLength, Length, R2Point, R2Box} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
-import {Look, ThemeAnimatorDef} from "@swim/theme";
-import {View, ViewRefDef} from "@swim/view";
+import {Look, ThemeAnimator} from "@swim/theme";
+import {View, ViewRef} from "@swim/view";
 import type {ChartViewObserver} from "./ChartViewObserver";
 import {ScaledViewInit, ScaledView} from "../scaled/ScaledView";
 import {AnyGraphView, GraphView} from "../graph/GraphView";
@@ -65,58 +65,58 @@ export interface ChartViewInit<X = unknown, Y = unknown> extends ScaledViewInit<
 export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
   override readonly observerType?: Class<ChartViewObserver<X, Y>>;
 
-  @ThemeAnimatorDef({valueType: Length, value: Length.px(20)})
-  readonly gutterTop!: ThemeAnimatorDef<this, {value: Length, valueInit: AnyLength}>;
+  @ThemeAnimator({valueType: Length, value: Length.px(20)})
+  readonly gutterTop!: ThemeAnimator<this, Length, AnyLength>;
 
-  @ThemeAnimatorDef({valueType: Length, value: Length.px(40)})
-  readonly gutterRight!: ThemeAnimatorDef<this, {value: Length, valueInit: AnyLength}>;
+  @ThemeAnimator({valueType: Length, value: Length.px(40)})
+  readonly gutterRight!: ThemeAnimator<this, Length, AnyLength>;
 
-  @ThemeAnimatorDef({valueType: Length, value: Length.px(20)})
-  readonly gutterBottom!: ThemeAnimatorDef<this, {value: Length, valueInit: AnyLength}>;
+  @ThemeAnimator({valueType: Length, value: Length.px(20)})
+  readonly gutterBottom!: ThemeAnimator<this, Length, AnyLength>;
 
-  @ThemeAnimatorDef({valueType: Length, value: Length.px(40)})
-  readonly gutterLeft!: ThemeAnimatorDef<this, {value: Length, valueInit: AnyLength}>;
+  @ThemeAnimator({valueType: Length, value: Length.px(40)})
+  readonly gutterLeft!: ThemeAnimator<this, Length, AnyLength>;
 
-  @ThemeAnimatorDef({valueType: Color, value: null, look: Look.tickColor})
-  readonly borderColor!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
+  @ThemeAnimator({valueType: Color, value: null, look: Look.tickColor})
+  readonly borderColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @ThemeAnimatorDef({valueType: Number, value: 1})
-  readonly borderWidth!: ThemeAnimatorDef<this, {value: number}>;
+  @ThemeAnimator({valueType: Number, value: 1})
+  readonly borderWidth!: ThemeAnimator<this, number>;
 
-  @ThemeAnimatorDef({valueType: Number, value: 6})
-  readonly borderSerif!: ThemeAnimatorDef<this, {value: number}>;
+  @ThemeAnimator({valueType: Number, value: 6})
+  readonly borderSerif!: ThemeAnimator<this, number>;
 
-  @ThemeAnimatorDef({valueType: Color, value: null, look: Look.tickColor})
-  readonly tickMarkColor!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
+  @ThemeAnimator({valueType: Color, value: null, look: Look.tickColor})
+  readonly tickMarkColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @ThemeAnimatorDef({valueType: Number, value: 1})
-  readonly tickMarkWidth!: ThemeAnimatorDef<this, {value: number}>;
+  @ThemeAnimator({valueType: Number, value: 1})
+  readonly tickMarkWidth!: ThemeAnimator<this, number>;
 
-  @ThemeAnimatorDef({valueType: Number, value: 6})
-  readonly tickMarkLength!: ThemeAnimatorDef<this, {value: number}>;
+  @ThemeAnimator({valueType: Number, value: 6})
+  readonly tickMarkLength!: ThemeAnimator<this, number>;
 
-  @ThemeAnimatorDef({valueType: Number, value: 2})
-  readonly tickLabelPadding!: ThemeAnimatorDef<this, {value: number}>;
+  @ThemeAnimator({valueType: Number, value: 2})
+  readonly tickLabelPadding!: ThemeAnimator<this, number>;
 
-  @PropertyDef<ChartView["tickTransition"]>({
+  @Property<ChartView["tickTransition"]>({
     valueType: Timing,
     initValue(): Timing {
       return Easing.cubicOut.withDuration(250);
     },
   })
-  readonly tickTransition!: PropertyDef<this, {value: Timing, valueInit: AnyTiming}>;
+  readonly tickTransition!: Property<this, Timing, AnyTiming>;
 
-  @ThemeAnimatorDef({valueType: Color, value: null, look: Look.gridColor})
-  readonly gridLineColor!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
+  @ThemeAnimator({valueType: Color, value: null, look: Look.gridColor})
+  readonly gridLineColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @ThemeAnimatorDef({valueType: Number, value: 0})
-  readonly gridLineWidth!: ThemeAnimatorDef<this, {value: number}>;
+  @ThemeAnimator({valueType: Number, value: 0})
+  readonly gridLineWidth!: ThemeAnimator<this, number>;
 
-  @ThemeAnimatorDef({valueType: Font, value: null, inherits: true})
-  readonly font!: ThemeAnimatorDef<this, {value: Font | null, valueInit: AnyFont | null}>;
+  @ThemeAnimator({valueType: Font, value: null, inherits: true})
+  readonly font!: ThemeAnimator<this, Font | null, AnyFont | null>;
 
-  @ThemeAnimatorDef({valueType: Color, value: null, look: Look.tickColor})
-  readonly textColor!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
+  @ThemeAnimator({valueType: Color, value: null, look: Look.tickColor})
+  readonly textColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
   override xRange(): Range<number> | null {
     const frame = this.viewFrame;
@@ -138,7 +138,7 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
     return LinearRange(yRangeMax, yRangeMin);
   }
 
-  @ViewRefDef<ChartView<X, Y>["graph"]>({
+  @ViewRef<ChartView<X, Y>["graph"]>({
     viewType: GraphView,
     viewKey: true,
     binds: true,
@@ -152,10 +152,10 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
       return view instanceof GraphView ? view : null;
     },
   })
-  readonly graph!: ViewRefDef<this, {view: GraphView<X, Y>}>;
+  readonly graph!: ViewRef<this, GraphView<X, Y>>;
   static readonly graph: FastenerClass<ChartView["graph"]>;
 
-  @ViewRefDef<ChartView<X, Y>["topAxis"]>({
+  @ViewRef<ChartView<X, Y>["topAxis"]>({
     viewType: TopAxisView,
     viewKey: true,
     binds: true,
@@ -169,12 +169,10 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
       return view instanceof TopAxisView ? view : null;
     },
   })
-  readonly topAxis!: ViewRefDef<this, {
-    view: AxisView<X> & Initable<AxisViewInit<X> | true>,
-  }>;
+  readonly topAxis!: ViewRef<this, AxisView<X> & Initable<AxisViewInit<X> | true>>;
   static readonly topAxis: FastenerClass<ChartView["topAxis"]>;
 
-  @ViewRefDef<ChartView<X, Y>["rightAxis"]>({
+  @ViewRef<ChartView<X, Y>["rightAxis"]>({
     viewType: RightAxisView,
     viewKey: true,
     binds: true,
@@ -188,12 +186,10 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
       return view instanceof RightAxisView ? view : null;
     },
   })
-  readonly rightAxis!: ViewRefDef<this, {
-    view: AxisView<Y> & Initable<AxisViewInit<Y> | true>,
-  }>;
+  readonly rightAxis!: ViewRef<this, AxisView<Y> & Initable<AxisViewInit<Y> | true>>;
   static readonly rightAxis: FastenerClass<ChartView["rightAxis"]>;
 
-  @ViewRefDef<ChartView<X, Y>["bottomAxis"]>({
+  @ViewRef<ChartView<X, Y>["bottomAxis"]>({
     viewType: BottomAxisView,
     viewKey: true,
     binds: true,
@@ -207,12 +203,10 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
       return view instanceof BottomAxisView ? view : null;
     },
   })
-  readonly bottomAxis!: ViewRefDef<this, {
-    view: AxisView<X> & Initable<AxisViewInit<X> | true>,
-  }>;
+  readonly bottomAxis!: ViewRef<this, AxisView<X> & Initable<AxisViewInit<X> | true>>;
   static readonly bottomAxis: FastenerClass<ChartView["bottomAxis"]>;
 
-  @ViewRefDef<ChartView<X, Y>["leftAxis"]>({
+  @ViewRef<ChartView<X, Y>["leftAxis"]>({
     viewType: LeftAxisView,
     viewKey: true,
     binds: true,
@@ -226,9 +220,7 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
       return view instanceof LeftAxisView ? view : null;
     },
   })
-  readonly leftAxis!: ViewRefDef<this, {
-    view: AxisView<Y> & Initable<AxisViewInit<Y> | true>,
-  }>;
+  readonly leftAxis!: ViewRef<this, AxisView<Y> & Initable<AxisViewInit<Y> | true>>;
   static readonly leftAxis: FastenerClass<ChartView["leftAxis"]>;
 
   protected override updateScales(): void {

@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import type {Mutable, Class, Timing} from "@swim/util";
-import {Affinity, AnimatorDef} from "@swim/component";
+import {Affinity, Animator} from "@swim/component";
 import {AnyLength, Length, AnyR2Point, R2Point, R2Segment, R2Box} from "@swim/math";
 import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
 import {AnyColor, Color} from "@swim/style";
-import {MoodVector, ThemeMatrix, ThemeAnimatorDef} from "@swim/theme";
+import {MoodVector, ThemeMatrix, ThemeAnimator} from "@swim/theme";
 import {ViewContextType, ViewFlags, View} from "@swim/view";
 import {
   Sprite,
@@ -61,7 +61,7 @@ export class GeoIconView extends GeoView implements IconView {
   /** @internal */
   sprite: Sprite | null;
 
-  @AnimatorDef<GeoIconView["geoCenter"]>({
+  @Animator<GeoIconView["geoCenter"]>({
     valueType: GeoPoint,
     value: null,
     didSetState(newGeoCenter: GeoPoint | null, oldGeoCenter: GeoPoint | null): void {
@@ -75,40 +75,40 @@ export class GeoIconView extends GeoView implements IconView {
       this.owner.callObservers("viewDidSetGeoCenter", newGeoCenter, this.owner);
     },
   })
-  readonly geoCenter!: AnimatorDef<this, {value: GeoPoint | null, valueInit: AnyGeoPoint | null}>;
+  readonly geoCenter!: Animator<this, GeoPoint | null, AnyGeoPoint | null>;
 
-  @AnimatorDef({valueType: R2Point, value: R2Point.undefined(), updateFlags: View.NeedsComposite})
-  readonly viewCenter!: AnimatorDef<this, {value: R2Point | null, valueInit: AnyR2Point | null}>;
+  @Animator({valueType: R2Point, value: R2Point.undefined(), updateFlags: View.NeedsComposite})
+  readonly viewCenter!: Animator<this, R2Point | null, AnyR2Point | null>;
 
-  @AnimatorDef<GeoIconView["xAlign"]>({
+  @Animator<GeoIconView["xAlign"]>({
     valueType: Number,
     value: 0.5,
     updateFlags: View.NeedsProject | View.NeedsRender | View.NeedsRasterize | View.NeedsComposite,
   })
-  readonly xAlign!: AnimatorDef<this, {value: number}>;
+  readonly xAlign!: Animator<this, number>;
 
-  @AnimatorDef<GeoIconView["yAlign"]>({
+  @Animator<GeoIconView["yAlign"]>({
     valueType: Number,
     value: 0.5,
     updateFlags: View.NeedsProject | View.NeedsRender | View.NeedsRasterize | View.NeedsComposite,
   })
-  readonly yAlign!: AnimatorDef<this, {value: number}>;
+  readonly yAlign!: Animator<this, number>;
 
-  @ThemeAnimatorDef<GeoIconView["iconWidth"]>({
+  @ThemeAnimator<GeoIconView["iconWidth"]>({
     valueType: Length,
     value: null,
     updateFlags: View.NeedsProject | View.NeedsRender | View.NeedsRasterize | View.NeedsComposite,
   })
-  readonly iconWidth!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  readonly iconWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
 
-  @ThemeAnimatorDef<GeoIconView["iconHeight"]>({
+  @ThemeAnimator<GeoIconView["iconHeight"]>({
     valueType: Length,
     value: null,
     updateFlags: View.NeedsProject | View.NeedsRender | View.NeedsRasterize | View.NeedsComposite,
   })
-  readonly iconHeight!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  readonly iconHeight!: ThemeAnimator<this, Length | null, AnyLength | null>;
 
-  @ThemeAnimatorDef<GeoIconView["iconColor"]>({
+  @ThemeAnimator<GeoIconView["iconColor"]>({
     valueType: Color,
     value: null,
     updateFlags: View.NeedsRender | View.NeedsRasterize | View.NeedsComposite,
@@ -123,9 +123,9 @@ export class GeoIconView extends GeoView implements IconView {
       }
     },
   })
-  readonly iconColor!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
+  readonly iconColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @ThemeAnimatorDef<GeoIconView["graphics"]>({
+  @ThemeAnimator<GeoIconView["graphics"]>({
     extends: IconGraphicsAnimator,
     valueType: Graphics,
     value: null,
@@ -134,7 +134,7 @@ export class GeoIconView extends GeoView implements IconView {
       this.owner.callObservers("viewDidSetGraphics", newGraphics, this.owner);
     },
   })
-  readonly graphics!: ThemeAnimatorDef<this, {value: Graphics | null}>;
+  readonly graphics!: ThemeAnimator<this, Graphics | null>;
 
   protected override onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);

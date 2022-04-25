@@ -14,10 +14,10 @@
 
 import type {Class} from "@swim/util";
 import {AnyLength, Length, R2Box} from "@swim/math";
-import {PropertyDef} from "@swim/component";
+import {Property} from "@swim/component";
 import type {GeoBox} from "@swim/geo";
 import {AnyColor, Color} from "@swim/style";
-import {ThemeAnimatorDef} from "@swim/theme";
+import {ThemeAnimator} from "@swim/theme";
 import {ViewContextType, View} from "@swim/view";
 import {
   GraphicsView,
@@ -42,7 +42,7 @@ export interface GeoAreaViewInit extends GeoPathViewInit, FillViewInit, StrokeVi
 export class GeoAreaView extends GeoPathView implements FillView, StrokeView {
   override readonly observerType?: Class<GeoAreaViewObserver>;
 
-  @ThemeAnimatorDef<GeoAreaView["fill"]>({
+  @ThemeAnimator<GeoAreaView["fill"]>({
     valueType: Color,
     value: null,
     inherits: true,
@@ -51,9 +51,9 @@ export class GeoAreaView extends GeoPathView implements FillView, StrokeView {
       this.owner.callObservers("viewDidSetFill", fill, this.owner);
     },
   })
-  readonly fill!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
+  readonly fill!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @ThemeAnimatorDef<GeoAreaView["stroke"]>({
+  @ThemeAnimator<GeoAreaView["stroke"]>({
     valueType: Color,
     value: null,
     inherits: true,
@@ -62,9 +62,9 @@ export class GeoAreaView extends GeoPathView implements FillView, StrokeView {
       this.owner.callObservers("viewDidSetStroke", stroke, this.owner);
     },
   })
-  readonly stroke!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
+  readonly stroke!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @ThemeAnimatorDef<GeoAreaView["strokeWidth"]>({
+  @ThemeAnimator<GeoAreaView["strokeWidth"]>({
     valueType: Length,
     value: null,
     inherits: true,
@@ -73,10 +73,10 @@ export class GeoAreaView extends GeoPathView implements FillView, StrokeView {
       this.owner.callObservers("viewDidSetStrokeWidth", strokeWidth, this.owner);
     },
   })
-  readonly strokeWidth!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  readonly strokeWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
 
-  @PropertyDef({valueType: Boolean, value: true})
-  readonly clipViewport!: PropertyDef<this, {value: boolean}>;
+  @Property({valueType: Boolean, value: true})
+  readonly clipViewport!: Property<this, boolean>;
 
   override cullGeoFrame(geoFrame: GeoBox = this.geoFrame): void {
     let culled: boolean;

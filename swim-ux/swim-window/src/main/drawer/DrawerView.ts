@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {Mutable, Class, AnyTiming, Timing} from "@swim/util";
-import {Affinity, PropertyDef, AnimatorDef} from "@swim/component";
-import {ConstraintPropertyDef} from "@swim/constraint";
+import {Affinity, Property} from "@swim/component";
+import {ConstraintProperty} from "@swim/constraint";
 import {AnyLength, Length} from "@swim/math";
 import {
   AnyPresence,
@@ -24,7 +24,7 @@ import {
   Expansion,
   ExpansionAnimator,
 } from "@swim/style";
-import {Look, Mood, ThemeConstraintAnimatorDef} from "@swim/theme";
+import {Look, Mood, ThemeConstraintAnimator} from "@swim/theme";
 import {
   ViewportInsets,
   ViewContextType,
@@ -65,13 +65,13 @@ export class DrawerView extends HtmlView implements Modal {
     this.overflowScrolling.setState("touch", Affinity.Intrinsic);
   }
 
-  @ThemeConstraintAnimatorDef({valueType: Length, value: Length.px(60)})
-  readonly collapsedWidth!: ThemeConstraintAnimatorDef<this, {value: Length, valueInit: AnyLength}>;
+  @ThemeConstraintAnimator({valueType: Length, value: Length.px(60)})
+  readonly collapsedWidth!: ThemeConstraintAnimator<this, Length, AnyLength>;
 
-  @ThemeConstraintAnimatorDef({valueType: Length, value: Length.px(200)})
-  readonly expandedWidth!: ThemeConstraintAnimatorDef<this, {value: Length, valueInit: AnyLength}>;
+  @ThemeConstraintAnimator({valueType: Length, value: Length.px(200)})
+  readonly expandedWidth!: ThemeConstraintAnimator<this, Length, AnyLength>;
 
-  @ConstraintPropertyDef<DrawerView["effectiveWidth"]>({
+  @ConstraintProperty<DrawerView["effectiveWidth"]>({
     valueType: Length,
     value: null,
     didSetValue(newValue: Length | null, oldValue: Length | null): void {
@@ -81,9 +81,9 @@ export class DrawerView extends HtmlView implements Modal {
       return value !== null ? value.pxValue() : 0;
     },
   })
-  readonly effectiveWidth!: ConstraintPropertyDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  readonly effectiveWidth!: ConstraintProperty<this, Length | null, AnyLength | null>;
 
-  @ConstraintPropertyDef<DrawerView["effectiveHeight"]>({
+  @ConstraintProperty<DrawerView["effectiveHeight"]>({
     valueType: Length,
     value: null,
     didSetValue(newValue: Length | null, oldValue: Length | null): void {
@@ -93,7 +93,7 @@ export class DrawerView extends HtmlView implements Modal {
       return value !== null ? value.pxValue() : 0;
     },
   })
-  readonly effectiveHeight!: ConstraintPropertyDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  readonly effectiveHeight!: ConstraintProperty<this, Length | null, AnyLength | null>;
 
   isHorizontal(): boolean {
     return this.placement.value === "top" || this.placement.value === "bottom";
@@ -103,7 +103,7 @@ export class DrawerView extends HtmlView implements Modal {
     return this.placement.value === "left" || this.placement.value === "right";
   }
 
-  @PropertyDef<DrawerView["placement"]>({
+  @Property<DrawerView["placement"]>({
     valueType: String,
     value: "left",
     updateFlags: View.NeedsResize | View.NeedsLayout,
@@ -111,10 +111,9 @@ export class DrawerView extends HtmlView implements Modal {
       this.owner.callObservers("viewDidSetPlacement", placement, this.owner);
     },
   })
-  readonly placement!: PropertyDef<this, {value: DrawerPlacement}>;
+  readonly placement!: Property<this, DrawerPlacement>;
 
-  @AnimatorDef<DrawerView["slide"]>({
-    extends: PresenceAnimator,
+  @PresenceAnimator<DrawerView["slide"]>({
     value: Presence.presented(),
     updateFlags: View.NeedsLayout,
     get transition(): Timing | null {
@@ -137,12 +136,9 @@ export class DrawerView extends HtmlView implements Modal {
       this.owner.callObservers("viewDidDismiss", this.owner);
     },
   })
-  readonly slide!: AnimatorDef<this, {
-    extends: PresenceAnimator<DrawerView, Presence, AnyPresence>,
-  }>;
+  readonly slide!: PresenceAnimator<this, Presence, AnyPresence>;
 
-  @AnimatorDef<DrawerView["stretch"]>({
-    extends: ExpansionAnimator,
+  @ExpansionAnimator<DrawerView["stretch"]>({
     value: Expansion.expanded(),
     updateFlags: View.NeedsResize | View.NeedsLayout,
     get transition(): Timing | null {
@@ -169,17 +165,15 @@ export class DrawerView extends HtmlView implements Modal {
       this.owner.callObservers("viewDidCollapse", this.owner);
     },
   })
-  readonly stretch!: AnimatorDef<this, {
-    extends: ExpansionAnimator<DrawerView, Expansion, AnyExpansion>,
-  }>;
+  readonly stretch!: ExpansionAnimator<this, Expansion, AnyExpansion>;
 
-  @PropertyDef<DrawerView["edgeInsets"]>({
+  @Property<DrawerView["edgeInsets"]>({
     valueType: ViewportInsets,
     value: null,
     inherits: true,
     equalValues: ViewportInsets.equal,
   })
-  readonly edgeInsets!: PropertyDef<this, {value: ViewportInsets | null}>;
+  readonly edgeInsets!: Property<this, ViewportInsets | null>;
 
   protected override onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);

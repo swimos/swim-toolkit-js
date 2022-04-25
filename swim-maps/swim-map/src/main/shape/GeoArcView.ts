@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Mutable, Class} from "@swim/util";
-import {Affinity, AnimatorDef} from "@swim/component";
+import {Affinity, Animator} from "@swim/component";
 import {
   AnyLength,
   Length,
@@ -27,7 +27,7 @@ import {
 } from "@swim/math";
 import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
 import {AnyColor, Color} from "@swim/style";
-import {ThemeAnimatorDef} from "@swim/theme";
+import {ThemeAnimator} from "@swim/theme";
 import {ViewContextType, View} from "@swim/view";
 import {
   GraphicsView,
@@ -75,7 +75,7 @@ export class GeoArcView extends GeoView implements FillView, StrokeView {
 
   override readonly observerType?: Class<GeoArcViewObserver>;
 
-  @AnimatorDef<GeoArcView["geoCenter"]>({
+  @Animator<GeoArcView["geoCenter"]>({
     valueType: GeoPoint,
     value: null,
     didSetState(newGeoCenter: GeoPoint | null, oldGeoCenter: GeoPoint | null): void {
@@ -89,40 +89,40 @@ export class GeoArcView extends GeoView implements FillView, StrokeView {
       this.owner.callObservers("viewDidSetGeoCenter", newGeoCenter, this.owner);
     },
   })
-  readonly geoCenter!: AnimatorDef<this, {value: GeoPoint | null, valueInit: AnyGeoPoint | null}>;
+  readonly geoCenter!: Animator<this, GeoPoint | null, AnyGeoPoint | null>;
 
-  @AnimatorDef({valueType: R2Point, value: R2Point.undefined(), updateFlags: View.NeedsRender})
-  readonly viewCenter!: AnimatorDef<this, {value: R2Point | null, valueInit: AnyR2Point | null}>;
+  @Animator({valueType: R2Point, value: R2Point.undefined(), updateFlags: View.NeedsRender})
+  readonly viewCenter!: Animator<this, R2Point | null, AnyR2Point | null>;
 
-  @ThemeAnimatorDef({valueType: Length, value: Length.zero(), updateFlags: View.NeedsRender})
-  readonly innerRadius!: ThemeAnimatorDef<this, {value: Length, valueInit: AnyLength}>;
+  @ThemeAnimator({valueType: Length, value: Length.zero(), updateFlags: View.NeedsRender})
+  readonly innerRadius!: ThemeAnimator<this, Length, AnyLength>;
 
-  @ThemeAnimatorDef({valueType: Length, value: Length.zero(), updateFlags: View.NeedsRender})
-  readonly outerRadius!: ThemeAnimatorDef<this, {value: Length, valueInit: AnyLength}>;
+  @ThemeAnimator({valueType: Length, value: Length.zero(), updateFlags: View.NeedsRender})
+  readonly outerRadius!: ThemeAnimator<this, Length, AnyLength>;
 
-  @ThemeAnimatorDef({valueType: Angle, value: Angle.zero(), updateFlags: View.NeedsRender})
-  readonly startAngle!: ThemeAnimatorDef<this, {value: Angle, valueInit: AnyAngle}>;
+  @ThemeAnimator({valueType: Angle, value: Angle.zero(), updateFlags: View.NeedsRender})
+  readonly startAngle!: ThemeAnimator<this, Angle, AnyAngle>;
 
-  @ThemeAnimatorDef({valueType: Angle, value: Angle.zero(), updateFlags: View.NeedsRender})
-  readonly sweepAngle!: ThemeAnimatorDef<this, {value: Angle, valueInit: AnyAngle}>;
+  @ThemeAnimator({valueType: Angle, value: Angle.zero(), updateFlags: View.NeedsRender})
+  readonly sweepAngle!: ThemeAnimator<this, Angle, AnyAngle>;
 
-  @ThemeAnimatorDef({valueType: Angle, value: Angle.zero(), updateFlags: View.NeedsRender})
-  readonly padAngle!: ThemeAnimatorDef<this, {value: Angle, valueInit: AnyAngle}>;
+  @ThemeAnimator({valueType: Angle, value: Angle.zero(), updateFlags: View.NeedsRender})
+  readonly padAngle!: ThemeAnimator<this, Angle, AnyAngle>;
 
-  @ThemeAnimatorDef({valueType: Length, value: null, updateFlags: View.NeedsRender})
-  readonly padRadius!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  @ThemeAnimator({valueType: Length, value: null, updateFlags: View.NeedsRender})
+  readonly padRadius!: ThemeAnimator<this, Length | null, AnyLength | null>;
 
-  @ThemeAnimatorDef({valueType: Length, value: Length.zero(), updateFlags: View.NeedsRender})
-  readonly cornerRadius!: ThemeAnimatorDef<this, {value: Length, valueInit: AnyLength}>;
+  @ThemeAnimator({valueType: Length, value: Length.zero(), updateFlags: View.NeedsRender})
+  readonly cornerRadius!: ThemeAnimator<this, Length, AnyLength>;
 
-  @ThemeAnimatorDef({valueType: Color, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly fill!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
+  @ThemeAnimator({valueType: Color, value: null, inherits: true, updateFlags: View.NeedsRender})
+  readonly fill!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @ThemeAnimatorDef({valueType: Color, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly stroke!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
+  @ThemeAnimator({valueType: Color, value: null, inherits: true, updateFlags: View.NeedsRender})
+  readonly stroke!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @ThemeAnimatorDef({valueType: Length, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly strokeWidth!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  @ThemeAnimator({valueType: Length, value: null, inherits: true, updateFlags: View.NeedsRender})
+  readonly strokeWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
 
   get value(): Arc | null {
     const viewCenter = this.viewCenter.value;

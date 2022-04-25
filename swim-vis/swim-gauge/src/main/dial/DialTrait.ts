@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {PropertyDef} from "@swim/component";
+import {Property} from "@swim/component";
 import {Trait} from "@swim/model";
 import {AnyColorOrLook, ColorOrLook, ColorLook} from "@swim/theme";
 import type {DialTraitObserver} from "./DialTraitObserver";
@@ -22,63 +22,63 @@ import type {DialTraitObserver} from "./DialTraitObserver";
 export class DialTrait extends Trait {
   override readonly observerType?: Class<DialTraitObserver>;
 
-  @PropertyDef<DialTrait["value"]>({
+  @Property<DialTrait["value"]>({
     valueType: Number,
     value: 0,
     didSetValue(value: number): void {
       this.owner.callObservers("traitDidSetValue", value, this.owner);
     },
   })
-  readonly value!: PropertyDef<this, {value: number}>;
+  readonly value!: Property<this, number>;
 
-  @PropertyDef<DialTrait["limit"]>({
+  @Property<DialTrait["limit"]>({
     valueType: Number,
     value: 1,
     didSetValue(limit: number): void {
       this.owner.callObservers("traitDidSetLimit", limit, this.owner);
     },
   })
-  readonly limit!: PropertyDef<this, {value: number}>;
+  readonly limit!: Property<this, number>;
 
-  @PropertyDef<DialTrait["dialColor"]>({
+  @Property<DialTrait["dialColor"]>({
     valueType: ColorLook,
     value: null,
     didSetValue(dialColor: ColorOrLook | null): void {
       this.owner.callObservers("traitDidSetDialColor", dialColor, this.owner);
     },
   })
-  readonly dialColor!: PropertyDef<this, {value: ColorOrLook | null, valueInit: AnyColorOrLook | null}>;
+  readonly dialColor!: Property<this, ColorOrLook | null, AnyColorOrLook | null>;
 
-  @PropertyDef<DialTrait["meterColor"]>({
+  @Property<DialTrait["meterColor"]>({
     valueType: ColorLook,
     value: null,
     didSetValue(meterColor: ColorOrLook | null): void {
       this.owner.callObservers("traitDidSetMeterColor", meterColor, this.owner);
     },
   })
-  readonly meterColor!: PropertyDef<this, {value: ColorOrLook | null, valueInit: AnyColorOrLook | null}>;
+  readonly meterColor!: Property<this, ColorOrLook | null, AnyColorOrLook | null>;
 
   formatLabel(value: number, limit: number): string | undefined {
     return void 0;
   }
 
-  @PropertyDef<DialTrait["label"]>({
+  @Property<DialTrait["label"]>({
     valueType: String,
     didSetValue(label: string | undefined): void {
       this.owner.callObservers("traitDidSetLabel", label, this.owner);
     },
   })
-  readonly label!: PropertyDef<this, {value: string | undefined}>;
+  readonly label!: Property<this, string | undefined>;
 
   formatLegend(value: number, limit: number): string | undefined {
     return void 0;
   }
 
-  @PropertyDef<DialTrait["legend"]>({
+  @Property<DialTrait["legend"]>({
     valueType: String,
     didSetValue(legend: string | undefined): void {
       this.owner.callObservers("traitDidSetLegend", legend, this.owner);
     },
   })
-  readonly legend!: PropertyDef<this, {value: string | undefined}>;
+  readonly legend!: Property<this, string | undefined>;
 }

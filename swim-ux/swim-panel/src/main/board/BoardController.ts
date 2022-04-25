@@ -12,15 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class} from "@swim/util";
+import type {Class, Observes} from "@swim/util";
 import type {FastenerClass} from "@swim/component";
 import type {Trait} from "@swim/model";
-import {
-  TraitViewRefDef,
-  TraitViewRef,
-  TraitViewControllerSetDef,
-  TraitViewControllerSet,
-} from "@swim/controller";
+import {TraitViewRef, TraitViewControllerSet} from "@swim/controller";
 import {SheetController} from "@swim/sheet";
 import type {PanelView} from "../panel/PanelView";
 import type {PanelTrait} from "../panel/PanelTrait";
@@ -33,7 +28,7 @@ import type {BoardControllerObserver} from "./BoardControllerObserver";
 export class BoardController extends SheetController {
   override readonly observerType?: Class<BoardControllerObserver>;
 
-  @TraitViewRefDef<BoardController["sheet"]>({
+  @TraitViewRef<BoardController["sheet"]>({
     extends: SheetController.sheet,
     traitType: BoardTrait,
     observesTrait: true,
@@ -67,15 +62,10 @@ export class BoardController extends SheetController {
       }
     },
   })
-  override readonly sheet!: TraitViewRefDef<this, {
-    extends: SheetController["sheet"],
-    trait: BoardTrait,
-    observesTrait: true,
-    view: BoardView,
-  }>;
+  override readonly sheet!: TraitViewRef<this, BoardTrait, BoardView> & SheetController["sheet"] & Observes<BoardTrait>;
   static override readonly sheet: FastenerClass<BoardController["sheet"]>;
 
-  @TraitViewControllerSetDef<BoardController["panels"]>({
+  @TraitViewControllerSet<BoardController["panels"]>({
     controllerType: PanelController,
     binds: true,
     observes: true,
@@ -147,17 +137,11 @@ export class BoardController extends SheetController {
       }
     },
   })
-  readonly panels!: TraitViewControllerSetDef<this, {
-    trait: PanelTrait,
-    view: PanelView,
-    controller: PanelController,
-    implements: {
-      attachPanelTrait(panelTrait: PanelTrait, panelController: PanelController): void;
-      detachPanelTrait(panelTrait: PanelTrait, panelController: PanelController): void;
-      attachPanelView(panelView: PanelView, panelController: PanelController): void;
-      detachPanelView(panelView: PanelView, panelController: PanelController): void;
-    },
-    observes: true,
-  }>;
+  readonly panels!: TraitViewControllerSet<this, PanelTrait, PanelView, PanelController> & Observes<PanelController> & {
+    attachPanelTrait(panelTrait: PanelTrait, panelController: PanelController): void,
+    detachPanelTrait(panelTrait: PanelTrait, panelController: PanelController): void,
+    attachPanelView(panelView: PanelView, panelController: PanelController): void,
+    detachPanelView(panelView: PanelView, panelController: PanelController): void,
+  };
   static readonly panels: FastenerClass<BoardController["panels"]>;
 }

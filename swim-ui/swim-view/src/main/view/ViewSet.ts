@@ -12,50 +12,46 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Proto, Objects, Comparator, ObserverType} from "@swim/util";
+import {Mutable, Proto, Objects, Comparator} from "@swim/util";
 import {Affinity, FastenerFlags, FastenerOwner, Fastener} from "@swim/component";
-import type {AnyView, View} from "./View";
-import {
-  ViewRelationRefinement,
-  ViewRelationTemplate,
-  ViewRelationClass,
-  ViewRelation,
-} from "./ViewRelation";
+import type {AnyView, ViewFactory, View} from "./View";
+import {ViewRelationDescriptor, ViewRelationClass, ViewRelation} from "./ViewRelation";
 
 /** @public */
-export interface ViewSetRefinement extends ViewRelationRefinement {
-}
+export type ViewSetView<F extends ViewSet<any, any>> =
+  F extends {viewType?: ViewFactory<infer V>} ? V : never;
 
 /** @public */
-export type ViewSetView<R extends ViewSetRefinement | ViewSet<any, any>, D = View> =
-  R extends {view: infer V | null} ? V :
-  R extends {extends: infer E} ? ViewSetView<E, D> :
-  R extends ViewSet<any, infer V> ? V :
-  D;
-
-/** @public */
-export interface ViewSetTemplate<V extends View = View> extends ViewRelationTemplate<V> {
+export interface ViewSetDescriptor<V extends View = View> extends ViewRelationDescriptor<V> {
   extends?: Proto<ViewSet<any, any>> | string | boolean | null;
   ordered?: boolean;
   sorted?: boolean;
 }
 
 /** @public */
+export type ViewSetTemplate<F extends ViewSet<any, any>> =
+  ThisType<F> &
+  ViewSetDescriptor<ViewSetView<F>> &
+  Partial<Omit<F, keyof ViewSetDescriptor>>;
+
+/** @public */
 export interface ViewSetClass<F extends ViewSet<any, any> = ViewSet<any, any>> extends ViewRelationClass<F> {
   /** @override */
-  specialize(className: string, template: ViewSetTemplate): ViewSetClass;
+  specialize(template: ViewSetDescriptor<any>): ViewSetClass<F>;
 
   /** @override */
-  refine(fastenerClass: ViewSetClass): void;
+  refine(fastenerClass: ViewSetClass<any>): void;
 
   /** @override */
-  extend(className: string, template: ViewSetTemplate): ViewSetClass<F>;
+  extend<F2 extends F>(className: string, template: ViewSetTemplate<F2>): ViewSetClass<F2>;
+  extend<F2 extends F>(className: string, template: ViewSetTemplate<F2>): ViewSetClass<F2>;
 
   /** @override */
-  specify<O, V extends View = View>(className: string, template: ThisType<ViewSet<O, V>> & ViewSetTemplate<V> & Partial<Omit<ViewSet<O, V>, keyof ViewSetTemplate>>): ViewSetClass<F>;
+  define<F2 extends F>(className: string, template: ViewSetTemplate<F2>): ViewSetClass<F2>;
+  define<F2 extends F>(className: string, template: ViewSetTemplate<F2>): ViewSetClass<F2>;
 
   /** @override */
-  <O, V extends View = View>(template: ThisType<ViewSet<O, V>> & ViewSetTemplate<V> & Partial<Omit<ViewSet<O, V>, keyof ViewSetTemplate>>): PropertyDecorator;
+  <F2 extends F>(template: ViewSetTemplate<F2>): PropertyDecorator;
 
   /** @internal */
   readonly OrderedFlag: FastenerFlags;
@@ -66,30 +62,6 @@ export interface ViewSetClass<F extends ViewSet<any, any> = ViewSet<any, any>> e
   readonly FlagShift: number;
   /** @internal @override */
   readonly FlagMask: FastenerFlags;
-}
-
-/** @public */
-export type ViewSetDef<O, R extends ViewSetRefinement = {}> =
-  ViewSet<O, ViewSetView<R>> &
-  {readonly name: string} & // prevent type alias simplification
-  (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer I} ? I : {}) &
-  (R extends {implements: infer I} ? I : {}) &
-  (R extends {observes: infer B} ? ObserverType<B extends boolean ? ViewSetView<R> : B> : {});
-
-/** @public */
-export function ViewSetDef<F extends ViewSet<any, any>>(
-  template: F extends ViewSetDef<infer O, infer R>
-          ? ThisType<ViewSetDef<O, R>>
-          & ViewSetTemplate<ViewSetView<R>>
-          & Partial<Omit<ViewSet<O, ViewSetView<R>>, keyof ViewSetTemplate>>
-          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof ViewSetTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer I} ? Partial<I> : {})
-          & (R extends {implements: infer I} ? I : {})
-          & (R extends {observes: infer B} ? (ObserverType<B extends boolean ? ViewSetView<R> : B> & {observes: boolean}) : {})
-          : never
-): PropertyDecorator {
-  return ViewSet(template);
 }
 
 /** @public */
@@ -722,7 +694,7 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     return fastener;
   };
 
-  ViewSet.refine = function (fastenerClass: ViewSetClass): void {
+  ViewSet.refine = function (fastenerClass: ViewSetClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
     let flagsInit = fastenerPrototype.flagsInit;
@@ -736,7 +708,7 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
       } else {
         flagsInit &= ~ViewSet.OrderedFlag;
       }
-      delete (fastenerPrototype as ViewSetTemplate).ordered;
+      delete (fastenerPrototype as ViewSetDescriptor).ordered;
     }
 
     if (Object.prototype.hasOwnProperty.call(fastenerPrototype, "sorted")) {
@@ -748,7 +720,7 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
       } else {
         flagsInit &= ~ViewSet.SortedFlag;
       }
-      delete (fastenerPrototype as ViewSetTemplate).sorted;
+      delete (fastenerPrototype as ViewSetDescriptor).sorted;
     }
 
     if (flagsInit !== void 0) {

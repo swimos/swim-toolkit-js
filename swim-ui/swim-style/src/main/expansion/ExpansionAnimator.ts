@@ -17,7 +17,7 @@ import {Affinity, AnimatorClass, Animator} from "@swim/component";
 import {AnyExpansion, Expansion} from "./Expansion";
 
 /** @public */
-export interface ExpansionAnimator<O = unknown, T extends Expansion | null | undefined = Expansion | null | undefined, U extends AnyExpansion | null | undefined = T> extends Animator<O, T, U> {
+export interface ExpansionAnimator<O = unknown, T extends Expansion | null | undefined = Expansion | null | undefined, U extends AnyExpansion | null | undefined = AnyExpansion | T> extends Animator<O, T, U> {
   get phase(): number | undefined;
 
   getPhase(): number;
@@ -77,7 +77,7 @@ export interface ExpansionAnimator<O = unknown, T extends Expansion | null | und
 export const ExpansionAnimator = (function (_super: typeof Animator) {
   const ExpansionAnimator = _super.extend("ExpansionAnimator", {
     valueType: Expansion,
-  }) as AnimatorClass<ExpansionAnimator>;
+  }) as AnimatorClass<ExpansionAnimator<any, any, any>>;
 
   Object.defineProperty(ExpansionAnimator.prototype, "phase", {
     get(this: ExpansionAnimator): number | undefined {

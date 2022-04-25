@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class} from "@swim/util";
+import type {Class, Observes} from "@swim/util";
 import type {FastenerClass} from "@swim/component";
-import {ViewRefDef} from "@swim/view";
+import {ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
-import {TraitViewRefDef} from "@swim/controller";
+import {TraitViewRef} from "@swim/controller";
 import {ColController} from "./ColController";
 import {TextColView} from "./TextColView";
 import {TextColTrait} from "./TextColTrait";
@@ -26,7 +26,7 @@ import type {TextColControllerObserver} from "./TextColControllerObserver";
 export class TextColController extends ColController {
   override readonly observerType?: Class<TextColControllerObserver>;
 
-  @TraitViewRefDef<TextColController["col"]>({
+  @TraitViewRef<TextColController["col"]>({
     extends: true,
     traitType: TextColTrait,
     observesTrait: true,
@@ -58,13 +58,7 @@ export class TextColController extends ColController {
       this.owner.label.setView(null);
     },
   })
-  override readonly col!: TraitViewRefDef<this, {
-    extends: ColController["col"],
-    trait: TextColTrait,
-    observesTrait: true,
-    view: TextColView,
-    observesView: true,
-  }>;
+  override readonly col!: TraitViewRef<this, TextColTrait, TextColView> & ColController["col"] & Observes<TextColTrait & TextColView>;
   static override readonly col: FastenerClass<TextColController["col"]>;
 
   protected setLabelView(label: string | undefined): void {
@@ -74,7 +68,7 @@ export class TextColController extends ColController {
     }
   }
 
-  @ViewRefDef<TextColController["label"]>({
+  @ViewRef<TextColController["label"]>({
     viewType: HtmlView,
     willAttachView(contentView: HtmlView): void {
       this.owner.callObservers("controllerWillAttachColLabelView", contentView, this.owner);
@@ -83,6 +77,6 @@ export class TextColController extends ColController {
       this.owner.callObservers("controllerDidDetachColLabelView", contentView, this.owner);
     },
   })
-  readonly label!: ViewRefDef<this, {view: HtmlView}>;
+  readonly label!: ViewRef<this, HtmlView>;
   static readonly label: FastenerClass<TextColController["label"]>;
 }

@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import type {Class, AnyTiming, Timing} from "@swim/util";
-import {Affinity, FastenerClass, PropertyDef, AnimatorDef} from "@swim/component";
+import {Affinity, FastenerClass, Property} from "@swim/component";
 import {Length} from "@swim/math";
 import {AnyPresence, Presence, PresenceAnimator} from "@swim/style";
 import {Look, Mood} from "@swim/theme";
-import {ViewportInsets, View, ViewRefDef} from "@swim/view";
+import {ViewportInsets, View, ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import type {SheetViewObserver} from "./SheetViewObserver";
 
@@ -42,7 +42,7 @@ export class SheetView extends HtmlView {
 
   override readonly observerType?: Class<SheetViewObserver>;
 
-  @ViewRefDef<SheetView["back"]>({
+  @ViewRef<SheetView["back"]>({
     viewType: SheetView,
     binds: false,
     willAttachView(backView: SheetView): void {
@@ -52,10 +52,10 @@ export class SheetView extends HtmlView {
       this.owner.callObservers("viewDidDetachBack", backView, this.owner);
     },
   })
-  readonly back!: ViewRefDef<this, {view: SheetView}>;
+  readonly back!: ViewRef<this, SheetView>;
   static readonly back: FastenerClass<SheetView["back"]>;
 
-  @ViewRefDef<SheetView["forward"]>({
+  @ViewRef<SheetView["forward"]>({
     viewType: SheetView,
     binds: false,
     willAttachView(forwardView: SheetView): void {
@@ -65,31 +65,30 @@ export class SheetView extends HtmlView {
       this.owner.callObservers("viewDidDetachForward", forwardView, this.owner);
     },
   })
-  readonly forward!: ViewRefDef<this, {view: SheetView}>;
+  readonly forward!: ViewRef<this, SheetView>;
   static readonly forward: FastenerClass<SheetView["forward"]>;
 
-  @PropertyDef<SheetView["fullBleed"]>({
+  @Property<SheetView["fullBleed"]>({
     valueType: Boolean,
     value: false,
     didSetValue(fullBleed: boolean): void {
       this.owner.callObservers("viewDidSetFullBleed", fullBleed, this.owner);
     },
   })
-  readonly fullBleed!: PropertyDef<this, {value: boolean}>;
+  readonly fullBleed!: Property<this, boolean>;
 
-  @PropertyDef<SheetView["sheetAlign"]>({valueType: Number, value: 1})
-  readonly sheetAlign!: PropertyDef<this, {value: number}>;
+  @Property<SheetView["sheetAlign"]>({valueType: Number, value: 1})
+  readonly sheetAlign!: Property<this, number>;
 
-  @PropertyDef<SheetView["edgeInsets"]>({
+  @Property<SheetView["edgeInsets"]>({
     valueType: ViewportInsets,
     value: null,
     inherits: true,
     equalValues: ViewportInsets.equal,
   })
-  readonly edgeInsets!: PropertyDef<this, {value: ViewportInsets | null}>;
+  readonly edgeInsets!: Property<this, ViewportInsets | null>;
 
-  @AnimatorDef<SheetView["presence"]>({
-    extends: PresenceAnimator,
+  @PresenceAnimator<SheetView["presence"]>({
     value: Presence.presented(),
     updateFlags: View.NeedsLayout,
     get transition(): Timing | null {
@@ -115,9 +114,7 @@ export class SheetView extends HtmlView {
       this.owner.callObservers("viewDidDismiss", this.owner);
     },
   })
-  readonly presence!: AnimatorDef<this, {
-    extends: PresenceAnimator<SheetView, Presence, AnyPresence>,
-  }>;
+  readonly presence!: PresenceAnimator<SheetView, Presence, AnyPresence>;
 
   present(timing?: AnyTiming | boolean): void {
     this.presence.present(timing);

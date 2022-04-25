@@ -12,50 +12,46 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Proto, Objects, Comparator, ObserverType} from "@swim/util";
+import {Mutable, Proto, Objects, Comparator} from "@swim/util";
 import {Affinity, FastenerOwner, FastenerFlags, Fastener} from "@swim/component";
-import type {AnyController, Controller} from "./Controller";
-import {
-  ControllerRelationRefinement,
-  ControllerRelationTemplate,
-  ControllerRelationClass,
-  ControllerRelation,
-} from "./ControllerRelation";
+import type {AnyController, ControllerFactory, Controller} from "./Controller";
+import {ControllerRelationDescriptor, ControllerRelationClass, ControllerRelation} from "./ControllerRelation";
 
 /** @public */
-export interface ControllerSetRefinement extends ControllerRelationRefinement {
-}
+export type ControllerSetController<F extends ControllerSet<any, any>> =
+  F extends {controllerType?: ControllerFactory<infer C>} ? C : never;
 
 /** @public */
-export type ControllerSetController<R extends ControllerSetRefinement | ControllerSet<any, any>, D = Controller> =
-  R extends {controller: infer C | null} ? C :
-  R extends {extends: infer E} ? ControllerSetController<E, D> :
-  R extends ControllerSet<any, infer C> ? C :
-  D;
-
-/** @public */
-export interface ControllerSetTemplate<C extends Controller = Controller> extends ControllerRelationTemplate<C> {
+export interface ControllerSetDescriptor<C extends Controller = Controller> extends ControllerRelationDescriptor<C> {
   extends?: Proto<ControllerSet<any, any>> | string | boolean | null;
   ordered?: boolean;
   sorted?: boolean;
 }
 
 /** @public */
+export type ControllerSetTemplate<F extends ControllerSet<any, any>> =
+  ThisType<F> &
+  ControllerSetDescriptor<ControllerSetController<F>> &
+  Partial<Omit<F, keyof ControllerSetDescriptor>>;
+
+/** @public */
 export interface ControllerSetClass<F extends ControllerSet<any, any> = ControllerSet<any, any>> extends ControllerRelationClass<F> {
   /** @override */
-  specialize(className: string, template: ControllerSetTemplate): ControllerSetClass;
+  specialize(template: ControllerSetDescriptor<any>): ControllerSetClass<F>;
 
   /** @override */
-  refine(fastenerClass: ControllerSetClass): void;
+  refine(fastenerClass: ControllerSetClass<any>): void;
 
   /** @override */
-  extend(className: string, template: ControllerSetTemplate): ControllerSetClass<F>;
+  extend<F2 extends F>(className: string, template: ControllerSetTemplate<F2>): ControllerSetClass<F2>;
+  extend<F2 extends F>(className: string, template: ControllerSetTemplate<F2>): ControllerSetClass<F2>;
 
   /** @override */
-  specify<O, C extends Controller = Controller>(className: string, template: ThisType<ControllerSet<O, C>> & ControllerSetTemplate<C> & Partial<Omit<ControllerSet<O, C>, keyof ControllerSetTemplate>>): ControllerSetClass<F>;
+  define<F2 extends F>(className: string, template: ControllerSetTemplate<F2>): ControllerSetClass<F2>;
+  define<F2 extends F>(className: string, template: ControllerSetTemplate<F2>): ControllerSetClass<F2>;
 
   /** @override */
-  <O, C extends Controller = Controller>(template: ThisType<ControllerSet<O, C>> & ControllerSetTemplate<C> & Partial<Omit<ControllerSet<O, C>, keyof ControllerSetTemplate>>): PropertyDecorator;
+  <F2 extends F>(template: ControllerSetTemplate<F2>): PropertyDecorator;
 
   /** @internal */
   readonly OrderedFlag: FastenerFlags;
@@ -66,30 +62,6 @@ export interface ControllerSetClass<F extends ControllerSet<any, any> = Controll
   readonly FlagShift: number;
   /** @internal @override */
   readonly FlagMask: FastenerFlags;
-}
-
-/** @public */
-export type ControllerSetDef<O, R extends ControllerSetRefinement = {}> =
-  ControllerSet<O, ControllerSetController<R>> &
-  {readonly name: string} & // prevent type alias simplification
-  (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer I} ? I : {}) &
-  (R extends {implements: infer I} ? I : {}) &
-  (R extends {observes: infer B} ? ObserverType<B extends boolean ? ControllerSetController<R> : B> : {});
-
-/** @public */
-export function ControllerSetDef<F extends ControllerSet<any, any>>(
-  template: F extends ControllerSetDef<infer O, infer R>
-          ? ThisType<ControllerSetDef<O, R>>
-          & ControllerSetTemplate<ControllerSetController<R>>
-          & Partial<Omit<ControllerSet<O, ControllerSetController<R>>, keyof ControllerSetTemplate>>
-          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof ControllerSetTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer I} ? Partial<I> : {})
-          & (R extends {implements: infer I} ? I : {})
-          & (R extends {observes: infer B} ? (ObserverType<B extends boolean ? ControllerSetController<R> : B> & {observes: boolean}) : {})
-          : never
-): PropertyDecorator {
-  return ControllerSet(template);
 }
 
 /** @public */
@@ -722,7 +694,7 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     return fastener;
   };
 
-  ControllerSet.refine = function (fastenerClass: ControllerSetClass): void {
+  ControllerSet.refine = function (fastenerClass: ControllerSetClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
     let flagsInit = fastenerPrototype.flagsInit;
@@ -736,7 +708,7 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
       } else {
         flagsInit &= ~ControllerSet.OrderedFlag;
       }
-      delete (fastenerPrototype as ControllerSetTemplate).ordered;
+      delete (fastenerPrototype as ControllerSetDescriptor).ordered;
     }
 
     if (Object.prototype.hasOwnProperty.call(fastenerPrototype, "sorted")) {
@@ -748,7 +720,7 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
       } else {
         flagsInit &= ~ControllerSet.SortedFlag;
       }
-      delete (fastenerPrototype as ControllerSetTemplate).sorted;
+      delete (fastenerPrototype as ControllerSetDescriptor).sorted;
     }
 
     if (flagsInit !== void 0) {

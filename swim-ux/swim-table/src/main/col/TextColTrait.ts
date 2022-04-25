@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {PropertyDef} from "@swim/component";
+import {Property} from "@swim/component";
 import {ColTrait} from "./ColTrait";
 import type {TextColTraitObserver} from "./TextColTraitObserver";
 import type {ColController} from "./ColController";
@@ -23,13 +23,13 @@ import {TextColController} from "./"; // forward import
 export class TextColTrait extends ColTrait {
   override readonly observerType?: Class<TextColTraitObserver>;
 
-  @PropertyDef<TextColTrait["label"]>({
+  @Property<TextColTrait["label"]>({
     valueType: String,
     didSetValue(label: string | undefined): void {
       this.owner.callObservers("traitDidSetLabel", label, this.owner);
     },
   })
-  readonly label!: PropertyDef<this, {value: string | undefined}>;
+  readonly label!: Property<this, string | undefined>;
 
   override createColController(): ColController {
     return new TextColController();

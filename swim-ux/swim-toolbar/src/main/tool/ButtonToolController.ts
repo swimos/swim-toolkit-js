@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class} from "@swim/util";
+import type {Class, Observes} from "@swim/util";
 import type {FastenerClass} from "@swim/component";
+import type {Trait} from "@swim/model";
 import type {Graphics} from "@swim/graphics";
-import {TraitViewRefDef} from "@swim/controller";
+import {TraitViewRef} from "@swim/controller";
 import {ToolController} from "./ToolController";
 import {ButtonToolView} from "./ButtonToolView";
 import type {ButtonToolControllerObserver} from "./ButtonToolControllerObserver";
@@ -24,7 +25,7 @@ import type {ButtonToolControllerObserver} from "./ButtonToolControllerObserver"
 export class ButtonToolController extends ToolController {
   override readonly observerType?: Class<ButtonToolControllerObserver>;
 
-  @TraitViewRefDef<ButtonToolController["tool"]>({
+  @TraitViewRef<ButtonToolController["tool"]>({
     extends: true,
     viewType: ButtonToolView,
     observesView: true,
@@ -32,10 +33,6 @@ export class ButtonToolController extends ToolController {
       this.owner.callObservers("controllerDidSetToolIcon", toolIcon, this.owner);
     },
   })
-  override readonly tool!: TraitViewRefDef<this, {
-    extends: ToolController["tool"],
-    view: ButtonToolView,
-    observesView: true,
-  }>;
+  override readonly tool!: TraitViewRef<this, Trait, ButtonToolView> & ToolController["tool"] & Observes<ButtonToolView>;
   static override readonly tool: FastenerClass<ButtonToolController["tool"]>;
 }

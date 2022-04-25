@@ -12,14 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class} from "@swim/util";
+import type {Class, Observes} from "@swim/util";
 import type {FastenerClass} from "@swim/component";
-import {
-  Controller,
-  TraitViewRefDef,
-  TraitViewRef,
-  TraitViewControllerRefDef,
-} from "@swim/controller";
+import {Controller, TraitViewRef, TraitViewControllerRef} from "@swim/controller";
 import {LeafController} from "../leaf/LeafController";
 import {RowView} from "./RowView";
 import {RowTrait} from "./RowTrait";
@@ -32,7 +27,7 @@ import {TableController} from "../"; // forward import
 export class RowController extends LeafController {
   override readonly observerType?: Class<RowControllerObserver>;
 
-  @TraitViewRefDef<RowController["row"]>({
+  @TraitViewRef<RowController["row"]>({
     traitType: RowTrait,
     observesTrait: true,
     initTrait(rowTrait: RowTrait): void {
@@ -102,15 +97,10 @@ export class RowController extends LeafController {
       }
     },
   })
-  readonly row!: TraitViewRefDef<this, {
-    trait: RowTrait,
-    observesTrait: true,
-    view: RowView,
-    observesView: true,
-  }>;
+  readonly row!: TraitViewRef<this, RowTrait, RowView> & Observes<RowTrait & RowView>;
   static readonly row: FastenerClass<RowController["row"]>;
 
-  @TraitViewControllerRefDef<RowController["tree"]>({
+  @TraitViewControllerRef<RowController["tree"]>({
     // avoid cyclic static reference to controllerType: TableController
     binds: true,
     observes: true,
@@ -188,17 +178,11 @@ export class RowController extends LeafController {
       return TableController.create();
     },
   })
-  readonly tree!: TraitViewControllerRefDef<this, {
-    trait: TableTrait,
-    view: TableView,
-    controller: TableController,
-    implements: {
-      attachTreeTrait(treeTrait: TableTrait, treeController: TableController): void;
-      detachTreeTrait(treeTrait: TableTrait, treeController: TableController): void;
-      attachTreeView(treeView: TableView, treeController: TableController): void;
-      detachTreeView(treeView: TableView, treeController: TableController): void;
-    },
-    observes: true,
-  }>;
+  readonly tree!: TraitViewControllerRef<this, TableTrait, TableView, TableController> & Observes<TableController> & {
+    attachTreeTrait(treeTrait: TableTrait, treeController: TableController): void;
+    detachTreeTrait(treeTrait: TableTrait, treeController: TableController): void;
+    attachTreeView(treeView: TableView, treeController: TableController): void;
+    detachTreeView(treeView: TableView, treeController: TableController): void;
+  };
   static readonly tree: FastenerClass<RowController["tree"]>;
 }

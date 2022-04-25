@@ -13,10 +13,10 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {Affinity, PropertyDef} from "@swim/component";
+import {Affinity, Property} from "@swim/component";
 import {AnyLength, Length, R2Box} from "@swim/math";
 import {AnyColor, Color} from "@swim/style";
-import {Look, ThemeAnimatorDef} from "@swim/theme";
+import {Look, ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
 import type {GraphicsView, CanvasContext, CanvasRenderer, StrokeViewInit, StrokeView} from "@swim/graphics";
 import type {DataPointView} from "../data/DataPointView";
@@ -35,7 +35,7 @@ export interface LinePlotViewInit<X = unknown, Y = unknown> extends SeriesPlotVi
 export class LinePlotView<X = unknown, Y = unknown> extends SeriesPlotView<X, Y> implements StrokeView {
   override readonly observerType?: Class<LinePlotViewObserver<X, Y>>;
 
-  @ThemeAnimatorDef<LinePlotView<X, Y>["stroke"]>({
+  @ThemeAnimator<LinePlotView<X, Y>["stroke"]>({
     valueType: Color,
     value: null,
     look: Look.accentColor,
@@ -44,9 +44,9 @@ export class LinePlotView<X = unknown, Y = unknown> extends SeriesPlotView<X, Y>
       this.owner.callObservers("viewDidSetStroke", stroke, this.owner);
     },
   })
-  readonly stroke!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
+  readonly stroke!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @ThemeAnimatorDef<LinePlotView<X, Y>["strokeWidth"]>({
+  @ThemeAnimator<LinePlotView<X, Y>["strokeWidth"]>({
     valueType: Length,
     value: Length.px(1),
     updateFlags: View.NeedsRender,
@@ -62,10 +62,10 @@ export class LinePlotView<X = unknown, Y = unknown> extends SeriesPlotView<X, Y>
       this.owner.callObservers("viewDidSetStrokeWidth", strokeWidth, this.owner);
     },
   })
-  readonly strokeWidth!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  readonly strokeWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
 
-  @PropertyDef({valueType: Number, value: 5})
-  readonly hitWidth!: PropertyDef<this, {value: number}>;
+  @Property({valueType: Number, value: 5})
+  readonly hitWidth!: Property<this, number>;
 
   protected renderPlot(context: CanvasContext, frame: R2Box): void {
     const size = Math.min(frame.width, frame.height);

@@ -12,20 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, AnyTiming, Timing} from "@swim/util";
-import {Affinity, FastenerClass, AnimatorDef} from "@swim/component";
+import {Class, AnyTiming, Timing, Observes} from "@swim/util";
+import {Affinity, FastenerClass, Animator} from "@swim/component";
 import {AnyLength, Length, Angle, Transform} from "@swim/math";
 import {AnyColor, Color} from "@swim/style";
-import {Look, Feel, MoodVector, ThemeMatrix, ThemeAnimatorDef} from "@swim/theme";
+import {Look, Feel, MoodVector, ThemeMatrix, ThemeAnimator} from "@swim/theme";
 import {
-  PositionGestureDef,
+  PositionGesture,
   ViewContextType,
   ViewContext,
   ViewFlags,
   View,
   ViewRef,
 } from "@swim/view";
-import type {HtmlViewObserver} from "@swim/dom";
+import type {HtmlView, HtmlViewObserver} from "@swim/dom";
 import {
   Graphics,
   Icon,
@@ -77,19 +77,19 @@ export class IconButton extends ButtonMembrane implements IconView {
     this.modifyTheme(Feel.default, [[Feel.translucent, 1]]);
   }
 
-  @AnimatorDef({valueType: Number, value: 0.5, updateFlags: View.NeedsLayout})
-  readonly xAlign!: AnimatorDef<this, {value: number}>;
+  @Animator({valueType: Number, value: 0.5, updateFlags: View.NeedsLayout})
+  readonly xAlign!: Animator<this, number>;
 
-  @AnimatorDef({valueType: Number, value: 0.5, updateFlags: View.NeedsLayout})
-  readonly yAlign!: AnimatorDef<this, {value: number}>;
+  @Animator({valueType: Number, value: 0.5, updateFlags: View.NeedsLayout})
+  readonly yAlign!: Animator<this, number>;
 
-  @ThemeAnimatorDef({valueType: Length, value: Length.px(24), updateFlags: View.NeedsLayout})
-  readonly iconWidth!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  @ThemeAnimator({valueType: Length, value: Length.px(24), updateFlags: View.NeedsLayout})
+  readonly iconWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
 
-  @ThemeAnimatorDef({valueType: Length, value: Length.px(24), updateFlags: View.NeedsLayout})
-  readonly iconHeight!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  @ThemeAnimator({valueType: Length, value: Length.px(24), updateFlags: View.NeedsLayout})
+  readonly iconHeight!: ThemeAnimator<this, Length | null, AnyLength | null>;
 
-  @ThemeAnimatorDef<IconButton["iconColor"]>({
+  @ThemeAnimator<IconButton["iconColor"]>({
     valueType: Color,
     value: null,
     updateFlags: View.NeedsLayout,
@@ -104,18 +104,18 @@ export class IconButton extends ButtonMembrane implements IconView {
       }
     },
   })
-  readonly iconColor!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
+  readonly iconColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @ThemeAnimatorDef<IconButton["graphics"]>({
+  @ThemeAnimator<IconButton["graphics"]>({
     extends: IconGraphicsAnimator,
     valueType: Graphics,
     value: null,
     updateFlags: View.NeedsLayout,
   })
-  readonly graphics!: ThemeAnimatorDef<this, {value: Graphics | null}>;
+  readonly graphics!: ThemeAnimator<this, Graphics | null>;
 
   /** @internal */
-  static IconRef = ViewRef.specify<IconButton, SvgIconView>("IconRef", {
+  static IconRef = ViewRef.define<ViewRef<IconButton, SvgIconView> & Observes<SvgIconView> & {iconIndex: number}>("IconRef", {
     viewType: SvgIconView,
     observes: true,
     init(): void {
@@ -129,7 +129,7 @@ export class IconButton extends ButtonMembrane implements IconView {
         }
       }
     },
-  } as ThisType<ViewRef<IconButton, SvgIconView> & {iconIndex: number}>);
+  });
 
   /** @internal */
   iconCount: number;
@@ -307,7 +307,7 @@ export class IconButton extends ButtonMembrane implements IconView {
     }
   }
 
-  @PositionGestureDef<IconButton["gesture"]>({
+  @PositionGesture<IconButton["gesture"]>({
     extends: true,
     didStartHovering(): void {
       if (this.owner.hovers) {
@@ -330,9 +330,7 @@ export class IconButton extends ButtonMembrane implements IconView {
       }
     },
   })
-  override readonly gesture!: PositionGestureDef<this, {
-    extends: ButtonMembrane["gesture"],
-  }>;
+  override readonly gesture!: PositionGesture<this, HtmlView>;
   static override readonly gesture: FastenerClass<IconButton["gesture"]>;
 
   protected onClick(event: MouseEvent): void {

@@ -13,10 +13,10 @@
 // limitations under the License.
 
 import type {Class, Timing} from "@swim/util";
-import {Affinity, AnimatorDef} from "@swim/component";
+import {Affinity, Animator} from "@swim/component";
 import {AnyLength, Length} from "@swim/math";
 import {AnyColor, Color} from "@swim/style";
-import {MoodVector, ThemeMatrix, ThemeAnimatorDef} from "@swim/theme";
+import {MoodVector, ThemeMatrix, ThemeAnimator} from "@swim/theme";
 import {ViewContextType, ViewFlags, View} from "@swim/view";
 import {Graphics, Icon, FilledIcon, IconGraphicsAnimator, SvgIconView} from "@swim/graphics";
 import {CellView} from "./CellView";
@@ -52,19 +52,19 @@ export class IconCellView extends CellView {
     return svgView instanceof SvgIconView ? svgView : null;
   }
 
-  @AnimatorDef({valueType: Number, value: 0.5, updateFlags: View.NeedsLayout})
-  readonly xAlign!: AnimatorDef<this, {value: number}>;
+  @Animator({valueType: Number, value: 0.5, updateFlags: View.NeedsLayout})
+  readonly xAlign!: Animator<this, number>;
 
-  @AnimatorDef({valueType: Number, value: 0.5, updateFlags: View.NeedsLayout})
-  readonly yAlign!: AnimatorDef<this, {value: number}>;
+  @Animator({valueType: Number, value: 0.5, updateFlags: View.NeedsLayout})
+  readonly yAlign!: Animator<this, number>;
 
-  @ThemeAnimatorDef({valueType: Length, value: null, updateFlags: View.NeedsLayout})
-  readonly iconWidth!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  @ThemeAnimator({valueType: Length, value: null, updateFlags: View.NeedsLayout})
+  readonly iconWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
 
-  @ThemeAnimatorDef({valueType: Length, value: null, updateFlags: View.NeedsLayout})
-  readonly iconHeight!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  @ThemeAnimator({valueType: Length, value: null, updateFlags: View.NeedsLayout})
+  readonly iconHeight!: ThemeAnimator<this, Length | null, AnyLength | null>;
 
-  @ThemeAnimatorDef<IconCellView["iconColor"]>({
+  @ThemeAnimator<IconCellView["iconColor"]>({
     valueType: Color,
     value: null,
     updateFlags: View.NeedsLayout,
@@ -79,9 +79,9 @@ export class IconCellView extends CellView {
       }
     },
   })
-  readonly iconColor!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
+  readonly iconColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @ThemeAnimatorDef<IconCellView["graphics"]>({
+  @ThemeAnimator<IconCellView["graphics"]>({
     extends: IconGraphicsAnimator,
     valueType: Graphics,
     value: null,
@@ -90,7 +90,7 @@ export class IconCellView extends CellView {
       this.owner.callObservers("viewDidSetGraphics", newGraphics, this.owner);
     },
   })
-  readonly graphics!: ThemeAnimatorDef<this, {value: Graphics | null}>;
+  readonly graphics!: ThemeAnimator<this, Graphics | null>;
 
   protected override onInsertChild(child: View, target: View | null): void {
     super.onInsertChild(child, target);

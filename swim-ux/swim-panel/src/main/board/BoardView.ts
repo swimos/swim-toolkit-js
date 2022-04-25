@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class} from "@swim/util";
+import type {Class, Observes} from "@swim/util";
 import {Affinity, FastenerClass} from "@swim/component";
-import {ViewContextType, ViewFlags, View, ViewSetDef} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewSet} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {SheetView} from "@swim/sheet";
 import {PanelView} from "../panel/PanelView";
@@ -30,7 +30,7 @@ export class BoardView extends SheetView {
 
   override readonly observerType?: Class<BoardViewObserver>;
 
-  @ViewSetDef<BoardView["panels"]>({
+  @ViewSet<BoardView["panels"]>({
     viewType: PanelView,
     binds: true,
     observes: true,
@@ -51,7 +51,7 @@ export class BoardView extends SheetView {
       this.owner.requireUpdate(View.NeedsResize);
     },
   })
-  readonly panels!: ViewSetDef<this, {view: PanelView, observes: true}>;
+  readonly panels!: ViewSet<this, PanelView> & Observes<PanelView>;
   static readonly panels: FastenerClass<BoardView["panels"]>;
 
   protected override processChildren(processFlags: ViewFlags, viewContext: ViewContextType<this>,

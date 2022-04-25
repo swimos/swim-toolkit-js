@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {PropertyDef} from "@swim/component";
+import {Property} from "@swim/component";
 import {AnyLength, Length} from "@swim/math";
 import {Trait} from "@swim/model";
 import {AnyColorOrLook, ColorOrLook, ColorLook} from "@swim/theme";
@@ -29,62 +29,62 @@ export class DataPointTrait<X = unknown, Y = unknown> extends Trait {
 
   override readonly observerType?: Class<DataPointTraitObserver<X, Y>>;
 
-  @PropertyDef<DataPointTrait<X, Y>["x"]>({
+  @Property<DataPointTrait<X, Y>["x"]>({
     didSetValue(x: X): void {
       this.owner.callObservers("traitDidSetX", x, this.owner);
     },
   })
-  readonly x!: PropertyDef<this, {value: X}>;
+  readonly x!: Property<this, X>;
 
-  @PropertyDef<DataPointTrait<X, Y>["y"]>({
+  @Property<DataPointTrait<X, Y>["y"]>({
     didSetValue(y: Y): void {
       this.owner.callObservers("traitDidSetY", y, this.owner);
     },
   })
-  readonly y!: PropertyDef<this, {value: Y}>;
+  readonly y!: Property<this, Y>;
 
-  @PropertyDef<DataPointTrait<X, Y>["y2"]>({
+  @Property<DataPointTrait<X, Y>["y2"]>({
     didSetValue(y2: Y | undefined): void {
       this.owner.callObservers("traitDidSetY2", y2, this.owner);
     },
   })
-  readonly y2!: PropertyDef<this, {value: Y | undefined}>;
+  readonly y2!: Property<this, Y | undefined>;
 
-  @PropertyDef<DataPointTrait<X, Y>["radius"]>({
+  @Property<DataPointTrait<X, Y>["radius"]>({
     valueType: Length,
     value: null,
     didSetValue(radius: Length | null): void {
       this.owner.callObservers("traitDidSetRadius", radius, this.owner);
     },
   })
-  readonly radius!: PropertyDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  readonly radius!: Property<this, Length | null, AnyLength | null>;
 
-  @PropertyDef<DataPointTrait<X, Y>["color"]>({
+  @Property<DataPointTrait<X, Y>["color"]>({
     valueType: ColorLook,
     value: null,
     didSetValue(color: ColorOrLook | null): void {
       this.owner.callObservers("traitDidSetColor", color, this.owner);
     },
   })
-  readonly color!: PropertyDef<this, {value: ColorOrLook | null, valueInit: AnyColorOrLook | null}>;
+  readonly color!: Property<this, ColorOrLook | null, AnyColorOrLook | null>;
 
-  @PropertyDef<DataPointTrait<X, Y>["opacity"]>({
+  @Property<DataPointTrait<X, Y>["opacity"]>({
     valueType: Number,
     didSetValue(opacity: number | undefined): void {
       this.owner.callObservers("traitDidSetOpacity", opacity, this.owner);
     },
   })
-  readonly opacity!: PropertyDef<this, {value: number | undefined}>;
+  readonly opacity!: Property<this, number | undefined>;
 
   formatLabel(x: X | undefined, y: Y | undefined): string | undefined {
     return void 0;
   }
 
-  @PropertyDef<DataPointTrait<X, Y>["label"]>({
+  @Property<DataPointTrait<X, Y>["label"]>({
     valueType: String,
     didSetValue(label: string | undefined): void {
       this.owner.callObservers("traitDidSetLabel", label, this.owner);
     },
   })
-  readonly label!: PropertyDef<this, {value: string | undefined}>;
+  readonly label!: Property<this, string | undefined>;
 }

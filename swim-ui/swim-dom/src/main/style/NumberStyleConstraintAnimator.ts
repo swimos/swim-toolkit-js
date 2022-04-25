@@ -15,8 +15,14 @@
 import {StyleConstraintAnimatorClass, StyleConstraintAnimator} from "./StyleConstraintAnimator";
 
 /** @internal */
+export interface NumberStyleConstraintAnimator<O = unknown, T extends number | undefined = number | undefined, U extends number | string | undefined = number | string | T> extends StyleConstraintAnimator<O, T, U> {
+}
+
+/** @internal */
 export const NumberStyleConstraintAnimator = (function (_super: typeof StyleConstraintAnimator) {
-  const NumberStyleConstraintAnimator = _super.extend("NumberStyleConstraintAnimator", {}) as StyleConstraintAnimatorClass<StyleConstraintAnimator<any, number | undefined, string>>;
+  const NumberStyleConstraintAnimator = _super.extend("NumberStyleConstraintAnimator", {
+    valueType: Number,
+  }) as StyleConstraintAnimatorClass<NumberStyleConstraintAnimator<any, any, any>>;
 
   NumberStyleConstraintAnimator.prototype.toNumber = function (value: number): number {
     return typeof value === "number" ? value : 0;

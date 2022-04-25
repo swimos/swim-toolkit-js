@@ -15,7 +15,7 @@
 import type {Mutable, Class, AnyTiming} from "@swim/util";
 import type {FastenerClass} from "@swim/component";
 import {R2Box} from "@swim/math";
-import {ViewContextType, ViewFlags, View, ViewRefDef} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewRef} from "@swim/view";
 import type {HtmlView} from "@swim/dom";
 import type {CanvasView} from "@swim/graphics";
 import type {AnyGeoPerspective} from "../geo/GeoPerspective";
@@ -77,7 +77,7 @@ export class WorldMapView extends MapView {
     // nop
   }
 
-  @ViewRefDef<WorldMapView["canvas"]>({
+  @ViewRef<WorldMapView["canvas"]>({
     extends: true,
     didAttachView(canvasView: CanvasView, targetView: View | null): void {
       if (this.owner.parent === null) {
@@ -92,12 +92,10 @@ export class WorldMapView extends MapView {
       }
     },
   })
-  override readonly canvas!: ViewRefDef<this, {
-    extends: MapView["canvas"],
-  }>;
+  override readonly canvas!: ViewRef<this, CanvasView> & MapView["canvas"];
   static override readonly canvas: FastenerClass<WorldMapView["canvas"]>;
 
-  @ViewRefDef<WorldMapView["container"]>({
+  @ViewRef<WorldMapView["container"]>({
     extends: true,
     didAttachView(containerView: HtmlView, targetView: View | null): void {
       this.owner.canvas.insertView(containerView);
@@ -111,9 +109,7 @@ export class WorldMapView extends MapView {
       }
     },
   })
-  override readonly container!: ViewRefDef<this, {
-    extends: MapView["container"],
-  }>;
+  override readonly container!: ViewRef<this, HtmlView> & MapView["container"];
   static override readonly container: FastenerClass<WorldMapView["container"]>;
 
   static override create(geoViewport?: WorldMapViewport): WorldMapView;

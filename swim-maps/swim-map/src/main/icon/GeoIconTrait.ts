@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {PropertyDef} from "@swim/component";
+import {Property} from "@swim/component";
 import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
 import {Graphics, AnyIconLayout, IconLayout} from "@swim/graphics";
 import {GeoTrait} from "../geo/GeoTrait";
@@ -30,32 +30,32 @@ export class GeoIconTrait extends GeoTrait {
     return geoCenter !== null ? geoCenter.bounds : GeoBox.undefined();
   }
 
-  @PropertyDef<GeoIconTrait["geoCenter"]>({
+  @Property<GeoIconTrait["geoCenter"]>({
     valueType: GeoPoint,
     value: null,
-    didSetValue(newGeoCenter: GeoPoint | null, oldGeoCenter: GeoPoint | null): void {
-      this.owner.callObservers("traitDidSetGeoCenter", newGeoCenter, this.owner);
+    didSetValue(geoCenter: GeoPoint | null): void {
+      this.owner.callObservers("traitDidSetGeoCenter", geoCenter, this.owner);
     },
   })
-  readonly geoCenter!: PropertyDef<this, {value: GeoPoint | null, valueInit: AnyGeoPoint | null}>;
+  readonly geoCenter!: Property<this, GeoPoint | null, AnyGeoPoint | null>;
 
-  @PropertyDef<GeoIconTrait["iconLayout"]>({
+  @Property<GeoIconTrait["iconLayout"]>({
     valueType: IconLayout,
     value: null,
-    didSetValue(newIconLayout: IconLayout | null, oldIconLayout: IconLayout | null): void {
-      this.owner.callObservers("traitDidSetIconLayout", newIconLayout, this.owner);
+    didSetValue(iconLayout: IconLayout | null): void {
+      this.owner.callObservers("traitDidSetIconLayout", iconLayout, this.owner);
     },
   })
-  readonly iconLayout!: PropertyDef<this, {value: IconLayout | null, valueInit: AnyIconLayout | null}>;
+  readonly iconLayout!: Property<this, IconLayout | null, AnyIconLayout | null>;
 
-  @PropertyDef<GeoIconTrait["graphics"]>({
+  @Property<GeoIconTrait["graphics"]>({
     valueType: Graphics,
     value: null,
-    didSetValue(newGraphics: Graphics | null, oldGraphics: Graphics | null): void {
-      this.owner.callObservers("traitDidSetGraphics", newGraphics, this.owner);
+    didSetValue(graphics: Graphics | null): void {
+      this.owner.callObservers("traitDidSetGraphics", graphics, this.owner);
     },
   })
-  readonly graphics!: PropertyDef<this, {value: Graphics | null}>;
+  readonly graphics!: Property<this, Graphics | null>;
 
   override createGeoController(): GeoController {
     return new GeoIconController();

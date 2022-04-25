@@ -13,17 +13,15 @@
 // limitations under the License.
 
 export {
-  ThemeAnimatorRefinement,
+  ThemeAnimatorDescriptor,
   ThemeAnimatorTemplate,
   ThemeAnimatorClass,
-  ThemeAnimatorDef,
   ThemeAnimator,
 } from "./ThemeAnimator";
 
 export {
-  ThemeConstraintAnimatorRefinement,
+  ThemeConstraintAnimatorDescriptor,
   ThemeConstraintAnimatorTemplate,
   ThemeConstraintAnimatorClass,
-  ThemeConstraintAnimatorDef,
   ThemeConstraintAnimator,
 } from "./ThemeConstraintAnimator";

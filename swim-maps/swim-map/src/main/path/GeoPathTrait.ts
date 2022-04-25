@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {PropertyDef} from "@swim/component";
+import {Property} from "@swim/component";
 import {AnyGeoPath, GeoPath, GeoBox} from "@swim/geo";
 import {GeoTrait} from "../geo/GeoTrait";
 import type {GeoPathTraitObserver} from "./GeoPathTraitObserver";
@@ -27,12 +27,12 @@ export abstract class GeoPathTrait extends GeoTrait {
     return geoPath !== null ? geoPath.bounds : GeoBox.undefined();
   }
 
-  @PropertyDef<GeoPathTrait["geoPath"]>({
+  @Property<GeoPathTrait["geoPath"]>({
     valueType: GeoPath,
     value: null,
     didSetValue(geoPath: GeoPath | null): void {
       this.owner.callObservers("traitDidSetGeoPath", geoPath, this.owner);
     },
   })
-  readonly geoPath!: PropertyDef<this, {value: GeoPath | null, valueInit: AnyGeoPath | null}>;
+  readonly geoPath!: Property<this, GeoPath | null, AnyGeoPath | null>;
 }

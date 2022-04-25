@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {FastenerClass, AnimatorDef} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
 import {AnyExpansion, Expansion, ExpansionAnimator} from "@swim/style";
-import {PositionGestureInput, ViewRefDef} from "@swim/view";
+import {PositionGestureInput, ViewRef} from "@swim/view";
 import {DisclosureButton} from "@swim/button";
 import {CellView} from "./CellView";
 
@@ -26,20 +26,15 @@ export class DisclosureCellView extends CellView {
     this.button.insertView();
   }
 
-  @AnimatorDef<DisclosureCellView["disclosure"]>({
-    extends: ExpansionAnimator,
-    inherits: true,
-  })
-  readonly disclosure!: AnimatorDef<this, {
-    extends: ExpansionAnimator<DisclosureCellView, Expansion, AnyExpansion>,
-  }>;
+  @ExpansionAnimator({inherits: true})
+  readonly disclosure!: ExpansionAnimator<this, Expansion, AnyExpansion>;
 
-  @ViewRefDef<DisclosureCellView["button"]>({
+  @ViewRef<DisclosureCellView["button"]>({
     viewType: DisclosureButton,
     viewKey: true,
     binds: true,
   })
-  readonly button!: ViewRefDef<this, {view: DisclosureButton}>;
+  readonly button!: ViewRef<this, DisclosureButton>;
   static readonly button: FastenerClass<DisclosureCellView["button"]>;
 
   override didPress(input: PositionGestureInput, event: Event | null): void {

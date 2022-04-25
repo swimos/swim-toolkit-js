@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class} from "@swim/util";
+import type {Class, Observes} from "@swim/util";
 import type {FastenerClass} from "@swim/component";
-import {ViewRefDef} from "@swim/view";
+import type {Trait} from "@swim/model";
+import {ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
-import {TraitViewRefDef} from "@swim/controller";
+import {TraitViewRef} from "@swim/controller";
 import {ToolController} from "./ToolController";
 import {TitleToolView} from "./TitleToolView";
 import type {TitleToolControllerObserver} from "./TitleToolControllerObserver";
@@ -25,7 +26,7 @@ import type {TitleToolControllerObserver} from "./TitleToolControllerObserver";
 export class TitleToolController extends ToolController {
   override readonly observerType?: Class<TitleToolControllerObserver>;
 
-  @TraitViewRefDef<TitleToolController["tool"]>({
+  @TraitViewRef<TitleToolController["tool"]>({
     extends: true,
     viewType: TitleToolView,
     observesView: true,
@@ -42,14 +43,10 @@ export class TitleToolController extends ToolController {
       this.owner.content.setView(null);
     },
   })
-  override readonly tool!: TraitViewRefDef<this, {
-    extends: ToolController["tool"],
-    view: TitleToolView,
-    observesView: true,
-  }>;
+  override readonly tool!: TraitViewRef<this, Trait, TitleToolView> & ToolController["tool"] & Observes<TitleToolView>;
   static override readonly tool: FastenerClass<TitleToolController["tool"]>;
 
-  @ViewRefDef<TitleToolController["content"]>({
+  @ViewRef<TitleToolController["content"]>({
     viewType: HtmlView,
     willAttachView(contentView: HtmlView): void {
       this.owner.callObservers("controllerWillAttachToolContentView", contentView, this.owner);
@@ -58,6 +55,6 @@ export class TitleToolController extends ToolController {
       this.owner.callObservers("controllerDidDetachToolContentView", contentView, this.owner);
     },
   })
-  readonly content!: ViewRefDef<this, {view: HtmlView}>;
+  readonly content!: ViewRef<this, HtmlView>;
   static readonly content: FastenerClass<TitleToolController["content"]>;
 }

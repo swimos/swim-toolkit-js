@@ -16,8 +16,14 @@ import {FontFamily, Font} from "@swim/style";
 import {StyleAnimatorClass, StyleAnimator} from "./StyleAnimator";
 
 /** @internal */
+export interface FontFamilyStyleAnimator<O = unknown, T extends FontFamily | ReadonlyArray<FontFamily> | undefined = FontFamily | ReadonlyArray<FontFamily> | undefined, U extends FontFamily | ReadonlyArray<FontFamily> | undefined = T> extends StyleAnimator<O, T, U> {
+}
+
+/** @internal */
 export const FontFamilyStyleAnimator = (function (_super: typeof StyleAnimator) {
-  const FontFamilyStyleAnimator = _super.extend("FontFamilyStyleAnimator", {}) as StyleAnimatorClass<StyleAnimator<any, FontFamily | ReadonlyArray<FontFamily> | undefined, FontFamily | ReadonlyArray<FontFamily> | undefined>>;
+  const FontFamilyStyleAnimator = _super.extend("FontFamilyStyleAnimator", {
+    valueType: Font,
+  }) as StyleAnimatorClass<FontFamilyStyleAnimator<any, any, any>>;
 
   FontFamilyStyleAnimator.prototype.parse = function (value: string): FontFamily | ReadonlyArray<FontFamily> | undefined {
     return Font.parse(value).family;

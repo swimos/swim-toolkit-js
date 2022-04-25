@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {AnimatorDef} from "@swim/component";
-import {ConstraintPropertyDef} from "@swim/constraint";
+import {Animator} from "@swim/component";
+import {ConstraintProperty} from "@swim/constraint";
 import {AnyLength, Length} from "@swim/math";
 import {View} from "@swim/view";
 import {HtmlView} from "@swim/dom";
@@ -33,9 +33,9 @@ export class ToolView extends HtmlView {
 
   override readonly observerType?: Class<ToolViewObserver>;
 
-  @AnimatorDef({valueType: Number, value: 0.5, updateFlags: View.NeedsLayout})
-  readonly xAlign!: AnimatorDef<this, {value: number}>;
+  @Animator({valueType: Number, value: 0.5, updateFlags: View.NeedsLayout})
+  readonly xAlign!: Animator<this, number>;
 
-  @ConstraintPropertyDef({valueType: Length, value: null})
-  readonly effectiveWidth!: ConstraintPropertyDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  @ConstraintProperty({valueType: Length, value: null})
+  readonly effectiveWidth!: ConstraintProperty<this, Length | null, AnyLength | null>;
 }

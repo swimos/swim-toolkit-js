@@ -15,55 +15,37 @@
 import {Proto, AnyTiming, Timing} from "@swim/util";
 import {Look, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import {CssContext} from "./CssContext";
-import {CssRuleRefinement, CssRuleTemplate, CssRuleClass, CssRule} from "./CssRule";
+import {CssRuleDescriptor, CssRuleClass, CssRule} from "./CssRule";
 
 /** @public */
-export interface MediaRuleRefinement extends CssRuleRefinement {
-}
-
-/** @public */
-export interface MediaRuleTemplate extends CssRuleTemplate {
+export interface MediaRuleDescriptor extends CssRuleDescriptor {
   extends?: Proto<MediaRule<any>> | string | boolean | null;
 }
 
 /** @public */
+export type MediaRuleTemplate<F extends CssRule<any>> =
+  ThisType<F> &
+  MediaRuleDescriptor &
+  Partial<Omit<F, keyof MediaRuleDescriptor>>;
+
+/** @public */
 export interface MediaRuleClass<F extends MediaRule<any> = MediaRule<any>> extends CssRuleClass<F> {
   /** @override */
-  specialize(className: string, template: MediaRuleTemplate): MediaRuleClass;
+  specialize(template: MediaRuleDescriptor): MediaRuleClass<F>;
 
   /** @override */
-  refine(fastenerClass: MediaRuleClass): void;
+  refine(fastenerClass: MediaRuleClass<any>): void;
 
   /** @override */
-  extend(className: string, template: MediaRuleTemplate): MediaRuleClass<F>;
+  extend<F2 extends F>(className: string, template: MediaRuleTemplate<F2>): MediaRuleClass<F2>;
+  extend<F2 extends F>(className: string, template: MediaRuleTemplate<F2>): MediaRuleClass<F2>;
 
   /** @override */
-  specify<O>(className: string, template: ThisType<MediaRule<O>> & MediaRuleTemplate & Partial<Omit<MediaRule<O>, keyof MediaRuleTemplate>>): MediaRuleClass<F>;
+  define<F2 extends F>(className: string, template: MediaRuleTemplate<F2>): MediaRuleClass<F2>;
+  define<F2 extends F>(className: string, template: MediaRuleTemplate<F2>): MediaRuleClass<F2>;
 
   /** @override */
-  <O>(template: ThisType<MediaRule<O>> & MediaRuleTemplate & Partial<Omit<MediaRule<O>, keyof MediaRuleTemplate>>): PropertyDecorator;
-}
-
-/** @public */
-export type MediaRuleDef<O, R extends MediaRuleRefinement = {}> =
-  MediaRule<O> &
-  {readonly name: string} & // prevent type alias simplification
-  (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer I} ? I : {}) &
-  (R extends {implements: infer I} ? I : {});
-
-/** @public */
-export function MediaRuleDef<P extends MediaRule<any>>(
-  template: P extends MediaRuleDef<infer O, infer R>
-          ? ThisType<MediaRuleDef<O, R>>
-          & MediaRuleTemplate
-          & Partial<Omit<MediaRule<O>, keyof MediaRuleTemplate>>
-          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof MediaRuleTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer I} ? Partial<I> : {})
-          & (R extends {implements: infer I} ? I : {})
-          : never
-): PropertyDecorator {
-  return MediaRule(template);
+  <F2 extends F>(template: MediaRuleTemplate<F2>): PropertyDecorator;
 }
 
 /** @public */

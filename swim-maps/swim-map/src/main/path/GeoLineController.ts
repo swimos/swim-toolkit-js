@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, AnyTiming, Timing} from "@swim/util";
+import {Class, AnyTiming, Timing, Observes} from "@swim/util";
 import {Affinity, FastenerClass} from "@swim/component";
 import type {Length} from "@swim/math";
 import type {GeoPath} from "@swim/geo";
 import {Look, Mood, ColorOrLook} from "@swim/theme";
-import {TraitViewRefDef} from "@swim/controller";
+import {TraitViewRef} from "@swim/controller";
 import {GeoLineView} from "./GeoLineView";
 import {GeoLineTrait} from "./GeoLineTrait";
 import {GeoPathController} from "./GeoPathController";
@@ -76,7 +76,7 @@ export class GeoLineController extends GeoPathController {
     }
   }
 
-  @TraitViewRefDef<GeoLineController["geo"]>({
+  @TraitViewRef<GeoLineController["geo"]>({
     traitType: GeoLineTrait,
     observesTrait: true,
     willAttachTrait(geoTrait: GeoLineTrait): void {
@@ -140,11 +140,6 @@ export class GeoLineController extends GeoPathController {
       this.owner.callObservers("controllerDidSetStrokeWidth", strokeWidth, this.owner);
     },
   })
-  readonly geo!: TraitViewRefDef<this, {
-    trait: GeoLineTrait,
-    observesTrait: true,
-    view: GeoLineView,
-    observesView: true,
-  }>;
+  readonly geo!: TraitViewRef<this, GeoLineTrait, GeoLineView> & Observes<GeoLineTrait & GeoLineView>;
   static readonly geo: FastenerClass<GeoLineController["geo"]>;
 }

@@ -15,9 +15,6 @@
 export {
   DataPointCategory,
   DataPointLabelPlacement,
-} from "./DataPoint";
-
-export {
   AnyDataPointView,
   DataPointViewInit,
   DataPointView,

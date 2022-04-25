@@ -23,17 +23,17 @@ import {
   Comparator,
   FromAny,
   Creatable,
-  InitType,
+  Inits,
   Initable,
-  ObserverType,
+  Observes,
   Observable,
   ObserverMethods,
   ObserverParameters,
-  ConsumerType,
+  Consumes,
   Consumable,
   Consumer,
 } from "@swim/util";
-import {FastenerContext, Fastener, PropertyDef} from "@swim/component";
+import {FastenerContext, Fastener, Property} from "@swim/component";
 import {AnyValue, Value} from "@swim/structure";
 import {AnyUri, Uri} from "@swim/uri";
 import {
@@ -65,7 +65,7 @@ export type TraitContextType<T extends Trait> = ModelContextType<TraitModelType<
 export type TraitFlags = number;
 
 /** @public */
-export type AnyTrait<T extends Trait = Trait> = T | TraitFactory<T> | InitType<T>;
+export type AnyTrait<T extends Trait = Trait> = T | TraitFactory<T> | Inits<T>;
 
 /** @public */
 export interface TraitInit {
@@ -78,7 +78,7 @@ export interface TraitInit {
 
 /** @public */
 export interface TraitFactory<T extends Trait = Trait, U = AnyTrait<T>> extends Creatable<T>, FromAny<T, U> {
-  fromInit(init: InitType<T>): T;
+  fromInit(init: Inits<T>): T;
 }
 
 /** @public */
@@ -760,49 +760,49 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   }
 
   /** @override */
-  @PropertyDef({valueType: Uri, value: null, inherits: true, updateFlags: Model.NeedsReconcile})
-  readonly hostUri!: PropertyDef<this, {value: Uri | null, valueInit: AnyUri | null}>;
+  @Property({valueType: Uri, value: null, inherits: true, updateFlags: Model.NeedsReconcile})
+  readonly hostUri!: Property<this, Uri | null, AnyUri | null>;
 
   /** @override */
-  @PropertyDef({valueType: Uri, value: null, inherits: true, updateFlags: Model.NeedsReconcile})
-  readonly nodeUri!: PropertyDef<this, {value: Uri | null, valueInit: AnyUri | null}>;
+  @Property({valueType: Uri, value: null, inherits: true, updateFlags: Model.NeedsReconcile})
+  readonly nodeUri!: Property<this, Uri | null, AnyUri | null>;
 
   /** @override */
-  @PropertyDef({valueType: Uri, value: null, inherits: true, updateFlags: Model.NeedsReconcile})
-  readonly laneUri!: PropertyDef<this, {value: Uri | null, valueInit: AnyUri | null}>;
+  @Property({valueType: Uri, value: null, inherits: true, updateFlags: Model.NeedsReconcile})
+  readonly laneUri!: Property<this, Uri | null, AnyUri | null>;
 
   /** @override */
-  downlink(template?: ThisType<EventDownlink<this>> & EventDownlinkTemplate & Partial<Omit<EventDownlink<this>, keyof EventDownlinkTemplate>>): EventDownlink<this> {
+  downlink(template?: EventDownlinkTemplate<EventDownlink<this>>): EventDownlink<this> {
     let downlinkClass = EventDownlink;
     if (template !== void 0) {
-      downlinkClass = downlinkClass.specify("downlink", template);
+      downlinkClass = downlinkClass.define("downlink", template);
     }
     return downlinkClass.create(this);
   }
 
   /** @override */
-  downlinkValue<V = Value, VU = V extends Value ? AnyValue : V>(template?: ThisType<ValueDownlink<this, V, VU>> & ValueDownlinkTemplate<V, VU> & Partial<Omit<ValueDownlink<this, V, VU>, keyof ValueDownlinkTemplate>>): ValueDownlink<this, V, VU> {
+  downlinkValue<V = Value, VU = V extends Value ? AnyValue & V : V>(template?: ValueDownlinkTemplate<ValueDownlink<this, V, VU>>): ValueDownlink<this, V, VU> {
     let downlinkClass = ValueDownlink;
     if (template !== void 0) {
-      downlinkClass = downlinkClass.specify("downlinkValue", template);
+      downlinkClass = downlinkClass.define("downlinkValue", template);
     }
     return downlinkClass.create(this);
   }
 
   /** @override */
-  downlinkList<V = Value, VU = V extends Value ? AnyValue : V>(template?: ThisType<ListDownlink<this, V, VU>> & ListDownlinkTemplate<V, VU> & Partial<Omit<ListDownlink<this, V, VU>, keyof ListDownlinkTemplate>>): ListDownlink<this, V, VU> {
+  downlinkList<V = Value, VU = V extends Value ? AnyValue & V : V>(template?: ListDownlinkTemplate<ListDownlink<this, V, VU>>): ListDownlink<this, V, VU> {
     let downlinkClass = ListDownlink;
     if (template !== void 0) {
-      downlinkClass = downlinkClass.specify("downlinkList", template);
+      downlinkClass = downlinkClass.define("downlinkList", template);
     }
     return downlinkClass.create(this);
   }
 
   /** @override */
-  downlinkMap<K = Value, V = Value, KU = K extends Value ? AnyValue : K, VU = V extends Value ? AnyValue : V>(template?: ThisType<MapDownlink<this, K, V, KU, VU>> & MapDownlinkTemplate<V, VU> & Partial<Omit<MapDownlink<this, K, V, KU, VU>, keyof MapDownlinkTemplate>>): MapDownlink<this, K, V, KU, VU> {
+  downlinkMap<K = Value, V = Value, KU = K extends Value ? AnyValue & K : K, VU = V extends Value ? AnyValue & V : V>(template?: MapDownlinkTemplate<MapDownlink<this, K, V, KU, VU>>): MapDownlink<this, K, V, KU, VU> {
     let downlinkClass = MapDownlink;
     if (template !== void 0) {
-      downlinkClass = downlinkClass.specify("downlinkMap", template);
+      downlinkClass = downlinkClass.define("downlinkMap", template);
     }
     return downlinkClass.create(this);
   }
@@ -949,7 +949,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     warpRef.openDownlink(downlink);
   }
 
-  @PropertyDef<Trait["warpRef"]>({
+  @Property<Trait["warpRef"]>({
     valueType: WarpRef,
     inherits: true,
     updateFlags: Model.NeedsReconcile,
@@ -960,7 +960,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
       return newValue === oldValue;
     },
   })
-  readonly warpRef!: PropertyDef<this, {value: WarpRef}>;
+  readonly warpRef!: Property<this, WarpRef>;
 
   get mounted(): boolean {
     return (this.flags & Trait.MountedFlag) !== 0;
@@ -1601,10 +1601,10 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   }
 
   /** @internal */
-  readonly observers: ReadonlyArray<ObserverType<this>>;
+  readonly observers: ReadonlyArray<Observes<this>>;
 
   /** @override */
-  observe(observer: ObserverType<this>): void {
+  observe(observer: Observes<this>): void {
     const oldObservers = this.observers;
     const newObservers = Arrays.inserted(observer, oldObservers);
     if (oldObservers !== newObservers) {
@@ -1615,20 +1615,20 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     }
   }
 
-  protected willObserve(observer: ObserverType<this>): void {
+  protected willObserve(observer: Observes<this>): void {
     // hook
   }
 
-  protected onObserve(observer: ObserverType<this>): void {
+  protected onObserve(observer: Observes<this>): void {
     // hook
   }
 
-  protected didObserve(observer: ObserverType<this>): void {
+  protected didObserve(observer: Observes<this>): void {
     // hook
   }
 
   /** @override */
-  unobserve(observer: ObserverType<this>): void {
+  unobserve(observer: Observes<this>): void {
     const oldObservers = this.observers;
     const newObservers = Arrays.removed(observer, oldObservers);
     if (oldObservers !== newObservers) {
@@ -1639,15 +1639,15 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     }
   }
 
-  protected willUnobserve(observer: ObserverType<this>): void {
+  protected willUnobserve(observer: Observes<this>): void {
     // hook
   }
 
-  protected onUnobserve(observer: ObserverType<this>): void {
+  protected onUnobserve(observer: Observes<this>): void {
     // hook
   }
 
-  protected didUnobserve(observer: ObserverType<this>): void {
+  protected didUnobserve(observer: Observes<this>): void {
     // hook
   }
 
@@ -1663,10 +1663,10 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   }
 
   /** @internal */
-  readonly consumers: ReadonlyArray<ConsumerType<this>>;
+  readonly consumers: ReadonlyArray<Consumes<this>>;
 
   /** @override */
-  consume(consumer: ConsumerType<this>): void {
+  consume(consumer: Consumes<this>): void {
     const oldConsumers = this.consumers;
     const newConsumers = Arrays.inserted(consumer, oldConsumers);
     if (oldConsumers !== newConsumers) {
@@ -1680,20 +1680,20 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     }
   }
 
-  protected willConsume(consumer: ConsumerType<this>): void {
+  protected willConsume(consumer: Consumes<this>): void {
     // hook
   }
 
-  protected onConsume(consumer: ConsumerType<this>): void {
+  protected onConsume(consumer: Consumes<this>): void {
     // hook
   }
 
-  protected didConsume(consumer: ConsumerType<this>): void {
+  protected didConsume(consumer: Consumes<this>): void {
     // hook
   }
 
   /** @override */
-  unconsume(consumer: ConsumerType<this>): void {
+  unconsume(consumer: Consumes<this>): void {
     const oldConsumers = this.consumers;
     const newConsumers = Arrays.removed(consumer, oldConsumers);
     if (oldConsumers !== newConsumers) {
@@ -1707,15 +1707,15 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     }
   }
 
-  protected willUnconsume(consumer: ConsumerType<this>): void {
+  protected willUnconsume(consumer: Consumes<this>): void {
     // hook
   }
 
-  protected onUnconsume(consumer: ConsumerType<this>): void {
+  protected onUnconsume(consumer: Consumes<this>): void {
     // hook
   }
 
-  protected didUnconsume(consumer: ConsumerType<this>): void {
+  protected didUnconsume(consumer: Consumes<this>): void {
     // hook
   }
 
@@ -1845,7 +1845,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     return new this();
   }
 
-  static fromInit<S extends Class<Instance<S, Trait>>>(this: S, init: InitType<InstanceType<S>>): InstanceType<S> {
+  static fromInit<S extends Class<Instance<S, Trait>>>(this: S, init: Inits<InstanceType<S>>): InstanceType<S> {
     let type: Creatable<Trait>;
     if ((typeof init === "object" && init !== null || typeof init === "function") && Creatable.is((init as TraitInit).type)) {
       type = (init as TraitInit).type!;

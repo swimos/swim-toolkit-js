@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import type {Mutable, Class, Instance, AnyTiming} from "@swim/util";
-import {Affinity, FastenerClass, PropertyDef, AnimatorDef} from "@swim/component";
+import {Affinity, FastenerClass, Property, Animator} from "@swim/component";
 import {AnyLength, Length, R2Point, R2Box} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
-import {ThemeAnimatorDef} from "@swim/theme";
-import {ViewContextType, AnyView, View, ViewRefDef} from "@swim/view";
+import {ThemeAnimator} from "@swim/theme";
+import {ViewContextType, AnyView, View, ViewRef} from "@swim/view";
 import {
   GraphicsViewInit,
   GraphicsView,
@@ -26,8 +26,13 @@ import {
   TypesetView,
   TextRunView,
 } from "@swim/graphics";
-import type {DataPointCategory, DataPointLabelPlacement} from "./DataPoint";
 import type {DataPointViewObserver} from "./DataPointViewObserver";
+
+/** @public */
+export type DataPointCategory = "flat" | "increasing" | "decreasing" | "maxima" | "minima";
+
+/** @public */
+export type DataPointLabelPlacement = "auto" | "above" | "middle" | "below";
 
 /** @public */
 export type AnyDataPointView<X = unknown, Y = unknown> = DataPointView<X, Y> | DataPointViewInit<X, Y>;
@@ -86,40 +91,40 @@ export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
     (this as Mutable<this>).y2Coord = y2Coord;
   }
 
-  @AnimatorDef<DataPointView<X, Y>["x"]>({
+  @Animator<DataPointView<X, Y>["x"]>({
     didSetValue(x: X | undefined, oldX: X | undefined): void {
       this.owner.callObservers("viewDidSetX", x, this.owner);
     },
   })
-  readonly x!: AnimatorDef<this, {value: X | undefined}>;
+  readonly x!: Animator<this, X | undefined>;
 
-  @AnimatorDef<DataPointView<X, Y>["y"]>({
+  @Animator<DataPointView<X, Y>["y"]>({
     didSetValue(y: Y | undefined, oldY: Y | undefined): void {
       this.owner.callObservers("viewDidSetY", y, this.owner);
     },
   })
-  readonly y!: AnimatorDef<this, {value: Y | undefined}>;
+  readonly y!: Animator<this, Y | undefined>;
 
-  @AnimatorDef<DataPointView<X, Y>["y2"]>({
+  @Animator<DataPointView<X, Y>["y2"]>({
     didSetValue(y2: Y | undefined, oldY2: Y | undefined): void {
       this.owner.callObservers("viewDidSetY2", y2, this.owner);
     },
   })
-  readonly y2!: AnimatorDef<this, {value: Y | undefined}>;
+  readonly y2!: Animator<this, Y | undefined>;
 
-  @ThemeAnimatorDef<DataPointView<X, Y>["radius"]>({
+  @ThemeAnimator<DataPointView<X, Y>["radius"]>({
     valueType: Length,
     value: null,
     didSetValue(radius: Length | null): void {
       this.owner.callObservers("viewDidSetRadius", radius, this.owner);
     },
   })
-  readonly radius!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  readonly radius!: ThemeAnimator<this, Length | null, AnyLength | null>;
 
-  @PropertyDef({valueType: Number, value: 5})
-  readonly hitRadius!: PropertyDef<this, {value: number}>;
+  @Property({valueType: Number, value: 5})
+  readonly hitRadius!: Property<this, number>;
 
-  @ThemeAnimatorDef<DataPointView<X, Y>["color"]>({
+  @ThemeAnimator<DataPointView<X, Y>["color"]>({
     valueType: Color,
     value: null,
     didSetValue(color: Color | null): void {
@@ -127,30 +132,30 @@ export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
       this.owner.callObservers("viewDidSetColor", color, this.owner);
     },
   })
-  readonly color!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
+  readonly color!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @ThemeAnimatorDef<DataPointView<X, Y>["opacity"]>({
+  @ThemeAnimator<DataPointView<X, Y>["opacity"]>({
     valueType: Number,
     didSetValue(opacity: number | undefined): void {
       this.owner.updateGradientStop();
       this.owner.callObservers("viewDidSetOpacity", opacity, this.owner);
     },
   })
-  readonly opacity!: ThemeAnimatorDef<this, {value: number | undefined}>;
+  readonly opacity!: ThemeAnimator<this, number | undefined>;
 
-  @ThemeAnimatorDef({valueType: Font, inherits: true})
-  readonly font!: ThemeAnimatorDef<this, {value: Font | undefined, valueInit: AnyFont | undefined}>;
+  @ThemeAnimator({valueType: Font, inherits: true})
+  readonly font!: ThemeAnimator<this, Font | undefined, AnyFont | undefined>;
 
-  @ThemeAnimatorDef({valueType: Color, inherits: true})
-  readonly textColor!: ThemeAnimatorDef<this, {value: Color | undefined, valueInit: AnyColor | undefined}>;
+  @ThemeAnimator({valueType: Color, inherits: true})
+  readonly textColor!: ThemeAnimator<this, Color | undefined, AnyColor | undefined>;
 
-  @PropertyDef({valueType: String})
-  readonly category!: PropertyDef<this, {value: DataPointCategory | undefined}>;
+  @Property({valueType: String})
+  readonly category!: Property<this, DataPointCategory>;
 
-  @ThemeAnimatorDef({valueType: Length, value: Length.zero(), updateFlags: View.NeedsLayout})
-  readonly labelPadding!: ThemeAnimatorDef<this, {value: Length, valueInit: AnyLength}>;
+  @ThemeAnimator({valueType: Length, value: Length.zero(), updateFlags: View.NeedsLayout})
+  readonly labelPadding!: ThemeAnimator<this, Length, AnyLength>;
 
-  @ViewRefDef<DataPointView<X, Y>["label"]>({
+  @ViewRef<DataPointView<X, Y>["label"]>({
     viewType: TextRunView,
     viewKey: true,
     binds: true,
@@ -172,16 +177,13 @@ export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
       return labelView;
     },
   })
-  readonly label!: ViewRefDef<this, {
-    view: GraphicsView,
-    implements: {
-      setText(label: string | undefined): GraphicsView,
-    },
-  }>;
+  readonly label!: ViewRef<this, GraphicsView> & {
+    setText(label: string | undefined): GraphicsView,
+  };
   static readonly label: FastenerClass<DataPointView["label"]>;
 
-  @PropertyDef({valueType: String, value: "auto"})
-  readonly labelPlacement!: PropertyDef<this, {value: DataPointLabelPlacement}>;
+  @Property({valueType: String, value: "auto"})
+  readonly labelPlacement!: Property<this, DataPointLabelPlacement>;
 
   setState(point: DataPointViewInit<X, Y>, timing?: AnyTiming | boolean): void {
     if (point.x !== void 0) {

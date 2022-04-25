@@ -12,16 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class} from "@swim/util";
+import type {Class, Observes} from "@swim/util";
 import type {FastenerClass} from "@swim/component";
 import type {GeoBox} from "@swim/geo";
 import type {Trait} from "@swim/model";
-import {
-  TraitViewRefDef,
-  TraitViewRef,
-  TraitViewControllerSetDef,
-  TraitViewControllerSet,
-} from "@swim/controller";
+import {TraitViewRef, TraitViewControllerSet} from "@swim/controller";
 import type {GeoView} from "../geo/GeoView";
 import type {GeoTrait} from "../geo/GeoTrait";
 import {GeoController} from "../geo/GeoController";
@@ -33,7 +28,7 @@ import type {GeoLayerControllerObserver} from "./GeoLayerControllerObserver";
 export class GeoLayerController extends GeoController {
   override readonly observerType?: Class<GeoLayerControllerObserver>;
 
-  @TraitViewRefDef<GeoLayerController["geo"]>({
+  @TraitViewRef<GeoLayerController["geo"]>({
     traitType: GeoLayerTrait,
     observesTrait: true,
     willAttachTrait(geoTrait: GeoLayerTrait): void {
@@ -78,14 +73,10 @@ export class GeoLayerController extends GeoController {
       this.owner.callObservers("controllerDidDetachGeoView", geoView, this.owner);
     },
   })
-  readonly geo!: TraitViewRefDef<this, {
-    trait: GeoLayerTrait,
-    observesTrait: true,
-    view: GeoView,
-  }>;
+  readonly geo!: TraitViewRef<this, GeoLayerTrait, GeoView> & Observes<GeoLayerTrait>;
   static readonly geo: FastenerClass<GeoLayerController["geo"]>;
 
-  @TraitViewControllerSetDef<GeoLayerController["features"]>({
+  @TraitViewControllerSet<GeoLayerController["features"]>({
     controllerType: GeoController,
     binds: true,
     observes: true,
@@ -163,17 +154,11 @@ export class GeoLayerController extends GeoController {
       }
     },
   })
-  readonly features!: TraitViewControllerSetDef<this, {
-    trait: GeoTrait,
-    view: GeoView,
-    controller: GeoController,
-    implements: {
-      attachFeatureTrait(featureTrait: GeoTrait, featureController: GeoController): void,
-      detachFeatureTrait(featureTrait: GeoTrait, featureController: GeoController): void,
-      attachFeatureView(featureView: GeoView, featureController: GeoController): void,
-      detachFeatureView(featureView: GeoView, featureController: GeoController): void,
-    },
-    observes: true,
-  }>;
+  readonly features!: TraitViewControllerSet<this, GeoTrait, GeoView, GeoController> & Observes<GeoController> & {
+    attachFeatureTrait(featureTrait: GeoTrait, featureController: GeoController): void,
+    detachFeatureTrait(featureTrait: GeoTrait, featureController: GeoController): void,
+    attachFeatureView(featureView: GeoView, featureController: GeoController): void,
+    detachFeatureView(featureView: GeoView, featureController: GeoController): void,
+  };
   static readonly features: FastenerClass<GeoLayerController["features"]>;
 }

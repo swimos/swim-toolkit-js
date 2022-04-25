@@ -14,7 +14,7 @@
 
 import type {Class} from "@swim/util";
 import type {FastenerClass} from "@swim/component";
-import {Model, Trait, TraitSetDef} from "@swim/model";
+import {Model, Trait, TraitSet} from "@swim/model";
 import {DataPointTrait} from "./DataPointTrait";
 import type {DataSetTraitObserver} from "./DataSetTraitObserver";
 
@@ -22,7 +22,7 @@ import type {DataSetTraitObserver} from "./DataSetTraitObserver";
 export class DataSetTrait<X = unknown, Y = unknown> extends Trait {
   override readonly observerType?: Class<DataSetTraitObserver<X, Y>>;
 
-  @TraitSetDef<DataSetTrait<X, Y>["dataPoints"]>({
+  @TraitSet<DataSetTrait<X, Y>["dataPoints"]>({
     traitType: DataPointTrait,
     binds: true,
     willAttachTrait(dataPointTrait: DataPointTrait<X, Y>, targetTrait: Trait | null): void {
@@ -45,7 +45,7 @@ export class DataSetTrait<X = unknown, Y = unknown> extends Trait {
       return model.getTrait(DataPointTrait) as DataPointTrait<X, Y>;
     },
   })
-  readonly dataPoints!: TraitSetDef<this, {trait: DataPointTrait<X, Y>}>;
+  readonly dataPoints!: TraitSet<this, DataPointTrait<X, Y>>;
   static readonly dataPoints: FastenerClass<DataSetTrait["dataPoints"]>;
 
   protected override onStartConsuming(): void {

@@ -13,10 +13,9 @@
 // limitations under the License.
 
 export {
-  StyleAnimatorRefinement,
+  StyleAnimatorDescriptor,
   StyleAnimatorTemplate,
   StyleAnimatorClass,
-  StyleAnimatorDef,
   StyleAnimator,
 } from "./StyleAnimator";
 export {StringStyleAnimator} from "./StringStyleAnimator";
@@ -28,10 +27,9 @@ export {BoxShadowStyleAnimator} from "./BoxShadowStyleAnimator";
 export {TransformStyleAnimator} from "./TransformStyleAnimator";
 
 export {
-  StyleConstraintAnimatorRefinement,
+  StyleConstraintAnimatorDescriptor,
   StyleConstraintAnimatorTemplate,
   StyleConstraintAnimatorClass,
-  StyleConstraintAnimatorDef,
   StyleConstraintAnimator,
 } from "./StyleConstraintAnimator";
 export {NumberStyleConstraintAnimator} from "./NumberStyleConstraintAnimator";

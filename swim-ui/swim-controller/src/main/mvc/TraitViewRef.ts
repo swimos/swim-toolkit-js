@@ -12,11 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Proto, ObserverType} from "@swim/util";
+import type {Mutable, Proto, Observes} from "@swim/util";
 import {
   FastenerOwner,
-  FastenerRefinement,
-  FastenerTemplate,
+  FastenerDescriptor,
   FastenerClass,
   Fastener,
 } from "@swim/component";
@@ -24,29 +23,15 @@ import {Model, AnyTrait, TraitFactory, Trait} from "@swim/model";
 import {AnyView, ViewFactory, View} from "@swim/view";
 
 /** @public */
-export interface TraitViewRefRefinement extends FastenerRefinement {
-  trait?: unknown;
-  observesTrait?: unknown;
-  view?: unknown;
-  observesView?: unknown;
-}
+export type TraitViewRefTrait<F extends TraitViewRef<any, any, any>> =
+  F extends {traitType?: TraitFactory<infer T>} ? T : never;
 
 /** @public */
-export type TraitViewRefTrait<R extends TraitViewRefRefinement | TraitViewRef<any, any, any>, D = Trait> =
-  R extends {trait: infer T | null} ? T :
-  R extends {extends: infer E} ? TraitViewRefTrait<E, D> :
-  R extends TraitViewRef<any, infer T, any> ? T :
-  D;
+export type TraitViewRefView<F extends TraitViewRef<any, any, any>> =
+  F extends {viewType?: ViewFactory<infer V>} ? V : never;
 
 /** @public */
-export type TraitViewRefView<R extends TraitViewRefRefinement | TraitViewRef<any, any, any>, D = View> =
-  R extends {view: infer V | null} ? V :
-  R extends {extends: infer E} ? TraitViewRefView<E, D> :
-  R extends TraitViewRef<any, any, infer V> ? V :
-  D;
-
-/** @public */
-export interface TraitViewRefTemplate<T extends Trait = Trait, V extends View = View> extends FastenerTemplate {
+export interface TraitViewRefDescriptor<T extends Trait = Trait, V extends View = View> extends FastenerDescriptor {
   extends?: Proto<TraitViewRef<any, any, any>> | string | boolean | null;
 
   traitKey?: string | boolean;
@@ -61,47 +46,29 @@ export interface TraitViewRefTemplate<T extends Trait = Trait, V extends View = 
 }
 
 /** @public */
+export type TraitViewRefTemplate<F extends TraitViewRef<any, any, any>> =
+  ThisType<F> &
+  TraitViewRefDescriptor<TraitViewRefTrait<F>, TraitViewRefView<F>> &
+  Partial<Omit<F, keyof TraitViewRefDescriptor>>;
+
+/** @public */
 export interface TraitViewRefClass<F extends TraitViewRef<any, any, any> = TraitViewRef<any, any, any>> extends FastenerClass<F> {
   /** @override */
-  specialize(className: string, template: TraitViewRefTemplate): TraitViewRefClass;
+  specialize(template: TraitViewRefDescriptor<any>): TraitViewRefClass<F>;
 
   /** @override */
-  refine(fastenerClass: TraitViewRefClass): void;
+  refine(fastenerClass: TraitViewRefClass<any>): void;
 
   /** @override */
-  extend(className: string, template: TraitViewRefTemplate): TraitViewRefClass<F>;
+  extend<F2 extends F>(className: string, template: TraitViewRefTemplate<F2>): TraitViewRefClass<F2>;
+  extend<F2 extends F>(className: string, template: TraitViewRefTemplate<F2>): TraitViewRefClass<F2>;
 
   /** @override */
-  specify<O, T extends Trait = Trait, V extends View = View>(className: string, template: ThisType<TraitViewRef<O, T, V>> & TraitViewRefTemplate<T, V> & Partial<Omit<TraitViewRef<O, T, V>, keyof TraitViewRefTemplate>>): TraitViewRefClass<F>;
+  define<F2 extends F>(className: string, template: TraitViewRefTemplate<F2>): TraitViewRefClass<F2>;
+  define<F2 extends F>(className: string, template: TraitViewRefTemplate<F2>): TraitViewRefClass<F2>;
 
   /** @override */
-  <O, T extends Trait = Trait, V extends View = View>(template: ThisType<TraitViewRef<O, T, V>> & TraitViewRefTemplate<T, V> & Partial<Omit<TraitViewRef<O, T, V>, keyof TraitViewRefTemplate>>): PropertyDecorator;
-}
-
-/** @public */
-export type TraitViewRefDef<O, R extends TraitViewRefRefinement = {}> =
-  TraitViewRef<O, TraitViewRefTrait<R>, TraitViewRefView<R>> &
-  {readonly name: string} & // prevent type alias simplification
-  (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer I} ? I : {}) &
-  (R extends {implements: infer I} ? I : {}) &
-  (R extends {observesTrait: infer B} ? ObserverType<B extends boolean ? TraitViewRefTrait<R> : B> : {}) &
-  (R extends {observesView: infer B} ? ObserverType<B extends boolean ? TraitViewRefView<R> : B> : {});
-
-/** @public */
-export function TraitViewRefDef<F extends TraitViewRef<any, any, any>>(
-  template: F extends TraitViewRefDef<infer O, infer R>
-          ? ThisType<TraitViewRefDef<O, R>>
-          & TraitViewRefTemplate<TraitViewRefTrait<R>, TraitViewRefView<R>>
-          & Partial<Omit<TraitViewRef<O, TraitViewRefTrait<R>, TraitViewRefView<R>>, keyof TraitViewRefTemplate>>
-          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof TraitViewRefTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer I} ? Partial<I> : {})
-          & (R extends {implements: infer I} ? I : {})
-          & (R extends {observesTrait: infer B} ? (ObserverType<B extends boolean ? TraitViewRefTrait<R> : B> & {observesTrait: boolean}) : {})
-          & (R extends {observesView: infer B} ? (ObserverType<B extends boolean ? TraitViewRefView<R> : B> & {observesView: boolean}) : {})
-          : never
-): PropertyDecorator {
-  return TraitViewRef(template);
+  <F2 extends F>(template: TraitViewRefTemplate<F2>): PropertyDecorator;
 }
 
 /** @public */
@@ -390,7 +357,7 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
 
   TraitViewRef.prototype.onAttachTrait = function <T extends Trait>(this: TraitViewRef<unknown, T, View>, trait: T, target: Trait | null): void {
     if (this.observesTrait === true) {
-      trait.observe(this as ObserverType<T>);
+      trait.observe(this as Observes<T>);
     }
   };
 
@@ -408,7 +375,7 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
 
   TraitViewRef.prototype.onDetachTrait = function <T extends Trait>(this: TraitViewRef<unknown, T, View>, trait: T): void {
     if (this.observesTrait === true) {
-      trait.unobserve(this as ObserverType<T>);
+      trait.unobserve(this as Observes<T>);
     }
   };
 
@@ -691,7 +658,7 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
 
   TraitViewRef.prototype.onAttachView = function <V extends View>(this: TraitViewRef<unknown, Trait, V>, view: V, target: View | null): void {
     if (this.observesView === true) {
-      view.observe(this as ObserverType<V>);
+      view.observe(this as Observes<V>);
     }
   };
 
@@ -709,7 +676,7 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
 
   TraitViewRef.prototype.onDetachView = function <V extends View>(this: TraitViewRef<unknown, Trait, V>, view: V): void {
     if (this.observesView === true) {
-      view.unobserve(this as ObserverType<V>);
+      view.unobserve(this as Observes<V>);
     }
   };
 
@@ -854,7 +821,7 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
     return fastener;
   };
 
-  TraitViewRef.refine = function (fastenerClass: TraitViewRefClass): void {
+  TraitViewRef.refine = function (fastenerClass: TraitViewRefClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

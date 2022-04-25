@@ -39,7 +39,7 @@ export class ThemeAnimatorSpec extends Spec {
 
   @Test
   testThemeAnimatorDefine(exam: Exam): void {
-    const testAnimator = ThemeAnimator.specify("foo", {valueType: Number, value: 0});
+    const testAnimator = ThemeAnimator.define("foo", {valueType: Number, value: 0});
     const animator = testAnimator.create(null);
     exam.equal(animator.name, "foo");
     exam.equal(animator.state, 0);

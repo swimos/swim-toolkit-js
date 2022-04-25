@@ -15,7 +15,7 @@
 import type {Mutable, Class} from "@swim/util";
 import type {FastenerClass} from "@swim/component";
 import {GeoBox} from "@swim/geo";
-import {Model, Trait, TraitSetDef} from "@swim/model";
+import {Model, Trait, TraitSet} from "@swim/model";
 import {GeoTrait} from "../geo/GeoTrait";
 import type {GeoController} from "../geo/GeoController";
 import type {GeoLayerTraitObserver} from "./GeoLayerTraitObserver";
@@ -54,7 +54,7 @@ export class GeoLayerTrait extends GeoTrait {
     this.callObservers("traitDidSetGeoBounds", newGeoBounds, oldGeoBounds, this);
   }
 
-  @TraitSetDef<GeoLayerTrait["features"]>({
+  @TraitSet<GeoLayerTrait["features"]>({
     traitType: GeoTrait,
     binds: true,
     willAttachTrait(featureTrait: GeoTrait): void {
@@ -80,7 +80,7 @@ export class GeoLayerTrait extends GeoTrait {
       return null;
     },
   })
-  readonly features!: TraitSetDef<this, {trait: GeoTrait}>;
+  readonly features!: TraitSet<this, GeoTrait>;
   static readonly features: FastenerClass<GeoLayerTrait["features"]>;
 
   protected override onStartConsuming(): void {

@@ -13,22 +13,18 @@
 // limitations under the License.
 
 import type {FastenerClass} from "@swim/component";
-import {TraitViewRefDef} from "@swim/controller";
+import {TraitViewRef} from "@swim/controller";
 import {TopAxisTrait} from "./TopAxisTrait";
 import {TopAxisView} from "./TopAxisView";
 import {AxisController} from "./AxisController";
 
 /** @public */
 export class TopAxisController<X = unknown> extends AxisController<X> {
-  @TraitViewRefDef<TopAxisController<X>["axis"]>({
-    extends: true,
+  @TraitViewRef<TopAxisController<X>["axis"]>({
+    extends: AxisController.axis,
     traitType: TopAxisTrait,
     viewType: TopAxisView,
   })
-  override readonly axis!: TraitViewRefDef<this, {
-    extends: AxisController<X>["axis"],
-    trait: TopAxisTrait<X>,
-    view: TopAxisView<X>,
-  }>;
+  override readonly axis!: TraitViewRef<this, TopAxisTrait<X>, TopAxisView<X>> & AxisController<X>["axis"];
   static override readonly axis: FastenerClass<TopAxisController["axis"]>;
 }

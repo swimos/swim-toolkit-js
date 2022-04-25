@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {PropertyDef} from "@swim/component";
+import {Property} from "@swim/component";
 import {AnyLength, Length} from "@swim/math";
 import {AnyColorOrLook, ColorOrLook, ColorLook} from "@swim/theme";
 import {SeriesPlotTrait} from "./SeriesPlotTrait";
@@ -25,23 +25,23 @@ import {LinePlotController} from "./"; // forward import
 export class LinePlotTrait<X = unknown, Y = unknown> extends SeriesPlotTrait<X, Y> {
   override readonly observerType?: Class<LinePlotTraitObserver<X, Y>>;
 
-  @PropertyDef<LinePlotTrait<X, Y>["stroke"]>({
+  @Property<LinePlotTrait<X, Y>["stroke"]>({
     valueType: ColorLook,
     value: null,
     didSetValue(stroke: ColorOrLook | null): void {
       this.owner.callObservers("traitDidSetStroke", stroke, this.owner);
     },
   })
-  readonly stroke!: PropertyDef<this, {value: ColorOrLook | null, valueInit: AnyColorOrLook | null}>;
+  readonly stroke!: Property<this, ColorOrLook | null, AnyColorOrLook | null>;
 
-  @PropertyDef<LinePlotTrait<X, Y>["strokeWidth"]>({
+  @Property<LinePlotTrait<X, Y>["strokeWidth"]>({
     valueType: Length,
     value: null,
     didSetValue(strokeWidth: Length | null): void {
       this.owner.callObservers("traitDidSetStrokeWidth", strokeWidth, this.owner);
     },
   })
-  readonly strokeWidth!: PropertyDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  readonly strokeWidth!: Property<this, Length | null, AnyLength | null>;
 
   override createPlotController(): SeriesPlotController<X, Y> {
     return new LinePlotController<X, Y>();

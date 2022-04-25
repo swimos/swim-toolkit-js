@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class} from "@swim/util";
-import {Affinity, FastenerClass, PropertyDef} from "@swim/component";
+import type {Class, Observes} from "@swim/util";
+import {Affinity, FastenerClass, Property} from "@swim/component";
 import {Length} from "@swim/math";
-import {ViewportInsets, ViewContextType, View, ViewRefDef, ViewSetDef} from "@swim/view";
+import {ViewportInsets, ViewContextType, View, ViewRef, ViewSet} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {BarView} from "@swim/toolbar";
 import {SheetView} from "../sheet/SheetView";
@@ -37,19 +37,19 @@ export class StackView extends HtmlView {
 
   override readonly observerType?: Class<StackViewObserver>;
 
-  @PropertyDef({valueType: Number, value: -(1 / 3)})
-  readonly backAlign!: PropertyDef<this, {value: number}>;
+  @Property({valueType: Number, value: -(1 / 3)})
+  readonly backAlign!: Property<this, number>;
 
-  @PropertyDef<StackView["edgeInsets"]>({
+  @Property<StackView["edgeInsets"]>({
     valueType: ViewportInsets,
     value: null,
     inherits: true,
     updateFlags: View.NeedsResize,
     equalValues: ViewportInsets.equal,
   })
-  readonly edgeInsets!: PropertyDef<this, {value: ViewportInsets | null}>;
+  readonly edgeInsets!: Property<this, ViewportInsets | null>;
 
-  @ViewRefDef<StackView["navBar"]>({
+  @ViewRef<StackView["navBar"]>({
     viewType: BarView,
     binds: true,
     observes: true,
@@ -74,10 +74,10 @@ export class StackView extends HtmlView {
       this.owner.requireUpdate(View.NeedsLayout);
     },
   })
-  readonly navBar!: ViewRefDef<this, {view: BarView, observes: true}>;
+  readonly navBar!: ViewRef<this, BarView> & Observes<BarView>;
   static readonly navBar: FastenerClass<StackView["navBar"]>;
 
-  @ViewSetDef<StackView["sheets"]>({
+  @ViewSet<StackView["sheets"]>({
     viewType: SheetView,
     binds: true,
     observes: true,
@@ -175,10 +175,10 @@ export class StackView extends HtmlView {
       return view instanceof SheetView && view.forward.view === null ? view : null;
     },
   })
-  readonly sheets!: ViewSetDef<this, {view: SheetView, observes: true}>;
+  readonly sheets!: ViewSet<this, SheetView> & Observes<SheetView>;
   static readonly sheets: FastenerClass<StackView["sheets"]>;
 
-  @ViewRefDef<StackView["front"]>({
+  @ViewRef<StackView["front"]>({
     viewType: SheetView,
     binds: false,
     willAttachView(sheetView: SheetView, target: View | null): void {
@@ -205,7 +205,7 @@ export class StackView extends HtmlView {
       this.owner.callObservers("viewDidDetachFront", sheetView, this.owner);
     },
   })
-  readonly front!: ViewRefDef<this, {view: SheetView}>;
+  readonly front!: ViewRef<this, SheetView>;
   static readonly front: FastenerClass<StackView["front"]>;
 
   protected override onResize(viewContext: ViewContextType<this>): void {

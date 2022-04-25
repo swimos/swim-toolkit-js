@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Timing} from "@swim/util";
+import type {Class, Timing, Observes} from "@swim/util";
 import {Affinity, FastenerClass} from "@swim/component";
 import {Color} from "@swim/style";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewRefDef} from "@swim/view";
-import {StyleRule, StyleSheet, HtmlView, StyleView} from "@swim/dom";
+import {ViewRef} from "@swim/view";
+import {StyleRule, HtmlView, StyleView} from "@swim/dom";
 import {TokenViewInit, TokenView} from "./TokenView";
 import type {InputTokenViewObserver} from "./InputTokenViewObserver";
 
@@ -52,7 +52,7 @@ export class InputTokenView extends TokenView {
   }
 
   /** @internal */
-  static PlaceholderRule = StyleRule.specify<StyleSheet>("PlaceholderRule", {
+  static PlaceholderRule = StyleRule.define("PlaceholderRule", {
     css: "::placeholder {}",
   });
 
@@ -73,7 +73,7 @@ export class InputTokenView extends TokenView {
     labelView.pointerEvents.setState("auto", Affinity.Intrinsic);
   }
 
-  @ViewRefDef<InputTokenView["stylesheet"]>({
+  @ViewRef<InputTokenView["stylesheet"]>({
     viewType: StyleView,
     viewKey: true,
     binds: true,
@@ -82,10 +82,10 @@ export class InputTokenView extends TokenView {
       this.owner.initStylesheet(styleView);
     },
   })
-  readonly stylesheet!: ViewRefDef<this, {view: StyleView, observes: true}>;
+  readonly stylesheet!: ViewRef<this, StyleView> & Observes<StyleView>;
   static readonly stylesheet: FastenerClass<InputTokenView["stylesheet"]>;
 
-  @ViewRefDef<InputTokenView["label"]>({
+  @ViewRef<InputTokenView["label"]>({
     viewType: HtmlView.forTag("input"),
     observes: true,
     didAttachView(labelView: HtmlView): void {
@@ -109,7 +109,7 @@ export class InputTokenView extends TokenView {
       labelView.off("keydown", this.owner.onInputKey);
     },
   })
-  override readonly label!: ViewRefDef<this, {view: HtmlView, observes: true}>;
+  override readonly label!: ViewRef<this, HtmlView> & Observes<HtmlView>;
   static override readonly label: FastenerClass<InputTokenView["label"]>;
 
   /** @internal */

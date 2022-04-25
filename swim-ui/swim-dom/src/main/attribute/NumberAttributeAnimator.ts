@@ -15,8 +15,14 @@
 import {AttributeAnimatorClass, AttributeAnimator} from "./AttributeAnimator";
 
 /** @internal */
+export interface NumberAttributeAnimator<O = unknown, T extends number | undefined = number | undefined, U extends number | string | undefined = number | string | T> extends AttributeAnimator<O, T, U> {
+}
+
+/** @internal */
 export const NumberAttributeAnimator = (function (_super: typeof AttributeAnimator) {
-  const NumberAttributeAnimator = _super.extend("NumberAttributeAnimator", {}) as AttributeAnimatorClass<AttributeAnimator<any, number | undefined, string>>;
+  const NumberAttributeAnimator = _super.extend("NumberAttributeAnimator", {
+    valueType: Number,
+  }) as AttributeAnimatorClass<NumberAttributeAnimator<any, any, any>>;
 
   NumberAttributeAnimator.prototype.equalValues = function (newValue: number | undefined, oldValue: number | undefined): boolean {
     return newValue === oldValue;

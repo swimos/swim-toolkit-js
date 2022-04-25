@@ -12,73 +12,45 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Proto, ObserverType} from "@swim/util";
+import type {Mutable, Proto} from "@swim/util";
 import {Affinity, FastenerOwner, Fastener} from "@swim/component";
-import type {AnyModel, Model} from "./Model";
-import {
-  ModelRelationRefinement,
-  ModelRelationTemplate,
-  ModelRelationClass,
-  ModelRelation,
-} from "./ModelRelation";
+import type {AnyModel, ModelFactory, Model} from "./Model";
+import {ModelRelationDescriptor, ModelRelationClass, ModelRelation} from "./ModelRelation";
 
 /** @public */
-export interface ModelRefRefinement extends ModelRelationRefinement {
-}
+export type ModelRefModel<F extends ModelRef<any, any>> =
+  F extends {modelType?: ModelFactory<infer M>} ? M : never;
 
 /** @public */
-export type ModelRefModel<R extends ModelRefRefinement | ModelRef<any, any>, D = Model> =
-  R extends {model: infer M | null} ? M :
-  R extends {extends: infer E} ? ModelRefModel<E, D> :
-  R extends ModelRef<any, infer M> ? M :
-  D;
-
-/** @public */
-export interface ModelRefTemplate<M extends Model = Model> extends ModelRelationTemplate<M> {
+export interface ModelRefDescriptor<M extends Model = Model> extends ModelRelationDescriptor<M> {
   extends?: Proto<ModelRef<any, any>> | string | boolean | null;
   modelKey?: string | boolean;
 }
 
 /** @public */
+export type ModelRefTemplate<F extends ModelRef<any, any>> =
+  ThisType<F> &
+  ModelRefDescriptor<ModelRefModel<F>> &
+  Partial<Omit<F, keyof ModelRefDescriptor>>;
+
+/** @public */
 export interface ModelRefClass<F extends ModelRef<any, any> = ModelRef<any, any>> extends ModelRelationClass<F> {
   /** @override */
-  specialize(className: string, template: ModelRefTemplate): ModelRefClass;
+  specialize(template: ModelRefDescriptor<any>): ModelRefClass<F>;
 
   /** @override */
-  refine(fastenerClass: ModelRefClass): void;
+  refine(fastenerClass: ModelRefClass<any>): void;
 
   /** @override */
-  extend(className: string, template: ModelRefTemplate): ModelRefClass<F>;
+  extend<F2 extends F>(className: string, template: ModelRefTemplate<F2>): ModelRefClass<F2>;
+  extend<F2 extends F>(className: string, template: ModelRefTemplate<F2>): ModelRefClass<F2>;
 
   /** @override */
-  specify<O, M extends Model = Model>(className: string, template: ThisType<ModelRef<O, M>> & ModelRefTemplate<M> & Partial<Omit<ModelRef<O, M>, keyof ModelRefTemplate>>): ModelRefClass<F>;
+  define<F2 extends F>(className: string, template: ModelRefTemplate<F2>): ModelRefClass<F2>;
+  define<F2 extends F>(className: string, template: ModelRefTemplate<F2>): ModelRefClass<F2>;
 
   /** @override */
-  <O, M extends Model = Model>(template: ThisType<ModelRef<O, M>> & ModelRefTemplate<M> & Partial<Omit<ModelRef<O, M>, keyof ModelRefTemplate>>): PropertyDecorator;
-}
-
-/** @public */
-export type ModelRefDef<O, R extends ModelRefRefinement = {}> =
-  ModelRef<O, ModelRefModel<R>> &
-  {readonly name: string} & // prevent type alias simplification
-  (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer I} ? I : {}) &
-  (R extends {implements: infer I} ? I : {}) &
-  (R extends {observes: infer B} ? ObserverType<B extends boolean ? ModelRefModel<R> : B> : {});
-
-/** @public */
-export function ModelRefDef<F extends ModelRef<any, any>>(
-  template: F extends ModelRefDef<infer O, infer R>
-          ? ThisType<ModelRefDef<O, R>>
-          & ModelRefTemplate<ModelRefModel<R>>
-          & Partial<Omit<ModelRef<O, ModelRefModel<R>>, keyof ModelRefTemplate>>
-          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof ModelRefTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer I} ? Partial<I> : {})
-          & (R extends {implements: infer I} ? I : {})
-          & (R extends {observes: infer B} ? (ObserverType<B extends boolean ? ModelRefModel<R> : B> & {observes: boolean}) : {})
-          : never
-): PropertyDecorator {
-  return ModelRef(template);
+  <F2 extends F>(template: ModelRefTemplate<F2>): PropertyDecorator;
 }
 
 /** @public */
@@ -506,7 +478,7 @@ export const ModelRef = (function (_super: typeof ModelRelation) {
     return fastener;
   };
 
-  ModelRef.refine = function (fastenerClass: ModelRefClass): void {
+  ModelRef.refine = function (fastenerClass: ModelRefClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

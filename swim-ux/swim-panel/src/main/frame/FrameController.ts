@@ -12,15 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class} from "@swim/util";
+import type {Class, Observes} from "@swim/util";
 import type {FastenerClass} from "@swim/component";
 import type {Trait} from "@swim/model";
-import {
-  TraitViewRefDef,
-  TraitViewRef,
-  TraitViewControllerSetDef,
-  TraitViewControllerSet,
-} from "@swim/controller";
+import {TraitViewRef, TraitViewControllerSet} from "@swim/controller";
 import type {PanelView} from "../panel/PanelView";
 import type {PanelTrait} from "../panel/PanelTrait";
 import {PanelController} from "../panel/PanelController";
@@ -32,7 +27,7 @@ import type {FrameControllerObserver} from "./FrameControllerObserver";
 export class FrameController extends PanelController {
   override readonly observerType?: Class<FrameControllerObserver>;
 
-  @TraitViewRefDef<FrameController["panel"]>({
+  @TraitViewRef<FrameController["panel"]>({
     extends: true,
     traitType: FrameTrait,
     observesTrait: true,
@@ -66,15 +61,10 @@ export class FrameController extends PanelController {
       }
     },
   })
-  override readonly panel!: TraitViewRefDef<this, {
-    extends: PanelController["panel"],
-    trait: FrameTrait,
-    observesTrait: true,
-    view: FrameView,
-  }>;
+  override readonly panel!: TraitViewRef<this, FrameTrait, FrameView> & PanelController["panel"] & Observes<FrameTrait>;
   static override readonly panel: FastenerClass<FrameController["panel"]>;
 
-  @TraitViewControllerSetDef<FrameController["panes"]>({
+  @TraitViewControllerSet<FrameController["panes"]>({
     controllerType: PanelController,
     binds: true,
     observes: true,
@@ -146,17 +136,11 @@ export class FrameController extends PanelController {
       }
     },
   })
-  readonly panes!: TraitViewControllerSetDef<this, {
-    trait: PanelTrait,
-    view: PanelView,
-    controller: PanelController,
-    implements: {
-      attachPaneTrait(paneTrait: PanelTrait, paneController: PanelController): void;
-      detachPaneTrait(paneTrait: PanelTrait, paneController: PanelController): void;
-      attachPaneView(paneView: PanelView, paneController: PanelController): void;
-      detachPaneView(paneView: PanelView, paneController: PanelController): void;
-    },
-    observes: true,
-  }>;
+  readonly panes!: TraitViewControllerSet<this, PanelTrait, PanelView, PanelController> & Observes<PanelController> & {
+    attachPaneTrait(paneTrait: PanelTrait, paneController: PanelController): void,
+    detachPaneTrait(paneTrait: PanelTrait, paneController: PanelController): void,
+    attachPaneView(paneView: PanelView, paneController: PanelController): void,
+    detachPaneView(paneView: PanelView, paneController: PanelController): void,
+  };
   static readonly panes: FastenerClass<FrameController["panes"]>;
 }

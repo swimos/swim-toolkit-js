@@ -12,81 +12,50 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Proto, ObserverType} from "@swim/util";
+import type {Proto} from "@swim/util";
 import type {TraitFactory, Trait, TraitRef} from "@swim/model";
-import type {Controller} from "../controller/Controller";
-import {
-  ControllerRefRefinement,
-  ControllerRefTemplate,
-  ControllerRefClass,
-  ControllerRef,
-} from "../controller/ControllerRef";
+import type {ControllerFactory, Controller} from "../controller/Controller";
+import {ControllerRefDescriptor, ControllerRefClass, ControllerRef} from "../controller/ControllerRef";
 
 /** @public */
-export interface TraitControllerRefRefinement extends ControllerRefRefinement {
-}
+export type TraitControllerRefTrait<F extends TraitControllerRef<any, any, any>> =
+  F extends {traitType?: TraitFactory<infer T>} ? T : never;
 
 /** @public */
-export type TraitControllerRefTrait<R extends TraitControllerRefRefinement | TraitControllerRef<any, any, any>, D = Trait> =
-  R extends {trait: infer T | null} ? T :
-  R extends {extends: infer E} ? TraitControllerRefTrait<E, D> :
-  R extends TraitControllerRef<any, infer T, any> ? T :
-  D;
+export type TraitControllerRefController<F extends TraitControllerRef<any, any, any>> =
+  F extends {controllerType?: ControllerFactory<infer C>} ? C : never;
 
 /** @public */
-export type TraitControllerRefController<R extends TraitControllerRefRefinement | TraitControllerRef<any, any, any>, D = Controller> =
-  R extends {controller: infer C | null} ? C :
-  R extends {extends: infer E} ? TraitControllerRefController<E, D> :
-  R extends TraitControllerRef<any, any, infer C> ? C :
-  D;
-
-/** @public */
-export interface TraitControllerRefTemplate<T extends Trait = Trait, C extends Controller = Controller> extends ControllerRefTemplate<C> {
+export interface TraitControllerRefDescriptor<T extends Trait = Trait, C extends Controller = Controller> extends ControllerRefDescriptor<C> {
   extends?: Proto<TraitControllerRef<any, any, any>> | string | boolean | null;
   traitType?: TraitFactory<T>;
   traitKey?: string | boolean;
 }
 
 /** @public */
+export type TraitControllerRefTemplate<F extends TraitControllerRef<any, any, any>> =
+  ThisType<F> &
+  TraitControllerRefDescriptor<TraitControllerRefTrait<F>, TraitControllerRefController<F>> &
+  Partial<Omit<F, keyof TraitControllerRefDescriptor>>;
+
+/** @public */
 export interface TraitControllerRefClass<F extends TraitControllerRef<any, any, any> = TraitControllerRef<any, any, any>> extends ControllerRefClass<F> {
   /** @override */
-  specialize(className: string, template: TraitControllerRefTemplate): TraitControllerRefClass;
+  specialize(template: TraitControllerRefDescriptor<any>): TraitControllerRefClass<F>;
 
   /** @override */
-  refine(fastenerClass: TraitControllerRefClass): void;
+  refine(fastenerClass: TraitControllerRefClass<any>): void;
 
   /** @override */
-  extend(className: string, template: TraitControllerRefTemplate): TraitControllerRefClass<F>;
+  extend<F2 extends F>(className: string, template: TraitControllerRefTemplate<F2>): TraitControllerRefClass<F2>;
+  extend<F2 extends F>(className: string, template: TraitControllerRefTemplate<F2>): TraitControllerRefClass<F2>;
 
   /** @override */
-  specify<O, T extends Trait = Trait, C extends Controller = Controller>(className: string, template: ThisType<TraitControllerRef<O, T, C>> & TraitControllerRefTemplate<T, C> & Partial<Omit<TraitControllerRef<O, T, C>, keyof TraitControllerRefTemplate>>): TraitControllerRefClass<F>;
+  define<F2 extends F>(className: string, template: TraitControllerRefTemplate<F2>): TraitControllerRefClass<F2>;
+  define<F2 extends F>(className: string, template: TraitControllerRefTemplate<F2>): TraitControllerRefClass<F2>;
 
   /** @override */
-  <O, T extends Trait = Trait, C extends Controller = Controller>(template: ThisType<TraitControllerRef<O, T, C>> & TraitControllerRefTemplate<T, C> & Partial<Omit<TraitControllerRef<O, T, C>, keyof TraitControllerRefTemplate>>): PropertyDecorator;
-}
-
-/** @public */
-export type TraitControllerRefDef<O, R extends TraitControllerRefRefinement = {}> =
-  TraitControllerRef<O, TraitControllerRefTrait<R>, TraitControllerRefController<R>> &
-  {readonly name: string} & // prevent type alias simplification
-  (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer I} ? I : {}) &
-  (R extends {implements: infer I} ? I : {}) &
-  (R extends {observes: infer B} ? ObserverType<B extends boolean ? TraitControllerRefController<R> : B> : {});
-
-/** @public */
-export function TraitControllerRefDef<F extends TraitControllerRef<any, any, any>>(
-  template: F extends TraitControllerRefDef<infer O, infer R>
-          ? ThisType<TraitControllerRefDef<O, R>>
-          & TraitControllerRefTemplate<TraitControllerRefTrait<R>, TraitControllerRefController<R>>
-          & Partial<Omit<TraitControllerRef<O, TraitControllerRefTrait<R>, TraitControllerRefController<R>>, keyof TraitControllerRefTemplate>>
-          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof TraitControllerRefTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer I} ? Partial<I> : {})
-          & (R extends {implements: infer I} ? I : {})
-          & (R extends {observes: infer B} ? (ObserverType<B extends boolean ? TraitControllerRefController<R> : B> & {observes: boolean}) : {})
-          : never
-): PropertyDecorator {
-  return TraitControllerRef(template);
+  <F2 extends F>(template: TraitControllerRefTemplate<F2>): PropertyDecorator;
 }
 
 /** @public */
@@ -308,7 +277,7 @@ export const TraitControllerRef = (function (_super: typeof ControllerRef) {
     return trait;
   };
 
-  TraitControllerRef.refine = function (fastenerClass: TraitControllerRefClass): void {
+  TraitControllerRef.refine = function (fastenerClass: TraitControllerRefClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

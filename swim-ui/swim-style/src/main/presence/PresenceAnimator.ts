@@ -17,7 +17,7 @@ import {Affinity, AnimatorClass, Animator} from "@swim/component";
 import {AnyPresence, Presence} from "./Presence";
 
 /** @public */
-export interface PresenceAnimator<O = unknown, T extends Presence | null | undefined = Presence | null | undefined, U extends AnyPresence | null | undefined = T> extends Animator<O, T, U> {
+export interface PresenceAnimator<O = unknown, T extends Presence | null | undefined = Presence | null | undefined, U extends AnyPresence | null | undefined = AnyPresence | T> extends Animator<O, T, U> {
   get phase(): number | undefined;
 
   getPhase(): number;
@@ -77,7 +77,7 @@ export interface PresenceAnimator<O = unknown, T extends Presence | null | undef
 export const PresenceAnimator = (function (_super: typeof Animator) {
   const PresenceAnimator = _super.extend("PresenceAnimator", {
     valueType: Presence,
-  }) as AnimatorClass<PresenceAnimator>;
+  }) as AnimatorClass<PresenceAnimator<any, any, any>>;
 
   Object.defineProperty(PresenceAnimator.prototype, "phase", {
     get(this: PresenceAnimator): number | undefined {

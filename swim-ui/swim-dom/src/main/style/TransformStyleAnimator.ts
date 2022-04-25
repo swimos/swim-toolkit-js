@@ -16,8 +16,15 @@ import {AnyTransform, Transform} from "@swim/math";
 import {StyleAnimatorClass, StyleAnimator} from "./StyleAnimator";
 
 /** @internal */
+export interface TransformStyleAnimator<O = unknown, T extends Transform | null = Transform | null, U extends AnyTransform | null = AnyTransform | T> extends StyleAnimator<O, T, U> {
+}
+
+/** @internal */
 export const TransformStyleAnimator = (function (_super: typeof StyleAnimator) {
-  const TransformStyleAnimator = _super.extend("TransformStyleAnimator", {}) as StyleAnimatorClass<StyleAnimator<any, Transform | null, AnyTransform | null>>;
+  const TransformStyleAnimator = _super.extend("TransformStyleAnimator", {
+    valueType: Transform,
+    value: null,
+  }) as StyleAnimatorClass<StyleAnimator<any, any, any>>;
 
   TransformStyleAnimator.prototype.equalValues = function (newValue: Transform | null, oldValue: Transform | null): boolean {
     if (newValue !== void 0 && newValue !== null) {

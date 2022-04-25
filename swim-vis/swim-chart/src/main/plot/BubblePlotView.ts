@@ -15,7 +15,7 @@
 import type {Class} from "@swim/util";
 import {AnyLength, Length, R2Box} from "@swim/math";
 import {AnyColor, Color} from "@swim/style";
-import {Look, ThemeAnimatorDef} from "@swim/theme";
+import {Look, ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
 import type {CanvasContext, FillViewInit, FillView, StrokeViewInit, StrokeView} from "@swim/graphics";
 import {ScatterPlotViewInit, ScatterPlotView} from "./ScatterPlotView";
@@ -33,7 +33,7 @@ export interface BubblePlotViewInit<X = unknown, Y = unknown> extends ScatterPlo
 export class BubblePlotView<X = unknown, Y = unknown> extends ScatterPlotView<X, Y> implements FillView, StrokeView {
   override readonly observerType?: Class<BubblePlotViewObserver<X, Y>>;
 
-  @ThemeAnimatorDef<BubblePlotView<X, Y>["radius"]>({
+  @ThemeAnimator<BubblePlotView<X, Y>["radius"]>({
     valueType: Length,
     value: Length.px(5),
     updateFlags: View.NeedsRender,
@@ -41,9 +41,9 @@ export class BubblePlotView<X = unknown, Y = unknown> extends ScatterPlotView<X,
       this.owner.callObservers("viewDidSetRadius", radius, this.owner);
     },
   })
-  readonly radius!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  readonly radius!: ThemeAnimator<this, Length | null, AnyLength | null>;
 
-  @ThemeAnimatorDef<BubblePlotView<X, Y>["fill"]>({
+  @ThemeAnimator<BubblePlotView<X, Y>["fill"]>({
     valueType: Color,
     value: null,
     look: Look.accentColor,
@@ -52,13 +52,13 @@ export class BubblePlotView<X = unknown, Y = unknown> extends ScatterPlotView<X,
       this.owner.callObservers("viewDidSetFill", fill, this.owner);
     },
   })
-  readonly fill!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
+  readonly fill!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @ThemeAnimatorDef({valueType: Color, value: null, updateFlags: View.NeedsRender})
-  readonly stroke!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
+  @ThemeAnimator({valueType: Color, value: null, updateFlags: View.NeedsRender})
+  readonly stroke!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @ThemeAnimatorDef({valueType: Length, value: null, updateFlags: View.NeedsRender})
-  readonly strokeWidth!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  @ThemeAnimator({valueType: Length, value: null, updateFlags: View.NeedsRender})
+  readonly strokeWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
 
   protected renderPlot(context: CanvasContext, frame: R2Box): void {
     const size = Math.min(frame.width, frame.height);

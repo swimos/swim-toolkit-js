@@ -17,7 +17,7 @@ import {Affinity, FastenerClass} from "@swim/component";
 import {Length} from "@swim/math";
 import {Color} from "@swim/style";
 import {Look} from "@swim/theme";
-import {ViewContextType, ViewRefDef} from "@swim/view";
+import {ViewContextType, ViewRef} from "@swim/view";
 import {StyleRule, HtmlView, StyleView} from "@swim/dom";
 import {ToolView} from "./ToolView";
 import type {SearchToolViewObserver} from "./SearchToolViewObserver";
@@ -31,7 +31,7 @@ export class SearchToolView extends ToolView {
 
   override readonly observerType?: Class<SearchToolViewObserver>;
 
-  @ViewRefDef<SearchToolView["input"]>({
+  @ViewRef<SearchToolView["input"]>({
     viewType: HtmlView,
     viewKey: true,
     binds: true,
@@ -89,16 +89,13 @@ export class SearchToolView extends ToolView {
       return inputView;
     },
   })
-  readonly input!: ViewRefDef<this, {
-    view: HtmlView,
-    implements: {
-      onInput(event: InputEvent): void,
-      onKeyDown(event: KeyboardEvent): void,
-    },
-  }>;
+  readonly input!: ViewRef<this, HtmlView> & {
+    onInput(event: InputEvent): void,
+    onKeyDown(event: KeyboardEvent): void,
+  };
   static readonly input: FastenerClass<SearchToolView["input"]>;
 
-  @ViewRefDef<SearchToolView["stylesheet"]>({
+  @ViewRef<SearchToolView["stylesheet"]>({
     viewType: StyleView,
     viewKey: true,
     binds: true,
@@ -110,11 +107,11 @@ export class SearchToolView extends ToolView {
       sheet.setFastener("inputSearchCancelButton", SearchToolView.InputSearchCancelButtonRule.create(sheet));
     },
   })
-  readonly stylesheet!: ViewRefDef<this, {view: StyleView}>;
+  readonly stylesheet!: ViewRef<this, StyleView>;
   static readonly stylesheet: FastenerClass<SearchToolView["stylesheet"]>;
 
   /** @internal */
-  static InputRule = StyleRule.specify<StyleSheet>("InputRule", {
+  static InputRule = StyleRule.define("InputRule", {
     css: "input {"
        + "  transition: border 100ms ease-out;"
        + "}",
@@ -145,7 +142,7 @@ export class SearchToolView extends ToolView {
   });
 
   /** @internal */
-  static InputFocusRule = StyleRule.specify<StyleSheet>("InputFocusRule", {
+  static InputFocusRule = StyleRule.define("InputFocusRule", {
     css: "input:focus {"
        + "  transition: border 100ms ease-out;"
        + "}",
@@ -162,7 +159,7 @@ export class SearchToolView extends ToolView {
   });
 
   /** @internal */
-  static InputPlaceholderRule = StyleRule.specify<StyleSheet>("InputPlaceholderRule", {
+  static InputPlaceholderRule = StyleRule.define("InputPlaceholderRule", {
     css: "input::placeholder {}",
     init(): void {
       this.color.setLook(Look.placeholderColor, Affinity.Intrinsic);
@@ -170,7 +167,7 @@ export class SearchToolView extends ToolView {
   });
 
   /** @internal */
-  static InputSearchCancelButtonRule = StyleRule.specify<StyleSheet>("InputSearchCancelButtonRule", {
+  static InputSearchCancelButtonRule = StyleRule.define("InputSearchCancelButtonRule", {
     css: "input::-webkit-search-cancel-button {"
        + "  -webkit-appearance: none;"
        + "}",

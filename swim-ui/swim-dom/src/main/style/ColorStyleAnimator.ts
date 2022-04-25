@@ -15,9 +15,16 @@
 import {AnyColor, Color} from "@swim/style";
 import {StyleAnimatorClass, StyleAnimator} from "./StyleAnimator";
 
-/** @internal */
+/** @public */
+export interface ColorStyleAnimator<O = unknown, T extends Color | null = Color | null, U extends AnyColor | null = AnyColor | T> extends StyleAnimator<O, T, U> {
+}
+
+/** @public */
 export const ColorStyleAnimator = (function (_super: typeof StyleAnimator) {
-  const ColorStyleAnimator = _super.extend("ColorStyleAnimator", {}) as StyleAnimatorClass<StyleAnimator<any, Color | null, AnyColor | null>>;
+  const ColorStyleAnimator = _super.extend("ColorStyleAnimator", {
+    valueType: Color,
+    value: null,
+  }) as StyleAnimatorClass<ColorStyleAnimator<any, any, any>>;
 
   ColorStyleAnimator.prototype.equalValues = function (newValue: Color | null, oldValue: Color | null): boolean {
     if (newValue !== void 0 && newValue !== null) {

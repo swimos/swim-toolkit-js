@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class} from "@swim/util";
+import type {Class, Observes} from "@swim/util";
 import type {FastenerClass} from "@swim/component";
-import {ViewRefDef} from "@swim/view";
+import type {Trait} from "@swim/model";
+import {ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
-import {TraitViewRefDef} from "@swim/controller";
+import {TraitViewRef} from "@swim/controller";
 import {ToolController} from "./ToolController";
 import {SearchToolView} from "./SearchToolView";
 import type {SearchToolControllerObserver} from "./SearchToolControllerObserver";
@@ -25,7 +26,7 @@ import type {SearchToolControllerObserver} from "./SearchToolControllerObserver"
 export class SearchToolController extends ToolController {
   override readonly observerType?: Class<SearchToolControllerObserver>;
 
-  @TraitViewRefDef<SearchToolController["tool"]>({
+  @TraitViewRef<SearchToolController["tool"]>({
     extends: true,
     viewType: SearchToolView,
     observesView: true,
@@ -51,14 +52,10 @@ export class SearchToolController extends ToolController {
       this.owner.callObservers("controllerDidCancelSearch", inputView, this.owner);
     },
   })
-  override readonly tool!: TraitViewRefDef<this, {
-    extends: ToolController["tool"],
-    view: SearchToolView,
-    observesView: true,
-  }>;
+  override readonly tool!: TraitViewRef<this, Trait, SearchToolView> & ToolController["tool"] & Observes<SearchToolView>;
   static override readonly tool: FastenerClass<SearchToolController["tool"]>;
 
-  @ViewRefDef<SearchToolController["input"]>({
+  @ViewRef<SearchToolController["input"]>({
     viewType: HtmlView,
     willAttachView(inputView: HtmlView): void {
       this.owner.callObservers("controllerWillAttachToolInputView", inputView, this.owner);
@@ -67,6 +64,6 @@ export class SearchToolController extends ToolController {
       this.owner.callObservers("controllerDidDetachToolInputView", inputView, this.owner);
     },
   })
-  readonly input!: ViewRefDef<this, {view: HtmlView}>;
+  readonly input!: ViewRef<this, HtmlView>;
   static readonly input: FastenerClass<SearchToolController["input"]>;
 }

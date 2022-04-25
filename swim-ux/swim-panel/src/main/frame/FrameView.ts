@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class} from "@swim/util";
-import {Affinity, FastenerClass, PropertyDef} from "@swim/component";
-import {ViewContextType, ViewFlags, View, ViewSetDef} from "@swim/view";
+import type {Class, Observes} from "@swim/util";
+import {Affinity, FastenerClass, Property} from "@swim/component";
+import {ViewContextType, ViewFlags, View, ViewSet} from "@swim/view";
 import {PanelView} from "../panel/PanelView";
 import type {FrameViewObserver} from "./FrameViewObserver";
 
@@ -34,7 +34,7 @@ export class FrameView extends PanelView {
 
   override readonly observerType?: Class<FrameViewObserver>;
 
-  @PropertyDef<FrameView["frameStyle"]>({
+  @Property<FrameView["frameStyle"]>({
     valueType: String,
     value: "block",
     inherits: true,
@@ -43,31 +43,31 @@ export class FrameView extends PanelView {
       this.owner.callObservers("viewDidSetFrameStyle", frameStyle, this.owner);
     },
   })
-  readonly frameStyle!: PropertyDef<this, {value: FrameStyle | undefined}>;
+  readonly frameStyle!: Property<this, FrameStyle | undefined>;
 
-  @PropertyDef<FrameView["minBlockWidth"]>({
+  @Property<FrameView["minBlockWidth"]>({
     valueType: Number,
     value: 720,
     inherits: true,
     updateFlags: View.NeedsResize,
   })
-  readonly minBlockWidth!: PropertyDef<this, {value: number}>;
+  readonly minBlockWidth!: Property<this, number>;
 
-  @PropertyDef<FrameView["minBlockHeight"]>({
+  @Property<FrameView["minBlockHeight"]>({
     valueType: Number,
     value: 540,
     inherits: true,
     updateFlags: View.NeedsResize,
   })
-  readonly minBlockHeight!: PropertyDef<this, {value: number}>;
+  readonly minBlockHeight!: Property<this, number>;
 
-  @PropertyDef({valueType: Number, updateFlags: View.NeedsResize})
-  readonly widthBasis!: PropertyDef<this, {value: number | undefined}>;
+  @Property({valueType: Number, updateFlags: View.NeedsResize})
+  readonly widthBasis!: Property<this, number | undefined>;
 
-  @PropertyDef({valueType: Number, updateFlags: View.NeedsResize})
-  readonly heightBasis!: PropertyDef<this, {value: number | undefined}>;
+  @Property({valueType: Number, updateFlags: View.NeedsResize})
+  readonly heightBasis!: Property<this, number | undefined>;
 
-  @ViewSetDef<FrameView["panes"]>({
+  @ViewSet<FrameView["panes"]>({
     viewType: PanelView,
     binds: true,
     observes: true,
@@ -91,7 +91,7 @@ export class FrameView extends PanelView {
       this.owner.requireUpdate(View.NeedsResize);
     },
   })
-  readonly panes!: ViewSetDef<this, {view: PanelView, observes: true}>;
+  readonly panes!: ViewSet<this, PanelView> & Observes<PanelView>;
   static readonly panes: FastenerClass<FrameView["panes"]>;
 
   protected override onResize(viewContext: ViewContextType<this>): void {

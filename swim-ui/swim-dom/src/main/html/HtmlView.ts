@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, Instance, AnyTiming, Timing, Creatable, InitType} from "@swim/util";
+import {Class, Instance, AnyTiming, Timing, Creatable, Inits} from "@swim/util";
 import {Affinity, AnyAnimatorValue} from "@swim/component";
 import {Transform} from "@swim/math";
 import {Look, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewFlags, AnyView, View} from "@swim/view";
-import {AttributeAnimatorDef} from "../attribute/AttributeAnimator";
+import {AttributeAnimator} from "../attribute/AttributeAnimator";
 import {StyleMapInit, StyleMap} from "../css/StyleMap";
 import type {ViewNodeType} from "../node/NodeView";
 import {
@@ -256,35 +256,35 @@ export class HtmlView extends ElementView {
     return super.replaceChild(newChild, oldChild);
   }
 
-  @AttributeAnimatorDef({attributeName: "autocomplete", valueType: String})
-  readonly autocomplete!: AttributeAnimatorDef<this, {value: string}>;
+  @AttributeAnimator({attributeName: "autocomplete", valueType: String})
+  readonly autocomplete!: AttributeAnimator<this, string | undefined>;
 
-  @AttributeAnimatorDef({attributeName: "checked", valueType: Boolean})
-  readonly checked!: AttributeAnimatorDef<this, {value: boolean, valueInit: boolean | string}>;
+  @AttributeAnimator({attributeName: "checked", valueType: Boolean})
+  readonly checked!: AttributeAnimator<this, boolean | undefined, boolean | string | undefined>;
 
-  @AttributeAnimatorDef({attributeName: "colspan", valueType: Number})
-  readonly colspan!: AttributeAnimatorDef<this, {value: number, valueInit: number | string}>;
+  @AttributeAnimator({attributeName: "colspan", valueType: Number})
+  readonly colspan!: AttributeAnimator<this, number | undefined, number | string | undefined>;
 
-  @AttributeAnimatorDef({attributeName: "disabled", valueType: Boolean})
-  readonly disabled!: AttributeAnimatorDef<this, {value: boolean, valueInit: boolean | string}>;
+  @AttributeAnimator({attributeName: "disabled", valueType: Boolean})
+  readonly disabled!: AttributeAnimator<this, boolean | undefined, boolean | string | undefined>;
 
-  @AttributeAnimatorDef({attributeName: "placeholder", valueType: String})
-  readonly placeholder!: AttributeAnimatorDef<this, {value: string}>;
+  @AttributeAnimator({attributeName: "placeholder", valueType: String})
+  readonly placeholder!: AttributeAnimator<this, string | undefined>;
 
-  @AttributeAnimatorDef({attributeName: "rowspan", valueType: Number})
-  readonly rowspan!: AttributeAnimatorDef<this, {value: number, valueInit: number | string}>;
+  @AttributeAnimator({attributeName: "rowspan", valueType: Number})
+  readonly rowspan!: AttributeAnimator<this, number | undefined, number | string | undefined>;
 
-  @AttributeAnimatorDef({attributeName: "selected", valueType: Boolean})
-  readonly selected!: AttributeAnimatorDef<this, {value: boolean, valueInit: boolean | string}>;
+  @AttributeAnimator({attributeName: "selected", valueType: Boolean})
+  readonly selected!: AttributeAnimator<this, boolean | undefined, boolean | string | undefined>;
 
-  @AttributeAnimatorDef({attributeName: "title", valueType: String})
-  readonly title!: AttributeAnimatorDef<this, {value: string}>;
+  @AttributeAnimator({attributeName: "title", valueType: String})
+  readonly title!: AttributeAnimator<this, string | undefined>;
 
-  @AttributeAnimatorDef({attributeName: "type", valueType: String})
-  readonly type!: AttributeAnimatorDef<this, {value: string}>;
+  @AttributeAnimator({attributeName: "type", valueType: String})
+  readonly type!: AttributeAnimator<this, string | undefined>;
 
-  @AttributeAnimatorDef({attributeName: "value", valueType: String})
-  readonly value!: AttributeAnimatorDef<this, {value: string}>;
+  @AttributeAnimator({attributeName: "value", valueType: String})
+  readonly value!: AttributeAnimator<this, string | undefined>;
 
   protected override onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
@@ -546,7 +546,7 @@ export class HtmlViewTagFactory<V extends HtmlView> implements HtmlViewFactory<V
     return this.factory.fromNode(node);
   }
 
-  fromInit(init: InitType<V>): V {
+  fromInit(init: Inits<V>): V {
     let type = init.type;
     if (type === void 0) {
       type = this;

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Class, AnyTiming, Timing} from "@swim/util";
-import {PropertyDef} from "@swim/component";
+import {Property} from "@swim/component";
 import type {TraitViewRef} from "@swim/controller";
 import {DataSetController} from "../data/DataSetController";
 import type {PlotView} from "./PlotView";
@@ -24,8 +24,8 @@ import type {PlotControllerObserver} from "./PlotControllerObserver";
 export abstract class PlotController<X = unknown, Y = unknown> extends DataSetController<X, Y> {
   override readonly observerType?: Class<PlotControllerObserver<X, Y>>;
 
-  @PropertyDef({valueType: Timing, inherits: true})
-  readonly plotTiming!: PropertyDef<this, {value: Timing | boolean | undefined, valueInit: AnyTiming}>;
+  @Property({valueType: Timing, inherits: true})
+  readonly plotTiming!: Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined>;
 
   abstract readonly plot: TraitViewRef<this, PlotTrait<X, Y>, PlotView<X, Y>>;
 }

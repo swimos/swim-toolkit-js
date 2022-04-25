@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Class, Instance, Creatable} from "@swim/util";
-import {Affinity, FastenerClass, PropertyDef, AnimatorDef} from "@swim/component";
+import type {Mutable, Class, Instance, Creatable, Observes} from "@swim/util";
+import {Affinity, FastenerClass, Property} from "@swim/component";
 import {AnyLength, Length, R2Box} from "@swim/math";
 import {AnyExpansion, Expansion, ExpansionAnimator} from "@swim/style";
-import {Look, Feel, ThemeConstraintAnimatorDef} from "@swim/theme";
+import {Look, Feel, ThemeConstraintAnimator} from "@swim/theme";
 import {
   ViewportInsets,
   PositionGestureInput,
@@ -24,8 +24,8 @@ import {
   ViewContext,
   ViewFlags,
   View,
-  ViewRefDef,
-  ViewSetDef,
+  ViewRef,
+  ViewSet,
 } from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {AnyTableLayout, TableLayout} from "../layout/TableLayout";
@@ -54,19 +54,19 @@ export class TableView extends HtmlView {
 
   override readonly contextType?: Class<TableViewContext>;
 
-  @PropertyDef({valueType: TableLayout, value: null, inherits: true, updateFlags: View.NeedsLayout})
-  readonly layout!: PropertyDef<this, {value: TableLayout | null, valueInit: AnyTableLayout | null}>;
+  @Property({valueType: TableLayout, value: null, inherits: true, updateFlags: View.NeedsLayout})
+  readonly layout!: Property<this, TableLayout | null, AnyTableLayout | null>;
 
-  @PropertyDef<TableView["edgeInsets"]>({
+  @Property<TableView["edgeInsets"]>({
     valueType: ViewportInsets,
     value: null,
     inherits: true,
     updateFlags: View.NeedsLayout,
     equalValues: ViewportInsets.equal,
   })
-  readonly edgeInsets!: PropertyDef<this, {value: ViewportInsets | null}>;
+  readonly edgeInsets!: Property<this, ViewportInsets | null>;
 
-  @PropertyDef<TableView["depth"]>({
+  @Property<TableView["depth"]>({
     valueType: Number,
     value: 0,
     inherits: true,
@@ -75,49 +75,30 @@ export class TableView extends HtmlView {
       this.owner.modifyTheme(Feel.default, [[Feel.nested, newDepth !== 0 ? 1 : void 0]], false);
     },
   })
-  readonly depth!: PropertyDef<this, {value: number}>;
+  readonly depth!: Property<this, number>;
 
-  @ThemeConstraintAnimatorDef({valueType: Length, value: Length.zero(), inherits: true, updateFlags: View.NeedsScroll})
-  readonly rowSpacing!: ThemeConstraintAnimatorDef<this, {value: Length, valueInit: AnyLength}>;
+  @ThemeConstraintAnimator({valueType: Length, value: Length.zero(), inherits: true, updateFlags: View.NeedsScroll})
+  readonly rowSpacing!: ThemeConstraintAnimator<this, Length, AnyLength>;
 
-  @ThemeConstraintAnimatorDef({valueType: Length, value: Length.px(24), inherits: true, updateFlags: View.NeedsScroll})
-  readonly rowHeight!: ThemeConstraintAnimatorDef<this, {value: Length, valueInit: AnyLength}>;
+  @ThemeConstraintAnimator({valueType: Length, value: Length.px(24), inherits: true, updateFlags: View.NeedsScroll})
+  readonly rowHeight!: ThemeConstraintAnimator<this, Length, AnyLength>;
 
-  @PropertyDef({valueType: Boolean, value: false, inherits: true})
-  readonly hovers!: PropertyDef<this, {value: boolean}>;
+  @Property({valueType: Boolean, value: false, inherits: true})
+  readonly hovers!: Property<this, boolean>;
 
-  @PropertyDef({valueType: Boolean, value: true, inherits: true})
-  readonly glows!: PropertyDef<this, {value: boolean}>;
+  @Property({valueType: Boolean, value: true, inherits: true})
+  readonly glows!: Property<this, boolean>;
 
-  @AnimatorDef<TableView["disclosure"]>({
-    extends: ExpansionAnimator,
-    value: null,
-    inherits: true,
-  })
-  readonly disclosure!: AnimatorDef<this, {
-    extends: ExpansionAnimator<TableView, Expansion | null, AnyExpansion | null>,
-  }>;
+  @ExpansionAnimator({value: null, inherits: true})
+  readonly disclosure!: ExpansionAnimator<this, Expansion | null, AnyExpansion | null>;
 
-  @AnimatorDef<TableView["disclosing"]>({
-    extends: ExpansionAnimator,
-    value: null,
-    inherits: true,
-  })
-  readonly disclosing!: AnimatorDef<this, {
-    extends: ExpansionAnimator<TableView, Expansion | null, AnyExpansion | null>,
-  }>;
+  @ExpansionAnimator({value: null, inherits: true})
+  readonly disclosing!: ExpansionAnimator<this, Expansion | null, AnyExpansion | null>;
 
-  @AnimatorDef<TableView["stretch"]>({
-    extends: ExpansionAnimator,
-    value: null,
-    inherits: true,
-    updateFlags: View.NeedsLayout,
-  })
-  readonly stretch!: AnimatorDef<this, {
-    extends: ExpansionAnimator<TableView, Expansion | null, AnyExpansion | null>,
-  }>;
+  @ExpansionAnimator({value: null, inherits: true, updateFlags: View.NeedsLayout})
+  readonly stretch!: ExpansionAnimator<this, Expansion | null, AnyExpansion | null>;
 
-  @ViewRefDef<TableView["header"]>({
+  @ViewRef<TableView["header"]>({
     viewType: HeaderView,
     viewKey: true,
     binds: true,
@@ -140,7 +121,7 @@ export class TableView extends HtmlView {
       parent.prependChild(child, key);
     }
   })
-  readonly header!: ViewRefDef<this, {view: HeaderView}>;
+  readonly header!: ViewRef<this, HeaderView>;
   static readonly header: FastenerClass<TableView["header"]>;
 
   getRow<F extends Class<RowView>>(key: string, rowViewClass: F): InstanceType<F> | null;
@@ -171,7 +152,7 @@ export class TableView extends HtmlView {
     this.setChild(key, rowView);
   }
 
-  @ViewSetDef<TableView["rows"]>({
+  @ViewSet<TableView["rows"]>({
     viewType: RowView,
     binds: true,
     observes: true,
@@ -239,7 +220,7 @@ export class TableView extends HtmlView {
       this.owner.callObservers("viewDidCollapseRow", rowView);
     },
   })
-  readonly rows!: ViewSetDef<this, {view: RowView, observes: true}>;
+  readonly rows!: ViewSet<this, RowView> & Observes<RowView>;
   static readonly rows: FastenerClass<TableView["rows"]>;
 
   /** @internal */

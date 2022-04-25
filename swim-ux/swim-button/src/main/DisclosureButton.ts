@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import {Angle, Transform} from "@swim/math";
-import {Affinity, AnimatorDef} from "@swim/component";
+import {Affinity} from "@swim/component";
 import {AnyColor, Color, AnyExpansion, Expansion, ExpansionAnimator} from "@swim/style";
-import {Look, ThemeAnimatorDef} from "@swim/theme";
+import {Look, ThemeAnimator} from "@swim/theme";
 import {ViewContextType, ViewFlags, View} from "@swim/view";
 import {HtmlView, SvgView} from "@swim/dom";
 
@@ -53,20 +53,14 @@ export class DisclosureButton extends HtmlView {
     return icon.getChild("arrow") as SvgView;
   }
 
-  @AnimatorDef({
-    extends: ExpansionAnimator,
-    inherits: true,
-    updateFlags: View.NeedsLayout,
-  })
-  readonly disclosure!: AnimatorDef<this, {
-    extends: ExpansionAnimator<DisclosureButton, Expansion, AnyExpansion>,
-  }>;
+  @ExpansionAnimator({inherits: true, updateFlags: View.NeedsLayout})
+  readonly disclosure!: ExpansionAnimator<this, Expansion, AnyExpansion>;
 
-  @ThemeAnimatorDef({valueType: Color, look: Look.textColor, inherits: true, updateFlags: View.NeedsLayout})
-  readonly collapsedColor!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
+  @ThemeAnimator({valueType: Color, look: Look.textColor, inherits: true, updateFlags: View.NeedsLayout})
+  readonly collapsedColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @ThemeAnimatorDef({valueType: Color, look: Look.accentColor, inherits: true, updateFlags: View.NeedsLayout})
-  readonly expandedColor!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
+  @ThemeAnimator({valueType: Color, look: Look.accentColor, inherits: true, updateFlags: View.NeedsLayout})
+  readonly expandedColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
   protected override needsDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
     if ((this.flags & View.NeedsLayout) === 0) {

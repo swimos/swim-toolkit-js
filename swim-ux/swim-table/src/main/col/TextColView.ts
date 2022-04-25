@@ -15,7 +15,7 @@
 import type {Class} from "@swim/util";
 import {Affinity, FastenerClass} from "@swim/component";
 import {Look} from "@swim/theme";
-import {ViewRefDef} from "@swim/view";
+import {ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {ColView} from "./ColView";
 import type {TextColViewObserver} from "./TextColViewObserver";
@@ -29,7 +29,7 @@ export class TextColView extends ColView {
 
   override readonly observerType?: Class<TextColViewObserver>;
 
-  @ViewRefDef<TextColView["label"]>({
+  @ViewRef<TextColView["label"]>({
     viewType: HtmlView,
     viewKey: true,
     binds: true,
@@ -59,11 +59,8 @@ export class TextColView extends ColView {
       return labelView;
     },
   })
-  readonly label!: ViewRefDef<this, {
-    view: HtmlView,
-    implements: {
-      setText(label: string | undefined): HtmlView,
-    },
-  }>;
+  readonly label!: ViewRef<this, HtmlView> & {
+    setText(label: string | undefined): HtmlView,
+  };
   static readonly label: FastenerClass<TextColView["label"]>;
 }

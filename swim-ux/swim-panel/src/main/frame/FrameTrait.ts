@@ -14,7 +14,7 @@
 
 import type {Class} from "@swim/util";
 import type {FastenerClass} from "@swim/component";
-import {Model, Trait, TraitSetDef} from "@swim/model";
+import {Model, Trait, TraitSet} from "@swim/model";
 import {PanelTrait} from "../panel/PanelTrait";
 import type {FrameTraitObserver} from "./FrameTraitObserver";
 import {FrameController} from "./"; // forward import
@@ -23,7 +23,7 @@ import {FrameController} from "./"; // forward import
 export class FrameTrait extends PanelTrait {
   override readonly observerType?: Class<FrameTraitObserver>;
 
-  @TraitSetDef<FrameTrait["panes"]>({
+  @TraitSet<FrameTrait["panes"]>({
     traitType: PanelTrait,
     binds: true,
     willAttachTrait(paneTrait: PanelTrait, targetTrait: Trait | null): void {
@@ -46,7 +46,7 @@ export class FrameTrait extends PanelTrait {
       return model.getTrait(PanelTrait);
     },
   })
-  readonly panes!: TraitSetDef<this, {trait: PanelTrait}>;
+  readonly panes!: TraitSet<this, PanelTrait>;
   static readonly panes: FastenerClass<FrameTrait["panes"]>;
 
   protected override onStartConsuming(): void {

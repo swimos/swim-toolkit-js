@@ -13,53 +13,48 @@
 // limitations under the License.
 
 export {
-  TraitViewRefRefinement,
   TraitViewRefTrait,
   TraitViewRefView,
+  TraitViewRefDescriptor,
   TraitViewRefTemplate,
   TraitViewRefClass,
-  TraitViewRefDef,
   TraitViewRef,
 } from "./TraitViewRef";
 
 export {
-  TraitControllerRefRefinement,
   TraitControllerRefTrait,
   TraitControllerRefController,
+  TraitControllerRefDescriptor,
   TraitControllerRefTemplate,
   TraitControllerRefClass,
-  TraitControllerRefDef,
   TraitControllerRef,
 } from "./TraitControllerRef";
 
 export {
-  TraitControllerSetRefinement,
   TraitControllerSetTrait,
   TraitControllerSetController,
+  TraitControllerSetDescriptor,
   TraitControllerSetTemplate,
   TraitControllerSetClass,
-  TraitControllerSetDef,
   TraitControllerSet,
 } from "./TraitControllerSet";
 
 export {
-  TraitViewControllerRefRefinement,
   TraitViewControllerRefTrait,
   TraitViewControllerRefView,
   TraitViewControllerRefController,
+  TraitViewControllerRefDescriptor,
   TraitViewControllerRefTemplate,
   TraitViewControllerRefClass,
-  TraitViewControllerRefDef,
   TraitViewControllerRef,
 } from "./TraitViewControllerRef";
 
 export {
-  TraitViewControllerSetRefinement,
   TraitViewControllerSetTrait,
   TraitViewControllerSetView,
   TraitViewControllerSetController,
+  TraitViewControllerSetDescriptor,
   TraitViewControllerSetTemplate,
   TraitViewControllerSetClass,
-  TraitViewControllerSetDef,
   TraitViewControllerSet,
 } from "./TraitViewControllerSet";

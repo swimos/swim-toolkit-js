@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {PropertyDef} from "@swim/component";
+import {Property} from "@swim/component";
 import {CellTrait} from "./CellTrait";
 import type {TextCellTraitObserver} from "./TextCellTraitObserver";
 import type {CellController} from "./CellController";
@@ -23,13 +23,13 @@ import {TextCellController} from "./"; // forward import
 export class TextCellTrait extends CellTrait {
   override readonly observerType?: Class<TextCellTraitObserver>;
 
-  @PropertyDef<TextCellTrait["content"]>({
+  @Property<TextCellTrait["content"]>({
     valueType: String,
     didSetValue(content: string | undefined): void {
       this.owner.callObservers("traitDidSetContent", content, this.owner);
     },
   })
-  readonly content!: PropertyDef<this, {value: string | undefined}>;
+  readonly content!: Property<this, string | undefined>;
 
   override createCellController(): CellController {
     return new TextCellController();

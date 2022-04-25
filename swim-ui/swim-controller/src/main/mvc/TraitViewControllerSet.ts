@@ -12,93 +12,57 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Proto, ObserverType, ConsumerType} from "@swim/util";
+import type {Mutable, Proto, Consumes} from "@swim/util";
 import type {FastenerOwner} from "@swim/component";
 import type {TraitFactory, Trait} from "@swim/model";
 import type {ViewFactory, View} from "@swim/view";
-import type {Controller} from "../controller/Controller";
-import {
-  ControllerSetRefinement,
-  ControllerSetTemplate,
-  ControllerSetClass,
-  ControllerSet,
-} from "../controller/ControllerSet";
+import type {ControllerFactory, Controller} from "../controller/Controller";
+import {ControllerSetDescriptor, ControllerSetClass, ControllerSet} from "../controller/ControllerSet";
 import type {TraitViewRef} from "./TraitViewRef";
 
 /** @public */
-export interface TraitViewControllerSetRefinement extends ControllerSetRefinement {
-  trait?: Trait;
-  view?: View;
-}
+export type TraitViewControllerSetTrait<F extends TraitViewControllerSet<any, any, any, any>> =
+  F extends {traitType?: TraitFactory<infer T>} ? T : never;
 
 /** @public */
-export type TraitViewControllerSetTrait<R extends TraitViewControllerSetRefinement | TraitViewControllerSet<any, any, any, any>, D = Trait> =
-  R extends {trait: infer T | null} ? T :
-  R extends {extends: infer E} ? TraitViewControllerSetTrait<E, D> :
-  R extends TraitViewControllerSet<any, infer T, any, any> ? T :
-  D;
+export type TraitViewControllerSetView<F extends TraitViewControllerSet<any, any, any, any>> =
+  F extends {viewType?: ViewFactory<infer V>} ? V : never;
 
 /** @public */
-export type TraitViewControllerSetView<R extends TraitViewControllerSetRefinement | TraitViewControllerSet<any, any, any, any>, D = View> =
-  R extends {view: infer V | null} ? V :
-  R extends {extends: infer E} ? TraitViewControllerSetView<E, D> :
-  R extends TraitViewControllerSet<any, any, infer V, any> ? V :
-  D;
+export type TraitViewControllerSetController<F extends TraitViewControllerSet<any, any, any, any>> =
+  F extends {controllerType?: ControllerFactory<infer C>} ? C : never;
 
 /** @public */
-export type TraitViewControllerSetController<R extends TraitViewControllerSetRefinement | TraitViewControllerSet<any, any, any, any>, D = Controller> =
-  R extends {controller: infer C | null} ? C :
-  R extends {extends: infer E} ? TraitViewControllerSetController<E, D> :
-  R extends TraitViewControllerSet<any, any, any, infer C> ? C :
-  D;
-
-/** @public */
-export interface TraitViewControllerSetTemplate<T extends Trait = Trait, V extends View = View, C extends Controller = Controller> extends ControllerSetTemplate<C> {
+export interface TraitViewControllerSetDescriptor<T extends Trait = Trait, V extends View = View, C extends Controller = Controller> extends ControllerSetDescriptor<C> {
   extends?: Proto<TraitViewControllerSet<any, any, any, any>> | string | boolean | null;
   traitType?: TraitFactory<T>;
   viewType?: ViewFactory<V>;
 }
 
 /** @public */
+export type TraitViewControllerSetTemplate<F extends TraitViewControllerSet<any, any, any, any>> =
+  ThisType<F> &
+  TraitViewControllerSetDescriptor<TraitViewControllerSetTrait<F>, TraitViewControllerSetView<F>, TraitViewControllerSetController<F>> &
+  Partial<Omit<F, keyof TraitViewControllerSetDescriptor>>;
+
+/** @public */
 export interface TraitViewControllerSetClass<F extends TraitViewControllerSet<any, any, any, any> = TraitViewControllerSet<any, any, any, any>> extends ControllerSetClass<F> {
   /** @override */
-  specialize(className: string, template: TraitViewControllerSetTemplate): TraitViewControllerSetClass;
+  specialize(template: TraitViewControllerSetDescriptor<any>): TraitViewControllerSetClass<F>;
 
   /** @override */
-  refine(fastenerClass: TraitViewControllerSetClass): void;
+  refine(fastenerClass: TraitViewControllerSetClass<any>): void;
 
   /** @override */
-  extend(className: string, template: TraitViewControllerSetTemplate): TraitViewControllerSetClass<F>;
+  extend<F2 extends F>(className: string, template: TraitViewControllerSetTemplate<F2>): TraitViewControllerSetClass<F2>;
+  extend<F2 extends F>(className: string, template: TraitViewControllerSetTemplate<F2>): TraitViewControllerSetClass<F2>;
 
   /** @override */
-  specify<O, T extends Trait = Trait, V extends View = View, C extends Controller = Controller>(className: string, template: ThisType<TraitViewControllerSet<O, T, V, C>> & TraitViewControllerSetTemplate<T, V, C> & Partial<Omit<TraitViewControllerSet<O, T, V, C>, keyof TraitViewControllerSetTemplate>>): TraitViewControllerSetClass<F>;
+  define<F2 extends F>(className: string, template: TraitViewControllerSetTemplate<F2>): TraitViewControllerSetClass<F2>;
+  define<F2 extends F>(className: string, template: TraitViewControllerSetTemplate<F2>): TraitViewControllerSetClass<F2>;
 
   /** @override */
-  <O, T extends Trait = Trait, V extends View = View, C extends Controller = Controller>(template: ThisType<TraitViewControllerSet<O, T, V, C>> & TraitViewControllerSetTemplate<T, V, C> & Partial<Omit<TraitViewControllerSet<O, T, V, C>, keyof TraitViewControllerSetTemplate>>): PropertyDecorator;
-}
-
-/** @public */
-export type TraitViewControllerSetDef<O, R extends TraitViewControllerSetRefinement = {}> =
-  TraitViewControllerSet<O, TraitViewControllerSetTrait<R>, TraitViewControllerSetView<R>, TraitViewControllerSetController<R>> &
-  {readonly name: string} & // prevent type alias simplification
-  (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer I} ? I : {}) &
-  (R extends {implements: infer I} ? I : {}) &
-  (R extends {observes: infer B} ? ObserverType<B extends boolean ? TraitViewControllerSetController<R> : B> : {});
-
-/** @public */
-export function TraitViewControllerSetDef<F extends TraitViewControllerSet<any, any, any, any>>(
-  template: F extends TraitViewControllerSetDef<infer O, infer R>
-          ? ThisType<TraitViewControllerSetDef<O, R>>
-          & TraitViewControllerSetTemplate<TraitViewControllerSetTrait<R>, TraitViewControllerSetView<R>, TraitViewControllerSetController<R>>
-          & Partial<Omit<TraitViewControllerSet<O, TraitViewControllerSetTrait<R>, TraitViewControllerSetView<R>, TraitViewControllerSetController<R>>, keyof TraitViewControllerSetTemplate>>
-          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof TraitViewControllerSetTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer I} ? Partial<I> : {})
-          & (R extends {implements: infer I} ? I : {})
-          & (R extends {observes: infer B} ? (ObserverType<B extends boolean ? TraitViewControllerSetController<R> : B> & {observes: boolean}) : {})
-          : never
-): PropertyDecorator {
-  return TraitViewControllerSet(template);
+  <F2 extends F>(template: TraitViewControllerSetTemplate<F2>): PropertyDecorator;
 }
 
 /** @public */
@@ -160,11 +124,14 @@ export interface TraitViewControllerSet<O = unknown, T extends Trait = Trait, V 
 
   reinsertTrait(trait: T, targetTrait?: T | null): void;
 
-  consumeTraits(consumer: ConsumerType<T>): void;
+  consumeTraits(consumer: Consumes<T>): void;
 
-  unconsumeTraits(consumer: ConsumerType<T>): void;
+  unconsumeTraits(consumer: Consumes<T>): void;
 
   createTrait(): T;
+
+  /** @internal */
+  readonly viewType?: ViewFactory<V>; // optional prototype property
 
   getTargetView(controller: C): V | null;
 
@@ -345,7 +312,7 @@ export const TraitViewControllerSet = (function (_super: typeof ControllerSet) {
     }
   };
 
-  TraitViewControllerSet.prototype.consumeTraits = function <T extends Trait, C extends Controller>(this: TraitViewControllerSet<unknown, T, View, C>, consumer: ConsumerType<T>): void {
+  TraitViewControllerSet.prototype.consumeTraits = function <T extends Trait, C extends Controller>(this: TraitViewControllerSet<unknown, T, View, C>, consumer: Consumes<T>): void {
     const controllers = this.controllers;
     for (const controllerId in controllers) {
       const controller = controllers[controllerId]!;
@@ -356,7 +323,7 @@ export const TraitViewControllerSet = (function (_super: typeof ControllerSet) {
     }
   };
 
-  TraitViewControllerSet.prototype.unconsumeTraits = function <T extends Trait, C extends Controller>(this: TraitViewControllerSet<unknown, T, View, C>, consumer: ConsumerType<T>): void {
+  TraitViewControllerSet.prototype.unconsumeTraits = function <T extends Trait, C extends Controller>(this: TraitViewControllerSet<unknown, T, View, C>, consumer: Consumes<T>): void {
     const controllers = this.controllers;
     for (const controllerId in controllers) {
       const controller = controllers[controllerId]!;

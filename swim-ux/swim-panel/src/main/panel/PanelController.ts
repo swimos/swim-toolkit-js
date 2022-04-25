@@ -14,7 +14,7 @@
 
 import type {Class} from "@swim/util";
 import type {FastenerClass} from "@swim/component";
-import {Controller, TraitViewRefDef} from "@swim/controller";
+import {Controller, TraitViewRef} from "@swim/controller";
 import {PanelView} from "./PanelView";
 import {PanelTrait} from "./PanelTrait";
 import type {PanelControllerObserver} from "./PanelControllerObserver";
@@ -23,7 +23,7 @@ import type {PanelControllerObserver} from "./PanelControllerObserver";
 export class PanelController extends Controller {
   override readonly observerType?: Class<PanelControllerObserver>;
 
-  @TraitViewRefDef<PanelController["panel"]>({
+  @TraitViewRef<PanelController["panel"]>({
     traitType: PanelTrait,
     willAttachTrait(panelTrait: PanelTrait): void {
       this.owner.callObservers("controllerWillAttachPanelTrait", panelTrait, this.owner);
@@ -39,9 +39,6 @@ export class PanelController extends Controller {
       this.owner.callObservers("controllerDidDetachPanelView", panelView, this.owner);
     },
   })
-  readonly panel!: TraitViewRefDef<this, {
-    trait: PanelTrait,
-    view: PanelView,
-  }>;
+  readonly panel!: TraitViewRef<this, PanelTrait, PanelView>;
   static readonly panel: FastenerClass<PanelController["panel"]>;
 }

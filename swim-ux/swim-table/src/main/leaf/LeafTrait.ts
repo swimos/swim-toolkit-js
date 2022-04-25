@@ -14,7 +14,7 @@
 
 import type {Class, Instance, Creatable} from "@swim/util";
 import type {FastenerClass} from "@swim/component";
-import {Model, Trait, TraitSetDef} from "@swim/model";
+import {Model, Trait, TraitSet} from "@swim/model";
 import {CellTrait} from "../cell/CellTrait";
 import type {LeafTraitObserver} from "./LeafTraitObserver";
 
@@ -45,7 +45,7 @@ export class LeafTrait extends Trait {
     this.setTrait(key, cellTrait);
   }
 
-  @TraitSetDef<LeafTrait["cells"]>({
+  @TraitSet<LeafTrait["cells"]>({
     traitType: CellTrait,
     binds: true,
     willAttachTrait(cellTrait: CellTrait, targetTrait: Trait | null): void {
@@ -68,7 +68,7 @@ export class LeafTrait extends Trait {
       return model.getTrait(CellTrait);
     },
   })
-  readonly cells!: TraitSetDef<this, {trait: CellTrait}>;
+  readonly cells!: TraitSet<this, CellTrait>;
   static readonly cells: FastenerClass<LeafTrait["cells"]>;
 
   protected override onStartConsuming(): void {

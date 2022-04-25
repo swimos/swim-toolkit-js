@@ -12,12 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, AnyTiming, Timing} from "@swim/util";
+import {Class, AnyTiming, Timing, Observes} from "@swim/util";
 import {Affinity, FastenerClass} from "@swim/component";
 import type {Length} from "@swim/math";
 import type {Color} from "@swim/style";
 import {Look, Mood, ColorOrLook} from "@swim/theme";
-import {TraitViewRefDef, TraitViewControllerSetDef} from "@swim/controller";
+import {TraitViewRef, TraitViewControllerSet} from "@swim/controller";
+import type {DataPointView} from "../data/DataPointView";
+import type {DataPointTrait} from "../data/DataPointTrait";
+import type {DataPointController} from "../data/DataPointController";
 import {DataSetTrait} from "../data/DataSetTrait";
 import {LinePlotView} from "./LinePlotView";
 import {LinePlotTrait} from "./LinePlotTrait";
@@ -28,15 +31,13 @@ import type {LinePlotControllerObserver} from "./LinePlotControllerObserver";
 export class LinePlotController<X = unknown, Y = unknown> extends SeriesPlotController<X, Y> {
   override readonly observerType?: Class<LinePlotControllerObserver<X, Y>>;
 
-  @TraitViewControllerSetDef<LinePlotController<X, Y>["dataPoints"]>({
+  @TraitViewControllerSet<LinePlotController<X, Y>["dataPoints"]>({
     extends: true,
     get parentView(): LinePlotView<X, Y> | null {
       return this.owner.plot.view;
     },
   })
-  override readonly dataPoints!: TraitViewControllerSetDef<this, {
-    extends: SeriesPlotController<X, Y>["dataPoints"],
-  }>;
+  override readonly dataPoints!: TraitViewControllerSet<this, DataPointTrait<X, Y>, DataPointView<X, Y>, DataPointController<X, Y>> & SeriesPlotController<X, Y>["dataPoints"];
   static override readonly dataPoints: FastenerClass<LinePlotController["dataPoints"]>;
 
   protected setStroke(stroke: ColorOrLook | null, timing?: AnyTiming | boolean): void {
@@ -73,7 +74,7 @@ export class LinePlotController<X = unknown, Y = unknown> extends SeriesPlotCont
     }
   }
 
-  @TraitViewRefDef<LinePlotController<X, Y>["plot"]>({
+  @TraitViewRef<LinePlotController<X, Y>["plot"]>({
     traitType: LinePlotTrait,
     observesTrait: true,
     initTrait(plotTrait: LinePlotTrait<X, Y>): void {
@@ -140,11 +141,6 @@ export class LinePlotController<X = unknown, Y = unknown> extends SeriesPlotCont
       this.owner.callObservers("controllerDidSetPlotStrokeWidth", strokeWidth, this.owner);
     },
   })
-  readonly plot!: TraitViewRefDef<this, {
-    trait: LinePlotTrait<X, Y>,
-    observesTrait: true,
-    view: LinePlotView<X, Y>,
-    observesView: true,
-  }>;
+  readonly plot!: TraitViewRef<this, LinePlotTrait<X, Y>, LinePlotView<X, Y>> & Observes<LinePlotTrait<X, Y> & LinePlotView<X, Y>>;
   static readonly plot: FastenerClass<LinePlotController["plot"]>;
 }

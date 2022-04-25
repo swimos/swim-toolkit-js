@@ -12,17 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class} from "@swim/util";
+import type {Class, Observes} from "@swim/util";
 import type {FastenerClass} from "@swim/component";
 import type {Trait} from "@swim/model";
 import type {GraphicsView} from "@swim/graphics";
-import {
-  Controller,
-  TraitViewRefDef,
-  TraitViewRef,
-  TraitViewControllerSetDef,
-  TraitViewControllerSet,
-} from "@swim/controller";
+import {Controller, TraitViewRef, TraitViewControllerSet} from "@swim/controller";
 import type {DataPointView} from "../data/DataPointView";
 import type {DataPointTrait} from "../data/DataPointTrait";
 import type {DataPointController} from "../data/DataPointController";
@@ -38,7 +32,7 @@ import type {GraphControllerObserver} from "./GraphControllerObserver";
 export class GraphController<X = unknown, Y = unknown> extends Controller {
   override readonly observerType?: Class<GraphControllerObserver<X, Y>>;
 
-  @TraitViewRefDef<GraphController<X, Y>["graph"]>({
+  @TraitViewRef<GraphController<X, Y>["graph"]>({
     traitType: GraphTrait,
     observesTrait: true,
     willAttachTrait(graphTrait: GraphTrait<X, Y>): void {
@@ -77,14 +71,10 @@ export class GraphController<X = unknown, Y = unknown> extends Controller {
       this.owner.callObservers("controllerDidDetachGraphView", newGraphView, this.owner);
     },
   })
-  readonly graph!: TraitViewRefDef<this, {
-    trait: GraphTrait<X, Y>,
-    observesTrait: true,
-    view: GraphView<X, Y>,
-  }>;
+  readonly graph!: TraitViewRef<this, GraphTrait<X, Y>, GraphView<X, Y>> & Observes<GraphTrait<X, Y>>;
   static readonly graph: FastenerClass<GraphController["graph"]>;
 
-  @TraitViewControllerSetDef<GraphController<X, Y>["plots"]>({
+  @TraitViewControllerSet<GraphController<X, Y>["plots"]>({
     controllerType: PlotController,
     binds: true,
     observes: true,
@@ -254,27 +244,21 @@ export class GraphController<X = unknown, Y = unknown> extends Controller {
       }
     },
   })
-  readonly plots!: TraitViewControllerSetDef<this, {
-    trait: PlotTrait<X, Y>,
-    view: PlotView<X, Y>,
-    controller: PlotController<X, Y>,
-    implements: {
-      attachPlotTrait(plotTrait: PlotTrait<X, Y>, plotController: PlotController<X, Y>): void;
-      detachPlotTrait(plotTrait: PlotTrait<X, Y>, plotController: PlotController<X, Y>): void;
-      attachPlotView(plotView: PlotView<X, Y>, plotController: PlotController<X, Y>): void;
-      detachPlotView(plotView: PlotView<X, Y>, plotController: PlotController<X, Y>): void;
-      attachDataSetTrait(dataSetTrait: DataSetTrait<X, Y>, plotController: PlotController<X, Y>): void;
-      detachDataSetTrait(dataSetTrait: DataSetTrait<X, Y>, plotController: PlotController<X, Y>): void;
-      attachDataPoint(dataPointController: DataPointController<X, Y>, plotController: PlotController<X, Y>): void;
-      detachDataPoint(dataPointController: DataPointController<X, Y>, plotController: PlotController<X, Y>): void;
-      attachDataPointTrait(dataPointTrait: DataPointTrait<X, Y>, dataPointController: DataPointController<X, Y>, plotController: PlotController<X, Y>): void;
-      detachDataPointTrait(dataPointTrait: DataPointTrait<X, Y>, dataPointController: DataPointController<X, Y>, plotController: PlotController<X, Y>): void;
-      attachDataPointView(dataPointView: DataPointView<X, Y>, dataPointController: DataPointController<X, Y>, plotController: PlotController<X, Y>): void;
-      detachDataPointView(dataPointView: DataPointView<X, Y>, dataPointController: DataPointController<X, Y>, plotController: PlotController<X, Y>): void;
-      attachDataPointLabelView(dataPointLabelView: GraphicsView, dataPointController: DataPointController<X, Y>, plotController: PlotController<X, Y>): void;
-      detachDataPointLabelView(dataPointLabelView: GraphicsView, dataPointController: DataPointController<X, Y>, plotController: PlotController<X, Y>): void;
-    },
-    observes: true,
-  }>;
+  readonly plots!: TraitViewControllerSet<this, PlotTrait<X, Y>, PlotView<X, Y>, PlotController<X, Y>> & Observes<PlotController<X, Y>> & {
+    attachPlotTrait(plotTrait: PlotTrait<X, Y>, plotController: PlotController<X, Y>): void,
+    detachPlotTrait(plotTrait: PlotTrait<X, Y>, plotController: PlotController<X, Y>): void,
+    attachPlotView(plotView: PlotView<X, Y>, plotController: PlotController<X, Y>): void,
+    detachPlotView(plotView: PlotView<X, Y>, plotController: PlotController<X, Y>): void,
+    attachDataSetTrait(dataSetTrait: DataSetTrait<X, Y>, plotController: PlotController<X, Y>): void,
+    detachDataSetTrait(dataSetTrait: DataSetTrait<X, Y>, plotController: PlotController<X, Y>): void,
+    attachDataPoint(dataPointController: DataPointController<X, Y>, plotController: PlotController<X, Y>): void,
+    detachDataPoint(dataPointController: DataPointController<X, Y>, plotController: PlotController<X, Y>): void,
+    attachDataPointTrait(dataPointTrait: DataPointTrait<X, Y>, dataPointController: DataPointController<X, Y>, plotController: PlotController<X, Y>): void,
+    detachDataPointTrait(dataPointTrait: DataPointTrait<X, Y>, dataPointController: DataPointController<X, Y>, plotController: PlotController<X, Y>): void,
+    attachDataPointView(dataPointView: DataPointView<X, Y>, dataPointController: DataPointController<X, Y>, plotController: PlotController<X, Y>): void,
+    detachDataPointView(dataPointView: DataPointView<X, Y>, dataPointController: DataPointController<X, Y>, plotController: PlotController<X, Y>): void,
+    attachDataPointLabelView(dataPointLabelView: GraphicsView, dataPointController: DataPointController<X, Y>, plotController: PlotController<X, Y>): void,
+    detachDataPointLabelView(dataPointLabelView: GraphicsView, dataPointController: DataPointController<X, Y>, plotController: PlotController<X, Y>): void,
+  };
   static readonly plots: FastenerClass<GraphController["plots"]>;
 }

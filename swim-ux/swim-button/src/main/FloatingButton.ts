@@ -12,18 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, AnyTiming, Timing} from "@swim/util";
-import {Affinity, FastenerClass, AnimatorDef} from "@swim/component";
+import {Mutable, AnyTiming, Timing, Observes} from "@swim/util";
+import {Affinity, FastenerClass} from "@swim/component";
 import {Length, Angle, Transform} from "@swim/math";
 import {AnyExpansion, Expansion, ExpansionAnimator} from "@swim/style";
 import {Look, Feel, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import {
   PositionGestureInput,
-  PositionGestureDef,
+  PositionGesture,
   ViewContextType,
   ViewContext,
   ViewRef,
 } from "@swim/view";
+import type {HtmlView} from "@swim/dom";
 import {Graphics, HtmlIconView} from "@swim/graphics";
 import {ButtonMembrane} from "./ButtonMembrane";
 
@@ -75,7 +76,7 @@ export class FloatingButton extends ButtonMembrane {
     }
   }
 
-  @PositionGestureDef<FloatingButton["gesture"]>({
+  @PositionGesture<FloatingButton["gesture"]>({
     extends: true,
     didStartHovering(): void {
       this.owner.modifyMood(Feel.default, [[Feel.hovering, 1]]);
@@ -95,13 +96,11 @@ export class FloatingButton extends ButtonMembrane {
       // nop
     },
   })
-  override readonly gesture!: PositionGestureDef<this, {
-    extends: ButtonMembrane["gesture"],
-  }>;
+  override readonly gesture!: PositionGesture<this, HtmlView>;
   static override readonly gesture: FastenerClass<FloatingButton["gesture"]>;
 
   /** @internal */
-  static IconRef = ViewRef.specify<FloatingButton, HtmlIconView>("IconRef", {
+  static IconRef = ViewRef.define<ViewRef<FloatingButton, HtmlIconView> & Observes<HtmlIconView> & {iconIndex: number}>("IconRef", {
     viewType: HtmlIconView,
     observes: true,
     init(): void {
@@ -119,7 +118,7 @@ export class FloatingButton extends ButtonMembrane {
         }
       }
     },
-  } as ThisType<ViewRef<FloatingButton, HtmlIconView> & {iconIndex: number}>);
+  });
 
   /** @internal */
   iconCount: number;
@@ -212,13 +211,8 @@ export class FloatingButton extends ButtonMembrane {
     this.icon = newIconRef;
   }
 
-  @AnimatorDef({
-    extends: ExpansionAnimator,
-    inherits: true,
-  })
-  readonly disclosure!: AnimatorDef<this, {
-    extends: ExpansionAnimator<FloatingButton, Expansion | undefined, AnyExpansion | undefined>,
-  }>;
+  @ExpansionAnimator({inherits: true})
+  readonly disclosure!: ExpansionAnimator<this, Expansion | undefined, AnyExpansion | undefined>;
 
   protected override onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);

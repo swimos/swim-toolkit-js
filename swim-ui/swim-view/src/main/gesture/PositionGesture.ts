@@ -12,16 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Proto, ObserverType} from "@swim/util";
+import type {Mutable, Proto} from "@swim/util";
 import type {FastenerOwner} from "@swim/component";
 import type {GestureInputType} from "./GestureInput";
-import {
-  GestureRefinement,
-  GestureView,
-  GestureTemplate,
-  GestureClass,
-  Gesture,
-} from "./Gesture";
+import {GestureView, GestureDescriptor, GestureClass, Gesture} from "./Gesture";
 import {PositionGestureInput} from "./PositionGestureInput";
 import {MousePositionGesture} from "./"; // forward import
 import {TouchPositionGesture} from "./"; // forward import
@@ -29,54 +23,34 @@ import {PointerPositionGesture} from "./"; // forward import
 import type {View} from "../view/View";
 
 /** @public */
-export interface PositionGestureRefinement extends GestureRefinement {
-}
-
-/** @public */
-export interface PositionGestureTemplate<V extends View = View> extends GestureTemplate<V> {
+export interface PositionGestureDescriptor<V extends View = View> extends GestureDescriptor<V> {
   extends?: Proto<PositionGesture<any, any>> | string | boolean | null;
 }
 
 /** @public */
+export type PositionGestureTemplate<G extends PositionGesture<any, any>> =
+  ThisType<G> &
+  PositionGestureDescriptor<GestureView<G>> &
+  Partial<Omit<G, keyof PositionGestureDescriptor>>;
+
+/** @public */
 export interface PositionGestureClass<G extends PositionGesture<any, any> = PositionGesture<any, any>> extends GestureClass<G> {
   /** @override */
-  specialize(className: string, template: PositionGestureTemplate): PositionGestureClass;
+  specialize(template: PositionGestureDescriptor<any>): PositionGestureClass<G>;
 
   /** @override */
-  refine(gestureClass: PositionGestureClass): void;
+  refine(gestureClass: PositionGestureClass<any>): void;
 
   /** @override */
-  extend(className: string, template: PositionGestureTemplate): PositionGestureClass<G>;
+  extend<G2 extends G>(className: string, template: PositionGestureTemplate<G2>): PositionGestureClass<G2>;
+  extend<G2 extends G>(className: string, template: PositionGestureTemplate<G2>): PositionGestureClass<G2>;
 
   /** @override */
-  specify<O, V extends View = View>(className: string, template: ThisType<PositionGesture<O, V>> & PositionGestureTemplate<V> & Partial<Omit<PositionGesture<O, V>, keyof PositionGestureTemplate>>): PositionGestureClass<G>;
+  define<G2 extends G>(className: string, template: PositionGestureTemplate<G2>): PositionGestureClass<G2>;
+  define<G2 extends G>(className: string, template: PositionGestureTemplate<G2>): PositionGestureClass<G2>;
 
   /** @override */
-  <O, V extends View = View>(template: ThisType<PositionGesture<O, V>> & PositionGestureTemplate<V> & Partial<Omit<PositionGesture<O, V>, keyof PositionGestureTemplate>>): PropertyDecorator;
-}
-
-/** @public */
-export type PositionGestureDef<O, R extends PositionGestureRefinement = {}> =
-  PositionGesture<O, GestureView<R>> &
-  {readonly name: string} & // prevent type alias simplification
-  (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer I} ? I : {}) &
-  (R extends {implements: infer I} ? I : {}) &
-  (R extends {observes: infer B} ? ObserverType<B extends boolean ? GestureView<R> : B> : {});
-
-/** @public */
-export function PositionGestureDef<F extends PositionGesture<any, any>>(
-  template: F extends PositionGestureDef<infer O, infer R>
-          ? ThisType<PositionGestureDef<O, R>>
-          & PositionGestureTemplate<GestureView<R>>
-          & Partial<Omit<PositionGesture<O, GestureView<R>>, keyof PositionGestureTemplate>>
-          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof PositionGestureTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer I} ? Partial<I> : {})
-          & (R extends {implements: infer I} ? I : {})
-          & (R extends {observes: infer B} ? ObserverType<B extends boolean ? GestureView<R> : B> : {})
-          : never
-): PropertyDecorator {
-  return PositionGesture(template);
+  <G2 extends G>(template: PositionGestureTemplate<G2>): PropertyDecorator;
 }
 
 /** @public */
@@ -630,7 +604,7 @@ export const PositionGesture = (function (_super: typeof Gesture) {
     return gesture;
   };
 
-  PositionGesture.specialize = function (className: string, template: PositionGestureTemplate): PositionGestureClass {
+  PositionGesture.specialize = function (template: PositionGestureDescriptor<any>): PositionGestureClass {
     let superClass = template.extends as PositionGestureClass | null | undefined;
     if (superClass === void 0 || superClass === null) {
       const method = template.method;

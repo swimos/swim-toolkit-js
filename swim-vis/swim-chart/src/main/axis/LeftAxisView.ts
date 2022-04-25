@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ContinuousScale} from "@swim/util";
-import {Affinity, AnimatorDef} from "@swim/component";
+import type {ContinuousScale} from "@swim/util";
+import {Affinity} from "@swim/component";
 import {R2Point, R2Box} from "@swim/math";
 import {View} from "@swim/view";
 import type {PaintingContext} from "@swim/graphics";
@@ -27,17 +27,12 @@ export class LeftAxisView<Y = unknown> extends AxisView<Y> {
     return "left";
   }
 
-  @AnimatorDef<LeftAxisView<Y>["scale"]>({
-    extends: ContinuousScaleAnimator,
-    valueType: ContinuousScale,
+  @ContinuousScaleAnimator<LeftAxisView<Y>["scale"]>({
     value: null,
     inherits: "yScale",
     updateFlags: View.NeedsLayout,
   })
-  override readonly scale!: AnimatorDef<this, {
-    extends: ContinuousScaleAnimator<LeftAxisView<Y>, Y, number>,
-    value: ContinuousScale<Y, number> | null,
-  }>;
+  override readonly scale!: ContinuousScaleAnimator<this, Y, number>;
 
   protected override layoutTick(tick: TickView<Y>, origin: R2Point, frame: R2Box,
                                 scale: ContinuousScale<Y, number>): void {

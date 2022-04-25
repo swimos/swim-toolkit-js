@@ -19,56 +19,38 @@ import {Look, Mood, MoodVector, ThemeMatrix, ThemeAnimator} from "@swim/theme";
 import {StyleAnimator} from "../style/StyleAnimator";
 import {StyleMapInit, StyleMap} from "./StyleMap";
 import {CssContext} from "./CssContext";
-import {CssRuleRefinement, CssRuleTemplate, CssRuleClass, CssRule} from "./CssRule";
+import {CssRuleDescriptor, CssRuleClass, CssRule} from "./CssRule";
 
 /** @public */
-export interface StyleRuleRefinement extends CssRuleRefinement {
-}
-
-/** @public */
-export interface StyleRuleTemplate extends CssRuleTemplate {
+export interface StyleRuleDescriptor extends CssRuleDescriptor {
   extends?: Proto<StyleRule<any>> | string | boolean | null;
   style?: StyleMapInit;
 }
 
 /** @public */
+export type StyleRuleTemplate<F extends StyleRule<any>> =
+  ThisType<F> &
+  StyleRuleDescriptor &
+  Partial<Omit<F, keyof StyleRuleDescriptor>>;
+
+/** @public */
 export interface StyleRuleClass<F extends StyleRule<any> = StyleRule<any>> extends CssRuleClass<F> {
   /** @override */
-  specialize(className: string, template: StyleRuleTemplate): StyleRuleClass;
+  specialize(template: StyleRuleDescriptor): StyleRuleClass<F>;
 
   /** @override */
-  refine(fastenerClass: StyleRuleClass): void;
+  refine(fastenerClass: StyleRuleClass<any>): void;
 
   /** @override */
-  extend(className: string, template: StyleRuleTemplate): StyleRuleClass<F>;
+  extend<F2 extends F>(className: string, template: StyleRuleTemplate<F2>): StyleRuleClass<F2>;
+  extend<F2 extends F>(className: string, template: StyleRuleTemplate<F2>): StyleRuleClass<F2>;
 
   /** @override */
-  specify<O>(className: string, template: ThisType<StyleRule<O>> & StyleRuleTemplate & Partial<Omit<StyleRule<O>, keyof StyleRuleTemplate>>): StyleRuleClass<F>;
+  define<F2 extends F>(className: string, template: StyleRuleTemplate<F2>): StyleRuleClass<F2>;
+  define<F2 extends F>(className: string, template: StyleRuleTemplate<F2>): StyleRuleClass<F2>;
 
   /** @override */
-  <O>(template: ThisType<StyleRule<O>> & StyleRuleTemplate & Partial<Omit<StyleRule<O>, keyof StyleRuleTemplate>>): PropertyDecorator;
-}
-
-/** @public */
-export type StyleRuleDef<O, R extends StyleRuleRefinement = {}> =
-  StyleRule<O> &
-  {readonly name: string} & // prevent type alias simplification
-  (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer I} ? I : {}) &
-  (R extends {implements: infer I} ? I : {});
-
-/** @public */
-export function StyleRuleDef<P extends StyleRule<any>>(
-  template: P extends StyleRuleDef<infer O, infer R>
-          ? ThisType<StyleRuleDef<O, R>>
-          & StyleRuleTemplate
-          & Partial<Omit<StyleRule<O>, keyof StyleRuleTemplate>>
-          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof StyleRuleTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer I} ? Partial<I> : {})
-          & (R extends {implements: infer I} ? I : {})
-          : never
-): PropertyDecorator {
-  return StyleRule(template);
+  <F2 extends F>(template: StyleRuleTemplate<F2>): PropertyDecorator;
 }
 
 /** @public */

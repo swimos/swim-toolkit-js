@@ -14,7 +14,7 @@
 
 import type {Class} from "@swim/util";
 import type {FastenerClass} from "@swim/component";
-import {Model, Trait, TraitRefDef} from "@swim/model";
+import {Model, Trait, TraitRef} from "@swim/model";
 import {DataSetTrait} from "../data/DataSetTrait";
 import type {PlotTraitObserver} from "./PlotTraitObserver";
 import type {PlotController} from "./PlotController";
@@ -23,7 +23,7 @@ import type {PlotController} from "./PlotController";
 export abstract class PlotTrait<X = unknown, Y = unknown> extends Trait {
   override readonly observerType?: Class<PlotTraitObserver<X, Y>>;
 
-  @TraitRefDef<PlotTrait<X, Y>["dataSet"]>({
+  @TraitRef<PlotTrait<X, Y>["dataSet"]>({
     traitType: DataSetTrait,
     binds: true,
     willAttachTrait(dataSetTrait: DataSetTrait<X, Y>, targetTrait: Trait | null): void {
@@ -49,7 +49,7 @@ export abstract class PlotTrait<X = unknown, Y = unknown> extends Trait {
       return trait instanceof DataSetTrait ? trait : null;
     },
   })
-  readonly dataSet!: TraitRefDef<this, {trait: DataSetTrait<X, Y>}>;
+  readonly dataSet!: TraitRef<this, DataSetTrait<X, Y>>;
   static readonly dataSet: FastenerClass<PlotTrait["dataSet"]>;
 
   protected override onStartConsuming(): void {

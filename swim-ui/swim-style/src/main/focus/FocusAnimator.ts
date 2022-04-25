@@ -17,7 +17,7 @@ import {Affinity, AnimatorClass, Animator} from "@swim/component";
 import {AnyFocus, Focus} from "./Focus";
 
 /** @public */
-export interface FocusAnimator<O = unknown, T extends Focus | null | undefined = Focus | null | undefined, U extends AnyFocus | null | undefined = T> extends Animator<O, T, U> {
+export interface FocusAnimator<O = unknown, T extends Focus | null | undefined = Focus | null | undefined, U extends AnyFocus | null | undefined = AnyFocus | T> extends Animator<O, T, U> {
   get phase(): number | undefined;
 
   getPhase(): number;
@@ -75,7 +75,7 @@ export interface FocusAnimator<O = unknown, T extends Focus | null | undefined =
 export const FocusAnimator = (function (_super: typeof Animator) {
   const FocusAnimator = _super.extend("FocusAnimator", {
     valueType: Focus,
-  }) as AnimatorClass<FocusAnimator>;
+  }) as AnimatorClass<FocusAnimator<any, any, any>>;
 
   Object.defineProperty(FocusAnimator.prototype, "phase", {
     get(this: FocusAnimator): number | undefined {

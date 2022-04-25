@@ -15,7 +15,7 @@
 import type {Mutable, Class} from "@swim/util";
 import {GeoBox, GeoProjection} from "@swim/geo";
 import {AnyColor, Color} from "@swim/style";
-import {ThemeAnimatorDef} from "@swim/theme";
+import {ThemeAnimator} from "@swim/theme";
 import {ViewContextType, ViewFlags, View} from "@swim/view";
 import {GraphicsViewInit, GraphicsView, PaintingContext, PaintingRenderer} from "@swim/graphics";
 import type {GeoViewport} from "./GeoViewport";
@@ -37,8 +37,8 @@ export class GeoView extends GraphicsView {
 
   override readonly contextType?: Class<GeoViewContext>;
 
-  @ThemeAnimatorDef({valueType: Color, value: null, inherits: true})
-  readonly geoBoundsColor!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
+  @ThemeAnimator({valueType: Color, value: null, inherits: true})
+  readonly geoBoundsColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
   protected override didInsertChild(child: View, target: View | null): void {
     if (child instanceof GeoView) {

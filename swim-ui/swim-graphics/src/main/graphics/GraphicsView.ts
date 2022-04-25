@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Mutable, Class} from "@swim/util";
-import {ProviderDef} from "@swim/component";
+import {Provider} from "@swim/component";
 import {R2Box, Transform} from "@swim/math";
 import type {Color} from "@swim/style";
 import {
@@ -111,11 +111,11 @@ export class GraphicsView extends View {
     }
   }
 
-  @ProviderDef<GraphicsView["spriteProvider"]>({
+  @Provider<GraphicsView["spriteProvider"]>({
     serviceType: SpriteService,
     service: SpriteService.global(),
   })
-  readonly spriteProvider!: ProviderDef<this, {service: SpriteService}>;
+  readonly spriteProvider!: Provider<this, SpriteService>;
 
   /** @internal */
   readonly ownViewFrame: R2Box | null;

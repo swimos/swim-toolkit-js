@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class} from "@swim/util";
+import type {Class, Observes} from "@swim/util";
 import {Affinity, FastenerClass} from "@swim/component";
 import type {Trait} from "@swim/model";
 import type {View} from "@swim/view";
@@ -20,10 +20,9 @@ import type {HtmlView} from "@swim/dom";
 import type {Graphics} from "@swim/graphics";
 import {
   Controller,
-  TraitViewRefDef,
   TraitViewRef,
-  TraitViewControllerRefDef,
-  TraitViewControllerSetDef,
+  TraitViewControllerRef,
+  TraitViewControllerSet,
 } from "@swim/controller";
 import type {TableLayout} from "../layout/TableLayout";
 import type {ColLayout} from "../layout/ColLayout";
@@ -56,7 +55,7 @@ export class TableController extends Controller {
     tableView.layout.setValue(tableLayout, Affinity.Intrinsic);
   }
 
-  @TraitViewRefDef<TableController["table"]>({
+  @TraitViewRef<TableController["table"]>({
     traitType: TableTrait,
     observesTrait: true,
     willAttachTrait(tableTrait: TableTrait): void {
@@ -159,15 +158,10 @@ export class TableController extends Controller {
       }
     },
   })
-  readonly table!: TraitViewRefDef<this, {
-    trait: TableTrait,
-    observesTrait: true,
-    view: TableView,
-    observesView: true,
-  }>;
+  readonly table!: TraitViewRef<this, TableTrait, TableView> & Observes<TableTrait & TableView>;
   static readonly table: FastenerClass<TableController["table"]>;
 
-  @TraitViewControllerRefDef<TableController["header"]>({
+  @TraitViewControllerRef<TableController["header"]>({
     controllerType: HeaderController,
     binds: true,
     observes: true,
@@ -247,21 +241,15 @@ export class TableController extends Controller {
       return controller instanceof HeaderController ? controller : null;
     },
   })
-  readonly header!: TraitViewControllerRefDef<this, {
-    trait: HeaderTrait,
-    view: HeaderView,
-    controller: HeaderController,
-    implements: {
-      attachHeaderTrait(headerTrait: HeaderTrait, headerController: HeaderController): void;
-      detachHeaderTrait(headerTrait: HeaderTrait, headerController: HeaderController): void;
-      attachHeaderView(headerView: HeaderView, headerController: HeaderController): void;
-      detachHeaderView(headerView: HeaderView, headerController: HeaderController): void;
-    },
-    observes: true,
-  }>;
+  readonly header!: TraitViewControllerRef<this, HeaderTrait, HeaderView, HeaderController> & Observes<HeaderController> & {
+    attachHeaderTrait(headerTrait: HeaderTrait, headerController: HeaderController): void;
+    detachHeaderTrait(headerTrait: HeaderTrait, headerController: HeaderController): void;
+    attachHeaderView(headerView: HeaderView, headerController: HeaderController): void;
+    detachHeaderView(headerView: HeaderView, headerController: HeaderController): void;
+  };
   static readonly header: FastenerClass<TableController["header"]>;
 
-  @TraitViewControllerSetDef<TableController["cols"]>({
+  @TraitViewControllerSet<TableController["cols"]>({
     controllerType: ColController,
     binds: true,
     observes: true,
@@ -351,23 +339,17 @@ export class TableController extends Controller {
       // hook
     },
   })
-  readonly cols!: TraitViewControllerSetDef<this, {
-    trait: ColTrait,
-    view: ColView,
-    controller: ColController,
-    implements: {
-      attachColTrait(colTrait: ColTrait, colController: ColController): void;
-      detachColTrait(colTrait: ColTrait, colController: ColController): void;
-      attachColView(colView: ColView, colController: ColController): void;
-      detachColView(colView: ColView, colController: ColController): void;
-      attachColLabelView(colLabelView: HtmlView, colController: ColController): void;
-      detachColLabelView(colLabelView: HtmlView, colController: ColController): void;
-    },
-    observes: ColController & TextColController,
-  }>;
+  readonly cols!: TraitViewControllerSet<this, ColTrait, ColView, ColController> & Observes<ColController & TextColController> & {
+    attachColTrait(colTrait: ColTrait, colController: ColController): void;
+    detachColTrait(colTrait: ColTrait, colController: ColController): void;
+    attachColView(colView: ColView, colController: ColController): void;
+    detachColView(colView: ColView, colController: ColController): void;
+    attachColLabelView(colLabelView: HtmlView, colController: ColController): void;
+    detachColLabelView(colLabelView: HtmlView, colController: ColController): void;
+  };
   static readonly cols: FastenerClass<TableController["cols"]>;
 
-  @TraitViewControllerSetDef<TableController["rows"]>({
+  @TraitViewControllerSet<TableController["rows"]>({
     controllerType: RowController,
     binds: true,
     observes: true,
@@ -621,35 +603,29 @@ export class TableController extends Controller {
       this.owner.callObservers("controllerDidCollapseRowView", rowView, rowController, this.owner);
     },
   })
-  readonly rows!: TraitViewControllerSetDef<this, {
-    trait: RowTrait,
-    view: RowView,
-    controller: RowController,
-    implements: {
-      attachRowTrait(rowTrait: RowTrait, rowController: RowController): void;
-      detachRowTrait(rowTrait: RowTrait, rowController: RowController): void;
-      attachRowView(rowView: RowView, rowController: RowController): void;
-      detachRowView(rowView: RowView, rowController: RowController): void;
-      attachLeafTrait(leafTrait: LeafTrait, rowController: RowController): void;
-      detachLeafTrait(leafTrait: LeafTrait, rowController: RowController): void;
-      attachLeafView(leafView: LeafView, rowController: RowController): void;
-      detachLeafView(leafView: LeafView, rowController: RowController): void;
-      attachCell(cellController: CellController, rowController: RowController): void;
-      detachCell(cellController: CellController, rowController: RowController): void;
-      attachCellTrait(cellTrait: CellTrait, cellController: CellController, rowController: RowController): void;
-      detachCellTrait(cellTrait: CellTrait, cellController: CellController, rowController: RowController): void;
-      attachCellView(cellView: CellView, cellController: CellController, rowController: RowController): void;
-      detachCellView(cellView: CellView, cellController: CellController, rowController: RowController): void;
-      attachCellContentView(cellContentView: HtmlView, cellController: CellController, rowController: RowController): void;
-      detachCellContentView(cellContentView: HtmlView, cellController: CellController, rowController: RowController): void;
-      attachTree(treeController: TableController, rowController: RowController): void;
-      detachTree(treeController: TableController, rowController: RowController): void;
-      attachTreeTrait(treeTrait: TableTrait, treeController: TableController, rowController: RowController): void;
-      detachTreeTrait(treeTrait: TableTrait, treeController: TableController, rowController: RowController): void;
-      attachTreeView(treeView: TableView, treeController: TableController, rowController: RowController): void;
-      detachTreeView(treeView: TableView, treeController: TableController, rowController: RowController): void;
-    },
-    observes: true,
-  }>;
+  readonly rows!: TraitViewControllerSet<this, RowTrait, RowView, RowController> & Observes<RowController> & {
+    attachRowTrait(rowTrait: RowTrait, rowController: RowController): void;
+    detachRowTrait(rowTrait: RowTrait, rowController: RowController): void;
+    attachRowView(rowView: RowView, rowController: RowController): void;
+    detachRowView(rowView: RowView, rowController: RowController): void;
+    attachLeafTrait(leafTrait: LeafTrait, rowController: RowController): void;
+    detachLeafTrait(leafTrait: LeafTrait, rowController: RowController): void;
+    attachLeafView(leafView: LeafView, rowController: RowController): void;
+    detachLeafView(leafView: LeafView, rowController: RowController): void;
+    attachCell(cellController: CellController, rowController: RowController): void;
+    detachCell(cellController: CellController, rowController: RowController): void;
+    attachCellTrait(cellTrait: CellTrait, cellController: CellController, rowController: RowController): void;
+    detachCellTrait(cellTrait: CellTrait, cellController: CellController, rowController: RowController): void;
+    attachCellView(cellView: CellView, cellController: CellController, rowController: RowController): void;
+    detachCellView(cellView: CellView, cellController: CellController, rowController: RowController): void;
+    attachCellContentView(cellContentView: HtmlView, cellController: CellController, rowController: RowController): void;
+    detachCellContentView(cellContentView: HtmlView, cellController: CellController, rowController: RowController): void;
+    attachTree(treeController: TableController, rowController: RowController): void;
+    detachTree(treeController: TableController, rowController: RowController): void;
+    attachTreeTrait(treeTrait: TableTrait, treeController: TableController, rowController: RowController): void;
+    detachTreeTrait(treeTrait: TableTrait, treeController: TableController, rowController: RowController): void;
+    attachTreeView(treeView: TableView, treeController: TableController, rowController: RowController): void;
+    detachTreeView(treeView: TableView, treeController: TableController, rowController: RowController): void;
+  };
   static readonly rows: FastenerClass<TableController["rows"]>;
 }

@@ -12,50 +12,46 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Proto, Objects, Comparator, ObserverType, ConsumerType} from "@swim/util";
+import {Mutable, Proto, Objects, Comparator, Consumes} from "@swim/util";
 import {Affinity, FastenerFlags, FastenerOwner, Fastener} from "@swim/component";
-import type {AnyModel, Model} from "./Model";
-import {
-  ModelRelationRefinement,
-  ModelRelationTemplate,
-  ModelRelationClass,
-  ModelRelation,
-} from "./ModelRelation";
+import type {AnyModel, ModelFactory, Model} from "./Model";
+import {ModelRelationDescriptor, ModelRelationClass, ModelRelation} from "./ModelRelation";
 
 /** @public */
-export interface ModelSetRefinement extends ModelRelationRefinement {
-}
+export type ModelSetModel<F extends ModelSet<any, any>> =
+  F extends {modelType?: ModelFactory<infer M>} ? M : never;
 
 /** @public */
-export type ModelSetModel<R extends ModelSetRefinement | ModelSet<any, any>, D = Model> =
-  R extends {model: infer M | null} ? M :
-  R extends {extends: infer E} ? ModelSetModel<E, D> :
-  R extends ModelSet<any, infer M> ? M :
-  D;
-
-/** @public */
-export interface ModelSetTemplate<M extends Model = Model> extends ModelRelationTemplate<M> {
+export interface ModelSetDescriptor<M extends Model = Model> extends ModelRelationDescriptor<M> {
   extends?: Proto<ModelSet<any, any>> | string | boolean | null;
   ordered?: boolean;
   sorted?: boolean;
 }
 
 /** @public */
+export type ModelSetTemplate<F extends ModelSet<any, any>> =
+  ThisType<F> &
+  ModelSetDescriptor<ModelSetModel<F>> &
+  Partial<Omit<F, keyof ModelSetDescriptor>>;
+
+/** @public */
 export interface ModelSetClass<F extends ModelSet<any, any> = ModelSet<any, any>> extends ModelRelationClass<F> {
   /** @override */
-  specialize(className: string, template: ModelSetTemplate): ModelSetClass;
+  specialize(template: ModelSetDescriptor<any>): ModelSetClass<F>;
 
   /** @override */
-  refine(fastenerClass: ModelSetClass): void;
+  refine(fastenerClass: ModelSetClass<any>): void;
 
   /** @override */
-  extend(className: string, template: ModelSetTemplate): ModelSetClass<F>;
+  extend<F2 extends F>(className: string, template: ModelSetTemplate<F2>): ModelSetClass<F2>;
+  extend<F2 extends F>(className: string, template: ModelSetTemplate<F2>): ModelSetClass<F2>;
 
   /** @override */
-  specify<O, M extends Model = Model>(className: string, template: ThisType<ModelSet<O, M>> & ModelSetTemplate<M> & Partial<Omit<ModelSet<O, M>, keyof ModelSetTemplate>>): ModelSetClass<F>;
+  define<F2 extends F>(className: string, template: ModelSetTemplate<F2>): ModelSetClass<F2>;
+  define<F2 extends F>(className: string, template: ModelSetTemplate<F2>): ModelSetClass<F2>;
 
   /** @override */
-  <O, M extends Model = Model>(template: ThisType<ModelSet<O, M>> & ModelSetTemplate<M> & Partial<Omit<ModelSet<O, M>, keyof ModelSetTemplate>>): PropertyDecorator;
+  <F2 extends F>(template: ModelSetTemplate<F2>): PropertyDecorator;
 
   /** @internal */
   readonly OrderedFlag: FastenerFlags;
@@ -66,30 +62,6 @@ export interface ModelSetClass<F extends ModelSet<any, any> = ModelSet<any, any>
   readonly FlagShift: number;
   /** @internal @override */
   readonly FlagMask: FastenerFlags;
-}
-
-/** @public */
-export type ModelSetDef<O, R extends ModelSetRefinement = {}> =
-  ModelSet<O, ModelSetModel<R>> &
-  {readonly name: string} & // prevent type alias simplification
-  (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer I} ? I : {}) &
-  (R extends {implements: infer I} ? I : {}) &
-  (R extends {observes: infer B} ? ObserverType<B extends boolean ? ModelSetModel<R> : B> : {});
-
-/** @public */
-export function ModelSetDef<F extends ModelSet<any, any>>(
-  template: F extends ModelSetDef<infer O, infer R>
-          ? ThisType<ModelSetDef<O, R>>
-          & ModelSetTemplate<ModelSetModel<R>>
-          & Partial<Omit<ModelSet<O, ModelSetModel<R>>, keyof ModelSetTemplate>>
-          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof ModelSetTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer I} ? Partial<I> : {})
-          & (R extends {implements: infer I} ? I : {})
-          & (R extends {observes: infer B} ? (ObserverType<B extends boolean ? ModelSetModel<R> : B> & {observes: boolean}) : {})
-          : never
-): PropertyDecorator {
-  return ModelSet(template);
 }
 
 /** @public */
@@ -203,9 +175,9 @@ export interface ModelSet<O = unknown, M extends Model = Model> extends ModelRel
   /** @override */
   detectModel(model: Model): M | null;
 
-  consumeModels(consumer: ConsumerType<M>): void;
+  consumeModels(consumer: Consumes<M>): void;
 
-  unconsumeModels(consumer: ConsumerType<M>): void;
+  unconsumeModels(consumer: Consumes<M>): void;
 
   /** @internal @protected */
   decohereOutlets(): void;
@@ -561,7 +533,7 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
     return null;
   };
 
-  ModelSet.prototype.consumeModels = function <M extends Model>(this: ModelSet<unknown, M>, consumer: ConsumerType<M>): void {
+  ModelSet.prototype.consumeModels = function <M extends Model>(this: ModelSet<unknown, M>, consumer: Consumes<M>): void {
     const models = this.models;
     for (const modelId in models) {
       const model = models[modelId]!;
@@ -569,7 +541,7 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
     }
   };
 
-  ModelSet.prototype.unconsumeModels = function <M extends Model>(this: ModelSet<unknown, M>, consumer: ConsumerType<M>): void {
+  ModelSet.prototype.unconsumeModels = function <M extends Model>(this: ModelSet<unknown, M>, consumer: Consumes<M>): void {
     const models = this.models;
     for (const modelId in models) {
       const model = models[modelId]!;
@@ -742,7 +714,7 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
     return fastener;
   };
 
-  ModelSet.refine = function (fastenerClass: ModelSetClass): void {
+  ModelSet.refine = function (fastenerClass: ModelSetClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
     let flagsInit = fastenerPrototype.flagsInit;
@@ -756,7 +728,7 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
       } else {
         flagsInit &= ~ModelSet.OrderedFlag;
       }
-      delete (fastenerPrototype as ModelSetTemplate).ordered;
+      delete (fastenerPrototype as ModelSetDescriptor).ordered;
     }
 
     if (Object.prototype.hasOwnProperty.call(fastenerPrototype, "sorted")) {
@@ -768,7 +740,7 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
       } else {
         flagsInit &= ~ModelSet.SortedFlag;
       }
-      delete (fastenerPrototype as ModelSetTemplate).sorted;
+      delete (fastenerPrototype as ModelSetDescriptor).sorted;
     }
 
     if (flagsInit !== void 0) {

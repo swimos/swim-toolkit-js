@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, AnyTiming, Timing} from "@swim/util";
-import {FastenerClass, PropertyDef} from "@swim/component";
+import {Class, AnyTiming, Timing, Observes} from "@swim/util";
+import {FastenerClass, Property} from "@swim/component";
 import type {Length} from "@swim/math";
-import {Trait, TraitRefDef} from "@swim/model";
+import {Trait, TraitRef} from "@swim/model";
 import type {Color} from "@swim/style";
 import type {GraphicsView} from "@swim/graphics";
-import {Controller, TraitViewRef, TraitViewControllerSetDef} from "@swim/controller";
+import {Controller, TraitViewRef, TraitViewControllerSet} from "@swim/controller";
 import type {DataPointView} from "./DataPointView";
 import type {DataPointTrait} from "./DataPointTrait";
 import {DataPointController} from "./DataPointController";
@@ -29,7 +29,7 @@ import type {DataSetControllerObserver} from "./DataSetControllerObserver";
 export class DataSetController<X = unknown, Y = unknown> extends Controller {
   override readonly observerType?: Class<DataSetControllerObserver<X, Y>>;
 
-  @TraitRefDef<DataSetController<X, Y>["dataSet"]>({
+  @TraitRef<DataSetController<X, Y>["dataSet"]>({
     traitType: DataSetTrait,
     observes: true,
     willAttachTrait(dataSetTrait: DataSetTrait<X, Y>): void {
@@ -51,13 +51,13 @@ export class DataSetController<X = unknown, Y = unknown> extends Controller {
       this.owner.dataPoints.deleteTrait(dataPointTrait);
     },
   })
-  readonly dataSet!: TraitRefDef<this, {trait: DataSetTrait<X, Y>, observes: true}>;
+  readonly dataSet!: TraitRef<this, DataSetTrait<X, Y>> & Observes<DataSetTrait<X, Y>>;
   static readonly dataSet: FastenerClass<DataSetController["dataSet"]>;
 
-  @PropertyDef({valueType: Timing, value: true})
-  readonly dataPointTiming!: PropertyDef<this, {value: Timing | boolean | undefined, valueInit: AnyTiming}>;
+  @Property({valueType: Timing, value: true})
+  readonly dataPointTiming!: Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined>;
 
-  @TraitViewControllerSetDef<DataSetController<X, Y>["dataPoints"]>({
+  @TraitViewControllerSet<DataSetController<X, Y>["dataPoints"]>({
     controllerType: DataPointController,
     binds: true,
     observes: true,
@@ -162,19 +162,13 @@ export class DataSetController<X = unknown, Y = unknown> extends Controller {
       // hook
     },
   })
-  readonly dataPoints!: TraitViewControllerSetDef<this, {
-    trait: DataPointTrait<X, Y>,
-    view: DataPointView<X, Y>,
-    controller: DataPointController<X, Y>,
-    implements: {
-      attachDataPointTrait(dataPointTrait: DataPointTrait<X, Y>, dataPointController: DataPointController<X, Y>): void;
-      detachDataPointTrait(dataPointTrait: DataPointTrait<X, Y>, dataPointController: DataPointController<X, Y>): void;
-      attachDataPointView(dataPointView: DataPointView<X, Y>, dataPointController: DataPointController<X, Y>): void;
-      detachDataPointView(dataPointView: DataPointView<X, Y>, dataPointController: DataPointController<X, Y>): void;
-      attachDataPointLabelView(labelView: GraphicsView, dataPointController: DataPointController<X, Y>): void;
-      detachDataPointLabelView(labelView: GraphicsView, dataPointController: DataPointController<X, Y>): void;
-    },
-    observes: true,
-  }>;
+  readonly dataPoints!: TraitViewControllerSet<this, DataPointTrait<X, Y>, DataPointView<X, Y>, DataPointController<X, Y>> & Observes<DataPointController<X, Y>> & {
+    attachDataPointTrait(dataPointTrait: DataPointTrait<X, Y>, dataPointController: DataPointController<X, Y>): void,
+    detachDataPointTrait(dataPointTrait: DataPointTrait<X, Y>, dataPointController: DataPointController<X, Y>): void,
+    attachDataPointView(dataPointView: DataPointView<X, Y>, dataPointController: DataPointController<X, Y>): void,
+    detachDataPointView(dataPointView: DataPointView<X, Y>, dataPointController: DataPointController<X, Y>): void,
+    attachDataPointLabelView(labelView: GraphicsView, dataPointController: DataPointController<X, Y>): void,
+    detachDataPointLabelView(labelView: GraphicsView, dataPointController: DataPointController<X, Y>): void,
+  };
   static readonly dataPoints: FastenerClass<DataSetController["dataPoints"]>;
 }

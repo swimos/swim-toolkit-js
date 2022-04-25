@@ -19,16 +19,16 @@ import {
   Arrays,
   FromAny,
   Creatable,
-  InitType,
+  Inits,
   Initable,
-  ConsumerType,
+  Consumes,
   Consumable,
   Consumer,
 } from "@swim/util";
 import {
   FastenerClass,
   Fastener,
-  PropertyDef,
+  Property,
   ComponentFlags,
   ComponentInit,
   Component,
@@ -67,7 +67,7 @@ export type ControllerContextType<C extends Controller> =
 export type ControllerFlags = ComponentFlags;
 
 /** @public */
-export type AnyController<C extends Controller = Controller> = C | ControllerFactory<C> | InitType<C>;
+export type AnyController<C extends Controller = Controller> = C | ControllerFactory<C> | Inits<C>;
 
 /** @public */
 export interface ControllerInit extends ComponentInit {
@@ -80,7 +80,7 @@ export interface ControllerInit extends ComponentInit {
 
 /** @public */
 export interface ControllerFactory<C extends Controller = Controller, U = AnyController<C>> extends Creatable<C>, FromAny<C, U> {
-  fromInit(init: InitType<C>): C;
+  fromInit(init: Inits<C>): C;
 }
 
 /** @public */
@@ -734,10 +734,10 @@ export class Controller extends Component<Controller> implements Initable<Contro
   }
 
   /** @internal */
-  readonly consumers: ReadonlyArray<ConsumerType<this>>;
+  readonly consumers: ReadonlyArray<Consumes<this>>;
 
   /** @override */
-  consume(consumer: ConsumerType<this>): void {
+  consume(consumer: Consumes<this>): void {
     const oldConsumers = this.consumers;
     const newConsumers = Arrays.inserted(consumer, oldConsumers);
     if (oldConsumers !== newConsumers) {
@@ -751,20 +751,20 @@ export class Controller extends Component<Controller> implements Initable<Contro
     }
   }
 
-  protected willConsume(consumer: ConsumerType<this>): void {
+  protected willConsume(consumer: Consumes<this>): void {
     // hook
   }
 
-  protected onConsume(consumer: ConsumerType<this>): void {
+  protected onConsume(consumer: Consumes<this>): void {
     // hook
   }
 
-  protected didConsume(consumer: ConsumerType<this>): void {
+  protected didConsume(consumer: Consumes<this>): void {
     // hook
   }
 
   /** @override */
-  unconsume(consumer: ConsumerType<this>): void {
+  unconsume(consumer: Consumes<this>): void {
     const oldConsumers = this.consumers;
     const newConsumers = Arrays.removed(consumer, oldConsumers);
     if (oldConsumers !== newConsumers) {
@@ -778,15 +778,15 @@ export class Controller extends Component<Controller> implements Initable<Contro
     }
   }
 
-  protected willUnconsume(consumer: ConsumerType<this>): void {
+  protected willUnconsume(consumer: Consumes<this>): void {
     // hook
   }
 
-  protected onUnconsume(consumer: ConsumerType<this>): void {
+  protected onUnconsume(consumer: Consumes<this>): void {
     // hook
   }
 
-  protected didUnconsume(consumer: ConsumerType<this>): void {
+  protected didUnconsume(consumer: Consumes<this>): void {
     // hook
   }
 
@@ -911,49 +911,49 @@ export class Controller extends Component<Controller> implements Initable<Contro
   static readonly storageProvider: FastenerClass<Controller["storageProvider"]>;
 
   /** @override */
-  @PropertyDef({valueType: Uri, value: null, inherits: true, updateFlags: Controller.NeedsRevise})
-  readonly hostUri!: PropertyDef<this, {value: Uri | null, valueInit: AnyUri | null}>;
+  @Property({valueType: Uri, value: null, inherits: true, updateFlags: Controller.NeedsRevise})
+  readonly hostUri!: Property<this, Uri | null, AnyUri | null>;
 
   /** @override */
-  @PropertyDef({valueType: Uri, value: null, inherits: true, updateFlags: Controller.NeedsRevise})
-  readonly nodeUri!: PropertyDef<this, {value: Uri | null, valueInit: AnyUri | null}>;
+  @Property({valueType: Uri, value: null, inherits: true, updateFlags: Controller.NeedsRevise})
+  readonly nodeUri!: Property<this, Uri | null, AnyUri | null>;
 
   /** @override */
-  @PropertyDef({valueType: Uri, value: null, inherits: true, updateFlags: Controller.NeedsRevise})
-  readonly laneUri!: PropertyDef<this, {value: Uri | null, valueInit: AnyUri | null}>;
+  @Property({valueType: Uri, value: null, inherits: true, updateFlags: Controller.NeedsRevise})
+  readonly laneUri!: Property<this, Uri | null, AnyUri | null>;
 
   /** @override */
-  downlink(template?: ThisType<EventDownlink<this>> & EventDownlinkTemplate & Partial<Omit<EventDownlink<this>, keyof EventDownlinkTemplate>>): EventDownlink<this> {
+  downlink(template?: EventDownlinkTemplate<EventDownlink<this>>): EventDownlink<this> {
     let downlinkClass = EventDownlink;
     if (template !== void 0) {
-      downlinkClass = downlinkClass.specify("downlink", template);
+      downlinkClass = downlinkClass.define("downlink", template);
     }
     return downlinkClass.create(this);
   }
 
   /** @override */
-  downlinkValue<V = Value, VU = V extends Value ? AnyValue : V>(template?: ThisType<ValueDownlink<this, V, VU>> & ValueDownlinkTemplate<V, VU> & Partial<Omit<ValueDownlink<this, V, VU>, keyof ValueDownlinkTemplate>>): ValueDownlink<this, V, VU> {
+  downlinkValue<V = Value, VU = V extends Value ? AnyValue & V : V>(template?: ValueDownlinkTemplate<ValueDownlink<this, V, VU>>): ValueDownlink<this, V, VU> {
     let downlinkClass = ValueDownlink;
     if (template !== void 0) {
-      downlinkClass = downlinkClass.specify("downlinkValue", template);
+      downlinkClass = downlinkClass.define("downlinkValue", template);
     }
     return downlinkClass.create(this);
   }
 
   /** @override */
-  downlinkList<V = Value, VU = V extends Value ? AnyValue : V>(template?: ThisType<ListDownlink<this, V, VU>> & ListDownlinkTemplate<V, VU> & Partial<Omit<ListDownlink<this, V, VU>, keyof ListDownlinkTemplate>>): ListDownlink<this, V, VU> {
+  downlinkList<V = Value, VU = V extends Value ? AnyValue & V : V>(template?: ListDownlinkTemplate<ListDownlink<this, V, VU>>): ListDownlink<this, V, VU> {
     let downlinkClass = ListDownlink;
     if (template !== void 0) {
-      downlinkClass = downlinkClass.specify("downlinkList", template);
+      downlinkClass = downlinkClass.define("downlinkList", template);
     }
     return downlinkClass.create(this);
   }
 
   /** @override */
-  downlinkMap<K = Value, V = Value, KU = K extends Value ? AnyValue : K, VU = V extends Value ? AnyValue : V>(template?: ThisType<MapDownlink<this, K, V, KU, VU>> & MapDownlinkTemplate<V, VU> & Partial<Omit<MapDownlink<this, K, V, KU, VU>, keyof MapDownlinkTemplate>>): MapDownlink<this, K, V, KU, VU> {
+  downlinkMap<K = Value, V = Value, KU = K extends Value ? AnyValue & K : K, VU = V extends Value ? AnyValue & V : V>(template?: MapDownlinkTemplate<MapDownlink<this, K, V, KU, VU>>): MapDownlink<this, K, V, KU, VU> {
     let downlinkClass = MapDownlink;
     if (template !== void 0) {
-      downlinkClass = downlinkClass.specify("downlinkMap", template);
+      downlinkClass = downlinkClass.define("downlinkMap", template);
     }
     return downlinkClass.create(this);
   }
@@ -1100,7 +1100,7 @@ export class Controller extends Component<Controller> implements Initable<Contro
     warpRef.openDownlink(downlink);
   }
 
-  @PropertyDef<Controller["warpRef"]>({
+  @Property<Controller["warpRef"]>({
     valueType: WarpRef,
     inherits: true,
     updateFlags: Controller.NeedsRevise,
@@ -1111,7 +1111,7 @@ export class Controller extends Component<Controller> implements Initable<Contro
       return newValue === oldValue;
     },
   })
-  readonly warpRef!: PropertyDef<this, {value: WarpRef}>;
+  readonly warpRef!: Property<this, WarpRef>;
 
   /** @internal */
   get superControllerContext(): ControllerContext {
@@ -1145,7 +1145,7 @@ export class Controller extends Component<Controller> implements Initable<Contro
     return new this();
   }
 
-  static override fromInit<S extends Class<Instance<S, Controller>>>(this: S, init: InitType<InstanceType<S>>): InstanceType<S> {
+  static override fromInit<S extends Class<Instance<S, Controller>>>(this: S, init: Inits<InstanceType<S>>): InstanceType<S> {
     let type: Creatable<Controller>;
     if ((typeof init === "object" && init !== null || typeof init === "function") && Creatable.is((init as ControllerInit).type)) {
       type = (init as ControllerInit).type!;

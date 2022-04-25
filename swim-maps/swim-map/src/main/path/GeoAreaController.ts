@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, AnyTiming, Timing} from "@swim/util";
+import {Class, AnyTiming, Timing, Observes} from "@swim/util";
 import {Affinity, FastenerClass} from "@swim/component";
 import type {Length} from "@swim/math";
 import type {GeoPath} from "@swim/geo";
 import {Look, Mood, ColorOrLook} from "@swim/theme";
-import {TraitViewRefDef} from "@swim/controller";
+import {TraitViewRef} from "@swim/controller";
 import {GeoAreaView} from "./GeoAreaView";
 import {GeoAreaTrait} from "./GeoAreaTrait";
 import {GeoPathController} from "./GeoPathController";
@@ -95,7 +95,7 @@ export class GeoAreaController extends GeoPathController {
     }
   }
 
-  @TraitViewRefDef<GeoAreaController["geo"]>({
+  @TraitViewRef<GeoAreaController["geo"]>({
     traitType: GeoAreaTrait,
     observesTrait: true,
     willAttachTrait(geoTrait: GeoAreaTrait): void {
@@ -173,11 +173,6 @@ export class GeoAreaController extends GeoPathController {
       this.owner.callObservers("controllerDidSetStrokeWidth", strokeWidth, this.owner);
     },
   })
-  override readonly geo!: TraitViewRefDef<this, {
-    trait: GeoAreaTrait,
-    observesTrait: true,
-    view: GeoAreaView,
-    observesView: true,
-  }>;
+  override readonly geo!: TraitViewRef<this, GeoAreaTrait, GeoAreaView> & Observes<GeoAreaTrait & GeoAreaView>;
   static readonly geo: FastenerClass<GeoAreaController["geo"]>;
 }

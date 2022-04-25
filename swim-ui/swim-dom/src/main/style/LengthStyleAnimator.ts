@@ -26,7 +26,7 @@ import {StyleAnimatorClass, StyleAnimator} from "./StyleAnimator";
 import {StyleContext} from "../"; // forward import
 
 /** @public */
-export interface LengthStyleAnimator<O = unknown, T extends Length | null = Length | null, U extends AnyLength | null = T> extends StyleAnimator<O, T, U>, LengthBasis {
+export interface LengthStyleAnimator<O = unknown, T extends Length | null = Length | null, U extends AnyLength | null = AnyLength | T> extends StyleAnimator<O, T, U>, LengthBasis {
   get units(): LengthUnits;
 
   pxValue(basis?: LengthBasis | number): number;
@@ -79,7 +79,10 @@ export interface LengthStyleAnimator<O = unknown, T extends Length | null = Leng
 
 /** @public */
 export const LengthStyleAnimator = (function (_super: typeof StyleAnimator) {
-  const LengthStyleAnimator = _super.extend("LengthStyleAnimator", {}) as StyleAnimatorClass<LengthStyleAnimator<any, Length | null, AnyLength | null>>;
+  const LengthStyleAnimator = _super.extend("LengthStyleAnimator", {
+    valueType: Length,
+    value: null,
+  }) as StyleAnimatorClass<LengthStyleAnimator<any, any, any>>;
 
   Object.defineProperty(LengthStyleAnimator.prototype, "units", {
     get(this: LengthStyleAnimator): LengthUnits {

@@ -12,11 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, AnyTiming, Timing} from "@swim/util";
+import {Class, AnyTiming, Timing, Observes} from "@swim/util";
 import {Affinity, FastenerClass} from "@swim/component";
 import type {Color} from "@swim/style";
 import {Look, Mood, ColorOrLook} from "@swim/theme";
-import {TraitViewRefDef, TraitViewControllerSetDef} from "@swim/controller";
+import {TraitViewRef, TraitViewControllerSet} from "@swim/controller";
+import type {DataPointView} from "../data/DataPointView";
+import type {DataPointTrait} from "../data/DataPointTrait";
+import type {DataPointController} from "../data/DataPointController";
 import {DataSetTrait} from "../data/DataSetTrait";
 import {AreaPlotView} from "./AreaPlotView";
 import {AreaPlotTrait} from "./AreaPlotTrait";
@@ -27,15 +30,13 @@ import type {AreaPlotControllerObserver} from "./AreaPlotControllerObserver";
 export class AreaPlotController<X = unknown, Y = unknown> extends SeriesPlotController<X, Y> {
   override readonly observerType?: Class<AreaPlotControllerObserver<X, Y>>;
 
-  @TraitViewControllerSetDef<AreaPlotController<X, Y>["dataPoints"]>({
+  @TraitViewControllerSet<AreaPlotController<X, Y>["dataPoints"]>({
     extends: true,
     get parentView(): AreaPlotView<X, Y> | null {
       return this.owner.plot.view;
     },
   })
-  override readonly dataPoints!: TraitViewControllerSetDef<this, {
-    extends: SeriesPlotController<X, Y>["dataPoints"],
-  }>;
+  override readonly dataPoints!: TraitViewControllerSet<this, DataPointTrait<X, Y>, DataPointView<X, Y>, DataPointController<X, Y>> & SeriesPlotController<X, Y>["dataPoints"];
   static override readonly dataPoints: FastenerClass<AreaPlotController["dataPoints"]>;
 
   protected setFill(fill: ColorOrLook | null, timing?: AnyTiming | boolean): void {
@@ -57,7 +58,7 @@ export class AreaPlotController<X = unknown, Y = unknown> extends SeriesPlotCont
     }
   }
 
-  @TraitViewRefDef<AreaPlotController<X, Y>["plot"]>({
+  @TraitViewRef<AreaPlotController<X, Y>["plot"]>({
     traitType: AreaPlotTrait,
     observesTrait: true,
     initTrait(plotTrait: AreaPlotTrait<X, Y>): void {
@@ -110,11 +111,6 @@ export class AreaPlotController<X = unknown, Y = unknown> extends SeriesPlotCont
       this.owner.callObservers("controllerDidSetPlotFill", fill, this.owner);
     },
   })
-  readonly plot!: TraitViewRefDef<this, {
-    trait: AreaPlotTrait<X, Y>,
-    observesTrait: true,
-    view: AreaPlotView<X, Y>,
-    observesView: true,
-  }>;
+  readonly plot!: TraitViewRef<this, AreaPlotTrait<X, Y>, AreaPlotView<X, Y>> & Observes<AreaPlotTrait<X, Y> & AreaPlotView<X, Y>>;
   static readonly plot: FastenerClass<AreaPlotController["plot"]>;
 }

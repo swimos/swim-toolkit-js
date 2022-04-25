@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class} from "@swim/util";
-import {FastenerClass, PropertyDef} from "@swim/component";
+import type {Class, Observes} from "@swim/util";
+import {FastenerClass, Property} from "@swim/component";
+import type {Trait} from "@swim/model";
 import type {PositionGestureInput} from "@swim/view";
-import {Controller, TraitViewRefDef} from "@swim/controller";
+import {Controller, TraitViewRef} from "@swim/controller";
 import {AnyToolLayout, ToolLayout} from "../layout/ToolLayout";
 import {ToolView} from "./ToolView";
 import type {ToolControllerObserver} from "./ToolControllerObserver";
@@ -24,7 +25,7 @@ import type {ToolControllerObserver} from "./ToolControllerObserver";
 export class ToolController extends Controller {
   override readonly observerType?: Class<ToolControllerObserver>;
 
-  @TraitViewRefDef<ToolController["tool"]>({
+  @TraitViewRef<ToolController["tool"]>({
     viewType: ToolView,
     observesView: true,
     willAttachView(toolView: ToolView): void {
@@ -40,18 +41,15 @@ export class ToolController extends Controller {
       this.owner.callObservers("controllerDidLongPressToolView", input, this.owner);
     },
   })
-  readonly tool!: TraitViewRefDef<this, {
-    view: ToolView,
-    observesView: true,
-  }>;
+  readonly tool!: TraitViewRef<this, Trait, ToolView> & Observes<ToolView>;
   static readonly tool: FastenerClass<ToolController["tool"]>;
 
-  @PropertyDef<ToolController["layout"]>({
+  @Property<ToolController["layout"]>({
     valueType: ToolLayout,
     value: null,
     didSetValue(toolLayout: ToolLayout | null): void {
       this.owner.callObservers("controllerDidSetToolLayout", toolLayout, this.owner);
     },
   })
-  readonly layout!: PropertyDef<this, {value: ToolLayout | null, valueInit: AnyToolLayout | null}>;
+  readonly layout!: Property<this, ToolLayout | null, AnyToolLayout | null>;
 }

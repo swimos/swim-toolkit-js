@@ -16,12 +16,7 @@ import type {Proto} from "@swim/util";
 import type {AnimatorValue, AnimatorValueInit} from "@swim/component";
 import {Length, Transform} from "@swim/math";
 import {Color} from "@swim/style";
-import {
-  ThemeAnimatorRefinement,
-  ThemeAnimatorTemplate,
-  ThemeAnimatorClass,
-  ThemeAnimator,
-} from "@swim/theme";
+import {ThemeAnimatorDescriptor, ThemeAnimatorClass, ThemeAnimator} from "@swim/theme";
 import {StringAttributeAnimator} from "./"; // forward import
 import {NumberAttributeAnimator} from "./"; // forward import
 import {BooleanAttributeAnimator} from "./"; // forward import
@@ -31,50 +26,35 @@ import {TransformAttributeAnimator} from "./"; // forward import
 import {ElementView} from "../"; // forward import
 
 /** @public */
-export interface AttributeAnimatorRefinement extends ThemeAnimatorRefinement {
-}
-
-/** @public */
-export interface AttributeAnimatorTemplate<T = unknown, U = T> extends ThemeAnimatorTemplate<T, U> {
+export interface AttributeAnimatorDescriptor<T = unknown, U = T> extends ThemeAnimatorDescriptor<T, U> {
   extends?: Proto<AttributeAnimator<any, any, any>> | string | boolean | null;
   attributeName?: string;
 }
 
 /** @public */
+export type AttributeAnimatorTemplate<A extends AttributeAnimator<any, any, any>> =
+  ThisType<A> &
+  AttributeAnimatorDescriptor<AnimatorValue<A>, AnimatorValueInit<A>> &
+  Partial<Omit<A, keyof AttributeAnimatorDescriptor>>;
+
+/** @public */
 export interface AttributeAnimatorClass<A extends AttributeAnimator<any, any, any> = AttributeAnimator<any, any, any>> extends ThemeAnimatorClass<A> {
   /** @override */
-  specialize(className: string, template: AttributeAnimatorTemplate): AttributeAnimatorClass;
+  specialize(template: AttributeAnimatorDescriptor<any, any>): AttributeAnimatorClass<A>;
 
   /** @override */
-  extend(className: string, template: AttributeAnimatorTemplate): AttributeAnimatorClass<A>;
+  refine(animatorClass: AttributeAnimatorClass<any>): void;
 
   /** @override */
-  specify<O, T = unknown, U = T>(className: string, template: ThisType<AttributeAnimator<O, T, U>> & AttributeAnimatorTemplate<T, U> & Partial<Omit<AttributeAnimator<O, T, U>, keyof AttributeAnimatorTemplate>>): AttributeAnimatorClass<A>;
+  extend<A2 extends A>(className: string, template: AttributeAnimatorTemplate<A2>): AttributeAnimatorClass<A2>;
+  extend<A2 extends A>(className: string, template: AttributeAnimatorTemplate<A2>): AttributeAnimatorClass<A2>;
 
   /** @override */
-  <O, T = unknown, U = T>(template: ThisType<AttributeAnimator<O, T, U>> & AttributeAnimatorTemplate<T, U> & Partial<Omit<AttributeAnimator<O, T, U>, keyof AttributeAnimatorTemplate>>): PropertyDecorator;
-}
+  define<A2 extends A>(className: string, template: AttributeAnimatorTemplate<A2>): AttributeAnimatorClass<A2>;
+  define<A2 extends A>(className: string, template: AttributeAnimatorTemplate<A2>): AttributeAnimatorClass<A2>;
 
-/** @public */
-export type AttributeAnimatorDef<O, R extends AttributeAnimatorRefinement = {}> =
-  AttributeAnimator<O, AnimatorValue<R>, AnimatorValueInit<R>> &
-  {readonly name: string} & // prevent type alias simplification
-  (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer I} ? I : {}) &
-  (R extends {implements: infer I} ? I : {});
-
-/** @public */
-export function AttributeAnimatorDef<A extends AttributeAnimator<any, any, any>>(
-  template: A extends AttributeAnimatorDef<infer O, infer R>
-          ? ThisType<AttributeAnimatorDef<O, R>>
-          & AttributeAnimatorTemplate<AnimatorValue<R>, AnimatorValueInit<R>>
-          & Partial<Omit<AttributeAnimator<O, AnimatorValue<R>, AnimatorValueInit<R>>, keyof AttributeAnimatorTemplate>>
-          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof AttributeAnimatorTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer I} ? Partial<I> : {})
-          & (R extends {implements: infer I} ? I : {})
-          : never
-): PropertyDecorator {
-  return AttributeAnimator(template);
+  /** @override */
+  <A2 extends A>(template: AttributeAnimatorTemplate<A2>): PropertyDecorator;
 }
 
 /** @public */
@@ -138,7 +118,7 @@ export const AttributeAnimator = (function (_super: typeof ThemeAnimator) {
     throw new Error();
   };
 
-  AttributeAnimator.specialize = function (className: string, template: AttributeAnimatorTemplate): AttributeAnimatorClass {
+  AttributeAnimator.specialize = function (template: AttributeAnimatorDescriptor<any, any>): AttributeAnimatorClass {
     let superClass = template.extends as AttributeAnimatorClass | null | undefined;
     if (superClass === void 0 || superClass === null) {
       const valueType = template.valueType;

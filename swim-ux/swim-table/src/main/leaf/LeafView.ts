@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Class, Instance, Creatable, Timing} from "@swim/util";
-import {Affinity, FastenerClass, PropertyDef, AnimatorDef} from "@swim/component";
+import {Affinity, FastenerClass, Property} from "@swim/component";
 import {AnyLength, Length} from "@swim/math";
 import {
   AnyFocus,
@@ -23,14 +23,14 @@ import {
   Expansion,
   ExpansionAnimator,
 } from "@swim/style";
-import {Look, Feel, ThemeConstraintAnimatorDef} from "@swim/theme";
+import {Look, Feel, ThemeConstraintAnimator} from "@swim/theme";
 import {
   PositionGestureInput,
-  PositionGestureDef,
+  PositionGesture,
   ViewContextType,
   ViewFlags,
   View,
-  ViewSetDef,
+  ViewSet,
 } from "@swim/view";
 import {ViewNode, HtmlView} from "@swim/dom";
 import {ButtonGlow} from "@swim/button";
@@ -62,33 +62,25 @@ export class LeafView extends HtmlView {
 
   override readonly observerType?: Class<LeafViewObserver>;
 
-  @PropertyDef({valueType: TableLayout, value: null, inherits: true, updateFlags: View.NeedsLayout})
-  readonly layout!: PropertyDef<this, {value: TableLayout | null, valueInit: AnyTableLayout | null}>;
+  @Property({valueType: TableLayout, value: null, inherits: true, updateFlags: View.NeedsLayout})
+  readonly layout!: Property<this, TableLayout | null, AnyTableLayout | null>;
 
-  @PropertyDef({valueType: Number, value: 0, inherits: true, updateFlags: View.NeedsLayout})
-  readonly depth!: PropertyDef<this, {value: number}>;
+  @Property({valueType: Number, value: 0, inherits: true, updateFlags: View.NeedsLayout})
+  readonly depth!: Property<this, number>;
 
-  @ThemeConstraintAnimatorDef({valueType: Length, value: null, inherits: true, updateFlags: View.NeedsLayout})
-  readonly rowSpacing!: ThemeConstraintAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  @ThemeConstraintAnimator({valueType: Length, value: null, inherits: true, updateFlags: View.NeedsLayout})
+  readonly rowSpacing!: ThemeConstraintAnimator<this, Length | null, AnyLength | null>;
 
-  @ThemeConstraintAnimatorDef({valueType: Length, value: null, inherits: true, updateFlags: View.NeedsLayout})
-  readonly rowHeight!: ThemeConstraintAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  @ThemeConstraintAnimator({valueType: Length, value: null, inherits: true, updateFlags: View.NeedsLayout})
+  readonly rowHeight!: ThemeConstraintAnimator<this, Length | null, AnyLength | null>;
 
-  @AnimatorDef<LeafView["stretch"]>({
-    extends: ExpansionAnimator,
-    value: null,
-    inherits: true,
-    updateFlags: View.NeedsLayout,
-  })
-  readonly stretch!: AnimatorDef<this, {
-    extends: ExpansionAnimator<LeafView, Expansion | null, AnyExpansion | null>,
-  }>;
+  @ExpansionAnimator({value: null, inherits: true, updateFlags: View.NeedsLayout})
+  readonly stretch!: ExpansionAnimator<this, Expansion | null, AnyExpansion | null>;
 
-  @PropertyDef({valueType: Boolean, value: false, inherits: true})
-  readonly hovers!: PropertyDef<this, {value: boolean}>;
+  @Property({valueType: Boolean, value: false, inherits: true})
+  readonly hovers!: Property<this, boolean>;
 
-  @AnimatorDef<LeafView["hover"]>({
-    extends: FocusAnimator,
+  @FocusAnimator<LeafView["hover"]>({
     value: Focus.unfocused(),
     get transition(): Timing | null {
       return this.owner.getLookOr(Look.timing, null);
@@ -102,12 +94,9 @@ export class LeafView extends HtmlView {
                                            [Feel.selected, highlightPhase]], false);
     },
   })
-  readonly hover!: AnimatorDef<this, {
-    extends: FocusAnimator<LeafView, Focus, AnyFocus>,
-  }>;
+  readonly hover!: FocusAnimator<this, Focus, AnyFocus>;
 
-  @AnimatorDef<LeafView["highlight"]>({
-    extends: FocusAnimator,
+  @FocusAnimator<LeafView["highlight"]>({
     value: Focus.unfocused(),
     get transition(): Timing | null {
       return this.owner.getLookOr(Look.timing, null);
@@ -133,9 +122,7 @@ export class LeafView extends HtmlView {
                                            [Feel.selected, highlightPhase]], false);
     },
   })
-  readonly highlight!: AnimatorDef<this, {
-    extends: FocusAnimator<LeafView, Focus, AnyFocus>,
-  }>;
+  readonly highlight!: FocusAnimator<this, Focus, AnyFocus>;
 
   getCell<F extends Class<CellView>>(key: string, cellViewClass: F): InstanceType<F> | null;
   getCell(key: string): CellView | null;
@@ -160,7 +147,7 @@ export class LeafView extends HtmlView {
     this.setChild(key, cellView);
   }
 
-  @ViewSetDef<LeafView["cells"]>({
+  @ViewSet<LeafView["cells"]>({
     viewType: CellView,
     binds: true,
     initView(cellView: CellView): void {
@@ -178,7 +165,7 @@ export class LeafView extends HtmlView {
       this.owner.callObservers("viewDidDetachCell", cellView, this.owner);
     },
   })
-  readonly cells!: ViewSetDef<this, {view: CellView}>;
+  readonly cells!: ViewSet<this, CellView>;
   static readonly cells: FastenerClass<LeafView["cells"]>;
 
   protected override onLayout(viewContext: ViewContextType<this>): void {
@@ -241,8 +228,8 @@ export class LeafView extends HtmlView {
     super.displayChildren(displayFlags, viewContext, layoutChild);
   }
 
-  @PropertyDef({valueType: Boolean, value: true, inherits: true})
-  readonly glows!: PropertyDef<this, {value: boolean}>;
+  @Property({valueType: Boolean, value: true, inherits: true})
+  readonly glows!: Property<this, boolean>;
 
   protected glow(input: PositionGestureInput): void {
     if (input.detail instanceof ButtonGlow) {
@@ -256,7 +243,7 @@ export class LeafView extends HtmlView {
     }
   }
 
-  @PositionGestureDef<LeafView["gesture"]>({
+  @PositionGesture<LeafView["gesture"]>({
     bindsOwner: true,
     didBeginPress(input: PositionGestureInput, event: Event | null): void {
       if (this.owner.glows.value) {
@@ -344,6 +331,6 @@ export class LeafView extends HtmlView {
       }
     },
   })
-  readonly gesture!: PositionGestureDef<this, {view: LeafView}>;
+  readonly gesture!: PositionGesture<this, LeafView>;
   static readonly gesture: FastenerClass<LeafView["gesture"]>;
 }

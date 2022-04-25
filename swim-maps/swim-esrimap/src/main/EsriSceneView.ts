@@ -16,7 +16,7 @@ import {Mutable, Class, Equivalent, AnyTiming, Timing} from "@swim/util";
 import type {FastenerClass} from "@swim/component";
 import {GeoPoint} from "@swim/geo";
 import {Look, Mood} from "@swim/theme";
-import {View, ViewRefDef} from "@swim/view";
+import {View, ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import type {CanvasView} from "@swim/graphics";
 import type {AnyGeoPerspective} from "@swim/map";
@@ -115,7 +115,7 @@ export class EsriSceneView extends EsriView {
     this.map.goTo(target, options);
   }
 
-  @ViewRefDef<EsriSceneView["canvas"]>({
+  @ViewRef<EsriSceneView["canvas"]>({
     extends: true,
     didAttachView(canvasView: CanvasView, targetView: View | null): void {
       if (this.owner.parent === null) {
@@ -131,12 +131,10 @@ export class EsriSceneView extends EsriView {
       }
     },
   })
-  override readonly canvas!: ViewRefDef<this, {
-    extends: EsriView["canvas"],
-  }>;
+  override readonly canvas!: ViewRef<this, CanvasView> & EsriView["canvas"];
   static override readonly canvas: FastenerClass<EsriSceneView["canvas"]>;
 
-  @ViewRefDef<EsriSceneView["container"]>({
+  @ViewRef<EsriSceneView["container"]>({
     extends: true,
     didAttachView(containerView: HtmlView, targetView: View | null): void {
       const esriContainerView = HtmlView.fromNode(this.owner.map.container);
@@ -156,8 +154,6 @@ export class EsriSceneView extends EsriView {
       }
     },
   })
-  override readonly container!: ViewRefDef<this, {
-    extends: EsriView["container"],
-  }>;
+  override readonly container!: ViewRef<this, HtmlView> & EsriView["container"];
   static override readonly container: FastenerClass<EsriSceneView["container"]>;
 }

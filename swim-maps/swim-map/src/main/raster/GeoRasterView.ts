@@ -13,10 +13,10 @@
 // limitations under the License.
 
 import type {Mutable, Class} from "@swim/util";
-import {Affinity, AnimatorDef} from "@swim/component";
+import {Affinity, Animator} from "@swim/component";
 import {AnyLength, Length, AnyR2Point, R2Point, R2Box, Transform} from "@swim/math";
 import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
-import {ThemeAnimatorDef} from "@swim/theme";
+import {ThemeAnimator} from "@swim/theme";
 import {ViewContextType, ViewFlags, View} from "@swim/view";
 import {
   AnyGraphicsRenderer,
@@ -63,7 +63,7 @@ export class GeoRasterView extends GeoView {
 
   override readonly contextType?: Class<GeoRasterViewContext>;
 
-  @AnimatorDef<GeoRasterView["geoAnchor"]>({
+  @Animator<GeoRasterView["geoAnchor"]>({
     valueType: GeoPoint,
     value: null,
     didSetState(newGeoCenter: GeoPoint | null, oldGeoCenter: GeoPoint | null): void {
@@ -77,28 +77,28 @@ export class GeoRasterView extends GeoView {
       this.owner.callObservers("viewDidSetGeoAnchor", newGeoAnchor, this.owner);
     },
   })
-  readonly geoAnchor!: AnimatorDef<this, {value: GeoPoint | null, valueInit: AnyGeoPoint | null}>;
+  readonly geoAnchor!: Animator<this, GeoPoint | null, AnyGeoPoint | null>;
 
-  @AnimatorDef({valueType: R2Point, value: R2Point.undefined()})
-  readonly viewAnchor!: AnimatorDef<this, {value: R2Point | null, valueInit: AnyR2Point | null}>;
+  @Animator({valueType: R2Point, value: R2Point.undefined()})
+  readonly viewAnchor!: Animator<this, R2Point | null, AnyR2Point | null>;
 
-  @AnimatorDef({valueType: Number, value: 0.5, updateFlags: View.NeedsComposite})
-  readonly xAlign!: AnimatorDef<this, {value: number}>;
+  @Animator({valueType: Number, value: 0.5, updateFlags: View.NeedsComposite})
+  readonly xAlign!: Animator<this, number>;
 
-  @AnimatorDef({valueType: Number, value: 0.5, updateFlags: View.NeedsComposite})
-  readonly yAlign!: AnimatorDef<this, {value: number}>;
+  @Animator({valueType: Number, value: 0.5, updateFlags: View.NeedsComposite})
+  readonly yAlign!: Animator<this, number>;
 
-  @ThemeAnimatorDef({valueType: Length, value: null, updateFlags: View.NeedsResize | View.NeedsLayout | View.NeedsRender | View.NeedsComposite})
-  readonly width!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  @ThemeAnimator({valueType: Length, value: null, updateFlags: View.NeedsResize | View.NeedsLayout | View.NeedsRender | View.NeedsComposite})
+  readonly width!: ThemeAnimator<this, Length | null, AnyLength | null>;
 
-  @ThemeAnimatorDef({valueType: Length, value: null, updateFlags: View.NeedsResize | View.NeedsLayout | View.NeedsRender | View.NeedsComposite})
-  readonly height!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  @ThemeAnimator({valueType: Length, value: null, updateFlags: View.NeedsResize | View.NeedsLayout | View.NeedsRender | View.NeedsComposite})
+  readonly height!: ThemeAnimator<this, Length | null, AnyLength | null>;
 
-  @ThemeAnimatorDef({valueType: Number, value: 1, updateFlags: View.NeedsComposite})
-  readonly opacity!: ThemeAnimatorDef<this, {value: number}>;
+  @ThemeAnimator({valueType: Number, value: 1, updateFlags: View.NeedsComposite})
+  readonly opacity!: ThemeAnimator<this, number>;
 
-  @AnimatorDef({valueType: String, value: "source-over", updateFlags: View.NeedsComposite})
-  readonly compositeOperation!: AnimatorDef<this, {value: CanvasCompositeOperation}>;
+  @Animator({valueType: String, value: "source-over", updateFlags: View.NeedsComposite})
+  readonly compositeOperation!: Animator<this, CanvasCompositeOperation>;
 
   get pixelRatio(): number {
     return window.devicePixelRatio || 1;

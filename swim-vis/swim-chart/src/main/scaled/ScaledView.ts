@@ -28,22 +28,23 @@ import {
   LinearRange,
   ContinuousScale,
   LinearScale,
+  Observes,
 } from "@swim/util";
-import {Affinity, FastenerClass, PropertyDef, AnimatorDef} from "@swim/component";
+import {Affinity, FastenerClass, Property} from "@swim/component";
 import {DateTime, TimeDomain, TimeScale} from "@swim/time";
 import {
   ScaleGestureInput,
-  ScaleGestureDef,
+  ScaleGesture,
   ViewContextType,
   ViewFlags,
   View,
-  ViewSetDef,
+  ViewSet,
 } from "@swim/view";
 import {GraphicsViewInit, GraphicsView} from "@swim/graphics";
+import {ContinuousScaleAnimator} from "./ContinuousScaleAnimator";
 import {ScaledXView} from "./ScaledXView";
 import {ScaledYView} from "./ScaledYView";
 import type {ScaledXYView} from "./ScaledXYView";
-import {ContinuousScaleAnimator} from "./ContinuousScaleAnimator";
 import type {ScaledViewObserver} from "./ScaledViewObserver";
 
 /** @internal */
@@ -105,9 +106,8 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
     (this as Mutable<this>).scaledFlags = scaledFlags;
   }
 
-  @AnimatorDef<ScaledView<X, Y>["xScale"]>({
-    extends: ContinuousScaleAnimator,
-    valueType: ContinuousScale,
+  /** @override */
+  @ContinuousScaleAnimator<ScaledView<X, Y>["xScale"]>({
     value: null,
     inherits: true,
     updateFlags: View.NeedsLayout,
@@ -131,14 +131,10 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
       }
     },
   })
-  readonly xScale!: AnimatorDef<this, {
-    extends: ContinuousScaleAnimator<ScaledView<X, Y>, X, number>,
-    value: ContinuousScale<X, number> | null,
-  }>;
+  readonly xScale!: ContinuousScaleAnimator<this, X, number>;
 
-  @AnimatorDef<ScaledView<X, Y>["yScale"]>({
-    extends: ContinuousScaleAnimator,
-    valueType: ContinuousScale,
+  /** @override */
+  @ContinuousScaleAnimator<ScaledView<X, Y>["yScale"]>({
     value: null,
     inherits: true,
     updateFlags: View.NeedsLayout,
@@ -162,11 +158,9 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
       }
     },
   })
-  readonly yScale!: AnimatorDef<this, {
-    extends: ContinuousScaleAnimator<ScaledView<X, Y>, Y, number>,
-    value: ContinuousScale<Y, number> | null,
-  }>;
+  readonly yScale!: ContinuousScaleAnimator<this, Y, number>;
 
+  /** @override */
   xDomain(): Domain<X> | null;
   xDomain(xDomain: Domain<X> | string | null, timing?: AnyTiming | boolean): this;
   xDomain(xMin: X, xMax: X, timing?: AnyTiming | boolean): this;
@@ -200,6 +194,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
     }
   }
 
+  /** @override */
   yDomain(): Domain<Y> | null;
   yDomain(yDomain: Domain<Y> | string | null, timing?: AnyTiming | boolean): this;
   yDomain(yMin: Y, yMax: Y, timing?: AnyTiming | boolean): this;
@@ -233,6 +228,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
     }
   }
 
+  /** @override */
   xRange(): Range<number> | null {
     const width = this.viewFrame.width;
     if (isFinite(width)) {
@@ -245,6 +241,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
     }
   }
 
+  /** @override */
   yRange(): Range<number> | null {
     const height = this.viewFrame.height;
     if (isFinite(height)) {
@@ -257,6 +254,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
     }
   }
 
+  /** @override */
   readonly xDataDomain: Domain<X> | null;
 
   protected setXDataDomain(newXDataDomain: Domain<X> | null): void {
@@ -298,6 +296,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
     this.setXDataDomain(xDataDomain);
   }
 
+  /** @override */
   readonly yDataDomain: Domain<Y> | null;
 
   protected setYDataDomain(newYDataDomain: Domain<Y> | null): void {
@@ -339,6 +338,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
     this.setYDataDomain(yDataDomain);
   }
 
+  /** @override */
   readonly xDataRange: Range<number> | null;
 
   protected setXDataRange(xDataRange: Range<number> | null): void {
@@ -357,6 +357,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
     }
   }
 
+  /** @override */
   readonly yDataRange: Range<number> | null;
 
   protected setYDataRange(yDataRange: Range<number> | null): void {
@@ -427,7 +428,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
     this.setYDataDomainPadded(yDataDomainPadded);
   }
 
-  @PropertyDef<ScaledView<X, Y>["xDomainBounds"]>({
+  @Property<ScaledView<X, Y>["xDomainBounds"]>({
     updateFlags: View.NeedsLayout,
     initValue(): readonly [X | boolean, X | boolean] {
       return [true, true];
@@ -436,9 +437,9 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
       return Arrays.equal(newXDomainBounds, oldXDomainBounds);
     },
   })
-  readonly xDomainBounds!: PropertyDef<this, {value: readonly [X | boolean, X | boolean]}>
+  readonly xDomainBounds!: Property<this, readonly [X | boolean, X | boolean]>
 
-  @PropertyDef<ScaledView<X, Y>["yDomainBounds"]>({
+  @Property<ScaledView<X, Y>["yDomainBounds"]>({
     updateFlags: View.NeedsLayout,
     initValue(): readonly [Y | boolean, Y | boolean] {
       return [true, true];
@@ -447,9 +448,9 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
       return Arrays.equal(newYDomainBounds, oldYDomainBounds);
     },
   })
-  readonly yDomainBounds!: PropertyDef<this, {value: readonly [Y | boolean, Y | boolean]}>
+  readonly yDomainBounds!: Property<this, readonly [Y | boolean, Y | boolean]>
 
-  @PropertyDef<ScaledView<X, Y>["xZoomBounds"]>({
+  @Property<ScaledView<X, Y>["xZoomBounds"]>({
     updateFlags: View.NeedsLayout,
     initValue(): readonly [number | boolean, number | boolean] {
       return [true, true];
@@ -458,9 +459,9 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
       return Arrays.equal(newXZoomBounds, oldXZoomBounds);
     },
   })
-  readonly xZoomBounds!: PropertyDef<this, {value: readonly [number | boolean, number | boolean]}>
+  readonly xZoomBounds!: Property<this, readonly [number | boolean, number | boolean]>
 
-  @PropertyDef<ScaledView<X, Y>["yZoomBounds"]>({
+  @Property<ScaledView<X, Y>["yZoomBounds"]>({
     updateFlags: View.NeedsLayout,
     initValue(): readonly [number | boolean, number | boolean] {
       return [true, true];
@@ -469,9 +470,9 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
       return Arrays.equal(newYDomainBounds, oldYDomainBounds);
     },
   })
-  readonly yZoomBounds!: PropertyDef<this, {value: readonly [number | boolean, number | boolean]}>
+  readonly yZoomBounds!: Property<this, readonly [number | boolean, number | boolean]>
 
-  @PropertyDef<ScaledView<X, Y>["xDomainPadding"]>({
+  @Property<ScaledView<X, Y>["xDomainPadding"]>({
     updateFlags: View.NeedsLayout,
     initValue(): readonly [X | boolean, X | boolean] {
       return [false, false];
@@ -480,9 +481,9 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
       return Arrays.equal(newXDomainPadding, oldXDomainPadding);
     },
   })
-  readonly xDomainPadding!: PropertyDef<this, {value: readonly [X | boolean, X | boolean]}>
+  readonly xDomainPadding!: Property<this, readonly [X | boolean, X | boolean]>
 
-  @PropertyDef<ScaledView<X, Y>["yDomainPadding"]>({
+  @Property<ScaledView<X, Y>["yDomainPadding"]>({
     updateFlags: View.NeedsLayout,
     initValue(): readonly [Y | boolean, Y | boolean] {
       return [false, false];
@@ -491,7 +492,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
       return Arrays.equal(newYDomainPadding, oldYDomainPadding);
     },
   })
-  readonly yDomainPadding!: PropertyDef<this, {value: readonly [Y | boolean, Y | boolean]}>
+  readonly yDomainPadding!: Property<this, readonly [Y | boolean, Y | boolean]>
 
   protected updateXRangePadding(xScaledRangePadding: readonly [number, number]): void {
     if (this.xRangePadding.hasAffinity(Affinity.Intrinsic)) {
@@ -505,7 +506,8 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
     }
   }
 
-  @PropertyDef<ScaledView<X, Y>["xRangePadding"]>({
+  /** @override */
+  @Property<ScaledView<X, Y>["xRangePadding"]>({
     updateFlags: View.NeedsLayout,
     initValue(): readonly [number, number] {
       return [0, 0];
@@ -517,7 +519,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
       return Arrays.equal(newXRangePadding, oldXRangePadding);
     },
   })
-  readonly xRangePadding!: PropertyDef<this, {value: readonly [number, number]}>
+  readonly xRangePadding!: Property<this, readonly [number, number]>
 
   protected updateYRangePadding(yScaledRangePadding: readonly [number, number]): void {
     if (this.yRangePadding.hasAffinity(Affinity.Intrinsic)) {
@@ -531,7 +533,8 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
     }
   }
 
-  @PropertyDef<ScaledView<X, Y>["yRangePadding"]>({
+  /** @override */
+  @Property<ScaledView<X, Y>["yRangePadding"]>({
     updateFlags: View.NeedsLayout,
     initValue(): readonly [number, number] {
       return [0, 0];
@@ -543,9 +546,9 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
       return Arrays.equal(newYRangePadding, oldYRangePadding);
     },
   })
-  readonly yRangePadding!: PropertyDef<this, {value: readonly [number, number]}>
+  readonly yRangePadding!: Property<this, readonly [number, number]>
 
-  @PropertyDef<ScaledView<X, Y>["fitAlign"]>({
+  @Property<ScaledView<X, Y>["fitAlign"]>({
     initValue(): readonly [number, number] {
       return [1.0, 0.5];
     },
@@ -560,7 +563,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
       }
     },
   })
-  readonly fitAlign!: PropertyDef<this, {value: readonly [number, number], valueInit: number}>;
+  readonly fitAlign!: Property<this, readonly [number, number], readonly [number, number] | number>;
 
   xFitAlign(): number;
   xFitAlign(xFitAlign: number): this;
@@ -586,8 +589,8 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
     }
   }
 
-  @PropertyDef<ScaledView["fitAspectRatio"]>({valueType: Number})
-  readonly fitAspectRatio!: PropertyDef<this, {value: number | undefined}>;
+  @Property<ScaledView["fitAspectRatio"]>({valueType: Number})
+  readonly fitAspectRatio!: Property<this, number | undefined>;
 
   preserveAspectRatio(): boolean;
   preserveAspectRatio(preserveAspectRatio: boolean): this;
@@ -718,29 +721,23 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
     }
   }
 
-  @PropertyDef<ScaledView<X, Y>["rescaleTransition"]>({
+  @Property<ScaledView<X, Y>["rescaleTransition"]>({
     valueType: Timing,
     inherits: true,
     initValue(): Timing | boolean | undefined {
       return Easing.linear.withDuration(250);
     },
   })
-  readonly rescaleTransition!: PropertyDef<this, {
-    value: Timing | boolean | undefined,
-    valueInit: AnyTiming | boolean | undefined,
-  }>;
+  readonly rescaleTransition!: Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined>;
 
-  @PropertyDef<ScaledView<X, Y>["reboundTransition"]>({
+  @Property<ScaledView<X, Y>["reboundTransition"]>({
     valueType: Timing,
     inherits: true,
     initValue(): Timing | boolean | undefined {
       return Easing.cubicOut.withDuration(250);
     },
   })
-  readonly reboundTransition!: PropertyDef<this, {
-    value: Timing | boolean | undefined,
-    valueInit: AnyTiming | boolean | undefined,
-  }>;
+  readonly reboundTransition!: Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined>;
 
   fitX(tween: boolean = false): void {
     this.setScaledFlags(this.scaledFlags | ScaledView.XFitFlag);
@@ -767,7 +764,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
   }
 
   /** @internal */
-  @ViewSetDef<ScaledView<X, Y>["scaled"]>({
+  @ViewSet<ScaledView<X, Y>["scaled"]>({
     binds: true,
     observes: true,
     willAttachView(scaledView: ScaledXView<X> | ScaledYView<Y>, targetView: View | null): void {
@@ -802,10 +799,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
      return ScaledXView.is<X>(view) || ScaledYView.is<Y>(view) ? view : null;
     },
   })
-  readonly scaled!: ViewSetDef<this, {
-    view: ScaledXView<X> | ScaledYView<Y>,
-    observes: ScaledXView<X> & ScaledYView<Y>,
-  }>;
+  readonly scaled!: ViewSet<this, ScaledXView<X> | ScaledYView<Y>> & Observes<ScaledXView<X> & ScaledYView<Y>>;
   static readonly scaled: FastenerClass<ScaledView["scaled"]>;
 
   protected override onLayout(viewContext: ViewContextType<this>): void {
@@ -1204,7 +1198,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
     // hook
   }
 
-  @ScaleGestureDef<ScaledView<X, Y>["gesture"]>({
+  @ScaleGesture<ScaledView<X, Y>["gesture"]>({
     bindsOwner: true,
     getXScale(): ContinuousScale<X, number> | null {
       if ((this.owner.scaledFlags & ScaledView.XScaleGesturesFlag) !== 0) {
@@ -1282,7 +1276,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
       }
     },
   })
-  readonly gesture!: ScaleGestureDef<this, {view: ScaledView<X, Y>, x: X, y: Y}>;
+  readonly gesture!: ScaleGesture<this, ScaledView<X, Y>, X, Y>;
   static readonly gesture: FastenerClass<ScaledView["gesture"]>;
 
   override init(init: ScaledViewInit<X, Y>): void {

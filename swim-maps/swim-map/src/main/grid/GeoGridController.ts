@@ -12,21 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class} from "@swim/util";
+import type {Class, Observes} from "@swim/util";
 import type {FastenerClass} from "@swim/component";
 import type {GeoTile} from "@swim/geo";
 import type {Trait} from "@swim/model";
 import type {View} from "@swim/view";
-import {
-  Controller,
-  TraitViewRefDef,
-  TraitViewRef,
-  TraitViewControllerSetDef,
-  TraitViewControllerSet,
-} from "@swim/controller";
+import {Controller, TraitViewRef, TraitViewControllerSet} from "@swim/controller";
 import type {GeoViewport} from "../geo/GeoViewport";
 import type {GeoViewContext} from "../geo/GeoViewContext";
 import type {GeoView} from "../geo/GeoView";
+import type {GeoTrait} from "../geo/GeoTrait";
 import {GeoController} from "../geo/GeoController";
 import {GeoLayerController} from "../layer/GeoLayerController";
 import {GeoGridView} from "./GeoGridView";
@@ -79,7 +74,7 @@ export class GeoGridController extends GeoLayerController {
     }
   }
 
-  @TraitViewRefDef<GeoGridController["geo"]>({
+  @TraitViewRef<GeoGridController["geo"]>({
     extends: true,
     traitType: GeoGridTrait,
     observesTrait: true,
@@ -124,27 +119,19 @@ export class GeoGridController extends GeoLayerController {
       return new GeoGridView(this.owner.geoTile);
     },
   })
-  override readonly geo!: TraitViewRefDef<this, {
-    extends: GeoLayerController["geo"],
-    trait: GeoGridTrait,
-    observesTrait: true,
-    view: GeoView,
-    observesView: true,
-  }>;
+  override readonly geo!: TraitViewRef<this, GeoGridTrait, GeoView> & GeoLayerController["geo"] & Observes<GeoGridTrait & GeoView>;
   static override readonly geo: FastenerClass<GeoGridController["geo"]>;
 
-  @TraitViewControllerSetDef<GeoGridController["features"]>({
+  @TraitViewControllerSet<GeoGridController["features"]>({
     extends: true,
     detectController(controller: Controller): GeoController | null {
       return controller instanceof GeoController && !(controller instanceof GeoGridController) ? controller : null;
     },
   })
-  override readonly features!: TraitViewControllerSetDef<this, {
-    extends: GeoLayerController["features"],
-  }>;
+  override readonly features!: TraitViewControllerSet<this, GeoTrait, GeoView, GeoController> & GeoLayerController["features"];
   static override readonly features: FastenerClass<GeoGridController["features"]>;
 
-  @TraitViewControllerSetDef<GeoGridController["tiles"]>({
+  @TraitViewControllerSet<GeoGridController["tiles"]>({
     controllerType: GeoGridController,
     binds: true,
     observes: true,
@@ -216,17 +203,11 @@ export class GeoGridController extends GeoLayerController {
       }
     },
   })
-  readonly tiles!: TraitViewControllerSetDef<this, {
-    trait: GeoGridTrait,
-    view: GeoView,
-    controller: GeoGridController,
-    implements: {
-      attachTileTrait(tileTrait: GeoGridTrait, tileController: GeoGridController): void,
-      detachTileTrait(tileTrait: GeoGridTrait, tileController: GeoGridController): void,
-      attachTileView(tileView: GeoView, tileController: GeoGridController): void,
-      detachTileView(tileView: GeoView, tileController: GeoGridController): void,
-    },
-    observes: true,
-  }>;
+  readonly tiles!: TraitViewControllerSet<this, GeoGridTrait, GeoView, GeoGridController> & Observes<GeoGridController> & {
+    attachTileTrait(tileTrait: GeoGridTrait, tileController: GeoGridController): void,
+    detachTileTrait(tileTrait: GeoGridTrait, tileController: GeoGridController): void,
+    attachTileView(tileView: GeoView, tileController: GeoGridController): void,
+    detachTileView(tileView: GeoView, tileController: GeoGridController): void,
+  };
   static readonly tiles: FastenerClass<GeoGridController["tiles"]>;
 }

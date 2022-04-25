@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Mutable, Class} from "@swim/util";
-import {Affinity, AnimatorDef} from "@swim/component";
+import {Affinity, Animator} from "@swim/component";
 import {AnyR2Point, R2Point, R2Box, AnyR2Path, R2Path} from "@swim/math";
 import {AnyGeoPoint, GeoPoint, GeoBox, AnyGeoPath, GeoPath} from "@swim/geo";
 import type {ViewContextType} from "@swim/view";
@@ -40,7 +40,7 @@ export class GeoPathView extends GeoView {
 
   override readonly observerType?: Class<GeoPathViewObserver>;
 
-  @AnimatorDef<GeoPathView["geoPath"]>({
+  @Animator<GeoPathView["geoPath"]>({
     valueType: GeoPath,
     value: null,
     didSetValue(newGeoPath: GeoPath | null, oldGeoPath: GeoPath | null): void {
@@ -51,16 +51,16 @@ export class GeoPathView extends GeoView {
       this.owner.callObservers("viewDidSetGeoPath", newGeoPath, this.owner);
     },
   })
-  readonly geoPath!: AnimatorDef<this, {value: GeoPath | null, valueInit: AnyGeoPath | null}>;
+  readonly geoPath!: Animator<this, GeoPath | null, AnyGeoPath | null>;
 
-  @AnimatorDef({valueType: R2Path, value: null})
-  readonly viewPath!: AnimatorDef<this, {value: R2Path | null, valueInit: AnyR2Path | null}>;
+  @Animator({valueType: R2Path, value: null})
+  readonly viewPath!: Animator<this, R2Path | null, AnyR2Path | null>;
 
-  @AnimatorDef({valueType: GeoPoint, value: null})
-  readonly geoCentroid!: AnimatorDef<this, {value: GeoPoint | null, valueInit: AnyGeoPoint | null}>;
+  @Animator({valueType: GeoPoint, value: null})
+  readonly geoCentroid!: Animator<this, GeoPoint | null, AnyGeoPoint | null>;
 
-  @AnimatorDef({valueType: R2Point, value: null})
-  readonly viewCentroid!: AnimatorDef<this, {value: R2Point | null, valueInit: AnyR2Point | null}>;
+  @Animator({valueType: R2Point, value: null})
+  readonly viewCentroid!: Animator<this, R2Point | null, AnyR2Point | null>;
 
   protected override onProject(viewContext: ViewContextType<this>): void {
     super.onProject(viewContext);

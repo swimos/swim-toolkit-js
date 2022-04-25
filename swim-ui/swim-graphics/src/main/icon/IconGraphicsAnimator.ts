@@ -22,7 +22,7 @@ import {IconView} from "./"; // forward import
 export const IconGraphicsAnimator = (function (_super: typeof ThemeAnimator) {
   const IconGraphicsAnimator = _super.extend("IconGraphicsAnimator", {
     valueType: Graphics,
-  }) as ThemeAnimatorClass<ThemeAnimator<any, Graphics | null | undefined, Graphics | null | undefined>>;
+  }) as ThemeAnimatorClass<ThemeAnimator<any, any, any>>;
 
   IconGraphicsAnimator.prototype.transformState = function (this: ThemeAnimator<unknown, Graphics | null>, icon: Graphics | null): Graphics | null {
     const iconView = this.owner;

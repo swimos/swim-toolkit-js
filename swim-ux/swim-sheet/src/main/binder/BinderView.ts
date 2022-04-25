@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Instance, Creatable} from "@swim/util";
-import {Affinity, FastenerClass, PropertyDef} from "@swim/component";
+import type {Class, Instance, Creatable, Observes} from "@swim/util";
+import {Affinity, FastenerClass, Property} from "@swim/component";
 import {Length} from "@swim/math";
-import {ViewContextType, View, ViewRefDef, ViewSetDef} from "@swim/view";
+import {ViewContextType, View, ViewRef, ViewSet} from "@swim/view";
 import {BarView} from "@swim/toolbar";
 import {SheetView} from "../sheet/SheetView";
 import type {BinderViewObserver} from "./BinderViewObserver";
@@ -39,7 +39,7 @@ export class BinderView extends SheetView {
 
   override readonly observerType?: Class<BinderViewObserver>;
 
-  @PropertyDef<BinderView["tabStyle"]>({
+  @Property<BinderView["tabStyle"]>({
     valueType: String,
     value: "none",
     updateFlags: View.NeedsResize,
@@ -47,9 +47,9 @@ export class BinderView extends SheetView {
       this.owner.callObservers("viewDidSetTabStyle", tabStyle, this.owner);
     },
   })
-  readonly tabStyle!: PropertyDef<this, {value: BinderTabStyle}>;
+  readonly tabStyle!: Property<this, BinderTabStyle>;
 
-  @ViewRefDef<BinderView["tabBar"]>({
+  @ViewRef<BinderView["tabBar"]>({
     viewType: BarView,
     binds: true,
     observes: true,
@@ -74,7 +74,7 @@ export class BinderView extends SheetView {
       this.owner.requireUpdate(View.NeedsResize);
     },
   })
-  readonly tabBar!: ViewRefDef<this, {view: BarView, observes: true}>;
+  readonly tabBar!: ViewRef<this, BarView> & Observes<BarView>;
   static readonly tabBar: FastenerClass<BinderView["tabBar"]>;
 
   getTab<F extends Class<SheetView>>(key: string, tabViewClass: F): InstanceType<F> | null;
@@ -100,7 +100,7 @@ export class BinderView extends SheetView {
     this.setChild(key, tabView);
   }
 
-  @ViewSetDef<BinderView["tabs"]>({
+  @ViewSet<BinderView["tabs"]>({
     viewType: SheetView,
     binds: false,
     observes: true,
@@ -155,10 +155,10 @@ export class BinderView extends SheetView {
       return view instanceof SheetView ? view : null;
     },
   })
-  readonly tabs!: ViewSetDef<this, {view: SheetView, observes: true}>;
+  readonly tabs!: ViewSet<this, SheetView> & Observes<SheetView>;
   static readonly tabs: FastenerClass<BinderView["tabs"]>;
 
-  @ViewRefDef<BinderView["active"]>({
+  @ViewRef<BinderView["active"]>({
     viewType: SheetView,
     binds: false,
     observes: true,
@@ -178,7 +178,7 @@ export class BinderView extends SheetView {
       this.owner.fullBleed.setValue(fullBleed, Affinity.Intrinsic);
     },
   })
-  readonly active!: ViewRefDef<this, {view: SheetView, observes: true}>;
+  readonly active!: ViewRef<this, SheetView> & Observes<SheetView>;
   static readonly active: FastenerClass<BinderView["active"]>;
 
   protected override onResize(viewContext: ViewContextType<this>): void {

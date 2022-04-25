@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Class, AnyTiming, Timing} from "@swim/util";
-import {PropertyDef} from "@swim/component";
+import {Property} from "@swim/component";
 import {Controller, TraitViewRef} from "@swim/controller";
 import type {GeoView} from "./GeoView";
 import type {GeoTrait} from "./GeoTrait";
@@ -23,11 +23,8 @@ import type {GeoControllerObserver} from "./GeoControllerObserver";
 export abstract class GeoController extends Controller {
   override readonly observerType?: Class<GeoControllerObserver>;
 
-  @PropertyDef({valueType: Timing, inherits: true})
-  readonly geoTiming!: PropertyDef<this, {
-    value: Timing | boolean | undefined,
-    valueInit: AnyTiming | boolean | undefined,
-  }>;
+  @Property({valueType: Timing, inherits: true})
+  readonly geoTiming!: Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined>;
 
   abstract readonly geo: TraitViewRef<this, GeoTrait, GeoView>;
 }

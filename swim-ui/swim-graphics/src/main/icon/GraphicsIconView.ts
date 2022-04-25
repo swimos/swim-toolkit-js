@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import type {Timing} from "@swim/util";
-import {Affinity, AnimatorDef} from "@swim/component";
+import {Affinity, Animator} from "@swim/component";
 import {AnyLength, Length, R2Box} from "@swim/math";
 import {AnyColor, Color} from "@swim/style";
 import type {MoodVector, ThemeMatrix} from "@swim/theme";
-import {ThemeAnimatorDef} from "@swim/theme";
+import {ThemeAnimator} from "@swim/theme";
 import {ViewContextType, View} from "@swim/view";
 import {Graphics} from "../graphics/Graphics";
 import {GraphicsViewInit, GraphicsView} from "../graphics/GraphicsView";
@@ -34,19 +34,19 @@ export interface GraphicsIconViewInit extends GraphicsViewInit, IconViewInit {
 
 /** @public */
 export class GraphicsIconView extends GraphicsView implements IconView {
-  @AnimatorDef({valueType: Number, value: 0.5, updateFlags: View.NeedsRender})
-  readonly xAlign!: AnimatorDef<this, {value: number}>;
+  @Animator({valueType: Number, value: 0.5, updateFlags: View.NeedsRender})
+  readonly xAlign!: Animator<this, number>;
 
-  @AnimatorDef({valueType: Number, value: 0.5, updateFlags: View.NeedsRender})
-  readonly yAlign!: AnimatorDef<this, {value: number}>;
+  @Animator({valueType: Number, value: 0.5, updateFlags: View.NeedsRender})
+  readonly yAlign!: Animator<this, number>;
 
-  @ThemeAnimatorDef({valueType: Length, value: null, updateFlags: View.NeedsRender})
-  readonly iconWidth!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  @ThemeAnimator({valueType: Length, value: null, updateFlags: View.NeedsRender})
+  readonly iconWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
 
-  @ThemeAnimatorDef({valueType: Length, value: null, updateFlags: View.NeedsRender})
-  readonly iconHeight!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  @ThemeAnimator({valueType: Length, value: null, updateFlags: View.NeedsRender})
+  readonly iconHeight!: ThemeAnimator<this, Length | null, AnyLength | null>;
 
-  @ThemeAnimatorDef<GraphicsIconView["iconColor"]>({
+  @ThemeAnimator<GraphicsIconView["iconColor"]>({
     valueType: Color,
     value: null,
     updateFlags: View.NeedsRender,
@@ -61,15 +61,15 @@ export class GraphicsIconView extends GraphicsView implements IconView {
       }
     },
   })
-  readonly iconColor!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
+  readonly iconColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @ThemeAnimatorDef<GraphicsIconView["graphics"]>({
+  @ThemeAnimator<GraphicsIconView["graphics"]>({
     extends: IconGraphicsAnimator,
     valueType: Graphics,
     value: null,
     updateFlags: View.NeedsRender,
   })
-  readonly graphics!: ThemeAnimatorDef<this, {value: Graphics | null}>;
+  readonly graphics!: ThemeAnimator<this, Graphics | null>;
 
   protected override onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);

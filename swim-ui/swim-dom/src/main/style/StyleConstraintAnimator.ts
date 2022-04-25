@@ -34,39 +34,41 @@ import {
   ConstraintSolver,
 } from "@swim/constraint";
 import {Length} from "@swim/math";
-import {
-  StyleAnimatorRefinement,
-  StyleAnimatorTemplate,
-  StyleAnimatorClass,
-  StyleAnimator,
-} from "./StyleAnimator";
+import {StyleAnimatorDescriptor, StyleAnimatorClass, StyleAnimator} from "./StyleAnimator";
 import {NumberStyleConstraintAnimator} from "./"; // forward import
 import {LengthStyleConstraintAnimator} from "./"; // forward import
 
 /** @public */
-export interface StyleConstraintAnimatorRefinement extends StyleAnimatorRefinement {
-}
-
-/** @public */
-export interface StyleConstraintAnimatorTemplate<T = unknown, U = T> extends StyleAnimatorTemplate<T, U> {
+export interface StyleConstraintAnimatorDescriptor<T = unknown, U = T> extends StyleAnimatorDescriptor<T, U> {
   extends?: Proto<StyleConstraintAnimator<any, any, any>> | string | boolean | null;
   strength?: AnyConstraintStrength;
   constrained?: boolean;
 }
 
 /** @public */
+export type StyleConstraintAnimatorTemplate<A extends StyleConstraintAnimator<any, any, any>> =
+  ThisType<A> &
+  StyleConstraintAnimatorDescriptor<AnimatorValue<A>, AnimatorValueInit<A>> &
+  Partial<Omit<A, keyof StyleConstraintAnimatorDescriptor>>;
+
+/** @public */
 export interface StyleConstraintAnimatorClass<A extends StyleConstraintAnimator<any, any> = StyleConstraintAnimator<any, any, any>> extends StyleAnimatorClass<A> {
   /** @override */
-  specialize(className: string, template: StyleConstraintAnimatorTemplate): StyleConstraintAnimatorClass;
+  specialize(template: StyleConstraintAnimatorDescriptor<any, any>): StyleConstraintAnimatorClass<A>;
 
   /** @override */
-  extend(className: string, template: StyleConstraintAnimatorTemplate): StyleConstraintAnimatorClass<A>;
+  refine(animatorClass: StyleConstraintAnimatorClass<any>): void;
 
   /** @override */
-  specify<O, T = unknown, U = T>(className: string, template: ThisType<StyleConstraintAnimator<O, T, U>> & StyleConstraintAnimatorTemplate<T, U> & Partial<Omit<StyleConstraintAnimator<O, T, U>, keyof StyleConstraintAnimatorTemplate>>): StyleConstraintAnimatorClass<A>;
+  extend<A2 extends A>(className: string, template: StyleConstraintAnimatorTemplate<A2>): StyleConstraintAnimatorClass<A2>;
+  extend<A2 extends A>(className: string, template: StyleConstraintAnimatorTemplate<A2>): StyleConstraintAnimatorClass<A2>;
 
   /** @override */
-  <O, T = unknown, U = T>(template: ThisType<StyleConstraintAnimator<O, T, U>> & StyleConstraintAnimatorTemplate<T, U> & Partial<Omit<StyleConstraintAnimator<O, T, U>, keyof StyleConstraintAnimatorTemplate>>): PropertyDecorator;
+  define<A2 extends A>(className: string, template: StyleConstraintAnimatorTemplate<A2>): StyleConstraintAnimatorClass<A2>;
+  define<A2 extends A>(className: string, template: StyleConstraintAnimatorTemplate<A2>): StyleConstraintAnimatorClass<A2>;
+
+  /** @override */
+  <A2 extends A>(template: StyleConstraintAnimatorTemplate<A2>): PropertyDecorator;
 
   /** @internal */
   readonly ConstrainedFlag: FastenerFlags;
@@ -77,28 +79,6 @@ export interface StyleConstraintAnimatorClass<A extends StyleConstraintAnimator<
   readonly FlagShift: number;
   /** @internal @override */
   readonly FlagMask: FastenerFlags;
-}
-
-/** @public */
-export type StyleConstraintAnimatorDef<O, R extends StyleConstraintAnimatorRefinement = {}> =
-  StyleConstraintAnimator<O, AnimatorValue<R>, AnimatorValueInit<R>> &
-  {readonly name: string} & // prevent type alias simplification
-  (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer I} ? I : {}) &
-  (R extends {implements: infer I} ? I : {});
-
-/** @public */
-export function StyleConstraintAnimatorDef<A extends StyleConstraintAnimator<any, any, any>>(
-  template: A extends StyleConstraintAnimatorDef<infer O, infer R>
-          ? ThisType<StyleConstraintAnimatorDef<O, R>>
-          & StyleConstraintAnimatorTemplate<AnimatorValue<R>, AnimatorValueInit<R>>
-          & Partial<Omit<StyleConstraintAnimator<O, AnimatorValue<R>, AnimatorValueInit<R>>, keyof StyleConstraintAnimatorTemplate>>
-          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof StyleConstraintAnimatorTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer I} ? Partial<I> : {})
-          & (R extends {implements: infer I} ? I : {})
-          : never
-): PropertyDecorator {
-  return StyleConstraintAnimator(template);
 }
 
 /** @public */
@@ -475,7 +455,7 @@ export const StyleConstraintAnimator = (function (_super: typeof StyleAnimator) 
     return animator;
   };
 
-  StyleConstraintAnimator.specialize = function (className: string, template: StyleConstraintAnimatorTemplate): StyleConstraintAnimatorClass {
+  StyleConstraintAnimator.specialize = function (template: StyleConstraintAnimatorDescriptor<any, any>): StyleConstraintAnimatorClass {
     let superClass = template.extends as StyleConstraintAnimatorClass | null | undefined;
     if (superClass === void 0 || superClass === null) {
       const valueType = template.valueType;
@@ -490,7 +470,7 @@ export const StyleConstraintAnimator = (function (_super: typeof StyleAnimator) 
     return superClass
   };
 
-  StyleConstraintAnimator.refine = function (animatorClass: StyleConstraintAnimatorClass): void {
+  StyleConstraintAnimator.refine = function (animatorClass: StyleConstraintAnimatorClass<any>): void {
     _super.refine.call(this, animatorClass);
     const animatorPrototype = animatorClass.prototype;
     let flagsInit = animatorPrototype.flagsInit;
@@ -504,7 +484,7 @@ export const StyleConstraintAnimator = (function (_super: typeof StyleAnimator) 
       } else {
         flagsInit &= ~StyleConstraintAnimator.ConstrainedFlag;
       }
-      delete (animatorPrototype as StyleConstraintAnimatorTemplate).constrained;
+      delete (animatorPrototype as StyleConstraintAnimatorDescriptor).constrained;
     }
 
     if (flagsInit !== void 0) {

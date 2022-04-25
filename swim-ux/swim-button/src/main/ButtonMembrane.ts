@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {FastenerClass, PropertyDef} from "@swim/component";
+import {FastenerClass, Property} from "@swim/component";
 import {HtmlViewInit, HtmlView} from "@swim/dom";
-import {PositionGestureInput, PositionGestureDef} from "@swim/view";
+import {PositionGestureInput, PositionGesture} from "@swim/view";
 import {ButtonGlow} from "./ButtonGlow";
 
 /** @public */
@@ -32,8 +32,8 @@ export class ButtonMembrane extends HtmlView {
     this.addClass("membrane");
   }
 
-  @PropertyDef({valueType: Boolean, value: true, inherits: true})
-  readonly glows!: PropertyDef<this, {value: boolean}>;
+  @Property({valueType: Boolean, value: true, inherits: true})
+  readonly glows!: Property<this, boolean>;
 
   protected glow(input: PositionGestureInput): void {
     if (input.detail instanceof ButtonGlow) {
@@ -47,7 +47,7 @@ export class ButtonMembrane extends HtmlView {
     }
   }
 
-  @PositionGestureDef<ButtonMembrane["gesture"]>({
+  @PositionGesture<ButtonMembrane["gesture"]>({
     bindsOwner: true,
     didBeginPress(input: PositionGestureInput, event: Event | null): void {
       if (this.owner.glows.value) {
@@ -87,7 +87,7 @@ export class ButtonMembrane extends HtmlView {
       }
     },
   })
-  readonly gesture!: PositionGestureDef<this, {view: HtmlView}>;
+  readonly gesture!: PositionGesture<this, HtmlView>;
   static readonly gesture: FastenerClass<ButtonMembrane["gesture"]>;
 
   override init(init: ButtonMembraneInit): void {

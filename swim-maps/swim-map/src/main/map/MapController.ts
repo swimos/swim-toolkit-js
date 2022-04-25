@@ -12,20 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, AnyTiming, Timing} from "@swim/util";
-import {FastenerClass, PropertyDef} from "@swim/component";
+import {Class, AnyTiming, Timing, Observes} from "@swim/util";
+import {FastenerClass, Property} from "@swim/component";
 import type {GeoBox} from "@swim/geo";
 import type {Trait} from "@swim/model";
-import {ViewRefDef} from "@swim/view";
+import {ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {CanvasView} from "@swim/graphics";
-import {
-  Controller,
-  TraitViewRefDef,
-  TraitViewRef,
-  TraitViewControllerSetDef,
-  TraitViewControllerSet,
-} from "@swim/controller";
+import {Controller, TraitViewRef, TraitViewControllerSet} from "@swim/controller";
 import type {GeoPerspective} from "../geo/GeoPerspective";
 import type {GeoViewport} from "../geo/GeoViewport";
 import type {GeoView} from "../geo/GeoView";
@@ -52,7 +46,7 @@ export class MapController extends Controller {
     }
   }
 
-  @TraitViewRefDef<MapController["map"]>({
+  @TraitViewRef<MapController["map"]>({
     traitType: MapTrait,
     observesTrait: true,
     willAttachTrait(mapTrait: MapTrait): void {
@@ -127,15 +121,10 @@ export class MapController extends Controller {
       this.owner.container.setView(null);
     },
   })
-  readonly map!: TraitViewRefDef<this, {
-    trait: MapTrait,
-    observesTrait: true,
-    view: MapView,
-    observesView: true,
-  }>;
+  readonly map!: TraitViewRef<this, MapTrait, MapView> & Observes<MapTrait & MapView>;
   static readonly map: FastenerClass<MapController["map"]>;
 
-  @ViewRefDef<MapController["canvas"]>({
+  @ViewRef<MapController["canvas"]>({
     viewType: CanvasView,
     willAttachView(mapCanvasView: CanvasView): void {
       this.owner.callObservers("controllerWillAttachMapCanvasView", mapCanvasView, this.owner);
@@ -144,10 +133,10 @@ export class MapController extends Controller {
       this.owner.callObservers("controllerDidDetachMapCanvasView", mapCanvasView, this.owner);
     },
   })
-  readonly canvas!: ViewRefDef<this, {view: CanvasView}>;
+  readonly canvas!: ViewRef<this, CanvasView>;
   static readonly canvas: FastenerClass<MapController["canvas"]>;
 
-  @ViewRefDef<MapController["container"]>({
+  @ViewRef<MapController["container"]>({
     viewType: HtmlView,
     willAttachView(mapContainerView: HtmlView): void {
       this.owner.callObservers("controllerWillAttachMapContainerView", mapContainerView, this.owner);
@@ -166,13 +155,13 @@ export class MapController extends Controller {
       this.owner.callObservers("controllerDidDetachMapContainerView", mapContainerView, this.owner);
     },
   })
-  readonly container!: ViewRefDef<this, {view: HtmlView}>;
+  readonly container!: ViewRef<this, HtmlView>;
   static readonly container: FastenerClass<MapController["container"]>;
 
-  @PropertyDef({valueType: Timing, value: true})
-  readonly geoTiming!: PropertyDef<this, {value: Timing | boolean | undefined, valueInit: AnyTiming}>;
+  @Property({valueType: Timing, value: true})
+  readonly geoTiming!: Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined>;
 
-  @TraitViewControllerSetDef<MapController["layers"]>({
+  @TraitViewControllerSet<MapController["layers"]>({
     controllerType: GeoController,
     binds: true,
     observes: true,
@@ -250,17 +239,11 @@ export class MapController extends Controller {
       }
     },
   })
-  readonly layers!: TraitViewControllerSetDef<this, {
-    trait: GeoTrait,
-    view: GeoView,
-    controller: GeoController,
-    implements: {
-      attachLayerTrait(layerTrait: GeoTrait, layerController: GeoController): void;
-      detachLayerTrait(layerTrait: GeoTrait, layerController: GeoController): void;
-      attachLayerView(layerView: GeoView, layerController: GeoController): void;
-      detachLayerView(layerView: GeoView, layerController: GeoController): void;
-    },
-    observes: true,
-  }>;
+  readonly layers!: TraitViewControllerSet<this, GeoTrait, GeoView, GeoController> & Observes<GeoController> & {
+    attachLayerTrait(layerTrait: GeoTrait, layerController: GeoController): void,
+    detachLayerTrait(layerTrait: GeoTrait, layerController: GeoController): void,
+    attachLayerView(layerView: GeoView, layerController: GeoController): void,
+    detachLayerView(layerView: GeoView, layerController: GeoController): void,
+  };
   static readonly layers: FastenerClass<MapController["layers"]>;
 }

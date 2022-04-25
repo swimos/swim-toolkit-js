@@ -15,7 +15,7 @@
 import {Mutable, Class, Lazy, Equivalent, AnyTiming} from "@swim/util";
 import type {FastenerClass} from "@swim/component";
 import {GeoPoint} from "@swim/geo";
-import {ViewContextType, ViewFlags, View, ViewRefDef} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewRef} from "@swim/view";
 import {ViewHtml, HtmlView} from "@swim/dom";
 import type {CanvasView} from "@swim/graphics";
 import {AnyGeoPerspective, MapView} from "@swim/map";
@@ -147,7 +147,7 @@ export class GoogleMapView extends MapView {
     }
   }
 
-  @ViewRefDef<GoogleMapView["canvas"]>({
+  @ViewRef<GoogleMapView["canvas"]>({
     extends: true,
     didAttachView(canvasView: CanvasView, targetView: View | null): void {
       if (this.owner.parent === null) {
@@ -162,12 +162,10 @@ export class GoogleMapView extends MapView {
       }
     },
   })
-  override readonly canvas!: ViewRefDef<this, {
-    extends: MapView["canvas"],
-  }>;
+  override readonly canvas!: ViewRef<this, CanvasView> & MapView["canvas"];
   static override readonly canvas: FastenerClass<GoogleMapView["canvas"]>;
 
-  @ViewRefDef<GoogleMapView["container"]>({
+  @ViewRef<GoogleMapView["container"]>({
     extends: true,
     didAttachView(containerView: HtmlView, targetView: View | null): void {
       this.materializeView(containerView);
@@ -206,11 +204,8 @@ export class GoogleMapView extends MapView {
       }
     },
   })
-  override readonly container!: ViewRefDef<this, {
-    extends: MapView["container"],
-    implements: {
+  override readonly container!: ViewRef<this, HtmlView> & MapView["container"] & {
       materializeView(containerView: HtmlView): void,
-    },
-  }>;
+    };
   static override readonly container: FastenerClass<GoogleMapView["container"]>;
 }

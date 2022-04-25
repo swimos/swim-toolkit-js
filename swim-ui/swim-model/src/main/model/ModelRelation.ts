@@ -12,26 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Proto, ObserverType} from "@swim/util";
-import {FastenerRefinement, FastenerTemplate, FastenerClass, Fastener} from "@swim/component";
+import type {Proto, Observes} from "@swim/util";
+import {FastenerDescriptor, FastenerClass, Fastener} from "@swim/component";
 import {AnyModel, ModelFactory, Model} from "./Model";
 import {Trait} from "../"; // forward import
 
 /** @public */
-export interface ModelRelationRefinement extends FastenerRefinement {
-  model?: Model;
-  observes?: unknown;
-}
+export type ModelRelationModel<F extends ModelRelation<any, any>> =
+  F extends {modelType?: ModelFactory<infer M>} ? M : never;
 
 /** @public */
-export type ModelRelationModel<R extends ModelRelationRefinement | ModelRelation<any, any>, D = Model> =
-  R extends {model: infer M} ? M :
-  R extends {extends: infer E} ? ModelRelationModel<E, D> :
-  R extends ModelRelation<any, infer M> ? M :
-  D;
-
-/** @public */
-export interface ModelRelationTemplate<M extends Model = Model> extends FastenerTemplate {
+export interface ModelRelationDescriptor<M extends Model = Model> extends FastenerDescriptor {
   extends?: Proto<ModelRelation<any, any>> | string | boolean | null;
   modelType?: ModelFactory<M>;
   binds?: boolean;
@@ -39,45 +30,29 @@ export interface ModelRelationTemplate<M extends Model = Model> extends Fastener
 }
 
 /** @public */
+export type ModelRelationTemplate<F extends ModelRelation<any, any>> =
+  ThisType<F> &
+  ModelRelationDescriptor<ModelRelationModel<F>> &
+  Partial<Omit<F, keyof ModelRelationDescriptor>>;
+
+/** @public */
 export interface ModelRelationClass<F extends ModelRelation<any, any> = ModelRelation<any, any>> extends FastenerClass<F> {
   /** @override */
-  specialize(className: string, template: ModelRelationTemplate): ModelRelationClass;
+  specialize(template: ModelRelationDescriptor<any>): ModelRelationClass<F>;
 
   /** @override */
-  refine(fastenerClass: ModelRelationClass): void;
+  refine(fastenerClass: ModelRelationClass<any>): void;
 
   /** @override */
-  extend(className: string, template: ModelRelationTemplate): ModelRelationClass<F>;
+  extend<F2 extends F>(className: string, template: ModelRelationTemplate<F2>): ModelRelationClass<F2>;
+  extend<F2 extends F>(className: string, template: ModelRelationTemplate<F2>): ModelRelationClass<F2>;
 
   /** @override */
-  specify<O, M extends Model = Model>(className: string, template: ThisType<ModelRelation<O, M>> & ModelRelationTemplate<M> & Partial<Omit<ModelRelation<O, M>, keyof ModelRelationTemplate>>): ModelRelationClass<F>;
+  define<F2 extends F>(className: string, template: ModelRelationTemplate<F2>): ModelRelationClass<F2>;
+  define<F2 extends F>(className: string, template: ModelRelationTemplate<F2>): ModelRelationClass<F2>;
 
   /** @override */
-  <O, M extends Model = Model>(template: ThisType<ModelRelation<O, M>> & ModelRelationTemplate<M> & Partial<Omit<ModelRelation<O, M>, keyof ModelRelationTemplate>>): PropertyDecorator;
-}
-
-/** @public */
-export type ModelRelationDef<O, R extends ModelRelationRefinement = {}> =
-  ModelRelation<O, ModelRelationModel<R>> &
-  {readonly name: string} & // prevent type alias simplification
-  (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer I} ? I : {}) &
-  (R extends {implements: infer I} ? I : {}) &
-  (R extends {observes: infer B} ? ObserverType<B extends boolean ? ModelRelationModel<R> : B> : {});
-
-/** @public */
-export function ModelRelationDef<F extends ModelRelation<any, any>>(
-  template: F extends ModelRelationDef<infer O, infer R>
-          ? ThisType<ModelRelationDef<O, R>>
-          & ModelRelationTemplate<ModelRelationModel<R>>
-          & Partial<Omit<ModelRelation<O, ModelRelationModel<R>>, keyof ModelRelationTemplate>>
-          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof ModelRelationTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer I} ? Partial<I> : {})
-          & (R extends {implements: infer I} ? I : {})
-          & (R extends {observes: infer B} ? (ObserverType<B extends boolean ? ModelRelationModel<R> : B> & {observes: boolean}) : {})
-          : never
-): PropertyDecorator {
-  return ModelRelation(template);
+  <F2 extends F>(template: ModelRelationTemplate<F2>): PropertyDecorator;
 }
 
 /** @public */
@@ -157,7 +132,7 @@ export const ModelRelation = (function (_super: typeof Fastener) {
 
   ModelRelation.prototype.onAttachModel = function <M extends Model>(this: ModelRelation<unknown, M>, model: M, target: Model | null): void {
     if (this.observes === true) {
-      model.observe(this as ObserverType<M>);
+      model.observe(this as Observes<M>);
     }
   };
 
@@ -175,7 +150,7 @@ export const ModelRelation = (function (_super: typeof Fastener) {
 
   ModelRelation.prototype.onDetachModel = function <M extends Model>(this: ModelRelation<unknown, M>, model: M): void {
     if (this.observes === true) {
-      model.unobserve(this as ObserverType<M>);
+      model.unobserve(this as Observes<M>);
     }
   };
 

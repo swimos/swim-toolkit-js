@@ -15,8 +15,14 @@
 import {AttributeAnimatorClass, AttributeAnimator} from "./AttributeAnimator";
 
 /** @internal */
+export interface StringAttributeAnimator<O = unknown, T extends string | undefined = string | undefined, U extends string | undefined = T> extends AttributeAnimator<O, T, U> {
+}
+
+/** @internal */
 export const StringAttributeAnimator = (function (_super: typeof AttributeAnimator) {
-  const StringAttributeAnimator = _super.extend("StringAttributeAnimator", {}) as AttributeAnimatorClass<AttributeAnimator<any, string | undefined, string | undefined>>;
+  const StringAttributeAnimator = _super.extend("StringAttributeAnimator", {
+    valueType: String,
+  }) as AttributeAnimatorClass<StringAttributeAnimator<any, any, any>>;
 
   StringAttributeAnimator.prototype.equalValues = function (newValue: string | undefined, oldValue: string | undefined): boolean {
     return newValue === oldValue;

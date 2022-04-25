@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Class, Arrays, ObserverType} from "@swim/util";
-import {Affinity, ProviderDef} from "@swim/component";
+import {Mutable, Class, Arrays, Observes} from "@swim/util";
+import {Affinity, Provider} from "@swim/component";
 import {R2Box, Transform} from "@swim/math";
 import {
   ViewContextType,
@@ -161,11 +161,11 @@ export class CanvasView extends HtmlView {
     return displayFlags;
   }
 
-  @ProviderDef<CanvasView["spriteProvider"]>({
+  @Provider<CanvasView["spriteProvider"]>({
     serviceType: SpriteService,
     service: SpriteService.global(),
   })
-  readonly spriteProvider!: ProviderDef<this, {service: SpriteService}>;
+  readonly spriteProvider!: Provider<this, SpriteService>;
 
   get pixelRatio(): number {
     return window.devicePixelRatio || 1;
@@ -1186,7 +1186,7 @@ export class CanvasView extends HtmlView {
     }
   }
 
-  protected override onObserve(observer: ObserverType<this>): void {
+  protected override onObserve(observer: Observes<this>): void {
     super.onObserve(observer);
     if (observer.viewWillRender !== void 0) {
       this.observerCache.viewWillRenderObservers = Arrays.inserted(observer as ViewWillRender, this.observerCache.viewWillRenderObservers);
@@ -1208,7 +1208,7 @@ export class CanvasView extends HtmlView {
     }
   }
 
-  protected override onUnobserve(observer: ObserverType<this>): void {
+  protected override onUnobserve(observer: Observes<this>): void {
     super.onUnobserve(observer);
     if (observer.viewWillRender !== void 0) {
       this.observerCache.viewWillRenderObservers = Arrays.removed(observer as ViewWillRender, this.observerCache.viewWillRenderObservers);

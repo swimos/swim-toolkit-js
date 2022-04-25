@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {PropertyDef} from "@swim/component";
+import {Property} from "@swim/component";
 import {Trait} from "@swim/model";
 import {AnyColLayout, ColLayout} from "../layout/ColLayout";
 import type {ColTraitObserver} from "./ColTraitObserver";
@@ -23,14 +23,14 @@ import {ColController} from "./"; // forward import
 export class ColTrait extends Trait {
   override readonly observerType?: Class<ColTraitObserver>;
 
-  @PropertyDef<ColTrait["layout"]>({
+  @Property<ColTrait["layout"]>({
     valueType: ColLayout,
     value: null,
     didSetValue(layout: ColLayout | null): void {
       this.owner.callObservers("traitDidSetLayout", layout, this.owner);
     },
   })
-  readonly layout!: PropertyDef<this, {value: ColLayout | null, valueInit: AnyColLayout | null}>;
+  readonly layout!: Property<this, ColLayout | null, AnyColLayout | null>;
 
   createColController(): ColController {
     return new ColController();

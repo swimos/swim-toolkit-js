@@ -15,7 +15,7 @@
 import type {Class} from "@swim/util";
 import {Affinity, FastenerClass} from "@swim/component";
 import {Length} from "@swim/math";
-import {PositionGestureInput, PositionGestureDef, ViewContextType, ViewRefDef} from "@swim/view";
+import {PositionGestureInput, PositionGesture, ViewContextType, ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {ToolView} from "./ToolView";
 import type {TitleToolViewObserver} from "./TitleToolViewObserver";
@@ -30,7 +30,7 @@ export class TitleToolView extends ToolView {
 
   override readonly observerType?: Class<TitleToolViewObserver>;
 
-  @ViewRefDef<TitleToolView["content"]>({
+  @ViewRef<TitleToolView["content"]>({
     viewType: HtmlView,
     viewKey: true,
     binds: true,
@@ -64,12 +64,9 @@ export class TitleToolView extends ToolView {
       return contentView;
     },
   })
-  readonly content!: ViewRefDef<this, {
-    view: HtmlView,
-    implements: {
-      setText(content: string | undefined): HtmlView,
-    },
-  }>;
+  readonly content!: ViewRef<this, HtmlView> & {
+    setText(content: string | undefined): HtmlView,
+  };
   static readonly content: FastenerClass<TitleToolView["content"]>;
 
   protected override onLayout(viewContext: ViewContextType<this>): void {
@@ -100,9 +97,8 @@ export class TitleToolView extends ToolView {
     }
   }
 
-  @PositionGestureDef<TitleToolView["gesture"]>({
+  @PositionGesture<TitleToolView["gesture"]>({
     bindsOwner: true,
-    observes: true,
     didPress(input: PositionGestureInput, event: Event | null): void {
       if (!input.defaultPrevented && this.owner.clientBounds.contains(input.x, input.y)) {
         this.owner.onPress(input, event);
@@ -116,7 +112,7 @@ export class TitleToolView extends ToolView {
       }
     },
   })
-  readonly gesture!: PositionGestureDef<this, {view: HtmlView, observes: true}>;
+  readonly gesture!: PositionGesture<this, HtmlView>;
   static readonly gesture: FastenerClass<TitleToolView["gesture"]>;
 
   onPress(input: PositionGestureInput, event: Event | null): void {

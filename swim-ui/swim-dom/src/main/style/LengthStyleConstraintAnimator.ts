@@ -26,7 +26,7 @@ import {StyleConstraintAnimatorClass, StyleConstraintAnimator} from "./StyleCons
 import {StyleContext} from "../"; // forward import
 
 /** @public */
-export interface LengthStyleConstraintAnimator<O = unknown, T extends Length | null = Length | null, U extends AnyLength | null = T> extends StyleConstraintAnimator<O, T, U>, LengthBasis {
+export interface LengthStyleConstraintAnimator<O = unknown, T extends Length | null = Length | null, U extends AnyLength | null = AnyLength | T> extends StyleConstraintAnimator<O, T, U>, LengthBasis {
   get units(): LengthUnits;
 
   pxValue(basis?: LengthBasis | number): number;
@@ -79,7 +79,10 @@ export interface LengthStyleConstraintAnimator<O = unknown, T extends Length | n
 
 /** @public */
 export const LengthStyleConstraintAnimator = (function (_super: typeof StyleConstraintAnimator) {
-  const LengthStyleConstraintAnimator = _super.extend("LengthStyleConstraintAnimator", {}) as StyleConstraintAnimatorClass<LengthStyleConstraintAnimator<any, Length | null, AnyLength | null>>;
+  const LengthStyleConstraintAnimator = _super.extend("LengthStyleConstraintAnimator", {
+    valueType: Length,
+    value: null,
+  }) as StyleConstraintAnimatorClass<LengthStyleConstraintAnimator<any, any, any>>;
 
   Object.defineProperty(LengthStyleConstraintAnimator.prototype, "units", {
     get(this: LengthStyleConstraintAnimator): LengthUnits {

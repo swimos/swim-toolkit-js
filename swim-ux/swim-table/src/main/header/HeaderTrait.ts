@@ -14,7 +14,7 @@
 
 import type {Class, Instance, Creatable} from "@swim/util";
 import type {FastenerClass} from "@swim/component";
-import {Model, Trait, TraitSetDef} from "@swim/model";
+import {Model, Trait, TraitSet} from "@swim/model";
 import {ColTrait} from "../col/ColTrait";
 import type {HeaderTraitObserver} from "./HeaderTraitObserver";
 
@@ -45,7 +45,7 @@ export class HeaderTrait extends Trait {
     this.setTrait(key, colTrait);
   }
 
-  @TraitSetDef<HeaderTrait["cols"]>({
+  @TraitSet<HeaderTrait["cols"]>({
     traitType: ColTrait,
     binds: true,
     willAttachTrait(colTrait: ColTrait, targetTrait: Trait | null): void {
@@ -68,7 +68,7 @@ export class HeaderTrait extends Trait {
       return model.getTrait(ColTrait);
     },
   })
-  readonly cols!: TraitSetDef<this, {trait: ColTrait}>;
+  readonly cols!: TraitSet<this, ColTrait>;
   static readonly cols: FastenerClass<HeaderTrait["cols"]>;
 
   protected override onStartConsuming(): void {

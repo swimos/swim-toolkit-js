@@ -13,12 +13,12 @@
 // limitations under the License.
 
 import type {Class, AnyTiming} from "@swim/util";
-import {Affinity, FastenerClass, PropertyDef, AnimatorDef} from "@swim/component";
+import {Affinity, FastenerClass, Property, Animator} from "@swim/component";
 import {AnyLength, Length, AnyR2Point, R2Point, R2Box} from "@swim/math";
 import {AnyGeoPoint, GeoPointInit, GeoPointTuple, GeoPoint} from "@swim/geo";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
-import {ThemeAnimatorDef} from "@swim/theme";
-import {ViewContextType, ViewFlags, View, ViewRefDef} from "@swim/view";
+import {ThemeAnimator} from "@swim/theme";
+import {ViewContextType, ViewFlags, View, ViewRef} from "@swim/view";
 import {GraphicsView, TypesetView, TextRunView, CanvasContext, CanvasRenderer} from "@swim/graphics";
 import {GeoViewInit, GeoView} from "../geo/GeoView";
 import {GeoRippleOptions, GeoRippleView} from "../effect/GeoRippleView";
@@ -57,7 +57,7 @@ export interface GeoPointViewInit extends GeoViewInit {
 export class GeoPointView extends GeoView {
   override readonly observerType?: Class<GeoPointViewObserver>;
 
-  @AnimatorDef<GeoPointView["geoPoint"]>({
+  @Animator<GeoPointView["geoPoint"]>({
     valueType: GeoPoint,
     value: GeoPoint.origin(),
     updateFlags: View.NeedsProject,
@@ -66,33 +66,33 @@ export class GeoPointView extends GeoView {
       this.owner.callObservers("viewDidSetGeoPoint", newGeoPoint, this.owner);
     },
   })
-  readonly geoPoint!: AnimatorDef<this, {value: GeoPoint, valueInit: AnyGeoPoint}>;
+  readonly geoPoint!: Animator<this, GeoPoint, AnyGeoPoint>;
 
-  @AnimatorDef({valueType: R2Point, value: R2Point.origin()})
-  readonly viewPoint!: AnimatorDef<this, {value: R2Point, valueInit: AnyR2Point}>;
+  @Animator({valueType: R2Point, value: R2Point.origin()})
+  readonly viewPoint!: Animator<this, R2Point, AnyR2Point>;
 
-  @ThemeAnimatorDef({valueType: Length, value: null})
-  readonly radius!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  @ThemeAnimator({valueType: Length, value: null})
+  readonly radius!: ThemeAnimator<this, Length | null, AnyLength | null>;
 
-  @ThemeAnimatorDef({valueType: Color, value: null})
-  readonly color!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
+  @ThemeAnimator({valueType: Color, value: null})
+  readonly color!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @ThemeAnimatorDef({valueType: Number})
-  readonly opacity!: ThemeAnimatorDef<this, {value: number | undefined}>;
+  @ThemeAnimator({valueType: Number})
+  readonly opacity!: ThemeAnimator<this, number | undefined>;
 
-  @ThemeAnimatorDef({valueType: Length, value: null})
-  readonly labelPadding!: ThemeAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  @ThemeAnimator({valueType: Length, value: null})
+  readonly labelPadding!: ThemeAnimator<this, Length | null, AnyLength | null>;
 
-  @ThemeAnimatorDef({valueType: Font, value: null, inherits: true})
-  readonly font!: ThemeAnimatorDef<this, {value: Font | null, valueInit: AnyFont | null}>;
+  @ThemeAnimator({valueType: Font, value: null, inherits: true})
+  readonly font!: ThemeAnimator<this, Font | null, AnyFont | null>;
 
-  @ThemeAnimatorDef({valueType: Color, value: null, inherits: true})
-  readonly textColor!: ThemeAnimatorDef<this, {value: Color | null, valueInit: AnyColor | null}>;
+  @ThemeAnimator({valueType: Color, value: null, inherits: true})
+  readonly textColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @PropertyDef({valueType: Number})
-  readonly hitRadius!: PropertyDef<this, {value: number | undefined}>;
+  @Property({valueType: Number})
+  readonly hitRadius!: Property<this, number | undefined>;
 
-  @ViewRefDef<GeoPointView["label"]>({
+  @ViewRef<GeoPointView["label"]>({
     viewType: TextRunView,
     viewKey: true,
     binds: true,
@@ -114,16 +114,13 @@ export class GeoPointView extends GeoView {
       return labelView;
     },
   })
-  readonly label!: ViewRefDef<this, {
-    view: GraphicsView,
-    implements: {
-      setText(label: string | undefined): GraphicsView,
-    },
-  }>;
+  readonly label!: ViewRef<this, GraphicsView> & {
+    setText(label: string | undefined): GraphicsView,
+  };
   static readonly label: FastenerClass<GeoPointView["label"]>;
 
-  @PropertyDef({valueType: String, value: "auto"})
-  readonly labelPlacement!: PropertyDef<this, {value: GeoPointLabelPlacement}>;
+  @Property({valueType: String, value: "auto"})
+  readonly labelPlacement!: Property<this, GeoPointLabelPlacement>;
 
   isGradientStop(): boolean {
     return this.color.value !== null || this.opacity.value !== void 0;

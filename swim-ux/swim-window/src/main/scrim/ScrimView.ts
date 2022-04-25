@@ -14,10 +14,10 @@
 
 import {Mutable, AnyTiming, Timing} from "@swim/util";
 import {Affinity} from "@swim/component";
-import {Color} from "@swim/style";
+import {AnyColor, Color} from "@swim/style";
 import {Look} from "@swim/theme";
 import type {ModalService, ModalServiceObserver} from "@swim/view";
-import {StyleAnimatorDef, HtmlView} from "@swim/dom";
+import {StyleAnimator, HtmlView} from "@swim/dom";
 
 /** @public */
 export class ScrimView extends HtmlView implements ModalServiceObserver {
@@ -60,7 +60,7 @@ export class ScrimView extends HtmlView implements ModalServiceObserver {
     (this as Mutable<this>).displayState = displayState;
   }
 
-  @StyleAnimatorDef<ScrimView["backgroundColor"]>({
+  @StyleAnimator<ScrimView["backgroundColor"]>({
     extends: HtmlView.getFastenerClass("backgroundColor"),
     willTransition(): void {
       const displayState = this.owner.displayState;
@@ -79,9 +79,7 @@ export class ScrimView extends HtmlView implements ModalServiceObserver {
       }
     },
   })
-  override readonly backgroundColor!: StyleAnimatorDef<this, {
-    extends: HtmlView["backgroundColor"],
-  }>;
+  override readonly backgroundColor!: StyleAnimator<this, Color | null, AnyColor | null>;
 
   isShown(): boolean {  
     switch (this.displayState) {

@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import type {Class, Instance, Creatable} from "@swim/util";
-import {Affinity, FastenerClass, PropertyDef, AnimatorDef} from "@swim/component";
-import {ConstraintPropertyDef} from "@swim/constraint";
+import {Affinity, FastenerClass, Property, Animator} from "@swim/component";
+import {ConstraintProperty} from "@swim/constraint";
 import {AnyLength, Length} from "@swim/math";
-import {Feel, ThemeConstraintAnimatorDef} from "@swim/theme";
-import {ViewportInsets, ViewContextType, ViewFlags, View, ViewSetDef} from "@swim/view";
+import {Feel, ThemeConstraintAnimator} from "@swim/theme";
+import {ViewportInsets, ViewContextType, ViewFlags, View, ViewSet} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {AnyBarLayout, BarLayout} from "../layout/BarLayout";
 import {ToolView} from "../tool/ToolView";
@@ -45,7 +45,7 @@ export class BarView extends HtmlView {
 
   override readonly observerType?: Class<BarViewObserver>;
 
-  @PropertyDef<BarView["placement"]>({
+  @Property<BarView["placement"]>({
     valueType: String,
     value: "none",
     updateFlags: View.NeedsResize | View.NeedsLayout,
@@ -53,9 +53,9 @@ export class BarView extends HtmlView {
       this.owner.callObservers("viewDidSetPlacement", placement, this.owner);
     },
   })
-  readonly placement!: PropertyDef<this, {value: BarPlacement}>;
+  readonly placement!: Property<this, BarPlacement>;
 
-  @AnimatorDef<BarView["layout"]>({
+  @Animator<BarView["layout"]>({
     valueType: BarLayout,
     value: null,
     inherits: true,
@@ -80,15 +80,11 @@ export class BarView extends HtmlView {
       return newLayout;
     },
   })
-  readonly layout!: AnimatorDef<this, {
-    value: BarLayout | null,
-    valueInit: AnyBarLayout | null,
-    implements: {
-      resized(layout: BarLayout): BarLayout,
-    },
-  }>;
+  readonly layout!: Animator<this, BarLayout | null, AnyBarLayout | null> & {
+    resized(layout: BarLayout): BarLayout,
+  };
 
-  @ThemeConstraintAnimatorDef<BarView["barHeight"]>({
+  @ThemeConstraintAnimator<BarView["barHeight"]>({
     valueType: Length,
     value: null,
     updateFlags: View.NeedsResize,
@@ -96,12 +92,12 @@ export class BarView extends HtmlView {
       this.owner.callObservers("viewDidSetBarHeight", newBarHeight, this.owner);
     },
   })
-  readonly barHeight!: ThemeConstraintAnimatorDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  readonly barHeight!: ThemeConstraintAnimator<this, Length | null, AnyLength | null>;
 
-  @PropertyDef({valueType: Length, value: Length.zero(), updateFlags: View.NeedsResize})
-  readonly toolSpacing!: PropertyDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  @Property({valueType: Length, value: Length.zero(), updateFlags: View.NeedsResize})
+  readonly toolSpacing!: Property<this, Length | null, AnyLength | null>;
 
-  @ConstraintPropertyDef<BarView["effectiveHeight"]>({
+  @ConstraintProperty<BarView["effectiveHeight"]>({
     valueType: Length,
     value: null,
     didSetValue(newValue: Length | null, oldValue: Length | null): void {
@@ -111,16 +107,16 @@ export class BarView extends HtmlView {
       return value !== null ? value.pxValue() : 0;
     },
   })
-  readonly effectiveHeight!: ConstraintPropertyDef<this, {value: Length | null, valueInit: AnyLength | null}>;
+  readonly effectiveHeight!: ConstraintProperty<this, Length | null, AnyLength | null>;
 
-  @PropertyDef<BarView["edgeInsets"]>({
+  @Property<BarView["edgeInsets"]>({
     valueType: ViewportInsets,
     value: null,
     inherits: true,
     updateFlags: View.NeedsResize,
     equalValues: ViewportInsets.equal,
   })
-  readonly edgeInsets!: PropertyDef<this, {value: ViewportInsets | null}>;
+  readonly edgeInsets!: Property<this, ViewportInsets | null>;
 
   getTool<F extends Class<ToolView>>(key: string, toolViewClass: F): InstanceType<F> | null;
   getTool(key: string): ToolView | null;
@@ -145,7 +141,7 @@ export class BarView extends HtmlView {
     this.setChild(key, toolView);
   }
 
-  @ViewSetDef<BarView["tools"]>({
+  @ViewSet<BarView["tools"]>({
     viewType: ToolView,
     binds: true,
     initView(toolView: ToolView): void {
@@ -162,7 +158,7 @@ export class BarView extends HtmlView {
       this.owner.callObservers("viewDidDetachTool", toolView, this.owner);
     },
   })
-  readonly tools!: ViewSetDef<this, {view: ToolView}>;
+  readonly tools!: ViewSet<this, ToolView>;
   static readonly tools: FastenerClass<BarView["tools"]>;
 
   protected override onResize(viewContext: ViewContextType<this>): void {

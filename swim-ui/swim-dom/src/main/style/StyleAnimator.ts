@@ -16,12 +16,7 @@ import type {Mutable, Proto} from "@swim/util";
 import type {FastenerOwner, AnimatorValue, AnimatorValueInit} from "@swim/component";
 import {Length, Transform} from "@swim/math";
 import {FontFamily, Color, BoxShadow} from "@swim/style";
-import {
-  ThemeAnimatorRefinement,
-  ThemeAnimatorTemplate,
-  ThemeAnimatorClass,
-  ThemeAnimator,
-} from "@swim/theme";
+import {ThemeAnimatorDescriptor, ThemeAnimatorClass, ThemeAnimator} from "@swim/theme";
 import {StringStyleAnimator} from "./"; // forward import
 import {NumberStyleAnimator} from "./"; // forward import
 import {LengthStyleAnimator} from "./"; // forward import
@@ -32,50 +27,35 @@ import {BoxShadowStyleAnimator} from "./"; // forward import
 import {StyleContext} from "../"; // forward import
 
 /** @public */
-export interface StyleAnimatorRefinement extends ThemeAnimatorRefinement {
-}
-
-/** @public */
-export interface StyleAnimatorTemplate<T = unknown, U = T> extends ThemeAnimatorTemplate<T, U> {
+export interface StyleAnimatorDescriptor<T = unknown, U = T> extends ThemeAnimatorDescriptor<T, U> {
   extends?: Proto<StyleAnimator<any, any, any>> | string | boolean | null;
   propertyNames?: string | ReadonlyArray<string>;
 }
 
 /** @public */
+export type StyleAnimatorTemplate<A extends StyleAnimator<any, any, any>> =
+  ThisType<A> &
+  StyleAnimatorDescriptor<AnimatorValue<A>, AnimatorValueInit<A>> &
+  Partial<Omit<A, keyof StyleAnimatorDescriptor>>;
+
+/** @public */
 export interface StyleAnimatorClass<A extends StyleAnimator<any, any, any> = StyleAnimator<any, any, any>> extends ThemeAnimatorClass<A> {
   /** @override */
-  specialize(className: string, template: StyleAnimatorTemplate): StyleAnimatorClass;
+  specialize(template: StyleAnimatorDescriptor<any, any>): StyleAnimatorClass<A>;
 
   /** @override */
-  extend(className: string, template: StyleAnimatorTemplate): StyleAnimatorClass<A>;
+  refine(animatorClass: StyleAnimatorClass<any>): void;
 
   /** @override */
-  specify<O, T = unknown, U = T>(className: string, template: ThisType<StyleAnimator<O, T, U>> & StyleAnimatorTemplate<T, U> & Partial<Omit<StyleAnimator<O, T, U>, keyof StyleAnimatorTemplate>>): StyleAnimatorClass<A>;
+  extend<A2 extends A>(className: string, template: StyleAnimatorTemplate<A2>): StyleAnimatorClass<A2>;
+  extend<A2 extends A>(className: string, template: StyleAnimatorTemplate<A2>): StyleAnimatorClass<A2>;
 
   /** @override */
-  <O, T = unknown, U = T>(template: ThisType<StyleAnimator<O, T, U>> & StyleAnimatorTemplate<T, U> & Partial<Omit<StyleAnimator<O, T, U>, keyof StyleAnimatorTemplate>>): PropertyDecorator;
-}
+  define<A2 extends A>(className: string, template: StyleAnimatorTemplate<A2>): StyleAnimatorClass<A2>;
+  define<A2 extends A>(className: string, template: StyleAnimatorTemplate<A2>): StyleAnimatorClass<A2>;
 
-/** @public */
-export type StyleAnimatorDef<O, R extends StyleAnimatorRefinement = {}> =
-  StyleAnimator<O, AnimatorValue<R>, AnimatorValueInit<R>> &
-  {readonly name: string} & // prevent type alias simplification
-  (R extends {extends: infer E} ? E : {}) &
-  (R extends {defines: infer I} ? I : {}) &
-  (R extends {implements: infer I} ? I : {});
-
-/** @public */
-export function StyleAnimatorDef<A extends StyleAnimator<any, any, any>>(
-  template: A extends StyleAnimatorDef<infer O, infer R>
-          ? ThisType<StyleAnimatorDef<O, R>>
-          & StyleAnimatorTemplate<AnimatorValue<R>, AnimatorValueInit<R>>
-          & Partial<Omit<StyleAnimator<O, AnimatorValue<R>, AnimatorValueInit<R>>, keyof StyleAnimatorTemplate>>
-          & (R extends {extends: infer E} ? (Partial<Omit<E, keyof StyleAnimatorTemplate>> & {extends: unknown}) : {})
-          & (R extends {defines: infer I} ? Partial<I> : {})
-          & (R extends {implements: infer I} ? I : {})
-          : never
-): PropertyDecorator {
-  return StyleAnimator(template);
+  /** @override */
+  <A2 extends A>(template: StyleAnimatorTemplate<A2>): PropertyDecorator;
 }
 
 /** @public */
@@ -293,7 +273,7 @@ export const StyleAnimator = (function (_super: typeof ThemeAnimator) {
     return animator;
   };
 
-  StyleAnimator.specialize = function (className: string, template: StyleAnimatorTemplate): StyleAnimatorClass {
+  StyleAnimator.specialize = function (template: StyleAnimatorDescriptor<any, any>): StyleAnimatorClass {
     let superClass = template.extends as StyleAnimatorClass | null | undefined;
     if (superClass === void 0 || superClass === null) {
       const valueType = template.valueType;

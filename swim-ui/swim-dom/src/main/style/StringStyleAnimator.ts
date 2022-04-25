@@ -15,8 +15,14 @@
 import {StyleAnimatorClass, StyleAnimator} from "./StyleAnimator";
 
 /** @internal */
+export interface StringStyleAnimator<O = unknown, T extends string | undefined = string | undefined, U extends string | undefined = string | undefined> extends StyleAnimator<O, T, U> {
+}
+
+/** @internal */
 export const StringStyleAnimator = (function (_super: typeof StyleAnimator) {
-  const StringStyleAnimator = _super.extend("StringStyleAnimator", {}) as StyleAnimatorClass<StyleAnimator<any, string | undefined, string | undefined>>;
+  const StringStyleAnimator = _super.extend("StringStyleAnimator", {
+    valueType: String,
+  }) as StyleAnimatorClass<StringStyleAnimator<any, any, any>>;
 
   StringStyleAnimator.prototype.equalValues = function (newValue: string | undefined, oldValue: string | undefined): boolean {
     return newValue === oldValue;
