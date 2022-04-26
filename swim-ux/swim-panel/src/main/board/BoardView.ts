@@ -17,8 +17,7 @@ import {Affinity, FastenerClass} from "@swim/component";
 import {ViewContextType, ViewFlags, View, ViewSet} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {SheetView} from "@swim/sheet";
-import {PanelView} from "../panel/PanelView";
-import {FrameView} from "../frame/FrameView";
+import {PanelStyle, PanelView} from "../panel/PanelView";
 import type {BoardViewObserver} from "./BoardViewObserver";
 
 /** @public */
@@ -50,6 +49,12 @@ export class BoardView extends SheetView {
     viewDidSetUnitHeight(unitHeight: number, panelView: PanelView): void {
       this.owner.requireUpdate(View.NeedsResize);
     },
+    viewDidSetMinPanelHeight(minPanelHeight: number, paneView: PanelView): void {
+      this.owner.requireUpdate(View.NeedsResize);
+    },
+    viewDidSetPanelStyle(panelStyle: PanelStyle, paneView: PanelView): void {
+      this.owner.requireUpdate(View.NeedsResize);
+    },
   })
   readonly panels!: ViewSet<this, PanelView> & Observes<PanelView>;
   static readonly panels: FastenerClass<BoardView["panels"]>;
@@ -71,6 +76,7 @@ export class BoardView extends SheetView {
     let y = this.paddingTop.pxValue();
     const width = this.width.pxValue() - this.marginLeft.pxValue() - x - this.paddingRight.pxValue() - this.marginRight.pxValue();
     const height = this.height.pxValue() - y - this.paddingBottom.pxValue();
+
     type self = this;
     function resizeChild(this: self, child: View, processFlags: ViewFlags,
                          viewContext: ViewContextType<self>): void {
@@ -78,13 +84,8 @@ export class BoardView extends SheetView {
         const panelHeight = Math.max(child.minPanelHeight.value, child.unitHeight.value * height);
         child.left.setState(x, Affinity.Intrinsic);
         child.top.setState(y, Affinity.Intrinsic);
-        if (child instanceof FrameView) {
-          child.widthBasis.setValue(width - child.marginLeft.pxValue() - child.marginRight.pxValue(), Affinity.Intrinsic);
-          child.heightBasis.setValue(panelHeight - child.marginTop.pxValue() - child.marginBottom.pxValue(), Affinity.Intrinsic);
-        } else {
-          child.width.setState(width - child.marginLeft.pxValue() - child.marginRight.pxValue(), Affinity.Intrinsic);
-          child.height.setState(panelHeight - child.marginTop.pxValue() - child.marginBottom.pxValue(), Affinity.Intrinsic);
-        }
+        child.widthBasis.setValue(width - child.marginLeft.pxValue() - child.marginRight.pxValue(), Affinity.Intrinsic);
+        child.heightBasis.setValue(panelHeight - child.marginTop.pxValue() - child.marginBottom.pxValue(), Affinity.Intrinsic);
       }
       if (child instanceof HtmlView) {
         child.paddingBottom.setState(child.nextSibling === null ? this.paddingBottom.value : null, Affinity.Transient);

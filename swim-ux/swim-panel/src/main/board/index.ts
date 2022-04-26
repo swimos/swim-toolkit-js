@@ -15,8 +15,5 @@
 export {BoardView} from "./BoardView";
 export {BoardViewObserver} from "./BoardViewObserver";
 
-export {BoardTrait} from "./BoardTrait";
-export {BoardTraitObserver} from "./BoardTraitObserver";
-
 export {BoardController} from "./BoardController";
 export {BoardControllerObserver} from "./BoardControllerObserver";

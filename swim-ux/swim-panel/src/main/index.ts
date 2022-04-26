@@ -14,8 +14,4 @@
 
 export * from "./panel";
 
-export * from "./frame";
-
-export * from "./card";
-
 export * from "./board";

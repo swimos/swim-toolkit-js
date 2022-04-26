@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {PanelView} from "./PanelView";
+export {
+  PaneLayout,
+  PanelStyle,
+  PanelView,
+} from "./PanelView";
 export {PanelViewObserver} from "./PanelViewObserver";
-
-export {PanelTrait} from "./PanelTrait";
-export {PanelTraitObserver} from "./PanelTraitObserver";
 
 export {PanelController} from "./PanelController";
 export {PanelControllerObserver} from "./PanelControllerObserver";

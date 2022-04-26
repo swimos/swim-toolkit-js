@@ -15,13 +15,12 @@
 import type {Class, Observes} from "@swim/util";
 import type {FastenerClass} from "@swim/component";
 import type {Trait} from "@swim/model";
+import type {View} from "@swim/view";
 import {TraitViewRef, TraitViewControllerSet} from "@swim/controller";
 import {SheetController} from "@swim/sheet";
 import type {PanelView} from "../panel/PanelView";
-import type {PanelTrait} from "../panel/PanelTrait";
 import {PanelController} from "../panel/PanelController";
 import {BoardView} from "./BoardView";
-import {BoardTrait} from "./BoardTrait";
 import type {BoardControllerObserver} from "./BoardControllerObserver";
 
 /** @public */
@@ -30,49 +29,19 @@ export class BoardController extends SheetController {
 
   @TraitViewRef<BoardController["sheet"]>({
     extends: SheetController.sheet,
-    traitType: BoardTrait,
-    observesTrait: true,
-    didAttachTrait(boardTrait: BoardTrait, targetTrait: Trait): void {
-      SheetController.sheet.prototype.didAttachTrait.call(this, boardTrait, targetTrait);
-      this.owner.panels.addTraits(boardTrait.panels.traits);
-    },
-    willDetachTrait(boardTrait: BoardTrait): void {
-      this.owner.panels.deleteTraits(boardTrait.panels.traits);
-      SheetController.sheet.prototype.willDetachTrait.call(this, boardTrait);
-    },
-    traitWillAttachPanel(panelTrait: PanelTrait, targetTrait: Trait | null): void {
-      this.owner.panels.addTrait(panelTrait, targetTrait);
-    },
-    traitDidDetachPanel(panelTrait: PanelTrait): void {
-      this.owner.panels.deleteTrait(panelTrait);
-    },
     viewType: BoardView,
-    initView(boardView: BoardView): void {
-      SheetController.sheet.prototype.initView.call(this, boardView);
-      const panelControllers = this.owner.panels.controllers;
-      for (const controllerId in panelControllers) {
-        const panelController = panelControllers[controllerId]!;
-        const panelView = panelController.panel.view;
-        if (panelView !== null && panelView.parent === null) {
-          const panelTrait = panelController.panel.trait;
-          if (panelTrait !== null) {
-            panelController.panel.insertView(boardView, void 0, void 0, panelTrait.key);
-          }
-        }
-      }
-    },
   })
-  override readonly sheet!: TraitViewRef<this, BoardTrait, BoardView> & SheetController["sheet"] & Observes<BoardTrait>;
+  override readonly sheet!: TraitViewRef<this, Trait, BoardView> & SheetController["sheet"];
   static override readonly sheet: FastenerClass<BoardController["sheet"]>;
 
   @TraitViewControllerSet<BoardController["panels"]>({
     controllerType: PanelController,
     binds: true,
     observes: true,
-    get parentView(): BoardView | null {
-      return this.owner.sheet.view;
+    get parentView(): View | null {
+      return this.owner.sheet.attachView();
     },
-    getTraitViewRef(panelController: PanelController): TraitViewRef<unknown, PanelTrait, PanelView> {
+    getTraitViewRef(panelController: PanelController): TraitViewRef<unknown, Trait, PanelView> {
       return panelController.panel;
     },
     willAttachController(panelController: PanelController): void {
@@ -101,18 +70,18 @@ export class BoardController extends SheetController {
     didDetachController(panelController: PanelController): void {
       this.owner.callObservers("controllerDidDetachPanel", panelController, this.owner);
     },
-    controllerWillAttachPanelTrait(panelTrait: PanelTrait, panelController: PanelController): void {
+    controllerWillAttachPanelTrait(panelTrait: Trait, panelController: PanelController): void {
       this.owner.callObservers("controllerWillAttachPanelTrait", panelTrait, panelController, this.owner);
       this.attachPanelTrait(panelTrait, panelController);
     },
-    controllerDidDetachPanelTrait(panelTrait: PanelTrait, panelController: PanelController): void {
+    controllerDidDetachPanelTrait(panelTrait: Trait, panelController: PanelController): void {
       this.detachPanelTrait(panelTrait, panelController);
       this.owner.callObservers("controllerDidDetachPanelTrait", panelTrait, panelController, this.owner);
     },
-    attachPanelTrait(panelTrait: PanelTrait, panelController: PanelController): void {
+    attachPanelTrait(panelTrait: Trait, panelController: PanelController): void {
       // hook
     },
-    detachPanelTrait(panelTrait: PanelTrait, panelController: PanelController): void {
+    detachPanelTrait(panelTrait: Trait, panelController: PanelController): void {
       // hook
     },
     controllerWillAttachPanelView(panelView: PanelView, panelController: PanelController): void {
@@ -129,17 +98,10 @@ export class BoardController extends SheetController {
     detachPanelView(panelView: PanelView, panelController: PanelController): void {
       panelView.remove();
     },
-    createController(panelTrait?: PanelTrait): PanelController {
-      if (panelTrait !== void 0) {
-        return panelTrait.createPanelController();
-      } else {
-        return TraitViewControllerSet.prototype.createController.call(this);
-      }
-    },
   })
-  readonly panels!: TraitViewControllerSet<this, PanelTrait, PanelView, PanelController> & Observes<PanelController> & {
-    attachPanelTrait(panelTrait: PanelTrait, panelController: PanelController): void,
-    detachPanelTrait(panelTrait: PanelTrait, panelController: PanelController): void,
+  readonly panels!: TraitViewControllerSet<this, Trait, PanelView, PanelController> & Observes<PanelController> & {
+    attachPanelTrait(panelTrait: Trait, panelController: PanelController): void,
+    detachPanelTrait(panelTrait: Trait, panelController: PanelController): void,
     attachPanelView(panelView: PanelView, panelController: PanelController): void,
     detachPanelView(panelView: PanelView, panelController: PanelController): void,
   };

@@ -307,10 +307,10 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
   };
 
   ViewRef.prototype.setView = function <V extends View>(this: ViewRef<unknown, V>, newView: AnyView<V> | null, target?: View | null, key?: string): V | null {
+    let oldView = this.view;
     if (newView !== null) {
       newView = this.fromAny(newView);
     }
-    let oldView = this.view;
     if (oldView !== newView) {
       if (target === void 0) {
         target = null;
@@ -402,46 +402,49 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
   };
 
   ViewRef.prototype.insertView = function <V extends View>(this: ViewRef<unknown, V>, parent?: View | null, newView?: AnyView<V>, target?: View | null, key?: string): V {
+    let oldView = this.view;
     if (newView !== void 0 && newView !== null) {
       newView = this.fromAny(newView);
+    } else if (oldView === null) {
+      newView = this.createView();
     } else {
-      const oldView = this.view;
-      if (oldView === null) {
-        newView = this.createView();
-      } else {
-        newView = oldView;
+      newView = oldView;
+    }
+    if (parent === void 0) {
+      parent = null;
+    }
+    if (this.binds || oldView !== newView || newView.parent === null || parent !== null || key !== void 0) {
+      if (parent === null) {
+        parent = this.parentView;
       }
-    }
-    if (parent === void 0 || parent === null) {
-      parent = this.parentView;
-    }
-    if (target === void 0) {
-      target = null;
-    }
-    if (key === void 0) {
-      key = this.viewKey;
-    }
-    if (parent !== null && (newView.parent !== parent || newView.key !== key)) {
-      this.insertChild(parent, newView, target, key);
-    }
-    const oldView = this.view;
-    if (oldView !== newView) {
-      if (oldView !== null) {
-        this.deactivateLayout();
-        (this as Mutable<typeof this>).view = null;
-        this.willDetachView(oldView);
-        this.onDetachView(oldView);
-        this.deinitView(oldView);
-        this.didDetachView(oldView);
-        oldView.remove();
+      if (target === void 0) {
+        target = null;
       }
-      (this as Mutable<typeof this>).view = newView;
-      this.willAttachView(newView, target);
-      this.onAttachView(newView, target);
-      this.initView(newView);
-      this.didAttachView(newView, target);
-      this.setCoherent(true);
-      this.decohereOutlets();
+      if (key === void 0) {
+        key = this.viewKey;
+      }
+      if (parent !== null && (newView.parent !== parent || newView.key !== key)) {
+        this.insertChild(parent, newView, target, key);
+      }
+      oldView = this.view;
+      if (oldView !== newView) {
+        if (oldView !== null) {
+          this.deactivateLayout();
+          (this as Mutable<typeof this>).view = null;
+          this.willDetachView(oldView);
+          this.onDetachView(oldView);
+          this.deinitView(oldView);
+          this.didDetachView(oldView);
+          oldView.remove();
+        }
+        (this as Mutable<typeof this>).view = newView;
+        this.willAttachView(newView, target);
+        this.onAttachView(newView, target);
+        this.initView(newView);
+        this.didAttachView(newView, target);
+        this.setCoherent(true);
+        this.decohereOutlets();
+      }
     }
     return newView;
   };

@@ -18,8 +18,6 @@ import {R2Box, Transform} from "@swim/math";
 import type {Color} from "@swim/style";
 import {
   ViewEvent,
-  ViewMouseEvent,
-  ViewPointerEvent,
   ViewEventHandler,
   ViewContext,
   ViewContextType,
@@ -73,7 +71,6 @@ export class GraphicsView extends View {
     super();
     this.ownViewFrame = null;
     this.eventHandlers = null;
-    this.hoverSet = null;
   }
 
   override readonly observerType?: Class<GraphicsViewObserver>;
@@ -374,15 +371,6 @@ export class GraphicsView extends View {
         }
       }
     }
-    if (type === "mouseover") {
-      this.onMouseOver(event as ViewMouseEvent);
-    } else if (type === "mouseout") {
-      this.onMouseOut(event as ViewMouseEvent);
-    } else if (type === "pointerover") {
-      this.onPointerOver(event as ViewPointerEvent);
-    } else if (type === "pointerout") {
-      this.onPointerOut(event as ViewPointerEvent);
-    }
   }
 
   /**
@@ -415,174 +403,6 @@ export class GraphicsView extends View {
       return next.dispatchEvent(event);
     } else {
       return !event.cancelBubble;
-    }
-  }
-
-  /** @internal */
-  readonly hoverSet: {[id: string]: null | undefined} | null;
-
-  isHovering(): boolean {
-    const hoverSet = this.hoverSet;
-    return hoverSet !== null && Object.keys(hoverSet).length !== 0;
-  }
-
-  /** @internal */
-  protected onMouseOver(event: ViewMouseEvent): void {
-    let hoverSet = this.hoverSet;
-    if (hoverSet === null) {
-      hoverSet = {};
-      (this as Mutable<this>).hoverSet = hoverSet;
-    }
-    if (hoverSet.mouse === void 0) {
-      hoverSet.mouse = null;
-      const eventHandlers = this.eventHandlers;
-      if (eventHandlers !== null && eventHandlers.mouseenter !== void 0) {
-        const enterEvent = new MouseEvent("mouseenter", {
-          bubbles: false,
-          button: event.button,
-          buttons: event.buttons,
-          altKey: event.altKey,
-          ctrlKey: event.ctrlKey,
-          metaKey: event.metaKey,
-          shiftKey: event.shiftKey,
-          clientX: event.clientX,
-          clientY: event.clientY,
-          screenX: event.screenX,
-          screenY: event.screenY,
-          movementX: event.movementX,
-          movementY: event.movementY,
-          view: event.view,
-          detail: event.detail,
-          relatedTarget: event.relatedTarget,
-        }) as ViewMouseEvent;
-        enterEvent.targetView = this;
-        enterEvent.relatedTargetView = event.relatedTargetView;
-        this.handleEvent(enterEvent);
-      }
-    }
-  }
-
-  /** @internal */
-  protected onMouseOut(event: ViewMouseEvent): void {
-    const hoverSet = this.hoverSet;
-    if (hoverSet !== null && hoverSet.mouse !== void 0) {
-      delete hoverSet.mouse;
-      const eventHandlers = this.eventHandlers;
-      if (eventHandlers !== null && eventHandlers.mouseleave !== void 0) {
-        const leaveEvent = new MouseEvent("mouseleave", {
-          bubbles: false,
-          button: event.button,
-          buttons: event.buttons,
-          altKey: event.altKey,
-          ctrlKey: event.ctrlKey,
-          metaKey: event.metaKey,
-          shiftKey: event.shiftKey,
-          clientX: event.clientX,
-          clientY: event.clientY,
-          screenX: event.screenX,
-          screenY: event.screenY,
-          movementX: event.movementX,
-          movementY: event.movementY,
-          view: event.view,
-          detail: event.detail,
-          relatedTarget: event.relatedTarget,
-        }) as ViewMouseEvent;
-        leaveEvent.targetView = this;
-        leaveEvent.relatedTargetView = event.relatedTargetView;
-        this.handleEvent(leaveEvent);
-      }
-    }
-  }
-
-  /** @internal */
-  protected onPointerOver(event: ViewPointerEvent): void {
-    let hoverSet = this.hoverSet;
-    if (hoverSet === null) {
-      hoverSet = {};
-      (this as Mutable<this>).hoverSet = hoverSet;
-    }
-    const id = "" + event.pointerId;
-    if (hoverSet[id] === void 0) {
-      hoverSet[id] = null;
-      const eventHandlers = this.eventHandlers;
-      if (eventHandlers !== null && eventHandlers.pointerenter !== void 0) {
-        const enterEvent = new PointerEvent("pointerenter", {
-          bubbles: false,
-          pointerId: event.pointerId,
-          pointerType: event.pointerType,
-          isPrimary: event.isPrimary,
-          button: event.button,
-          buttons: event.buttons,
-          altKey: event.altKey,
-          ctrlKey: event.ctrlKey,
-          metaKey: event.metaKey,
-          shiftKey: event.shiftKey,
-          clientX: event.clientX,
-          clientY: event.clientY,
-          screenX: event.screenX,
-          screenY: event.screenY,
-          movementX: event.movementX,
-          movementY: event.movementY,
-          tiltX: event.tiltX,
-          tiltY: event.tiltY,
-          twist: event.twist,
-          width: event.width,
-          height: event.height,
-          pressure: event.pressure,
-          tangentialPressure: event.tangentialPressure,
-          view: event.view,
-          detail: event.detail,
-          relatedTarget: event.relatedTarget,
-        }) as ViewPointerEvent;
-        enterEvent.targetView = this;
-        enterEvent.relatedTargetView = event.relatedTargetView;
-        this.handleEvent(enterEvent);
-      }
-    }
-  }
-
-  /** @internal */
-  protected onPointerOut(event: ViewPointerEvent): void {
-    const hoverSet = this.hoverSet;
-    if (hoverSet !== null) {
-      const id = "" + event.pointerId;
-      if (hoverSet[id] !== void 0) {
-        delete hoverSet[id];
-        const eventHandlers = this.eventHandlers;
-        if (eventHandlers !== null && eventHandlers.pointerleave !== void 0) {
-          const leaveEvent = new PointerEvent("pointerleave", {
-            bubbles: false,
-            pointerId: event.pointerId,
-            pointerType: event.pointerType,
-            isPrimary: event.isPrimary,
-            button: event.button,
-            buttons: event.buttons,
-            altKey: event.altKey,
-            ctrlKey: event.ctrlKey,
-            metaKey: event.metaKey,
-            shiftKey: event.shiftKey,
-            clientX: event.clientX,
-            clientY: event.clientY,
-            screenX: event.screenX,
-            screenY: event.screenY,
-            movementX: event.movementX,
-            movementY: event.movementY,
-            tiltX: event.tiltX,
-            tiltY: event.tiltY,
-            twist: event.twist,
-            width: event.width,
-            height: event.height,
-            pressure: event.pressure,
-            tangentialPressure: event.tangentialPressure,
-            view: event.view,
-            detail: event.detail,
-            relatedTarget: event.relatedTarget,
-          }) as ViewPointerEvent;
-          leaveEvent.targetView = this;
-          leaveEvent.relatedTargetView = event.relatedTargetView;
-          this.handleEvent(leaveEvent);
-        }
-      }
     }
   }
 

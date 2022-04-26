@@ -239,10 +239,10 @@ export const ModelRef = (function (_super: typeof ModelRelation) {
   };
 
   ModelRef.prototype.setModel = function <M extends Model>(this: ModelRef<unknown, M>, newModel: AnyModel<M> | null, target?: Model | null, key?: string): M | null {
+    let oldModel = this.model;
     if (newModel !== null) {
       newModel = this.fromAny(newModel);
     }
-    let oldModel = this.model;
     if (oldModel !== newModel) {
       if (target === void 0) {
         target = null;
@@ -331,45 +331,48 @@ export const ModelRef = (function (_super: typeof ModelRelation) {
   };
 
   ModelRef.prototype.insertModel = function <M extends Model>(this: ModelRef<unknown, M>, parent?: Model | null, newModel?: AnyModel<M>, target?: Model | null, key?: string): M {
+    let oldModel = this.model;
     if (newModel !== void 0 && newModel !== null) {
       newModel = this.fromAny(newModel);
+    } else if (oldModel === null) {
+      newModel = this.createModel();
     } else {
-      const oldModel = this.model;
-      if (oldModel === null) {
-        newModel = this.createModel();
-      } else {
-        newModel = oldModel;
+      newModel = oldModel;
+    }
+    if (parent === void 0) {
+      parent = null;
+    }
+    if (this.binds || oldModel !== newModel || newModel.parent === null || parent !== null || key !== void 0) {
+      if (parent === null) {
+        parent = this.parentModel;
       }
-    }
-    if (parent === void 0 || parent === null) {
-      parent = this.parentModel;
-    }
-    if (target === void 0) {
-      target = null;
-    }
-    if (key === void 0) {
-      key = this.modelKey;
-    }
-    if (parent !== null && (newModel.parent !== parent || newModel.key !== key)) {
-      this.insertChild(parent, newModel, target, key);
-    }
-    const oldModel = this.model;
-    if (oldModel !== newModel) {
-      if (oldModel !== null) {
-        (this as Mutable<typeof this>).model = null;
-        this.willDetachModel(oldModel);
-        this.onDetachModel(oldModel);
-        this.deinitModel(oldModel);
-        this.didDetachModel(oldModel);
-        oldModel.remove();
+      if (target === void 0) {
+        target = null;
       }
-      (this as Mutable<typeof this>).model = newModel;
-      this.willAttachModel(newModel, target);
-      this.onAttachModel(newModel, target);
-      this.initModel(newModel);
-      this.didAttachModel(newModel, target);
-      this.setCoherent(true);
-      this.decohereOutlets();
+      if (key === void 0) {
+        key = this.modelKey;
+      }
+      if (parent !== null && (newModel.parent !== parent || newModel.key !== key)) {
+        this.insertChild(parent, newModel, target, key);
+      }
+      oldModel = this.model;
+      if (oldModel !== newModel) {
+        if (oldModel !== null) {
+          (this as Mutable<typeof this>).model = null;
+          this.willDetachModel(oldModel);
+          this.onDetachModel(oldModel);
+          this.deinitModel(oldModel);
+          this.didDetachModel(oldModel);
+          oldModel.remove();
+        }
+        (this as Mutable<typeof this>).model = newModel;
+        this.willAttachModel(newModel, target);
+        this.onAttachModel(newModel, target);
+        this.initModel(newModel);
+        this.didAttachModel(newModel, target);
+        this.setCoherent(true);
+        this.decohereOutlets();
+      }
     }
     return newModel;
   };

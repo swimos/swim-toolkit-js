@@ -626,11 +626,11 @@ export class CanvasView extends HtmlView {
       (this as Mutable<this>).mouse = mouse;
     }
     this.updateMouse(mouse, event);
-    const oldTargetView = mouse.targetView as GraphicsView | undefined;
-    let newTargetView: GraphicsView | null | undefined = this.fireMouseEvent(event);
-    if (newTargetView === null) {
-      newTargetView = void 0;
+    let oldTargetView = mouse.targetView as GraphicsView | null | undefined;
+    if (oldTargetView === void 0) {
+      oldTargetView = null;
     }
+    const newTargetView = this.fireMouseEvent(event);
     if (newTargetView !== oldTargetView) {
       this.onMouseTargetChange(mouse, newTargetView, oldTargetView);
     }
@@ -646,21 +646,47 @@ export class CanvasView extends HtmlView {
   }
 
   /** @internal */
-  protected onMouseTargetChange(mouse: ViewMouseEventInit, newTargetView: GraphicsView | undefined,
-                                oldTargetView: GraphicsView | undefined): void {
+  protected onMouseTargetChange(mouse: ViewMouseEventInit, newTargetView: GraphicsView | null,
+                                oldTargetView: GraphicsView | null): void {
     mouse.bubbles = true;
-    if (oldTargetView !== void 0) {
+    let commonAncestorView: GraphicsView | null = null;
+    if (oldTargetView !== null && newTargetView !== null) {
+      commonAncestorView = oldTargetView.commonAncestor(newTargetView) as GraphicsView | null;
+    }
+    if (oldTargetView !== null) {
       const outEvent = new MouseEvent("mouseout", mouse) as ViewMouseEvent;
       outEvent.targetView = oldTargetView;
       outEvent.relatedTargetView = newTargetView;
       oldTargetView.bubbleEvent(outEvent);
+      let leaveView: GraphicsView | null = oldTargetView;
+      do {
+        const leaveEvent = new MouseEvent("mouseleave", {
+          bubbles: false,
+          ...mouse,
+        }) as ViewMouseEvent;
+        leaveEvent.targetView = leaveView;
+        leaveEvent.relatedTargetView = newTargetView;
+        leaveView.handleEvent(leaveEvent);
+        leaveView = leaveView.parent as GraphicsView | null;
+      } while (leaveView instanceof GraphicsView && leaveView !== commonAncestorView);
     }
-    mouse.targetView = newTargetView;
-    if (newTargetView !== void 0) {
+    mouse.targetView = newTargetView !== null ? newTargetView : void 0;
+    if (newTargetView !== null) {
       const overEvent = new MouseEvent("mouseover", mouse) as ViewMouseEvent;
       overEvent.targetView = newTargetView;
       overEvent.relatedTargetView = oldTargetView;
       newTargetView.bubbleEvent(overEvent);
+      let enterView: GraphicsView | null = newTargetView;
+      do {
+        const enterEvent = new MouseEvent("mouseenter", {
+          bubbles: false,
+          ...mouse,
+        }) as ViewMouseEvent;
+        enterEvent.targetView = enterView;
+        enterEvent.relatedTargetView = oldTargetView;
+        enterView.handleEvent(enterEvent);
+        enterView = enterView.parent as GraphicsView | null;
+      } while (enterView instanceof GraphicsView && enterView !== commonAncestorView);
     }
   }
 
@@ -671,11 +697,11 @@ export class CanvasView extends HtmlView {
     if (clientBounds.contains(clientX, clientY)) {
       const x = clientX - clientBounds.x;
       const y = clientY - clientBounds.y;
-      const oldTargetView = mouse.targetView as GraphicsView | undefined;
-      let newTargetView: GraphicsView | null | undefined = this.cascadeHitTest(x, y);
-      if (newTargetView === null) {
-        newTargetView = void 0;
+      let oldTargetView = mouse.targetView as GraphicsView | null | undefined;
+      if (oldTargetView === void 0) {
+        oldTargetView = null;
       }
+      const newTargetView = this.cascadeHitTest(x, y);
       if (newTargetView !== oldTargetView) {
         this.onMouseTargetChange(mouse, newTargetView, oldTargetView);
       }
@@ -781,7 +807,7 @@ export class CanvasView extends HtmlView {
     const pointer = pointers[id];
     if (pointer !== void 0) {
       if (pointer.targetView !== void 0) {
-        this.onPointerTargetChange(pointer, void 0, pointer.targetView as GraphicsView);
+        this.onPointerTargetChange(pointer, null, pointer.targetView as GraphicsView);
       }
       delete pointers[id];
       if (Object.keys(pointers).length === 0) {
@@ -827,11 +853,11 @@ export class CanvasView extends HtmlView {
       pointers[id] = pointer;
     }
     this.updatePointer(pointer, event);
-    const oldTargetView = pointer.targetView as GraphicsView | undefined;
-    let newTargetView: GraphicsView | null | undefined = this.firePointerEvent(event);
-    if (newTargetView === null) {
-      newTargetView = void 0;
+    let oldTargetView = pointer.targetView as GraphicsView | null | undefined;
+    if (oldTargetView === void 0) {
+      oldTargetView = null;
     }
+    const newTargetView = this.firePointerEvent(event);
     if (newTargetView !== oldTargetView) {
       this.onPointerTargetChange(pointer, newTargetView, oldTargetView);
     }
@@ -852,7 +878,7 @@ export class CanvasView extends HtmlView {
     this.firePointerEvent(event);
     if (pointer !== void 0 && event.pointerType !== "mouse") {
       if (pointer.targetView !== void 0) {
-        this.onPointerTargetChange(pointer, void 0, pointer.targetView as GraphicsView);
+        this.onPointerTargetChange(pointer, null, pointer.targetView as GraphicsView);
       }
       delete pointers[id];
       if (Object.keys(pointers).length === 0) {
@@ -876,7 +902,7 @@ export class CanvasView extends HtmlView {
     this.firePointerEvent(event);
     if (pointer !== void 0 && event.pointerType !== "mouse") {
       if (pointer.targetView !== void 0) {
-        this.onPointerTargetChange(pointer, void 0, pointer.targetView as GraphicsView);
+        this.onPointerTargetChange(pointer, null, pointer.targetView as GraphicsView);
       }
       delete pointers[id];
       if (Object.keys(pointers).length === 0) {
@@ -886,21 +912,47 @@ export class CanvasView extends HtmlView {
   }
 
   /** @internal */
-  protected onPointerTargetChange(pointer: ViewPointerEventInit, newTargetView: GraphicsView | undefined,
-                                  oldTargetView: GraphicsView | undefined): void {
+  protected onPointerTargetChange(pointer: ViewPointerEventInit, newTargetView: GraphicsView | null,
+                                  oldTargetView: GraphicsView | null): void {
     pointer.bubbles = true;
-    if (oldTargetView !== void 0) {
+    let commonAncestorView: GraphicsView | null = null;
+    if (oldTargetView !== null && newTargetView !== null) {
+      commonAncestorView = oldTargetView.commonAncestor(newTargetView) as GraphicsView | null;
+    }
+    if (oldTargetView !== null) {
       const outEvent = new PointerEvent("pointerout", pointer) as ViewPointerEvent;
       outEvent.targetView = oldTargetView;
       outEvent.relatedTargetView = newTargetView;
       oldTargetView.bubbleEvent(outEvent);
+      let leaveView: GraphicsView | null = oldTargetView;
+      do {
+        const leaveEvent = new PointerEvent("pointerleave", {
+          bubbles: false,
+          ...pointer,
+        }) as ViewPointerEvent;
+        leaveEvent.targetView = leaveView;
+        leaveEvent.relatedTargetView = newTargetView;
+        leaveView.handleEvent(leaveEvent);
+        leaveView = leaveView.parent as GraphicsView | null;
+      } while (leaveView instanceof GraphicsView && leaveView !== commonAncestorView);
     }
-    pointer.targetView = newTargetView;
-    if (newTargetView !== void 0) {
+    pointer.targetView = newTargetView !== null ? newTargetView : void 0;
+    if (newTargetView !== null) {
       const overEvent = new PointerEvent("pointerover", pointer) as ViewPointerEvent;
       overEvent.targetView = newTargetView;
       overEvent.relatedTargetView = oldTargetView;
       newTargetView.bubbleEvent(overEvent);
+      let enterView: GraphicsView | null = newTargetView;
+      do {
+        const enterEvent = new PointerEvent("pointerenter", {
+          bubbles: false,
+          ...pointer,
+        }) as ViewPointerEvent;
+        enterEvent.targetView = enterView;
+        enterEvent.relatedTargetView = oldTargetView;
+        enterView.handleEvent(enterEvent);
+        enterView = enterView.parent as GraphicsView | null;
+      } while (enterView instanceof GraphicsView && enterView !== commonAncestorView);
     }
   }
 
@@ -911,11 +963,11 @@ export class CanvasView extends HtmlView {
     if (clientBounds.contains(clientX, clientY)) {
       const x = clientX - clientBounds.x;
       const y = clientY - clientBounds.y;
-      const oldTargetView = pointer.targetView as GraphicsView | undefined;
-      let newTargetView: GraphicsView | null | undefined = this.cascadeHitTest(x, y);
-      if (newTargetView === null) {
-        newTargetView = void 0;
+      let oldTargetView = pointer.targetView as GraphicsView | null | undefined;
+      if (oldTargetView === void 0) {
+        oldTargetView = null;
       }
+      const newTargetView = this.cascadeHitTest(x, y);
       if (newTargetView !== oldTargetView) {
         this.onPointerTargetChange(pointer, newTargetView, oldTargetView);
       }

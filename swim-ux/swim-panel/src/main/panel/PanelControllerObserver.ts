@@ -12,18 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Trait} from "@swim/model";
 import type {ControllerObserver} from "@swim/controller";
 import type {PanelView} from "./PanelView";
-import type {PanelTrait} from "./PanelTrait";
 import type {PanelController} from "./PanelController";
 
 /** @public */
 export interface PanelControllerObserver<C extends PanelController = PanelController> extends ControllerObserver<C> {
-  controllerWillAttachPanelTrait?(panelTrait: PanelTrait, controller: C): void;
+  controllerWillAttachPanelTrait?(panelTrait: Trait, controller: C): void;
 
-  controllerDidDetachPanelTrait?(panelTrait: PanelTrait, controller: C): void;
+  controllerDidDetachPanelTrait?(panelTrait: Trait, controller: C): void;
 
   controllerWillAttachPanelView?(panelView: PanelView, controller: C): void;
 
   controllerDidDetachPanelView?(panelView: PanelView, controller: C): void;
+
+  controllerWillAttachPane?(paneController: PanelController, controller: C): void;
+
+  controllerDidDetachPane?(paneController: PanelController, controller: C): void;
+
+  controllerWillAttachPaneTrait?(paneTrait: Trait, paneController: PanelController, controller: C): void;
+
+  controllerDidDetachPaneTrait?(paneTrait: Trait, paneController: PanelController, controller: C): void;
+
+  controllerWillAttachPaneView?(paneView: PanelView, paneController: PanelController, controller: C): void;
+
+  controllerDidDetachPaneView?(paneView: PanelView, paneController: PanelController, controller: C): void;
 }

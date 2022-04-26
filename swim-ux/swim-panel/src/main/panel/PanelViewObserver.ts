@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {HtmlViewObserver} from "@swim/dom";
-import type {PanelView} from "./PanelView";
+import type {View} from "@swim/view";
+import type {HtmlView, HtmlViewObserver} from "@swim/dom";
+import type {PaneLayout, PanelStyle, PanelView} from "./PanelView";
 
 /** @public */
 export interface PanelViewObserver<V extends PanelView = PanelView> extends HtmlViewObserver<V> {
@@ -22,4 +23,24 @@ export interface PanelViewObserver<V extends PanelView = PanelView> extends Html
   viewDidSetUnitHeight?(unitHeight: number, view: V): void;
 
   viewDidSetMinPanelHeight?(minPanelHeight: number, view: V): void;
+
+  viewDidSetPanelStyle?(panelStyle: PanelStyle, view: V): void;
+
+  viewDidSetPaneLayout?(paneLayout: PaneLayout, view: V): void;
+
+  viewWillAttachHeader(headerView: HtmlView, view: V): void;
+
+  viewDidDetachHeader(headerView: HtmlView, view: V): void;
+
+  viewWillAttachHeaderTitle(titleView: HtmlView, view: V): void;
+
+  viewDidDetachHeaderTitle(titleView: HtmlView, view: V): void;
+
+  viewWillAttachHeaderSubtitle(subtitleView: HtmlView, view: V): void;
+
+  viewDidDetachHeaderSubtitle(subtitleView: HtmlView, view: V): void;
+
+  viewWillAttachPane?(paneView: PanelView, targetView: View | null, view: V): void;
+
+  viewDidDetachPane?(paneView: PanelView, view: V): void;
 }

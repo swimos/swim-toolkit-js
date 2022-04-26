@@ -18,6 +18,7 @@ const YELLOW = swim.Color.parse("#fccf20");
 const GREEN = swim.Color.parse("#54e218");
 const INTERSECTION_COLOR = swim.Color.parse("#00a6ed");
 const RIPPLE_COLOR = swim.Color.parse("#989898");
+const timing = swim.Easing.cubicOut.withDuration(250);
 
 const bodyView = swim.HtmlView.fromNode(document.body);
 
@@ -102,10 +103,10 @@ function linkIntersection(intersectionId, node, intersectionLayerView, intersect
               .stroke(swim.Color.transparent())
               .strokeWidth(3)
               .on("pointerenter", function (event) {
-                updateApproach(approachView);
+                approachView.stroke("#ffffff", timing);
               })
               .on("pointerleave", function (event) {
-                updateApproach(approachView);
+                approachView.stroke(swim.Color.transparent(), timing);
               });
             approaches[approachId] = approachView;
             const phaseId = item.get("phase").stringValue();
@@ -176,13 +177,7 @@ function linkIntersection(intersectionId, node, intersectionLayerView, intersect
     if (approachView.occupied === false) {
       phaseColor = phaseColor.alpha(0.25);
     }
-    const timing = swim.Easing.cubicOut.withDuration(250);
     approachView.fill(phaseColor, timing);
-    if (approachView.isHovering()) {
-      approachView.stroke("#ffffff", timing);
-    } else {
-      approachView.stroke(swim.Color.transparent(), timing);
-    }
   }
 }
 

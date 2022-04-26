@@ -34,14 +34,14 @@ export class StackController extends Controller {
   override readonly observerType?: Class<StackControllerObserver>;
 
   @TraitViewRef<StackController["stack"]>({
-    viewType: StackView,
-    observesView: true,
     willAttachTrait(stackTrait: Trait): void {
       this.owner.callObservers("controllerWillAttachStackTrait", stackTrait, this.owner);
     },
     didDetachTrait(stackTrait: Trait): void {
       this.owner.callObservers("controllerDidDetachStackTrait", stackTrait, this.owner);
     },
+    viewType: StackView,
+    observesView: true,
     initView(stackView: StackView): void {
       const navBarController = this.owner.navBar.controller;
       if (navBarController !== null) {

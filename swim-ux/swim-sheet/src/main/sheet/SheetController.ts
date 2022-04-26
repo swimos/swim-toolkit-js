@@ -81,14 +81,14 @@ export class SheetController extends Controller {
   }
 
   @TraitViewRef<SheetController["sheet"]>({
-    viewType: SheetView,
-    observesView: true,
     willAttachTrait(sheetTrait: Trait): void {
       this.owner.callObservers("controllerWillAttachSheetTrait", sheetTrait, this.owner);
     },
     didDetachTrait(sheetTrait: Trait): void {
       this.owner.callObservers("controllerDidDetachSheetTrait", sheetTrait, this.owner);
     },
+    viewType: SheetView,
+    observesView: true,
     willAttachView(sheetView: SheetView): void {
       this.owner.callObservers("controllerWillAttachSheetView", sheetView, this.owner);
     },

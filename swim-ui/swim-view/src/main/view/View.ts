@@ -1410,11 +1410,14 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     }
   }
 
-  @Property({valueType: MoodMatrix, value: null})
+  @Property<View["moodModifier"]>({
+    valueType: MoodMatrix,
+    value: null,
+    didSetValue(moodModifier: MoodMatrix | null): void {
+      this.owner.changeMood();
+    },
+  })
   readonly moodModifier!: Property<this, MoodMatrix | null>;
-
-  @Property({valueType: MoodMatrix, value: null})
-  readonly themeModifier!: Property<this, MoodMatrix | null>;
 
   /** @internal */
   modifyMood(feel: Feel, updates: MoodVectorUpdates<Feel>, timing?: AnyTiming | boolean): void {
@@ -1423,7 +1426,6 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
       const newMoodModifier = oldMoodModifier.updatedCol(feel, updates, true);
       if (!newMoodModifier.equals(oldMoodModifier)) {
         this.moodModifier.setValue(newMoodModifier, Affinity.Intrinsic);
-        this.changeMood();
         if (timing !== void 0) {
           const theme = this.theme.value;
           const mood = this.mood.value;
@@ -1442,6 +1444,15 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     }
   }
 
+  @Property<View["themeModifier"]>({
+    valueType: MoodMatrix,
+    value: null,
+    didSetValue(themeModifier: MoodMatrix | null): void {
+      this.owner.changeTheme();
+    },
+  })
+  readonly themeModifier!: Property<this, MoodMatrix | null>;
+
   /** @internal */
   modifyTheme(feel: Feel, updates: MoodVectorUpdates<Feel>, timing?: AnyTiming | boolean): void {
     if (this.themeModifier.hasAffinity(Affinity.Intrinsic)) {
@@ -1449,7 +1460,6 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
       const newThemeModifier = oldThemeModifier.updatedCol(feel, updates, true);
       if (!newThemeModifier.equals(oldThemeModifier)) {
         this.themeModifier.setValue(newThemeModifier, Affinity.Intrinsic);
-        this.changeTheme();
         if (timing !== void 0) {
           const theme = this.theme.value;
           const mood = this.mood.value;

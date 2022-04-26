@@ -12,19 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Trait} from "@swim/model";
 import type {SheetControllerObserver} from "@swim/sheet";
 import type {PanelView} from "../panel/PanelView";
-import type {PanelTrait} from "../panel/PanelTrait";
 import type {PanelController} from "../panel/PanelController";
 import type {BoardView} from "./BoardView";
-import type {BoardTrait} from "./BoardTrait";
 import type {BoardController} from "./BoardController";
 
 /** @public */
 export interface BoardControllerObserver<C extends BoardController = BoardController> extends SheetControllerObserver<C> {
-  controllerWillAttachSheetTrait?(boatdTrait: BoardTrait, controller: C): void;
+  controllerWillAttachSheetTrait?(boatdTrait: Trait, controller: C): void;
 
-  controllerDidDetachSheetTrait?(boatdTrait: BoardTrait, controller: C): void;
+  controllerDidDetachSheetTrait?(boatdTrait: Trait, controller: C): void;
 
   controllerWillAttachSheetView?(boardView: BoardView, controller: C): void;
 
@@ -34,9 +33,9 @@ export interface BoardControllerObserver<C extends BoardController = BoardContro
 
   controllerDidDetachPanel?(panelController: PanelController, controller: C): void;
 
-  controllerWillAttachPanelTrait?(panelTrait: PanelTrait, panelController: PanelController, controller: C): void;
+  controllerWillAttachPanelTrait?(panelTrait: Trait, panelController: PanelController, controller: C): void;
 
-  controllerDidDetachPanelTrait?(panelTrait: PanelTrait, panelController: PanelController, controller: C): void;
+  controllerDidDetachPanelTrait?(panelTrait: Trait, panelController: PanelController, controller: C): void;
 
   controllerWillAttachPanelView?(panelView: PanelView, panelController: PanelController, controller: C): void;
 
