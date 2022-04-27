@@ -42,8 +42,13 @@ Theme.dark = (function (): ThemeMatrix {
   const warningColor = Color.parse("#f9f070");
   const alertColor = Color.parse("#f6511d");
 
+  const selectedColor = Color.parse("#5e5f5f");
+  const primarySelectedColor = Color.parse("#2b6458");
+  const secondarySelectedColor = Color.parse("#326578");
+  const warningSelectedColor = Color.parse("#67643b");
+  const alertSelectedColor = Color.parse("#6a3423");
+
   const backgroundColor = Color.parse("#181818");
-  const selectedColor = Color.parse("#2b6458");
   const borderColor = Color.parse("#ffffff").alpha(0.25);
   const focusColor = primaryColor.alpha(0.5);
 
@@ -73,6 +78,7 @@ Theme.dark = (function (): ThemeMatrix {
     [Look.accentColor, accentColor],
 
     [Look.backgroundColor, backgroundColor],
+    [Look.selectedColor, selectedColor],
     [Look.borderColor, borderColor],
     [Look.focusColor, focusColor],
 
@@ -101,6 +107,7 @@ Theme.dark = (function (): ThemeMatrix {
     [Look.accentColor, accentColor],
 
     [Look.backgroundColor, backgroundColor],
+    [Look.selectedColor, selectedColor],
     [Look.borderColor, borderColor],
     [Look.focusColor, focusColor],
 
@@ -115,10 +122,12 @@ Theme.dark = (function (): ThemeMatrix {
 
   const primaryFeel = FeelVector.of(
     [Look.accentColor, primaryColor],
+    [Look.selectedColor, primarySelectedColor],
   );
 
   const secondaryFeel = FeelVector.of(
     [Look.accentColor, secondaryColor],
+    [Look.selectedColor, secondarySelectedColor],
   );
 
   const unselectedFeel = FeelVector.of(
@@ -148,11 +157,13 @@ Theme.dark = (function (): ThemeMatrix {
   const warningFeel = FeelVector.of(
     [Look.statusColor, warningColor],
     [Look.accentColor, warningColor],
+    [Look.selectedColor, warningSelectedColor],
   );
 
   const alertFeel = FeelVector.of(
     [Look.statusColor, alertColor],
     [Look.accentColor, alertColor],
+    [Look.selectedColor, alertSelectedColor],
   );
 
   const raisedFeel = FeelVector.of(
@@ -215,9 +226,10 @@ Theme.dark = (function (): ThemeMatrix {
   );
 
   const hoveringFeel = FeelVector.of(
-    [Look.backgroundColor, backgroundColor.lighter(2)],
-    [Look.etchColor, etchColor.lighter(1)],
-    [Look.maskColor, etchColor.lighter(1)],
+    [Look.backgroundColor, Color.black(-2)],
+    [Look.selectedColor, Color.black(-2)],
+    [Look.etchColor, Color.black(-1)],
+    [Look.maskColor, Color.black(-1)],
   );
 
   const translucentFeel = FeelVector.of(

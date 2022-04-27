@@ -56,8 +56,7 @@ export class LeafView extends HtmlView {
     const hoverPhase = this.hover.getPhase();
     const backgroundPhase = Math.max(highlightPhase, hoverPhase);
     this.modifyMood(Feel.default, [[Feel.transparent, 1 - backgroundPhase],
-                                   [Feel.hovering, hoverPhase * (1 - highlightPhase)],
-                                   [Feel.selected, highlightPhase]], false);
+                                   [Feel.hovering, hoverPhase * (1 - backgroundPhase)]], false);
   }
 
   override readonly observerType?: Class<LeafViewObserver>;
@@ -85,13 +84,12 @@ export class LeafView extends HtmlView {
     get transition(): Timing | null {
       return this.owner.getLookOr(Look.timing, null);
     },
-    didSetValue(newHover: Focus, oldHover: Focus): void {
+    didSetValue(hover: Focus): void {
       const highlightPhase = this.owner.highlight.getPhase();
-      const hoverPhase = newHover.phase;
+      const hoverPhase = hover.phase;
       const backgroundPhase = Math.max(highlightPhase, hoverPhase);
       this.owner.modifyMood(Feel.default, [[Feel.transparent, 1 - backgroundPhase],
-                                           [Feel.hovering, hoverPhase * (1 - highlightPhase)],
-                                           [Feel.selected, highlightPhase]], false);
+                                           [Feel.hovering, hoverPhase * (1 - backgroundPhase)]], false);
     },
   })
   readonly hover!: FocusAnimator<this, Focus, AnyFocus>;
@@ -103,23 +101,24 @@ export class LeafView extends HtmlView {
     },
     willFocus(): void {
       this.owner.callObservers("viewWillHighlight", this.owner);
+      this.owner.backgroundColor.setLook(Look.selectedColor, Affinity.Intrinsic);
     },
     didFocus(): void {
       this.owner.callObservers("viewDidHighlight", this.owner);
     },
     willUnfocus(): void {
+      this.owner.backgroundColor.setLook(Look.backgroundColor, Affinity.Intrinsic);
       this.owner.callObservers("viewWillUnhighlight", this.owner);
     },
     didUnfocus(): void {
       this.owner.callObservers("viewDidUnhighlight", this.owner);
     },
-    didSetValue(newHighlight: Focus, oldHighlight: Focus): void {
-      const highlightPhase = newHighlight.phase;
+    didSetValue(highlight: Focus): void {
+      const highlightPhase = highlight.phase;
       const hoverPhase = this.owner.hover.getPhase();
       const backgroundPhase = Math.max(highlightPhase, hoverPhase);
       this.owner.modifyMood(Feel.default, [[Feel.transparent, 1 - backgroundPhase],
-                                           [Feel.hovering, hoverPhase * (1 - highlightPhase)],
-                                           [Feel.selected, highlightPhase]], false);
+                                           [Feel.hovering, hoverPhase * (1 - backgroundPhase)]], false);
     },
   })
   readonly highlight!: FocusAnimator<this, Focus, AnyFocus>;
