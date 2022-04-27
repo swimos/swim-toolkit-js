@@ -21,6 +21,8 @@ import {ShadowLook} from "../look/ShadowLook";
 import {TimingLook} from "../look/TimingLook";
 
 Look.font = new FontLook("font");
+Look.smallFont = new FontLook("smallFont");
+Look.largeFont = new FontLook("largeFont");
 
 Look.textColor = new ColorLook("textColor");
 Look.iconColor = new ColorLook("iconColor");

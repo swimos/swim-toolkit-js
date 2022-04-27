@@ -23,6 +23,8 @@ import {ThemeMatrix} from "../theme/ThemeMatrix";
 
 Theme.dark = (function (): ThemeMatrix {
   const font = Font.parse("14px -apple-system, system-ui, sans-serif");
+  const smallFont = font.withSize(12);
+  const largeFont = font.withSize(16);
 
   const textColor = Color.parse("#ffffff");
   const iconColor = Color.parse("#ffffff");
@@ -57,6 +59,8 @@ Theme.dark = (function (): ThemeMatrix {
 
   const ambientFeel = FeelVector.of(
     [Look.font, font],
+    [Look.smallFont, smallFont],
+    [Look.largeFont, largeFont],
 
     [Look.textColor, textColor],
     [Look.iconColor, iconColor],
@@ -83,6 +87,8 @@ Theme.dark = (function (): ThemeMatrix {
 
   const defaultFeel = FeelVector.of(
     [Look.font, font],
+    [Look.smallFont, smallFont],
+    [Look.largeFont, largeFont],
 
     [Look.textColor, textColor],
     [Look.iconColor, iconColor],
