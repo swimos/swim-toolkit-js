@@ -30,6 +30,7 @@ export class PanelView extends HtmlView {
   constructor(node: HTMLElement) {
     super(node);
     this.initPanel();
+    node.addEventListener("scroll", this.onPanelScroll.bind(this));
   }
 
   protected initPanel(): void {
@@ -433,5 +434,9 @@ export class PanelView extends HtmlView {
     if (heightBasis !== void 0) {
       this.height.setState(y + this.paddingBottom.pxValue(), Affinity.Intrinsic);
     }
+  }
+
+  protected onPanelScroll(event: Event): void {
+    this.requireUpdate(View.NeedsScroll);
   }
 }
