@@ -48,6 +48,7 @@ export class TableView extends HtmlView {
     this.addClass("table");
     this.position.setState("relative", Affinity.Intrinsic);
     this.backgroundColor.setLook(Look.backgroundColor, Affinity.Intrinsic);
+    this.boxSizing.setState("border-box", Affinity.Intrinsic);
   }
 
   override readonly observerType?: Class<TableViewObserver>;

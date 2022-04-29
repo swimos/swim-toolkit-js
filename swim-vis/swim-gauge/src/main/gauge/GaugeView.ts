@@ -84,7 +84,7 @@ export class GaugeView extends GraphicsView {
   @ThemeAnimator({valueType: Color, value: null, look: Look.accentColor})
   readonly meterColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @ThemeAnimator({valueType: Length, value: Length.pct(25)})
+  @ThemeAnimator({valueType: Length, value: Length.pct(50)})
   readonly labelPadding!: ThemeAnimator<this, Length, AnyLength>;
 
   @ThemeAnimator({valueType: Number, value: 1})

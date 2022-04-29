@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Proto, Objects, Comparator} from "@swim/util";
+import {Mutable, Proto, Objects, Comparator, Consumes} from "@swim/util";
 import {Affinity, FastenerOwner, FastenerFlags, Fastener} from "@swim/component";
 import type {AnyController, ControllerFactory, Controller} from "./Controller";
 import {ControllerRelationDescriptor, ControllerRelationClass, ControllerRelation} from "./ControllerRelation";
@@ -174,6 +174,10 @@ export interface ControllerSet<O = unknown, C extends Controller = Controller> e
 
   /** @override */
   detectController(controller: Controller): C | null;
+
+  consumeControllers(consumer: Consumes<C>): void;
+
+  unconsumeControllers(consumer: Consumes<C>): void;
 
   /** @internal @protected */
   decohereOutlets(): void;
@@ -527,6 +531,22 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
       return controller as C;
     }
     return null;
+  };
+
+  ControllerSet.prototype.consumeControllers = function <C extends Controller>(this: ControllerSet<unknown, C>, consumer: Consumes<C>): void {
+    const controllers = this.controllers;
+    for (const controllerId in controllers) {
+      const controller = controllers[controllerId]!;
+      controller.consume(consumer);
+    }
+  };
+
+  ControllerSet.prototype.unconsumeControllers = function <C extends Controller>(this: ControllerSet<unknown, C>, consumer: Consumes<C>): void {
+    const controllers = this.controllers;
+    for (const controllerId in controllers) {
+      const controller = controllers[controllerId]!;
+      controller.unconsume(consumer);
+    }
   };
 
   ControllerSet.prototype.decohereOutlets = function (this: ControllerSet): void {
