@@ -15,7 +15,7 @@
 import type {Class, Observes} from "@swim/util";
 import {Affinity, FastenerClass, Property} from "@swim/component";
 import {Length} from "@swim/math";
-import {ViewportInsets, ViewContextType, View, ViewRef, ViewSet} from "@swim/view";
+import {View, ViewRef, ViewSet} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {BarView} from "@swim/toolbar";
 import {SheetView} from "../sheet/SheetView";
@@ -39,15 +39,6 @@ export class StackView extends HtmlView {
 
   @Property({valueType: Number, value: -(1 / 3)})
   readonly backAlign!: Property<this, number>;
-
-  @Property<StackView["edgeInsets"]>({
-    valueType: ViewportInsets,
-    value: null,
-    inherits: true,
-    updateFlags: View.NeedsResize,
-    equalValues: ViewportInsets.equal,
-  })
-  readonly edgeInsets!: Property<this, ViewportInsets | null>;
 
   @ViewRef<StackView["navBar"]>({
     viewType: BarView,
@@ -87,9 +78,6 @@ export class StackView extends HtmlView {
       let stackHeight = this.owner.height.state;
       stackHeight = stackHeight instanceof Length ? stackHeight : Length.px(this.owner.node.offsetHeight);
       let edgeInsets = this.owner.edgeInsets.value;
-      if (edgeInsets === void 0 && this.owner.edgeInsets.hasAffinity(Affinity.Intrinsic)) {
-        edgeInsets = this.owner.viewport.safeArea;
-      }
 
       const navBarView = this.owner.navBar.view;
       let navBarHeight: Length | null = null;
@@ -168,7 +156,7 @@ export class StackView extends HtmlView {
       }
       this.owner.callObservers("viewDidDismissSheet", sheetView, this.owner);
     },
-    viewWillLayout(viewContext: ViewContextType<SheetView>, sheetView: SheetView): void {
+    viewWillLayout(sheetView: SheetView): void {
       sheetView.layoutSheet();
     },
     detectView(view: View): SheetView | null {
@@ -208,20 +196,17 @@ export class StackView extends HtmlView {
   readonly front!: ViewRef<this, SheetView>;
   static readonly front: FastenerClass<StackView["front"]>;
 
-  protected override onResize(viewContext: ViewContextType<this>): void {
-    super.onResize(viewContext);
-    this.resizeStack(viewContext);
+  protected override onResize(): void {
+    super.onResize();
+    this.resizeStack();
   }
 
-  protected resizeStack(viewContext: ViewContextType<this>): void {
+  protected resizeStack(): void {
     let stackWidth = this.width.state;
     stackWidth = stackWidth instanceof Length ? stackWidth : Length.px(this.node.offsetWidth);
     let stackHeight = this.height.state;
     stackHeight = stackHeight instanceof Length ? stackHeight : Length.px(this.node.offsetHeight);
     let edgeInsets = this.edgeInsets.value;
-    if (edgeInsets === void 0 && this.edgeInsets.hasAffinity(Affinity.Intrinsic)) {
-      edgeInsets = viewContext.viewport.safeArea;
-    }
 
     const navBarView = this.navBar.view;
     if (navBarView !== null) {
@@ -245,12 +230,12 @@ export class StackView extends HtmlView {
     }
   }
 
-  protected override onLayout(viewContext: ViewContextType<this>): void {
-    super.onLayout(viewContext);
-    this.layoutStack(viewContext);
+  protected override onLayout(): void {
+    super.onLayout();
+    this.layoutStack();
   }
 
-  protected layoutStack(viewContext: ViewContextType<this>): void {
+  protected layoutStack(): void {
     const navBarView = this.navBar.view;
     let navBarHeight: Length | null = null;
     if (navBarView !== null) {

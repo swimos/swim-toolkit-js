@@ -15,7 +15,7 @@
 import type {Class, Instance, Creatable, Observes} from "@swim/util";
 import {Affinity, FastenerClass, Property} from "@swim/component";
 import {Length} from "@swim/math";
-import {ViewContextType, View, ViewRef, ViewSet} from "@swim/view";
+import {View, ViewRef, ViewSet} from "@swim/view";
 import {BarView} from "@swim/toolbar";
 import {SheetView} from "../sheet/SheetView";
 import type {BinderViewObserver} from "./BinderViewObserver";
@@ -110,9 +110,6 @@ export class BinderView extends SheetView {
       let binderHeight = this.owner.height.state;
       binderHeight = binderHeight instanceof Length ? binderHeight : Length.px(this.owner.node.offsetHeight);
       let edgeInsets = this.owner.edgeInsets.value;
-      if (edgeInsets === void 0 && this.owner.edgeInsets.hasAffinity(Affinity.Intrinsic)) {
-        edgeInsets = this.owner.viewport.safeArea;
-      }
 
       const tabBarView = this.owner.tabBar.view;
       let tabBarHeight: Length | null = null;
@@ -181,20 +178,17 @@ export class BinderView extends SheetView {
   readonly active!: ViewRef<this, SheetView> & Observes<SheetView>;
   static readonly active: FastenerClass<BinderView["active"]>;
 
-  protected override onResize(viewContext: ViewContextType<this>): void {
-    super.onResize(viewContext);
-    this.resizeBinder(viewContext);
+  protected override onResize(): void {
+    super.onResize();
+    this.resizeBinder();
   }
 
-  protected resizeBinder(viewContext: ViewContextType<this>): void {
+  protected resizeBinder(): void {
     let binderWidth = this.width.state;
     binderWidth = binderWidth instanceof Length ? binderWidth : Length.px(this.node.offsetWidth);
     let binderHeight = this.height.state;
     binderHeight = binderHeight instanceof Length ? binderHeight : Length.px(this.node.offsetHeight);
     let edgeInsets = this.edgeInsets.value;
-    if (edgeInsets === void 0 && this.edgeInsets.hasAffinity(Affinity.Intrinsic)) {
-      edgeInsets = viewContext.viewport.safeArea;
-    }
 
     const tabBarView = this.tabBar.view;
     let tabBarHeight: Length | null = null;
@@ -234,12 +228,12 @@ export class BinderView extends SheetView {
     }
   }
 
-  protected override onLayout(viewContext: ViewContextType<this>): void {
-    super.onLayout(viewContext);
-    this.layoutBinder(viewContext);
+  protected override onLayout(): void {
+    super.onLayout();
+    this.layoutBinder();
   }
 
-  protected layoutBinder(viewContext: ViewContextType<this>): void {
+  protected layoutBinder(): void {
     const tabBarView = this.tabBar.view;
     let tabBarHeight: Length | null = null;
     if (tabBarView !== null && tabBarView.mounted) {

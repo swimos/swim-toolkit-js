@@ -18,7 +18,7 @@ import {BTree} from "@swim/collections";
 import {AnyR2Point, R2Point, R2Box} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
-import {ViewContextType, ViewFlags, View} from "@swim/view";
+import {ViewFlags, View} from "@swim/view";
 import {GraphicsViewInit, GraphicsView, PaintingContext, PaintingRenderer} from "@swim/graphics";
 import type {ContinuousScaleAnimator} from "../scaled/ContinuousScaleAnimator";
 import {AnyTickView, TickView} from "../tick/TickView";
@@ -256,39 +256,38 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     }
   }
 
-  protected override needsDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
+  protected override needsDisplay(displayFlags: ViewFlags): ViewFlags {
     if ((this.flags & View.NeedsLayout) === 0) {
       displayFlags &= ~View.NeedsLayout;
     }
     return displayFlags;
   }
 
-  protected override onLayout(viewContext: ViewContextType<this>): void {
-    super.onLayout(viewContext);
-    this.scale.recohere(viewContext.updateTime);
+  protected override onLayout(): void {
+    super.onLayout();
+    this.scale.recohere(this.updateTime);
     this.updateTicks();
   }
 
-  protected override displayChild(child: View, displayFlags: ViewFlags,
-                                  viewContext: ViewContextType<this>): void {
+  protected override displayChild(child: View, displayFlags: ViewFlags): void {
     if ((displayFlags & View.NeedsLayout) !== 0 && child instanceof TickView) {
       const scale = this.scale.value;
       if (scale !== null) {
         this.layoutTick(child, this.origin.getValue(), this.viewFrame, scale);
       }
     }
-    super.displayChild(child, displayFlags, viewContext);
+    super.displayChild(child, displayFlags);
   }
 
   protected abstract layoutTick(tick: TickView<D>, origin: R2Point, frame: R2Box,
                                 scale: ContinuousScale<D, number>): void;
 
-  protected override didRender(viewContext: ViewContextType<this>): void {
-    const renderer = viewContext.renderer;
+  protected override didRender(): void {
+    const renderer = this.renderer.value;
     if (renderer instanceof PaintingRenderer) {
       this.renderDomain(renderer.context, this.origin.getValue(), this.viewFrame);
     }
-    super.didRender(viewContext);
+    super.didRender();
   }
 
   protected abstract renderDomain(context: PaintingContext, origin: R2Point, frame: R2Box): void;

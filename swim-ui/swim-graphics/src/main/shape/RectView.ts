@@ -17,7 +17,7 @@ import {Animator} from "@swim/component";
 import {AnyLength, Length, R2Box} from "@swim/math";
 import {AnyColor, Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
-import {ViewContextType, View} from "@swim/view";
+import {View} from "@swim/view";
 import {GraphicsView} from "../graphics/GraphicsView";
 import type {PaintingContext} from "../painting/PaintingContext";
 import {PaintingRenderer} from "../painting/PaintingRenderer";
@@ -96,9 +96,9 @@ export class RectView extends GraphicsView implements FillView, StrokeView {
     }
   }
 
-  protected override onRender(viewContext: ViewContextType<this>): void {
-    super.onRender(viewContext);
-    const renderer = viewContext.renderer;
+  protected override onRender(): void {
+    super.onRender();
+    const renderer = this.renderer.value;
     if (renderer instanceof PaintingRenderer && !this.hidden && !this.culled) {
       this.renderRect(renderer.context, this.viewFrame);
     }
@@ -143,8 +143,8 @@ export class RectView extends GraphicsView implements FillView, StrokeView {
 
   declare readonly viewBounds: R2Box; // getter defined below to work around useDefineForClassFields lunacy
 
-  protected override hitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
-    const renderer = viewContext.renderer;
+  protected override hitTest(x: number, y: number): GraphicsView | null {
+    const renderer = this.renderer.value;
     if (renderer instanceof CanvasRenderer) {
       const p = renderer.transform.transform(x, y);
       return this.hitTestRect(p.x, p.y, renderer.context, this.viewFrame);

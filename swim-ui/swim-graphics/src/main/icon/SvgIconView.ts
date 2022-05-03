@@ -18,7 +18,7 @@ import {AnyLength, Length, R2Box} from "@swim/math";
 import {AnyColor, Color} from "@swim/style";
 import type {MoodVector, ThemeMatrix} from "@swim/theme";
 import {ThemeAnimator} from "@swim/theme";
-import {ViewContextType, ViewFlags, View} from "@swim/view";
+import {ViewFlags, View} from "@swim/view";
 import {SvgViewInit, SvgView} from "@swim/dom";
 import {Graphics} from "../graphics/Graphics";
 import {SvgContext} from "../svg/SvgContext";
@@ -86,13 +86,13 @@ export class SvgIconView extends SvgView implements IconView {
     }
   }
 
-  protected override onResize(viewContext: ViewContextType<this>): void {
-    super.onResize(viewContext);
+  protected override onResize(): void {
+    super.onResize();
     this.requireUpdate(View.NeedsLayout);
   }
 
-  protected override onLayout(viewContext: ViewContextType<this>): void {
-    super.onLayout(viewContext);
+  protected override onLayout(): void {
+    super.onLayout();
     this.renderIcon();
   }
 

@@ -14,7 +14,7 @@
 
 import type {Class, Observes} from "@swim/util";
 import {Affinity, FastenerClass} from "@swim/component";
-import {ViewContextType, ViewFlags, View, ViewSet} from "@swim/view";
+import {ViewFlags, View, ViewSet} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {SheetView} from "@swim/sheet";
 import {PanelStyle, PanelView} from "../panel/PanelView";
@@ -59,27 +59,22 @@ export class BoardView extends SheetView {
   readonly panels!: ViewSet<this, PanelView> & Observes<PanelView>;
   static readonly panels: FastenerClass<BoardView["panels"]>;
 
-  protected override processChildren(processFlags: ViewFlags, viewContext: ViewContextType<this>,
-                                     processChild: (this: this, child: View, processFlags: ViewFlags,
-                                                    viewContext: ViewContextType<this>) => void): void {
+  protected override processChildren(processFlags: ViewFlags, processChild: (this: this, child: View, processFlags: ViewFlags) => void): void {
     if ((processFlags & View.NeedsResize) !== 0) {
-      this.resizeChildren(processFlags, viewContext, processChild);
+      this.resizeChildren(processFlags, processChild);
     } else {
-      super.processChildren(processFlags, viewContext, processChild);
+      super.processChildren(processFlags, processChild);
     }
   }
 
-  protected resizeChildren(processFlags: ViewFlags, viewContext: ViewContextType<this>,
-                           processChild: (this: this, child: View, processFlags: ViewFlags,
-                                          viewContext: ViewContextType<this>) => void): void {
+  protected resizeChildren(processFlags: ViewFlags, processChild: (this: this, child: View, processFlags: ViewFlags) => void): void {
     const x = this.paddingLeft.pxValue();
     let y = this.paddingTop.pxValue();
     const width = this.width.pxValue() - this.marginLeft.pxValue() - x - this.paddingRight.pxValue() - this.marginRight.pxValue();
     const height = this.height.pxValue() - y - this.paddingBottom.pxValue();
 
     type self = this;
-    function resizeChild(this: self, child: View, processFlags: ViewFlags,
-                         viewContext: ViewContextType<self>): void {
+    function resizeChild(this: self, child: View, processFlags: ViewFlags): void {
       if (child instanceof PanelView) {
         const panelHeight = Math.max(child.minPanelHeight.value, child.unitHeight.value * height);
         child.left.setState(x, Affinity.Intrinsic);
@@ -90,12 +85,12 @@ export class BoardView extends SheetView {
       if (child instanceof HtmlView) {
         child.paddingBottom.setState(child.nextSibling === null ? this.paddingBottom.value : null, Affinity.Transient);
       }
-      processChild.call(this, child, processFlags, viewContext);
+      processChild.call(this, child, processFlags);
       if (child instanceof PanelView) {
         child.visibility.setState(void 0, Affinity.Intrinsic);
         y += child.marginTop.pxValue() + child.height.pxValue() + child.marginBottom.pxValue();
       }
     }
-    super.processChildren(processFlags, viewContext, resizeChild);
+    super.processChildren(processFlags, resizeChild);
   }
 }

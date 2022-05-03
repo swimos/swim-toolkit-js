@@ -15,6 +15,7 @@
 import type {Mutable, Proto, AnyTiming, ContinuousScale} from "@swim/util";
 import type {FastenerFlags, FastenerOwner} from "@swim/component";
 import type {R2Box} from "@swim/math";
+import {View} from "../view/View";
 import type {GestureInputType} from "./GestureInput";
 import type {GestureView} from "./Gesture";
 import {MomentumGestureDescriptor, MomentumGestureClass, MomentumGesture} from "./MomentumGesture";
@@ -22,8 +23,6 @@ import {ScaleGestureInput} from "./ScaleGestureInput";
 import {MouseScaleGesture} from "./"; // forward import
 import {TouchScaleGesture} from "./"; // forward import
 import {PointerScaleGesture} from "./"; // forward import
-import type {ViewContext} from "../view/ViewContext";
-import {View} from "../"; // forward import
 
 /** @public */
 export type ScaleGestureX<R extends ScaleGesture<any, any, any, any>> =
@@ -149,7 +148,7 @@ export interface ScaleGesture<O = unknown, V extends View = View, X = unknown, Y
   unscaleY(clientY: number, yScale: ContinuousScale<Y, number>, bounds: R2Box): Y;
 
   /** @internal @override */
-  viewWillAnimate(viewContext: ViewContext): void;
+  viewWillAnimate(view: View): void;
 
   /** @protected @override */
   onBeginPress(input: ScaleGestureInput<X, Y>, event: Event | null): void;
@@ -348,8 +347,8 @@ export const ScaleGesture = (function (_super: typeof MomentumGesture) {
     return yScale.inverse(this.clientToRangeY(clientY, yScale, bounds));
   };
 
-  ScaleGesture.prototype.viewWillAnimate = function (this: ScaleGesture, viewContext: ViewContext): void {
-    MomentumGesture.prototype.viewWillAnimate.call(this, viewContext);
+  ScaleGesture.prototype.viewWillAnimate = function (this: ScaleGesture, view: View): void {
+    MomentumGesture.prototype.viewWillAnimate.call(this, view);
     if ((this.flags & ScaleGesture.NeedsRescale) !== 0) {
       this.rescale();
     }

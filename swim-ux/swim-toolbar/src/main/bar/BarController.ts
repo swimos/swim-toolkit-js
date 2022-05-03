@@ -19,7 +19,7 @@ import {Look, Mood} from "@swim/theme";
 import {PositionGestureInput, View} from "@swim/view";
 import type {HtmlView} from "@swim/dom";
 import type {Graphics} from "@swim/graphics";
-import {ControllerContextType, Controller, TraitViewRef, TraitViewControllerSet} from "@swim/controller";
+import {Controller, TraitViewRef, TraitViewControllerSet} from "@swim/controller";
 import type {ToolLayout} from "../layout/ToolLayout";
 import {BarLayout} from "../layout/BarLayout";
 import type {ToolView} from "../tool/ToolView";
@@ -247,8 +247,8 @@ export class BarController extends Controller {
   };
   static readonly tools: FastenerClass<BarController["tools"]>;
 
-  protected override onAssemble(controllerContext: ControllerContextType<this>): void {
-    super.onAssemble(controllerContext);
+  protected override onAssemble(): void {
+    super.onAssemble();
     this.updateLayout();
   }
 }

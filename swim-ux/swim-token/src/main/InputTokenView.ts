@@ -99,14 +99,14 @@ export class InputTokenView extends TokenView {
       this.owner.initLabel(labelView);
     },
     viewDidMount(labelView: HtmlView): void {
-      labelView.on("input", this.owner.onInputUpdate as EventListener);
-      labelView.on("change", this.owner.onInputChange);
-      labelView.on("keydown", this.owner.onInputKey);
+      labelView.addEventListener("input", this.owner.onInputUpdate as EventListener);
+      labelView.addEventListener("change", this.owner.onInputChange);
+      labelView.addEventListener("keydown", this.owner.onInputKey);
     },
     viewWillUnmount(labelView: HtmlView): void {
-      labelView.off("input", this.owner.onInputUpdate as EventListener);
-      labelView.off("change", this.owner.onInputChange);
-      labelView.off("keydown", this.owner.onInputKey);
+      labelView.removeEventListener("input", this.owner.onInputUpdate as EventListener);
+      labelView.removeEventListener("change", this.owner.onInputChange);
+      labelView.removeEventListener("keydown", this.owner.onInputKey);
     },
   })
   override readonly label!: ViewRef<this, HtmlView> & Observes<HtmlView>;

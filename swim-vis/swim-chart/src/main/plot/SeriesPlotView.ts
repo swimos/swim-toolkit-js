@@ -31,7 +31,7 @@ import {BTree} from "@swim/collections";
 import type {R2Box} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
-import {ViewContextType, ViewFlags, AnyView, View, ViewSet} from "@swim/view";
+import { ViewFlags, AnyView, View, ViewSet} from "@swim/view";
 import {GraphicsView, CanvasContext, CanvasRenderer} from "@swim/graphics";
 import {DataPointCategory, AnyDataPointView, DataPointView} from "../data/DataPointView";
 import {ContinuousScaleAnimator} from "../scaled/ContinuousScaleAnimator";
@@ -433,10 +433,11 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
     return super.insertChild(child, target, key);
   }
 
-  protected override onLayout(viewContext: ViewContextType<this>): void {
-    super.onLayout(viewContext);
-    this.xScale.recohere(viewContext.updateTime);
-    this.yScale.recohere(viewContext.updateTime);
+  protected override onLayout(): void {
+    super.onLayout();
+    const updateTime = this.updateTime;
+    this.xScale.recohere(updateTime);
+    this.yScale.recohere(updateTime);
     this.resizeScales(this.viewFrame);
   }
 
@@ -454,24 +455,20 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
     }
   }
 
-  protected override displayChildren(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                                     displayChild: (this: this, child: View, displayFlags: ViewFlags,
-                                                    viewContext: ViewContextType<this>) => void): void {
+  protected override displayChildren(displayFlags: ViewFlags, displayChild: (this: this, child: View, displayFlags: ViewFlags) => void): void {
     let xScale: ContinuousScale<X, number> | null;
     let yScale: ContinuousScale<Y, number> | null;
     if ((displayFlags & View.NeedsLayout) !== 0 &&
         (xScale = this.xScale.value, xScale !== null) &&
         (yScale = this.yScale.value, yScale !== null)) {
-      this.layoutChildren(xScale, yScale, displayFlags, viewContext, displayChild);
+      this.layoutChildren(xScale, yScale, displayFlags, displayChild);
     } else {
-      super.displayChildren(displayFlags, viewContext, displayChild);
+      super.displayChildren(displayFlags, displayChild);
     }
   }
 
   protected layoutChildren(xScale: ContinuousScale<X, number>, yScale: ContinuousScale<Y, number>,
-                           displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                           displayChild: (this: this, child: View, displayFlags: ViewFlags,
-                                          viewContext: ViewContextType<this>) => void): void {
+                           displayFlags: ViewFlags, displayChild: (this: this, child: View, displayFlags: ViewFlags) => void): void {
     // Recompute extrema when laying out child views.
     const frame = this.viewFrame;
     let xDataDomainMin: X | undefined;
@@ -485,8 +482,7 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
     let y0: Y | undefined;
     let y1: Y | undefined;
     type self = this;
-    function layoutChild(this: self, child: View, displayFlags: ViewFlags,
-                         viewContext: ViewContextType<self>): void {
+    function layoutChild(this: self, child: View, displayFlags: ViewFlags): void {
       const point2 = child as DataPointView<X, Y>;
       const x2 = point2.x.getValue();
       const y2 = point2.y.getValue();
@@ -561,9 +557,9 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
       y1 = y2;
       xDataDomainMax = x2;
 
-      displayChild.call(this, child, displayFlags, viewContext);
+      displayChild.call(this, child, displayFlags);
     }
-    super.displayChildren(displayFlags, viewContext, layoutChild);
+    super.displayChildren(displayFlags, layoutChild);
 
     if (point1 !== null) {
       let category: DataPointCategory;
@@ -588,20 +584,20 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
     (this as Mutable<this>).gradientStops = gradientStops;
   }
 
-  protected override didRender(viewContext: ViewContextType<this>): void {
-    const renderer = viewContext.renderer;
+  protected override didRender(): void {
+    const renderer = this.renderer.value;
     if (renderer instanceof CanvasRenderer && !this.hidden && !this.culled) {
       this.renderPlot(renderer.context, this.viewFrame);
     }
-    super.didRender(viewContext);
+    super.didRender();
   }
 
   protected abstract renderPlot(context: CanvasContext, frame: R2Box): void;
 
-  protected override hitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
+  protected override hitTest(x: number, y: number): GraphicsView | null {
     const hitMode = this.hitMode.value;
     if (hitMode !== "none") {
-      const renderer = viewContext.renderer;
+      const renderer = this.renderer.value;
       if (renderer instanceof CanvasRenderer) {
         let hit: GraphicsView | null;
         if (hitMode === "domain") {
@@ -616,7 +612,7 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
     return null;
   }
 
-  protected override hitTestChildren(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
+  protected override hitTestChildren(x: number, y: number): GraphicsView | null {
     return null;
   }
 

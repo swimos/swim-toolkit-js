@@ -66,20 +66,6 @@ export class Expansion implements Interpolate<Expansion>, HashCode, Equivalent, 
     }
   }
 
-  get modalState(): "hidden" | "showing" | "shown" | "hiding" | undefined {
-    if (this.phase === 0 && this.direction === 0) {
-      return "hidden";
-    } else if (this.phase === 1 && this.direction === 0) {
-      return "shown";
-    } else if (this.direction > 0) {
-      return "showing";
-    } else if (this.direction < 0) {
-      return "hiding";
-    } else {
-      return void 0;
-    }
-  }
-
   get collapsed(): boolean {
     return this.phase === 0 && this.direction === 0;
   }

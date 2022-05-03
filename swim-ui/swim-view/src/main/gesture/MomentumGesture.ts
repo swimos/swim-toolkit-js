@@ -14,6 +14,7 @@
 
 import type {Mutable, Proto} from "@swim/util";
 import type {FastenerOwner} from "@swim/component";
+import {View} from "../view/View";
 import type {GestureInputType} from "./GestureInput";
 import type {GestureView} from "./Gesture";
 import {PositionGestureDescriptor, PositionGestureClass, PositionGesture} from "./PositionGesture";
@@ -21,8 +22,6 @@ import {MomentumGestureInput} from "./MomentumGestureInput";
 import {MouseMomentumGesture} from "./"; // forward import
 import {TouchMomentumGesture} from "./"; // forward import
 import {PointerMomentumGesture} from "./"; // forward import
-import type {ViewContext} from "../view/ViewContext";
-import {View} from "../"; // forward import
 
 /** @public */
 export interface MomentumGestureDescriptor<V extends View = View> extends PositionGestureDescriptor<V> {
@@ -117,7 +116,7 @@ export interface MomentumGesture<O = unknown, V extends View = View> extends Pos
   velocityMax: number;
 
   /** @internal */
-  viewWillAnimate(viewContext: ViewContext): void;
+  viewWillAnimate(view: View): void;
 
   /** @internal */
   interrupt(event: Event | null): void;
@@ -294,8 +293,8 @@ export const MomentumGesture = (function (_super: typeof PositionGesture) {
     return velocityMax;
   };
 
-  MomentumGesture.prototype.viewWillAnimate = function (this: MomentumGesture, viewContext: ViewContext): void {
-    this.doCoast(viewContext.updateTime);
+  MomentumGesture.prototype.viewWillAnimate = function (this: MomentumGesture, view: View): void {
+    this.doCoast(view.updateTime);
   };
 
   MomentumGesture.prototype.interrupt = function (this: MomentumGesture, event: Event | null): void {

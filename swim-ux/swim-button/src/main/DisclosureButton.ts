@@ -16,7 +16,7 @@ import {Angle, Transform} from "@swim/math";
 import {Affinity} from "@swim/component";
 import {AnyColor, Color, AnyExpansion, Expansion, ExpansionAnimator} from "@swim/style";
 import {Look, ThemeAnimator} from "@swim/theme";
-import {ViewContextType, ViewFlags, View} from "@swim/view";
+import {ViewFlags, View} from "@swim/view";
 import {HtmlView, SvgView} from "@swim/dom";
 
 /** @public */
@@ -62,15 +62,15 @@ export class DisclosureButton extends HtmlView {
   @ThemeAnimator({valueType: Color, look: Look.accentColor, inherits: true, updateFlags: View.NeedsLayout})
   readonly expandedColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  protected override needsDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
+  protected override needsDisplay(displayFlags: ViewFlags): ViewFlags {
     if ((this.flags & View.NeedsLayout) === 0) {
       displayFlags &= ~View.NeedsLayout;
     }
     return displayFlags;
   }
 
-  protected override onLayout(viewContext: ViewContextType<this>): void {
-    super.onLayout(viewContext);
+  protected override onLayout(): void {
+    super.onLayout();
     const phase = this.disclosure.getPhase();
     const collapsedColor = this.collapsedColor.value;
     const expandedColor = this.expandedColor.value;

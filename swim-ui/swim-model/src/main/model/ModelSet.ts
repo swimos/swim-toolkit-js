@@ -414,30 +414,35 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
     } else {
       newModel = this.createModel();
     }
-    if (parent === void 0 || parent === null) {
-      parent = this.parentModel;
+    if (parent === void 0) {
+      parent = null;
     }
-    if (target === void 0) {
-      target = null;
-    }
-    if (key === void 0) {
-      key = this.modelKey(newModel);
-    }
-    if (parent !== null && (newModel.parent !== parent || newModel.key !== key)) {
-      if (target === null) {
-        target = this.getTargetChild(parent, newModel);
+    if (this.binds || this.models[newModel.uid] === void 0 || newModel.parent === null || parent !== null || key !== void 0) {
+      if (parent === null) {
+        parent = this.parentModel;
       }
-      this.insertChild(parent, newModel, target, key);
-    }
-    if (this.models[newModel.uid] === void 0) {
-      this.insertModelMap(newModel, target);
-      (this as Mutable<typeof this>).modelCount += 1;
-      this.willAttachModel(newModel, target);
-      this.onAttachModel(newModel, target);
-      this.initModel(newModel);
-      this.didAttachModel(newModel, target);
-      this.setCoherent(true);
-      this.decohereOutlets();
+      if (target === void 0) {
+        target = null;
+      }
+      if (key === void 0) {
+        key = this.modelKey(newModel);
+      }
+      if (parent !== null && (newModel.parent !== parent || newModel.key !== key)) {
+        if (target === null) {
+          target = this.getTargetChild(parent, newModel);
+        }
+        this.insertChild(parent, newModel, target, key);
+      }
+      if (this.models[newModel.uid] === void 0) {
+        this.insertModelMap(newModel, target);
+        (this as Mutable<typeof this>).modelCount += 1;
+        this.willAttachModel(newModel, target);
+        this.onAttachModel(newModel, target);
+        this.initModel(newModel);
+        this.didAttachModel(newModel, target);
+        this.setCoherent(true);
+        this.decohereOutlets();
+      }
     }
     return newModel;
   };

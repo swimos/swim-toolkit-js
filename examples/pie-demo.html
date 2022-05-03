@@ -156,7 +156,7 @@ const tickPadding = document.getElementById("tickPadding");
 const updateRate = document.getElementById("updateRate");
 
 //setTimeout(function () {
-//  swim.ThemeService.global().setTheme(swim.Theme.light);
+//  swim.StylerService.global().theme(swim.Theme.light);
 //}, 1000);
 
 const bodyView = swim.HtmlView.fromNode(document.body);
@@ -194,12 +194,12 @@ function createSlice() {
     },
   });
   // Add mouse event handlers.
-  sliceView.on("pointerenter", function (event) {
-             sliceView.modifyMood(swim.Feel.default, [[swim.Feel.hovering, 1]], true);
-           })
-           .on("pointerleave", function (event) {
-             sliceView.modifyMood(swim.Feel.default, [[swim.Feel.hovering, void 0]], true);
-           });
+  sliceView.addEventListener("pointerenter", function (event) {
+    sliceView.modifyMood(swim.Feel.default, [[swim.Feel.hovering, 1]], true);
+  });
+  sliceView.addEventListener("pointerleave", function (event) {
+    sliceView.modifyMood(swim.Feel.default, [[swim.Feel.hovering, void 0]], true);
+  });
   // Return the initialized slice.
   return sliceView;
 }

@@ -78,7 +78,7 @@ require([
     let phases = {};
     let detectors = {};
     let intersectionPopover = null;
-    intersectionMarkerView.on("pointerup", function (event) {
+    intersectionMarkerView.addEventListener("pointerup", function (event) {
       if (!intersectionPopover) {
         intersectionPopover = swim.PopoverView.create()
             .width(240)
@@ -86,12 +86,12 @@ require([
             .borderRadius(5)
             .backgroundColor(swim.Color.parse("#071013").alpha(0.9))
             .backdropFilter("blur(2px)");
-        intersectionPopover.setSource(intersectionMarkerView);
-        intersectionPopover.hideModal();
+        intersectionPopover.source.setView(intersectionMarkerView);
+        intersectionPopover.presence.dismiss();
       }
-      bodyView.modalProvider.toggleModal(intersectionPopover, {multi: event.shiftKey});
+      bodyView.modal.toggle(intersectionPopover, {multi: event.shiftKey});
     });
-    intersectionMarkerView.on("click", function (event) {
+    intersectionMarkerView.addEventListener("click", function (event) {
       event.stopPropagation();
     });
 
@@ -110,13 +110,13 @@ require([
                 .geoPath(points)
                 .fill(swim.Color.transparent())
                 .stroke(swim.Color.transparent())
-                .strokeWidth(3)
-                .on("pointerenter", function (event) {
-                  approachView.stroke("#ffffff", timing);
-                })
-                .on("pointerleave", function (event) {
-                  approachView.stroke(swim.Color.transparent(), timing);
-                });
+                .strokeWidth(3);
+              approachView.addEventListener("pointerenter", function (event) {
+                approachView.stroke("#ffffff", timing);
+              })
+              approachView.addEventListener("pointerleave", function (event) {
+                approachView.stroke(swim.Color.transparent(), timing);
+              });
               approaches[approachId] = approachView;
               const phaseId = item.get("phase").stringValue();
               if (phaseId) {

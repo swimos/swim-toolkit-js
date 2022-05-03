@@ -18,7 +18,7 @@ import {Property} from "@swim/component";
 import type {GeoBox} from "@swim/geo";
 import {AnyColor, Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
-import {ViewContextType, View} from "@swim/view";
+import {View} from "@swim/view";
 import {
   GraphicsView,
   FillViewInit,
@@ -81,7 +81,7 @@ export class GeoAreaView extends GeoPathView implements FillView, StrokeView {
   override cullGeoFrame(geoFrame: GeoBox = this.geoFrame): void {
     let culled: boolean;
     if (geoFrame.intersects(this.geoBounds)) {
-      const viewFrame = this.viewContext.viewFrame;
+      const viewFrame = this.viewFrame;
       const bounds = this.viewBounds;
       // check if 9x9 view frame fully contains view bounds
       const contained = !this.clipViewport.value
@@ -96,11 +96,11 @@ export class GeoAreaView extends GeoPathView implements FillView, StrokeView {
     this.setCulled(culled);
   }
 
-  protected override onRender(viewContext: ViewContextType<this>): void {
-    super.onRender(viewContext);
-    const renderer = viewContext.renderer;
+  protected override onRender(): void {
+    super.onRender();
+    const renderer = this.renderer.value;
     if (renderer instanceof PaintingRenderer && !this.hidden && !this.culled) {
-      this.renderArea(renderer.context, viewContext.viewFrame);
+      this.renderArea(renderer.context, this.viewFrame);
     }
   }
 
@@ -135,11 +135,11 @@ export class GeoAreaView extends GeoPathView implements FillView, StrokeView {
     }
   }
 
-  protected override hitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
-    const renderer = viewContext.renderer;
+  protected override hitTest(x: number, y: number): GraphicsView | null {
+    const renderer = this.renderer.value;
     if (renderer instanceof CanvasRenderer) {
       const p = renderer.transform.transform(x, y);
-      return this.hitTestArea(p.x, p.y, renderer.context, viewContext.viewFrame);
+      return this.hitTestArea(p.x, p.y, renderer.context, this.viewFrame);
     }
     return null;
   }

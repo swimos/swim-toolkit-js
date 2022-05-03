@@ -17,7 +17,7 @@ import {FastenerClass, Animator} from "@swim/component";
 import {AnyR2Point, R2Point, R2Box} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
-import {ViewContextType, View, ViewRef} from "@swim/view";
+import {View, ViewRef} from "@swim/view";
 import {
   GraphicsViewInit,
   GraphicsView,
@@ -177,8 +177,8 @@ export abstract class TickView<D = unknown> extends GraphicsView {
     }
   }
 
-  protected override onLayout(viewContext: ViewContextType<this>): void {
-    super.onLayout(viewContext);
+  protected override onLayout(): void {
+    super.onLayout();
     const labelView = this.label.view;
     if (labelView !== null) {
       this.layoutLabel(labelView);
@@ -188,9 +188,9 @@ export abstract class TickView<D = unknown> extends GraphicsView {
   /** @internal */
   private static globalAlpha: number = NaN;
 
-  protected override willRender(viewContext: ViewContextType<this>): void {
-    super.willRender(viewContext);
-    const renderer = viewContext.renderer;
+  protected override willRender(): void {
+    super.willRender();
+    const renderer = this.renderer.value;
     if (renderer instanceof CanvasRenderer) {
       const context = renderer.context;
       // save
@@ -199,22 +199,22 @@ export abstract class TickView<D = unknown> extends GraphicsView {
     }
   }
 
-  protected override onRender(viewContext: ViewContextType<this>): void {
-    const renderer = viewContext.renderer;
+  protected override onRender(): void {
+    const renderer = this.renderer.value;
     if (renderer instanceof PaintingRenderer && !this.hidden && !this.culled) {
       this.renderTick(renderer.context, this.viewFrame);
     }
   }
 
-  protected override didRender(viewContext: ViewContextType<this>): void {
-    const renderer = viewContext.renderer;
+  protected override didRender(): void {
+    const renderer = this.renderer.value;
     if (renderer instanceof CanvasRenderer) {
       const context = renderer.context;
       // restore
       context.globalAlpha = TickView.globalAlpha;
       TickView.globalAlpha = NaN;
     }
-    super.didRender(viewContext);
+    super.didRender();
   }
 
   protected abstract layoutLabel(labelView: GraphicsView): void;

@@ -19,7 +19,6 @@ import type {Trait} from "@swim/model";
 import type {View} from "@swim/view";
 import {Controller, TraitViewRef, TraitViewControllerSet} from "@swim/controller";
 import type {GeoViewport} from "../geo/GeoViewport";
-import type {GeoViewContext} from "../geo/GeoViewContext";
 import type {GeoView} from "../geo/GeoView";
 import type {GeoTrait} from "../geo/GeoTrait";
 import {GeoController} from "../geo/GeoController";
@@ -111,9 +110,10 @@ export class GeoGridController extends GeoLayerController {
         }
       }
     },
-    viewDidProject(viewContext: GeoViewContext, geoView: GeoView): void {
-      this.owner.autoCullGeoView(viewContext.geoViewport, geoView);
-      this.owner.autoConsumeGeoView(viewContext.geoViewport, geoView);
+    viewDidProject(geoView: GeoView): void {
+      const geoViewport = geoView.geoViewport.value;
+      this.owner.autoCullGeoView(geoViewport, geoView);
+      this.owner.autoConsumeGeoView(geoViewport, geoView);
     },
     createView(): GeoGridView {
       return new GeoGridView(this.owner.geoTile);

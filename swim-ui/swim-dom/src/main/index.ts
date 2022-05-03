@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "./service";
-
 export * from "./attribute";
 
 export * from "./style";
@@ -29,3 +27,7 @@ export * from "./element";
 export * from "./html";
 
 export * from "./svg";
+
+export * from "./dom";
+
+export * from "./modal";

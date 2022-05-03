@@ -32,8 +32,6 @@ export interface ExpansionAnimator<O = unknown, T extends Expansion | null | und
   setDirection(newDirection: number, timingOrAffinity: Affinity | AnyTiming | boolean | null | undefined): void;
   setDirection(newDirection: number, timing?: AnyTiming | boolean | null, affinity?: Affinity): void;
 
-  get modalState(): string | undefined;
-
   get collapsed(): boolean;
 
   get expanded(): boolean;
@@ -129,14 +127,6 @@ export const ExpansionAnimator = (function (_super: typeof Animator) {
       this.setState(oldValue.withDirection(newDirection), timing, affinity);
     }
   };
-
-  Object.defineProperty(ExpansionAnimator.prototype, "modalState", {
-    get(this: ExpansionAnimator): string | undefined {
-      const value = this.value;
-      return value !== void 0 && value !== null ? value.modalState : void 0;
-    },
-    configurable: true,
-  });
 
   Object.defineProperty(ExpansionAnimator.prototype, "collapsed", {
     get(this: ExpansionAnimator): boolean {

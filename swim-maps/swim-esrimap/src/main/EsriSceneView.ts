@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Class, Equivalent, AnyTiming, Timing} from "@swim/util";
-import type {FastenerClass} from "@swim/component";
+import {Class, Equivalent, AnyTiming, Timing} from "@swim/util";
+import {Affinity, FastenerClass, Property} from "@swim/component";
 import {GeoPoint} from "@swim/geo";
 import {Look, Mood} from "@swim/theme";
 import {View, ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import type {CanvasView} from "@swim/graphics";
-import type {AnyGeoPerspective} from "@swim/map";
+import type {AnyGeoPerspective, GeoViewport} from "@swim/map";
 import {EsriView} from "./EsriView";
 import {EsriSceneViewport} from "./EsriSceneViewport";
 import type {EsriSceneViewObserver} from "./EsriSceneViewObserver";
@@ -29,12 +29,6 @@ export class EsriSceneView extends EsriView {
   constructor(map: __esri.SceneView) {
     super();
     this.map = map;
-    Object.defineProperty(this, "geoViewport", {
-      value: EsriSceneViewport.create(map),
-      writable: true,
-      enumerable: true,
-      configurable: true,
-    });
     this.onMapRender = this.onMapRender.bind(this);
     this.initMap(map);
   }
@@ -47,44 +41,38 @@ export class EsriSceneView extends EsriView {
     map.watch("extent", this.onMapRender);
   }
 
-  override readonly geoViewport!: EsriSceneViewport;
-
-  protected willSetGeoViewport(newGeoViewport: EsriSceneViewport, oldGeoViewport: EsriSceneViewport): void {
-    this.callObservers("viewWillSetGeoViewport", newGeoViewport, oldGeoViewport, this);
-  }
-
-  protected onSetGeoViewport(newGeoViewport: EsriSceneViewport, oldGeoViewport: EsriSceneViewport): void {
-    // hook
-  }
-
-  protected didSetGeoViewport(newGeoViewport: EsriSceneViewport, oldGeoViewport: EsriSceneViewport): void {
-    this.callObservers("viewDidSetGeoViewport", newGeoViewport, oldGeoViewport, this);
-  }
-
-  protected updateGeoViewport(): boolean {
-    const oldGeoViewport = this.geoViewport;
-    const newGeoViewport = EsriSceneViewport.create(this.map);
-    if (!newGeoViewport.equals(oldGeoViewport)) {
-      this.willSetGeoViewport(newGeoViewport, oldGeoViewport);
-      (this as Mutable<this>).geoViewport = newGeoViewport;
-      this.onSetGeoViewport(newGeoViewport, oldGeoViewport);
-      this.didSetGeoViewport(newGeoViewport, oldGeoViewport);
-      return true;
-    }
-    return false;
-  }
+  @Property<EsriSceneView["geoViewport"]>({
+    extends: true,
+    initValue(): GeoViewport {
+      return EsriSceneViewport.create(this.owner.map);
+    },
+    willSetValue(newGeoViewport: GeoViewport, oldGeoViewport: GeoViewport): void {
+      this.owner.callObservers("viewWillSetGeoViewport", newGeoViewport, oldGeoViewport, this.owner);
+    },
+    didSetValue(newGeoViewport: GeoViewport, oldGeoViewport: GeoViewport): void {
+      this.owner.callObservers("viewDidSetGeoViewport", newGeoViewport, oldGeoViewport, this.owner);
+      const immediate = !this.owner.hidden && !this.owner.culled;
+      this.owner.requireUpdate(View.NeedsProject, immediate);
+    },
+    update(): void {
+      if (this.hasAffinity(Affinity.Intrinsic)) {
+        this.setValue(EsriSceneViewport.create(this.owner.map), Affinity.Intrinsic);
+      }
+    },
+  })
+  override readonly geoViewport!: Property<this, GeoViewport> & EsriView["geoViewport"] & {
+    /** @internal */
+    update(): void;
+  };
 
   protected onMapRender(): void {
-    if (this.updateGeoViewport()) {
-      const immediate = !this.hidden && !this.culled;
-      this.requireUpdate(View.NeedsProject, immediate);
-    }
+    this.geoViewport.update();
   }
 
   override moveTo(geoPerspective: AnyGeoPerspective, timing?: AnyTiming | boolean): void {
     const target: __esri.GoToTarget3D = {};
     const options: __esri.GoToOptions3D = {};
-    const geoViewport = this.geoViewport;
+    const geoViewport = this.geoViewport.value;
     let geoCenter = geoPerspective.geoCenter;
     if (geoCenter !== void 0 && geoCenter !== null) {
       geoCenter = GeoPoint.fromAny(geoCenter);

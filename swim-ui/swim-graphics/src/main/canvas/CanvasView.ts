@@ -13,11 +13,9 @@
 // limitations under the License.
 
 import {Mutable, Class, Arrays, Observes} from "@swim/util";
-import {Affinity, Provider} from "@swim/component";
+import {Affinity, FastenerClass, Property, Provider} from "@swim/component";
 import {R2Box, Transform} from "@swim/math";
 import {
-  ViewContextType,
-  ViewContext,
   ViewFlags,
   View,
   ViewWillRender,
@@ -26,23 +24,18 @@ import {
   ViewDidRasterize,
   ViewWillComposite,
   ViewDidComposite,
-  ViewEvent,
-  ViewMouseEventInit,
-  ViewMouseEvent,
-  ViewPointerEventInit,
-  ViewPointerEvent,
-  ViewTouchInit,
-  ViewTouch,
-  ViewTouchEvent,
 } from "@swim/view";
 import {HtmlViewInit, HtmlView} from "@swim/dom";
-import {SpriteService} from "../sprite/SpriteService";
-import type {AnyGraphicsRenderer, GraphicsRendererType, GraphicsRenderer} from "../graphics/GraphicsRenderer";
-import type {GraphicsViewContext} from "../graphics/GraphicsViewContext";
+import type {GraphicsEvent} from "../event/GraphicsEvent";
+import type {GraphicsMouseEventInit, GraphicsMouseEvent} from "../event/GraphicsMouseEvent";
+import type {GraphicsPointerEventInit, GraphicsPointerEvent} from "../event/GraphicsPointerEvent";
+import type {GraphicsTouchInit, GraphicsTouch, GraphicsTouchEvent} from "../event/GraphicsTouchEvent";
+import {AnyGraphicsRenderer, GraphicsRendererType, GraphicsRenderer} from "../graphics/GraphicsRenderer";
 import {GraphicsView} from "../graphics/GraphicsView";
 import {WebGLRenderer} from "../webgl/WebGLRenderer";
 import {CanvasRenderer} from "./CanvasRenderer";
 import type {CanvasViewObserver} from "./CanvasViewObserver";
+import {SpriteService} from "../sprite/SpriteService";
 
 /** @internal */
 export type CanvasFlags = number;
@@ -61,12 +54,6 @@ export interface CanvasViewInit extends HtmlViewInit {
 export class CanvasView extends HtmlView {
   constructor(node: HTMLCanvasElement) {
     super(node);
-    Object.defineProperty(this, "renderer", { // override getter
-      value: this.createRenderer(),
-      writable: true,
-      enumerable: true,
-      configurable: true,
-    });
     this.viewFrame = R2Box.undefined();
     this.canvasFlags = CanvasView.ClickEventsFlag;
     this.eventNode = node;
@@ -103,8 +90,6 @@ export class CanvasView extends HtmlView {
 
   override readonly observerType?: Class<CanvasViewObserver>;
 
-  override readonly contextType?: Class<GraphicsViewContext>;
-
   override readonly node!: HTMLCanvasElement;
 
   protected initCanvas(): void {
@@ -128,58 +113,70 @@ export class CanvasView extends HtmlView {
     return updateFlags;
   }
 
-  protected override needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
+  protected override needsProcess(processFlags: ViewFlags): ViewFlags {
     if ((processFlags & View.ProcessMask) !== 0) {
       this.requireUpdate(View.NeedsRender | View.NeedsComposite);
     }
     return processFlags;
   }
 
-  protected override onResize(viewContext: ViewContextType<this>): void {
-    super.onResize(viewContext);
+  protected override onResize(): void {
+    super.onResize();
     this.resizeCanvas(this.node);
     this.resetRenderer();
     this.requireUpdate(View.NeedsLayout | View.NeedsRender | View.NeedsComposite);
   }
 
-  protected override onScroll(viewContext: ViewContextType<this>): void {
-    super.onScroll(viewContext);
+  protected override onScroll(): void {
+    super.onScroll();
     this.setCulled(!this.intersectsViewport());
   }
 
-  protected override didDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
+  protected override didDisplay(displayFlags: ViewFlags): void {
     this.detectHitTargets();
-    super.didDisplay(displayFlags, viewContext);
+    super.didDisplay(displayFlags);
   }
 
-  protected override onRender(viewContext: ViewContextType<this>): void {
+  protected override onRender(): void {
     this.clearCanvas();
   }
 
-  protected override needsDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
+  protected override needsDisplay(displayFlags: ViewFlags): ViewFlags {
     displayFlags |= View.NeedsRender | View.NeedsComposite;
     return displayFlags;
   }
 
-  @Provider<CanvasView["spriteProvider"]>({
+  @Provider<CanvasView["sprites"]>({
     serviceType: SpriteService,
-    service: SpriteService.global(),
+    inherits: false,
+    createService(): SpriteService {
+      return new SpriteService();
+    },
   })
-  readonly spriteProvider!: Provider<this, SpriteService>;
+  readonly sprites!: Provider<this, SpriteService>;
+  static readonly sprites: FastenerClass<CanvasView["sprites"]>;
 
   get pixelRatio(): number {
     return window.devicePixelRatio || 1;
   }
 
-  readonly renderer!: GraphicsRenderer | null;
-
-  setRenderer(renderer: AnyGraphicsRenderer | null): void {
-    if (typeof renderer === "string") {
-      renderer = this.createRenderer(renderer as GraphicsRendererType);
-    }
-    (this as Mutable<this>).renderer = renderer;
-    this.resetRenderer();
-  }
+  @Property<CanvasView["renderer"]>({
+    valueType: GraphicsRenderer,
+    inherits: true,
+    initValue(): GraphicsRenderer | null {
+      return this.owner.createRenderer();
+    },
+    didSetValue(renderer: GraphicsRenderer | null): void {
+      this.owner.resetRenderer();
+    },
+    fromAny(renderer: AnyGraphicsRenderer | null): GraphicsRenderer | null {
+      if (typeof renderer === "string") {
+        renderer = this.owner.createRenderer(renderer as GraphicsRendererType);
+      }
+      return renderer;
+    },
+  })
+  readonly renderer!: Property<this, GraphicsRenderer | null>;
 
   protected createRenderer(rendererType: GraphicsRendererType = "canvas"): GraphicsRenderer | null {
     if (rendererType === "canvas") {
@@ -211,13 +208,6 @@ export class CanvasView extends HtmlView {
     (this as Mutable<this>).canvasFlags = canvasFlags;
   }
 
-  override extendViewContext(viewContext: ViewContext): ViewContextType<this> {
-    const canvasViewContext = Object.create(viewContext);
-    canvasViewContext.viewFrame = this.viewFrame;
-    canvasViewContext.renderer = this.renderer;
-    return canvasViewContext;
-  }
-
   /** @internal */
   readonly viewFrame: R2Box;
 
@@ -233,25 +223,13 @@ export class CanvasView extends HtmlView {
     return this.viewFrame;
   }
 
-  cascadeHitTest(x: number, y: number, baseViewContext?: ViewContext): GraphicsView | null {
+  cascadeHitTest(x: number, y: number): GraphicsView | null {
     if (!this.hidden && !this.culled && !this.intangible) {
       const hitBounds = this.hitBounds;
       if (hitBounds.contains(x, y)) {
-        if (baseViewContext === void 0) {
-          baseViewContext = this.superViewContext;
-        }
-        const viewContext = this.extendViewContext(baseViewContext);
-        let hit = this.hitTestChildren(x, y, viewContext);
+        let hit = this.hitTestChildren(x, y);
         if (hit === null) {
-          const outerViewContext = ViewContext.current;
-          try {
-            ViewContext.current = viewContext;
-            this.setFlags(this.flags | View.ContextualFlag);
-            hit = this.hitTest(x, y, viewContext);
-          } finally {
-            this.setFlags(this.flags & ~View.ContextualFlag);
-            ViewContext.current = outerViewContext;
-          }
+          hit = this.hitTest(x, y);
         }
         return hit;
       }
@@ -259,15 +237,15 @@ export class CanvasView extends HtmlView {
     return null;
   }
 
-  protected hitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
+  protected hitTest(x: number, y: number): GraphicsView | null {
     return null;
   }
 
-  protected hitTestChildren(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
+  protected hitTestChildren(x: number, y: number): GraphicsView | null {
     let child = this.firstChild;
     while (child !== null) {
       if (child instanceof GraphicsView) {
-        const hit = this.hitTestChild(child, x, y, viewContext);
+        const hit = this.hitTestChild(child, x, y);
         if (hit !== null) {
           return hit;
         }
@@ -277,9 +255,8 @@ export class CanvasView extends HtmlView {
     return null;
   }
 
-  protected hitTestChild(childView: GraphicsView, x: number, y: number,
-                         viewContext: ViewContextType<this>): GraphicsView | null {
-    return childView.cascadeHitTest(x, y, viewContext);
+  protected hitTestChild(childView: GraphicsView, x: number, y: number): GraphicsView | null {
+    return childView.cascadeHitTest(x, y);
   }
 
   /** @internal */
@@ -410,12 +387,12 @@ export class CanvasView extends HtmlView {
   }
 
   /** @internal */
-  handleEvent(event: ViewEvent): void {
+  handleEvent(event: GraphicsEvent): void {
     // nop
   }
 
   /** @internal */
-  bubbleEvent(event: ViewEvent): View | null {
+  bubbleEvent(event: GraphicsEvent): View | null {
     this.handleEvent(event);
     return this;
   }
@@ -456,7 +433,7 @@ export class CanvasView extends HtmlView {
   }
 
   /** @internal */
-  fireEvent(event: ViewEvent, clientX: number, clientY: number): GraphicsView | null {
+  fireEvent(event: GraphicsEvent, clientX: number, clientY: number): GraphicsView | null {
     const clientBounds = this.clientBounds;
     if (clientBounds.contains(clientX, clientY)) {
       const x = clientX - clientBounds.x;
@@ -522,10 +499,10 @@ export class CanvasView extends HtmlView {
   }
 
   /** @internal */
-  readonly mouse: ViewMouseEventInit | null;
+  readonly mouse: GraphicsMouseEventInit | null;
 
   /** @internal */
-  protected updateMouse(mouse: ViewMouseEventInit, event: MouseEvent): void {
+  protected updateMouse(mouse: GraphicsMouseEventInit, event: MouseEvent): void {
     mouse.button = event.button;
     mouse.buttons = event.buttons;
     mouse.altKey = event.altKey;
@@ -646,7 +623,7 @@ export class CanvasView extends HtmlView {
   }
 
   /** @internal */
-  protected onMouseTargetChange(mouse: ViewMouseEventInit, newTargetView: GraphicsView | null,
+  protected onMouseTargetChange(mouse: GraphicsMouseEventInit, newTargetView: GraphicsView | null,
                                 oldTargetView: GraphicsView | null): void {
     mouse.bubbles = true;
     let commonAncestorView: GraphicsView | null = null;
@@ -654,7 +631,7 @@ export class CanvasView extends HtmlView {
       commonAncestorView = oldTargetView.commonAncestor(newTargetView) as GraphicsView | null;
     }
     if (oldTargetView !== null) {
-      const outEvent = new MouseEvent("mouseout", mouse) as ViewMouseEvent;
+      const outEvent = new MouseEvent("mouseout", mouse) as GraphicsMouseEvent;
       outEvent.targetView = oldTargetView;
       outEvent.relatedTargetView = newTargetView;
       oldTargetView.bubbleEvent(outEvent);
@@ -663,7 +640,7 @@ export class CanvasView extends HtmlView {
         const leaveEvent = new MouseEvent("mouseleave", {
           bubbles: false,
           ...mouse,
-        }) as ViewMouseEvent;
+        }) as GraphicsMouseEvent;
         leaveEvent.targetView = leaveView;
         leaveEvent.relatedTargetView = newTargetView;
         leaveView.handleEvent(leaveEvent);
@@ -672,7 +649,7 @@ export class CanvasView extends HtmlView {
     }
     mouse.targetView = newTargetView !== null ? newTargetView : void 0;
     if (newTargetView !== null) {
-      const overEvent = new MouseEvent("mouseover", mouse) as ViewMouseEvent;
+      const overEvent = new MouseEvent("mouseover", mouse) as GraphicsMouseEvent;
       overEvent.targetView = newTargetView;
       overEvent.relatedTargetView = oldTargetView;
       newTargetView.bubbleEvent(overEvent);
@@ -681,7 +658,7 @@ export class CanvasView extends HtmlView {
         const enterEvent = new MouseEvent("mouseenter", {
           bubbles: false,
           ...mouse,
-        }) as ViewMouseEvent;
+        }) as GraphicsMouseEvent;
         enterEvent.targetView = enterView;
         enterEvent.relatedTargetView = oldTargetView;
         enterView.handleEvent(enterEvent);
@@ -691,7 +668,7 @@ export class CanvasView extends HtmlView {
   }
 
   /** @internal */
-  protected detectMouseTarget(mouse: ViewMouseEventInit, clientBounds: R2Box): void {
+  protected detectMouseTarget(mouse: GraphicsMouseEventInit, clientBounds: R2Box): void {
     const clientX = mouse.clientX!;
     const clientY = mouse.clientY!;
     if (clientBounds.contains(clientX, clientY)) {
@@ -737,10 +714,10 @@ export class CanvasView extends HtmlView {
   }
 
   /** @internal */
-  readonly pointers: {[id: string]: ViewPointerEventInit | undefined} | null;
+  readonly pointers: {[id: string]: GraphicsPointerEventInit | undefined} | null;
 
   /** @internal */
-  protected updatePointer(pointer: ViewPointerEventInit, event: PointerEvent): void {
+  protected updatePointer(pointer: GraphicsPointerEventInit, event: PointerEvent): void {
     pointer.pointerId = event.pointerId;
     pointer.pointerType = event.pointerType;
     pointer.isPrimary = event.isPrimary;
@@ -912,7 +889,7 @@ export class CanvasView extends HtmlView {
   }
 
   /** @internal */
-  protected onPointerTargetChange(pointer: ViewPointerEventInit, newTargetView: GraphicsView | null,
+  protected onPointerTargetChange(pointer: GraphicsPointerEventInit, newTargetView: GraphicsView | null,
                                   oldTargetView: GraphicsView | null): void {
     pointer.bubbles = true;
     let commonAncestorView: GraphicsView | null = null;
@@ -920,7 +897,7 @@ export class CanvasView extends HtmlView {
       commonAncestorView = oldTargetView.commonAncestor(newTargetView) as GraphicsView | null;
     }
     if (oldTargetView !== null) {
-      const outEvent = new PointerEvent("pointerout", pointer) as ViewPointerEvent;
+      const outEvent = new PointerEvent("pointerout", pointer) as GraphicsPointerEvent;
       outEvent.targetView = oldTargetView;
       outEvent.relatedTargetView = newTargetView;
       oldTargetView.bubbleEvent(outEvent);
@@ -929,7 +906,7 @@ export class CanvasView extends HtmlView {
         const leaveEvent = new PointerEvent("pointerleave", {
           bubbles: false,
           ...pointer,
-        }) as ViewPointerEvent;
+        }) as GraphicsPointerEvent;
         leaveEvent.targetView = leaveView;
         leaveEvent.relatedTargetView = newTargetView;
         leaveView.handleEvent(leaveEvent);
@@ -938,7 +915,7 @@ export class CanvasView extends HtmlView {
     }
     pointer.targetView = newTargetView !== null ? newTargetView : void 0;
     if (newTargetView !== null) {
-      const overEvent = new PointerEvent("pointerover", pointer) as ViewPointerEvent;
+      const overEvent = new PointerEvent("pointerover", pointer) as GraphicsPointerEvent;
       overEvent.targetView = newTargetView;
       overEvent.relatedTargetView = oldTargetView;
       newTargetView.bubbleEvent(overEvent);
@@ -947,7 +924,7 @@ export class CanvasView extends HtmlView {
         const enterEvent = new PointerEvent("pointerenter", {
           bubbles: false,
           ...pointer,
-        }) as ViewPointerEvent;
+        }) as GraphicsPointerEvent;
         enterEvent.targetView = enterView;
         enterEvent.relatedTargetView = oldTargetView;
         enterView.handleEvent(enterEvent);
@@ -957,7 +934,7 @@ export class CanvasView extends HtmlView {
   }
 
   /** @internal */
-  protected detectPointerTarget(pointer: ViewPointerEventInit, clientBounds: R2Box): void {
+  protected detectPointerTarget(pointer: GraphicsPointerEventInit, clientBounds: R2Box): void {
     const clientX = pointer.clientX!;
     const clientY = pointer.clientY!;
     if (clientBounds.contains(clientX, clientY)) {
@@ -999,10 +976,10 @@ export class CanvasView extends HtmlView {
   }
 
   /** @internal */
-  readonly touches: {[id: string]: ViewTouchInit | undefined} | null;
+  readonly touches: {[id: string]: GraphicsTouchInit | undefined} | null;
 
   /** @internal */
-  protected updateTouch(touch: ViewTouchInit, event: Touch): void {
+  protected updateTouch(touch: GraphicsTouchInit, event: Touch): void {
     touch.clientX = event.clientX;
     touch.clientY = event.clientY;
     touch.screenX = event.screenX;
@@ -1021,10 +998,10 @@ export class CanvasView extends HtmlView {
     const changedTouches = originalEvent.changedTouches;
     const dispatched: GraphicsView[] = [];
     for (let i = 0, n = changedTouches.length; i < n; i += 1) {
-      const changedTouch = changedTouches[i]! as ViewTouch;
+      const changedTouch = changedTouches[i]! as GraphicsTouch;
       const targetView = changedTouch.targetView as GraphicsView | undefined;
       if (targetView !== void 0 && dispatched.indexOf(targetView) < 0) {
-        const startEvent: ViewTouchEvent = new TouchEvent(type, {
+        const startEvent: GraphicsTouchEvent = new TouchEvent(type, {
           changedTouches: changedTouches as unknown as Touch[],
           targetTouches: originalEvent.targetTouches as unknown as Touch[],
           touches: originalEvent.touches as unknown as Touch[],
@@ -1033,13 +1010,15 @@ export class CanvasView extends HtmlView {
         startEvent.targetView = targetView;
         const targetViewTouches: Touch[] = [changedTouch];
         for (let j = i + 1; j < n; j += 1) {
-          const nextTouch = changedTouches[j]! as ViewTouch;
+          const nextTouch = changedTouches[j]! as GraphicsTouch;
           if (nextTouch.targetView === targetView) {
             targetViewTouches.push(nextTouch);
           }
         }
-        if (document.createTouchList !== void 0) {
-          startEvent.targetViewTouches = document.createTouchList(...targetViewTouches);
+
+        const touchDocument = document as Document & {createTouchList?(...touches: Touch[]): TouchList};
+        if (touchDocument.createTouchList !== void 0) {
+          startEvent.targetViewTouches = touchDocument.createTouchList(...targetViewTouches);
         } else {
           (targetViewTouches as unknown as TouchList).item = function (index: number): Touch {
             return targetViewTouches[index]!;
@@ -1062,7 +1041,7 @@ export class CanvasView extends HtmlView {
     }
     const changedTouches = event.changedTouches;
     for (let i = 0, n = changedTouches.length; i < n; i += 1) {
-      const changedTouch = changedTouches[i] as ViewTouch;
+      const changedTouch = changedTouches[i] as GraphicsTouch;
       const id = "" + changedTouch.identifier;
       let touch = touches[id];
       if (touch === void 0) {
@@ -1103,7 +1082,7 @@ export class CanvasView extends HtmlView {
     }
     const changedTouches = event.changedTouches;
     for (let i = 0, n = changedTouches.length; i < n; i += 1) {
-      const changedTouch = changedTouches[i] as ViewTouch;
+      const changedTouch = changedTouches[i] as GraphicsTouch;
       const id = "" + changedTouch.identifier;
       let touch = touches[id];
       if (touch === void 0) {
@@ -1129,7 +1108,7 @@ export class CanvasView extends HtmlView {
     const changedTouches = event.changedTouches;
     const n = changedTouches.length;
     for (let i = 0; i < n; i += 1) {
-      const changedTouch = changedTouches[i] as ViewTouch;
+      const changedTouch = changedTouches[i] as GraphicsTouch;
       const id = "" + changedTouch.identifier;
       let touch = touches[id];
       if (touch === void 0) {
@@ -1144,7 +1123,7 @@ export class CanvasView extends HtmlView {
     }
     this.fireTouchEvent("touchend", event);
     for (let i = 0; i < n; i += 1) {
-      const changedTouch = changedTouches[i] as ViewTouch;
+      const changedTouch = changedTouches[i] as GraphicsTouch;
       const id = "" + changedTouch.identifier;
       delete touches[id];
       if (Object.keys(touches).length === 0) {
@@ -1163,7 +1142,7 @@ export class CanvasView extends HtmlView {
     const changedTouches = event.changedTouches;
     const n = changedTouches.length;
     for (let i = 0; i < n; i += 1) {
-      const changedTouch = changedTouches[i] as ViewTouch;
+      const changedTouch = changedTouches[i] as GraphicsTouch;
       const id = "" + changedTouch.identifier;
       let touch = touches[id];
       if (touch === void 0) {
@@ -1178,7 +1157,7 @@ export class CanvasView extends HtmlView {
     }
     this.fireTouchEvent("touchcancel", event);
     for (let i = 0; i < n; i += 1) {
-      const changedTouch = changedTouches[i] as ViewTouch;
+      const changedTouch = changedTouches[i] as GraphicsTouch;
       const id = "" + changedTouch.identifier;
       delete touches[id];
       if (Object.keys(touches).length === 0) {
@@ -1217,7 +1196,7 @@ export class CanvasView extends HtmlView {
   }
 
   clearCanvas(): void {
-    const renderer = this.renderer;
+    const renderer = this.renderer.value;
     if (renderer instanceof CanvasRenderer) {
       const frame = this.viewFrame;
       renderer.context.clearRect(0, 0, frame.width, frame.height);
@@ -1228,7 +1207,7 @@ export class CanvasView extends HtmlView {
   }
 
   resetRenderer(): void {
-    const renderer = this.renderer;
+    const renderer = this.renderer.value;
     if (renderer instanceof CanvasRenderer) {
       const pixelRatio = this.pixelRatio;
       renderer.context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
@@ -1285,7 +1264,7 @@ export class CanvasView extends HtmlView {
   override init(init: CanvasViewInit): void {
     super.init(init);
     if (init.renderer !== void 0) {
-      this.setRenderer(init.renderer);
+      this.renderer(init.renderer);
     }
     if (init.clickEventsEnabled !== void 0) {
       this.clickEventsEnabled(init.clickEventsEnabled);
@@ -1326,10 +1305,4 @@ export class CanvasView extends HtmlView {
 
   static override readonly UncullFlags: ViewFlags = HtmlView.UncullFlags | View.NeedsRender | View.NeedsComposite;
   static override readonly UnhideFlags: ViewFlags = HtmlView.UnhideFlags | View.NeedsRender | View.NeedsComposite;
-}
-
-declare global {
-  interface Document {
-    createTouchList?(...touches: Touch[]): TouchList;
-  }
 }

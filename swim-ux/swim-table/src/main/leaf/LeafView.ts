@@ -15,23 +15,9 @@
 import type {Class, Instance, Creatable, Timing} from "@swim/util";
 import {Affinity, FastenerClass, Property} from "@swim/component";
 import {AnyLength, Length} from "@swim/math";
-import {
-  AnyFocus,
-  Focus,
-  FocusAnimator,
-  AnyExpansion,
-  Expansion,
-  ExpansionAnimator,
-} from "@swim/style";
+import {AnyFocus,  Focus, FocusAnimator, AnyExpansion,  Expansion, ExpansionAnimator} from "@swim/style";
 import {Look, Feel, ThemeConstraintAnimator} from "@swim/theme";
-import {
-  PositionGestureInput,
-  PositionGesture,
-  ViewContextType,
-  ViewFlags,
-  View,
-  ViewSet,
-} from "@swim/view";
+import {ViewFlags, View, ViewSet, PositionGestureInput, PositionGesture} from "@swim/view";
 import {ViewNode, HtmlView} from "@swim/dom";
 import {ButtonGlow} from "@swim/button";
 import {AnyTableLayout, TableLayout} from "../layout/TableLayout";
@@ -167,8 +153,8 @@ export class LeafView extends HtmlView {
   readonly cells!: ViewSet<this, CellView>;
   static readonly cells: FastenerClass<LeafView["cells"]>;
 
-  protected override onLayout(viewContext: ViewContextType<this>): void {
-    super.onLayout(viewContext);
+  protected override onLayout(): void {
+    super.onLayout();
     this.layoutLeaf();
   }
 
@@ -179,25 +165,20 @@ export class LeafView extends HtmlView {
     }
   }
 
-  protected override displayChildren(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                                     displayChild: (this: this, child: View, displayFlags: ViewFlags,
-                                                    viewContext: ViewContextType<this>) => void): void {
+  protected override displayChildren(displayFlags: ViewFlags, displayChild: (this: this, child: View, displayFlags: ViewFlags) => void): void {
     if ((displayFlags & View.NeedsLayout) !== 0) {
-      this.layoutChildren(displayFlags, viewContext, displayChild);
+      this.layoutChildren(displayFlags, displayChild);
     } else {
-      super.displayChildren(displayFlags, viewContext, displayChild);
+      super.displayChildren(displayFlags, displayChild);
     }
   }
 
-  protected layoutChildren(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                           displayChild: (this: this, child: View, displayFlags: ViewFlags,
-                                          viewContext: ViewContextType<this>) => void): void {
+  protected layoutChildren(displayFlags: ViewFlags, displayChild: (this: this, child: View, displayFlags: ViewFlags) => void): void {
     const layout = this.layout.value;
     const height = this.height.state;
     const stretch = this.stretch.getPhaseOr(1);
     type self = this;
-    function layoutChild(this: self, child: View, displayFlags: ViewFlags,
-                         viewContext: ViewContextType<self>): void {
+    function layoutChild(this: self, child: View, displayFlags: ViewFlags): void {
       if (child instanceof CellView) {
         const key = child.key;
         const col = layout !== null && key !== void 0 ? layout.getCol(key) : null;
@@ -222,9 +203,9 @@ export class LeafView extends HtmlView {
           child.height.setState(null, Affinity.Intrinsic);
         }
       }
-      displayChild.call(this, child, displayFlags, viewContext);
+      displayChild.call(this, child, displayFlags);
     }
-    super.displayChildren(displayFlags, viewContext, layoutChild);
+    super.displayChildren(displayFlags, layoutChild);
   }
 
   @Property({valueType: Boolean, value: true, inherits: true})

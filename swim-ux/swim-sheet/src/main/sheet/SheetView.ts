@@ -17,7 +17,7 @@ import {Affinity, FastenerClass, Property} from "@swim/component";
 import {Length} from "@swim/math";
 import {AnyPresence, Presence, PresenceAnimator} from "@swim/style";
 import {Look, Mood} from "@swim/theme";
-import {ViewportInsets, View, ViewRef} from "@swim/view";
+import {View, ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import type {SheetViewObserver} from "./SheetViewObserver";
 
@@ -79,14 +79,6 @@ export class SheetView extends HtmlView {
 
   @Property<SheetView["sheetAlign"]>({valueType: Number, value: 1})
   readonly sheetAlign!: Property<this, number>;
-
-  @Property<SheetView["edgeInsets"]>({
-    valueType: ViewportInsets,
-    value: null,
-    inherits: true,
-    equalValues: ViewportInsets.equal,
-  })
-  readonly edgeInsets!: Property<this, ViewportInsets | null>;
 
   @PresenceAnimator<SheetView["presence"]>({
     value: Presence.presented(),

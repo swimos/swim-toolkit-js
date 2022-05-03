@@ -14,17 +14,17 @@
 
 import type {Observer} from "@swim/util";
 import type {Model} from "../model/Model";
-import type {TraitModelType, TraitContextType, Trait} from "./Trait";
+import type {Trait} from "./Trait";
 
 /** @public */
 export interface TraitObserver<T extends Trait = Trait> extends Observer<T> {
-  traitWillAttachModel?(model: TraitModelType<T>, trait: T): void;
+  traitWillAttachModel?(model: Model, trait: T): void;
 
-  traitDidAttachModel?(model: TraitModelType<T>, trait: T): void;
+  traitDidAttachModel?(model: Model, trait: T): void;
 
-  traitWillDetachModel?(model: TraitModelType<T>, trait: T): void;
+  traitWillDetachModel?(model: Model, trait: T): void;
 
-  traitDidDetachModel?(model: TraitModelType<T>, trait: T): void;
+  traitDidDetachModel?(model: Model, trait: T): void;
 
   traitWillAttachParent?(parent: Model, trait: T): void;
 
@@ -62,25 +62,25 @@ export interface TraitObserver<T extends Trait = Trait> extends Observer<T> {
 
   traitDidUnmount?(trait: T): void;
 
-  traitWillMutate?(modelContext: TraitContextType<T>, trait: T): void;
+  traitWillMutate?(trait: T): void;
 
-  traitDidMutate?(modelContext: TraitContextType<T>, trait: T): void;
+  traitDidMutate?(trait: T): void;
 
-  traitWillAggregate?(modelContext: TraitContextType<T>, trait: T): void;
+  traitWillAggregate?(trait: T): void;
 
-  traitDidAggregate?(modelContext: TraitContextType<T>, trait: T): void;
+  traitDidAggregate?(trait: T): void;
 
-  traitWillCorrelate?(modelContext: TraitContextType<T>, trait: T): void;
+  traitWillCorrelate?(trait: T): void;
 
-  traitDidCorrelate?(modelContext: TraitContextType<T>, trait: T): void;
+  traitDidCorrelate?(trait: T): void;
 
-  traitWillValidate?(modelContext: TraitContextType<T>, trait: T): void;
+  traitWillValidate?(trait: T): void;
 
-  traitDidValidate?(modelContext: TraitContextType<T>, trait: T): void;
+  traitDidValidate?(trait: T): void;
 
-  traitWillReconcile?(modelContext: TraitContextType<T>, trait: T): void;
+  traitWillReconcile?(trait: T): void;
 
-  traitDidReconcile?(modelContext: TraitContextType<T>, trait: T): void;
+  traitDidReconcile?(trait: T): void;
 
   traitWillStartConsuming?(trait: T): void;
 

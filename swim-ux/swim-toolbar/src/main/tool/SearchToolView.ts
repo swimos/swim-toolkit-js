@@ -17,7 +17,7 @@ import {Affinity, FastenerClass} from "@swim/component";
 import {Length} from "@swim/math";
 import {Color} from "@swim/style";
 import {Look} from "@swim/theme";
-import {ViewContextType, ViewRef} from "@swim/view";
+import {ViewRef} from "@swim/view";
 import {StyleRule, HtmlView, StyleView} from "@swim/dom";
 import {ToolView} from "./ToolView";
 import type {SearchToolViewObserver} from "./SearchToolViewObserver";
@@ -53,12 +53,12 @@ export class SearchToolView extends ToolView {
       this.owner.callObservers("viewDidDetachInput", inputView, this.owner);
     },
     didAttachView(inputView: HtmlView): void {
-      inputView.on("input", this.onInput as EventListener);
-      inputView.on("keydown", this.onKeyDown);
+      inputView.addEventListener("input", this.onInput as EventListener);
+      inputView.addEventListener("keydown", this.onKeyDown);
     },
     willDetachView(inputView: HtmlView): void {
-      inputView.off("input", this.onInput as EventListener);
-      inputView.off("keydown", this.onKeyDown);
+      inputView.removeEventListener("input", this.onInput as EventListener);
+      inputView.removeEventListener("keydown", this.onKeyDown);
     },
     onInput(event: InputEvent): void {
       const inputView = this.view;
@@ -173,8 +173,8 @@ export class SearchToolView extends ToolView {
        + "}",
   });
 
-  protected override onLayout(viewContext: ViewContextType<this>): void {
-    super.onLayout(viewContext);
+  protected override onLayout(): void {
+    super.onLayout();
     this.layoutTool();
   }
 

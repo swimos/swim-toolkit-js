@@ -29,6 +29,7 @@ import {
   FastenerClass,
   Fastener,
   Property,
+  Provider,
   ComponentFlags,
   ComponentInit,
   Component,
@@ -49,19 +50,11 @@ import {
   WarpRef,
   WarpClient,
 } from "@swim/client";
-import {ExecuteService} from "../execute/ExecuteService";
-import {ExecuteProvider} from "../execute/ExecuteProvider";
-import {HistoryService} from "../history/HistoryService";
-import {HistoryProvider} from "../history/HistoryProvider";
-import {StorageService} from "../storage/StorageService";
-import {StorageProvider} from "../storage/StorageProvider";
-import {ControllerContext} from "./ControllerContext";
 import type {ControllerObserver} from "./ControllerObserver";
 import {ControllerRelation} from "./"; // forward import
-
-/** @public */
-export type ControllerContextType<C extends Controller> =
-  C extends {readonly contextType?: Class<infer T>} ? T : never;
+import {ExecutorService} from "../"; // forward import
+import {HistoryService} from "../"; // forward import
+import {StorageService} from "../"; // forward import
 
 /** @public */
 export type ControllerFlags = ComponentFlags;
@@ -108,8 +101,6 @@ export class Controller extends Component<Controller> implements Initable<Contro
 
   /** @override */
   readonly consumerType?: Class<Consumer>;
-
-  readonly contextType?: Class<ControllerContext>;
 
   protected override willAttachParent(parent: Controller): void {
     const observers = this.observers;
@@ -231,17 +222,14 @@ export class Controller extends Component<Controller> implements Initable<Contro
   }
 
   /** @internal */
-  override cascadeInsert(updateFlags?: ControllerFlags, controllerContext?: ControllerContext): void {
+  override cascadeInsert(updateFlags?: ControllerFlags): void {
     if ((this.flags & Controller.MountedFlag) !== 0) {
       if (updateFlags === void 0) {
         updateFlags = 0;
       }
       updateFlags |= this.flags & Controller.UpdateMask;
       if ((updateFlags & Controller.CompileMask) !== 0) {
-        if (controllerContext === void 0) {
-          controllerContext = this.superControllerContext;
-        }
-        this.cascadeCompile(updateFlags, controllerContext);
+        this.cascadeCompile(updateFlags);
       }
     }
   }
@@ -382,9 +370,9 @@ export class Controller extends Component<Controller> implements Initable<Contro
       if (parent !== null) {
         parent.requestUpdate(target, updateFlags, immediate);
       } else if (this.mounted) {
-        const executeService = this.executeProvider.service;
-        if (executeService !== void 0 && executeService !== null) {
-          executeService.requestUpdate(target, updateFlags, immediate);
+        const updaterService = this.updater.service;
+        if (updaterService !== null) {
+          updaterService.requestUpdate(target, updateFlags, immediate);
         }
       }
     }
@@ -398,163 +386,155 @@ export class Controller extends Component<Controller> implements Initable<Contro
     return (this.flags & Controller.CompilingFlag) !== 0;
   }
 
-  protected needsCompile(compileFlags: ControllerFlags, controllerContext: ControllerContextType<this>): ControllerFlags {
+  protected needsCompile(compileFlags: ControllerFlags): ControllerFlags {
     return compileFlags;
   }
 
-  cascadeCompile(compileFlags: ControllerFlags, baseControllerContext: ControllerContext): void {
-    const controllerContext = this.extendControllerContext(baseControllerContext);
-    const outerControllerContext = ControllerContext.current;
+  cascadeCompile(compileFlags: ControllerFlags): void {
     try {
-      ControllerContext.current = controllerContext;
       compileFlags &= ~Controller.NeedsCompile;
       compileFlags |= this.flags & Controller.UpdateMask;
-      compileFlags = this.needsCompile(compileFlags, controllerContext);
+      compileFlags = this.needsCompile(compileFlags);
       if ((compileFlags & Controller.CompileMask) !== 0) {
         let cascadeFlags = compileFlags;
-        this.setFlags(this.flags & ~Controller.NeedsCompile | (Controller.CompilingFlag | Controller.ContextualFlag));
-        this.willCompile(cascadeFlags, controllerContext);
+        this.setFlags(this.flags & ~Controller.NeedsCompile | Controller.CompilingFlag);
+        this.willCompile(cascadeFlags);
         if (((this.flags | compileFlags) & Controller.NeedsResolve) !== 0) {
           cascadeFlags |= Controller.NeedsResolve;
           this.setFlags(this.flags & ~Controller.NeedsResolve);
-          this.willResolve(controllerContext);
+          this.willResolve();
         }
         if (((this.flags | compileFlags) & Controller.NeedsGenerate) !== 0) {
           cascadeFlags |= Controller.NeedsGenerate;
           this.setFlags(this.flags & ~Controller.NeedsGenerate);
-          this.willGenerate(controllerContext);
+          this.willGenerate();
         }
         if (((this.flags | compileFlags) & Controller.NeedsAssemble) !== 0) {
           cascadeFlags |= Controller.NeedsAssemble;
           this.setFlags(this.flags & ~Controller.NeedsAssemble);
-          this.willAssemble(controllerContext);
+          this.willAssemble();
         }
 
-        this.onCompile(cascadeFlags, controllerContext);
+        this.onCompile(cascadeFlags);
         if ((cascadeFlags & Controller.NeedsResolve) !== 0) {
-          this.onResolve(controllerContext);
+          this.onResolve();
         }
         if ((cascadeFlags & Controller.NeedsGenerate) !== 0) {
-          this.onGenerate(controllerContext);
+          this.onGenerate();
         }
         if ((cascadeFlags & Controller.NeedsAssemble) !== 0) {
-          this.onAssemble(controllerContext);
+          this.onAssemble();
         }
 
         if ((cascadeFlags & Controller.CompileMask) !== 0) {
-          this.setFlags(this.flags & ~Controller.ContextualFlag);
-          this.compileChildren(cascadeFlags, controllerContext, this.compileChild);
-          this.setFlags(this.flags | Controller.ContextualFlag);
+          this.compileChildren(cascadeFlags, this.compileChild);
         }
 
         if ((cascadeFlags & Controller.NeedsAssemble) !== 0) {
-          this.didAssemble(controllerContext);
+          this.didAssemble();
         }
         if ((cascadeFlags & Controller.NeedsGenerate) !== 0) {
-          this.didGenerate(controllerContext);
+          this.didGenerate();
         }
         if ((cascadeFlags & Controller.NeedsResolve) !== 0) {
-          this.didResolve(controllerContext);
+          this.didResolve();
         }
-        this.didCompile(cascadeFlags, controllerContext);
+        this.didCompile(cascadeFlags);
       }
     } finally {
-      this.setFlags(this.flags & ~(Controller.CompilingFlag | Controller.ContextualFlag));
-      ControllerContext.current = outerControllerContext;
+      this.setFlags(this.flags & ~Controller.CompilingFlag);
     }
   }
 
-  protected willCompile(compileFlags: ControllerFlags, controllerContext: ControllerContextType<this>): void {
+  protected willCompile(compileFlags: ControllerFlags): void {
     // hook
   }
 
-  protected onCompile(compileFlags: ControllerFlags, controllerContext: ControllerContextType<this>): void {
+  protected onCompile(compileFlags: ControllerFlags): void {
     // hook
   }
 
-  protected didCompile(compileFlags: ControllerFlags, controllerContext: ControllerContextType<this>): void {
+  protected didCompile(compileFlags: ControllerFlags): void {
     // hook
   }
 
-  protected willResolve(controllerContext: ControllerContextType<this>): void {
+  protected willResolve(): void {
     const observers = this.observers;
     for (let i = 0, n = observers.length; i < n; i += 1) {
       const observer = observers[i]!;
       if (observer.controllerWillResolve !== void 0) {
-        observer.controllerWillResolve(controllerContext, this);
+        observer.controllerWillResolve(this);
       }
     }
   }
 
-  protected onResolve(controllerContext: ControllerContextType<this>): void {
+  protected onResolve(): void {
     // hook
   }
 
-  protected didResolve(controllerContext: ControllerContextType<this>): void {
+  protected didResolve(): void {
     const observers = this.observers;
     for (let i = 0, n = observers.length; i < n; i += 1) {
       const observer = observers[i]!;
       if (observer.controllerDidResolve !== void 0) {
-        observer.controllerDidResolve(controllerContext, this);
+        observer.controllerDidResolve(this);
       }
     }
   }
 
-  protected willGenerate(controllerContext: ControllerContextType<this>): void {
+  protected willGenerate(): void {
     const observers = this.observers;
     for (let i = 0, n = observers.length; i < n; i += 1) {
       const observer = observers[i]!;
       if (observer.controllerWillGenerate !== void 0) {
-        observer.controllerWillGenerate(controllerContext, this);
+        observer.controllerWillGenerate(this);
       }
     }
   }
 
-  protected onGenerate(controllerContext: ControllerContextType<this>): void {
+  protected onGenerate(): void {
     // hook
   }
 
-  protected didGenerate(controllerContext: ControllerContextType<this>): void {
+  protected didGenerate(): void {
     const observers = this.observers;
     for (let i = 0, n = observers.length; i < n; i += 1) {
       const observer = observers[i]!;
       if (observer.controllerDidGenerate !== void 0) {
-        observer.controllerDidGenerate(controllerContext, this);
+        observer.controllerDidGenerate(this);
       }
     }
   }
 
-  protected willAssemble(controllerContext: ControllerContextType<this>): void {
+  protected willAssemble(): void {
     const observers = this.observers;
     for (let i = 0, n = observers.length; i < n; i += 1) {
       const observer = observers[i]!;
       if (observer.controllerWillAssemble !== void 0) {
-        observer.controllerWillAssemble(controllerContext, this);
+        observer.controllerWillAssemble(this);
       }
     }
   }
 
-  protected onAssemble(controllerContext: ControllerContextType<this>): void {
+  protected onAssemble(): void {
     // hook
   }
 
-  protected didAssemble(controllerContext: ControllerContextType<this>): void {
+  protected didAssemble(): void {
     const observers = this.observers;
     for (let i = 0, n = observers.length; i < n; i += 1) {
       const observer = observers[i]!;
       if (observer.controllerDidAssemble !== void 0) {
-        observer.controllerDidAssemble(controllerContext, this);
+        observer.controllerDidAssemble(this);
       }
     }
   }
 
-  protected compileChildren(compileFlags: ControllerFlags, controllerContext: ControllerContextType<this>,
-                            compileChild: (this: this, child: Controller, compileFlags: ControllerFlags,
-                                           controllerContext: ControllerContextType<this>) => void): void {
+  protected compileChildren(compileFlags: ControllerFlags, compileChild: (this: this, child: Controller, compileFlags: ControllerFlags) => void): void {
     let child = this.firstChild;
     while (child !== null) {
       const next = child.nextSibling;
-      compileChild.call(this, child, compileFlags, controllerContext);
+      compileChild.call(this, child, compileFlags);
       if (next !== null && next.parent !== this) {
         throw new Error("inconsistent compile pass");
       }
@@ -562,136 +542,128 @@ export class Controller extends Component<Controller> implements Initable<Contro
     }
   }
 
-  protected compileChild(child: Controller, compileFlags: ControllerFlags, controllerContext: ControllerContextType<this>): void {
-    child.cascadeCompile(compileFlags, controllerContext);
+  protected compileChild(child: Controller, compileFlags: ControllerFlags): void {
+    child.cascadeCompile(compileFlags);
   }
 
   get executing(): boolean {
     return (this.flags & Controller.ExecutingFlag) !== 0;
   }
 
-  protected needsExecute(executeFlags: ControllerFlags, controllerContext: ControllerContextType<this>): ControllerFlags {
+  protected needsExecute(executeFlags: ControllerFlags): ControllerFlags {
     return executeFlags;
   }
 
-  cascadeExecute(executeFlags: ControllerFlags, baseControllerContext: ControllerContext): void {
-    const controllerContext = this.extendControllerContext(baseControllerContext);
-    const outerControllerContext = ControllerContext.current;
+  cascadeExecute(executeFlags: ControllerFlags): void {
     try {
-      ControllerContext.current = controllerContext;
       executeFlags &= ~Controller.NeedsExecute;
       executeFlags |= this.flags & Controller.UpdateMask;
-      executeFlags = this.needsExecute(executeFlags, controllerContext);
+      executeFlags = this.needsExecute(executeFlags);
       if ((executeFlags & Controller.ExecuteMask) !== 0) {
         let cascadeFlags = executeFlags;
-        this.setFlags(this.flags & ~Controller.NeedsExecute | (Controller.ExecutingFlag | Controller.ContextualFlag));
-        this.willExecute(cascadeFlags, controllerContext);
+        this.setFlags(this.flags & ~Controller.NeedsExecute | Controller.ExecutingFlag);
+        this.willExecute(cascadeFlags);
         if (((this.flags | executeFlags) & Controller.NeedsRevise) !== 0) {
           cascadeFlags |= Controller.NeedsRevise;
           this.setFlags(this.flags & ~Controller.NeedsRevise);
-          this.willRevise(controllerContext);
+          this.willRevise();
         }
         if (((this.flags | executeFlags) & Controller.NeedsCompute) !== 0) {
           cascadeFlags |= Controller.NeedsCompute;
           this.setFlags(this.flags & ~Controller.NeedsCompute);
-          this.willCompute(controllerContext);
+          this.willCompute();
         }
 
-        this.onExecute(cascadeFlags, controllerContext);
+        this.onExecute(cascadeFlags);
         if ((cascadeFlags & Controller.NeedsRevise) !== 0) {
-          this.onRevise(controllerContext);
+          this.onRevise();
         }
         if ((cascadeFlags & Controller.NeedsCompute) !== 0) {
-          this.onCompute(controllerContext);
+          this.onCompute();
         }
 
         if ((cascadeFlags & Controller.ExecuteMask) !== 0) {
-          this.setFlags(this.flags & ~Controller.ContextualFlag);
-          this.executeChildren(cascadeFlags, controllerContext, this.executeChild);
-          this.setFlags(this.flags | Controller.ContextualFlag);
+          this.executeChildren(cascadeFlags, this.executeChild);
         }
 
         if ((cascadeFlags & Controller.NeedsCompute) !== 0) {
-          this.didCompute(controllerContext);
+          this.didCompute();
         }
         if ((cascadeFlags & Controller.NeedsRevise) !== 0) {
-          this.didRevise(controllerContext);
+          this.didRevise();
         }
-        this.didExecute(cascadeFlags, controllerContext);
+        this.didExecute(cascadeFlags);
       }
     } finally {
-      this.setFlags(this.flags & ~(Controller.ExecutingFlag | Controller.ContextualFlag));
-      ControllerContext.current = outerControllerContext;
+      this.setFlags(this.flags & ~Controller.ExecutingFlag);
     }
   }
 
-  protected willExecute(executeFlags: ControllerFlags, controllerContext: ControllerContextType<this>): void {
+  protected willExecute(executeFlags: ControllerFlags): void {
     // hook
   }
 
-  protected onExecute(executeFlags: ControllerFlags, controllerContext: ControllerContextType<this>): void {
+  protected onExecute(executeFlags: ControllerFlags): void {
     // hook
   }
 
-  protected didExecute(executeFlags: ControllerFlags, controllerContext: ControllerContextType<this>): void {
+  protected didExecute(executeFlags: ControllerFlags): void {
     // hook
   }
 
-  protected willRevise(controllerContext: ControllerContextType<this>): void {
+  protected willRevise(): void {
     const observers = this.observers;
     for (let i = 0, n = observers.length; i < n; i += 1) {
       const observer = observers[i]!;
       if (observer.controllerWillRevise !== void 0) {
-        observer.controllerWillRevise(controllerContext, this);
+        observer.controllerWillRevise(this);
       }
     }
   }
 
-  protected onRevise(controllerContext: ControllerContextType<this>): void {
-    this.recohereFasteners(controllerContext.updateTime);
+  protected onRevise(): void {
+    this.recohereFasteners(this.updateTime);
   }
 
-  protected didRevise(controllerContext: ControllerContextType<this>): void {
+  protected didRevise(): void {
     const observers = this.observers;
     for (let i = 0, n = observers.length; i < n; i += 1) {
       const observer = observers[i]!;
       if (observer.controllerDidRevise !== void 0) {
-        observer.controllerDidRevise(controllerContext, this);
+        observer.controllerDidRevise(this);
       }
     }
   }
 
-  protected willCompute(controllerContext: ControllerContextType<this>): void {
+  protected willCompute(): void {
     const observers = this.observers;
     for (let i = 0, n = observers.length; i < n; i += 1) {
       const observer = observers[i]!;
       if (observer.controllerWillCompute !== void 0) {
-        observer.controllerWillCompute(controllerContext, this);
+        observer.controllerWillCompute(this);
       }
     }
   }
 
-  protected onCompute(controllerContext: ControllerContextType<this>): void {
+  protected onCompute(): void {
     // hook
   }
 
-  protected didCompute(controllerContext: ControllerContextType<this>): void {
+  protected didCompute(): void {
     const observers = this.observers;
     for (let i = 0, n = observers.length; i < n; i += 1) {
       const observer = observers[i]!;
       if (observer.controllerDidCompute !== void 0) {
-        observer.controllerDidCompute(controllerContext, this);
+        observer.controllerDidCompute(this);
       }
     }
   }
 
-  protected executeChildren(executeFlags: ControllerFlags, controllerContext: ControllerContextType<this>,
-                            executeChild: (this: this, child: Controller, executeFlags: ControllerFlags,
-                                           controllerContext: ControllerContextType<this>) => void): void {
+  protected executeChildren(executeFlags: ControllerFlags, executeChild: (this: this, child: Controller, executeFlags: ControllerFlags) => void): void {
     let child = this.firstChild;
     while (child !== null) {
       const next = child.nextSibling;
-      executeChild.call(this, child, executeFlags, controllerContext);
+      executeChild.call(this, child, executeFlags);
       if (next !== null && next.parent !== this) {
         throw new Error("inconsistent execute pass");
       }
@@ -700,8 +672,8 @@ export class Controller extends Component<Controller> implements Initable<Contro
   }
 
   /** @internal */
-  protected executeChild(child: Controller, executeFlags: ControllerFlags, controllerContext: ControllerContextType<this>): void {
-    child.cascadeExecute(executeFlags, controllerContext);
+  protected executeChild(child: Controller, executeFlags: ControllerFlags): void {
+    child.cascadeExecute(executeFlags);
   }
 
   protected override bindFastener(fastener: Fastener): void {
@@ -892,23 +864,41 @@ export class Controller extends Component<Controller> implements Initable<Contro
     }
   }
 
-  @ExecuteProvider({
-    service: ExecuteService.global(),
-  })
-  readonly executeProvider!: ExecuteProvider<this>;
-  static readonly executeProvider: FastenerClass<Controller["executeProvider"]>;
+  get updateTime(): number {
+    return this.updater.getService().updateTime;
+  }
 
-  @HistoryProvider({
-    service: HistoryService.global(),
+  @Provider<Controller["updater"]>({
+    get serviceType(): typeof ExecutorService { // avoid static forward reference
+      return ExecutorService;
+    },
+    mountRootService(service: ExecutorService): void {
+      Provider.prototype.mountRootService.call(this, service);
+      service.roots.addController(this.owner);
+    },
+    unmountRootService(service: ExecutorService): void {
+      Provider.prototype.unmountRootService.call(this, service);
+      service.roots.removeController(this.owner);
+    },
   })
-  readonly historyProvider!: HistoryProvider<this>;
-  static readonly historyProvider: FastenerClass<Controller["historyProvider"]>;
+  readonly updater!: Provider<this, ExecutorService>;
+  static readonly updater: FastenerClass<Controller["updater"]>;
 
-  @StorageProvider({
-    service: StorageService.global(),
+  @Provider<Controller["history"]>({
+    get serviceType(): typeof HistoryService { // avoid static forward reference
+      return HistoryService;
+    },
   })
-  readonly storageProvider!: StorageProvider<this>;
-  static readonly storageProvider: FastenerClass<Controller["storageProvider"]>;
+  readonly history!: Provider<this, HistoryService>;
+  static readonly history: FastenerClass<Controller["history"]>;
+
+  @Provider<Controller["storage"]>({
+    get serviceType(): typeof StorageService { // avoid static forward reference
+      return StorageService;
+    },
+  })
+  readonly storage!: Provider<this, StorageService>;
+  static readonly storage: FastenerClass<Controller["storage"]>;
 
   /** @override */
   @Property({valueType: Uri, value: null, inherits: true, updateFlags: Controller.NeedsRevise})
@@ -1113,29 +1103,6 @@ export class Controller extends Component<Controller> implements Initable<Contro
   })
   readonly warpRef!: Property<this, WarpRef>;
 
-  /** @internal */
-  get superControllerContext(): ControllerContext {
-    const parent = this.parent;
-    if (parent !== null) {
-      return parent.controllerContext;
-    } else {
-      return this.executeProvider.updatedControllerContext();
-    }
-  }
-
-  /** @internal */
-  extendControllerContext(controllerContext: ControllerContext): ControllerContextType<this> {
-    return controllerContext as ControllerContextType<this>;
-  }
-
-  get controllerContext(): ControllerContextType<this> {
-    if ((this.flags & Controller.ContextualFlag) !== 0) {
-      return ControllerContext.current as ControllerContextType<this>;
-    } else {
-      return this.extendControllerContext(this.superControllerContext);
-    }
-  }
-
   /** @override */
   override init(init: ControllerInit): void {
     // hook
@@ -1194,9 +1161,7 @@ export class Controller extends Component<Controller> implements Initable<Contro
   /** @internal */
   static readonly ExecutingFlag: ControllerFlags = 1 << (Component.FlagShift + 1);
   /** @internal */
-  static readonly ContextualFlag: ControllerFlags = 1 << (Component.FlagShift + 2);
-  /** @internal */
-  static readonly ConsumingFlag: ControllerFlags = 1 << (Component.FlagShift + 3);
+  static readonly ConsumingFlag: ControllerFlags = 1 << (Component.FlagShift + 2);
   /** @internal */
   static readonly UpdatingMask: ControllerFlags = Controller.CompilingFlag
                                                 | Controller.ExecutingFlag;
@@ -1205,22 +1170,21 @@ export class Controller extends Component<Controller> implements Initable<Contro
                                               | Controller.InsertingFlag
                                               | Controller.RemovingFlag
                                               | Controller.CompilingFlag
-                                              | Controller.ExecutingFlag
-                                              | Controller.ContextualFlag;
+                                              | Controller.ExecutingFlag;
 
-  static readonly NeedsCompile: ControllerFlags = 1 << (Component.FlagShift + 4);
-  static readonly NeedsResolve: ControllerFlags = 1 << (Component.FlagShift + 5);
-  static readonly NeedsGenerate: ControllerFlags = 1 << (Component.FlagShift + 6);
-  static readonly NeedsAssemble: ControllerFlags = 1 << (Component.FlagShift + 7);
+  static readonly NeedsCompile: ControllerFlags = 1 << (Component.FlagShift + 3);
+  static readonly NeedsResolve: ControllerFlags = 1 << (Component.FlagShift + 4);
+  static readonly NeedsGenerate: ControllerFlags = 1 << (Component.FlagShift + 5);
+  static readonly NeedsAssemble: ControllerFlags = 1 << (Component.FlagShift + 6);
   /** @internal */
   static readonly CompileMask: ControllerFlags = Controller.NeedsCompile
                                                | Controller.NeedsResolve
                                                | Controller.NeedsGenerate
                                                | Controller.NeedsAssemble;
 
-  static readonly NeedsExecute: ControllerFlags = 1 << (Component.FlagShift + 8);
-  static readonly NeedsRevise: ControllerFlags = 1 << (Component.FlagShift + 9);
-  static readonly NeedsCompute: ControllerFlags = 1 << (Component.FlagShift + 10);
+  static readonly NeedsExecute: ControllerFlags = 1 << (Component.FlagShift + 7);
+  static readonly NeedsRevise: ControllerFlags = 1 << (Component.FlagShift + 8);
+  static readonly NeedsCompute: ControllerFlags = 1 << (Component.FlagShift + 9);
   /** @internal */
   static readonly ExecuteMask: ControllerFlags = Controller.NeedsExecute
                                                | Controller.NeedsRevise
@@ -1231,7 +1195,7 @@ export class Controller extends Component<Controller> implements Initable<Contro
                                               | Controller.ExecuteMask;
 
   /** @internal */
-  static override readonly FlagShift: number = Component.FlagShift + 11;
+  static override readonly FlagShift: number = Component.FlagShift + 10;
   /** @internal */
   static override readonly FlagMask: ControllerFlags = (1 << Controller.FlagShift) - 1;
 

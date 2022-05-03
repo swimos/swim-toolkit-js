@@ -410,30 +410,35 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     } else {
       newView = this.createView();
     }
-    if (parent === void 0 || parent === null) {
-      parent = this.parentView;
+    if (parent === void 0) {
+      parent = null;
     }
-    if (target === void 0) {
-      target = null;
-    }
-    if (key === void 0) {
-      key = this.viewKey(newView);
-    }
-    if (parent !== null && (newView.parent !== parent || newView.key !== key)) {
-      if (target === null) {
-        target = this.getTargetChild(parent, newView);
+    if (this.binds || this.views[newView.uid] === void 0 || newView.parent === null || parent !== null || key !== void 0) {
+      if (parent === null) {
+        parent = this.parentView;
       }
-      this.insertChild(parent, newView, target, key);
-    }
-    if (this.views[newView.uid] === void 0) {
-      this.insertViewMap(newView, target);
-      (this as Mutable<typeof this>).viewCount += 1;
-      this.willAttachView(newView, target);
-      this.onAttachView(newView, target);
-      this.initView(newView);
-      this.didAttachView(newView, target);
-      this.setCoherent(true);
-      this.decohereOutlets();
+      if (target === void 0) {
+        target = null;
+      }
+      if (key === void 0) {
+        key = this.viewKey(newView);
+      }
+      if (parent !== null && (newView.parent !== parent || newView.key !== key)) {
+        if (target === null) {
+          target = this.getTargetChild(parent, newView);
+        }
+        this.insertChild(parent, newView, target, key);
+      }
+      if (this.views[newView.uid] === void 0) {
+        this.insertViewMap(newView, target);
+        (this as Mutable<typeof this>).viewCount += 1;
+        this.willAttachView(newView, target);
+        this.onAttachView(newView, target);
+        this.initView(newView);
+        this.didAttachView(newView, target);
+        this.setCoherent(true);
+        this.decohereOutlets();
+      }
     }
     return newView;
   };

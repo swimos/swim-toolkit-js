@@ -28,7 +28,7 @@ import {Affinity, FastenerClass, Property} from "@swim/component";
 import type {R2Box} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
-import {ViewContextType, ViewFlags, View, ViewSet} from "@swim/view";
+import {ViewFlags, View, ViewSet} from "@swim/view";
 import {GraphicsView, CanvasContext, CanvasRenderer} from "@swim/graphics";
 import {AnyDataPointView, DataPointView} from "../data/DataPointView";
 import {ContinuousScaleAnimator} from "../scaled/ContinuousScaleAnimator";
@@ -332,10 +332,11 @@ export abstract class ScatterPlotView<X = unknown, Y = unknown> extends Graphics
   };
   static readonly dataPoints: FastenerClass<ScatterPlotView["dataPoints"]>;
 
-  protected override onLayout(viewContext: ViewContextType<this>): void {
-    super.onLayout(viewContext);
-    this.xScale.recohere(viewContext.updateTime);
-    this.yScale.recohere(viewContext.updateTime);
+  protected override onLayout(): void {
+    super.onLayout();
+    const updateTime = this.updateTime;
+    this.xScale.recohere(updateTime);
+    this.yScale.recohere(updateTime);
     this.resizeScales(this.viewFrame);
   }
 
@@ -353,24 +354,20 @@ export abstract class ScatterPlotView<X = unknown, Y = unknown> extends Graphics
     }
   }
 
-  protected override displayChildren(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                                     displayChild: (this: this, childView: View, displayFlags: ViewFlags,
-                                                    viewContext: ViewContextType<this>) => void): void {
+  protected override displayChildren(displayFlags: ViewFlags, displayChild: (this: this, childView: View, displayFlags: ViewFlags) => void): void {
     let xScale: ContinuousScale<X, number> | null;
     let yScale: ContinuousScale<Y, number> | null;
     if ((displayFlags & View.NeedsLayout) !== 0 &&
         (xScale = this.xScale.value, xScale !== null) &&
         (yScale = this.yScale.value, yScale !== null)) {
-      this.layoutChildren(xScale, yScale, displayFlags, viewContext, displayChild);
+      this.layoutChildren(xScale, yScale, displayFlags, displayChild);
     } else {
-      super.displayChildren(displayFlags, viewContext, displayChild);
+      super.displayChildren(displayFlags, displayChild);
     }
   }
 
   protected layoutChildren(xScale: ContinuousScale<X, number>, yScale: ContinuousScale<Y, number>,
-                           displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                           displayChild: (this: this, childView: View, displayFlags: ViewFlags,
-                                          viewContext: ViewContextType<this>) => void): void {
+                           displayFlags: ViewFlags, displayChild: (this: this, childView: View, displayFlags: ViewFlags) => void): void {
     // Recompute extrema when laying out child views.
     const frame = this.viewFrame;
     const size = Math.min(frame.width, frame.height);
@@ -385,8 +382,7 @@ export abstract class ScatterPlotView<X = unknown, Y = unknown> extends Graphics
 
     let point0 = null as DataPointView<X, Y> | null;
     type self = this;
-    function layoutChild(this: self, point1: View, displayFlags: ViewFlags,
-                         viewContext: ViewContextType<self>): void {
+    function layoutChild(this: self, point1: View, displayFlags: ViewFlags): void {
       if (point1 instanceof DataPointView) {
         const x1 = point1.x.getValue();
         const y1 = point1.y.getValue();
@@ -433,9 +429,9 @@ export abstract class ScatterPlotView<X = unknown, Y = unknown> extends Graphics
         point0 = point1;
       }
 
-      displayChild.call(this, point1, displayFlags, viewContext);
+      displayChild.call(this, point1, displayFlags);
     }
-    super.displayChildren(displayFlags, viewContext, layoutChild);
+    super.displayChildren(displayFlags, layoutChild);
 
     this.setXDataDomain(point0 !== null ? Domain<X>(xDataDomainMin!, xDataDomainMax!) : null);
     this.setYDataDomain(point0 !== null ? Domain<Y>(yDataDomainMin!, yDataDomainMax!) : null);
@@ -443,12 +439,12 @@ export abstract class ScatterPlotView<X = unknown, Y = unknown> extends Graphics
     this.yRangePadding.setValue([yRangePaddingMin, yRangePaddingMax], Affinity.Intrinsic);
   }
 
-  protected override didRender(viewContext: ViewContextType<this>): void {
-    const renderer = viewContext.renderer;
+  protected override didRender(): void {
+    const renderer = this.renderer.value;
     if (renderer instanceof CanvasRenderer && !this.hidden && !this.culled) {
       this.renderPlot(renderer.context, this.viewFrame);
     }
-    super.didRender(viewContext);
+    super.didRender();
   }
 
   protected abstract renderPlot(context: CanvasContext, frame: R2Box): void;

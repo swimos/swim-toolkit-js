@@ -14,13 +14,13 @@
 
 import type {Mutable, Proto} from "@swim/util";
 import type {FastenerOwner} from "@swim/component";
+import type {View} from "../view/View";
 import type {GestureInputType} from "./GestureInput";
 import {GestureView, GestureDescriptor, GestureClass, Gesture} from "./Gesture";
 import {PositionGestureInput} from "./PositionGestureInput";
 import {MousePositionGesture} from "./"; // forward import
 import {TouchPositionGesture} from "./"; // forward import
 import {PointerPositionGesture} from "./"; // forward import
-import type {View} from "../view/View";
 
 /** @public */
 export interface PositionGestureDescriptor<V extends View = View> extends GestureDescriptor<V> {

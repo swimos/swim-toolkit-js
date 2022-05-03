@@ -14,9 +14,7 @@
 
 import {Class, Instance, Creatable} from "@swim/util";
 import {R2Box, Transform} from "@swim/math";
-import {AnyView, ViewInit, ViewFactory, ViewClass, View, ModalService} from "@swim/view";
-import {DomService} from "../service/DomService";
-import {DomProvider} from "../service/DomProvider";
+import {AnyView, ViewInit, ViewFactory, ViewClass, View} from "@swim/view";
 import type {NodeViewObserver} from "./NodeViewObserver";
 import {TextView} from "../"; // forward import
 import {ViewElement, ElementView} from "../"; // forward import
@@ -551,11 +549,6 @@ export class NodeView extends View {
     }
   }
 
-  @DomProvider({
-    service: DomService.global(),
-  })
-  readonly domProvider!: DomProvider<this>;
-
   text(): string | undefined;
   text(value: string | null | undefined): this;
   text(value?: string | null | undefined): string | undefined | this {
@@ -601,14 +594,12 @@ export class NodeView extends View {
     return this.node.dispatchEvent(event);
   }
 
-  override on(type: string, listener: EventListenerOrEventListenerObject, options?: AddEventListenerOptions | boolean): this {
+  override addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: AddEventListenerOptions | boolean): void {
     this.node.addEventListener(type, listener, options);
-    return this;
   }
 
-  override off(type: string, listener: EventListenerOrEventListenerObject, options?: EventListenerOptions | boolean): this {
+  override removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: EventListenerOptions | boolean): void {
     this.node.removeEventListener(type, listener, options);
-    return this;
   }
 
   override init(init: NodeViewInit): void {
@@ -657,16 +648,3 @@ export class NodeView extends View {
     }
   }
 }
-
-ModalService.insertModalView = function (modalView: NodeView): void {
-  const matteNode = document.body as ViewNode;
-  const matteView = matteNode.view;
-  if (matteView !== void 0) {
-    matteView.appendChild(modalView);
-  } else if (modalView instanceof NodeView) {
-    matteNode.appendChild(modalView.node);
-    modalView.mount();
-  } else {
-    throw new TypeError("" + modalView);
-  }
-};

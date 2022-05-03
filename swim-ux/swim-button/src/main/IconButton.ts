@@ -17,14 +17,7 @@ import {Affinity, FastenerClass, Animator} from "@swim/component";
 import {AnyLength, Length, Angle, Transform} from "@swim/math";
 import {AnyColor, Color} from "@swim/style";
 import {Look, Feel, MoodVector, ThemeMatrix, ThemeAnimator} from "@swim/theme";
-import {
-  PositionGesture,
-  ViewContextType,
-  ViewContext,
-  ViewFlags,
-  View,
-  ViewRef,
-} from "@swim/view";
+import {ViewFlags, View, ViewRef, PositionGesture} from "@swim/view";
 import type {HtmlView, HtmlViewObserver} from "@swim/dom";
 import {
   Graphics,
@@ -121,7 +114,7 @@ export class IconButton extends ButtonMembrane implements IconView {
     init(): void {
       this.iconIndex = 0;
     },
-    viewDidAnimate(viewContext: ViewContext, iconView: SvgIconView): void {
+    viewDidAnimate(iconView: SvgIconView): void {
       if (!iconView.opacity.tweening && this.iconIndex !== this.owner.iconCount) {
         iconView.remove();
         if (this.iconIndex > this.owner.iconCount) {
@@ -246,20 +239,20 @@ export class IconButton extends ButtonMembrane implements IconView {
     }
   }
 
-  protected override onResize(viewContext: ViewContextType<this>): void {
-    super.onResize(viewContext);
+  protected override onResize(): void {
+    super.onResize();
     this.requireUpdate(View.NeedsLayout);
   }
 
-  protected override needsDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
+  protected override needsDisplay(displayFlags: ViewFlags): ViewFlags {
     if ((this.flags & View.NeedsLayout) === 0) {
       displayFlags &= ~View.NeedsLayout;
     }
     return displayFlags;
   }
 
-  protected override onLayout(viewContext: ViewContextType<this>): void {
-    super.onLayout(viewContext);
+  protected override onLayout(): void {
+    super.onLayout();
     this.layoutIcon();
   }
 
@@ -286,12 +279,12 @@ export class IconButton extends ButtonMembrane implements IconView {
 
   protected override onMount(): void {
     super.onMount();
-    this.on("click", this.onClick);
+    this.addEventListener("click", this.onClick);
   }
 
   protected override onUnmount(): void {
-    this.off("click", this.onClick);
     super.onUnmount();
+    this.removeEventListener("click", this.onClick);
   }
 
   get hovers(): boolean {

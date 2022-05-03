@@ -13,10 +13,10 @@
 // limitations under the License.
 
 import type {FastenerOwner} from "@swim/component";
+import type {View} from "../view/View";
 import {GestureInput} from "./GestureInput";
 import type {MomentumGestureInput} from "./MomentumGestureInput";
 import {MomentumGestureClass, MomentumGesture} from "./MomentumGesture";
-import type {View} from "../view/View";
 
 /** @internal */
 export interface PointerMomentumGesture<O = unknown, V extends View = View> extends MomentumGesture<O, V> {
@@ -62,15 +62,15 @@ export const PointerMomentumGesture = (function (_super: typeof MomentumGesture)
   const PointerMomentumGesture = _super.extend("PointerMomentumGesture", {}) as MomentumGestureClass<PointerMomentumGesture<any, any>>;
 
   PointerMomentumGesture.prototype.attachHoverEvents = function (this: PointerMomentumGesture, view: View): void {
-    view.on("pointerenter", this.onPointerEnter as EventListener);
-    view.on("pointerleave", this.onPointerLeave as EventListener);
-    view.on("pointerdown", this.onPointerDown as EventListener);
+    view.addEventListener("pointerenter", this.onPointerEnter as EventListener);
+    view.addEventListener("pointerleave", this.onPointerLeave as EventListener);
+    view.addEventListener("pointerdown", this.onPointerDown as EventListener);
   };
 
   PointerMomentumGesture.prototype.detachHoverEvents = function (this: PointerMomentumGesture, view: View): void {
-    view.off("pointerenter", this.onPointerEnter as EventListener);
-    view.off("pointerleave", this.onPointerLeave as EventListener);
-    view.off("pointerdown", this.onPointerDown as EventListener);
+    view.removeEventListener("pointerenter", this.onPointerEnter as EventListener);
+    view.removeEventListener("pointerleave", this.onPointerLeave as EventListener);
+    view.removeEventListener("pointerdown", this.onPointerDown as EventListener);
   };
 
   PointerMomentumGesture.prototype.attachPressEvents = function (this: PointerMomentumGesture, view: View): void {

@@ -32,14 +32,7 @@ import {
 } from "@swim/util";
 import {Affinity, FastenerClass, Property} from "@swim/component";
 import {DateTime, TimeDomain, TimeScale} from "@swim/time";
-import {
-  ScaleGestureInput,
-  ScaleGesture,
-  ViewContextType,
-  ViewFlags,
-  View,
-  ViewSet,
-} from "@swim/view";
+import {ViewFlags, View, ViewSet, ScaleGestureInput, ScaleGesture} from "@swim/view";
 import {GraphicsViewInit, GraphicsView} from "@swim/graphics";
 import {ContinuousScaleAnimator} from "./ContinuousScaleAnimator";
 import {ScaledXView} from "./ScaledXView";
@@ -802,10 +795,11 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
   readonly scaled!: ViewSet<this, ScaledXView<X> | ScaledYView<Y>> & Observes<ScaledXView<X> & ScaledYView<Y>>;
   static readonly scaled: FastenerClass<ScaledView["scaled"]>;
 
-  protected override onLayout(viewContext: ViewContextType<this>): void {
-    super.onLayout(viewContext);
-    this.xScale.recohere(viewContext.updateTime);
-    this.yScale.recohere(viewContext.updateTime);
+  protected override onLayout(): void {
+    super.onLayout();
+    const updateTime = this.updateTime;
+    this.xScale.recohere(updateTime);
+    this.yScale.recohere(updateTime);
     this.resizeScales();
     this.updateScales();
   }
@@ -1071,24 +1065,20 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
     this.setScaledFlags(this.scaledFlags & ~(ScaledView.InteractedFlag | ScaledView.RescaleFlag));
   }
 
-  protected override displayChildren(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                                     displayChild: (this: this, childView: View, displayFlags: ViewFlags,
-                                                    viewContext: ViewContextType<this>) => void): void {
+  protected override displayChildren(displayFlags: ViewFlags, displayChild: (this: this, childView: View, displayFlags: ViewFlags) => void): void {
     let xScale: ContinuousScale<X, number> | null;
     let yScale: ContinuousScale<Y, number> | null;
     if ((displayFlags & View.NeedsLayout) !== 0 &&
         (xScale = this.xScale.value, xScale !== null) &&
         (yScale = this.yScale.value, yScale !== null)) {
-      this.layoutChildren(xScale, yScale, displayFlags, viewContext, displayChild);
+      this.layoutChildren(xScale, yScale, displayFlags, displayChild);
     } else {
-      super.displayChildren(displayFlags, viewContext, displayChild);
+      super.displayChildren(displayFlags, displayChild);
     }
   }
 
   protected layoutChildren(xScale: ContinuousScale<X, number>, yScale: ContinuousScale<Y, number>,
-                           displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                           displayChild: (this: this, childView: View, displayFlags: ViewFlags,
-                                          viewContext: ViewContextType<this>) => void): void {
+                           displayFlags: ViewFlags, displayChild: (this: this, childView: View, displayFlags: ViewFlags) => void): void {
     // Recompute extrema when laying out child views.
     let xDataDomainMin: X | undefined;
     let xDataDomainMax: X | undefined;
@@ -1102,9 +1092,8 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
     let yCount = 0;
 
     type self = this;
-    function layoutChild(this: self, childView: View, displayFlags: ViewFlags,
-                         viewContext: ViewContextType<self>): void {
-      displayChild.call(this, childView, displayFlags, viewContext);
+    function layoutChild(this: self, childView: View, displayFlags: ViewFlags): void {
+      displayChild.call(this, childView, displayFlags);
       if (ScaledXView.is<X>(childView) && childView.xScale.derived) {
         const childXDataDomain = childView.xDataDomain;
         if (childXDataDomain !== null) {
@@ -1146,7 +1135,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
         }
       }
     }
-    super.displayChildren(displayFlags, viewContext, layoutChild);
+    super.displayChildren(displayFlags, layoutChild);
 
     this.setXDataDomain(xCount !== 0 ? Domain<X>(xDataDomainMin!, xDataDomainMax!) : null);
     this.setYDataDomain(yCount !== 0 ? Domain<Y>(yDataDomainMin!, yDataDomainMax!) : null);

@@ -15,7 +15,7 @@
 import type {Class} from "@swim/util";
 import {Affinity, FastenerClass} from "@swim/component";
 import {Length} from "@swim/math";
-import {PositionGestureInput, PositionGesture, ViewContextType, ViewRef} from "@swim/view";
+import {PositionGestureInput, PositionGesture, ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {ToolView} from "./ToolView";
 import type {TitleToolViewObserver} from "./TitleToolViewObserver";
@@ -69,8 +69,8 @@ export class TitleToolView extends ToolView {
   };
   static readonly content: FastenerClass<TitleToolView["content"]>;
 
-  protected override onLayout(viewContext: ViewContextType<this>): void {
-    super.onLayout(viewContext);
+  protected override onLayout(): void {
+    super.onLayout();
     this.layoutTool();
   }
 

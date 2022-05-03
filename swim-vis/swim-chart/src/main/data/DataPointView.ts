@@ -17,7 +17,7 @@ import {Affinity, FastenerClass, Property, Animator} from "@swim/component";
 import {AnyLength, Length, R2Point, R2Box} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
-import {ViewContextType, AnyView, View, ViewRef} from "@swim/view";
+import {AnyView, View, ViewRef} from "@swim/view";
 import {
   GraphicsViewInit,
   GraphicsView,
@@ -244,8 +244,8 @@ export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
     (this as Mutable<this>).gradientStop = this.color.value !== null || this.opacity.value !== void 0;
   }
 
-  protected override onLayout(viewContext: ViewContextType<this>): void {
-    super.onLayout(viewContext);
+  protected override onLayout(): void {
+    super.onLayout();
     this.layoutDataPoint(this.viewFrame);
   }
 
@@ -291,8 +291,8 @@ export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
     }
   }
 
-  protected override hitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
-    const renderer = viewContext.renderer;
+  protected override hitTest(x: number, y: number): GraphicsView | null {
+    const renderer = this.renderer.value;
     if (renderer instanceof CanvasRenderer) {
       return this.hitTestPoint(x, y, renderer.context, this.viewFrame);
     }

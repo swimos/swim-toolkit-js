@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {ViewContext} from "./ViewContext";
+export {ViewIdiom} from "./ViewIdiom";
+
+export {ViewInsets} from "./ViewInsets";
 
 export {
-  ViewContextType,
   ViewFlags,
   AnyView,
   ViewInit,

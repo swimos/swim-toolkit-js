@@ -32,8 +32,6 @@ export interface PresenceAnimator<O = unknown, T extends Presence | null | undef
   setDirection(newDirection: number, timingOrAffinity: Affinity | AnyTiming | boolean | null | undefined): void;
   setDirection(newDirection: number, timing?: AnyTiming | boolean | null, affinity?: Affinity): void;
 
-  get modalState(): string | undefined;
-
   get dismissed(): boolean;
 
   get presented(): boolean;
@@ -129,14 +127,6 @@ export const PresenceAnimator = (function (_super: typeof Animator) {
       this.setState(oldValue.withDirection(newDirection), timing, affinity);
     }
   };
-
-  Object.defineProperty(PresenceAnimator.prototype, "modalState", {
-    get(this: PresenceAnimator): string | undefined {
-      const value = this.value;
-      return value !== void 0 && value !== null ? value.modalState : void 0;
-    },
-    configurable: true,
-  });
 
   Object.defineProperty(PresenceAnimator.prototype, "dismissed", {
     get(this: PresenceAnimator): boolean {

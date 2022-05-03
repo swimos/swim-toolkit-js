@@ -18,7 +18,7 @@ import {AnyLength, Length} from "@swim/math";
 import {AnyColor, Color} from "@swim/style";
 import type {MoodVector, ThemeMatrix} from "@swim/theme";
 import {ThemeAnimator} from "@swim/theme";
-import {ViewContextType, ViewFlags, View} from "@swim/view";
+import {ViewFlags, View} from "@swim/view";
 import {HtmlViewInit, HtmlView} from "@swim/dom";
 import {Graphics} from "../graphics/Graphics";
 import {Icon} from "./Icon";
@@ -120,20 +120,20 @@ export class HtmlIconView extends HtmlView implements IconView {
     }
   }
 
-  protected override onResize(viewContext: ViewContextType<this>): void {
-    super.onResize(viewContext);
+  protected override onResize(): void {
+    super.onResize();
     this.requireUpdate(View.NeedsLayout);
   }
 
-  protected override needsDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
+  protected override needsDisplay(displayFlags: ViewFlags): ViewFlags {
     if ((this.flags & View.NeedsLayout) === 0) {
       displayFlags &= ~View.NeedsLayout;
     }
     return displayFlags;
   }
 
-  protected override onLayout(viewContext: ViewContextType<this>): void {
-    super.onLayout(viewContext);
+  protected override onLayout(): void {
+    super.onLayout();
     this.layoutIcon();
   }
 

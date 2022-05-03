@@ -15,15 +15,9 @@
 import {Mutable, AnyTiming, Timing, Observes} from "@swim/util";
 import {Affinity, FastenerClass} from "@swim/component";
 import {Length, Angle, Transform} from "@swim/math";
-import {AnyExpansion, Expansion, ExpansionAnimator} from "@swim/style";
+import {AnyPresence, Presence, PresenceAnimator} from "@swim/style";
 import {Look, Feel, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
-import {
-  PositionGestureInput,
-  PositionGesture,
-  ViewContextType,
-  ViewContext,
-  ViewRef,
-} from "@swim/view";
+import {ViewRef, PositionGestureInput, PositionGesture} from "@swim/view";
 import type {HtmlView} from "@swim/dom";
 import {Graphics, HtmlIconView} from "@swim/graphics";
 import {ButtonMembrane} from "./ButtonMembrane";
@@ -110,7 +104,7 @@ export class FloatingButton extends ButtonMembrane {
       const iconColor = theme.getOr(Look.backgroundColor, mood, null);
       iconView.iconColor.setState(iconColor, timing);
     },
-    viewDidAnimate(viewContext: ViewContext, iconView: HtmlIconView): void {
+    viewDidAnimate(iconView: HtmlIconView): void {
       if (!iconView.opacity.tweening && this.iconIndex !== this.owner.iconCount) {
         iconView.remove();
         if (this.iconIndex > this.owner.iconCount) {
@@ -211,8 +205,8 @@ export class FloatingButton extends ButtonMembrane {
     this.icon = newIconRef;
   }
 
-  @ExpansionAnimator({inherits: true})
-  readonly disclosure!: ExpansionAnimator<this, Expansion | undefined, AnyExpansion | undefined>;
+  @PresenceAnimator({inherits: true})
+  readonly presence!: PresenceAnimator<this, Presence | undefined, AnyPresence | undefined>;
 
   protected override onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
@@ -222,19 +216,18 @@ export class FloatingButton extends ButtonMembrane {
     let shadow = theme.getOr(Look.shadow, Mood.floating, null);
     if (shadow !== null) {
       const shadowColor = shadow.color;
-      const phase = this.disclosure.getPhaseOr(1);
+      const phase = this.presence.getPhaseOr(1);
       shadow = shadow.withColor(shadowColor.alpha(shadowColor.alpha() * phase));
     }
     this.boxShadow.setState(shadow, timing, Affinity.Intrinsic);
   }
 
-  protected override onLayout(viewContext: ViewContextType<this>): void {
-    super.onLayout(viewContext);
-
+  protected override onLayout(): void {
+    super.onLayout();
     let shadow = this.getLookOr(Look.shadow, Mood.floating, null);
     if (shadow !== null) {
       const shadowColor = shadow.color;
-      const phase = this.disclosure.getPhaseOr(1);
+      const phase = this.presence.getPhaseOr(1);
       shadow = shadow.withColor(shadowColor.alpha(shadowColor.alpha() * phase));
     }
     this.boxShadow.setState(shadow, Affinity.Intrinsic);

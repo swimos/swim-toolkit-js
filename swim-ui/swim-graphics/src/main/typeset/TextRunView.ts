@@ -17,7 +17,7 @@ import {Animator} from "@swim/component";
 import {AnyR2Point, R2Point} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
-import {ViewContextType, View} from "@swim/view";
+import {View} from "@swim/view";
 import {GraphicsView} from "../graphics/GraphicsView";
 import type {CanvasContext} from "../canvas/CanvasContext";
 import {CanvasRenderer} from "../canvas/CanvasRenderer";
@@ -90,9 +90,9 @@ export class TextRunView extends GraphicsView implements TypesetView {
     }
   }
 
-  protected override onRender(viewContext: ViewContextType<this>): void {
-    super.onRender(viewContext);
-    const renderer = viewContext.renderer;
+  protected override onRender(): void {
+    super.onRender();
+    const renderer = this.renderer.value;
     if (renderer instanceof CanvasRenderer && !this.hidden && !this.culled) {
       this.renderText(renderer.context);
     }

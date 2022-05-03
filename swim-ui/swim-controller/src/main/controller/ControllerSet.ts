@@ -414,30 +414,35 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     } else {
       newController = this.createController();
     }
-    if (parent === void 0 || parent === null) {
-      parent = this.parentController;
+    if (parent === void 0) {
+      parent = null;
     }
-    if (target === void 0) {
-      target = null;
-    }
-    if (key === void 0) {
-      key = this.controllerKey(newController);
-    }
-    if (parent !== null && (newController.parent !== parent || newController.key !== key)) {
-      if (target === null) {
-        target = this.getTargetChild(parent, newController);
+    if (this.binds || this.controllers[newController.uid] === void 0 || newController.parent === null || parent !== null || key !== void 0) {
+      if (parent === null) {
+        parent = this.parentController;
       }
-      this.insertChild(parent, newController, target, key);
-    }
-    if (this.controllers[newController.uid] === void 0) {
-      this.insertControllerMap(newController, target);
-      (this as Mutable<typeof this>).controllerCount += 1;
-      this.willAttachController(newController, target);
-      this.onAttachController(newController, target);
-      this.initController(newController);
-      this.didAttachController(newController, target);
-      this.setCoherent(true);
-      this.decohereOutlets();
+      if (target === void 0) {
+        target = null;
+      }
+      if (key === void 0) {
+        key = this.controllerKey(newController);
+      }
+      if (parent !== null && (newController.parent !== parent || newController.key !== key)) {
+        if (target === null) {
+          target = this.getTargetChild(parent, newController);
+        }
+        this.insertChild(parent, newController, target, key);
+      }
+      if (this.controllers[newController.uid] === void 0) {
+        this.insertControllerMap(newController, target);
+        (this as Mutable<typeof this>).controllerCount += 1;
+        this.willAttachController(newController, target);
+        this.onAttachController(newController, target);
+        this.initController(newController);
+        this.didAttachController(newController, target);
+        this.setCoherent(true);
+        this.decohereOutlets();
+      }
     }
     return newController;
   };

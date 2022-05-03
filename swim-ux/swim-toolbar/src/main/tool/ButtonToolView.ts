@@ -17,7 +17,7 @@ import {Affinity, FastenerClass, Property, Animator} from "@swim/component";
 import {AnyLength, Length} from "@swim/math";
 import {AnyColor, Color, AnyFocus, Focus, FocusAnimator} from "@swim/style";
 import {Look, Feel, MoodVector, ThemeMatrix, ThemeAnimator} from "@swim/theme";
-import {PositionGestureInput, PositionGesture, ViewContextType, View} from "@swim/view";
+import {PositionGestureInput, PositionGesture, View} from "@swim/view";
 import type {HtmlView} from "@swim/dom";
 import {Graphics, Icon, FilledIcon, IconGraphicsAnimator, SvgIconView} from "@swim/graphics";
 import {ButtonGlow} from "@swim/button";
@@ -137,13 +137,13 @@ export class ButtonToolView extends ToolView {
     }
   }
 
-  protected override onResize(viewContext: ViewContextType<this>): void {
-    super.onResize(viewContext);
+  protected override onResize(): void {
+    super.onResize();
     this.requireUpdate(View.NeedsLayout);
   }
 
-  protected override onLayout(viewContext: ViewContextType<this>): void {
-    super.onLayout(viewContext);
+  protected override onLayout(): void {
+    super.onLayout();
     this.layoutTool();
   }
 

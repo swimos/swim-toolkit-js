@@ -12,7 +12,7 @@
     <script>
 
 //setTimeout(function () {
-//  swim.ThemeService.global().setTheme(swim.Theme.light);
+//  swim.StylerService.global().theme(swim.Theme.light);
 //}, 1000);
 
 const bodyView = swim.HtmlView.fromNode(document.body);
@@ -29,13 +29,13 @@ const gaugeView = canvasView.appendChild(swim.GaugeView).font("14px sans-serif")
 gaugeView.title.setText("Gauge").font("20px sans-serif");
 
 const dialView = gaugeView.appendChild(swim.DialView)
-    .value(0.33)
-    .on("pointerenter", function (event) {
-      dialView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, 1]], true);
-    })
-    .on("pointerleave", function (event) {
-      dialView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, void 0]], true);
-    });
+dialView.value(0.33);
+dialView.addEventListener("pointerenter", function (event) {
+  dialView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, 1]], true);
+});
+dialView.addEventListener("pointerleave", function (event) {
+  dialView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, void 0]], true);
+});
 dialView.legend.setText("Legend");
 
 setInterval(function () {

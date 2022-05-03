@@ -424,30 +424,35 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     } else {
       newTrait = this.createTrait();
     }
-    if (model === void 0 || model === null) {
-      model = this.parentModel;
+    if (model === void 0) {
+      model = null;
     }
-    if (target === void 0) {
-      target = null;
-    }
-    if (key === void 0) {
-      key = this.traitKey(newTrait);
-    }
-    if (model !== null && (newTrait.model !== model || newTrait.key !== key)) {
-      if (target === null) {
-        target = this.getTargetChild(model, newTrait);
+    if (this.binds || this.traits[newTrait.uid] === void 0 || newTrait.model === null || model !== null || key !== void 0) {
+      if (model === null) {
+        model = this.parentModel;
       }
-      this.insertChild(model, newTrait, target, key);
-    }
-    if (this.traits[newTrait.uid] === void 0) {
-      this.insertTraitMap(newTrait, target);
-      (this as Mutable<typeof this>).traitCount += 1;
-      this.willAttachTrait(newTrait, target);
-      this.onAttachTrait(newTrait, target);
-      this.initTrait(newTrait);
-      this.didAttachTrait(newTrait, target);
-      this.setCoherent(true);
-      this.decohereOutlets();
+      if (target === void 0) {
+        target = null;
+      }
+      if (key === void 0) {
+        key = this.traitKey(newTrait);
+      }
+      if (model !== null && (newTrait.model !== model || newTrait.key !== key)) {
+        if (target === null) {
+          target = this.getTargetChild(model, newTrait);
+        }
+        this.insertChild(model, newTrait, target, key);
+      }
+      if (this.traits[newTrait.uid] === void 0) {
+        this.insertTraitMap(newTrait, target);
+        (this as Mutable<typeof this>).traitCount += 1;
+        this.willAttachTrait(newTrait, target);
+        this.onAttachTrait(newTrait, target);
+        this.initTrait(newTrait);
+        this.didAttachTrait(newTrait, target);
+        this.setCoherent(true);
+        this.decohereOutlets();
+      }
     }
     return newTrait;
   };

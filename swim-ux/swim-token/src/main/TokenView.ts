@@ -17,14 +17,7 @@ import {Affinity, FastenerClass, Property, Animator} from "@swim/component";
 import {Length, R2Box} from "@swim/math";
 import type {Color} from "@swim/style";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
-import {
-  PositionGestureInput,
-  PositionGesture,
-  ViewContextType,
-  ViewFlags,
-  View,
-  ViewRef,
-} from "@swim/view";
+import {ViewFlags, View, ViewRef, PositionGestureInput, PositionGesture} from "@swim/view";
 import {HtmlViewInit, HtmlView, SvgView} from "@swim/dom";
 import {Graphics, PathContext, PathRenderer} from "@swim/graphics";
 import type {TokenViewObserver} from "./TokenViewObserver";
@@ -172,10 +165,10 @@ export class TokenView extends HtmlView {
       this.owner.headGesture.setView(null);
     },
     viewDidMount(headView: SvgView): void {
-      headView.on("click", this.owner.onClickHead);
+      headView.addEventListener("click", this.owner.onClickHead);
     },
     viewWillUnmount(headView: SvgView): void {
-      headView.off("click", this.owner.onClickHead);
+      headView.removeEventListener("click", this.owner.onClickHead);
     },
     viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, headView: SvgView): void {
       headView.fill.setState(theme.getOr(this.owner.fillLook, mood, null), timing, Affinity.Intrinsic);
@@ -277,10 +270,10 @@ export class TokenView extends HtmlView {
       this.owner.bodyGesture.setView(null);
     },
     viewDidMount(headView: SvgView): void {
-      headView.on("click", this.owner.onClickBody);
+      headView.addEventListener("click", this.owner.onClickBody);
     },
     viewWillUnmount(headView: SvgView): void {
-      headView.off("click", this.owner.onClickBody);
+      headView.removeEventListener("click", this.owner.onClickBody);
     },
     viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, bodyView: SvgView): void {
       bodyView.fill.setState(theme.getOr(this.owner.fillLook, mood, null), timing, Affinity.Intrinsic);
@@ -350,10 +343,10 @@ export class TokenView extends HtmlView {
       this.owner.footGesture.setView(null);
     },
     viewDidMount(footView: SvgView): void {
-      footView.on("click", this.owner.onClickFoot);
+      footView.addEventListener("click", this.owner.onClickFoot);
     },
     viewWillUnmount(footView: SvgView): void {
-      footView.off("click", this.owner.onClickFoot);
+      footView.removeEventListener("click", this.owner.onClickFoot);
     },
     viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, footView: SvgView): void {
       footView.fill.setState(theme.getOr(this.owner.fillLook, mood, null), timing, Affinity.Intrinsic);
@@ -471,15 +464,15 @@ export class TokenView extends HtmlView {
   readonly label!: ViewRef<this, HtmlView>;
   static readonly label: FastenerClass<TokenView["label"]>;
 
-  protected override needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
+  protected override needsProcess(processFlags: ViewFlags): ViewFlags {
     if ((processFlags & View.NeedsLayout) !== 0) {
       processFlags |= View.NeedsAnimate;
     }
     return processFlags;
   }
 
-  protected override onLayout(viewContext: ViewContextType<this>): void {
-    super.onLayout(viewContext);
+  protected override onLayout(): void {
+    super.onLayout();
     this.layoutToken();
   }
 

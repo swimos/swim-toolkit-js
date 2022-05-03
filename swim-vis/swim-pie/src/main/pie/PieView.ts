@@ -17,7 +17,7 @@ import {Affinity, FastenerClass, Animator} from "@swim/component";
 import {AnyLength, Length, AnyAngle, Angle, AnyR2Point, R2Point, R2Box} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {Look, ThemeAnimator} from "@swim/theme";
-import {ViewContextType, View, ViewRef, ViewSet} from "@swim/view";
+import {View, ViewRef, ViewSet} from "@swim/view";
 import {GraphicsViewInit, GraphicsView, TypesetView, TextRunView} from "@swim/graphics";
 import {AnySliceView, SliceView} from "../slice/SliceView";
 import type {PieViewObserver} from "./PieViewObserver";
@@ -207,8 +207,8 @@ export class PieView extends GraphicsView {
   };
   static readonly slices: FastenerClass<PieView["slices"]>;
 
-  protected override onLayout(viewContext: ViewContextType<this>): void {
-    super.onLayout(viewContext);
+  protected override onLayout(): void {
+    super.onLayout();
     this.layoutPie(this.viewFrame);
   }
 

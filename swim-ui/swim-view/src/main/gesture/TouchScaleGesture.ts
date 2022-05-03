@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import type {FastenerOwner} from "@swim/component";
+import type {View} from "../view/View";
 import type {ScaleGestureInput} from "./ScaleGestureInput";
 import {ScaleGestureClass, ScaleGesture} from "./ScaleGesture";
-import type {View} from "../view/View";
 
 /** @internal */
 export interface TouchScaleGesture<O = unknown, V extends View = View, X = unknown, Y = unknown> extends ScaleGesture<O, V, X, Y> {
@@ -52,23 +52,23 @@ export const TouchScaleGesture = (function (_super: typeof ScaleGesture) {
   const TouchScaleGesture = _super.extend("TouchScaleGesture", {}) as ScaleGestureClass<TouchScaleGesture<any, any, any, any>>;
 
   TouchScaleGesture.prototype.attachHoverEvents = function (this: TouchScaleGesture, view: View): void {
-    view.on("touchstart", this.onTouchStart as EventListener);
+    view.addEventListener("touchstart", this.onTouchStart as EventListener);
   };
 
   TouchScaleGesture.prototype.detachHoverEvents = function (this: TouchScaleGesture, view: View): void {
-    view.off("touchstart", this.onTouchStart as EventListener);
+    view.removeEventListener("touchstart", this.onTouchStart as EventListener);
   };
 
   TouchScaleGesture.prototype.attachPressEvents = function (this: TouchScaleGesture, view: View): void {
-    view.on("touchmove", this.onTouchMove as EventListener);
-    view.on("touchend", this.onTouchEnd as EventListener);
-    view.on("touchcancel", this.onTouchCancel as EventListener);
+    view.addEventListener("touchmove", this.onTouchMove as EventListener);
+    view.addEventListener("touchend", this.onTouchEnd as EventListener);
+    view.addEventListener("touchcancel", this.onTouchCancel as EventListener);
   };
 
   TouchScaleGesture.prototype.detachPressEvents = function (this: TouchScaleGesture, view: View): void {
-    view.off("touchmove", this.onTouchMove as EventListener);
-    view.off("touchend", this.onTouchEnd as EventListener);
-    view.off("touchcancel", this.onTouchCancel as EventListener);
+    view.removeEventListener("touchmove", this.onTouchMove as EventListener);
+    view.removeEventListener("touchend", this.onTouchEnd as EventListener);
+    view.removeEventListener("touchcancel", this.onTouchCancel as EventListener);
   };
 
   TouchScaleGesture.prototype.updateInput = function <X, Y>(this: TouchScaleGesture<unknown, View, X, Y>, input: ScaleGestureInput<X, Y>, event: TouchEvent, touch: Touch): void {

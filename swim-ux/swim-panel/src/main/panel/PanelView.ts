@@ -15,7 +15,7 @@
 import type {Class, Observes} from "@swim/util";
 import {Affinity, FastenerClass, Property} from "@swim/component";
 import {Look, Feel} from "@swim/theme";
-import {ViewContextType, ViewFlags, View, ViewRef, ViewSet} from "@swim/view";
+import {ViewFlags, View, ViewRef, ViewSet} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import type {PanelViewObserver} from "./PanelViewObserver";
 
@@ -287,12 +287,12 @@ export class PanelView extends HtmlView {
   readonly panes!: ViewSet<this, PanelView> & Observes<PanelView>;
   static readonly panes: FastenerClass<PanelView["panes"]>;
 
-  protected override onResize(viewContext: ViewContextType<this>): void {
-    super.onResize(viewContext);
-    this.resizePanel(viewContext);
+  protected override onResize(): void {
+    super.onResize();
+    this.resizePanel();
   }
 
-  protected resizePanel(viewContext: ViewContextType<this>): void {
+  protected resizePanel(): void {
     if (!this.paneLayout.derived) {
       const widthBasis = this.widthBasis.value;
       const heightBasis = this.heightBasis.value;
@@ -319,25 +319,21 @@ export class PanelView extends HtmlView {
     }
   }
 
-  protected override processChildren(processFlags: ViewFlags, viewContext: ViewContextType<this>,
-                                     processChild: (this: this, child: View, processFlags: ViewFlags,
-                                                    viewContext: ViewContextType<this>) => void): void {
+  protected override processChildren(processFlags: ViewFlags, processChild: (this: this, child: View, processFlags: ViewFlags) => void): void {
     if ((processFlags & View.NeedsResize) !== 0 && this.panes.viewCount !== 0) {
-      this.paneLayout.recohere(viewContext.updateTime);
+      this.paneLayout.recohere(this.updateTime);
       const paneLayout = this.paneLayout.value;
       if (paneLayout === "frame") {
-        this.resizeFrameChildren(processFlags, viewContext, processChild);
+        this.resizeFrameChildren(processFlags, processChild);
       } else {
-        this.resizeStackChildren(processFlags, viewContext, processChild);
+        this.resizeStackChildren(processFlags, processChild);
       }
     } else {
-      super.processChildren(processFlags, viewContext, processChild);
+      super.processChildren(processFlags, processChild);
     }
   }
 
-  protected resizeFrameChildren(processFlags: ViewFlags, viewContext: ViewContextType<this>,
-                                processChild: (this: this, child: View, processFlags: ViewFlags,
-                                               viewContext: ViewContextType<this>) => void): void {
+  protected resizeFrameChildren(processFlags: ViewFlags, processChild: (this: this, child: View, processFlags: ViewFlags) => void): void {
     let x = this.paddingLeft.pxValue();
     let y = this.paddingTop.pxValue();
     const widthBasis = this.widthBasis.value;
@@ -350,8 +346,7 @@ export class PanelView extends HtmlView {
     let rightView: PanelView | null = null;
 
     type self = this;
-    function resizeBlockChild(this: self, child: View, processFlags: ViewFlags,
-                              viewContext: ViewContextType<self>): void {
+    function resizeBlockChild(this: self, child: View, processFlags: ViewFlags): void {
       if (child instanceof PanelView) {
         if (rightView === null) { // allocate row
           let unitRowWidth = 0;
@@ -378,7 +373,7 @@ export class PanelView extends HtmlView {
         x += paneWidth;
       }
 
-      processChild.call(this, child, processFlags, viewContext);
+      processChild.call(this, child, processFlags);
 
       if (child instanceof PanelView) {
         rowHeight = Math.max(rowHeight, child.marginTop.pxValue() + child.height.pxValue() + child.marginBottom.pxValue());
@@ -390,7 +385,7 @@ export class PanelView extends HtmlView {
         }
       }
     }
-    super.processChildren(processFlags, viewContext, resizeBlockChild);
+    super.processChildren(processFlags, resizeBlockChild);
 
     if (widthBasis !== void 0) {
       this.width.setState(width, Affinity.Intrinsic);
@@ -400,9 +395,7 @@ export class PanelView extends HtmlView {
     }
   }
 
-  protected resizeStackChildren(processFlags: ViewFlags, viewContext: ViewContextType<this>,
-                                processChild: (this: this, child: View, processFlags: ViewFlags,
-                                               viewContext: ViewContextType<this>) => void): void {
+  protected resizeStackChildren(processFlags: ViewFlags, processChild: (this: this, child: View, processFlags: ViewFlags) => void): void {
     const x = this.paddingLeft.pxValue();
     let y = this.paddingTop.pxValue();
     const widthBasis = this.widthBasis.value;
@@ -411,8 +404,7 @@ export class PanelView extends HtmlView {
     const height = (heightBasis !== void 0 ? heightBasis : this.height.pxValue()) - y;
 
     type self = this;
-    function resizeStackChild(this: self, child: View, processFlags: ViewFlags,
-                              viewContext: ViewContextType<self>): void {
+    function resizeStackChild(this: self, child: View, processFlags: ViewFlags): void {
       if (child instanceof PanelView) {
         const paneHeight = Math.max(child.minPanelHeight.value, child.unitHeight.value * height);
         child.left.setState(x, Affinity.Intrinsic);
@@ -420,13 +412,13 @@ export class PanelView extends HtmlView {
         child.widthBasis.setValue(width - child.marginLeft.pxValue() - child.marginRight.pxValue(), Affinity.Intrinsic);
         child.heightBasis.setValue(paneHeight - child.marginTop.pxValue() - child.marginBottom.pxValue(), Affinity.Intrinsic);
       }
-      processChild.call(this, child, processFlags, viewContext);
+      processChild.call(this, child, processFlags);
       if (child instanceof PanelView) {
         child.visibility.setState(void 0, Affinity.Intrinsic);
         y += child.marginTop.pxValue() + child.height.pxValue() + child.marginBottom.pxValue();
       }
     }
-    super.processChildren(processFlags, viewContext, resizeStackChild);
+    super.processChildren(processFlags, resizeStackChild);
 
     if (widthBasis !== void 0) {
       this.width.setState(width, Affinity.Intrinsic);

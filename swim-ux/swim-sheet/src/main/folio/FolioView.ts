@@ -15,7 +15,7 @@
 import type {Class, Observes} from "@swim/util";
 import {Length} from "@swim/math";
 import {Affinity, FastenerClass, Property} from "@swim/component";
-import {ViewportInsets, ViewContextType, View, ViewRef} from "@swim/view";
+import {View, ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {BarView} from "@swim/toolbar";
 import {DrawerView} from "@swim/window";
@@ -59,15 +59,6 @@ export class FolioView extends HtmlView {
     },
   })
   readonly fullBleed!: Property<this, boolean>;
-
-  @Property<FolioView["edgeInsets"]>({
-    valueType: ViewportInsets,
-    value: null,
-    inherits: true,
-    updateFlags: View.NeedsResize,
-    equalValues: ViewportInsets.equal,
-  })
-  readonly edgeInsets!: Property<this, ViewportInsets | null>;
 
   @ViewRef<FolioView["appBar"]>({
     viewType: BarView,
@@ -151,9 +142,6 @@ export class FolioView extends HtmlView {
         let folioHeight = this.owner.height.state;
         folioHeight = folioHeight instanceof Length ? folioHeight : Length.px(this.owner.node.offsetHeight);
         let edgeInsets = this.owner.edgeInsets.value;
-        if (edgeInsets === void 0 && this.owner.edgeInsets.hasAffinity(Affinity.Intrinsic)) {
-          edgeInsets = this.owner.viewport.safeArea;
-        }
 
         const drawerView = this.owner.drawer.view;
         const drawerWidth = drawerView !== null ? drawerView.effectiveWidth.value : null;
@@ -205,26 +193,26 @@ export class FolioView extends HtmlView {
   readonly cover!: ViewRef<this, SheetView> & Observes<SheetView>;
   static readonly cover: FastenerClass<FolioView["cover"]>;
 
-  protected override onResize(viewContext: ViewContextType<this>): void {
-    super.onResize(viewContext);
-    this.resizeFolio(viewContext);
+  protected override onResize(): void {
+    super.onResize();
+    this.resizeFolio();
   }
 
-  protected resizeFolio(viewContext: ViewContextType<this>): void {
+  protected resizeFolio(): void {
     let folioStyle = this.folioStyle.value;
     if (this.folioStyle.hasAffinity(Affinity.Intrinsic)) {
-      folioStyle = this.viewportIdiom === "mobile" ? "stacked" : "unstacked";
+      folioStyle = this.viewIdiom === "mobile" ? "stacked" : "unstacked";
       this.folioStyle.setValue(folioStyle, Affinity.Intrinsic);
     }
 
     if (folioStyle === "stacked") {
-      this.resizeStacked(viewContext);
+      this.resizeStacked();
     } else if (folioStyle === "unstacked") {
-      this.resizeUnstacked(viewContext);
+      this.resizeUnstacked();
     }
   }
 
-  protected resizeStacked(viewContext: ViewContextType<this>): void {
+  protected resizeStacked(): void {
     this.drawer.removeView();
     this.appBar.removeView();
     this.stack.insertView(this);
@@ -235,24 +223,18 @@ export class FolioView extends HtmlView {
         coverView.remove();
       }
 
-      let edgeInsets = this.edgeInsets.value;
-      if (edgeInsets === void 0 && this.edgeInsets.hasAffinity(Affinity.Intrinsic)) {
-        edgeInsets = viewContext.viewport.safeArea;
-      }
+      const edgeInsets = this.edgeInsets.value;
       coverView.paddingLeft.setState(null, Affinity.Intrinsic);
       coverView.edgeInsets.setValue(edgeInsets, Affinity.Intrinsic);
     }
   }
 
-  protected resizeUnstacked(viewContext: ViewContextType<this>): void {
+  protected resizeUnstacked(): void {
     let folioWidth = this.width.state;
     folioWidth = folioWidth instanceof Length ? folioWidth : Length.px(this.node.offsetWidth);
     let folioHeight = this.height.state;
     folioHeight = folioHeight instanceof Length ? folioHeight : Length.px(this.node.offsetHeight);
     let edgeInsets = this.edgeInsets.value;
-    if (edgeInsets === void 0 && this.edgeInsets.hasAffinity(Affinity.Intrinsic)) {
-      edgeInsets = viewContext.viewport.safeArea;
-    }
 
     const drawerView = this.drawer.insertView();
     const drawerWidth = drawerView.effectiveWidth.value;
@@ -299,25 +281,25 @@ export class FolioView extends HtmlView {
     coverView.present(false);
   }
 
-  protected override didLayout(viewContext: ViewContextType<this>): void {
-    this.layoutFolio(viewContext);
-    super.didLayout(viewContext);
+  protected override didLayout(): void {
+    this.layoutFolio();
+    super.didLayout();
   }
 
-  protected layoutFolio(viewContext: ViewContextType<this>): void {
+  protected layoutFolio(): void {
     const folioStyle = this.folioStyle.value;
     if (folioStyle === "stacked") {
-      this.layoutStacked(viewContext);
+      this.layoutStacked();
     } else if (folioStyle === "unstacked") {
-      this.layoutUnstacked(viewContext);
+      this.layoutUnstacked();
     }
   }
 
-  protected layoutStacked(viewContext: ViewContextType<this>): void {
+  protected layoutStacked(): void {
     // hook
   }
 
-  protected layoutUnstacked(viewContext: ViewContextType<this>): void {
+  protected layoutUnstacked(): void {
     let folioWidth = this.width.state;
     folioWidth = folioWidth instanceof Length ? folioWidth : Length.px(this.node.offsetWidth);
     const drawerView = this.drawer.insertView();

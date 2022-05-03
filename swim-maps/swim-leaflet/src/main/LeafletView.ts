@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Class, AnyTiming, Timing} from "@swim/util";
-import {Affinity, FastenerClass} from "@swim/component";
+import {Class, AnyTiming, Timing} from "@swim/util";
+import {Affinity, FastenerClass, Property} from "@swim/component";
 import {GeoPoint} from "@swim/geo";
 import {Look, Mood} from "@swim/theme";
 import {View, ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import type {CanvasView} from "@swim/graphics";
-import {AnyGeoPerspective, MapView} from "@swim/map";
+import {AnyGeoPerspective, GeoViewport, MapView} from "@swim/map";
 import {LeafletViewport} from "./LeafletViewport";
 import type {LeafletViewObserver} from "./LeafletViewObserver";
 
@@ -28,12 +28,6 @@ export class LeafletView extends MapView {
   constructor(map: L.Map) {
     super();
     this.map = map;
-    Object.defineProperty(this, "geoViewport", {
-      value: LeafletViewport.create(map),
-      writable: true,
-      enumerable: true,
-      configurable: true,
-    });
     this.onMapRender = this.onMapRender.bind(this);
     this.onMoveStart = this.onMoveStart.bind(this);
     this.onMoveEnd = this.onMoveEnd.bind(this);
@@ -50,38 +44,32 @@ export class LeafletView extends MapView {
     map.on("moveend", this.onMoveEnd);
   }
 
-  override readonly geoViewport!: LeafletViewport;
-
-  protected willSetGeoViewport(newGeoViewport: LeafletViewport, oldGeoViewport: LeafletViewport): void {
-    this.callObservers("viewWillSetGeoViewport", newGeoViewport, oldGeoViewport, this);
-  }
-
-  protected onSetGeoViewport(newGeoViewport: LeafletViewport, oldGeoViewport: LeafletViewport): void {
-    // hook
-  }
-
-  protected didSetGeoViewport(newGeoViewport: LeafletViewport, oldGeoViewport: LeafletViewport): void {
-    this.callObservers("viewDidSetGeoViewport", newGeoViewport, oldGeoViewport, this);
-  }
-
-  protected updateGeoViewport(): boolean {
-    const oldGeoViewport = this.geoViewport;
-    const newGeoViewport = LeafletViewport.create(this.map);
-    if (!newGeoViewport.equals(oldGeoViewport)) {
-      this.willSetGeoViewport(newGeoViewport, oldGeoViewport);
-      (this as Mutable<this>).geoViewport = newGeoViewport;
-      this.onSetGeoViewport(newGeoViewport, oldGeoViewport);
-      this.didSetGeoViewport(newGeoViewport, oldGeoViewport);
-      return true;
-    }
-    return false;
-  }
+  @Property<LeafletView["geoViewport"]>({
+    extends: true,
+    initValue(): GeoViewport {
+      return LeafletViewport.create(this.owner.map);
+    },
+    willSetValue(newGeoViewport: GeoViewport, oldGeoViewport: GeoViewport): void {
+      this.owner.callObservers("viewWillSetGeoViewport", newGeoViewport, oldGeoViewport, this.owner);
+    },
+    didSetValue(newGeoViewport: GeoViewport, oldGeoViewport: GeoViewport): void {
+      this.owner.callObservers("viewDidSetGeoViewport", newGeoViewport, oldGeoViewport, this.owner);
+      const immediate = !this.owner.hidden && !this.owner.culled;
+      this.owner.requireUpdate(View.NeedsProject, immediate);
+    },
+    update(): void {
+      if (this.hasAffinity(Affinity.Intrinsic)) {
+        this.setValue(LeafletViewport.create(this.owner.map), Affinity.Intrinsic);
+      }
+    },
+  })
+  override readonly geoViewport!: Property<this, GeoViewport> & MapView["geoViewport"] & {
+    /** @internal */
+    update(): void;
+  };
 
   protected onMapRender(): void {
-    if (this.updateGeoViewport()) {
-      const immediate = !this.hidden && !this.culled;
-      this.requireUpdate(View.NeedsProject, immediate);
-    }
+    this.geoViewport.update();
   }
 
   protected onMoveStart(): void {
@@ -94,7 +82,7 @@ export class LeafletView extends MapView {
 
   override moveTo(geoPerspective: AnyGeoPerspective, timing?: AnyTiming | boolean): void {
     const options: L.ZoomPanOptions = {};
-    const geoViewport = this.geoViewport;
+    const geoViewport = this.geoViewport.value;
     let geoCenter = geoPerspective.geoCenter;
     if (geoCenter !== void 0 && geoCenter !== null) {
       geoCenter = GeoPoint.fromAny(geoCenter);

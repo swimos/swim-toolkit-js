@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, Instance, Arrays, Creatable, Observes, AnyTiming} from "@swim/util";
-import {Affinity, FastenerClass} from "@swim/component";
+import {Class, Instance, Arrays, Creatable, Observes} from "@swim/util";
+import {Affinity, FastenerClass, Provider} from "@swim/component";
 import {R2Box} from "@swim/math";
 import {ThemeMatrix, Theme} from "@swim/theme";
 import {ToAttributeString, ToStyleString, ToCssValue} from "@swim/style";
-import {ThemeProvider, View, Viewport} from "@swim/view";
+import {View, ViewportColorScheme, ViewportService, StylerService} from "@swim/view";
 import type {StyleContext} from "../css/StyleContext";
 import {
   ViewNodeType,
@@ -36,9 +36,11 @@ import type {
   ViewWillSetStyle,
   ViewDidSetStyle,
 } from "./ElementViewObserver";
-import {DomService} from "../"; // forward import
 import {HtmlView} from "../"; // forward import
 import {SvgView} from "../"; // forward import
+import {DomService} from "../"; // forward import
+import {ModalOptions, ModalView} from "../"; // forward import
+import {ModalService} from "../"; // forward import
 
 /** @public */
 export interface ViewElement extends Element, ElementCSSInlineStyle {
@@ -79,20 +81,84 @@ export class ElementView extends NodeView implements StyleContext {
 
   override readonly node!: Element & ElementCSSInlineStyle;
 
-  @ThemeProvider({
+  @Provider<ElementView["viewport"]>({
+    extends: true,
+    serviceDidSetViewportColorScheme(colorScheme: ViewportColorScheme): void {
+      this.owner.detectTheme();
+    },
+  })
+  override readonly viewport!: Provider<this, ViewportService> & NodeView["viewport"] & Observes<ViewportService>;
+  static override readonly viewport: FastenerClass<ElementView["viewport"]>;
+
+  @Provider<ElementView["styler"]>({
     extends: true,
     lazy: false,
   })
-  override readonly themeProvider!: ThemeProvider<this>;
-  static override readonly themeProvider: FastenerClass<ElementView["themeProvider"]>;
+  override readonly styler!: Provider<this, StylerService> & NodeView["styler"];
+  static override readonly styler: FastenerClass<ElementView["styler"]>;
+
+  @Provider<ElementView["dom"]>({
+    get serviceType(): typeof DomService { // avoid static forward reference
+      return DomService;
+    },
+    mountRootService(service: DomService,): void {
+      Provider.prototype.mountRootService.call(this, service);
+      service.roots.addView(this.owner);
+    },
+    unmountRootService(service: DomService): void {
+      Provider.prototype.unmountService.call(this, service);
+      service.roots.removeView(this.owner);
+    },
+  })
+  readonly dom!: Provider<this, DomService>;
+  static readonly dom: FastenerClass<ElementView["dom"]>;
+
+  @Provider<ElementView["modal"]>({
+    get serviceType(): typeof ModalService { // avoid static forward reference
+      return ModalService;
+    },
+    present(modalView?: ModalView, options?: ModalOptions): void {
+      if (modalView === void 0 && ModalView.is(this.owner)) {
+        modalView = this.owner;
+      }
+      if (modalView !== void 0) {
+        this.getService().presentModal(modalView, options);
+      }
+    },
+    dismiss(modalView?: ModalView): void {
+      if (modalView === void 0 && ModalView.is(this.owner)) {
+        modalView = this.owner;
+      }
+      if (modalView !== void 0) {
+        this.getService().dismissModal(modalView);
+      }
+    },
+    toggle(modalView?: ModalView, options?: ModalOptions): void {
+      if (modalView === void 0 && ModalView.is(this.owner)) {
+        modalView = this.owner;
+      }
+      if (modalView !== void 0) {
+        this.getService().toggleModal(modalView, options);
+      }
+    },
+  })
+  readonly modal!: Provider<this, ModalService> & {
+    present(modalView?: ModalView, options?: ModalOptions): void,
+    dismiss(modalView?: ModalView): void,
+    toggle(modalView?: ModalView): void,
+  };
+  static readonly modal: FastenerClass<ElementView["modal"]>;
 
   protected detectTheme(): void {
-    const themeName = this.node.getAttribute("swim-theme");
-    if (themeName !== null && themeName !== "") {
+    let themeName = this.node.getAttribute("swim-theme");
+    if (themeName === "") {
+      themeName = "auto";
+    }
+    if (themeName !== null) {
       let theme: ThemeMatrix | undefined;
       if (themeName === "auto") {
-        const viewport = Viewport.detect();
-        const colorScheme = viewport.colorScheme;
+        const viewportService = this.viewport.getService();
+        const colorScheme = viewportService.colorScheme.value;
         if (colorScheme === "dark") {
           theme = Theme.dark;
         } else {
@@ -104,17 +170,11 @@ export class ElementView extends NodeView implements StyleContext {
         theme = DomService.eval(themeName) as ThemeMatrix | undefined;
       }
       if (theme instanceof ThemeMatrix) {
-        this.theme.setValue(theme, Affinity.Intrinsic);
+        this.theme.setValue(theme, Affinity.Extrinsic);
       } else {
         throw new TypeError("unknown swim-theme: " + themeName);
       }
     }
-  }
-
-  /** @internal */
-  protected override updateTheme(timing?: AnyTiming | boolean): void {
-    this.detectTheme();
-    super.updateTheme(timing);
   }
 
   getAttribute(attributeName: string): string | null {
@@ -317,20 +377,16 @@ export class ElementView extends NodeView implements StyleContext {
                      bounds.right + scrollX, bounds.bottom + scrollY);
   }
 
-  override on<K extends keyof ElementEventMap>(type: K, listener: (this: Element, event: ElementEventMap[K]) => unknown,
-                                               options?: AddEventListenerOptions | boolean): this;
-  override on(type: string, listener: EventListenerOrEventListenerObject, options?: AddEventListenerOptions | boolean): this;
-  override on(type: string, listener: EventListenerOrEventListenerObject, options?: AddEventListenerOptions | boolean): this {
+  override addEventListener<K extends keyof ElementEventMap>(type: K, listener: (this: Element, event: ElementEventMap[K]) => unknown, options?: AddEventListenerOptions | boolean): void;
+  override addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: AddEventListenerOptions | boolean): void;
+  override addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: AddEventListenerOptions | boolean): void {
     this.node.addEventListener(type, listener, options);
-    return this;
   }
 
-  override off<K extends keyof ElementEventMap>(type: K, listener: (this: Element, event: ElementEventMap[K]) => unknown,
-                                                options?: EventListenerOptions | boolean): this;
-  override off(type: string, listener: EventListenerOrEventListenerObject, options?: EventListenerOptions | boolean): this;
-  override off(type: string, listener: EventListenerOrEventListenerObject, options?: EventListenerOptions | boolean): this {
+  override removeEventListener<K extends keyof ElementEventMap>(type: K, listener: (this: Element, event: ElementEventMap[K]) => unknown, options?: EventListenerOptions | boolean): void;
+  override removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: EventListenerOptions | boolean): void;
+  override removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: EventListenerOptions | boolean): void {
     this.node.removeEventListener(type, listener, options);
-    return this;
   }
 
   /** @internal */
@@ -365,6 +421,21 @@ export class ElementView extends NodeView implements StyleContext {
     }
     if (observer.viewDidSetStyle !== void 0) {
       this.observerCache.viewDidSetStyleObservers = Arrays.removed(observer as ViewDidSetStyle, this.observerCache.viewDidSetStyleObservers);
+    }
+  }
+
+  protected override onMount(): void {
+    super.onMount();
+    if (this.node.hasAttribute("swim-theme")) {
+      this.detectTheme();
+      this.viewport.getService().observe(this.viewport);
+    }
+  }
+
+  protected override onUnmount(): void {
+    super.onUnmount();
+    if (this.node.hasAttribute("swim-theme")) {
+      this.viewport.getService().unobserve(this.viewport);
     }
   }
 

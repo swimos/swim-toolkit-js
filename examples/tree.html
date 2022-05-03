@@ -26,8 +26,8 @@ const containerView = swim.HtmlView.create("div")
   .userSelect("none");
 
 containerView.observe({
-  viewWillResize(viewContext, view) {
-    if (viewContext.viewportIdiom === "desktop") {
+  viewWillResize(view) {
+    if (view.viewIdiom === "desktop") {
       view.margin(60);
     } else {
       view.margin(0);

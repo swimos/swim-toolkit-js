@@ -40,13 +40,13 @@ Theme.light = (function (): ThemeMatrix {
   const disabledColor = Color.parse("#7b7c7d");
   const inactiveColor = Color.parse("#7b7c7d");
   const warningColor = Color.parse("#fec309");
-  const alertColor = Color.parse("#fc2125");
+  const alertColor = Color.parse("#e94d20");
 
   const selectedColor = Color.parse("#e0e0e1");
-  const primarySelectedColor = Color.parse("#a3e0db");
+  const primarySelectedColor = Color.parse("#b2e7e3");
   const secondarySelectedColor = Color.parse("#b6dff7");
   const warningSelectedColor = Color.parse("#f9e8b2");
-  const alertSelectedColor = Color.parse("#ffcbcc");
+  const alertSelectedColor = Color.parse("#ffbdaa");
 
   const backgroundColor = Color.parse("#f9f9f9");
   const borderColor = Color.parse("#000000").alpha(0.25);
@@ -237,6 +237,7 @@ Theme.light = (function (): ThemeMatrix {
     [Look.statusColor, Color.black(0.8)],
     [Look.accentColor, Color.black(0.8)],
     [Look.backgroundColor, Color.black(0.8)],
+    [Look.selectedColor, Color.black(0.8)],
   );
 
   const transparentFeel = FeelVector.of(

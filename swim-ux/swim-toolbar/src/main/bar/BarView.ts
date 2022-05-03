@@ -17,7 +17,7 @@ import {Affinity, FastenerClass, Property, Animator} from "@swim/component";
 import {ConstraintProperty} from "@swim/constraint";
 import {AnyLength, Length} from "@swim/math";
 import {Feel, ThemeConstraintAnimator} from "@swim/theme";
-import {ViewportInsets, ViewContextType, ViewFlags, View, ViewSet} from "@swim/view";
+import {ViewInsets, ViewFlags, View, ViewSet} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {AnyBarLayout, BarLayout} from "../layout/BarLayout";
 import {ToolView} from "../tool/ToolView";
@@ -110,13 +110,27 @@ export class BarView extends HtmlView {
   readonly effectiveHeight!: ConstraintProperty<this, Length | null, AnyLength | null>;
 
   @Property<BarView["edgeInsets"]>({
-    valueType: ViewportInsets,
-    value: null,
-    inherits: true,
-    updateFlags: View.NeedsResize,
-    equalValues: ViewportInsets.equal,
+    extends: true,
+    init(): void {
+      this.outletValue = this.value;
+    },
+    getOutletValue(outlet: Property<unknown, ViewInsets>): ViewInsets {
+      return this.outletValue;
+    },
+    setOutletValue(newOutletValue: ViewInsets): void {
+      const oldOutletValue = this.outletValue;
+      if (!this.equalValues(newOutletValue, oldOutletValue)) {
+        this.outletValue = newOutletValue;
+        this.decohereOutlets();
+      }
+    },
   })
-  readonly edgeInsets!: Property<this, ViewportInsets | null>;
+  override readonly edgeInsets!: Property<this, ViewInsets> & HtmlView["edgeInsets"] & {
+    /** @internal */
+    outletValue: ViewInsets,
+    /** @internal */
+    setOutletValue(newOutletValue: ViewInsets): void;
+  };
 
   getTool<F extends Class<ToolView>>(key: string, toolViewClass: F): InstanceType<F> | null;
   getTool(key: string): ToolView | null;
@@ -161,33 +175,26 @@ export class BarView extends HtmlView {
   readonly tools!: ViewSet<this, ToolView>;
   static readonly tools: FastenerClass<BarView["tools"]>;
 
-  protected override onResize(viewContext: ViewContextType<this>): void {
-    super.onResize(viewContext);
-    this.resizeBar(viewContext);
+  protected override onResize(): void {
+    super.onResize();
+    this.resizeBar();
   }
 
-  protected resizeBar(viewContext: ViewContextType<this>): void {
+  protected resizeBar(): void {
     const placement = this.placement.value;
     if (placement === "top") {
-      this.resizeBarTop(viewContext);
+      this.resizeBarTop();
     } else if (placement === "bottom") {
-      this.resizeBarBottom(viewContext);
+      this.resizeBarBottom();
     } else if (placement === "none") {
-      this.resizeBarNone(viewContext);
+      this.resizeBarNone();
     }
   }
 
-  protected resizeBarTop(viewContext: ViewContextType<this>): void {
-    let edgeInsets = this.edgeInsets.inletValue;
-    if (edgeInsets === void 0) {
-      edgeInsets = null;
-    }
-    if (edgeInsets === null) {
-      edgeInsets = viewContext.viewport.safeArea;
-    }
-
+  protected resizeBarTop(): void {
     this.addClass("bar-top")
         .removeClass("bar-bottom");
+    const edgeInsets = this.edgeInsets.value;
     let height = this.barHeight.value;
     if (height !== null) {
       height = height.plus(edgeInsets.insetTop);
@@ -198,12 +205,12 @@ export class BarView extends HtmlView {
     }
     this.effectiveHeight.setValue(height, Affinity.Intrinsic);
 
-    this.edgeInsets.setValue({
+    this.edgeInsets.setOutletValue({
       insetTop: edgeInsets.insetTop,
       insetRight: edgeInsets.insetRight,
       insetBottom: 0,
       insetLeft: edgeInsets.insetLeft,
-    }, Affinity.Intrinsic);
+    });
 
     const oldLayout = !this.layout.derived ? this.layout.state : null;
     if (oldLayout !== void 0 && oldLayout !== null) {
@@ -217,17 +224,10 @@ export class BarView extends HtmlView {
     }
   }
 
-  protected resizeBarBottom(viewContext: ViewContextType<this>): void {
-    let edgeInsets = this.edgeInsets.inletValue;
-    if (edgeInsets === void 0) {
-      edgeInsets = null;
-    }
-    if (edgeInsets === null) {
-      edgeInsets = viewContext.viewport.safeArea;
-    }
-
+  protected resizeBarBottom(): void {
     this.removeClass("bar-top")
         .addClass("bar-bottom");
+    const edgeInsets = this.edgeInsets.value;
     let height = this.barHeight.value;
     if (height !== null) {
       height = height.plus(edgeInsets.insetBottom);
@@ -238,12 +238,12 @@ export class BarView extends HtmlView {
     }
     this.effectiveHeight.setValue(height, Affinity.Intrinsic);
 
-    this.edgeInsets.setValue({
+    this.edgeInsets.setOutletValue({
       insetTop: 0,
       insetRight: edgeInsets.insetRight,
       insetBottom: edgeInsets.insetBottom,
       insetLeft: edgeInsets.insetLeft,
-    }, Affinity.Intrinsic);
+    });
 
     const oldLayout = !this.layout.derived ? this.layout.state : null;
     if (oldLayout !== void 0 && oldLayout !== null) {
@@ -257,17 +257,17 @@ export class BarView extends HtmlView {
     }
   }
 
-  protected resizeBarNone(viewContext: ViewContextType<this>): void {
+  protected resizeBarNone(): void {
     this.removeClass("bar-top")
         .removeClass("bar-bottom");
     this.effectiveHeight.setValue(this.height.value, Affinity.Intrinsic);
 
-    this.edgeInsets.setValue({
+    this.edgeInsets.setOutletValue({
       insetTop: 0,
       insetRight: 0,
       insetBottom: 0,
       insetLeft: 0,
-    }, Affinity.Intrinsic);
+    });
 
     const oldLayout = !this.layout.derived ? this.layout.state : null;
     if (oldLayout !== void 0 && oldLayout !== null) {
@@ -279,19 +279,15 @@ export class BarView extends HtmlView {
     }
   }
 
-  protected override displayChildren(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                                     displayChild: (this: this, child: View, displayFlags: ViewFlags,
-                                                    viewContext: ViewContextType<this>) => void): void {
+  protected override displayChildren(displayFlags: ViewFlags, displayChild: (this: this, child: View, displayFlags: ViewFlags) => void): void {
     if ((displayFlags & View.NeedsLayout) !== 0) {
-      this.layoutChildren(displayFlags, viewContext, displayChild);
+      this.layoutChildren(displayFlags, displayChild);
     } else {
-      super.displayChildren(displayFlags, viewContext, displayChild);
+      super.displayChildren(displayFlags, displayChild);
     }
   }
 
-  protected layoutChildren(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                           displayChild: (this: this, child: View, displayFlags: ViewFlags,
-                                          viewContext: ViewContextType<this>) => void): void {
+  protected layoutChildren(displayFlags: ViewFlags, displayChild: (this: this, child: View, displayFlags: ViewFlags) => void): void {
     const layout = this.layout.value;
     let height: Length | number | null = this.height.state;
     height = height instanceof Length ? height.pxValue() : this.node.offsetHeight;
@@ -300,8 +296,7 @@ export class BarView extends HtmlView {
     const toolBottom = edgeInsets !== null ? Length.px(edgeInsets.insetBottom) : null;
     const toolHeight = this.barHeight.value;
     type self = this;
-    function layoutChild(this: self, child: View, displayFlags: ViewFlags,
-                         viewContext: ViewContextType<self>): void {
+    function layoutChild(this: self, child: View, displayFlags: ViewFlags): void {
       if (child instanceof ToolView) {
         const key = child.key;
         const tool = layout !== null && key !== void 0 ? layout.getTool(key) : null;
@@ -328,14 +323,14 @@ export class BarView extends HtmlView {
           child.pointerEvents.setState(void 0, Affinity.Transient);
         }
       }
-      displayChild.call(this, child, displayFlags, viewContext);
+      displayChild.call(this, child, displayFlags);
     }
-    super.displayChildren(displayFlags, viewContext, layoutChild);
+    super.displayChildren(displayFlags, layoutChild);
   }
 
-  protected override didLayout(viewContext: ViewContextType<this>): void {
+  protected override didLayout(): void {
     this.layoutTools();
-    super.didLayout(viewContext);
+    super.didLayout();
   }
 
   protected layoutTools(): void {

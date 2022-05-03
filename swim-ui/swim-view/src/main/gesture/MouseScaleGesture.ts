@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import type {FastenerOwner} from "@swim/component";
+import type {View} from "../view/View";
 import type {ScaleGestureInput} from "./ScaleGestureInput";
 import {ScaleGestureClass, ScaleGesture} from "./ScaleGesture";
-import type {View} from "../view/View";
 
 /** @internal */
 export interface MouseScaleGesture<O = unknown, V extends View = View, X = unknown, Y = unknown> extends ScaleGesture<O, V, X, Y> {
@@ -63,17 +63,17 @@ export const MouseScaleGesture = (function (_super: typeof ScaleGesture) {
   }) as ScaleGestureClass<MouseScaleGesture<any, any, any, any>>;
 
   MouseScaleGesture.prototype.attachHoverEvents = function (this: MouseScaleGesture, view: View): void {
-    view.on("mouseenter", this.onMouseEnter as EventListener);
-    view.on("mouseleave", this.onMouseLeave as EventListener);
-    view.on("mousedown", this.onMouseDown as EventListener);
-    view.on("wheel", this.onWheel as EventListener);
+    view.addEventListener("mouseenter", this.onMouseEnter as EventListener);
+    view.addEventListener("mouseleave", this.onMouseLeave as EventListener);
+    view.addEventListener("mousedown", this.onMouseDown as EventListener);
+    view.addEventListener("wheel", this.onWheel as EventListener);
   };
 
   MouseScaleGesture.prototype.detachHoverEvents = function (this: MouseScaleGesture, view: View): void {
-    view.off("mouseenter", this.onMouseEnter as EventListener);
-    view.off("mouseleave", this.onMouseLeave as EventListener);
-    view.off("mousedown", this.onMouseDown as EventListener);
-    view.off("wheel", this.onWheel as EventListener);
+    view.removeEventListener("mouseenter", this.onMouseEnter as EventListener);
+    view.removeEventListener("mouseleave", this.onMouseLeave as EventListener);
+    view.removeEventListener("mousedown", this.onMouseDown as EventListener);
+    view.removeEventListener("wheel", this.onWheel as EventListener);
   };
 
   MouseScaleGesture.prototype.attachPressEvents = function (this: MouseScaleGesture, view: View): void {

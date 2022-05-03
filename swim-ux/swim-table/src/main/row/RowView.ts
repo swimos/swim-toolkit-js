@@ -12,32 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Class, Instance, Timing, Creatable, Observes} from "@swim/util";
+import type {Class, Instance, Timing, Creatable, Observes} from "@swim/util";
 import {Affinity, FastenerClass, Property} from "@swim/component";
 import {AnyLength, Length, R2Box} from "@swim/math";
 import {AnyExpansion, Expansion, ExpansionAnimator} from "@swim/style";
 import {Look, ThemeConstraintAnimator} from "@swim/theme";
-import {
-  PositionGestureInput,
-  ViewContextType,
-  ViewContext,
-  ViewFlags,
-  View,
-  ViewRef,
-} from "@swim/view";
+import {ViewFlags, View, ViewRef, PositionGestureInput} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {AnyTableLayout, TableLayout} from "../layout/TableLayout";
 import type {CellView} from "../cell/CellView";
 import {LeafView} from "../leaf/LeafView";
 import type {RowViewObserver} from "./RowViewObserver";
-import type {TableViewContext} from "../table/TableViewContext";
 import {TableView} from "../"; // forward reference
 
 /** @public */
 export class RowView extends HtmlView {
   constructor(node: HTMLElement) {
     super(node);
-    this.visibleFrame = new R2Box(0, 0, window.innerWidth, window.innerHeight);
     this.initRow();
   }
 
@@ -47,8 +38,6 @@ export class RowView extends HtmlView {
   }
 
   override readonly observerType?: Class<RowViewObserver>;
-
-  override readonly contextType?: Class<TableViewContext>;
 
   @Property({valueType: TableLayout, value: null, inherits: true, updateFlags: View.NeedsLayout})
   readonly layout!: Property<this, TableLayout | null, AnyTableLayout | null>;
@@ -262,14 +251,36 @@ export class RowView extends HtmlView {
   @ExpansionAnimator({value: null, inherits: true, updateFlags: View.NeedsLayout})
   readonly disclosing!: ExpansionAnimator<this, Expansion | null, AnyExpansion | null>;
 
-  /** @internal */
-  readonly visibleFrame!: R2Box;
+  @Property<TableView["visibleFrame"]>({
+    valueType: R2Box,
+    value: null,
+    inherits: true,
+    init(): void {
+      this.outletValue = null;
+    },
+    getOutletValue(outlet: Property<unknown, R2Box | null>): R2Box | null {
+      return this.outletValue;
+    },
+    setOutletValue(newOutletValue: R2Box | null): void {
+      const oldOutletValue = this.outletValue;
+      if (!this.equalValues(newOutletValue, oldOutletValue)) {
+        this.outletValue = newOutletValue;
+        this.decohereOutlets();
+      }
+    },
+  })
+  readonly visibleFrame!: Property<this, R2Box | null> & {
+    /** @internal */
+    outletValue: R2Box | null,
+    /** @internal */
+    setOutletValue(newOutletValue: R2Box | null): void,
+  };
 
-  protected detectVisibleFrame(viewContext: ViewContext): R2Box {
+  protected detectVisibleFrame(): R2Box {
     const xBleed = 0;
     const yBleed = this.rowHeight.getValueOr(Length.zero()).pxValue();
-    const parentVisibleFrame = (viewContext as TableViewContext).visibleFrame as R2Box | undefined;
-    if (parentVisibleFrame !== void 0) {
+    const parentVisibleFrame = this.visibleFrame.value;
+    if (parentVisibleFrame !== null) {
       let left: Length | number | null = this.left.state;
       left = left instanceof Length ? left.pxValue() : 0;
       let top: Length | number | null = this.top.state;
@@ -286,35 +297,27 @@ export class RowView extends HtmlView {
     }
   }
 
-  override extendViewContext(viewContext: ViewContext): ViewContextType<this> {
-    const treeViewContext = Object.create(viewContext);
-    treeViewContext.visibleFrame = this.visibleFrame;
-    return treeViewContext;
+  protected override onProcess(processFlags: ViewFlags): void {
+    super.onProcess(processFlags);
+    const visibleFrame = this.detectVisibleFrame();
+    this.visibleFrame.setOutletValue(visibleFrame);
   }
 
-  protected override onProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    super.onProcess(processFlags, viewContext);
-    const visibleFrame = this.detectVisibleFrame(Object.getPrototypeOf(viewContext));
-    (this as Mutable<this>).visibleFrame = visibleFrame;
-    (viewContext as Mutable<ViewContextType<this>>).visibleFrame = this.visibleFrame;
-  }
-
-  protected override needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
+  protected override needsProcess(processFlags: ViewFlags): ViewFlags {
     if ((processFlags & View.NeedsResize) !== 0) {
       processFlags |= View.NeedsScroll;
     }
     return processFlags;
   }
 
-  protected override onDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    super.onDisplay(displayFlags, viewContext);
-    const visibleFrame = this.detectVisibleFrame(Object.getPrototypeOf(viewContext));
-    (this as Mutable<this>).visibleFrame = visibleFrame;
-    (viewContext as Mutable<ViewContextType<this>>).visibleFrame = this.visibleFrame;
+  protected override onDisplay(displayFlags: ViewFlags): void {
+    super.onDisplay(displayFlags);
+    const visibleFrame = this.detectVisibleFrame();
+    this.visibleFrame.setOutletValue(visibleFrame);
   }
 
-  protected override onLayout(viewContext: ViewContextType<this>): void {
-    super.onLayout(viewContext);
+  protected override onLayout(): void {
+    super.onLayout();
     this.resizeRow();
     const leafView = this.leaf.view;
     if (leafView !== null) {
@@ -347,9 +350,9 @@ export class RowView extends HtmlView {
     leafView.width.setState(width, Affinity.Intrinsic);
   }
 
-  protected override didLayout(viewContext: ViewContextType<this>): void {
+  protected override didLayout(): void {
     this.layoutRow();
-    super.didLayout(viewContext);
+    super.didLayout();
   }
 
   protected layoutRow(): void {

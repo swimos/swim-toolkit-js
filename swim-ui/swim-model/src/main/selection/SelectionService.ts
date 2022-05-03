@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, Lazy} from "@swim/util";
+import type {Class} from "@swim/util";
 import {Service} from "@swim/component";
 import type {SelectionServiceObserver} from "./SelectionServiceObserver";
 import type {Model} from "../model/Model";
@@ -24,13 +24,13 @@ export interface SelectionOptions {
 }
 
 /** @public */
-export class SelectionService<M = unknown> extends Service<M> {
+export class SelectionService extends Service {
   constructor() {
     super();
     this.selections = [];
   }
 
-  override readonly observerType?: Class<SelectionServiceObserver<M>>;
+  override readonly observerType?: Class<SelectionServiceObserver>;
 
   readonly selections: ReadonlyArray<Model>;
 
@@ -215,10 +215,5 @@ export class SelectionService<M = unknown> extends Service<M> {
         this.didUnselectAll();
       }
     }
-  }
-
-  @Lazy
-  static global<M>(): SelectionService<M> {
-    return new SelectionService();
   }
 }

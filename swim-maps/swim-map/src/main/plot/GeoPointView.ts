@@ -18,7 +18,7 @@ import {AnyLength, Length, AnyR2Point, R2Point, R2Box} from "@swim/math";
 import {AnyGeoPoint, GeoPointInit, GeoPointTuple, GeoPoint} from "@swim/geo";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
-import {ViewContextType, ViewFlags, View, ViewRef} from "@swim/view";
+import {ViewFlags, View, ViewRef} from "@swim/view";
 import {GraphicsView, TypesetView, TextRunView, CanvasContext, CanvasRenderer} from "@swim/graphics";
 import {GeoViewInit, GeoView} from "../geo/GeoView";
 import {GeoRippleOptions, GeoRippleView} from "../effect/GeoRippleView";
@@ -179,26 +179,26 @@ export class GeoPointView extends GeoView {
     }
   }
 
-  protected override needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
+  protected override needsProcess(processFlags: ViewFlags): ViewFlags {
     if ((processFlags & View.NeedsProject) !== 0 && this.label.view !== null) {
       this.requireUpdate(View.NeedsLayout);
     }
     return processFlags;
   }
 
-  protected override onProject(viewContext: ViewContextType<this>): void {
-    super.onProject(viewContext);
+  protected override onProject(): void {
+    super.onProject();
     if (this.viewPoint.hasAffinity(Affinity.Intrinsic)) {
-      const viewPoint = viewContext.geoViewport.project(this.geoPoint.getValue());
+      const viewPoint = this.geoViewport.value.project(this.geoPoint.getValue());
       this.viewPoint.setInterpolatedValue(viewPoint, viewPoint);
     }
   }
 
-  protected override onLayout(viewContext: ViewContextType<this>): void {
-    super.onLayout(viewContext);
+  protected override onLayout(): void {
+    super.onLayout();
     const labelView = this.label.view;
     if (labelView !== null) {
-      this.layoutLabel(labelView, viewContext.viewFrame);
+      this.layoutLabel(labelView, this.viewFrame);
     }
   }
 
@@ -235,10 +235,10 @@ export class GeoPointView extends GeoView {
     return new R2Box(x - hitRadius, y - hitRadius, x + hitRadius, y + hitRadius);
   }
 
-  protected override hitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
-    const renderer = viewContext.renderer;
+  protected override hitTest(x: number, y: number): GraphicsView | null {
+    const renderer = this.renderer.value;
     if (renderer instanceof CanvasRenderer) {
-      return this.hitTestPoint(x, y, renderer.context, viewContext.viewFrame);
+      return this.hitTestPoint(x, y, renderer.context, this.viewFrame);
     }
     return null;
   }

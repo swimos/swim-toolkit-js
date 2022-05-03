@@ -17,7 +17,7 @@ import {Affinity, FastenerClass, Animator} from "@swim/component";
 import {AnyLength, Length, AnyAngle, Angle, AnyR2Point, R2Point, R2Box} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {Look, ThemeAnimator} from "@swim/theme";
-import {ViewContextType, View, ViewRef} from "@swim/view";
+import {View, ViewRef} from "@swim/view";
 import {
   GraphicsViewInit,
   GraphicsView,
@@ -182,14 +182,14 @@ export class SliceView extends GraphicsView {
   };
   static readonly legend: FastenerClass<SliceView["legend"]>;
 
-  protected override onLayout(viewContext: ViewContextType<this>): void {
-    super.onLayout(viewContext);
-    this.center.recohere(viewContext.updateTime);
+  protected override onLayout(): void {
+    super.onLayout();
+    this.center.recohere(this.updateTime);
   }
 
-  protected override onRender(viewContext: ViewContextType<this>): void {
-    super.onRender(viewContext);
-    const renderer = viewContext.renderer;
+  protected override onRender(): void {
+    super.onRender();
+    const renderer = this.renderer.value;
     if (renderer instanceof PaintingRenderer && !this.hidden && !this.culled) {
       this.renderSlice(renderer.context, this.viewFrame);
     }
@@ -315,8 +315,8 @@ export class SliceView extends GraphicsView {
     }
   }
 
-  protected override hitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
-    const renderer = viewContext.renderer;
+  protected override hitTest(x: number, y: number): GraphicsView | null {
+    const renderer = this.renderer.value;
     if (renderer instanceof CanvasRenderer) {
       const p = renderer.transform.transform(x, y);
       return this.hitTestSlice(p.x, p.y, renderer.context, this.viewFrame);

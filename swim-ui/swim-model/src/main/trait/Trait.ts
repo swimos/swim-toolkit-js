@@ -50,16 +50,10 @@ import {
   WarpRef,
   WarpClient,
 } from "@swim/client";
-import {ModelContextType, ModelFlags, AnyModel, Model} from "../model/Model";
+import {ModelFlags, AnyModel, Model} from "../model/Model";
 import {ModelRelation} from "../model/ModelRelation";
 import type {TraitObserver} from "./TraitObserver";
 import {TraitRelation} from "./"; // forward import
-
-/** @public */
-export type TraitModelType<T extends Trait> = T extends {readonly model: infer M | null} ? M : never;
-
-/** @public */
-export type TraitContextType<T extends Trait> = ModelContextType<TraitModelType<T>>;
 
 /** @public */
 export type TraitFlags = number;
@@ -131,6 +125,14 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   }
 
   readonly model: Model | null;
+
+  getModel(): Model {
+    const model = this.model;
+    if (model === null) {
+      throw new TypeError("no model");
+    }
+    return model;
+  }
 
   /** @internal */
   attachModel(model: Model, nextTrait: Trait | null): void {
@@ -1085,114 +1087,110 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   }
 
   /** @protected */
-  needsAnalyze(analyzeFlags: ModelFlags, modelContext: TraitContextType<this>): ModelFlags {
+  needsAnalyze(analyzeFlags: ModelFlags): ModelFlags {
     return analyzeFlags;
   }
 
   /** @protected */
-  willAnalyze(analyzeFlags: ModelFlags, modelContext: TraitContextType<this>): void {
+  willAnalyze(analyzeFlags: ModelFlags): void {
     // hook
   }
 
   /** @protected */
-  onAnalyze(analyzeFlags: ModelFlags, modelContext: TraitContextType<this>): void {
+  onAnalyze(analyzeFlags: ModelFlags): void {
     // hook
   }
 
   /** @protected */
-  didAnalyze(analyzeFlags: ModelFlags, modelContext: TraitContextType<this>): void {
+  didAnalyze(analyzeFlags: ModelFlags): void {
     // hook
   }
 
   /** @protected */
-  willMutate(modelContext: TraitContextType<this>): void {
+  willMutate(): void {
     const observers = this.observers;
     for (let i = 0, n = observers.length; i < n; i += 1) {
       const observer = observers[i]!;
       if (observer.traitWillMutate !== void 0) {
-        observer.traitWillMutate(modelContext, this);
+        observer.traitWillMutate(this);
       }
     }
   }
 
   /** @protected */
-  onMutate(modelContext: TraitContextType<this>): void {
-    this.recohereFasteners(modelContext.updateTime);
+  onMutate(): void {
+    this.recohereFasteners(this.updateTime);
   }
 
   /** @protected */
-  didMutate(modelContext: TraitContextType<this>): void {
+  didMutate(): void {
     const observers = this.observers;
     for (let i = 0, n = observers.length; i < n; i += 1) {
       const observer = observers[i]!;
       if (observer.traitDidMutate !== void 0) {
-        observer.traitDidMutate(modelContext, this);
+        observer.traitDidMutate(this);
       }
     }
   }
 
   /** @protected */
-  willAggregate(modelContext: TraitContextType<this>): void {
+  willAggregate(): void {
     const observers = this.observers;
     for (let i = 0, n = observers.length; i < n; i += 1) {
       const observer = observers[i]!;
       if (observer.traitWillAggregate !== void 0) {
-        observer.traitWillAggregate(modelContext, this);
+        observer.traitWillAggregate(this);
       }
     }
   }
 
   /** @protected */
-  onAggregate(modelContext: TraitContextType<this>): void {
+  onAggregate(): void {
     // hook
   }
 
   /** @protected */
-  didAggregate(modelContext: TraitContextType<this>): void {
+  didAggregate(): void {
     const observers = this.observers;
     for (let i = 0, n = observers.length; i < n; i += 1) {
       const observer = observers[i]!;
       if (observer.traitDidAggregate !== void 0) {
-        observer.traitDidAggregate(modelContext, this);
+        observer.traitDidAggregate(this);
       }
     }
   }
 
   /** @protected */
-  willCorrelate(modelContext: TraitContextType<this>): void {
+  willCorrelate(): void {
     const observers = this.observers;
     for (let i = 0, n = observers.length; i < n; i += 1) {
       const observer = observers[i]!;
       if (observer.traitWillCorrelate !== void 0) {
-        observer.traitWillCorrelate(modelContext, this);
+        observer.traitWillCorrelate(this);
       }
     }
   }
 
   /** @protected */
-  onCorrelate(modelContext: TraitContextType<this>): void {
+  onCorrelate(): void {
     // hook
   }
 
   /** @protected */
-  didCorrelate(modelContext: TraitContextType<this>): void {
+  didCorrelate(): void {
     const observers = this.observers;
     for (let i = 0, n = observers.length; i < n; i += 1) {
       const observer = observers[i]!;
       if (observer.traitDidCorrelate !== void 0) {
-        observer.traitDidCorrelate(modelContext, this);
+        observer.traitDidCorrelate(this);
       }
     }
   }
 
   /** @protected */
-  analyzeChildren(analyzeFlags: ModelFlags, modelContext: ModelContextType<Model>,
-                  analyzeChild: (this: Model, child: Model, analyzeFlags: ModelFlags,
-                                 modelContext: ModelContextType<Model>) => void,
-                  analyzeChildren: (this: Model, analyzeFlags: ModelFlags, modelContext: ModelContextType<Model>,
-                                    analyzeChild: (this: Model, child: Model, analyzeFlags: ModelFlags,
-                                                   modelContext: ModelContextType<Model>) => void) => void): void {
-    analyzeChildren.call(this.model!, analyzeFlags, modelContext, analyzeChild);
+  analyzeChildren(analyzeFlags: ModelFlags, analyzeChild: (this: Model, child: Model, analyzeFlags: ModelFlags) => void,
+                  analyzeChildren: (this: Model, analyzeFlags: ModelFlags, analyzeChild: (this: Model, child: Model, analyzeFlags: ModelFlags) => void) => void): void {
+    analyzeChildren.call(this.model!, analyzeFlags, analyzeChild);
   }
 
   get refreshing(): boolean {
@@ -1201,87 +1199,83 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   }
 
   /** @protected */
-  needsRefresh(refreshFlags: ModelFlags, modelContext: TraitContextType<this>): ModelFlags {
+  needsRefresh(refreshFlags: ModelFlags): ModelFlags {
     return refreshFlags;
   }
 
   /** @protected */
-  willRefresh(refreshFlags: ModelFlags, modelContext: TraitContextType<this>): void {
+  willRefresh(refreshFlags: ModelFlags): void {
     // hook
   }
 
   /** @protected */
-  onRefresh(refreshFlags: ModelFlags, modelContext: TraitContextType<this>): void {
+  onRefresh(refreshFlags: ModelFlags): void {
     // hook
   }
 
   /** @protected */
-  didRefresh(refreshFlags: ModelFlags, modelContext: TraitContextType<this>): void {
+  didRefresh(refreshFlags: ModelFlags): void {
     // hook
   }
 
   /** @protected */
-  willValidate(modelContext: TraitContextType<this>): void {
+  willValidate(): void {
     const observers = this.observers;
     for (let i = 0, n = observers.length; i < n; i += 1) {
       const observer = observers[i]!;
       if (observer.traitWillValidate !== void 0) {
-        observer.traitWillValidate(modelContext, this);
+        observer.traitWillValidate(this);
       }
     }
   }
 
   /** @protected */
-  onValidate(modelContext: TraitContextType<this>): void {
+  onValidate(): void {
     // hook
   }
 
   /** @protected */
-  didValidate(modelContext: TraitContextType<this>): void {
+  didValidate(): void {
     const observers = this.observers;
     for (let i = 0, n = observers.length; i < n; i += 1) {
       const observer = observers[i]!;
       if (observer.traitDidValidate !== void 0) {
-        observer.traitDidValidate(modelContext, this);
+        observer.traitDidValidate(this);
       }
     }
   }
 
   /** @protected */
-  willReconcile(modelContext: TraitContextType<this>): void {
+  willReconcile(): void {
     const observers = this.observers;
     for (let i = 0, n = observers.length; i < n; i += 1) {
       const observer = observers[i]!;
       if (observer.traitWillReconcile !== void 0) {
-        observer.traitWillReconcile(modelContext, this);
+        observer.traitWillReconcile(this);
       }
     }
   }
 
   /** @protected */
-  onReconcile(modelContext: TraitContextType<this>): void {
-    this.recohereDownlinks(modelContext.updateTime);
+  onReconcile(): void {
+    this.recohereDownlinks(this.updateTime);
   }
 
   /** @protected */
-  didReconcile(modelContext: TraitContextType<this>): void {
+  didReconcile(): void {
     const observers = this.observers;
     for (let i = 0, n = observers.length; i < n; i += 1) {
       const observer = observers[i]!;
       if (observer.traitDidReconcile !== void 0) {
-        observer.traitDidReconcile(modelContext, this);
+        observer.traitDidReconcile(this);
       }
     }
   }
 
   /** @protected */
-  refreshChildren(refreshFlags: ModelFlags, modelContext: ModelContextType<Model>,
-                  refreshChild: (this: Model, child: Model, refreshFlags: ModelFlags,
-                                 modelContext: ModelContextType<Model>) => void,
-                  refreshChildren: (this: Model, refreshFlags: ModelFlags, modelContext: ModelContextType<Model>,
-                                    refreshChild: (this: Model, child: Model, refreshFlags: ModelFlags,
-                                                   modelContext: ModelContextType<Model>) => void) => void): void {
-    refreshChildren.call(this.model!, refreshFlags, modelContext, refreshChild);
+  refreshChildren(refreshFlags: ModelFlags, refreshChild: (this: Model, child: Model, refreshFlags: ModelFlags) => void,
+                  refreshChildren: (this: Model, refreshFlags: ModelFlags, refreshChild: (this: Model, child: Model, refreshFlags: ModelFlags) => void) => void): void {
+    refreshChildren.call(this.model!, refreshFlags, refreshChild);
   }
 
   /** @internal */
@@ -1821,9 +1815,8 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     }
   }
 
-  get modelContext(): TraitContextType<this> | null {
-    const model = this.model;
-    return model !== null ? model.modelContext as TraitContextType<this> : null;
+  get updateTime(): number {
+    return this.getModel().updateTime;
   }
 
   /** @override */

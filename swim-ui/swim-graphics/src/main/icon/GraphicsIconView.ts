@@ -18,7 +18,7 @@ import {AnyLength, Length, R2Box} from "@swim/math";
 import {AnyColor, Color} from "@swim/style";
 import type {MoodVector, ThemeMatrix} from "@swim/theme";
 import {ThemeAnimator} from "@swim/theme";
-import {ViewContextType, View} from "@swim/view";
+import {View} from "@swim/view";
 import {Graphics} from "../graphics/Graphics";
 import {GraphicsViewInit, GraphicsView} from "../graphics/GraphicsView";
 import {PaintingRenderer} from "../painting/PaintingRenderer";
@@ -82,9 +82,9 @@ export class GraphicsIconView extends GraphicsView implements IconView {
     }
   }
 
-  protected override onRender(viewContext: ViewContextType<this>): void {
-    super.onRender(viewContext);
-    const renderer = viewContext.renderer;
+  protected override onRender(): void {
+    super.onRender();
+    const renderer = this.renderer.value;
     if (renderer instanceof PaintingRenderer && !this.hidden && !this.culled) {
       this.renderIcon(renderer, this.viewBounds);
     }
@@ -101,8 +101,8 @@ export class GraphicsIconView extends GraphicsView implements IconView {
 
   declare readonly viewBounds: R2Box; // getter defined below to work around useDefineForClassFields lunacy
 
-  protected override hitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
-    const renderer = viewContext.renderer;
+  protected override hitTest(x: number, y: number): GraphicsView | null {
+    const renderer = this.renderer.value;
     if (renderer instanceof CanvasRenderer) {
       return this.hitTestIcon(x, y, renderer, this.viewBounds);
     }

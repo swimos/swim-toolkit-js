@@ -18,7 +18,7 @@ import {AnyLength, Length, AnyR2Point, R2Point, R2Segment, R2Box} from "@swim/ma
 import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
 import {AnyColor, Color} from "@swim/style";
 import {MoodVector, ThemeMatrix, ThemeAnimator} from "@swim/theme";
-import {ViewContextType, ViewFlags, View} from "@swim/view";
+import {ViewFlags, View} from "@swim/view";
 import {
   Sprite,
   Graphics,
@@ -70,7 +70,7 @@ export class GeoIconView extends GeoView implements IconView {
     didSetValue(newGeoCenter: GeoPoint | null, oldGeoCenter: GeoPoint | null): void {
       this.owner.setGeoBounds(newGeoCenter !== null ? newGeoCenter.bounds : GeoBox.undefined());
       if (this.mounted) {
-        this.owner.projectIcon(this.owner.viewContext);
+        this.owner.projectIcon();
       }
       this.owner.callObservers("viewDidSetGeoCenter", newGeoCenter, this.owner);
     },
@@ -147,31 +147,30 @@ export class GeoIconView extends GeoView implements IconView {
     }
   }
 
-  protected override onProject(viewContext: ViewContextType<this>): void {
-    super.onProject(viewContext);
-    this.projectIcon(viewContext);
+  protected override onProject(): void {
+    super.onProject();
+    this.projectIcon();
   }
 
   protected projectGeoCenter(geoCenter: GeoPoint | null): void {
     if (this.mounted) {
-      const viewContext = this.viewContext as ViewContextType<this>;
       const viewCenter = geoCenter !== null && geoCenter.isDefined()
-                       ? viewContext.geoViewport.project(geoCenter)
+                       ? this.geoViewport.value.project(geoCenter)
                        : null;
       this.viewCenter.setInterpolatedValue(this.viewCenter.value, viewCenter);
-      this.projectIcon(viewContext);
+      this.projectIcon();
     }
   }
 
-  protected projectIcon(viewContext: ViewContextType<this>): void {
+  protected projectIcon(): void {
     if (Affinity.Intrinsic >= (this.viewCenter.flags & Affinity.Mask)) { // this.viewCenter.hasAffinity(Affinity.Intrinsic)
       const geoCenter = this.geoCenter.value;
       const viewCenter = geoCenter !== null && geoCenter.isDefined()
-                       ? viewContext.geoViewport.project(geoCenter)
+                       ? this.geoViewport.value.project(geoCenter)
                        : null;
       (this.viewCenter as Mutable<typeof this.viewCenter>).value = viewCenter; // this.viewCenter.setValue(viewCenter, Affinity.Intrinsic)
     }
-    const viewFrame = viewContext.viewFrame;
+    const viewFrame = this.viewFrame;
     (this as Mutable<GeoIconView>).viewBounds = this.deriveViewBounds(viewFrame);
     const p0 = this.viewCenter.value;
     const p1 = this.viewCenter.state;
@@ -184,8 +183,8 @@ export class GeoIconView extends GeoView implements IconView {
     }
   }
 
-  protected override onRasterize(viewContext: ViewContextType<this>): void {
-    super.onRasterize(viewContext);
+  protected override onRasterize(): void {
+    super.onRasterize();
     if (!this.hidden && !this.culled) {
       this.rasterizeIcon(this.viewBounds);
     }
@@ -204,7 +203,7 @@ export class GeoIconView extends GeoView implements IconView {
         sprite = null;
       }
       if (sprite === null) {
-        sprite = this.spriteProvider.service!.acquireSprite(width, height);
+        sprite = this.sprites.getService().acquireSprite(width, height);
         this.sprite = sprite;
       }
 
@@ -220,9 +219,9 @@ export class GeoIconView extends GeoView implements IconView {
     }
   }
 
-  protected override onComposite(viewContext: ViewContextType<this>): void {
-    super.onComposite(viewContext);
-    const renderer = viewContext.renderer;
+  protected override onComposite(): void {
+    super.onComposite();
+    const renderer = this.renderer.value;
     if (renderer instanceof CanvasRenderer && !this.hidden && !this.culled) {
       this.compositeIcon(renderer, this.viewBounds);
     }
@@ -235,7 +234,7 @@ export class GeoIconView extends GeoView implements IconView {
     }
   }
 
-  protected override renderGeoBounds(viewContext: ViewContextType<this>, outlineColor: Color, outlineWidth: number): void {
+  protected override renderGeoBounds(outlineColor: Color, outlineWidth: number): void {
     // nop
   }
 
@@ -249,7 +248,7 @@ export class GeoIconView extends GeoView implements IconView {
     const viewCenter = this.viewCenter.value;
     if (viewCenter !== null && viewCenter.isDefined()) {
       if (viewFrame === void 0) {
-        viewFrame = this.viewContext.viewFrame;
+        viewFrame = this.viewFrame;
       }
       const viewSize = Math.min(viewFrame.width, viewFrame.height);
       let iconWidth: Length | number | null = this.iconWidth.value;
@@ -267,7 +266,7 @@ export class GeoIconView extends GeoView implements IconView {
   override get popoverFrame(): R2Box {
     const viewCenter = this.viewCenter.value;
     if (viewCenter !== null && viewCenter.isDefined()) {
-      const viewFrame = this.viewContext.viewFrame;
+      const viewFrame = this.viewFrame;
       const viewSize = Math.min(viewFrame.width, viewFrame.height);
       const inversePageTransform = this.pageTransform.inverse();
       const px = inversePageTransform.transformX(viewCenter.x, viewCenter.y);
@@ -284,8 +283,8 @@ export class GeoIconView extends GeoView implements IconView {
     }
   }
 
-  protected override hitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
-    const renderer = viewContext.renderer;
+  protected override hitTest(x: number, y: number): GraphicsView | null {
+    const renderer = this.renderer.value;
     if (renderer instanceof CanvasRenderer) {
       return this.hitTestIcon(x, y, renderer, this.viewBounds);
     }

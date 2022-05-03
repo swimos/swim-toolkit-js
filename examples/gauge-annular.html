@@ -12,7 +12,7 @@
     <script>
 
 //setTimeout(function () {
-//  swim.ThemeService.global().setTheme(swim.Theme.light);
+//  swim.StylerService.global().theme(swim.Theme.light);
 //}, 1000);
 
 const bodyView = swim.HtmlView.fromNode(document.body);
@@ -46,13 +46,13 @@ const ringView = gaugeView.appendChild(swim.DialView, "ring")
     .arrangement("manual")
     .innerRadius(swim.Length.pct(30))
     .outerRadius(swim.Length.pct(40))
-    .dialColor(swim.Color.transparent())
-    .on("pointerenter", function (event) {
-      ringView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, 1]], true);
-    })
-    .on("pointerleave", function (event) {
-      ringView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, void 0]], true);
-    });
+    .dialColor(swim.Color.transparent());
+ringView.addEventListener("pointerenter", function (event) {
+  ringView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, 1]], true);
+});
+ringView.addEventListener("pointerleave", function (event) {
+  ringView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, void 0]], true);
+});
 ringView.legend.setText("Legend");
 
 setInterval(function () {

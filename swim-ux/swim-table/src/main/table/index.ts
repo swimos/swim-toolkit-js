@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {TableViewContext} from "./TableViewContext";
 export {TableView} from "./TableView";
 export {TableViewObserver} from "./TableViewObserver";
 

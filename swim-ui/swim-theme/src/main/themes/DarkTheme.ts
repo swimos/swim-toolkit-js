@@ -237,6 +237,7 @@ Theme.dark = (function (): ThemeMatrix {
     [Look.statusColor, Color.black(0.8)],
     [Look.accentColor, Color.black(0.8)],
     [Look.backgroundColor, Color.black(0.8)],
+    [Look.selectedColor, Color.black(0.8)],
   );
 
   const transparentFeel = FeelVector.of(
