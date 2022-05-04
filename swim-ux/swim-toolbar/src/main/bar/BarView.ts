@@ -14,7 +14,6 @@
 
 import type {Class, Instance, Creatable} from "@swim/util";
 import {Affinity, FastenerClass, Property, Animator} from "@swim/component";
-import {ConstraintProperty} from "@swim/constraint";
 import {AnyLength, Length} from "@swim/math";
 import {Feel, ThemeConstraintAnimator} from "@swim/theme";
 import {ViewInsets, ViewFlags, View, ViewSet} from "@swim/view";
@@ -51,6 +50,8 @@ export class BarView extends HtmlView {
     updateFlags: View.NeedsResize | View.NeedsLayout,
     didSetValue(placement: BarPlacement): void {
       this.owner.callObservers("viewDidSetPlacement", placement, this.owner);
+      this.owner.barHeight.applyEdgeInsets(this.owner.edgeInsets.value);
+      this.owner.edgeInsets.decohereOutlets();
     },
   })
   readonly placement!: Property<this, BarPlacement>;
@@ -88,49 +89,54 @@ export class BarView extends HtmlView {
     valueType: Length,
     value: null,
     updateFlags: View.NeedsResize,
-    didSetValue(newBarHeight: Length | null, oldBarHeight: Length | null): void {
-      this.owner.callObservers("viewDidSetBarHeight", newBarHeight, this.owner);
+    didSetValue(barHeight: Length | null): void {
+      this.owner.callObservers("viewDidSetBarHeight", barHeight, this.owner);
+      this.applyEdgeInsets(this.owner.edgeInsets.value);
+    },
+    applyEdgeInsets(edgeInsets: ViewInsets): void {
+      let height = this.value;
+      if (height !== null) {
+        const placement = this.owner.placement.value;
+        if (placement === "top") {
+          height = height.plus(edgeInsets.insetTop);
+        } else if (placement === "bottom") {
+          height = height.plus(edgeInsets.insetBottom);
+        }
+        this.owner.height.setState(height, Affinity.Intrinsic);
+      }
     },
   })
-  readonly barHeight!: ThemeConstraintAnimator<this, Length | null, AnyLength | null>;
+  readonly barHeight!: ThemeConstraintAnimator<this, Length | null, AnyLength | null> & {
+    /** @internal */
+    applyEdgeInsets(edgeInsets: ViewInsets): void,
+  };
 
   @Property({valueType: Length, value: Length.zero(), updateFlags: View.NeedsResize})
   readonly toolSpacing!: Property<this, Length | null, AnyLength | null>;
 
-  @ConstraintProperty<BarView["effectiveHeight"]>({
-    valueType: Length,
-    value: null,
-    didSetValue(newValue: Length | null, oldValue: Length | null): void {
-      this.owner.callObservers("viewDidSetEffectiveHeight", newValue, this.owner);
-    },
-    toNumber(value: Length | null): number {
-      return value !== null ? value.pxValue() : 0;
-    },
-  })
-  readonly effectiveHeight!: ConstraintProperty<this, Length | null, AnyLength | null>;
-
   @Property<BarView["edgeInsets"]>({
     extends: true,
-    init(): void {
-      this.outletValue = this.value;
+    didSetValue(edgeInsets: ViewInsets): void {
+      this.owner.barHeight.applyEdgeInsets(edgeInsets);
     },
     getOutletValue(outlet: Property<unknown, ViewInsets>): ViewInsets {
-      return this.outletValue;
-    },
-    setOutletValue(newOutletValue: ViewInsets): void {
-      const oldOutletValue = this.outletValue;
-      if (!this.equalValues(newOutletValue, oldOutletValue)) {
-        this.outletValue = newOutletValue;
-        this.decohereOutlets();
+      let edgeInsets = this.value;
+      let insetTop = edgeInsets.insetTop;
+      const insetRight = edgeInsets.insetRight;
+      let insetBottom = edgeInsets.insetBottom;
+      const insetLeft = edgeInsets.insetLeft;
+      const placement = this.owner.placement.value;
+      if (placement === "top" && insetBottom !== 0) {
+        insetBottom = 0;
+        edgeInsets = {insetTop, insetRight, insetBottom, insetLeft};
+      } else if (placement === "bottom" && insetTop !== 0) {
+        insetTop = 0;
+        edgeInsets = {insetTop, insetRight, insetBottom, insetLeft};
       }
+      return edgeInsets;
     },
   })
-  override readonly edgeInsets!: Property<this, ViewInsets> & HtmlView["edgeInsets"] & {
-    /** @internal */
-    outletValue: ViewInsets,
-    /** @internal */
-    setOutletValue(newOutletValue: ViewInsets): void;
-  };
+  override readonly edgeInsets!: Property<this, ViewInsets> & HtmlView["edgeInsets"];
 
   getTool<F extends Class<ToolView>>(key: string, toolViewClass: F): InstanceType<F> | null;
   getTool(key: string): ToolView | null;
@@ -163,7 +169,7 @@ export class BarView extends HtmlView {
       toolView.position.setState("absolute", Affinity.Intrinsic);
       toolView.left.setState(0, Affinity.Intrinsic);
       toolView.width.setState(0, Affinity.Intrinsic);
-      toolView.height.setState(this.owner.height.state, Affinity.Intrinsic);
+      toolView.height.setState(this.owner.barHeight.value, Affinity.Intrinsic);
     },
     willAttachView(toolView: ToolView, target: View | null): void {
       this.owner.callObservers("viewWillAttachTool", toolView, target, this.owner);
@@ -194,32 +200,21 @@ export class BarView extends HtmlView {
   protected resizeBarTop(): void {
     this.addClass("bar-top")
         .removeClass("bar-bottom");
+
     const edgeInsets = this.edgeInsets.value;
     let height = this.barHeight.value;
     if (height !== null) {
       height = height.plus(edgeInsets.insetTop);
       this.height.setState(height, Affinity.Intrinsic);
-    } else {
-      height = this.height.state;
-      height = height !== null ? height : Length.px(this.node.offsetHeight);
     }
-    this.effectiveHeight.setValue(height, Affinity.Intrinsic);
-
-    this.edgeInsets.setOutletValue({
-      insetTop: edgeInsets.insetTop,
-      insetRight: edgeInsets.insetRight,
-      insetBottom: 0,
-      insetLeft: edgeInsets.insetLeft,
-    });
 
     const oldLayout = !this.layout.derived ? this.layout.state : null;
     if (oldLayout !== void 0 && oldLayout !== null) {
-      let width: Length | number | null = this.width.state;
-      width = width instanceof Length ? width.pxValue(this.node.offsetWidth) : this.node.offsetWidth;
+      const barWidth = this.width.pxState();
       const insetLeft = edgeInsets.insetLeft;
       const insetRight = edgeInsets.insetRight;
-      const spacing = this.toolSpacing.getValue().pxValue(width);
-      const newLayout = oldLayout.resized(width, insetLeft, insetRight, spacing);
+      const spacing = this.toolSpacing.getValue().pxValue(barWidth);
+      const newLayout = oldLayout.resized(barWidth, insetLeft, insetRight, spacing);
       this.layout.setState(newLayout);
     }
   }
@@ -227,32 +222,21 @@ export class BarView extends HtmlView {
   protected resizeBarBottom(): void {
     this.removeClass("bar-top")
         .addClass("bar-bottom");
+
     const edgeInsets = this.edgeInsets.value;
     let height = this.barHeight.value;
     if (height !== null) {
       height = height.plus(edgeInsets.insetBottom);
       this.height.setState(height, Affinity.Intrinsic);
-    } else {
-      height = this.height.state;
-      height = height !== null ? height : Length.px(this.node.offsetHeight);
     }
-    this.effectiveHeight.setValue(height, Affinity.Intrinsic);
-
-    this.edgeInsets.setOutletValue({
-      insetTop: 0,
-      insetRight: edgeInsets.insetRight,
-      insetBottom: edgeInsets.insetBottom,
-      insetLeft: edgeInsets.insetLeft,
-    });
 
     const oldLayout = !this.layout.derived ? this.layout.state : null;
     if (oldLayout !== void 0 && oldLayout !== null) {
-      let width: Length | number | null = this.width.state;
-      width = width instanceof Length ? width.pxValue(this.node.offsetWidth) : this.node.offsetWidth;
+      const barWidth = this.width.pxState();
       const insetLeft = edgeInsets.insetLeft;
       const insetRight = edgeInsets.insetRight;
-      const spacing = this.toolSpacing.getValue().pxValue(width);
-      const newLayout = oldLayout.resized(width, insetLeft, insetRight, spacing);
+      const spacing = this.toolSpacing.getValue().pxValue(barWidth);
+      const newLayout = oldLayout.resized(barWidth, insetLeft, insetRight, spacing);
       this.layout.setState(newLayout);
     }
   }
@@ -260,21 +244,12 @@ export class BarView extends HtmlView {
   protected resizeBarNone(): void {
     this.removeClass("bar-top")
         .removeClass("bar-bottom");
-    this.effectiveHeight.setValue(this.height.value, Affinity.Intrinsic);
-
-    this.edgeInsets.setOutletValue({
-      insetTop: 0,
-      insetRight: 0,
-      insetBottom: 0,
-      insetLeft: 0,
-    });
 
     const oldLayout = !this.layout.derived ? this.layout.state : null;
     if (oldLayout !== void 0 && oldLayout !== null) {
-      let width: Length | number | null = this.width.state;
-      width = width instanceof Length ? width.pxValue(this.node.offsetWidth) : this.node.offsetWidth;
-      const spacing = this.toolSpacing.getValue().pxValue(width);
-      const newLayout = oldLayout.resized(width, 0, 0, spacing);
+      const barWidth = this.width.pxState();
+      const spacing = this.toolSpacing.getValue().pxValue(barWidth);
+      const newLayout = oldLayout.resized(barWidth, 0, 0, spacing);
       this.layout.setState(newLayout);
     }
   }
@@ -288,13 +263,12 @@ export class BarView extends HtmlView {
   }
 
   protected layoutChildren(displayFlags: ViewFlags, displayChild: (this: this, child: View, displayFlags: ViewFlags) => void): void {
-    const layout = this.layout.value;
-    let height: Length | number | null = this.height.state;
-    height = height instanceof Length ? height.pxValue() : this.node.offsetHeight;
+    const placement = this.placement.value;
     const edgeInsets = this.edgeInsets.value;
-    const toolTop = edgeInsets !== null ? Length.px(edgeInsets.insetTop) : null;
-    const toolBottom = edgeInsets !== null ? Length.px(edgeInsets.insetBottom) : null;
+    const toolTop = placement === "top" ? Length.px(edgeInsets.insetTop) : null;
+    const toolBottom = placement === "bottom" ? Length.px(edgeInsets.insetBottom) : null;
     const toolHeight = this.barHeight.value;
+    const layout = this.layout.value;
     type self = this;
     function layoutChild(this: self, child: View, displayFlags: ViewFlags): void {
       if (child instanceof ToolView) {

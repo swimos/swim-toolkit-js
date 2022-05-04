@@ -91,6 +91,13 @@ export class SvgIconView extends SvgView implements IconView {
     this.requireUpdate(View.NeedsLayout);
   }
 
+  protected override needsDisplay(displayFlags: ViewFlags): ViewFlags {
+    if ((this.flags & View.NeedsLayout) === 0) {
+      displayFlags &= ~View.NeedsLayout;
+    }
+    return displayFlags;
+  }
+
   protected override onLayout(): void {
     super.onLayout();
     this.renderIcon();

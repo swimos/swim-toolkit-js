@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Presence} from "@swim/style";
 import type {ElementViewObserver} from "../element/ElementViewObserver";
 import type {ModalView} from "./ModalView";
 
@@ -24,6 +25,8 @@ export interface ModalViewObserver<V extends ModalView = ModalView> extends Elem
   viewWillDismiss?(view: V): void;
 
   viewDidDismiss?(view: V): void;
+
+  viewDidSetPresence?(presence: Presence, view: V): void;
 
   viewDidSetModality?(modality: number, view: V): void;
 }

@@ -13,9 +13,10 @@
 // limitations under the License.
 
 import type {Class, Observes} from "@swim/util";
-import {Length} from "@swim/math";
+import type {Length} from "@swim/math";
 import {Affinity, FastenerClass, Property} from "@swim/component";
-import {View, ViewRef} from "@swim/view";
+import type {Presence} from "@swim/style";
+import {ViewInsets, View, ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {BarView} from "@swim/toolbar";
 import {DrawerView} from "@swim/window";
@@ -37,6 +38,8 @@ export class FolioView extends HtmlView {
     this.addClass("folio");
     this.display.setState("flex", Affinity.Intrinsic);
     this.position.setState("relative", Affinity.Intrinsic);
+    this.overflowX.setState("hidden", Affinity.Intrinsic);
+    this.overflowY.setState("hidden", Affinity.Intrinsic);
   }
 
   override readonly observerType?: Class<FolioViewObserver>;
@@ -46,6 +49,7 @@ export class FolioView extends HtmlView {
     updateFlags: View.NeedsResize,
     didSetValue(folioStyle: FolioStyle | undefined): void {
       this.owner.callObservers("viewDidSetFolioStyle", folioStyle, this.owner);
+      this.owner.edgeInsets.decohereOutlets();
     },
   })
   readonly folioStyle!: Property<this, FolioStyle | undefined>;
@@ -64,8 +68,7 @@ export class FolioView extends HtmlView {
     viewType: BarView,
     binds: true,
     initView(appBarView: BarView): void {
-      let folioWidth = this.owner.width.state;
-      folioWidth = folioWidth instanceof Length ? folioWidth : Length.px(this.owner.node.offsetWidth);
+      const folioWidth = this.owner.width.cssState!;
 
       const drawerView = this.owner.drawer.view;
       const drawerWidth = drawerView !== null ? drawerView.effectiveWidth.value : null;
@@ -81,8 +84,11 @@ export class FolioView extends HtmlView {
     willAttachView(appBarView: BarView, target: View | null): void {
       this.owner.callObservers("viewWillAttachAppBar", appBarView, target, this.owner);
     },
-    didAttachView(appBarView: BarView, target: View | null): void {
-      this.owner.requireUpdate(View.NeedsResize);
+    didAttachView(navBarView: BarView, target: View | null): void {
+      this.owner.edgeInsets.decohereOutlets();
+    },
+    willDetachView(navBarView: BarView): void {
+      this.owner.edgeInsets.decohereOutlets();
     },
     didDetachView(appBarView: BarView): void {
       this.owner.callObservers("viewDidDetachAppBar", appBarView, this.owner);
@@ -96,6 +102,8 @@ export class FolioView extends HtmlView {
     binds: true,
     observes: true,
     initView(drawerView: DrawerView): void {
+      drawerView.overflowX.setState("hidden", Affinity.Intrinsic);
+      drawerView.overflowY.setState("hidden", Affinity.Intrinsic);
       drawerView.zIndex.setState(2, Affinity.Intrinsic);
       drawerView.present(false);
     },
@@ -107,6 +115,9 @@ export class FolioView extends HtmlView {
     },
     insertChild(parent: View, childView: DrawerView, targetView: View | null, key: string | undefined): void {
       parent.prependChild(childView, key);
+    },
+    viewDidSetPresence(presence: Presence, drawerView: DrawerView): void {
+      this.owner.edgeInsets.decohereOutlets();
     },
     viewDidSetEffectiveWidth(effectiveWidth: Length | null, drawerView: DrawerView): void {
       if (this.owner.folioStyle.value === "unstacked") {
@@ -137,31 +148,15 @@ export class FolioView extends HtmlView {
     observes: true,
     initView(coverView: SheetView): void {
       if (this.owner.folioStyle.value === "unstacked") {
-        let folioWidth = this.owner.width.state;
-        folioWidth = folioWidth instanceof Length ? folioWidth : Length.px(this.owner.node.offsetWidth);
-        let folioHeight = this.owner.height.state;
-        folioHeight = folioHeight instanceof Length ? folioHeight : Length.px(this.owner.node.offsetHeight);
-        let edgeInsets = this.owner.edgeInsets.value;
+        const folioWidth = this.owner.width.cssState!;
+        const folioHeight = this.owner.height.cssState!;
 
         const drawerView = this.owner.drawer.view;
         const drawerWidth = drawerView !== null ? drawerView.effectiveWidth.value : null;
         const sheetWidth = drawerWidth !== null ? folioWidth.minus(drawerWidth) : folioWidth;
 
         const appBarView = this.owner.appBar.view;
-        let appBarHeight: Length | null = null;
-        if (appBarView !== null) {
-          appBarHeight = appBarView.height.state;
-          appBarHeight = appBarHeight !== null ? appBarHeight : appBarView.barHeight.state;
-          appBarHeight = appBarHeight instanceof Length ? appBarHeight : Length.px(appBarView.node.offsetHeight);
-          if (edgeInsets !== null) {
-            edgeInsets = {
-              insetTop: 0,
-              insetRight: edgeInsets.insetRight,
-              insetBottom: edgeInsets.insetBottom,
-              insetLeft: edgeInsets.insetLeft,
-            };
-          }
-        }
+        const appBarHeight = appBarView !== null ? appBarView.height.cssState : null;
 
         coverView.position.setState("absolute", Affinity.Intrinsic);
         coverView.left.setState(drawerWidth, Affinity.Intrinsic);
@@ -171,7 +166,6 @@ export class FolioView extends HtmlView {
         coverView.paddingTop.setState(appBarHeight, Affinity.Intrinsic);
         coverView.boxSizing.setState("border-box", Affinity.Intrinsic);
         coverView.zIndex.setState(0, Affinity.Intrinsic);
-        coverView.edgeInsets.setValue(edgeInsets, Affinity.Intrinsic);
       }
     },
     willAttachView(coverView: SheetView, target: View | null): void {
@@ -192,6 +186,37 @@ export class FolioView extends HtmlView {
   })
   readonly cover!: ViewRef<this, SheetView> & Observes<SheetView>;
   static readonly cover: FastenerClass<FolioView["cover"]>;
+
+  @Property<FolioView["edgeInsets"]>({
+    extends: true,
+    getOutletValue(outlet: Property<unknown, ViewInsets>): ViewInsets {
+      let edgeInsets = this.value;
+      if (this.owner.folioStyle.value === "unstacked") {
+        let insetTop = edgeInsets.insetTop;
+        const insetRight = edgeInsets.insetRight;
+        const insetBottom = edgeInsets.insetBottom;
+        let insetLeft = edgeInsets.insetLeft;
+        if (outlet.owner === this.owner.appBar.view) {
+          const drawerView = this.owner.drawer.view;
+          if (drawerView !== null) {
+            insetLeft *= 1 - drawerView.presence.value.phase;
+          }
+          edgeInsets = {insetTop, insetRight, insetBottom, insetLeft};
+        } else if (outlet.owner === this.owner.cover.view) {
+          if (this.owner.appBar.view !== null) {
+            insetTop = 0;
+          }
+          const drawerView = this.owner.drawer.view;
+          if (drawerView !== null) {
+            insetLeft *= 1 - drawerView.presence.value.phase;
+          }
+          edgeInsets = {insetTop, insetRight, insetBottom, insetLeft};
+        }
+      }
+      return edgeInsets;
+    },
+  })
+  override readonly edgeInsets!: Property<this, ViewInsets>;
 
   protected override onResize(): void {
     super.onResize();
@@ -223,18 +248,13 @@ export class FolioView extends HtmlView {
         coverView.remove();
       }
 
-      const edgeInsets = this.edgeInsets.value;
       coverView.paddingLeft.setState(null, Affinity.Intrinsic);
-      coverView.edgeInsets.setValue(edgeInsets, Affinity.Intrinsic);
     }
   }
 
   protected resizeUnstacked(): void {
-    let folioWidth = this.width.state;
-    folioWidth = folioWidth instanceof Length ? folioWidth : Length.px(this.node.offsetWidth);
-    let folioHeight = this.height.state;
-    folioHeight = folioHeight instanceof Length ? folioHeight : Length.px(this.node.offsetHeight);
-    let edgeInsets = this.edgeInsets.value;
+    const folioWidth = this.width.cssState!;
+    const folioHeight = this.height.cssState!;
 
     const drawerView = this.drawer.insertView();
     const drawerWidth = drawerView.effectiveWidth.value;
@@ -246,17 +266,7 @@ export class FolioView extends HtmlView {
       this.appBar.insertView();
       appBarView.left.setState(drawerWidth, Affinity.Intrinsic);
       appBarView.width.setState(sheetWidth, Affinity.Intrinsic);
-      appBarHeight = appBarView.height.state;
-      appBarHeight = appBarHeight !== null ? appBarHeight : appBarView.barHeight.state;
-      appBarHeight = appBarHeight instanceof Length ? appBarHeight : Length.px(appBarView.node.offsetHeight);
-      if (edgeInsets !== null) {
-        edgeInsets = {
-          insetTop: 0,
-          insetRight: edgeInsets.insetRight,
-          insetBottom: edgeInsets.insetBottom,
-          insetLeft: edgeInsets.insetLeft,
-        };
-      }
+      appBarHeight = appBarView.height.cssState;
     }
 
     this.stack.insertView(drawerView);
@@ -277,7 +287,6 @@ export class FolioView extends HtmlView {
       coverView.paddingTop.setState(appBarHeight, Affinity.Intrinsic);
       coverView.paddingLeft.setState(null, Affinity.Intrinsic);
     }
-    coverView.edgeInsets.setValue(edgeInsets, Affinity.Intrinsic);
     coverView.present(false);
   }
 
@@ -300,8 +309,8 @@ export class FolioView extends HtmlView {
   }
 
   protected layoutUnstacked(): void {
-    let folioWidth = this.width.state;
-    folioWidth = folioWidth instanceof Length ? folioWidth : Length.px(this.node.offsetWidth);
+    const folioWidth = this.width.cssState!;
+
     const drawerView = this.drawer.insertView();
     const drawerWidth = drawerView.effectiveWidth.value;
     const sheetWidth = drawerWidth !== null ? folioWidth.minus(drawerWidth) : folioWidth;

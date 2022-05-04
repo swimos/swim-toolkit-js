@@ -37,6 +37,8 @@ export class PanelView extends HtmlView {
     this.addClass("panel");
     this.position.setState("relative", Affinity.Intrinsic);
     this.boxSizing.setState("border-box", Affinity.Intrinsic);
+    this.overflowX.setState("hidden", Affinity.Intrinsic);
+    this.overflowY.setState("hidden", Affinity.Intrinsic);
     this.panelStyle.applyPanelStyle(this.panelStyle.value);
   }
 

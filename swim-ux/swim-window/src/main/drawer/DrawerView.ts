@@ -101,6 +101,7 @@ export class DrawerView extends HtmlView implements ModalView {
     updateFlags: View.NeedsResize | View.NeedsLayout,
     didSetValue(placement: DrawerPlacement): void {
       this.owner.callObservers("viewDidSetPlacement", placement, this.owner);
+      this.owner.edgeInsets.decohereOutlets();
     },
   })
   readonly placement!: Property<this, DrawerPlacement>;
@@ -111,6 +112,9 @@ export class DrawerView extends HtmlView implements ModalView {
     updateFlags: View.NeedsLayout,
     get transition(): Timing | null {
       return this.owner.getLookOr(Look.timing, null);
+    },
+    didSetValue(presence: Presence): void {
+      this.owner.callObservers("viewDidSetPresence", presence, this.owner);
     },
     willPresent(): void {
       this.owner.callObservers("viewWillPresent", this.owner);
@@ -152,26 +156,30 @@ export class DrawerView extends HtmlView implements ModalView {
 
   @Property<DrawerView["edgeInsets"]>({
     extends: true,
-    init(): void {
-      this.outletValue = this.value;
-    },
     getOutletValue(outlet: Property<unknown, ViewInsets>): ViewInsets {
-      return this.outletValue;
-    },
-    setOutletValue(newOutletValue: ViewInsets): void {
-      const oldOutletValue = this.outletValue;
-      if (!this.equalValues(newOutletValue, oldOutletValue)) {
-        this.outletValue = newOutletValue;
-        this.decohereOutlets();
+      let edgeInsets = this.value;
+      let insetTop = edgeInsets.insetTop;
+      let insetRight = edgeInsets.insetRight;
+      let insetBottom = edgeInsets.insetBottom;
+      let insetLeft = edgeInsets.insetLeft;
+      const placement = this.owner.placement.value;
+      if (placement === "top" && insetBottom !== 0) {
+        insetBottom = 0;
+        edgeInsets = {insetTop, insetRight, insetBottom, insetLeft};
+      } else if (placement === "right" && insetLeft !== 0) {
+        insetLeft = 0;
+        edgeInsets = {insetTop, insetRight, insetBottom, insetLeft};
+      } else if (placement === "bottom" && insetTop !== 0) {
+        insetTop = 0;
+        edgeInsets = {insetTop, insetRight, insetBottom, insetLeft};
+      } else if (placement === "left" && insetRight !== 0) {
+        insetRight = 0;
+        edgeInsets = {insetTop, insetRight, insetBottom, insetLeft};
       }
+      return edgeInsets;
     },
   })
-  override readonly edgeInsets!: Property<this, ViewInsets> & {
-    /** @internal */
-    outletValue: ViewInsets,
-    /** @internal */
-    setOutletValue(newOutletValue: ViewInsets): void;
-  };
+  override readonly edgeInsets!: Property<this, ViewInsets>;
 
   protected override onLayout(): void {
     super.onLayout();
@@ -222,14 +230,6 @@ export class DrawerView extends HtmlView implements ModalView {
     this.effectiveWidth.setValue(this.width.value);
     this.effectiveHeight.setValue(height.times(presencePhase), Affinity.Intrinsic);
 
-    const edgeInsets = this.edgeInsets.value;
-    this.edgeInsets.setOutletValue({
-      insetTop: edgeInsets.insetTop,
-      insetRight: edgeInsets.insetRight,
-      insetBottom: 0,
-      insetLeft: edgeInsets.insetLeft,
-    });
-
     if (this.stretch.collapsed) {
       this.expand();
     }
@@ -266,14 +266,6 @@ export class DrawerView extends HtmlView implements ModalView {
 
     this.effectiveWidth.setValue(width.times(presencePhase), Affinity.Intrinsic);
     this.effectiveHeight.setValue(this.height.value, Affinity.Intrinsic);
-
-    const edgeInsets = this.edgeInsets.value;
-    this.edgeInsets.setOutletValue({
-      insetTop: edgeInsets.insetTop,
-      insetRight: edgeInsets.insetRight,
-      insetBottom: edgeInsets.insetBottom,
-      insetLeft: 0,
-    });
   }
 
   protected layoutDrawerBottom(): void {
@@ -299,14 +291,6 @@ export class DrawerView extends HtmlView implements ModalView {
 
     this.effectiveWidth.setValue(this.width.value, Affinity.Intrinsic);
     this.effectiveHeight.setValue(height.times(presencePhase), Affinity.Intrinsic);
-
-    const edgeInsets = this.edgeInsets.value;
-    this.edgeInsets.setOutletValue({
-      insetTop: 0,
-      insetRight: edgeInsets.insetRight,
-      insetBottom: edgeInsets.insetBottom,
-      insetLeft: edgeInsets.insetLeft,
-    });
 
     if (this.stretch.collapsed) {
       this.expand();
@@ -344,14 +328,6 @@ export class DrawerView extends HtmlView implements ModalView {
 
     this.effectiveWidth.setValue(width.times(presencePhase), Affinity.Intrinsic);
     this.effectiveHeight.setValue(this.height.value, Affinity.Intrinsic);
-
-    const edgeInsets = this.edgeInsets.value;
-    this.edgeInsets.setOutletValue({
-      insetTop: edgeInsets.insetTop,
-      insetRight: 0,
-      insetBottom: edgeInsets.insetBottom,
-      insetLeft: edgeInsets.insetLeft,
-    });
   }
 
   /** @override */

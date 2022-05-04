@@ -122,6 +122,7 @@ export class ButtonStack extends HtmlView implements ModalView {
       return this.owner.getLookOr(Look.timing, null);
     },
     didSetValue(presence: Presence): void {
+      this.owner.callObservers("viewDidSetPresence", presence, this.owner);
       this.owner.modality.setValue(presence.phase, Affinity.Intrinsic);
     },
     willPresent(): void {

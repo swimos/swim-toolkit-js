@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Class} from "@swim/util";
+import type {Class} from "@swim/util";
 import {Affinity, FastenerClass, Property, EventHandler, EventTimer, Service} from "@swim/component";
 import {Length} from "@swim/math";
 import type {ViewIdiom} from "../view/ViewIdiom";
@@ -29,6 +29,7 @@ export class ViewportService extends Service {
 
   @Property<ViewportService["layoutViewport"]>({
     valueType: LayoutViewport,
+    lazy: false,
     initValue(): LayoutViewport {
       return this.detect();
     },
@@ -39,29 +40,6 @@ export class ViewportService extends Service {
       }
     },
     detect(): LayoutViewport {
-      //const documentWidth = document.documentElement.style.width;
-      //const documentHeight = document.documentElement.style.height;
-      //document.documentElement.style.width = "100%";
-      //document.documentElement.style.height = "100%";
-      //const div = document.createElement("div");
-      //div.style.setProperty("position", "fixed");
-      //div.style.setProperty("top", "0");
-      //div.style.setProperty("right", "0");
-      //div.style.setProperty("width", window.innerWidth === document.documentElement.offsetWidth ? "100%" : "100vw");
-      //div.style.setProperty("height", window.innerHeight === document.documentElement.offsetHeight ? "100%" : "100vh");
-      //div.style.setProperty("box-sizing", "border-box");
-      //div.style.setProperty("overflow", "hidden");
-      //div.style.setProperty("visibility", "hidden");
-      //document.body.appendChild(div);
-      //const style = window.getComputedStyle(div);
-      //const width = document.documentElement.clientWidth;
-      //const height = document.documentElement.clientHeight;
-      //const pageLeft = window.pageXOffset;
-      //const pageTop = window.pageYOffset;
-      //document.body.removeChild(div);
-      //document.documentElement.style.width = documentWidth;
-      //document.documentElement.style.height = documentHeight;
-      //return {width, height, pageLeft, pageTop};
       return {
         width: document.documentElement.clientWidth,
         height: document.documentElement.clientHeight,
@@ -72,6 +50,7 @@ export class ViewportService extends Service {
     didSetValue(newLayoutViewport: LayoutViewport, oldLayoutViewport: LayoutViewport): void {
       if (newLayoutViewport.width !== oldLayoutViewport.width || newLayoutViewport.height !== oldLayoutViewport.height) {
         this.owner.callObservers("serviceDidResizeLayoutViewport", newLayoutViewport, this.owner);
+        this.owner.safeArea.update();
         this.owner.viewIdiom.update();
       } else {
         this.owner.callObservers("serviceDidScrollLayoutViewport", newLayoutViewport, this.owner);
@@ -85,7 +64,7 @@ export class ViewportService extends Service {
   };
 
   @EventTimer<ViewportService["layoutViewportChange"]>({
-    delay: 0,
+    delay: 33,
     type: ["resize", "scroll"],
     initTarget(): EventTarget | null {
       if (typeof window !== "undefined") {
@@ -103,6 +82,7 @@ export class ViewportService extends Service {
 
   @Property<ViewportService["visualViewport"]>({
     valueType: VisualViewport,
+    lazy: false,
     initValue(): VisualViewport {
       return this.detect();
     },
@@ -148,7 +128,7 @@ export class ViewportService extends Service {
   };
 
   @EventTimer<ViewportService["visualViewportChange"]>({
-    delay: 0,
+    delay: 33,
     type: "resize",
     initTarget(): EventTarget | null {
       if (typeof window !== "undefined" && window.visualViewport !== void 0) {
@@ -167,15 +147,7 @@ export class ViewportService extends Service {
   @Property<ViewportService["safeArea"]>({
     valueType: ViewInsets,
     value: ViewInsets.zero,
-    init(): void {
-      let observer: MutationObserver | null;
-      if (typeof MutationObserver !== "undefined") {
-        observer = new MutationObserver(this.update.bind(this));
-      } else {
-        observer = null;
-      }
-      (this as Mutable<typeof this>).observer = observer;
-    },
+    lazy: false,
     update(): void {
       if (this.hasAffinity(Affinity.Intrinsic)) {
         const safeArea = this.detect();
@@ -185,7 +157,7 @@ export class ViewportService extends Service {
     detect(): ViewInsets {
       let safeArea: ViewInsets;
       try {
-        const documentStyle = document.documentElement.style;
+        const documentStyle = getComputedStyle(document.documentElement);
         const insetTop = Length.parse(documentStyle.getPropertyValue("--safe-area-inset-top")).pxValue();
         const insetRight = Length.parse(documentStyle.getPropertyValue("--safe-area-inset-right")).pxValue();
         const insetBottom = Length.parse(documentStyle.getPropertyValue("--safe-area-inset-bottom")).pxValue();
@@ -198,7 +170,6 @@ export class ViewportService extends Service {
     },
     didSetValue(safeArea: ViewInsets): void {
       this.owner.callObservers("serviceDidResizeViewportSafeArea", safeArea, this.owner);
-      this.owner.viewIdiom.update();
     },
     equalValues: ViewInsets.equal,
     didMount(): void {
@@ -210,31 +181,17 @@ export class ViewportService extends Service {
         documentStyle.setProperty("--safe-area-inset-bottom", "env(safe-area-inset-bottom)");
         documentStyle.setProperty("--safe-area-inset-left", "env(safe-area-inset-left)");
         this.update();
-        const observer = this.observer;
-        if (observer !== null) {
-          observer.observe(document.documentElement, {
-            attributes: true,
-            attributeFilter: ["style"],
-          });
-        }
-      }
-    },
-    willUnmount(): void {
-      const observer = this.observer;
-      if (observer !== null) {
-        observer.disconnect();
       }
     },
   })
   readonly safeArea!: Property<this, ViewInsets> & {
-    /** @internal */
-    readonly observer: MutationObserver | null,
     update(): void,
     detect(): ViewInsets,
   };
 
   @Property<ViewportService["orientation"]>({
     valueType: String,
+    lazy: false,
     initValue(): ViewportOrientation {
       return this.detect();
     },
@@ -257,6 +214,7 @@ export class ViewportService extends Service {
     },
     didSetValue(orientation: ViewportOrientation): void {
       this.owner.callObservers("serviceDidSetViewportOrientation", orientation, this.owner);
+      this.owner.safeArea.update();
       this.owner.viewIdiom.update();
     },
   })
@@ -283,6 +241,7 @@ export class ViewportService extends Service {
 
   @Property<ViewportService["colorScheme"]>({
     valueType: String,
+    lazy: false,
     initValue(): ViewportColorScheme {
       return this.detect();
     },
@@ -330,6 +289,7 @@ export class ViewportService extends Service {
 
   @Property<ViewportService["viewIdiom"]>({
     valueType: String,
+    lazy: false,
     initValue(): ViewIdiom {
       return this.detect();
     },
@@ -359,4 +319,25 @@ export class ViewportService extends Service {
     update(): void,
     detect(): ViewIdiom,
   };
+
+  @EventTimer<ViewportService["load"]>({
+    delay: 100, // work around safe area not available on standalone load
+    type: "load",
+    initTarget(): EventTarget | null {
+      if (typeof window !== "undefined") {
+        return window;
+      } else {
+        return null;
+      }
+    },
+    handle(event: Event): void {
+      this.owner.layoutViewport.update();
+      this.owner.visualViewport.update();
+      this.owner.safeArea.update();
+      this.owner.orientation.update();
+      this.owner.colorScheme.update();
+    },
+  })
+  readonly load!: EventTimer<this>;
+  static readonly load: FastenerClass<ViewportService["load"]>;
 }

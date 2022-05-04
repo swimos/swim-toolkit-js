@@ -139,6 +139,7 @@ export class PopoverView extends HtmlView implements ModalView {
         this.owner.marginTop.setState(null, Affinity.Intrinsic);
         this.owner.opacity.setState(phase, Affinity.Intrinsic);
       }
+      this.owner.callObservers("viewDidSetPresence", presence, this.owner);
     },
     willPresent(): void {
       this.owner.callObservers("viewWillPresent", this.owner);

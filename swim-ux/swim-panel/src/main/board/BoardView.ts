@@ -68,10 +68,15 @@ export class BoardView extends SheetView {
   }
 
   protected resizeChildren(processFlags: ViewFlags, processChild: (this: this, child: View, processFlags: ViewFlags) => void): void {
-    const x = this.paddingLeft.pxValue();
-    let y = this.paddingTop.pxValue();
-    const width = this.width.pxValue() - this.marginLeft.pxValue() - x - this.paddingRight.pxValue() - this.marginRight.pxValue();
-    const height = this.height.pxValue() - y - this.paddingBottom.pxValue();
+    const edgeInsets = this.edgeInsets.value;
+    const insetTop = Math.max(this.paddingTop.pxValue(), edgeInsets.insetTop);
+    const insetRight = Math.max(this.paddingRight.pxValue(), edgeInsets.insetRight);
+    const insetBottom = Math.max(this.paddingBottom.pxValue(), edgeInsets.insetBottom);
+    const insetLeft = Math.max(this.paddingLeft.pxValue(), edgeInsets.insetLeft);
+    const width = this.width.pxValue() - this.marginLeft.pxValue() - insetLeft - insetRight - this.marginRight.pxValue();
+    const height = this.height.pxValue() - this.marginTop.pxValue() - insetTop - insetBottom - this.marginBottom.pxValue();
+    const x = insetLeft;
+    let y = insetTop;
 
     type self = this;
     function resizeChild(this: self, child: View, processFlags: ViewFlags): void {

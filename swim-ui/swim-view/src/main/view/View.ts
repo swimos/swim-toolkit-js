@@ -1778,7 +1778,7 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     valueType: ViewInsets,
     value: ViewInsets.zero,
     inherits: true,
-    updateFlags: View.NeedsResize,
+    updateFlags: View.NeedsResize | View.NeedsScroll | View.NeedsLayout,
     equalValues: ViewInsets.equal,
   })
   readonly edgeInsets!: Property<this, ViewInsets>;

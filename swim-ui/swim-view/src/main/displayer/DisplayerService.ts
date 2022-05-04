@@ -43,6 +43,8 @@ export class DisplayerService extends Service {
   @ViewSet<DisplayerService["roots"]>({
     initView(rootView: View): void {
       this.owner.requestUpdate(rootView, rootView.flags & View.UpdateMask, false);
+      const safeArea = this.owner.viewport.getService().safeArea.value;
+      rootView.edgeInsets.setValue(safeArea, Affinity.Inherited);
     },
     willAttachView(rootView: View): void {
       this.owner.callObservers("serviceWillAttachRoot", rootView, this.owner);
@@ -56,14 +58,27 @@ export class DisplayerService extends Service {
     didDetachView(rootView: View): void {
       this.owner.callObservers("serviceDidDetachRoot", rootView, this.owner);
     },
+    updateSafeArea(safeArea: ViewInsets): void {
+      const rootViews = this.owner.roots.views;
+      for (const viewId in rootViews) {
+        const rootView = rootViews[viewId]!;
+        rootView.edgeInsets.setValue(safeArea, Affinity.Inherited);
+      }
+    },
   })
-  readonly roots!: ViewSet<this, View>;
+  readonly roots!: ViewSet<this, View> & {
+    /** @internal */
+    updateSafeArea(safeArea: ViewInsets): void,
+  };
   static readonly roots: FastenerClass<DisplayerService["roots"]>;
 
   @Provider<DisplayerService["viewport"]>({
     serviceType: ViewportService,
-    observes: true,
     lazy: false,
+    observes: true,
+    initService(viewportService: ViewportService): void {
+      this.owner.roots.updateSafeArea(viewportService.safeArea.value);
+    },
     serviceDidScrollLayoutViewport(layoutViewport: LayoutViewport): void {
       const rootViews = this.owner.roots.views;
       for (const viewId in rootViews) {
@@ -82,11 +97,7 @@ export class DisplayerService extends Service {
       // hook
     },
     serviceDidResizeViewportSafeArea(safeArea: ViewInsets): void {
-      const rootViews = this.owner.roots.views;
-      for (const viewId in rootViews) {
-        const rootView = rootViews[viewId]!;
-        rootView.edgeInsets.setValue(safeArea, Affinity.Inherited);
-      }
+      this.owner.roots.updateSafeArea(safeArea);
     },
     serviceDidSetViewportOrientation(orientation: ViewportOrientation): void {
       const rootViews = this.owner.roots.views;
