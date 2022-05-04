@@ -1310,6 +1310,9 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     value: null,
     affinity: Affinity.Inherited,
     inherits: true,
+    init(): void {
+      this.timing = void 0;
+    },
     transformInletValue(superMood: MoodVector | null): MoodVector | null {
       if (superMood !== null) {
         const moodModifierProperty = this.owner.getFastener<Property<unknown, MoodMatrix>>("moodModifier", Property);
@@ -1323,17 +1326,24 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     didSetValue(mood: MoodVector | null): void {
       const theme = this.owner.theme.value;
       if (theme !== null && mood !== null) {
-        this.owner.applyTheme(theme, mood, true);
+        this.owner.applyTheme(theme, mood, this.timing);
+        this.timing = void 0;
       }
     },
   })
-  readonly mood!: Property<this, MoodVector | null>;
+  readonly mood!: Property<this, MoodVector | null> & {
+    /** @internal */
+    timing: AnyTiming | boolean | undefined,
+  };
 
   @Property<View["theme"]>({
     valueType: ThemeMatrix,
     value: null,
     affinity: Affinity.Inherited,
     inherits: true,
+    init(): void {
+      this.timing = void 0;
+    },
     transformInletValue(superTheme: ThemeMatrix | null): ThemeMatrix | null {
       if (superTheme !== null) {
         const themeModifierProperty = this.owner.getFastener<Property<unknown, MoodMatrix>>("themeModifier", Property);
@@ -1347,11 +1357,15 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     didSetValue(theme: ThemeMatrix | null): void {
       const mood = this.owner.mood.value;
       if (theme !== null && mood !== null) {
-        this.owner.applyTheme(theme, mood, true);
+        this.owner.applyTheme(theme, mood, this.timing);
+        this.timing = void 0;
       }
     },
   })
-  readonly theme!: Property<this, ThemeMatrix | null>;
+  readonly theme!: Property<this, ThemeMatrix | null> & {
+    /** @internal */
+    timing: AnyTiming | boolean | undefined,
+  };
 
   /** @override */
   getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel> | null): T | undefined {
@@ -1470,21 +1484,8 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
       const oldMoodModifier = this.moodModifier.getValueOr(MoodMatrix.empty());
       const newMoodModifier = oldMoodModifier.updatedCol(feel, updates, true);
       if (!newMoodModifier.equals(oldMoodModifier)) {
+        this.mood.timing = timing;
         this.moodModifier.setValue(newMoodModifier, Affinity.Intrinsic);
-        if (timing !== void 0) {
-          const theme = this.theme.value;
-          const mood = this.mood.value;
-          if (theme !== null && mood !== null) {
-            if (timing === true) {
-              timing = theme.getOr(Look.timing, mood, false);
-            } else {
-              timing = Timing.fromAny(timing);
-            }
-            this.applyTheme(theme, mood, timing);
-          }
-        } else {
-          this.requireUpdate(View.NeedsChange);
-        }
       }
     }
   }
@@ -1516,21 +1517,8 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
       const oldThemeModifier = this.themeModifier.getValueOr(MoodMatrix.empty());
       const newThemeModifier = oldThemeModifier.updatedCol(feel, updates, true);
       if (!newThemeModifier.equals(oldThemeModifier)) {
+        this.theme.timing = timing;
         this.themeModifier.setValue(newThemeModifier, Affinity.Intrinsic);
-        if (timing !== void 0) {
-          const theme = this.theme.value;
-          const mood = this.mood.value;
-          if (theme !== null && mood !== null) {
-            if (timing === true) {
-              timing = theme.getOr(Look.timing, mood, false);
-            } else {
-              timing = Timing.fromAny(timing);
-            }
-            this.applyTheme(theme, mood, timing);
-          }
-        } else {
-          this.requireUpdate(View.NeedsChange);
-        }
       }
     }
   }
