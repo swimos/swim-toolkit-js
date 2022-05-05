@@ -1478,7 +1478,6 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   })
   readonly moodModifier!: Property<this, MoodMatrix | null>;
 
-  /** @internal */
   modifyMood(feel: Feel, updates: MoodVectorUpdates<Feel>, timing?: AnyTiming | boolean): void {
     if (this.moodModifier.hasAffinity(Affinity.Intrinsic)) {
       const oldMoodModifier = this.moodModifier.getValueOr(MoodMatrix.empty());
@@ -1511,11 +1510,28 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   })
   readonly themeModifier!: Property<this, MoodMatrix | null>;
 
-  /** @internal */
-  modifyTheme(feel: Feel, updates: MoodVectorUpdates<Feel>, timing?: AnyTiming | boolean): void {
+  modifyTheme(feel: Feel, updates: MoodVectorUpdates<Feel>, timing?: AnyTiming | boolean): void;
+  modifyTheme(cols: [feel: Feel, updates: MoodVectorUpdates<Feel> | undefined][], timing?: AnyTiming | boolean): void;
+  modifyTheme(feel: Feel | [feel: Feel, updates: MoodVectorUpdates<Feel> | undefined][], updates?: MoodVectorUpdates<Feel> | AnyTiming | boolean, timing?: AnyTiming | boolean): void {
     if (this.themeModifier.hasAffinity(Affinity.Intrinsic)) {
       const oldThemeModifier = this.themeModifier.getValueOr(MoodMatrix.empty());
-      const newThemeModifier = oldThemeModifier.updatedCol(feel, updates, true);
+      let newThemeModifier: MoodMatrix;
+      if (feel instanceof Feel) {
+        newThemeModifier = oldThemeModifier.updatedCol(feel, updates as MoodVectorUpdates<Feel>, true);
+      } else {
+        newThemeModifier = oldThemeModifier;
+        const cols = feel as [feel: Feel, updates: MoodVectorUpdates<Feel> | undefined][];
+        timing = updates as AnyTiming | boolean;
+        updates = void 0;
+        for (let i = 0, n = cols.length; i < n; i += 1) {
+          [feel, updates] = cols[i]!;
+          if (updates !== void 0) {
+            newThemeModifier = newThemeModifier.updatedCol(feel, updates, true);
+          } else {
+            newThemeModifier = newThemeModifier.col(feel, void 0);
+          }
+        }
+      }
       if (!newThemeModifier.equals(oldThemeModifier)) {
         this.theme.timing = timing;
         this.themeModifier.setValue(newThemeModifier, Affinity.Intrinsic);

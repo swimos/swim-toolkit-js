@@ -35,7 +35,7 @@ Look.statusColor = new ColorLook("statusColor");
 Look.accentColor = new ColorLook("accentColor");
 
 Look.backgroundColor = new ColorLook("backgroundColor");
-Look.selectedColor = new ColorLook("selectedColor");
+Look.selectionColor = new ColorLook("selectionColor");
 Look.borderColor = new ColorLook("borderColor");
 Look.focusColor = new ColorLook("focusColor");
 

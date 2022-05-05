@@ -42,11 +42,11 @@ Theme.dark = (function (): ThemeMatrix {
   const warningColor = Color.parse("#f9f070");
   const alertColor = Color.parse("#f6511d");
 
-  const selectedColor = Color.parse("#5e5f5f");
-  const primarySelectedColor = Color.parse("#2b6458");
-  const secondarySelectedColor = Color.parse("#326578");
-  const warningSelectedColor = Color.parse("#67643b");
-  const alertSelectedColor = Color.parse("#6a3423");
+  const selectionColor = Color.parse("#5e5f5f");
+  const primarySelectionColor = Color.parse("#2b6458");
+  const secondarySelectionColor = Color.parse("#326578");
+  const warningSelectionColor = Color.parse("#67643b");
+  const alertSelectionColor = Color.parse("#6a3423");
 
   const backgroundColor = Color.parse("#181818");
   const borderColor = Color.parse("#ffffff").alpha(0.25);
@@ -78,7 +78,7 @@ Theme.dark = (function (): ThemeMatrix {
     [Look.accentColor, accentColor],
 
     [Look.backgroundColor, backgroundColor],
-    [Look.selectedColor, selectedColor],
+    [Look.selectionColor, selectionColor],
     [Look.borderColor, borderColor],
     [Look.focusColor, focusColor],
 
@@ -107,7 +107,7 @@ Theme.dark = (function (): ThemeMatrix {
     [Look.accentColor, accentColor],
 
     [Look.backgroundColor, backgroundColor],
-    [Look.selectedColor, selectedColor],
+    [Look.selectionColor, selectionColor],
     [Look.borderColor, borderColor],
     [Look.focusColor, focusColor],
 
@@ -122,24 +122,12 @@ Theme.dark = (function (): ThemeMatrix {
 
   const primaryFeel = FeelVector.of(
     [Look.accentColor, primaryColor],
-    [Look.selectedColor, primarySelectedColor],
+    [Look.selectionColor, primarySelectionColor],
   );
 
   const secondaryFeel = FeelVector.of(
     [Look.accentColor, secondaryColor],
-    [Look.selectedColor, secondarySelectedColor],
-  );
-
-  const unselectedFeel = FeelVector.of(
-    [Look.textColor, labelColor],
-    [Look.iconColor, labelColor],
-    [Look.backgroundColor, backgroundColor.darker(1)],
-  );
-
-  const selectedFeel = FeelVector.of(
-    [Look.textColor, textColor],
-    [Look.iconColor, iconColor],
-    [Look.backgroundColor, selectedColor],
+    [Look.selectionColor, secondarySelectionColor],
   );
 
   const disabledFeel = FeelVector.of(
@@ -157,13 +145,25 @@ Theme.dark = (function (): ThemeMatrix {
   const warningFeel = FeelVector.of(
     [Look.statusColor, warningColor],
     [Look.accentColor, warningColor],
-    [Look.selectedColor, warningSelectedColor],
+    [Look.selectionColor, warningSelectionColor],
   );
 
   const alertFeel = FeelVector.of(
     [Look.statusColor, alertColor],
     [Look.accentColor, alertColor],
-    [Look.selectedColor, alertSelectedColor],
+    [Look.selectionColor, alertSelectionColor],
+  );
+
+  const unselectedFeel = FeelVector.of(
+    [Look.textColor, labelColor],
+    [Look.iconColor, labelColor],
+    [Look.backgroundColor, backgroundColor.darker(1)],
+  );
+
+  const selectedFeel = FeelVector.of(
+    [Look.textColor, textColor],
+    [Look.iconColor, iconColor],
+    [Look.backgroundColor, selectionColor],
   );
 
   const raisedFeel = FeelVector.of(
@@ -189,6 +189,7 @@ Theme.dark = (function (): ThemeMatrix {
 
   const darkerFeel = FeelVector.of(
     [Look.backgroundColor, Color.black(1)],
+    [Look.selectionColor, Color.black(1)],
     [Look.iconColor, Color.black(1)],
     [Look.statusColor, Color.black(1)],
     [Look.accentColor, Color.black(1)],
@@ -198,6 +199,7 @@ Theme.dark = (function (): ThemeMatrix {
 
   const lighterFeel = FeelVector.of(
     [Look.backgroundColor, Color.black(-1)],
+    [Look.selectionColor, Color.black(-1)],
     [Look.iconColor, Color.black(-1)],
     [Look.statusColor, Color.black(-1)],
     [Look.accentColor, Color.black(-1)],
@@ -207,6 +209,7 @@ Theme.dark = (function (): ThemeMatrix {
 
   const contrastedFeel = FeelVector.of(
     [Look.backgroundColor, Color.black(-1)],
+    [Look.selectionColor, Color.black(-1)],
     [Look.iconColor, Color.black(-1)],
     [Look.statusColor, Color.black(-1)],
     [Look.accentColor, Color.black(-1)],
@@ -227,7 +230,6 @@ Theme.dark = (function (): ThemeMatrix {
 
   const hoveringFeel = FeelVector.of(
     [Look.backgroundColor, Color.black(-2)],
-    [Look.selectedColor, Color.black(-2)],
     [Look.etchColor, Color.black(-1)],
     [Look.maskColor, Color.black(-1)],
   );
@@ -237,11 +239,12 @@ Theme.dark = (function (): ThemeMatrix {
     [Look.statusColor, Color.black(0.8)],
     [Look.accentColor, Color.black(0.8)],
     [Look.backgroundColor, Color.black(0.8)],
-    [Look.selectedColor, Color.black(0.8)],
+    [Look.selectionColor, Color.black(0.8)],
   );
 
   const transparentFeel = FeelVector.of(
     [Look.backgroundColor, Color.black(0)],
+    [Look.selectionColor, Color.black(0)],
   );
 
   const navigatingFeel = FeelVector.of(
@@ -254,13 +257,13 @@ Theme.dark = (function (): ThemeMatrix {
 
     [Feel.primary, primaryFeel],
     [Feel.secondary, secondaryFeel],
-
-    [Feel.unselected, unselectedFeel],
-    [Feel.selected, selectedFeel],
     [Feel.disabled, disabledFeel],
     [Feel.inactive, inactiveFeel],
     [Feel.warning, warningFeel],
     [Feel.alert, alertFeel],
+
+    [Feel.unselected, unselectedFeel],
+    [Feel.selected, selectedFeel],
 
     [Feel.darker, darkerFeel],
     [Feel.lighter, lighterFeel],
