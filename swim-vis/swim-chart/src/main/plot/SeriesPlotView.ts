@@ -31,7 +31,7 @@ import {BTree} from "@swim/collections";
 import type {R2Box} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
-import { ViewFlags, AnyView, View, ViewSet} from "@swim/view";
+import {ViewFlags, AnyView, View, ViewSet} from "@swim/view";
 import {GraphicsView, CanvasContext, CanvasRenderer} from "@swim/graphics";
 import {DataPointCategory, AnyDataPointView, DataPointView} from "../data/DataPointView";
 import {ContinuousScaleAnimator} from "../scaled/ContinuousScaleAnimator";
@@ -62,6 +62,15 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
   }
 
   override readonly observerType?: Class<SeriesPlotViewObserver<X, Y>>;
+
+  @ThemeAnimator<SeriesPlotView<X, Y>["opacity"]>({
+    valueType: Number,
+    updateFlags: View.NeedsRender,
+    didSetValue(opacity: number | undefined): void {
+      this.owner.callObservers("viewDidSetOpacity", opacity, this.owner);
+    },
+  })
+  readonly opacity!: ThemeAnimator<this, number | undefined>;
 
   @ThemeAnimator({valueType: Font, value: null, inherits: true})
   readonly font!: ThemeAnimator<this, Font | null, AnyFont | null>;

@@ -44,6 +44,7 @@ export class AreaPlotView<X = unknown, Y = unknown> extends SeriesPlotView<X, Y>
   readonly fill!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
   protected renderPlot(context: CanvasContext, frame: R2Box): void {
+    const opacity = this.opacity.value;
     const fill = this.fill.getValueOr(Color.transparent());
     const gradientStops = this.gradientStops;
     let gradient: CanvasGradient | null = null;
@@ -102,12 +103,17 @@ export class AreaPlotView<X = unknown, Y = unknown> extends SeriesPlotView<X, Y>
     }
 
     // save
+    const contextGlobalAlpha = context.globalAlpha;
     const contextFillStyle = context.fillStyle;
 
+    if (opacity !== void 0) {
+      context.globalAlpha = opacity;
+    }
     context.fillStyle = gradient !== null ? gradient : fill.toString();
     context.fill();
 
     // restore
+    context.globalAlpha = contextGlobalAlpha;
     context.fillStyle = contextFillStyle;
   }
 

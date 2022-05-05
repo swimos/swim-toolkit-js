@@ -54,6 +54,15 @@ export abstract class ScatterPlotView<X = unknown, Y = unknown> extends Graphics
 
   override readonly observerType?: Class<ScatterPlotViewObserver<X, Y>>;
 
+  @ThemeAnimator<ScatterPlotView<X, Y>["opacity"]>({
+    valueType: Number,
+    updateFlags: View.NeedsRender,
+    didSetValue(opacity: number | undefined): void {
+      this.owner.callObservers("viewDidSetOpacity", opacity, this.owner);
+    },
+  })
+  readonly opacity!: ThemeAnimator<this, number | undefined>;
+
   @ThemeAnimator({valueType: Font, value: null, inherits: true})
   readonly font!: ThemeAnimator<this, Font | null, AnyFont | null>;
 

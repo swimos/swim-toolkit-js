@@ -14,6 +14,7 @@
 
 import type {Class, Domain, Range, AnyTiming, ContinuousScale} from "@swim/util";
 import type {AnyFont, AnyColor} from "@swim/style";
+import type {ThemeAnimator} from "@swim/theme";
 import type {GraphicsViewInit, GraphicsView} from "@swim/graphics";
 import type {AnyDataPointView} from "../data/DataPointView";
 import type {ContinuousScaleAnimator} from "../scaled/ContinuousScaleAnimator";
@@ -78,4 +79,6 @@ export interface PlotView<X = unknown, Y = unknown> extends GraphicsView, Scaled
 
   /** @override */
   readonly yDataRange: Range<number> | null;
+
+  readonly opacity: ThemeAnimator<this, number | undefined>;
 }

@@ -69,6 +69,7 @@ export class LinePlotView<X = unknown, Y = unknown> extends SeriesPlotView<X, Y>
 
   protected renderPlot(context: CanvasContext, frame: R2Box): void {
     const size = Math.min(frame.width, frame.height);
+    const opacity = this.opacity.value;
     const stroke = this.stroke.getValueOr(Color.transparent());
     const strokeWidth = this.strokeWidth.getValueOr(Length.zero()).pxValue(size);
     const gradientStops = this.gradientStops;
@@ -116,14 +117,19 @@ export class LinePlotView<X = unknown, Y = unknown> extends SeriesPlotView<X, Y>
     }, this);
 
       // save
+    const contextGlobalAlpha = context.globalAlpha;
     const contextLineWidth = context.lineWidth;
     const contextStrokeStyle = context.strokeStyle;
 
+    if (opacity !== void 0) {
+      context.globalAlpha = opacity;
+    }
     context.lineWidth = strokeWidth;
     context.strokeStyle = gradient !== null ? gradient : stroke.toString();
     context.stroke();
 
     // restore
+    context.globalAlpha = contextGlobalAlpha;
     context.lineWidth = contextLineWidth;
     context.strokeStyle = contextStrokeStyle;
   }

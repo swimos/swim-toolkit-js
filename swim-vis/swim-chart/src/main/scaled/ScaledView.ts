@@ -414,6 +414,16 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
       if (typeof yDomainPadding[1] !== "boolean") {
         yDataDomainPaddedMax = (+yDataDomainPaddedMax + +yDomainPadding[1]) as unknown as Y;
       }
+      if (Values.equivalent(yDataDomainPaddedMin, yDataDomainPaddedMax)) {
+        yDataDomainPaddedMin = Math.floor(+yDataDomainPaddedMin) as unknown as Y;
+        yDataDomainPaddedMax = Math.ceil(+yDataDomainPaddedMax) as unknown as Y;
+        if (Values.equivalent(yDataDomainPaddedMin, yDataDomainPaddedMax)) {
+          yDataDomainPaddedMin = 0 as unknown as Y;
+          if (Values.equivalent(yDataDomainPaddedMin, yDataDomainPaddedMax)) {
+            yDataDomainPaddedMax = 1 as unknown as Y;
+          }
+        }
+      }
       yDataDomainPadded = Domain(yDataDomainPaddedMin, yDataDomainPaddedMax);
     } else {
       yDataDomainPadded = null;

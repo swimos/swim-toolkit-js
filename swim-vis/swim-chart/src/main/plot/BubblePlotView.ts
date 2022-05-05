@@ -63,14 +63,20 @@ export class BubblePlotView<X = unknown, Y = unknown> extends ScatterPlotView<X,
   protected renderPlot(context: CanvasContext, frame: R2Box): void {
     const size = Math.min(frame.width, frame.height);
     const radius = this.radius.getValueOr(Length.zero());
+    const opacity = this.opacity.value;
     const fill = this.fill.value;
     const stroke = this.stroke.value;
     const strokeWidth = this.strokeWidth.value;
 
     // save
+    const contextGlobalAlpha = context.globalAlpha;
     const contextFillStyle = context.fillStyle;
     const contextLineWidth = context.lineWidth;
     const contextStrokeStyle = context.strokeStyle;
+
+    if (opacity !== void 0) {
+      context.globalAlpha = opacity;
+    }
 
     const dataPointViews = this.dataPoints.views;
     for (const viewId in dataPointViews) {
@@ -97,6 +103,7 @@ export class BubblePlotView<X = unknown, Y = unknown> extends ScatterPlotView<X,
     }
 
     // restore
+    context.globalAlpha = contextGlobalAlpha;
     context.fillStyle = contextFillStyle;
     context.lineWidth = contextLineWidth;
     context.strokeStyle = contextStrokeStyle;
