@@ -74,7 +74,14 @@ export class SliceView extends GraphicsView {
   })
   readonly value!: Animator<this, number>;
 
-  @Animator({valueType: Number, value: 1, updateFlags: View.NeedsRender})
+  @Animator({
+    valueType: Number,
+    value: 1,
+    updateFlags: View.NeedsRender,
+    didSetValue(total: number): void {
+      this.owner.callObservers("viewDidSetTotal", total, this.owner);
+    },
+  })
   readonly total!: Animator<this, number>;
 
   @Animator({valueType: R2Point, value: R2Point.origin(), inherits: true, updateFlags: View.NeedsRender})

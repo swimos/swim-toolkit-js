@@ -20,6 +20,8 @@ import type {SliceView} from "./SliceView";
 export interface SliceViewObserver<V extends SliceView = SliceView> extends ViewObserver<V> {
   viewDidSetValue?(value: number, view: V): void;
 
+  viewDidSetTotal?(total: number, view: V): void;
+
   viewWillAttachLabel?(labelView: GraphicsView, view: V): void;
 
   viewDidDetachLabel?(labelView: GraphicsView, view: V): void;
