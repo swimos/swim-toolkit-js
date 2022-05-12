@@ -280,10 +280,10 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
       xDataDomain = xScaledDomain;
     } else if (xScaledDomain !== null) {
       if (Values.compare(xScaledDomain[0], xDataDomain[0]) < 0) {
-        xDataDomain = Domain(xScaledDomain[0], xDataDomain[1]);
+        xDataDomain = this.xScale.createDomain(xScaledDomain[0], xDataDomain[1]);
       }
       if (Values.compare(xDataDomain[1], xScaledDomain[1]) < 0) {
-        xDataDomain = Domain(xDataDomain[0], xScaledDomain[1]);
+        xDataDomain = this.xScale.createDomain(xDataDomain[0], xScaledDomain[1]);
       }
     }
     this.setXDataDomain(xDataDomain);
@@ -322,10 +322,10 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
       yDataDomain = yScaledDomain;
     } else if (yScaledDomain !== null) {
       if (Values.compare(yScaledDomain[0], yDataDomain[0]) < 0) {
-        yDataDomain = Domain(yScaledDomain[0], yDataDomain[1]);
+        yDataDomain = this.yScale.createDomain(yScaledDomain[0], yDataDomain[1]);
       }
       if (Values.compare(yDataDomain[1], yScaledDomain[1]) < 0) {
-        yDataDomain = Domain(yDataDomain[0], yScaledDomain[1]);
+        yDataDomain = this.yScale.createDomain(yDataDomain[0], yScaledDomain[1]);
       }
     }
     this.setYDataDomain(yDataDomain);
@@ -388,7 +388,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
       if (typeof xDomainPadding[1] !== "boolean") {
         xDataDomainPaddedMax = (+xDataDomainPaddedMax + +xDomainPadding[1]) as unknown as X;
       }
-      xDataDomainPadded = Domain(xDataDomainPaddedMin, xDataDomainPaddedMax);
+      xDataDomainPadded = this.xScale.createDomain(xDataDomainPaddedMin, xDataDomainPaddedMax);
     } else {
       xDataDomainPadded = null;
     }
@@ -424,7 +424,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
           }
         }
       }
-      yDataDomainPadded = Domain(yDataDomainPaddedMin, yDataDomainPaddedMax);
+      yDataDomainPadded = this.yScale.createDomain(yDataDomainPaddedMin, yDataDomainPaddedMax);
     } else {
       yDataDomainPadded = null;
     }
@@ -980,9 +980,9 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
       } else {
         const xDomainWidth = +newXDomain[1] - +newXDomain[0] as unknown as X;
         if ((this.scaledFlags & ScaledView.XMinInRangeFlag) !== 0) {
-          newXDomain = Domain(xDataDomainPadded[0], +xDataDomainPadded[0] + +xDomainWidth as unknown as X);
+          newXDomain = this.xScale.createDomain(xDataDomainPadded[0], +xDataDomainPadded[0] + +xDomainWidth as unknown as X);
         } else {
-          newXDomain = Domain(+xDataDomainPadded[1] - +xDomainWidth as unknown as X, xDataDomainPadded[1]);
+          newXDomain = this.xScale.createDomain(+xDataDomainPadded[1] - +xDomainWidth as unknown as X, xDataDomainPadded[1]);
         }
       }
     }
@@ -996,9 +996,9 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
       } else {
         const yDomainWidth = +newYDomain[1] - +newYDomain[0] as unknown as Y;
         if ((this.scaledFlags & ScaledView.YMinInRangeFlag) !== 0) {
-          newYDomain = Domain(yDataDomainPadded[0], +yDataDomainPadded[0] + +yDomainWidth as unknown as Y);
+          newYDomain = this.yScale.createDomain(yDataDomainPadded[0], +yDataDomainPadded[0] + +yDomainWidth as unknown as Y);
         } else {
-          newYDomain = Domain(+yDataDomainPadded[1] - +yDomainWidth as unknown as Y, yDataDomainPadded[1]);
+          newYDomain = this.yScale.createDomain(+yDataDomainPadded[1] - +yDomainWidth as unknown as Y, yDataDomainPadded[1]);
         }
       }
     }
@@ -1019,13 +1019,13 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
             fitAspectRatio > 0 && domainAspectRatio > anamorphicAspectRatio) {
           const newDomainWidth = oldDomainHeight * anamorphicAspectRatio;
           const dx = newDomainWidth - oldDomainWidth;
-          newXDomain = Domain(+newXDomain[0] - dx * fitAlign[0] as unknown as X,
-                              +newXDomain[1] + dx * (1 - fitAlign[0]) as unknown as X);
+          newXDomain = this.xScale.createDomain(+newXDomain[0] - dx * fitAlign[0] as unknown as X,
+                                                +newXDomain[1] + dx * (1 - fitAlign[0]) as unknown as X);
         } else {
           const newDomainHeight = oldDomainWidth / anamorphicAspectRatio;
           const dy = newDomainHeight - oldDomainHeight;
-          newYDomain = Domain(+newYDomain[0] - dy * fitAlign[1] as unknown as Y,
-                              +newYDomain[1] + dy * (1 - fitAlign[1]) as unknown as Y);
+          newYDomain = this.yScale.createDomain(+newYDomain[0] - dy * fitAlign[1] as unknown as Y,
+                                                +newYDomain[1] + dy * (1 - fitAlign[1]) as unknown as Y);
         }
       }
     }
@@ -1147,8 +1147,8 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
     }
     super.displayChildren(displayFlags, layoutChild);
 
-    this.setXDataDomain(xCount !== 0 ? Domain<X>(xDataDomainMin!, xDataDomainMax!) : null);
-    this.setYDataDomain(yCount !== 0 ? Domain<Y>(yDataDomainMin!, yDataDomainMax!) : null);
+    this.setXDataDomain(xCount !== 0 ? this.xScale.createDomain(xDataDomainMin!, xDataDomainMax!) : null);
+    this.setYDataDomain(yCount !== 0 ? this.yScale.createDomain(yDataDomainMin!, yDataDomainMax!) : null);
     this.xRangePadding.setValue([xRangePaddingMin, xRangePaddingMax], Affinity.Intrinsic);
     this.yRangePadding.setValue([yRangePaddingMin, yRangePaddingMax], Affinity.Intrinsic);
   }

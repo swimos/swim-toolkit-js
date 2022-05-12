@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Class, Proto, Observes, Consumes} from "@swim/util";
+import type {Mutable, Class, Proto, Observes, Consumer} from "@swim/util";
 import type {FastenerOwner} from "@swim/component";
 import type {ModelFactory, Model} from "../model/Model";
 import {AnyTrait, TraitFactory, Trait} from "./Trait";
@@ -130,9 +130,9 @@ export interface TraitModelSet<O = unknown, T extends Trait = Trait, M extends M
 
   reinsertTrait(trait: T, targetTrait?: T | null): void;
 
-  consumeTraits(consumer: Consumes<T>): void;
+  consumeTraits(consumer: Consumer): void;
 
-  unconsumeTraits(consumer: Consumes<T>): void;
+  unconsumeTraits(consumer: Consumer): void;
 
   createTrait(): T;
 
@@ -371,7 +371,7 @@ export const TraitModelSet = (function (_super: typeof ModelSet) {
     }
   };
 
-  TraitModelSet.prototype.consumeTraits = function <T extends Trait>(this: TraitModelSet<unknown, T>, consumer: Consumes<T>): void {
+  TraitModelSet.prototype.consumeTraits = function <T extends Trait>(this: TraitModelSet<unknown, T>, consumer: Consumer): void {
     const traits = this.traits;
     for (const traitId in traits) {
       const trait = traits[traitId]!;
@@ -379,7 +379,7 @@ export const TraitModelSet = (function (_super: typeof ModelSet) {
     }
   };
 
-  TraitModelSet.prototype.unconsumeTraits = function <T extends Trait>(this: TraitModelSet<unknown, T>, consumer: Consumes<T>): void {
+  TraitModelSet.prototype.unconsumeTraits = function <T extends Trait>(this: TraitModelSet<unknown, T>, consumer: Consumer): void {
     const traits = this.traits;
     for (const traitId in traits) {
       const trait = traits[traitId]!;

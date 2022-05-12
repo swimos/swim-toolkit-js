@@ -106,7 +106,7 @@ export interface ControllerRef<O = unknown, C extends Controller = Controller> e
   /** @protected @override */
   didUnbindInlet(inlet: ControllerRef<unknown, C>): void;
 
-  /** @internal */
+  /** @internal @override */
   readonly outlets: ReadonlyArray<ControllerRef<unknown, C>> | null;
 
   /** @internal @override */
@@ -147,6 +147,12 @@ export interface ControllerRef<O = unknown, C extends Controller = Controller> e
   /** @override */
   detectController(controller: Controller): C | null;
 
+  /** @protected @override */
+  onStartConsuming(): void;
+
+  /** @protected @override */
+  onStopConsuming(): void;
+
   /** @internal @protected */
   decohereOutlets(): void;
 
@@ -172,35 +178,6 @@ export const ControllerRef = (function (_super: typeof ControllerRelation) {
       this.attachController(inletController);
     } else {
       this.detachController();
-    }
-  };
-
-  ControllerRef.prototype.onBindInlet = function <C extends Controller>(this: ControllerRef<unknown, C>, inlet: ControllerRef<unknown, C>): void {
-    (this as Mutable<typeof this>).inlet = inlet;
-    _super.prototype.onBindInlet.call(this, inlet);
-  };
-
-  ControllerRef.prototype.onUnbindInlet = function <C extends Controller>(this: ControllerRef<unknown, C>, inlet: ControllerRef<unknown, C>): void {
-    _super.prototype.onUnbindInlet.call(this, inlet);
-    (this as Mutable<typeof this>).inlet = null;
-  };
-
-  ControllerRef.prototype.attachOutlet = function <C extends Controller>(this: ControllerRef<unknown, C>, outlet: ControllerRef<unknown, C>): void {
-    let outlets = this.outlets as ControllerRef<unknown, C>[] | null;
-    if (outlets === null) {
-      outlets = [];
-      (this as Mutable<typeof this>).outlets = outlets;
-    }
-    outlets.push(outlet);
-  };
-
-  ControllerRef.prototype.detachOutlet = function <C extends Controller>(this: ControllerRef<unknown, C>, outlet: ControllerRef<unknown, C>): void {
-    const outlets = this.outlets as ControllerRef<unknown, C>[] | null;
-    if (outlets !== null) {
-      const index = outlets.indexOf(outlet);
-      if (index >= 0) {
-        outlets.splice(index, 1);
-      }
     }
   };
 
@@ -431,6 +408,20 @@ export const ControllerRef = (function (_super: typeof ControllerRelation) {
     return null;
   };
 
+  ControllerRef.prototype.onStartConsuming = function (this: ControllerRef): void {
+    const controller = this.controller;
+    if (controller !== null) {
+      controller.consume(this);
+    }
+  };
+
+  ControllerRef.prototype.onStopConsuming = function (this: ControllerRef): void {
+    const controller = this.controller;
+    if (controller !== null) {
+      controller.unconsume(this);
+    }
+  };
+
   ControllerRef.prototype.decohereOutlets = function (this: ControllerRef): void {
     const outlets = this.outlets;
     for (let i = 0, n = outlets !== null ? outlets.length : 0; i < n; i += 1) {
@@ -470,13 +461,6 @@ export const ControllerRef = (function (_super: typeof ControllerRelation) {
       Object.setPrototypeOf(fastener, this.prototype);
     }
     fastener = _super.construct.call(this, fastener, owner) as F;
-    Object.defineProperty(fastener, "inlet", { // override getter
-      value: null,
-      writable: true,
-      enumerable: true,
-      configurable: true,
-    });
-    (fastener as Mutable<typeof fastener>).outlets = null;
     (fastener as Mutable<typeof fastener>).controller = null;
     return fastener;
   };

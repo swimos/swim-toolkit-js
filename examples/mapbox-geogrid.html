@@ -53,26 +53,26 @@ swim.TraitViewControllerSet({
   },
 })(ExampleMapboxController.prototype, "layers");
 
-class ExampleTileController extends swim.GeoGridController {
+class ExampleTileController extends swim.GeoTileController {
 }
 swim.TraitViewRef({
   extends: true,
   initView(tileView) {
-    swim.GeoGridController.geo.prototype.initView.call(this, tileView);
+    swim.GeoTileController.geo.prototype.initView.call(this, tileView);
     tileView.geoBoundsColor("#008f11");
   },
 })(ExampleTileController.prototype, "geo");
 swim.TraitViewControllerSet({
   extends: true,
   attachTileView(tileView, tileController) {
-    swim.GeoGridController.tiles.prototype.attachTileView.call(this, tileView, tileController);
+    swim.GeoTileController.tiles.prototype.attachTileView.call(this, tileView, tileController);
   },
   createController(tileTrait) {
     return tileTrait !== void 0 ? new ExampleTileController(tileTrait.geoTile) : null;
   },
 })(ExampleTileController.prototype, "tiles");
 
-class ExampleTileTrait extends swim.GeoGridTrait {
+class ExampleTileTrait extends swim.GeoTileTrait {
   constructor(geoTile) {
     super(geoTile);
     const tileId = geoTile.x + "," + geoTile.y + "," + geoTile.z;

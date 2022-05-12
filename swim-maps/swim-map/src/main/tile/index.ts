@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {GeoGridView} from "./GeoGridView";
+export {GeoTileView} from "./GeoTileView";
 
-export {GeoGridTrait} from "./GeoGridTrait";
-export {GeoGridTraitObserver} from "./GeoGridTraitObserver";
+export {GeoTileTrait} from "./GeoTileTrait";
+export {GeoTileTraitObserver} from "./GeoTileTraitObserver";
 
-export {GeoGridController} from "./GeoGridController";
-export {GeoGridControllerObserver} from "./GeoGridControllerObserver";
+export {GeoTileController} from "./GeoTileController";
+export {GeoTileControllerObserver} from "./GeoTileControllerObserver";

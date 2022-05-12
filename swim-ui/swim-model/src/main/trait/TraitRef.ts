@@ -107,7 +107,7 @@ export interface TraitRef<O = unknown, T extends Trait = Trait> extends TraitRel
   /** @protected @override */
   didUnbindInlet(inlet: TraitRef<unknown, T>): void;
 
-  /** @internal */
+  /** @internal @override */
   readonly outlets: ReadonlyArray<TraitRef<unknown, T>> | null;
 
   /** @internal @override */
@@ -157,6 +157,12 @@ export interface TraitRef<O = unknown, T extends Trait = Trait> extends TraitRel
   /** @override */
   detectTrait(trait: Trait): T | null;
 
+  /** @protected @override */
+  onStartConsuming(): void;
+
+  /** @protected @override */
+  onStopConsuming(): void;
+
   /** @internal @protected */
   decohereOutlets(): void;
 
@@ -182,35 +188,6 @@ export const TraitRef = (function (_super: typeof TraitRelation) {
       this.attachTrait(inletTrait);
     } else {
       this.detachTrait();
-    }
-  };
-
-  TraitRef.prototype.onBindInlet = function <T extends Trait>(this: TraitRef<unknown, T>, inlet: TraitRef<unknown, T>): void {
-    (this as Mutable<typeof this>).inlet = inlet;
-    _super.prototype.onBindInlet.call(this, inlet);
-  };
-
-  TraitRef.prototype.onUnbindInlet = function <T extends Trait>(this: TraitRef<unknown, T>, inlet: TraitRef<unknown, T>): void {
-    _super.prototype.onUnbindInlet.call(this, inlet);
-    (this as Mutable<typeof this>).inlet = null;
-  };
-
-  TraitRef.prototype.attachOutlet = function <T extends Trait>(this: TraitRef<unknown, T>, outlet: TraitRef<unknown, T>): void {
-    let outlets = this.outlets as TraitRef<unknown, T>[] | null;
-    if (outlets === null) {
-      outlets = [];
-      (this as Mutable<typeof this>).outlets = outlets;
-    }
-    outlets.push(outlet);
-  };
-
-  TraitRef.prototype.detachOutlet = function <T extends Trait>(this: TraitRef<unknown, T>, outlet: TraitRef<unknown, T>): void {
-    const outlets = this.outlets as TraitRef<unknown, T>[] | null;
-    if (outlets !== null) {
-      const index = outlets.indexOf(outlet);
-      if (index >= 0) {
-        outlets.splice(index, 1);
-      }
     }
   };
 
@@ -475,6 +452,20 @@ export const TraitRef = (function (_super: typeof TraitRelation) {
     return null;
   };
 
+  TraitRef.prototype.onStartConsuming = function (this: TraitRef): void {
+    const trait = this.trait;
+    if (trait !== null) {
+      trait.consume(this);
+    }
+  };
+
+  TraitRef.prototype.onStopConsuming = function (this: TraitRef): void {
+    const trait = this.trait;
+    if (trait !== null) {
+      trait.unconsume(this);
+    }
+  };
+
   TraitRef.prototype.decohereOutlets = function (this: TraitRef): void {
     const outlets = this.outlets;
     for (let i = 0, n = outlets !== null ? outlets.length : 0; i < n; i += 1) {
@@ -514,13 +505,6 @@ export const TraitRef = (function (_super: typeof TraitRelation) {
       Object.setPrototypeOf(fastener, this.prototype);
     }
     fastener = _super.construct.call(this, fastener, owner) as F;
-    Object.defineProperty(fastener, "inlet", { // override getter
-      value: null,
-      writable: true,
-      enumerable: true,
-      configurable: true,
-    });
-    (fastener as Mutable<typeof fastener>).outlets = null;
     (fastener as Mutable<typeof fastener>).trait = null;
     return fastener;
   };

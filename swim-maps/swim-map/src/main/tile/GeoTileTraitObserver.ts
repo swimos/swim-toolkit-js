@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import type {GeoLayerTraitObserver} from "../layer/GeoLayerTraitObserver";
-import type {GeoGridTrait} from "./GeoGridTrait";
+import type {GeoTileTrait} from "./GeoTileTrait";
 
 /** @public */
-export interface GeoGridTraitObserver<T extends GeoGridTrait = GeoGridTrait> extends GeoLayerTraitObserver<T> {
-  traitWillAttachTile?(tileTrait: GeoGridTrait, trait: T): void;
+export interface GeoTileTraitObserver<T extends GeoTileTrait = GeoTileTrait> extends GeoLayerTraitObserver<T> {
+  traitWillAttachTile?(tileTrait: GeoTileTrait, trait: T): void;
 
-  traitDidDetachTile?(tileTrait: GeoGridTrait, trait: T): void;
+  traitDidDetachTile?(tileTrait: GeoTileTrait, trait: T): void;
 }

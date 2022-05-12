@@ -29,9 +29,8 @@ import {
   Observable,
   ObserverMethods,
   ObserverParameters,
-  Consumes,
-  Consumable,
   Consumer,
+  Consumable,
 } from "@swim/util";
 import {FastenerContext, Fastener, Property} from "@swim/component";
 import {AnyValue, Value} from "@swim/structure";
@@ -103,9 +102,6 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   }
 
   readonly observerType?: Class<TraitObserver>;
-
-  /** @override */
-  readonly consumerType?: Class<Consumer>;
 
   /** @internal */
   readonly uid: string;
@@ -1432,8 +1428,14 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
         fastener.bindTrait(trait, null);
       }, this);
     }
-    if (fastener instanceof WarpDownlink && fastener.consumed === true && this.consuming) {
-      fastener.consume(this);
+    if (this.consuming) {
+      if (fastener instanceof WarpDownlink && fastener.consumed === true) {
+        fastener.consume(this);
+      } else if (fastener instanceof TraitRelation && fastener.consumed === true) {
+        fastener.consume(this);
+      } else if (fastener instanceof ModelRelation && fastener.consumed === true) {
+        fastener.consume(this);
+      }
     }
   }
 
@@ -1657,10 +1659,10 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   }
 
   /** @internal */
-  readonly consumers: ReadonlyArray<Consumes<this>>;
+  readonly consumers: ReadonlyArray<Consumer>;
 
   /** @override */
-  consume(consumer: Consumes<this>): void {
+  consume(consumer: Consumer): void {
     const oldConsumers = this.consumers;
     const newConsumers = Arrays.inserted(consumer, oldConsumers);
     if (oldConsumers !== newConsumers) {
@@ -1674,20 +1676,20 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     }
   }
 
-  protected willConsume(consumer: Consumes<this>): void {
+  protected willConsume(consumer: Consumer): void {
     // hook
   }
 
-  protected onConsume(consumer: Consumes<this>): void {
+  protected onConsume(consumer: Consumer): void {
     // hook
   }
 
-  protected didConsume(consumer: Consumes<this>): void {
+  protected didConsume(consumer: Consumer): void {
     // hook
   }
 
   /** @override */
-  unconsume(consumer: Consumes<this>): void {
+  unconsume(consumer: Consumer): void {
     const oldConsumers = this.consumers;
     const newConsumers = Arrays.removed(consumer, oldConsumers);
     if (oldConsumers !== newConsumers) {
@@ -1701,15 +1703,15 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     }
   }
 
-  protected willUnconsume(consumer: Consumes<this>): void {
+  protected willUnconsume(consumer: Consumer): void {
     // hook
   }
 
-  protected onUnconsume(consumer: Consumes<this>): void {
+  protected onUnconsume(consumer: Consumer): void {
     // hook
   }
 
-  protected didUnconsume(consumer: Consumes<this>): void {
+  protected didUnconsume(consumer: Consumer): void {
     // hook
   }
 
@@ -1800,6 +1802,10 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
       const fastener = fasteners[fastenerName]!;
       if (fastener instanceof WarpDownlink && fastener.consumed === true) {
         fastener.consume(this);
+      } else if (fastener instanceof TraitRelation && fastener.consumed === true) {
+        fastener.consume(this);
+      } else if (fastener instanceof ModelRelation && fastener.consumed === true) {
+        fastener.consume(this);
       }
     }
   }
@@ -1810,6 +1816,10 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     for (const fastenerName in fasteners) {
       const fastener = fasteners[fastenerName]!;
       if (fastener instanceof WarpDownlink && fastener.consumed === true) {
+        fastener.unconsume(this);
+      } else if (fastener instanceof TraitRelation && fastener.consumed === true) {
+        fastener.unconsume(this);
+      } else if (fastener instanceof ModelRelation && fastener.consumed === true) {
         fastener.unconsume(this);
       }
     }

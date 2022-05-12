@@ -187,12 +187,12 @@ export abstract class ScatterPlotView<X = unknown, Y = unknown> extends Graphics
     const x: X = dataPointView.x.getValue();
     let xDataDomain = this.xDataDomain;
     if (xDataDomain === null) {
-      xDataDomain = Domain(x, x);
+      xDataDomain = this.xScale.createDomain(x, x);
     } else {
       if (Values.compare(x, xDataDomain[0]) < 0) {
-        xDataDomain = Domain(x, xDataDomain[1]);
+        xDataDomain = this.xScale.createDomain(x, xDataDomain[1]);
       } else if (Values.compare(xDataDomain[1], x) < 0) {
-        xDataDomain = Domain(xDataDomain[0], x);
+        xDataDomain = this.xScale.createDomain(xDataDomain[0], x);
       }
     }
     this.setXDataDomain(xDataDomain);
@@ -229,18 +229,18 @@ export abstract class ScatterPlotView<X = unknown, Y = unknown> extends Graphics
     const y2 = dataPointView.y2.value;
     let yDataDomain = this.yDataDomain;
     if (yDataDomain === null) {
-      yDataDomain = Domain(y, y);
+      yDataDomain = this.yScale.createDomain(y, y);
     } else {
       if (Values.compare(y, yDataDomain[0]) < 0) {
-        yDataDomain = Domain(y, yDataDomain[1]);
+        yDataDomain = this.yScale.createDomain(y, yDataDomain[1]);
       } else if (Values.compare(yDataDomain[1], y) < 0) {
-        yDataDomain = Domain(yDataDomain[0], y);
+        yDataDomain = this.yScale.createDomain(yDataDomain[0], y);
       }
       if (y2 !== void 0) {
         if (Values.compare(y2, yDataDomain[0]) < 0) {
-          yDataDomain = Domain(y2, yDataDomain[1]);
+          yDataDomain = this.yScale.createDomain(y2, yDataDomain[1]);
         } else if (Values.compare(yDataDomain[1], y2) < 0) {
-          yDataDomain = Domain(yDataDomain[0], y2);
+          yDataDomain = this.yScale.createDomain(yDataDomain[0], y2);
         }
       }
     }
@@ -442,8 +442,8 @@ export abstract class ScatterPlotView<X = unknown, Y = unknown> extends Graphics
     }
     super.displayChildren(displayFlags, layoutChild);
 
-    this.setXDataDomain(point0 !== null ? Domain<X>(xDataDomainMin!, xDataDomainMax!) : null);
-    this.setYDataDomain(point0 !== null ? Domain<Y>(yDataDomainMin!, yDataDomainMax!) : null);
+    this.setXDataDomain(point0 !== null ? this.xScale.createDomain(xDataDomainMin!, xDataDomainMax!) : null);
+    this.setYDataDomain(point0 !== null ? this.yScale.createDomain(yDataDomainMin!, yDataDomainMax!) : null);
     this.xRangePadding.setValue([xRangePaddingMin, xRangePaddingMax], Affinity.Intrinsic);
     this.yRangePadding.setValue([yRangePaddingMin, yRangePaddingMax], Affinity.Intrinsic);
   }

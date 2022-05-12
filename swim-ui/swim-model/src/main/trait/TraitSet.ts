@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Proto, Objects, Comparator, Consumes} from "@swim/util";
+import {Mutable, Proto, Objects, Comparator, Consumer} from "@swim/util";
 import {Affinity, FastenerFlags, FastenerOwner, Fastener} from "@swim/component";
 import type {Model} from "../model/Model";
 import type {AnyTrait, TraitFactory, Trait} from "./Trait";
@@ -117,7 +117,7 @@ export interface TraitSet<O = unknown, T extends Trait = Trait> extends TraitRel
   /** @protected @override */
   didUnbindInlet(inlet: TraitSet<unknown, T>): void;
 
-  /** @internal */
+  /** @internal @override */
   readonly outlets: ReadonlyArray<TraitSet<unknown, T>> | null;
 
   /** @internal @override */
@@ -185,9 +185,15 @@ export interface TraitSet<O = unknown, T extends Trait = Trait> extends TraitRel
   /** @override */
   detectTrait(trait: Trait): T | null;
 
-  consumeTraits(consumer: Consumes<T>): void;
+  consumeTraits(consumer: Consumer): void;
 
-  unconsumeTraits(consumer: Consumes<T>): void;
+  unconsumeTraits(consumer: Consumer): void;
+
+  /** @protected @override */
+  onStartConsuming(): void;
+
+  /** @protected @override */
+  onStopConsuming(): void;
 
   /** @internal @protected */
   decohereOutlets(): void;
@@ -251,35 +257,6 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
 
   TraitSet.prototype.onDerive = function (this: TraitSet, inlet: TraitSet): void {
     this.setTraits(inlet.traits);
-  };
-
-  TraitSet.prototype.onBindInlet = function <T extends Trait>(this: TraitSet<unknown, T>, inlet: TraitSet<unknown, T>): void {
-    (this as Mutable<typeof this>).inlet = inlet;
-    _super.prototype.onBindInlet.call(this, inlet);
-  };
-
-  TraitSet.prototype.onUnbindInlet = function <T extends Trait>(this: TraitSet<unknown, T>, inlet: TraitSet<unknown, T>): void {
-    _super.prototype.onUnbindInlet.call(this, inlet);
-    (this as Mutable<typeof this>).inlet = null;
-  };
-
-  TraitSet.prototype.attachOutlet = function <T extends Trait>(this: TraitSet<unknown, T>, outlet: TraitSet<unknown, T>): void {
-    let outlets = this.outlets as TraitSet<unknown, T>[] | null;
-    if (outlets === null) {
-      outlets = [];
-      (this as Mutable<typeof this>).outlets = outlets;
-    }
-    outlets.push(outlet);
-  };
-
-  TraitSet.prototype.detachOutlet = function <T extends Trait>(this: TraitSet<unknown, T>, outlet: TraitSet<unknown, T>): void {
-    const outlets = this.outlets as TraitSet<unknown, T>[] | null;
-    if (outlets !== null) {
-      const index = outlets.indexOf(outlet);
-      if (index >= 0) {
-        outlets.splice(index, 1);
-      }
-    }
   };
 
   TraitSet.prototype.insertTraitMap = function <T extends Trait>(this: TraitSet<unknown, T>, newTrait: T, target: Trait | null): void {
@@ -587,7 +564,7 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     return null;
   };
 
-  TraitSet.prototype.consumeTraits = function <T extends Trait>(this: TraitSet<unknown, T>, consumer: Consumes<T>): void {
+  TraitSet.prototype.consumeTraits = function <T extends Trait>(this: TraitSet<unknown, T>, consumer: Consumer): void {
     const traits = this.traits;
     for (const traitId in traits) {
       const trait = traits[traitId]!;
@@ -595,12 +572,20 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     }
   };
 
-  TraitSet.prototype.unconsumeTraits = function <T extends Trait>(this: TraitSet<unknown, T>, consumer: Consumes<T>): void {
+  TraitSet.prototype.unconsumeTraits = function <T extends Trait>(this: TraitSet<unknown, T>, consumer: Consumer): void {
     const traits = this.traits;
     for (const traitId in traits) {
       const trait = traits[traitId]!;
       trait.unconsume(consumer);
     }
+  };
+
+  TraitSet.prototype.onStartConsuming = function (this: TraitSet): void {
+    this.consumeTraits(this);
+  };
+
+  TraitSet.prototype.onStopConsuming = function (this: TraitSet): void {
+    this.unconsumeTraits(this);
   };
 
   TraitSet.prototype.decohereOutlets = function (this: TraitSet): void {
@@ -763,13 +748,6 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
       fastener.initOrdered((flagsInit & TraitSet.OrderedFlag) !== 0);
       fastener.initSorted((flagsInit & TraitSet.SortedFlag) !== 0);
     }
-    Object.defineProperty(fastener, "inlet", { // override getter
-      value: null,
-      writable: true,
-      enumerable: true,
-      configurable: true,
-    });
-    (fastener as Mutable<typeof fastener>).outlets = null;
     (fastener as Mutable<typeof fastener>).traits = {};
     (fastener as Mutable<typeof fastener>).traitCount = 0;
     return fastener;

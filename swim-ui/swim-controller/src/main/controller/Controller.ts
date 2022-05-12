@@ -21,9 +21,8 @@ import {
   Creatable,
   Inits,
   Initable,
-  Consumes,
-  Consumable,
   Consumer,
+  Consumable,
 } from "@swim/util";
 import {
   FastenerClass,
@@ -50,8 +49,10 @@ import {
   WarpRef,
   WarpClient,
 } from "@swim/client";
+import {ModelRelation, TraitRelation} from "@swim/model";
 import type {ControllerObserver} from "./ControllerObserver";
 import {ControllerRelation} from "./"; // forward import
+import {TraitViewRef} from "../"; // forward import
 import {ExecutorService} from "../"; // forward import
 import {HistoryService} from "../"; // forward import
 import {StorageService} from "../"; // forward import
@@ -98,9 +99,6 @@ export class Controller extends Component<Controller> implements Initable<Contro
   }
 
   override readonly observerType?: Class<ControllerObserver>;
-
-  /** @override */
-  readonly consumerType?: Class<Consumer>;
 
   protected override willAttachParent(parent: Controller): void {
     const observers = this.observers;
@@ -307,6 +305,10 @@ export class Controller extends Component<Controller> implements Initable<Contro
     }
 
     this.mountFasteners();
+
+    if (this.consumers.length !== 0) {
+      this.startConsuming();
+    }
   }
 
   protected override didMount(): void {
@@ -329,6 +331,11 @@ export class Controller extends Component<Controller> implements Initable<Contro
         observer.controllerWillUnmount(this);
       }
     }
+  }
+
+  protected override onUnmount(): void {
+    this.stopConsuming();
+    super.onUnmount();
   }
 
   protected override didUnmount(): void {
@@ -678,8 +685,18 @@ export class Controller extends Component<Controller> implements Initable<Contro
 
   protected override bindFastener(fastener: Fastener): void {
     super.bindFastener(fastener);
-    if (fastener instanceof WarpDownlink && fastener.consumed === true && this.consuming) {
-      fastener.consume(this);
+    if (this.consuming) {
+      if (fastener instanceof WarpDownlink && fastener.consumed === true) {
+        fastener.consume(this);
+      } else if (fastener instanceof ControllerRelation && fastener.consumed === true) {
+        fastener.consume(this);
+      } else if (fastener instanceof TraitViewRef && fastener.consumed === true) {
+        fastener.consume(this);
+      } else if (fastener instanceof TraitRelation && fastener.consumed === true) {
+        fastener.consume(this);
+      } else if (fastener instanceof ModelRelation && fastener.consumed === true) {
+        fastener.consume(this);
+      }
     }
   }
 
@@ -706,10 +723,10 @@ export class Controller extends Component<Controller> implements Initable<Contro
   }
 
   /** @internal */
-  readonly consumers: ReadonlyArray<Consumes<this>>;
+  readonly consumers: ReadonlyArray<Consumer>;
 
   /** @override */
-  consume(consumer: Consumes<this>): void {
+  consume(consumer: Consumer): void {
     const oldConsumers = this.consumers;
     const newConsumers = Arrays.inserted(consumer, oldConsumers);
     if (oldConsumers !== newConsumers) {
@@ -723,20 +740,20 @@ export class Controller extends Component<Controller> implements Initable<Contro
     }
   }
 
-  protected willConsume(consumer: Consumes<this>): void {
+  protected willConsume(consumer: Consumer): void {
     // hook
   }
 
-  protected onConsume(consumer: Consumes<this>): void {
+  protected onConsume(consumer: Consumer): void {
     // hook
   }
 
-  protected didConsume(consumer: Consumes<this>): void {
+  protected didConsume(consumer: Consumer): void {
     // hook
   }
 
   /** @override */
-  unconsume(consumer: Consumes<this>): void {
+  unconsume(consumer: Consumer): void {
     const oldConsumers = this.consumers;
     const newConsumers = Arrays.removed(consumer, oldConsumers);
     if (oldConsumers !== newConsumers) {
@@ -750,15 +767,15 @@ export class Controller extends Component<Controller> implements Initable<Contro
     }
   }
 
-  protected willUnconsume(consumer: Consumes<this>): void {
+  protected willUnconsume(consumer: Consumer): void {
     // hook
   }
 
-  protected onUnconsume(consumer: Consumes<this>): void {
+  protected onUnconsume(consumer: Consumer): void {
     // hook
   }
 
-  protected didUnconsume(consumer: Consumes<this>): void {
+  protected didUnconsume(consumer: Consumer): void {
     // hook
   }
 
@@ -849,6 +866,14 @@ export class Controller extends Component<Controller> implements Initable<Contro
       const fastener = fasteners[fastenerName]!;
       if (fastener instanceof WarpDownlink && fastener.consumed === true) {
         fastener.consume(this);
+      } else if (fastener instanceof ControllerRelation && fastener.consumed === true) {
+        fastener.consume(this);
+      } else if (fastener instanceof TraitViewRef && fastener.consumed === true) {
+        fastener.consume(this);
+      } else if (fastener instanceof TraitRelation && fastener.consumed === true) {
+        fastener.consume(this);
+      } else if (fastener instanceof ModelRelation && fastener.consumed === true) {
+        fastener.consume(this);
       }
     }
   }
@@ -859,6 +884,14 @@ export class Controller extends Component<Controller> implements Initable<Contro
     for (const fastenerName in fasteners) {
       const fastener = fasteners[fastenerName]!;
       if (fastener instanceof WarpDownlink && fastener.consumed === true) {
+        fastener.unconsume(this);
+      } else if (fastener instanceof ControllerRelation && fastener.consumed === true) {
+        fastener.unconsume(this);
+      } else if (fastener instanceof TraitViewRef && fastener.consumed === true) {
+        fastener.unconsume(this);
+      } else if (fastener instanceof TraitRelation && fastener.consumed === true) {
+        fastener.unconsume(this);
+      } else if (fastener instanceof ModelRelation && fastener.consumed === true) {
         fastener.unconsume(this);
       }
     }

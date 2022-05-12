@@ -18,17 +18,17 @@ import type {GeoTile, GeoBox} from "@swim/geo";
 import {Model, Trait, TraitSet} from "@swim/model";
 import {GeoTrait} from "../geo/GeoTrait";
 import {GeoLayerTrait} from "../layer/GeoLayerTrait";
-import type {GeoGridTraitObserver} from "./GeoGridTraitObserver";
+import type {GeoTileTraitObserver} from "./GeoTileTraitObserver";
 
 /** @public */
-export class GeoGridTrait extends GeoLayerTrait {
+export class GeoTileTrait extends GeoLayerTrait {
   constructor(geoTile: GeoTile) {
     super();
     this.geoTile = geoTile;
     this.geoBounds = geoTile.bounds;
   }
 
-  override readonly observerType?: Class<GeoGridTraitObserver>;
+  override readonly observerType?: Class<GeoTileTraitObserver>;
 
   readonly geoTile: GeoTile;
 
@@ -38,37 +38,37 @@ export class GeoGridTrait extends GeoLayerTrait {
     // immutable
   }
 
-  @TraitSet<GeoGridTrait["features"]>({
+  @TraitSet<GeoTileTrait["features"]>({
     extends: true,
     detectModel(model: Model): GeoTrait | null {
       const geoTrait = model.getTrait(GeoTrait);
-      return !(geoTrait instanceof GeoGridTrait) ? geoTrait : null;
+      return !(geoTrait instanceof GeoTileTrait) ? geoTrait : null;
     },
   })
   override readonly features!: TraitSet<this, GeoTrait> & GeoLayerTrait["features"];
-  static override readonly features: FastenerClass<GeoGridTrait["features"]>;
+  static override readonly features: FastenerClass<GeoTileTrait["features"]>;
 
-  @TraitSet<GeoGridTrait["tiles"]>({
-    traitType: GeoGridTrait,
+  @TraitSet<GeoTileTrait["tiles"]>({
+    traitType: GeoTileTrait,
     binds: true,
-    willAttachTrait(tileTrait: GeoGridTrait): void {
+    willAttachTrait(tileTrait: GeoTileTrait): void {
       this.owner.callObservers("traitWillAttachTile", tileTrait, this.owner);
     },
-    didDetachTrait(tileTrait: GeoGridTrait): void {
+    didDetachTrait(tileTrait: GeoTileTrait): void {
       this.owner.callObservers("traitDidDetachTile", tileTrait, this.owner);
     },
-    detectModel(model: Model): GeoGridTrait | null {
-      return model.getTrait(GeoGridTrait);
+    detectModel(model: Model): GeoTileTrait | null {
+      return model.getTrait(GeoTileTrait);
     },
-    detectTrait(trait: Trait): GeoGridTrait | null {
+    detectTrait(trait: Trait): GeoTileTrait | null {
       return null;
     },
   })
-  readonly tiles!: TraitSet<this, GeoGridTrait>;
-  static readonly tiles: FastenerClass<GeoGridTrait["tiles"]>;
+  readonly tiles!: TraitSet<this, GeoTileTrait>;
+  static readonly tiles: FastenerClass<GeoTileTrait["tiles"]>;
 
-  protected createTileTrait(geoTile: GeoTile): GeoGridTrait | null {
-    return new GeoGridTrait(geoTile);
+  protected createTileTrait(geoTile: GeoTile): GeoTileTrait | null {
+    return new GeoTileTrait(geoTile);
   }
 
   protected createTileModel(geoTile: GeoTile): Model | null {

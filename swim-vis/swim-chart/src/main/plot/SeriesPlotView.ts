@@ -199,12 +199,12 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
     const dataPointViews = this.dataPointViews;
     const xMin = dataPointViews.firstKey();
     const xMax = dataPointViews.lastKey();
-    let xDataDomain: Domain<X> | null;
+    let xDataDomain: Domain<X>;
     if (xMin !== void 0 && xMax !== void 0) {
-      xDataDomain = Domain<X>(xMin, xMax);
+      xDataDomain = this.xScale.createDomain(xMin, xMax);
     } else {
       const x = dataPointView.x.getValue();
-      xDataDomain = Domain<X>(x, x);
+      xDataDomain = this.xScale.createDomain(x, x);
     }
     this.setXDataDomain(xDataDomain);
   }
@@ -240,18 +240,18 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
     const y2 = dataPointView.y2.value;
     let yDataDomain = this.yDataDomain;
     if (yDataDomain === null) {
-      yDataDomain = Domain(y, y);
+      yDataDomain = this.yScale.createDomain(y, y);
     } else {
       if (Values.compare(y, yDataDomain[0]) < 0) {
-        yDataDomain = Domain(y, yDataDomain[1]);
+        yDataDomain = this.yScale.createDomain(y, yDataDomain[1]);
       } else if (Values.compare(yDataDomain[1], y) < 0) {
-        yDataDomain = Domain(yDataDomain[0], y);
+        yDataDomain = this.yScale.createDomain(yDataDomain[0], y);
       }
       if (y2 !== void 0) {
         if (Values.compare(y2, yDataDomain[0]) < 0) {
-          yDataDomain = Domain(y2, yDataDomain[1]);
+          yDataDomain = this.yScale.createDomain(y2, yDataDomain[1]);
         } else if (Values.compare(yDataDomain[1], y2) < 0) {
-          yDataDomain = Domain(yDataDomain[0], y2);
+          yDataDomain = this.yScale.createDomain(yDataDomain[0], y2);
         }
       }
     }
@@ -588,8 +588,8 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
       point1.category.setValue(category, Affinity.Intrinsic);
     }
 
-    this.setXDataDomain(point0 !== null ? Domain<X>(xDataDomainMin!, xDataDomainMax!) : null);
-    this.setYDataDomain(point0 !== null ? Domain<Y>(yDataDomainMin!, yDataDomainMax!) : null);
+    this.setXDataDomain(point0 !== null ? this.xScale.createDomain(xDataDomainMin!, xDataDomainMax!) : null);
+    this.setYDataDomain(point0 !== null ? this.yScale.createDomain(yDataDomainMin!, yDataDomainMax!) : null);
     (this as Mutable<this>).gradientStops = gradientStops;
   }
 

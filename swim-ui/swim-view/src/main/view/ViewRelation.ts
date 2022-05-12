@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Proto, Observes} from "@swim/util";
-import {FastenerDescriptor, FastenerClass, Fastener} from "@swim/component";
+import type {Mutable, Proto, Observes} from "@swim/util";
+import {FastenerOwner, FastenerDescriptor, FastenerClass, Fastener} from "@swim/component";
 import {AnyView, ViewFactory, View} from "./View";
 
 /** @public */
@@ -60,6 +60,63 @@ export interface ViewRelation<O = unknown, V extends View = View> extends Fasten
   get fastenerType(): Proto<ViewRelation<any, any>>;
 
   /** @internal */
+  readonly observes?: boolean; // optional prototype property
+
+  /** @internal @override */
+  getSuper(): ViewRelation<unknown, V> | null;
+
+  /** @internal @override */
+  setDerived(derived: boolean, inlet: ViewRelation<unknown, V>): void;
+
+  /** @protected @override */
+  willDerive(inlet: ViewRelation<unknown, V>): void;
+
+  /** @protected @override */
+  onDerive(inlet: ViewRelation<unknown, V>): void;
+
+  /** @protected @override */
+  didDerive(inlet: ViewRelation<unknown, V>): void;
+
+  /** @protected @override */
+  willUnderive(inlet: ViewRelation<unknown, V>): void;
+
+  /** @protected @override */
+  onUnderive(inlet: ViewRelation<unknown, V>): void;
+
+  /** @protected @override */
+  didUnderive(inlet: ViewRelation<unknown, V>): void;
+
+  /** @override */
+  readonly inlet: ViewRelation<unknown, V> | null;
+
+  /** @protected @override */
+  willBindInlet(inlet: ViewRelation<unknown, V>): void;
+
+  /** @protected @override */
+  onBindInlet(inlet: ViewRelation<unknown, V>): void;
+
+  /** @protected @override */
+  didBindInlet(inlet: ViewRelation<unknown, V>): void;
+
+  /** @protected @override */
+  willUnbindInlet(inlet: ViewRelation<unknown, V>): void;
+
+  /** @protected @override */
+  onUnbindInlet(inlet: ViewRelation<unknown, V>): void;
+
+  /** @protected @override */
+  didUnbindInlet(inlet: ViewRelation<unknown, V>): void;
+
+  /** @internal */
+  readonly outlets: ReadonlyArray<ViewRelation<unknown, V>> | null;
+
+  /** @internal @override */
+  attachOutlet(outlet: ViewRelation<unknown, V>): void;
+
+  /** @internal @override */
+  detachOutlet(outlet: ViewRelation<unknown, V>): void;
+
+  /** @internal */
   readonly viewType?: ViewFactory<V>; // optional prototype property
 
   /** @protected */
@@ -102,9 +159,6 @@ export interface ViewRelation<O = unknown, V extends View = View> extends Fasten
 
   createView(): V;
 
-  /** @internal */
-  readonly observes?: boolean; // optional prototype property
-
   /** @internal @protected */
   fromAny(value: AnyView<V>): V;
 }
@@ -120,6 +174,35 @@ export const ViewRelation = (function (_super: typeof Fastener) {
     value: ViewRelation,
     configurable: true,
   });
+
+  ViewRelation.prototype.onBindInlet = function <V extends View>(this: ViewRelation<unknown, V>, inlet: ViewRelation<unknown, V>): void {
+    (this as Mutable<typeof this>).inlet = inlet;
+    _super.prototype.onBindInlet.call(this, inlet);
+  };
+
+  ViewRelation.prototype.onUnbindInlet = function <V extends View>(this: ViewRelation<unknown, V>, inlet: ViewRelation<unknown, V>): void {
+    _super.prototype.onUnbindInlet.call(this, inlet);
+    (this as Mutable<typeof this>).inlet = null;
+  };
+
+  ViewRelation.prototype.attachOutlet = function <V extends View>(this: ViewRelation<unknown, V>, outlet: ViewRelation<unknown, V>): void {
+    let outlets = this.outlets as ViewRelation<unknown, V>[] | null;
+    if (outlets === null) {
+      outlets = [];
+      (this as Mutable<typeof this>).outlets = outlets;
+    }
+    outlets.push(outlet);
+  };
+
+  ViewRelation.prototype.detachOutlet = function <V extends View>(this: ViewRelation<unknown, V>, outlet: ViewRelation<unknown, V>): void {
+    const outlets = this.outlets as ViewRelation<unknown, V>[] | null;
+    if (outlets !== null) {
+      const index = outlets.indexOf(outlet);
+      if (index >= 0) {
+        outlets.splice(index, 1);
+      }
+    }
+  };
 
   ViewRelation.prototype.initView = function <V extends View>(this: ViewRelation<unknown, V>, view: V): void {
     // hook
@@ -205,6 +288,18 @@ export const ViewRelation = (function (_super: typeof Fastener) {
     } else {
       return View.fromAny(value) as V;
     }
+  };
+
+  ViewRelation.construct = function <F extends ViewRelation<any, any>>(fastener: F | null, owner: FastenerOwner<F>): F {
+    fastener = _super.construct.call(this, fastener, owner) as F;
+    Object.defineProperty(fastener, "inlet", { // override getter
+      value: null,
+      writable: true,
+      enumerable: true,
+      configurable: true,
+    });
+    (fastener as Mutable<typeof fastener>).outlets = null;
+    return fastener;
   };
 
   return ViewRelation;

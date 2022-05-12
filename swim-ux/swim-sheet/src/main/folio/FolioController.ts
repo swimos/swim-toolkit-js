@@ -396,6 +396,7 @@ export class FolioController extends StackController {
 
   @TraitViewControllerRef<FolioController["cover"]>({
     controllerType: SheetController,
+    consumed: true,
     binds: false,
     observes: true,
     getTraitViewRef(coverController: SheetController): TraitViewRef<unknown, Trait, SheetView> {

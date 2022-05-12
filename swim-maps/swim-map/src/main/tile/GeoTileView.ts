@@ -16,7 +16,7 @@ import type {GeoTile, GeoBox} from "@swim/geo";
 import {GeoView} from "../geo/GeoView";
 
 /** @public */
-export class GeoGridView extends GeoView {
+export class GeoTileView extends GeoView {
   constructor(geoTile: GeoTile) {
     super();
     this.geoTile = geoTile;

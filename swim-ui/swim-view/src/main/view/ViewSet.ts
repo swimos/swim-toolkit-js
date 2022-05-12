@@ -116,7 +116,7 @@ export interface ViewSet<O = unknown, V extends View = View> extends ViewRelatio
   /** @protected @override */
   didUnbindInlet(inlet: ViewSet<unknown, V>): void;
 
-  /** @internal */
+  /** @internal @override */
   readonly outlets: ReadonlyArray<ViewSet<unknown, V>> | null;
 
   /** @internal @override */
@@ -237,35 +237,6 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
 
   ViewSet.prototype.onDerive = function (this: ViewSet, inlet: ViewSet): void {
     this.setViews(inlet.views);
-  };
-
-  ViewSet.prototype.onBindInlet = function <V extends View>(this: ViewSet<unknown, V>, inlet: ViewSet<unknown, V>): void {
-    (this as Mutable<typeof this>).inlet = inlet;
-    _super.prototype.onBindInlet.call(this, inlet);
-  };
-
-  ViewSet.prototype.onUnbindInlet = function <V extends View>(this: ViewSet<unknown, V>, inlet: ViewSet<unknown, V>): void {
-    _super.prototype.onUnbindInlet.call(this, inlet);
-    (this as Mutable<typeof this>).inlet = null;
-  };
-
-  ViewSet.prototype.attachOutlet = function <V extends View>(this: ViewSet<unknown, V>, outlet: ViewSet<unknown, V>): void {
-    let outlets = this.outlets as ViewSet<unknown, V>[] | null;
-    if (outlets === null) {
-      outlets = [];
-      (this as Mutable<typeof this>).outlets = outlets;
-    }
-    outlets.push(outlet);
-  };
-
-  ViewSet.prototype.detachOutlet = function <V extends View>(this: ViewSet<unknown, V>, outlet: ViewSet<unknown, V>): void {
-    const outlets = this.outlets as ViewSet<unknown, V>[] | null;
-    if (outlets !== null) {
-      const index = outlets.indexOf(outlet);
-      if (index >= 0) {
-        outlets.splice(index, 1);
-      }
-    }
   };
 
   ViewSet.prototype.insertViewMap = function <V extends View>(this: ViewSet<unknown, V>, newView: V, target: View | null): void {
@@ -687,13 +658,6 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
       fastener.initOrdered((flagsInit & ViewSet.OrderedFlag) !== 0);
       fastener.initSorted((flagsInit & ViewSet.SortedFlag) !== 0);
     }
-    Object.defineProperty(fastener, "inlet", { // override getter
-      value: null,
-      writable: true,
-      enumerable: true,
-      configurable: true,
-    });
-    (fastener as Mutable<typeof fastener>).outlets = null;
     (fastener as Mutable<typeof fastener>).views = {};
     (fastener as Mutable<typeof fastener>).viewCount = 0;
     return fastener;

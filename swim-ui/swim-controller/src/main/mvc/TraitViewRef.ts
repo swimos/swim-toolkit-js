@@ -12,13 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Proto, Observes} from "@swim/util";
-import {
-  FastenerOwner,
-  FastenerDescriptor,
-  FastenerClass,
-  Fastener,
-} from "@swim/component";
+import {Mutable, Proto, Arrays, Observes, Consumer, Consumable} from "@swim/util";
+import {FastenerFlags, FastenerOwner, FastenerDescriptor, FastenerClass, Fastener} from "@swim/component";
 import {Model, AnyTrait, TraitFactory, Trait} from "@swim/model";
 import {AnyView, ViewFactory, View} from "@swim/view";
 
@@ -33,6 +28,7 @@ export type TraitViewRefView<F extends TraitViewRef<any, any, any>> =
 /** @public */
 export interface TraitViewRefDescriptor<T extends Trait = Trait, V extends View = View> extends FastenerDescriptor {
   extends?: Proto<TraitViewRef<any, any, any>> | string | boolean | null;
+  consumed?: boolean;
 
   traitKey?: string | boolean;
   traitType?: TraitFactory<T>;
@@ -69,12 +65,23 @@ export interface TraitViewRefClass<F extends TraitViewRef<any, any, any> = Trait
 
   /** @override */
   <F2 extends F>(template: TraitViewRefTemplate<F2>): PropertyDecorator;
+
+  /** @internal */
+  readonly ConsumingFlag: FastenerFlags;
+
+  /** @internal @override */
+  readonly FlagShift: number;
+  /** @internal @override */
+  readonly FlagMask: FastenerFlags;
 }
 
 /** @public */
-export interface TraitViewRef<O = unknown, T extends Trait = Trait, V extends View = View> extends Fastener<O> {
+export interface TraitViewRef<O = unknown, T extends Trait = Trait, V extends View = View> extends Fastener<O>, Consumable {
   /** @override */
   get fastenerType(): Proto<TraitViewRef<any, any, any>>;
+
+  /** @protected */
+  readonly consumed?: boolean; // optional prototype property
 
   /** @protected @override */
   onDerive(inlet: Fastener): void;
@@ -229,6 +236,65 @@ export interface TraitViewRef<O = unknown, T extends Trait = Trait, V extends Vi
 
   /** @internal @protected */
   fromAnyView(value: AnyView<V>): V;
+
+  /** @internal */
+  readonly consumers: ReadonlyArray<Consumer>;
+
+  /** @override */
+  consume(consumer: Consumer): void
+
+  /** @protected */
+  willConsume(consumer: Consumer): void;
+
+  /** @protected */
+  onConsume(consumer: Consumer): void;
+
+  /** @protected */
+  didConsume(consumer: Consumer): void;
+
+  /** @override */
+  unconsume(consumer: Consumer): void
+
+  /** @protected */
+  willUnconsume(consumer: Consumer): void;
+
+  /** @protected */
+  onUnconsume(consumer: Consumer): void;
+
+  /** @protected */
+  didUnconsume(consumer: Consumer): void;
+
+  get consuming(): boolean;
+
+  /** @internal */
+  startConsuming(): void;
+
+  /** @protected */
+  willStartConsuming(): void;
+
+  /** @protected */
+  onStartConsuming(): void;
+
+  /** @protected */
+  didStartConsuming(): void;
+
+  /** @internal */
+  stopConsuming(): void;
+
+  /** @protected */
+  willStopConsuming(): void;
+
+  /** @protected */
+  onStopConsuming(): void;
+
+  /** @protected */
+  didStopConsuming(): void;
+
+  /** @protected @override */
+  onMount(): void;
+
+  /** @protected @override */
+  onUnmount(): void;
 }
 
 /** @public */
@@ -359,6 +425,9 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
     if (this.observesTrait === true) {
       trait.observe(this as Observes<T>);
     }
+    if ((this.flags & TraitViewRef.ConsumingFlag) !== 0) {
+      trait.consume(this);
+    }
   };
 
   TraitViewRef.prototype.didAttachTrait = function <T extends Trait>(this: TraitViewRef<unknown, T, View>, trait: T, target: Trait | null): void {
@@ -374,6 +443,9 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
   };
 
   TraitViewRef.prototype.onDetachTrait = function <T extends Trait>(this: TraitViewRef<unknown, T, View>, trait: T): void {
+    if ((this.flags & TraitViewRef.ConsumingFlag) !== 0) {
+      trait.unconsume(this);
+    }
     if (this.observesTrait === true) {
       trait.unobserve(this as Observes<T>);
     }
@@ -820,8 +892,128 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
     }
   };
 
+  TraitViewRef.prototype.consume = function (this: TraitViewRef, consumer: Consumer): void {
+    const oldConsumers = this.consumers;
+    const newConsumerrss = Arrays.inserted(consumer, oldConsumers);
+    if (oldConsumers !== newConsumerrss) {
+      this.willConsume(consumer);
+      (this as Mutable<typeof this>).consumers = newConsumerrss;
+      this.onConsume(consumer);
+      this.didConsume(consumer);
+      if (oldConsumers.length === 0 && (this.flags & TraitViewRef.MountedFlag) !== 0) {
+        this.startConsuming();
+      }
+    }
+  };
+
+  TraitViewRef.prototype.willConsume = function (this: TraitViewRef, consumer: Consumer): void {
+    // hook
+  };
+
+  TraitViewRef.prototype.onConsume = function (this: TraitViewRef, consumer: Consumer): void {
+    // hook
+  };
+
+  TraitViewRef.prototype.didConsume = function (this: TraitViewRef, consumer: Consumer): void {
+    // hook
+  };
+
+  TraitViewRef.prototype.unconsume = function (this: TraitViewRef, consumer: Consumer): void {
+    const oldConsumers = this.consumers;
+    const newConsumerrss = Arrays.removed(consumer, oldConsumers);
+    if (oldConsumers !== newConsumerrss) {
+      this.willUnconsume(consumer);
+      (this as Mutable<typeof this>).consumers = newConsumerrss;
+      this.onUnconsume(consumer);
+      this.didUnconsume(consumer);
+      if (newConsumerrss.length === 0) {
+        this.stopConsuming();
+      }
+    }
+  };
+
+  TraitViewRef.prototype.willUnconsume = function (this: TraitViewRef, consumer: Consumer): void {
+    // hook
+  };
+
+  TraitViewRef.prototype.onUnconsume = function (this: TraitViewRef, consumer: Consumer): void {
+    // hook
+  };
+
+  TraitViewRef.prototype.didUnconsume = function (this: TraitViewRef, consumer: Consumer): void {
+    // hook
+  };
+
+  Object.defineProperty(TraitViewRef.prototype, "consuming", {
+    get(this: TraitViewRef): boolean {
+      return (this.flags & TraitViewRef.ConsumingFlag) !== 0;
+    },
+    configurable: true,
+  })
+
+  TraitViewRef.prototype.startConsuming = function (this: TraitViewRef): void {
+    if ((this.flags & TraitViewRef.ConsumingFlag) === 0) {
+      this.willStartConsuming();
+      this.setFlags(this.flags | TraitViewRef.ConsumingFlag);
+      this.onStartConsuming();
+      this.didStartConsuming();
+    }
+  };
+
+  TraitViewRef.prototype.willStartConsuming = function (this: TraitViewRef): void {
+    // hook
+  };
+
+  TraitViewRef.prototype.onStartConsuming = function (this: TraitViewRef): void {
+    const trait = this.trait;
+    if (trait !== null) {
+      trait.consume(this);
+    }
+  };
+
+  TraitViewRef.prototype.didStartConsuming = function (this: TraitViewRef): void {
+    // hook
+  };
+
+  TraitViewRef.prototype.stopConsuming = function (this: TraitViewRef): void {
+    if ((this.flags & TraitViewRef.ConsumingFlag) !== 0) {
+      this.willStopConsuming();
+      this.setFlags(this.flags & ~TraitViewRef.ConsumingFlag);
+      this.onStopConsuming();
+      this.didStopConsuming();
+    }
+  };
+
+  TraitViewRef.prototype.willStopConsuming = function (this: TraitViewRef): void {
+    // hook
+  };
+
+  TraitViewRef.prototype.onStopConsuming = function (this: TraitViewRef): void {
+    const trait = this.trait;
+    if (trait !== null) {
+      trait.unconsume(this);
+    }
+  };
+
+  TraitViewRef.prototype.didStopConsuming = function (this: TraitViewRef): void {
+    // hook
+  };
+
+  TraitViewRef.prototype.onMount = function (this: TraitViewRef): void {
+    _super.prototype.onMount.call(this);
+    if (this.consumers.length !== 0) {
+      this.startConsuming();
+    }
+  };
+
+  TraitViewRef.prototype.onUnmount = function (this: TraitViewRef): void {
+    _super.prototype.onUnmount.call(this);
+    this.stopConsuming();
+  };
+
   TraitViewRef.construct = function <F extends TraitViewRef<any, any, any>>(fastener: F | null, owner: FastenerOwner<F>): F {
     fastener = _super.construct.call(this, fastener, owner) as F;
+    (fastener as Mutable<typeof fastener>).consumers = Arrays.empty;
     (fastener as Mutable<typeof fastener>).trait = null;
     (fastener as Mutable<typeof fastener>).view = null;
     return fastener;
@@ -865,6 +1057,11 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
       }
     }
   };
+
+  (TraitViewRef as Mutable<typeof TraitViewRef>).ConsumingFlag = 1 << (_super.FlagShift + 0);
+
+  (TraitViewRef as Mutable<typeof TraitViewRef>).FlagShift = _super.FlagShift + 1;
+  (TraitViewRef as Mutable<typeof TraitViewRef>).FlagMask = (1 << TraitViewRef.FlagShift) - 1;
 
   return TraitViewRef;
 })(Fastener);

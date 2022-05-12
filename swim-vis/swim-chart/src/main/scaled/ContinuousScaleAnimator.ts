@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {Domain, Range, AnyTiming, ContinuousScale} from "@swim/util";
+import {AnyDateTime, DateTime, TimeDomain} from "@swim/time";
 import {Affinity, AnimatorClass, Animator} from "@swim/component"
 import type {View} from "@swim/view";
 import {ScaledView} from "../"; // forward import
@@ -36,6 +37,8 @@ export interface ContinuousScaleAnimator<O extends View = View, X = unknown, Y =
 
   setBaseRange(range: Range<Y>, timing?: AnyTiming | boolean | null): void;
   setBaseRange(yMin: Y, yMax: Y, timing?: AnyTiming | boolean | null): void;
+
+  createDomain(xMin: X, xMax: X): Domain<X>;
 
   /** @override */
   fromAny(value: T | U): T;
@@ -146,6 +149,14 @@ export const ContinuousScaleAnimator = (function (_super: typeof Animator) {
       this.inlet.setBaseRange(yMin as any, yMax as any, timing);
     } else {
       this.setRange(yMin as any, yMax as any, timing);
+    }
+  };
+
+  ContinuousScaleAnimator.prototype.createDomain = function <X, Y>(this: ContinuousScaleAnimator<View, X, Y>, xMin: X, xMax: X): Domain<X> {
+    if (xMin instanceof DateTime || xMax instanceof DateTime) {
+      return TimeDomain(DateTime.fromAny(xMin as AnyDateTime), DateTime.fromAny(xMax as AnyDateTime)) as unknown as Domain<X>;
+    } else {
+      return Domain(xMin, xMax);
     }
   };
 

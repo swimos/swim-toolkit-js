@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Proto, Objects, Comparator, Consumes} from "@swim/util";
+import {Mutable, Proto, Objects, Comparator, Consumer} from "@swim/util";
 import {Affinity, FastenerFlags, FastenerOwner, Fastener} from "@swim/component";
 import type {AnyModel, ModelFactory, Model} from "./Model";
 import {ModelRelationDescriptor, ModelRelationClass, ModelRelation} from "./ModelRelation";
@@ -116,7 +116,7 @@ export interface ModelSet<O = unknown, M extends Model = Model> extends ModelRel
   /** @protected @override */
   didUnbindInlet(inlet: ModelSet<unknown, M>): void;
 
-  /** @internal */
+  /** @internal @override */
   readonly outlets: ReadonlyArray<ModelSet<unknown, M>> | null;
 
   /** @internal @override */
@@ -175,9 +175,15 @@ export interface ModelSet<O = unknown, M extends Model = Model> extends ModelRel
   /** @override */
   detectModel(model: Model): M | null;
 
-  consumeModels(consumer: Consumes<M>): void;
+  consumeModels(consumer: Consumer): void;
 
-  unconsumeModels(consumer: Consumes<M>): void;
+  unconsumeModels(consumer: Consumer): void;
+
+  /** @protected @override */
+  onStartConsuming(): void;
+
+  /** @protected @override */
+  onStopConsuming(): void;
 
   /** @internal @protected */
   decohereOutlets(): void;
@@ -241,35 +247,6 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
 
   ModelSet.prototype.onDerive = function (this: ModelSet, inlet: ModelSet): void {
     this.setModels(inlet.models);
-  };
-
-  ModelSet.prototype.onBindInlet = function <M extends Model>(this: ModelSet<unknown, M>, inlet: ModelSet<unknown, M>): void {
-    (this as Mutable<typeof this>).inlet = inlet;
-    _super.prototype.onBindInlet.call(this, inlet);
-  };
-
-  ModelSet.prototype.onUnbindInlet = function <M extends Model>(this: ModelSet<unknown, M>, inlet: ModelSet<unknown, M>): void {
-    _super.prototype.onUnbindInlet.call(this, inlet);
-    (this as Mutable<typeof this>).inlet = null;
-  };
-
-  ModelSet.prototype.attachOutlet = function <M extends Model>(this: ModelSet<unknown, M>, outlet: ModelSet<unknown, M>): void {
-    let outlets = this.outlets as ModelSet<unknown, M>[] | null;
-    if (outlets === null) {
-      outlets = [];
-      (this as Mutable<typeof this>).outlets = outlets;
-    }
-    outlets.push(outlet);
-  };
-
-  ModelSet.prototype.detachOutlet = function <M extends Model>(this: ModelSet<unknown, M>, outlet: ModelSet<unknown, M>): void {
-    const outlets = this.outlets as ModelSet<unknown, M>[] | null;
-    if (outlets !== null) {
-      const index = outlets.indexOf(outlet);
-      if (index >= 0) {
-        outlets.splice(index, 1);
-      }
-    }
   };
 
   ModelSet.prototype.insertModelMap = function <M extends Model>(this: ModelSet<unknown, M>, newModel: M, target: Model | null): void {
@@ -538,7 +515,7 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
     return null;
   };
 
-  ModelSet.prototype.consumeModels = function <M extends Model>(this: ModelSet<unknown, M>, consumer: Consumes<M>): void {
+  ModelSet.prototype.consumeModels = function <M extends Model>(this: ModelSet<unknown, M>, consumer: Consumer): void {
     const models = this.models;
     for (const modelId in models) {
       const model = models[modelId]!;
@@ -546,12 +523,20 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
     }
   };
 
-  ModelSet.prototype.unconsumeModels = function <M extends Model>(this: ModelSet<unknown, M>, consumer: Consumes<M>): void {
+  ModelSet.prototype.unconsumeModels = function <M extends Model>(this: ModelSet<unknown, M>, consumer: Consumer): void {
     const models = this.models;
     for (const modelId in models) {
       const model = models[modelId]!;
       model.unconsume(consumer);
     }
+  };
+
+  ModelSet.prototype.onStartConsuming = function (this: ModelSet): void {
+    this.consumeModels(this);
+  };
+
+  ModelSet.prototype.onStopConsuming = function (this: ModelSet): void {
+    this.unconsumeModels(this);
   };
 
   ModelSet.prototype.decohereOutlets = function (this: ModelSet): void {
@@ -707,13 +692,6 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
       fastener.initOrdered((flagsInit & ModelSet.OrderedFlag) !== 0);
       fastener.initSorted((flagsInit & ModelSet.SortedFlag) !== 0);
     }
-    Object.defineProperty(fastener, "inlet", { // override getter
-      value: null,
-      writable: true,
-      enumerable: true,
-      configurable: true,
-    });
-    (fastener as Mutable<typeof fastener>).outlets = null;
     (fastener as Mutable<typeof fastener>).models = {};
     (fastener as Mutable<typeof fastener>).modelCount = 0;
     return fastener;

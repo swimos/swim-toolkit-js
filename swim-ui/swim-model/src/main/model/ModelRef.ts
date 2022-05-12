@@ -106,7 +106,7 @@ export interface ModelRef<O = unknown, M extends Model = Model> extends ModelRel
   /** @protected @override */
   didUnbindInlet(inlet: ModelRef<unknown, M>): void;
 
-  /** @internal */
+  /** @internal @override */
   readonly outlets: ReadonlyArray<ModelRef<unknown, M>> | null;
 
   /** @internal @override */
@@ -147,6 +147,12 @@ export interface ModelRef<O = unknown, M extends Model = Model> extends ModelRel
   /** @override */
   detectModel(model: Model): M | null;
 
+  /** @protected @override */
+  onStartConsuming(): void;
+
+  /** @protected @override */
+  onStopConsuming(): void;
+
   /** @internal @protected */
   decohereOutlets(): void;
 
@@ -172,35 +178,6 @@ export const ModelRef = (function (_super: typeof ModelRelation) {
       this.attachModel(inletModel);
     } else {
       this.detachModel();
-    }
-  };
-
-  ModelRef.prototype.onBindInlet = function <M extends Model>(this: ModelRef<unknown, M>, inlet: ModelRef<unknown, M>): void {
-    (this as Mutable<typeof this>).inlet = inlet;
-    _super.prototype.onBindInlet.call(this, inlet);
-  };
-
-  ModelRef.prototype.onUnbindInlet = function <M extends Model>(this: ModelRef<unknown, M>, inlet: ModelRef<unknown, M>): void {
-    _super.prototype.onUnbindInlet.call(this, inlet);
-    (this as Mutable<typeof this>).inlet = null;
-  };
-
-  ModelRef.prototype.attachOutlet = function <M extends Model>(this: ModelRef<unknown, M>, outlet: ModelRef<unknown, M>): void {
-    let outlets = this.outlets as ModelRef<unknown, M>[] | null;
-    if (outlets === null) {
-      outlets = [];
-      (this as Mutable<typeof this>).outlets = outlets;
-    }
-    outlets.push(outlet);
-  };
-
-  ModelRef.prototype.detachOutlet = function <M extends Model>(this: ModelRef<unknown, M>, outlet: ModelRef<unknown, M>): void {
-    const outlets = this.outlets as ModelRef<unknown, M>[] | null;
-    if (outlets !== null) {
-      const index = outlets.indexOf(outlet);
-      if (index >= 0) {
-        outlets.splice(index, 1);
-      }
     }
   };
 
@@ -431,6 +408,20 @@ export const ModelRef = (function (_super: typeof ModelRelation) {
     return null;
   };
 
+  ModelRef.prototype.onStartConsuming = function (this: ModelRef): void {
+    const model = this.model;
+    if (model !== null) {
+      model.consume(this);
+    }
+  };
+
+  ModelRef.prototype.onStopConsuming = function (this: ModelRef): void {
+    const model = this.model;
+    if (model !== null) {
+      model.unconsume(this);
+    }
+  };
+
   ModelRef.prototype.decohereOutlets = function (this: ModelRef): void {
     const outlets = this.outlets;
     for (let i = 0, n = outlets !== null ? outlets.length : 0; i < n; i += 1) {
@@ -470,13 +461,6 @@ export const ModelRef = (function (_super: typeof ModelRelation) {
       Object.setPrototypeOf(fastener, this.prototype);
     }
     fastener = _super.construct.call(this, fastener, owner) as F;
-    Object.defineProperty(fastener, "inlet", { // override getter
-      value: null,
-      writable: true,
-      enumerable: true,
-      configurable: true,
-    });
-    (fastener as Mutable<typeof fastener>).outlets = null;
     (fastener as Mutable<typeof fastener>).model = null;
     return fastener;
   };

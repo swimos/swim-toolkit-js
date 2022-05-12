@@ -371,6 +371,7 @@ export class BinderController extends SheetController {
 
   @TraitViewControllerRef<BinderController["active"]>({
     controllerType: SheetController,
+    consumed: true,
     binds: false,
     observes: true,
     getTraitViewRef(activeController: SheetController): TraitViewRef<unknown, Trait, SheetView> {

@@ -118,7 +118,7 @@ export interface ViewRef<O = unknown, V extends View = View> extends ViewRelatio
   /** @protected @override */
   didUnbindInlet(inlet: ViewRef<unknown, V>): void;
 
-  /** @internal */
+  /** @internal @override */
   readonly outlets: ReadonlyArray<ViewRef<unknown, V>> | null;
 
   /** @internal @override */
@@ -240,35 +240,6 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
       this.attachView(inletView);
     } else {
       this.detachView();
-    }
-  };
-
-  ViewRef.prototype.onBindInlet = function <V extends View>(this: ViewRef<unknown, V>, inlet: ViewRef<unknown, V>): void {
-    (this as Mutable<typeof this>).inlet = inlet;
-    _super.prototype.onBindInlet.call(this, inlet);
-  };
-
-  ViewRef.prototype.onUnbindInlet = function <V extends View>(this: ViewRef<unknown, V>, inlet: ViewRef<unknown, V>): void {
-    _super.prototype.onUnbindInlet.call(this, inlet);
-    (this as Mutable<typeof this>).inlet = null;
-  };
-
-  ViewRef.prototype.attachOutlet = function <V extends View>(this: ViewRef<unknown, V>, outlet: ViewRef<unknown, V>): void {
-    let outlets = this.outlets as ViewRef<unknown, V>[] | null;
-    if (outlets === null) {
-      outlets = [];
-      (this as Mutable<typeof this>).outlets = outlets;
-    }
-    outlets.push(outlet);
-  };
-
-  ViewRef.prototype.detachOutlet = function <V extends View>(this: ViewRef<unknown, V>, outlet: ViewRef<unknown, V>): void {
-    const outlets = this.outlets as ViewRef<unknown, V>[] | null;
-    if (outlets !== null) {
-      const index = outlets.indexOf(outlet);
-      if (index >= 0) {
-        outlets.splice(index, 1);
-      }
     }
   };
 
@@ -677,16 +648,9 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
       Object.setPrototypeOf(fastener, this.prototype);
     }
     fastener = _super.construct.call(this, fastener, owner) as F;
-    Object.defineProperty(fastener, "inlet", { // override getter
-      value: null,
-      writable: true,
-      enumerable: true,
-      configurable: true,
-    });
-    (fastener as Mutable<typeof fastener>).outlets = null;
-    (fastener as Mutable<typeof fastener>).view = null;
     (fastener as Mutable<typeof fastener>).constraints = Arrays.empty;
     (fastener as Mutable<typeof fastener>).constraintVariables = Arrays.empty;
+    (fastener as Mutable<typeof fastener>).view = null;
     return fastener;
   };
 

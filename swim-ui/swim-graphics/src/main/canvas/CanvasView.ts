@@ -94,6 +94,8 @@ export class CanvasView extends HtmlView {
 
   protected initCanvas(): void {
     this.position.setState("absolute", Affinity.Intrinsic);
+    this.left.setState(0, Affinity.Intrinsic);
+    this.top.setState(0, Affinity.Intrinsic);
   }
 
   protected override onMount(): void {

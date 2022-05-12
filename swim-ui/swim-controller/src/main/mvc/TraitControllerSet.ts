@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Proto, Consumes} from "@swim/util";
+import type {Mutable, Proto, Consumer} from "@swim/util";
 import type {FastenerOwner} from "@swim/component";
 import type {TraitFactory, Trait, TraitRef} from "@swim/model";
 import type {ControllerFactory, Controller} from "../controller/Controller";
@@ -117,9 +117,9 @@ export interface TraitControllerSet<O = unknown, T extends Trait = Trait, C exte
 
   reinsertTrait(trait: T, targetTrait?: T | null): void;
 
-  consumeTraits(consumer: Consumes<T>): void;
+  consumeTraits(consumer: Consumer): void;
 
-  unconsumeTraits(consumer: Consumes<T>): void;
+  unconsumeTraits(consumer: Consumer): void;
 
   createTrait(): T;
 
@@ -293,7 +293,7 @@ export const TraitControllerSet = (function (_super: typeof ControllerSet) {
     }
   };
 
-  TraitControllerSet.prototype.consumeTraits = function <T extends Trait, C extends Controller>(this: TraitControllerSet<unknown, T, C>, consumer: Consumes<T>): void {
+  TraitControllerSet.prototype.consumeTraits = function <T extends Trait, C extends Controller>(this: TraitControllerSet<unknown, T, C>, consumer: Consumer): void {
     const controllers = this.controllers;
     for (const controllerId in controllers) {
       const controller = controllers[controllerId]!;
@@ -304,7 +304,7 @@ export const TraitControllerSet = (function (_super: typeof ControllerSet) {
     }
   };
 
-  TraitControllerSet.prototype.unconsumeTraits = function <T extends Trait, C extends Controller>(this: TraitControllerSet<unknown, T, C>, consumer: Consumes<T>): void {
+  TraitControllerSet.prototype.unconsumeTraits = function <T extends Trait, C extends Controller>(this: TraitControllerSet<unknown, T, C>, consumer: Consumer): void {
     const controllers = this.controllers;
     for (const controllerId in controllers) {
       const controller = controllers[controllerId]!;

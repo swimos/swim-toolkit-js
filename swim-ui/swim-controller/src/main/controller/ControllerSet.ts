@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Proto, Objects, Comparator, Consumes} from "@swim/util";
+import {Mutable, Proto, Objects, Comparator, Consumer} from "@swim/util";
 import {Affinity, FastenerOwner, FastenerFlags, Fastener} from "@swim/component";
 import type {AnyController, ControllerFactory, Controller} from "./Controller";
 import {ControllerRelationDescriptor, ControllerRelationClass, ControllerRelation} from "./ControllerRelation";
@@ -116,7 +116,7 @@ export interface ControllerSet<O = unknown, C extends Controller = Controller> e
   /** @protected @override */
   didUnbindInlet(inlet: ControllerSet<unknown, C>): void;
 
-  /** @internal */
+  /** @internal @override */
   readonly outlets: ReadonlyArray<ControllerSet<unknown, C>> | null;
 
   /** @internal @override */
@@ -175,9 +175,15 @@ export interface ControllerSet<O = unknown, C extends Controller = Controller> e
   /** @override */
   detectController(controller: Controller): C | null;
 
-  consumeControllers(consumer: Consumes<C>): void;
+  /** @protected @override */
+  onStartConsuming(): void;
 
-  unconsumeControllers(consumer: Consumes<C>): void;
+  /** @protected @override */
+  onStopConsuming(): void;
+
+  consumeControllers(consumer: Consumer): void;
+
+  unconsumeControllers(consumer: Consumer): void;
 
   /** @internal @protected */
   decohereOutlets(): void;
@@ -241,35 +247,6 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
 
   ControllerSet.prototype.onDerive = function (this: ControllerSet, inlet: ControllerSet): void {
     this.setControllers(inlet.controllers);
-  };
-
-  ControllerSet.prototype.onBindInlet = function <C extends Controller>(this: ControllerSet<unknown, C>, inlet: ControllerSet<unknown, C>): void {
-    (this as Mutable<typeof this>).inlet = inlet;
-    _super.prototype.onBindInlet.call(this, inlet);
-  };
-
-  ControllerSet.prototype.onUnbindInlet = function <C extends Controller>(this: ControllerSet<unknown, C>, inlet: ControllerSet<unknown, C>): void {
-    _super.prototype.onUnbindInlet.call(this, inlet);
-    (this as Mutable<typeof this>).inlet = null;
-  };
-
-  ControllerSet.prototype.attachOutlet = function <C extends Controller>(this: ControllerSet<unknown, C>, outlet: ControllerSet<unknown, C>): void {
-    let outlets = this.outlets as ControllerSet<unknown, C>[] | null;
-    if (outlets === null) {
-      outlets = [];
-      (this as Mutable<typeof this>).outlets = outlets;
-    }
-    outlets.push(outlet);
-  };
-
-  ControllerSet.prototype.detachOutlet = function <C extends Controller>(this: ControllerSet<unknown, C>, outlet: ControllerSet<unknown, C>): void {
-    const outlets = this.outlets as ControllerSet<unknown, C>[] | null;
-    if (outlets !== null) {
-      const index = outlets.indexOf(outlet);
-      if (index >= 0) {
-        outlets.splice(index, 1);
-      }
-    }
   };
 
   ControllerSet.prototype.insertControllerMap = function <C extends Controller>(this: ControllerSet<unknown, C>, newController: C, target: Controller | null): void {
@@ -538,7 +515,7 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     return null;
   };
 
-  ControllerSet.prototype.consumeControllers = function <C extends Controller>(this: ControllerSet<unknown, C>, consumer: Consumes<C>): void {
+  ControllerSet.prototype.consumeControllers = function <C extends Controller>(this: ControllerSet<unknown, C>, consumer: Consumer): void {
     const controllers = this.controllers;
     for (const controllerId in controllers) {
       const controller = controllers[controllerId]!;
@@ -546,12 +523,20 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     }
   };
 
-  ControllerSet.prototype.unconsumeControllers = function <C extends Controller>(this: ControllerSet<unknown, C>, consumer: Consumes<C>): void {
+  ControllerSet.prototype.unconsumeControllers = function <C extends Controller>(this: ControllerSet<unknown, C>, consumer: Consumer): void {
     const controllers = this.controllers;
     for (const controllerId in controllers) {
       const controller = controllers[controllerId]!;
       controller.unconsume(consumer);
     }
+  };
+
+  ControllerSet.prototype.onStartConsuming = function (this: ControllerSet): void {
+    this.consumeControllers(this);
+  };
+
+  ControllerSet.prototype.onStopConsuming = function (this: ControllerSet): void {
+    this.unconsumeControllers(this);
   };
 
   ControllerSet.prototype.decohereOutlets = function (this: ControllerSet): void {
@@ -707,13 +692,6 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
       fastener.initOrdered((flagsInit & ControllerSet.OrderedFlag) !== 0);
       fastener.initSorted((flagsInit & ControllerSet.SortedFlag) !== 0);
     }
-    Object.defineProperty(fastener, "inlet", { // override getter
-      value: null,
-      writable: true,
-      enumerable: true,
-      configurable: true,
-    });
-    (fastener as Mutable<typeof fastener>).outlets = null;
     (fastener as Mutable<typeof fastener>).controllers = {};
     (fastener as Mutable<typeof fastener>).controllerCount = 0;
     return fastener;
