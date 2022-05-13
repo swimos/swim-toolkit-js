@@ -296,4 +296,9 @@ export class MapboxView extends MapView {
     light: mapboxgl.Style | string | null,
     update(): void,
   };
+
+  protected override onMount(): void {
+    super.onMount();
+    this.mapStyle.update();
+  }
 }
