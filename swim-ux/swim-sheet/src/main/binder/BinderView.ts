@@ -202,17 +202,17 @@ export class BinderView extends SheetView {
   protected resizeBinder(): void {
     const binderWidth = this.width.cssState!;
     const binderHeight = this.height.cssState!;
+    const paddingLeft = this.paddingLeft.value;
+    const paddingRight = this.paddingRight.value;
 
     const tabBarView = this.tabBar.view;
     let tabBarHeight: Length | null = null;
     if (tabBarView !== null && tabBarView.mounted) {
       let tabBarWidth = binderWidth;
       tabBarHeight = tabBarView.height.cssState;
-      const paddingLeft = this.paddingLeft.value;
       if (paddingLeft !== null) {
         tabBarWidth = tabBarWidth.minus(paddingLeft);
       }
-      const paddingRight = this.paddingRight.value;
       if (paddingRight !== null) {
         tabBarWidth = tabBarWidth.minus(paddingRight);
       }
@@ -227,7 +227,9 @@ export class BinderView extends SheetView {
       tabView.width.setState(binderWidth, Affinity.Intrinsic);
       tabView.height.setState(binderHeight, Affinity.Intrinsic);
       tabView.paddingTop.setState(this.paddingTop.state, Affinity.Intrinsic);
+      tabView.paddingRight.setState(paddingRight, Affinity.Intrinsic);
       tabView.paddingBottom.setState(tabBarHeight, Affinity.Intrinsic);
+      tabView.paddingLeft.setState(paddingLeft, Affinity.Intrinsic);
     }
   }
 }

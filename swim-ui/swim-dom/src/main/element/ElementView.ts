@@ -83,6 +83,7 @@ export class ElementView extends NodeView implements StyleContext {
 
   @Provider<ElementView["viewport"]>({
     extends: true,
+    observes: true,
     serviceDidSetViewportColorScheme(colorScheme: ViewportColorScheme): void {
       this.owner.detectTheme();
     },
