@@ -193,6 +193,9 @@ export class DisplayerService extends Service {
   }
 
   protected runProcessPass(immediate: boolean = false): void {
+    if (!immediate) {
+      this.processTimer = 0;
+    }
     this.setUpdateFlags(this.updateFlags & ~View.ProcessMask | View.ProcessingFlag);
     try {
       const t0 = performance.now();
@@ -246,6 +249,9 @@ export class DisplayerService extends Service {
   }
 
   protected runDisplayPass(time?: number, immediate: boolean = false): void {
+    if (!immediate) {
+      this.displayFrame = 0;
+    }
     this.setUpdateFlags(this.updateFlags & ~View.DisplayMask | View.DisplayingFlag);
     try {
       if (time === void 0) {

@@ -1307,7 +1307,10 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   /** @override */
   setFastener(fastenerName: string, newFastener: Fastener | null): void {
     const fasteners = this.fasteners;
-    const oldFastener: Fastener | null | undefined = fasteners !== null ? fasteners[fastenerName] ?? null : null;
+    let oldFastener: Fastener | null | undefined = fasteners !== null ? fasteners[fastenerName] : void 0;
+    if (oldFastener === void 0) {
+      oldFastener = null;
+    }
     if (oldFastener !== newFastener) {
       if (oldFastener !== null) {
         this.detachFastener(fastenerName, oldFastener);
@@ -1328,6 +1331,13 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     // assert(fasteners[fastenerName] === void 0);
     this.willAttachFastener(fastenerName, fastener);
     fasteners[fastenerName] = fastener;
+    if (fastener.lazy === false) {
+      Object.defineProperty(this, fastenerName, {
+        value: fastener,
+        enumerable: true,
+        configurable: true,
+      });
+    }
     if (this.mounted) {
       fastener.mount();
     }

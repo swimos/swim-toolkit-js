@@ -130,6 +130,9 @@ export class ExecutorService extends Service {
   }
 
   protected runCompilePass(immediate: boolean = false): void {
+    if (!immediate) {
+      this.compileTimer = 0;
+    }
     this.setUpdateFlags(this.updateFlags & ~Controller.CompileMask | Controller.CompilingFlag);
     try {
       const t0 = performance.now();
@@ -183,6 +186,9 @@ export class ExecutorService extends Service {
   }
 
   protected runExecutePass(immediate: boolean = false): void {
+    if (!immediate) {
+      this.executeTimer = 0;
+    }
     this.setUpdateFlags(this.updateFlags & ~Controller.ExecuteMask | Controller.ExecutingFlag);
     try {
       const time = performance.now();

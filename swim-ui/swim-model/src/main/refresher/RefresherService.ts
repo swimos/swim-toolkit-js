@@ -130,6 +130,9 @@ export class RefresherService extends Service {
   }
 
   protected runAnalyzePass(immediate: boolean = false): void {
+    if (!immediate) {
+      this.analyzeTimer = 0;
+    }
     this.setUpdateFlags(this.updateFlags & ~Model.AnalyzeMask | Model.AnalyzingFlag);
     try {
       const t0 = performance.now();
@@ -183,6 +186,9 @@ export class RefresherService extends Service {
   }
 
   protected runRefreshPass(immediate: boolean = false): void {
+    if (!immediate) {
+      this.refreshTimer = 0;
+    }
     this.setUpdateFlags(this.updateFlags & ~Model.RefreshMask | Model.RefreshingFlag);
     try {
       const time = performance.now();

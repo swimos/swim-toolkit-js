@@ -17,7 +17,7 @@
 
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-const containerView = bodyView.appendChild("div").display("flex").width("67%").height("67%").touchAction("none").userSelect("none");
+const containerView = bodyView.appendChild("div").position("relative").width("67%").height("67%").touchAction("none").userSelect("none");
 
 const canvasView = containerView.appendChild(swim.CanvasView)
     .mouseEventsEnabled(true)

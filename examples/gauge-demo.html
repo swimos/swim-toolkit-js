@@ -158,7 +158,7 @@ const updateRate = document.getElementById("updateRate");
 
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-const containerView = bodyView.appendChild("div").id("ui").touchAction("none").userSelect("none");
+const containerView = bodyView.appendChild("div").id("ui").position("relative").touchAction("none").userSelect("none");
 
 const canvasView = containerView.appendChild(swim.CanvasView)
     .mouseEventsEnabled(true)

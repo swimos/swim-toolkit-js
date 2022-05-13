@@ -47,12 +47,6 @@ export class GeoRasterView extends GeoView {
   constructor() {
     super();
     this.canvas = this.createCanvas();
-    Object.defineProperty(this, "renderer", {
-      value: this.createRenderer(),
-      writable: true,
-      enumerable: true,
-      configurable: true,
-    });
     this.ownRasterFrame = null;
   }
 
