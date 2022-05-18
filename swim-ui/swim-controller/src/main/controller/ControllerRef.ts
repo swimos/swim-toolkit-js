@@ -132,7 +132,7 @@ export interface ControllerRef<O = unknown, C extends Controller = Controller> e
 
   detachController(): C | null;
 
-  insertController(parent?: Controller, controller?: AnyController<C>, target?: Controller | null, key?: string): C;
+  insertController(parent?: Controller | null, controller?: AnyController<C>, target?: Controller | null, key?: string): C;
 
   removeController(): C | null;
 
@@ -401,7 +401,7 @@ export const ControllerRef = (function (_super: typeof ControllerRelation) {
   };
 
   ControllerRef.prototype.detectController = function <C extends Controller>(this: ControllerRef<unknown, C>, controller: Controller): C | null {
-    const key = this.controllerKey
+    const key = this.controllerKey;
     if (key !== void 0 && key === controller.key) {
       return controller as C;
     }

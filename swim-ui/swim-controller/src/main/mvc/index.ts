@@ -22,6 +22,24 @@ export {
 } from "./TraitViewRef";
 
 export {
+  ViewControllerRefView,
+  ViewControllerRefController,
+  ViewControllerRefDescriptor,
+  ViewControllerRefTemplate,
+  ViewControllerRefClass,
+  ViewControllerRef,
+} from "./ViewControllerRef";
+
+export {
+  ViewControllerSetView,
+  ViewControllerSetController,
+  ViewControllerSetDescriptor,
+  ViewControllerSetTemplate,
+  ViewControllerSetClass,
+  ViewControllerSet,
+} from "./ViewControllerSet";
+
+export {
   TraitControllerRefTrait,
   TraitControllerRefController,
   TraitControllerRefDescriptor,

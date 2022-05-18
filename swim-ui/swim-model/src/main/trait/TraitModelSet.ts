@@ -15,8 +15,8 @@
 import type {Mutable, Class, Proto, Observes, Consumer} from "@swim/util";
 import type {FastenerOwner} from "@swim/component";
 import type {ModelFactory, Model} from "../model/Model";
-import {AnyTrait, TraitFactory, Trait} from "./Trait";
 import {ModelSetDescriptor, ModelSetClass, ModelSet} from "../model/ModelSet";
+import {AnyTrait, TraitFactory, Trait} from "./Trait";
 
 /** @public */
 export type TraitModelSetTrait<F extends TraitModelSet<any, any, any>> =
@@ -139,14 +139,14 @@ export interface TraitModelSet<O = unknown, T extends Trait = Trait, M extends M
   /** @internal */
   readonly observesTrait?: boolean; // optional prototype property
 
-  /** @internal @protected */
+  /** @protected */
   fromAnyTrait(value: AnyTrait<T>): T;
 
-  /** @internal */
+  /** @protected */
   detectModelTrait(model: Model): T | null;
 
-  /** @internal */
-  insertModelTrait(model: Model, trait: T | null, targetTrait?: Trait | null, traitKey?: string): void;
+  /** @protected */
+  insertModelTrait(model: M, trait: T | null, targetTrait: Trait | null, traitKey: string | undefined): void;
 
   /** @override */
   detectModel(model: Model): M | null;
@@ -417,10 +417,7 @@ export const TraitModelSet = (function (_super: typeof ModelSet) {
     return model.findTrait(this.traitKey, this.traitType as unknown as Class<T>);
   };
 
-  TraitModelSet.prototype.insertModelTrait = function <T extends Trait, M extends Model>(this: TraitModelSet<unknown, T, M>, model: Model, trait: T, targetTrait?: Trait | null, traitKey?: string): void {
-    if (targetTrait === void 0) {
-      targetTrait = null;
-    }
+  TraitModelSet.prototype.insertModelTrait = function <T extends Trait, M extends Model>(this: TraitModelSet<unknown, T, M>, model: M, trait: T, targetTrait: Trait | null, traitKey: string | undefined): void {
     model.insertTrait(trait, targetTrait, traitKey);
   };
 
