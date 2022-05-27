@@ -1,37 +1,6 @@
 {
   "projectFolder": "../..",
   "mainEntryPointFilePath": "<projectFolder>/lib/main/index.d.ts",
-  "bundledPackages": [
-    "@swim/model",
-    "@swim/style",
-    "@swim/theme",
-    "@swim/view",
-    "@swim/dom",
-    "@swim/graphics",
-    "@swim/controller",
-    "@swim/ui",
-
-    "@swim/button",
-    "@swim/toolbar",
-    "@swim/token",
-    "@swim/table",
-    "@swim/window",
-    "@swim/sheet",
-    "@swim/panel",
-    "@swim/ux",
-
-    "@swim/gauge",
-    "@swim/pie",
-    "@swim/chart",
-    "@swim/vis",
-
-    "@swim/map",
-    "@swim/mapbox",
-    "@swim/leaflet",
-    "@swim/googlemap",
-    "@swim/esrimap",
-    "@swim/maps"
-  ],
   "compiler": {
     "tsconfigFilePath": "<projectFolder>/src/main/tsconfig.json"
   },
