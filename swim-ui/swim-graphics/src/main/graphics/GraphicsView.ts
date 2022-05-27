@@ -337,7 +337,11 @@ export class GraphicsView extends View {
           if (!handler.capture) {
             const listener = handler.listener;
             if (typeof listener === "function") {
-              listener.call(this, event);
+              if (typeof listener.call === "function") {
+                listener.call(this, event);
+              } else {
+                listener(event);
+              }
             } else if (typeof listener === "object" && listener !== null) {
               listener.handleEvent(event);
             }
