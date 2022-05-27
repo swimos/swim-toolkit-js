@@ -1,6 +1,6 @@
 {
   "name": "@swim/model",
-  "version": "4.0.0-dev.20220527.2",
+  "version": "4.0.0-dev.20220527.3",
   "description": "Lifecycle-managed model hierarchy supporting dynamic scoping and service injection",
   "homepage": "https://github.com/swimos/swim/tree/main/swim-js/swim-toolkit/swim-ui/swim-model",
   "author": "Chris Sachs <chris@swimos.org>",
@@ -20,15 +20,15 @@
   "typedocMain": "./src/main/index.ts",
   "sideEffects": false,
   "dependencies": {
-    "@swim/util": "4.0.0-dev.20220527.2",
-    "@swim/codec": "4.0.0-dev.20220527.2",
-    "@swim/component": "4.0.0-dev.20220527.2",
-    "@swim/collections": "4.0.0-dev.20220527.2",
-    "@swim/structure": "4.0.0-dev.20220527.2",
-    "@swim/recon": "4.0.0-dev.20220527.2",
-    "@swim/uri": "4.0.0-dev.20220527.2",
-    "@swim/warp": "4.0.0-dev.20220527.2",
-    "@swim/client": "4.0.0-dev.20220527.2"
+    "@swim/util": "4.0.0-dev.20220527.3",
+    "@swim/codec": "4.0.0-dev.20220527.3",
+    "@swim/component": "4.0.0-dev.20220527.3",
+    "@swim/collections": "4.0.0-dev.20220527.3",
+    "@swim/structure": "4.0.0-dev.20220527.3",
+    "@swim/recon": "4.0.0-dev.20220527.3",
+    "@swim/uri": "4.0.0-dev.20220527.3",
+    "@swim/warp": "4.0.0-dev.20220527.3",
+    "@swim/client": "4.0.0-dev.20220527.3"
   },
   "scripts": {
     "main:compile": "tsc -b src/main && api-extractor run -l -c src/main/api-extractor.json",
