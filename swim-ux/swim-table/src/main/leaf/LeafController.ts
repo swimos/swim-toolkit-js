@@ -12,13 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Instance, Creatable, Observes} from "@swim/util";
-import type {FastenerClass} from "@swim/component";
+import type {Class} from "@swim/util";
+import type {Instance} from "@swim/util";
+import type {Creatable} from "@swim/util";
+import type {Observes} from "@swim/util";
 import type {Trait} from "@swim/model";
 import type {PositionGestureInput} from "@swim/view";
 import type {HtmlView} from "@swim/dom";
 import type {Graphics} from "@swim/graphics";
-import {Controller, TraitViewRef, TraitViewControllerSet} from "@swim/controller";
+import {Controller} from "@swim/controller";
+import {TraitViewRef} from "@swim/controller";
+import {TraitViewControllerSet} from "@swim/controller";
 import type {CellView} from "../cell/CellView";
 import {TextCellView} from "../cell/TextCellView";
 import type {CellTrait} from "../cell/CellTrait";
@@ -33,7 +37,7 @@ import type {LeafControllerObserver} from "./LeafControllerObserver";
 export class LeafController extends Controller {
   override readonly observerType?: Class<LeafControllerObserver>;
 
-  @TraitViewRef<LeafController["leaf"]>({
+  @TraitViewRef({
     traitType: LeafTrait,
     observesTrait: true,
     willAttachTrait(leafTrait: LeafTrait): void {
@@ -100,8 +104,7 @@ export class LeafController extends Controller {
       this.owner.callObservers("controllerDidLongPressLeafView", input, leafView, this.owner);
     },
   })
-  readonly leaf!: TraitViewRef<this, LeafTrait, LeafView> & Observes<LeafTrait & LeafView>;
-  static readonly leaf: FastenerClass<LeafController["leaf"]>;
+  readonly leaf!: TraitViewRef<this, LeafTrait, LeafView> & Observes<LeafTrait> & Observes<LeafView>;
 
   getCell<F extends Class<CellController>>(key: string, cellControllerClass: F): InstanceType<F> | null;
   getCell(key: string): CellController | null;
@@ -180,7 +183,7 @@ export class LeafController extends Controller {
     leafView.setCell(key, cellView);
   }
 
-  @TraitViewControllerSet<LeafController["cells"]>({
+  @TraitViewControllerSet({
     controllerType: CellController,
     binds: true,
     observes: true,
@@ -282,11 +285,11 @@ export class LeafController extends Controller {
       if (cellTrait !== void 0) {
         return cellTrait.createCellController();
       } else {
-        return TraitViewControllerSet.prototype.createController.call(this);
+        return super.createController();
       }
     },
   })
-  readonly cells!: TraitViewControllerSet<this, CellTrait, CellView, CellController> & Observes<CellController & TextCellController & IconCellController> & {
+  readonly cells!: TraitViewControllerSet<this, CellTrait, CellView, CellController> & Observes<CellController> & Observes<TextCellController> & Observes<IconCellController> & {
     attachCellTrait(cellTrait: CellTrait, cellController: CellController): void;
     detachCellTrait(cellTrait: CellTrait, cellController: CellController): void;
     attachCellView(cellView: CellView, cellController: CellController): void;
@@ -294,5 +297,4 @@ export class LeafController extends Controller {
     attachCellContentView(cellContentView: HtmlView, cellController: CellController): void;
     detachCellContentView(cellContentView: HtmlView, cellController: CellController): void;
   };
-  static readonly cells: FastenerClass<LeafController["cells"]>;
 }

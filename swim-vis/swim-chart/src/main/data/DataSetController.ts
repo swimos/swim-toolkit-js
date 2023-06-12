@@ -12,13 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, AnyTiming, Timing, Observes} from "@swim/util";
-import {FastenerClass, Property} from "@swim/component";
+import type {Class} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {Timing} from "@swim/util";
+import type {Observes} from "@swim/util";
+import {Property} from "@swim/component";
 import type {Length} from "@swim/math";
-import {Trait, TraitRef} from "@swim/model";
+import type {Trait} from "@swim/model";
+import {TraitRef} from "@swim/model";
 import type {Color} from "@swim/style";
 import type {GraphicsView} from "@swim/graphics";
-import {Controller, TraitViewRef, TraitViewControllerSet} from "@swim/controller";
+import {Controller} from "@swim/controller";
+import type {TraitViewRef} from "@swim/controller";
+import {TraitViewControllerSet} from "@swim/controller";
 import type {DataPointView} from "./DataPointView";
 import type {DataPointTrait} from "./DataPointTrait";
 import {DataPointController} from "./DataPointController";
@@ -29,7 +35,7 @@ import type {DataSetControllerObserver} from "./DataSetControllerObserver";
 export class DataSetController<X = unknown, Y = unknown> extends Controller {
   override readonly observerType?: Class<DataSetControllerObserver<X, Y>>;
 
-  @TraitRef<DataSetController<X, Y>["dataSet"]>({
+  @TraitRef({
     traitType: DataSetTrait,
     observes: true,
     willAttachTrait(dataSetTrait: DataSetTrait<X, Y>): void {
@@ -52,12 +58,11 @@ export class DataSetController<X = unknown, Y = unknown> extends Controller {
     },
   })
   readonly dataSet!: TraitRef<this, DataSetTrait<X, Y>> & Observes<DataSetTrait<X, Y>>;
-  static readonly dataSet: FastenerClass<DataSetController["dataSet"]>;
 
   @Property({valueType: Timing, value: true})
   readonly dataPointTiming!: Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined>;
 
-  @TraitViewControllerSet<DataSetController<X, Y>["dataPoints"]>({
+  @TraitViewControllerSet({
     controllerType: DataPointController,
     binds: true,
     observes: true,
@@ -170,5 +175,4 @@ export class DataSetController<X = unknown, Y = unknown> extends Controller {
     attachDataPointLabelView(labelView: GraphicsView, dataPointController: DataPointController<X, Y>): void,
     detachDataPointLabelView(labelView: GraphicsView, dataPointController: DataPointController<X, Y>): void,
   };
-  static readonly dataPoints: FastenerClass<DataSetController["dataPoints"]>;
 }

@@ -12,11 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Spec, Test, Exam} from "@swim/unit";
+import type {Exam} from "@swim/unit";
+import {Test} from "@swim/unit";
+import {Suite} from "@swim/unit";
 import {Angle} from "@swim/math";
 import {LinearGradient} from "@swim/style";
 
-export class LinearGradientSpec extends Spec {
+export class LinearGradientSpec extends Suite {
   @Test
   parseLinearGradientAngles(exam: Exam): void {
     exam.equal(LinearGradient.parseAngle("0"), Angle.deg(0));

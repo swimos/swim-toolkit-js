@@ -16,7 +16,8 @@ import type {FastenerOwner} from "@swim/component";
 import type {View} from "../view/View";
 import {GestureInput} from "./GestureInput";
 import type {PositionGestureInput} from "./PositionGestureInput";
-import {PositionGestureClass, PositionGesture} from "./PositionGesture";
+import type {PositionGestureClass} from "./PositionGesture";
+import {PositionGesture} from "./PositionGesture";
 
 /** @internal */
 export interface PointerPositionGesture<O = unknown, V extends View = View> extends PositionGesture<O, V> {

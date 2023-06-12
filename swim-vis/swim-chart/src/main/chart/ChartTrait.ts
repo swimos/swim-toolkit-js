@@ -13,8 +13,9 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {FastenerClass} from "@swim/component";
-import {Model, Trait, TraitRef} from "@swim/model";
+import type {Model} from "@swim/model";
+import {Trait} from "@swim/model";
+import {TraitRef} from "@swim/model";
 import {GraphTrait} from "../graph/GraphTrait";
 import type {AxisTrait} from "../axis/AxisTrait";
 import {TopAxisTrait} from "../axis/TopAxisTrait";
@@ -27,7 +28,7 @@ import type {ChartTraitObserver} from "./ChartTraitObserver";
 export class ChartTrait<X = unknown, Y = unknown> extends Trait {
   override readonly observerType?: Class<ChartTraitObserver<X, Y>>;
 
-  @TraitRef<ChartTrait<X, Y>["graph"]>({
+  @TraitRef({
     traitType: GraphTrait,
     binds: true,
     willAttachTrait(graphTrait: GraphTrait<X, Y>): void {
@@ -54,9 +55,8 @@ export class ChartTrait<X = unknown, Y = unknown> extends Trait {
     },
   })
   readonly graph!: TraitRef<this, GraphTrait<X, Y>>;
-  static readonly graph: FastenerClass<ChartTrait["graph"]>;
 
-  @TraitRef<ChartTrait<X, Y>["topAxis"]>({
+  @TraitRef({
     traitType: TopAxisTrait,
     binds: true,
     willAttachTrait(topAxisTrait: AxisTrait<X>): void {
@@ -83,9 +83,8 @@ export class ChartTrait<X = unknown, Y = unknown> extends Trait {
     },
   })
   readonly topAxis!: TraitRef<this, AxisTrait<X>>;
-  static readonly topAxis: FastenerClass<ChartTrait["topAxis"]>;
 
-  @TraitRef<ChartTrait<X, Y>["rightAxis"]>({
+  @TraitRef({
     traitType: RightAxisTrait,
     binds: true,
     willAttachTrait(rightAxisTrait: AxisTrait<Y>): void {
@@ -112,9 +111,8 @@ export class ChartTrait<X = unknown, Y = unknown> extends Trait {
     },
   })
   readonly rightAxis!: TraitRef<this, AxisTrait<Y>>;
-  static readonly rightAxis: FastenerClass<ChartTrait["rightAxis"]>;
 
-  @TraitRef<ChartTrait<X, Y>["bottomAxis"]>({
+  @TraitRef({
     traitType: BottomAxisTrait,
     binds: true,
     willAttachTrait(bottomAxisTrait: AxisTrait<X>): void {
@@ -141,9 +139,8 @@ export class ChartTrait<X = unknown, Y = unknown> extends Trait {
     },
   })
   readonly bottomAxis!: TraitRef<this, AxisTrait<X>>;
-  static readonly bottomAxis: FastenerClass<ChartTrait["bottomAxis"]>;
 
-  @TraitRef<ChartTrait<X, Y>["leftAxis"]>({
+  @TraitRef({
     traitType: LeftAxisTrait,
     binds: true,
     willAttachTrait(leftAxisTrait: AxisTrait<Y>): void {
@@ -170,7 +167,6 @@ export class ChartTrait<X = unknown, Y = unknown> extends Trait {
     },
   })
   readonly leftAxis!: TraitRef<this, AxisTrait<Y>>;
-  static readonly leftAxis: FastenerClass<ChartTrait["leftAxis"]>;
 
   protected override onStartConsuming(): void {
     super.onStartConsuming();

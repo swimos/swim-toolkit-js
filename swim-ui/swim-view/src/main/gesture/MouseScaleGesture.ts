@@ -15,7 +15,8 @@
 import type {FastenerOwner} from "@swim/component";
 import type {View} from "../view/View";
 import type {ScaleGestureInput} from "./ScaleGestureInput";
-import {ScaleGestureClass, ScaleGesture} from "./ScaleGesture";
+import type {ScaleGestureClass} from "./ScaleGesture";
+import {ScaleGesture} from "./ScaleGesture";
 
 /** @internal */
 export interface MouseScaleGesture<O = unknown, V extends View = View, X = unknown, Y = unknown> extends ScaleGesture<O, V, X, Y> {

@@ -12,9 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Interpolator} from "@swim/util";
+import type {Mutable} from "@swim/util";
+import {Interpolator} from "@swim/util";
 import type {ColorStop} from "./ColorStop";
-import {LinearGradientAngle, LinearGradient} from "./LinearGradient";
+import type {LinearGradientAngle} from "./LinearGradient";
+import {LinearGradient} from "./LinearGradient";
 
 /** @internal */
 export interface LinearGradientInterpolator extends Interpolator<LinearGradient> {

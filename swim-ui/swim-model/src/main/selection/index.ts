@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  SelectionOptions,
-  SelectionService,
-} from "./SelectionService";
-export {SelectionServiceObserver} from "./SelectionServiceObserver";
+export type {SelectionOptions} from "./SelectionService";
+export {SelectionService} from "./SelectionService";
+export type {SelectionServiceObserver} from "./SelectionServiceObserver";

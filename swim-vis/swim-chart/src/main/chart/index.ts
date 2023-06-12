@@ -12,15 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  AnyChartView,
-  ChartViewInit,
-  ChartView,
-} from "./ChartView";
-export {ChartViewObserver} from "./ChartViewObserver";
+export type {AnyChartView} from "./ChartView";
+export type {ChartViewInit} from "./ChartView";
+export {ChartView} from "./ChartView";
+export type {ChartViewObserver} from "./ChartViewObserver";
 
 export {ChartTrait} from "./ChartTrait";
-export {ChartTraitObserver} from "./ChartTraitObserver";
+export type {ChartTraitObserver} from "./ChartTraitObserver";
 
 export {ChartController} from "./ChartController";
-export {ChartControllerObserver} from "./ChartControllerObserver";
+export type {ChartControllerObserver} from "./ChartControllerObserver";

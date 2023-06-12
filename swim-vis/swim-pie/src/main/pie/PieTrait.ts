@@ -13,8 +13,10 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {FastenerClass, Property} from "@swim/component";
-import {Model, Trait, TraitSet} from "@swim/model";
+import {Property} from "@swim/component";
+import type {Model} from "@swim/model";
+import {Trait} from "@swim/model";
+import {TraitSet} from "@swim/model";
 import {SliceTrait} from "../slice/SliceTrait";
 import type {PieTraitObserver} from "./PieTraitObserver";
 
@@ -22,16 +24,15 @@ import type {PieTraitObserver} from "./PieTraitObserver";
 export class PieTrait extends Trait {
   override readonly observerType?: Class<PieTraitObserver>;
 
-  @Property<PieTrait["title"]>({
+  @Property({
     valueType: String,
     didSetValue(title: string | undefined): void {
       this.owner.callObservers("traitDidSetTitle", title, this.owner);
     },
   })
   readonly title!: Property<this, string | undefined>;
-  static readonly title: FastenerClass<PieTrait["title"]>;
 
-  @TraitSet<PieTrait["slices"]>({
+  @TraitSet({
     traitType: SliceTrait,
     binds: true,
     willAttachTrait(sliceTrait: SliceTrait, targetTrait: Trait | null): void {
@@ -55,7 +56,6 @@ export class PieTrait extends Trait {
     },
   })
   readonly slices!: TraitSet<this, SliceTrait>;
-  static readonly slices: FastenerClass<PieTrait["slices"]>;
 
   protected override onStartConsuming(): void {
     super.onStartConsuming();

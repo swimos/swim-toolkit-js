@@ -12,16 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  DialViewArrangement,
-  AnyDialView,
-  DialViewInit,
-  DialView,
-} from "./DialView";
-export {DialViewObserver} from "./DialViewObserver";
+export type {DialViewArrangement} from "./DialView";
+export type {AnyDialView} from "./DialView";
+export type {DialViewInit} from "./DialView";
+export {DialView} from "./DialView";
+export type {DialViewObserver} from "./DialViewObserver";
 
 export {DialTrait} from "./DialTrait";
-export {DialTraitObserver} from "./DialTraitObserver";
+export type {DialTraitObserver} from "./DialTraitObserver";
 
 export {DialController} from "./DialController";
-export {DialControllerObserver} from "./DialControllerObserver";
+export type {DialControllerObserver} from "./DialControllerObserver";

@@ -12,14 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, AnyTiming, Timing} from "@swim/util";
-import {Affinity, FastenerClass, Property} from "@swim/component";
+import type {Mutable} from "@swim/util";
+import type {Class} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {Timing} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
 import {GeoPoint} from "@swim/geo";
-import {Look, Mood} from "@swim/theme";
-import {View, ViewRef} from "@swim/view";
+import {Look} from "@swim/theme";
+import {Mood} from "@swim/theme";
+import {View} from "@swim/view";
+import {ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import type {CanvasView} from "@swim/graphics";
-import {AnyGeoPerspective, GeoViewport, MapView} from "@swim/map";
+import type {AnyGeoPerspective} from "@swim/map";
+import type {GeoViewport} from "@swim/map";
+import {MapView} from "@swim/map";
 import {LeafletViewport} from "./LeafletViewport";
 import type {LeafletViewObserver} from "./LeafletViewObserver";
 
@@ -28,6 +36,8 @@ export class LeafletView extends MapView {
   constructor(map: L.Map) {
     super();
     this.map = map;
+    (this.geoViewport as Mutable<typeof this.geoViewport>).value = LeafletViewport.create(map);
+
     this.onMapRender = this.onMapRender.bind(this);
     this.onMoveStart = this.onMoveStart.bind(this);
     this.onMoveEnd = this.onMoveEnd.bind(this);
@@ -44,11 +54,8 @@ export class LeafletView extends MapView {
     map.on("moveend", this.onMoveEnd);
   }
 
-  @Property<LeafletView["geoViewport"]>({
+  @Property({
     extends: true,
-    initValue(): GeoViewport {
-      return LeafletViewport.create(this.owner.map);
-    },
     willSetValue(newGeoViewport: GeoViewport, oldGeoViewport: GeoViewport): void {
       this.owner.callObservers("viewWillSetGeoViewport", newGeoViewport, oldGeoViewport, this.owner);
     },
@@ -110,25 +117,24 @@ export class LeafletView extends MapView {
     this.callObservers("viewDidMoveMap", this);
   }
 
-  @ViewRef<LeafletView["canvas"]>({
+  @ViewRef({
     extends: true,
     didAttachView(canvasView: CanvasView, targetView: View | null): void {
       if (this.owner.parent === null) {
         canvasView.appendChild(this.owner);
       }
-      MapView.canvas.prototype.didAttachView.call(this, canvasView, targetView);
+      super.didAttachView(canvasView, targetView);
     },
     willDetachView(canvasView: CanvasView): void {
-      MapView.canvas.prototype.willDetachView.call(this, canvasView);
+      super.willDetachView(canvasView);
       if (this.owner.parent === canvasView) {
         canvasView.removeChild(this.owner);
       }
     },
   })
   override readonly canvas!: ViewRef<this, CanvasView> & MapView["canvas"];
-  static override readonly canvas: FastenerClass<LeafletView["canvas"]>;
 
-  @ViewRef<LeafletView["container"]>({
+  @ViewRef({
     extends: true,
     didAttachView(containerView: HtmlView, targetView: View | null): void {
       const controlContainerView = HtmlView.fromNode(containerView.node.querySelector(".leaflet-control-container") as HTMLDivElement);
@@ -136,10 +142,10 @@ export class LeafletView extends MapView {
       if (canvasView !== null) {
         canvasView.zIndex.setState(500, Affinity.Intrinsic);
       }
-      MapView.container.prototype.didAttachView.call(this, containerView, targetView);
+      super.didAttachView(containerView, targetView);
     },
     willDetachView(containerView: HtmlView): void {
-      MapView.container.prototype.willDetachView.call(this, containerView);
+      super.willDetachView(containerView);
       const canvasView = this.owner.canvas.view;
       if (canvasView !== null && canvasView.parent === containerView) {
         containerView.removeChild(containerView);
@@ -147,5 +153,4 @@ export class LeafletView extends MapView {
     },
   })
   override readonly container!: ViewRef<this, HtmlView> & MapView["container"];
-  static override readonly container: FastenerClass<LeafletView["container"]>;
 }

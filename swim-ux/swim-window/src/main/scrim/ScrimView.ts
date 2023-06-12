@@ -12,11 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, AnyTiming, Timing} from "@swim/util";
+import type {Mutable} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {Timing} from "@swim/util";
 import {Affinity} from "@swim/component";
-import {AnyColor, Color} from "@swim/style";
+import type {AnyColor} from "@swim/style";
+import {Color} from "@swim/style";
 import {Look} from "@swim/theme";
-import {StyleAnimator, HtmlView, ModalService, ModalServiceObserver} from "@swim/dom";
+import {StyleAnimator} from "@swim/dom";
+import {HtmlView} from "@swim/dom";
+import type {ModalService} from "@swim/dom";
+import type {ModalServiceObserver} from "@swim/dom";
 
 /** @public */
 export class ScrimView extends HtmlView implements ModalServiceObserver {
@@ -59,8 +65,8 @@ export class ScrimView extends HtmlView implements ModalServiceObserver {
     (this as Mutable<this>).displayState = displayState;
   }
 
-  @StyleAnimator<ScrimView["backgroundColor"]>({
-    extends: HtmlView.getFastenerClass("backgroundColor"),
+  @StyleAnimator({
+    extends: true,
     willTransition(): void {
       const displayState = this.owner.displayState;
       if (displayState === ScrimView.ShowState) {
@@ -80,7 +86,7 @@ export class ScrimView extends HtmlView implements ModalServiceObserver {
   })
   override readonly backgroundColor!: StyleAnimator<this, Color | null, AnyColor | null>;
 
-  isShown(): boolean {  
+  isShown(): boolean {
     switch (this.displayState) {
       case ScrimView.ShownState:
       case ScrimView.ShowingState:

@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  GeoRippleOptions,
-  GeoRippleView,
-} from "./GeoRippleView";
-export {GeoRippleViewObserver} from "./GeoRippleViewObserver";
+export type {GeoRippleOptions} from "./GeoRippleView";
+export {GeoRippleView} from "./GeoRippleView";
+export type {GeoRippleViewObserver} from "./GeoRippleViewObserver";

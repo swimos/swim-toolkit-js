@@ -12,23 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  DataPointCategory,
-  DataPointLabelPlacement,
-  AnyDataPointView,
-  DataPointViewInit,
-  DataPointView,
-} from "./DataPointView";
-export {DataPointViewObserver} from "./DataPointViewObserver";
+export type {DataPointCategory} from "./DataPointView";
+export type {DataPointLabelPlacement} from "./DataPointView";
+export type {AnyDataPointView} from "./DataPointView";
+export type {DataPointViewInit} from "./DataPointView";
+export {DataPointView} from "./DataPointView";
+export type {DataPointViewObserver} from "./DataPointViewObserver";
 
 export {DataPointTrait} from "./DataPointTrait";
-export {DataPointTraitObserver} from "./DataPointTraitObserver";
+export type {DataPointTraitObserver} from "./DataPointTraitObserver";
 
 export {DataSetTrait} from "./DataSetTrait";
-export {DataSetTraitObserver} from "./DataSetTraitObserver";
+export type {DataSetTraitObserver} from "./DataSetTraitObserver";
 
 export {DataPointController} from "./DataPointController";
-export {DataPointControllerObserver} from "./DataPointControllerObserver";
+export type {DataPointControllerObserver} from "./DataPointControllerObserver";
 
 export {DataSetController} from "./DataSetController";
-export {DataSetControllerObserver} from "./DataSetControllerObserver";
+export type {DataSetControllerObserver} from "./DataSetControllerObserver";

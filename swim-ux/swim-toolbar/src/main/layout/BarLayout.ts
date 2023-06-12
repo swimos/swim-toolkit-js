@@ -12,10 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Equivalent, Equals, Arrays, Interpolate, Interpolator} from "@swim/util"
-import {Debug, Format, Output} from "@swim/codec";
-import {AnyLength, Length} from "@swim/math";
-import {AnyToolLayout, ToolLayout} from "./ToolLayout";
+import {Arrays} from "@swim/util";
+import {Equals} from "@swim/util";
+import type {Equivalent} from "@swim/util";
+import type {Interpolate} from "@swim/util";
+import type {Interpolator} from "@swim/util";
+import type {Output} from "@swim/codec";
+import type {Debug} from "@swim/codec";
+import {Format} from "@swim/codec";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import type {AnyToolLayout} from "./ToolLayout";
+import {ToolLayout} from "./ToolLayout";
 import {BarLayoutInterpolator} from "./BarLayoutInterpolator";
 
 /** @public */

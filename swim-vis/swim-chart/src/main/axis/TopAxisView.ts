@@ -14,12 +14,14 @@
 
 import type {ContinuousScale} from "@swim/util";
 import {Affinity} from "@swim/component";
-import {R2Point, R2Box} from "@swim/math";
+import {R2Point} from "@swim/math";
+import type {R2Box} from "@swim/math";
 import {View} from "@swim/view";
 import type {PaintingContext} from "@swim/graphics";
 import {ContinuousScaleAnimator} from "../scaled/ContinuousScaleAnimator";
 import type {TickView} from "../tick/TickView";
-import {AxisOrientation, AxisView} from "./AxisView";
+import type {AxisOrientation} from "./AxisView";
+import {AxisView} from "./AxisView";
 
 /** @public */
 export class TopAxisView<X = unknown> extends AxisView<X> {
@@ -27,7 +29,7 @@ export class TopAxisView<X = unknown> extends AxisView<X> {
     return "top";
   }
 
-  @ContinuousScaleAnimator<TopAxisView<X>["scale"]>({
+  @ContinuousScaleAnimator({
     value: null,
     inherits: "xScale",
     updateFlags: View.NeedsLayout,

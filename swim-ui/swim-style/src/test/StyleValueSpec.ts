@@ -12,12 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Spec, Test, Exam} from "@swim/unit";
-import {Length, Angle, Transform, AffineTransform} from "@swim/math";
+import type {Exam} from "@swim/unit";
+import {Test} from "@swim/unit";
+import {Suite} from "@swim/unit";
+import {Length} from "@swim/math";
+import {Angle} from "@swim/math";
+import {Transform} from "@swim/math";
+import {AffineTransform} from "@swim/math";
 import {DateTime} from "@swim/time";
-import {Font, Color, LinearGradient, StyleValue} from "@swim/style";
+import {Font} from "@swim/style";
+import {Color} from "@swim/style";
+import {LinearGradient} from "@swim/style";
+import {StyleValue} from "@swim/style";
 
-export class StyleValueSpec extends Spec {
+export class StyleValueSpec extends Suite {
   @Test
   parseDates(exam: Exam): void {
     exam.equal(StyleValue.parse("2020-01-01T00:00:00.000Z"), DateTime.fromAny({year: 2020}));

@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Class} from "@swim/util";
+import type {Mutable} from "@swim/util";
+import type {Class} from "@swim/util";
 import {Provider} from "@swim/component";
 import {Trait} from "../trait/Trait";
-import {SelectionOptions, SelectionService} from "../selection/SelectionService";
+import type {SelectionOptions} from "../selection/SelectionService";
+import {SelectionService} from "../selection/SelectionService";
 import type {SelectableTraitObserver} from "./SelectableTraitObserver";
 
 /** @public */
@@ -113,7 +115,7 @@ export class SelectableTrait extends Trait {
     }
   }
 
-  @Provider<SelectableTrait["selection"]>({
+  @Provider({
     serviceType: SelectionService,
   })
   readonly selection!: Provider<this, SelectionService>;

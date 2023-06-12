@@ -12,12 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  AttributeAnimatorDescriptor,
-  AttributeAnimatorTemplate,
-  AttributeAnimatorClass,
-  AttributeAnimator,
-} from "./AttributeAnimator";
+export type {AttributeAnimatorDecorator} from "./AttributeAnimator";
+export type {AttributeAnimatorDescriptor} from "./AttributeAnimator";
+export type {AttributeAnimatorTemplate} from "./AttributeAnimator";
+export type {AttributeAnimatorClass} from "./AttributeAnimator";
+export {AttributeAnimator} from "./AttributeAnimator";
 export {StringAttributeAnimator} from "./StringAttributeAnimator";
 export {NumberAttributeAnimator} from "./NumberAttributeAnimator";
 export {BooleanAttributeAnimator} from "./BooleanAttributeAnimator";

@@ -13,10 +13,12 @@
 // limitations under the License.
 
 import type {Mutable} from "@swim/util";
-import {Affinity, Property} from "@swim/component";
-import {ViewNode, SvgView} from "@swim/dom";
+import {Affinity} from "@swim/component";
+import type {ViewNode} from "@swim/dom";
+import {SvgView} from "@swim/dom";
 import {PathContext} from "../path/PathContext";
-import type {PaintingFillRule, PaintingContext} from "../painting/PaintingContext";
+import type {PaintingFillRule} from "../painting/PaintingContext";
+import type {PaintingContext} from "../painting/PaintingContext";
 
 /** @public */
 export class SvgContext implements PaintingContext {
@@ -109,28 +111,16 @@ export class SvgContext implements PaintingContext {
     if (pathView !== null) {
       const pathFlags = this.pathFlags;
       if ((pathFlags & SvgContext.FillFlag) === 0) {
-        const fill = pathView.getFastener("fill", Property);
-        if (fill !== null) {
-          fill.setValue(null, Affinity.Intrinsic);
-        }
+        pathView.fill.setValue(null, Affinity.Intrinsic);
       }
       if ((pathFlags & SvgContext.FillRuleFlag) === 0) {
-        const fillRule = pathView.getFastener("fillRule", Property);
-        if (fillRule !== null) {
-          fillRule.setValue(void 0, Affinity.Intrinsic);
-        }
+        pathView.fillRule.setValue(void 0, Affinity.Intrinsic);
       }
       if ((pathFlags & SvgContext.StrokeFlag) === 0) {
-        const stroke = pathView.getFastener("stroke", Property);
-        if (stroke !== null) {
-          stroke.setValue(null, Affinity.Intrinsic);
-        }
+        pathView.stroke.setValue(null, Affinity.Intrinsic);
       }
       if ((pathFlags & SvgContext.PathFlag) === 0) {
-        const d = pathView.getFastener("d", Property);
-        if (d !== null) {
-          d.setValue(void 0, Affinity.Intrinsic);
-        }
+        pathView.d.setValue(void 0, Affinity.Intrinsic);
       }
     }
   }

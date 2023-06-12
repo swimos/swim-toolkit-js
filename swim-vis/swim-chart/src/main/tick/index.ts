@@ -12,20 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  TickGenerator,
-  NumberTickGenerator,
-  TimeTickGenerator,
-} from "./TickGenerator";
+export {TickGenerator} from "./TickGenerator";
+export {NumberTickGenerator} from "./TickGenerator";
+export {TimeTickGenerator} from "./TickGenerator";
 
-export {
-  TickState,
-  TickOrientation,
-  AnyTickView,
-  TickViewInit,
-  TickView,
-} from "./TickView";
-export {TickViewObserver} from "./TickViewObserver";
+export {TickState} from "./TickView";
+export type {TickOrientation} from "./TickView";
+export type {AnyTickView} from "./TickView";
+export type {TickViewInit} from "./TickView";
+export {TickView} from "./TickView";
+export type {TickViewObserver} from "./TickViewObserver";
 
 export {TopTickView} from "./TopTickView";
 export {RightTickView} from "./RightTickView";

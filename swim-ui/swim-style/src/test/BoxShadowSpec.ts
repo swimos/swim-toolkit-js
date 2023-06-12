@@ -12,10 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Spec, Test, Exam} from "@swim/unit";
-import {Color, BoxShadow} from "@swim/style";
+import type {Exam} from "@swim/unit";
+import {Test} from "@swim/unit";
+import {Suite} from "@swim/unit";
+import {Color} from "@swim/style";
+import {BoxShadow} from "@swim/style";
 
-export class BoxShadowSpec extends Spec {
+export class BoxShadowSpec extends Suite {
   @Test
   parseBoxShadows(exam: Exam): void {
     exam.equal(BoxShadow.parse("none"), null);

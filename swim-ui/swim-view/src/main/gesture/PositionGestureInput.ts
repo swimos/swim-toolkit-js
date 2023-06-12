@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {GestureInputType, GestureInput} from "./GestureInput";
+import type {GestureInputType} from "./GestureInput";
+import {GestureInput} from "./GestureInput";
 
 /** @public */
 export class PositionGestureInput extends GestureInput {

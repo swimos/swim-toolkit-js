@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  ModalOptions,
-  ModalView,
-} from "./ModalView";
-export {ModalViewObserver} from "./ModalViewObserver";
+export type {ModalOptions} from "./ModalView";
+export {ModalView} from "./ModalView";
+export type {ModalViewObserver} from "./ModalViewObserver";
 
 export {ModalService} from "./ModalService";
-export {ModalServiceObserver} from "./ModalServiceObserver";
+export type {ModalServiceObserver} from "./ModalServiceObserver";

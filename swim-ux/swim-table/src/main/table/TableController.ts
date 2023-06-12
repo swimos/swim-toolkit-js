@@ -12,18 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Observes} from "@swim/util";
-import {Affinity, FastenerClass} from "@swim/component";
+import type {Class} from "@swim/util";
+import type {Observes} from "@swim/util";
+import {Affinity} from "@swim/component";
 import type {Trait} from "@swim/model";
 import type {View} from "@swim/view";
 import type {HtmlView} from "@swim/dom";
 import type {Graphics} from "@swim/graphics";
-import {
-  Controller,
-  TraitViewRef,
-  TraitViewControllerRef,
-  TraitViewControllerSet,
-} from "@swim/controller";
+import {Controller} from "@swim/controller";
+import {TraitViewRef} from "@swim/controller";
+import {TraitViewControllerRef} from "@swim/controller";
+import {TraitViewControllerSet} from "@swim/controller";
 import type {TableLayout} from "../layout/TableLayout";
 import type {ColLayout} from "../layout/ColLayout";
 import type {CellView} from "../cell/CellView";
@@ -55,7 +54,7 @@ export class TableController extends Controller {
     tableView.layout.setValue(tableLayout, Affinity.Intrinsic);
   }
 
-  @TraitViewRef<TableController["table"]>({
+  @TraitViewRef({
     traitType: TableTrait,
     observesTrait: true,
     willAttachTrait(tableTrait: TableTrait): void {
@@ -158,10 +157,9 @@ export class TableController extends Controller {
       }
     },
   })
-  readonly table!: TraitViewRef<this, TableTrait, TableView> & Observes<TableTrait & TableView>;
-  static readonly table: FastenerClass<TableController["table"]>;
+  readonly table!: TraitViewRef<this, TableTrait, TableView> & Observes<TableTrait> & Observes<TableView>;
 
-  @TraitViewControllerRef<TableController["header"]>({
+  @TraitViewControllerRef({
     controllerType: HeaderController,
     binds: true,
     observes: true,
@@ -247,9 +245,8 @@ export class TableController extends Controller {
     attachHeaderView(headerView: HeaderView, headerController: HeaderController): void;
     detachHeaderView(headerView: HeaderView, headerController: HeaderController): void;
   };
-  static readonly header: FastenerClass<TableController["header"]>;
 
-  @TraitViewControllerSet<TableController["cols"]>({
+  @TraitViewControllerSet({
     controllerType: ColController,
     binds: true,
     observes: true,
@@ -339,7 +336,7 @@ export class TableController extends Controller {
       // hook
     },
   })
-  readonly cols!: TraitViewControllerSet<this, ColTrait, ColView, ColController> & Observes<ColController & TextColController> & {
+  readonly cols!: TraitViewControllerSet<this, ColTrait, ColView, ColController> & Observes<ColController> & Observes<TextColController> & {
     attachColTrait(colTrait: ColTrait, colController: ColController): void;
     detachColTrait(colTrait: ColTrait, colController: ColController): void;
     attachColView(colView: ColView, colController: ColController): void;
@@ -347,9 +344,8 @@ export class TableController extends Controller {
     attachColLabelView(colLabelView: HtmlView, colController: ColController): void;
     detachColLabelView(colLabelView: HtmlView, colController: ColController): void;
   };
-  static readonly cols: FastenerClass<TableController["cols"]>;
 
-  @TraitViewControllerSet<TableController["rows"]>({
+  @TraitViewControllerSet({
     controllerType: RowController,
     binds: true,
     observes: true,
@@ -627,5 +623,4 @@ export class TableController extends Controller {
     attachTreeView(treeView: TableView, treeController: TableController, rowController: RowController): void;
     detachTreeView(treeView: TableView, treeController: TableController, rowController: RowController): void;
   };
-  static readonly rows: FastenerClass<TableController["rows"]>;
 }

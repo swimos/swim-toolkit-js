@@ -12,25 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Proto, AnyTiming, Timing} from "@swim/util";
-import {
-  Affinity,
-  FastenerOwner,
-  Property,
-  AnimatorValue,
-  AnimatorValueInit,
-  AnimatorDescriptor,
-  AnimatorClass,
-  Animator,
-} from "@swim/component";
+import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {Timing} from "@swim/util";
+import {Affinity} from "@swim/component";
+import type {FastenerOwner} from "@swim/component";
+import type {Property} from "@swim/component";
+import type {AnimatorValue} from "@swim/component";
+import type {AnimatorValueInit} from "@swim/component";
+import type {AnimatorDescriptor} from "@swim/component";
+import type {AnimatorClass} from "@swim/component";
+import {Animator} from "@swim/component";
 import {Look} from "../look/Look";
 import type {MoodVector} from "../mood/MoodVector";
 import type {ThemeMatrix} from "../theme/ThemeMatrix";
 import {ThemeContext} from "../theme/ThemeContext";
 
 /** @public */
+export type ThemeAnimatorDecorator<A extends ThemeAnimator<any, any, any>> = {
+  <T>(target: unknown, context: ClassFieldDecoratorContext<T, A>): (this: T, value: A | undefined) => A;
+};
+
+/** @public */
 export interface ThemeAnimatorDescriptor<T = unknown, U = T> extends AnimatorDescriptor<T, U> {
-  extends?: Proto<ThemeAnimator<any, any, any>> | string | boolean | null;
+  extends?: Proto<ThemeAnimator<any, any, any>> | boolean | null;
   look?: Look<T, any>;
 }
 
@@ -49,15 +55,15 @@ export interface ThemeAnimatorClass<A extends ThemeAnimator<any, any> = ThemeAni
   refine(animatorClass: ThemeAnimatorClass<any>): void;
 
   /** @override */
-  extend<A2 extends A>(className: string, template: ThemeAnimatorTemplate<A2>): ThemeAnimatorClass<A2>;
-  extend<A2 extends A>(className: string, template: ThemeAnimatorTemplate<A2>): ThemeAnimatorClass<A2>;
+  extend<A2 extends A>(className: string | symbol, template: ThemeAnimatorTemplate<A2>): ThemeAnimatorClass<A2>;
+  extend<A2 extends A>(className: string | symbol, template: ThemeAnimatorTemplate<A2>): ThemeAnimatorClass<A2>;
 
   /** @override */
-  define<A2 extends A>(className: string, template: ThemeAnimatorTemplate<A2>): ThemeAnimatorClass<A2>;
-  define<A2 extends A>(className: string, template: ThemeAnimatorTemplate<A2>): ThemeAnimatorClass<A2>;
+  define<A2 extends A>(className: string | symbol, template: ThemeAnimatorTemplate<A2>): ThemeAnimatorClass<A2>;
+  define<A2 extends A>(className: string | symbol, template: ThemeAnimatorTemplate<A2>): ThemeAnimatorClass<A2>;
 
   /** @override */
-  <A2 extends A>(template: ThemeAnimatorTemplate<A2>): PropertyDecorator;
+  <A2 extends A>(template: ThemeAnimatorTemplate<A2>): ThemeAnimatorDecorator<A2>;
 }
 
 /** @public */
@@ -140,7 +146,7 @@ export const ThemeAnimator = (function (_super: typeof Animator) {
   ThemeAnimator.prototype.getInletLook = function <T>(this: ThemeAnimator<unknown, T>): Look<T, any> {
     const inletLook = this.inletLook;
     if (inletLook === null) {
-      throw new TypeError(inletLook + " " + this.name + " inlet look");
+      throw new TypeError(inletLook + " " + this.name.toString() + " inlet look");
     }
     return inletLook;
   };
@@ -164,7 +170,7 @@ export const ThemeAnimator = (function (_super: typeof Animator) {
   ThemeAnimator.prototype.getLook = function <T>(this: ThemeAnimator<unknown, T>): Look<T, any> {
     const look = this.look;
     if (look === null) {
-      throw new TypeError(look + " " + this.name + " look");
+      throw new TypeError(look + " " + this.name.toString() + " look");
     }
     return look;
   };
@@ -256,7 +262,7 @@ export const ThemeAnimator = (function (_super: typeof Animator) {
     } else {
       _super.prototype.tweenInherited.call(this, t);
     }
-  }
+  };
 
   ThemeAnimator.prototype.onMount = function (this: ThemeAnimator): void {
     _super.prototype.onMount.call(this);

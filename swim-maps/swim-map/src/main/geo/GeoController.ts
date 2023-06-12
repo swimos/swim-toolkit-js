@@ -12,9 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, AnyTiming, Timing} from "@swim/util";
+import type {Class} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {Timing} from "@swim/util";
 import {Property} from "@swim/component";
-import {Controller, TraitViewRef} from "@swim/controller";
+import {Controller} from "@swim/controller";
+import type {TraitViewRef} from "@swim/controller";
 import type {GeoView} from "./GeoView";
 import type {GeoTrait} from "./GeoTrait";
 import type {GeoControllerObserver} from "./GeoControllerObserver";

@@ -12,9 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Domain, Range, AnyTiming, ContinuousScale} from "@swim/util";
-import {AnyDateTime, DateTime, TimeDomain} from "@swim/time";
-import {Affinity, AnimatorClass, Animator} from "@swim/component"
+import {Domain} from "@swim/util";
+import {Range} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {ContinuousScale} from "@swim/util";
+import type {AnyDateTime} from "@swim/time";
+import {DateTime} from "@swim/time";
+import {TimeDomain} from "@swim/time";
+import {Affinity} from "@swim/component";
+import type {AnimatorClass} from "@swim/component";
+import {Animator} from "@swim/component";
 import type {View} from "@swim/view";
 import {ScaledView} from "../"; // forward import
 

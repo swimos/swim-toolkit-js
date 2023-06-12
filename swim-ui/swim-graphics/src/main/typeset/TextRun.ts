@@ -13,9 +13,16 @@
 // limitations under the License.
 
 import {Equals} from "@swim/util";
-import {Output, Debug, Format} from "@swim/codec";
-import {AnyR2Point, R2Point, R2Box} from "@swim/math";
-import {AnyFont, Font, AnyColor, Color} from "@swim/style";
+import type {Output} from "@swim/codec";
+import type {Debug} from "@swim/codec";
+import {Format} from "@swim/codec";
+import type {AnyR2Point} from "@swim/math";
+import {R2Point} from "@swim/math";
+import type {R2Box} from "@swim/math";
+import type {AnyFont} from "@swim/style";
+import {Font} from "@swim/style";
+import type {AnyColor} from "@swim/style";
+import {Color} from "@swim/style";
 import type {GraphicsRenderer} from "../graphics/GraphicsRenderer";
 import type {Graphics} from "../graphics/Graphics";
 import type {CanvasContext} from "../canvas/CanvasContext";

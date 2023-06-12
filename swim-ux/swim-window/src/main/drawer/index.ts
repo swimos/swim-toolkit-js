@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  DrawerPlacement,
-  DrawerViewInit,
-  DrawerView,
-} from "./DrawerView";
-export {DrawerViewObserver} from "./DrawerViewObserver";
+export type {DrawerPlacement} from "./DrawerView";
+export type {DrawerViewInit} from "./DrawerView";
+export {DrawerView} from "./DrawerView";
+export type {DrawerViewObserver} from "./DrawerViewObserver";
 
 export {DrawerButton} from "./DrawerButton";

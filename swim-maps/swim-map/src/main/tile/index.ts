@@ -15,7 +15,7 @@
 export {GeoTileView} from "./GeoTileView";
 
 export {GeoTileTrait} from "./GeoTileTrait";
-export {GeoTileTraitObserver} from "./GeoTileTraitObserver";
+export type {GeoTileTraitObserver} from "./GeoTileTraitObserver";
 
 export {GeoTileController} from "./GeoTileController";
-export {GeoTileControllerObserver} from "./GeoTileControllerObserver";
+export type {GeoTileControllerObserver} from "./GeoTileControllerObserver";

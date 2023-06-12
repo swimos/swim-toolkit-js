@@ -12,11 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Class} from "@swim/util";
-import {FastenerClass, Property, Provider} from "@swim/component";
-import {R2Box, Transform} from "@swim/math";
+import type {Mutable} from "@swim/util";
+import type {Class} from "@swim/util";
+import {Property} from "@swim/component";
+import {Provider} from "@swim/component";
+import {R2Box} from "@swim/math";
+import {Transform} from "@swim/math";
 import type {Color} from "@swim/style";
-import {ViewInit, ViewFlags, View} from "@swim/view";
+import type {ViewInit} from "@swim/view";
+import type {ViewFlags} from "@swim/view";
+import {View} from "@swim/view";
 import type {GraphicsEvent} from "../event/GraphicsEvent";
 import type {GraphicsEventHandler} from "../event/GraphicsEventHandler";
 import {GraphicsRenderer} from "./GraphicsRenderer";
@@ -68,7 +73,7 @@ export class GraphicsView extends View {
 
   override readonly observerType?: Class<GraphicsViewObserver>;
 
-  @Property<GraphicsView["renderer"]>({
+  @Property({
     valueType: GraphicsRenderer,
     value: null,
     inherits: true,
@@ -104,13 +109,12 @@ export class GraphicsView extends View {
     }
   }
 
-  @Provider<GraphicsView["sprites"]>({
+  @Provider({
     get serviceType(): typeof SpriteService { // avoid static forward reference
       return SpriteService;
     },
   })
   readonly sprites!: Provider<this, SpriteService>;
-  static readonly sprites: FastenerClass<GraphicsView["sprites"]>;
 
   /** @internal */
   readonly ownViewFrame: R2Box | null;

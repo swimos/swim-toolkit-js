@@ -12,19 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Proto} from "@swim/util";
+import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
 import type {FastenerOwner} from "@swim/component";
 import type {View} from "../view/View";
 import type {GestureInputType} from "./GestureInput";
-import {GestureView, GestureDescriptor, GestureClass, Gesture} from "./Gesture";
+import type {GestureView} from "./Gesture";
+import type {GestureDescriptor} from "./Gesture";
+import type {GestureClass} from "./Gesture";
+import {Gesture} from "./Gesture";
 import {PositionGestureInput} from "./PositionGestureInput";
 import {MousePositionGesture} from "./"; // forward import
 import {TouchPositionGesture} from "./"; // forward import
 import {PointerPositionGesture} from "./"; // forward import
 
 /** @public */
+export type PositionGestureDecorator<G extends PositionGesture<any, any>> = {
+  <T>(target: unknown, context: ClassFieldDecoratorContext<T, G>): (this: T, value: G | undefined) => G;
+};
+
+/** @public */
 export interface PositionGestureDescriptor<V extends View = View> extends GestureDescriptor<V> {
-  extends?: Proto<PositionGesture<any, any>> | string | boolean | null;
+  extends?: Proto<PositionGesture<any, any>> | boolean | null;
 }
 
 /** @public */
@@ -42,15 +51,15 @@ export interface PositionGestureClass<G extends PositionGesture<any, any> = Posi
   refine(gestureClass: PositionGestureClass<any>): void;
 
   /** @override */
-  extend<G2 extends G>(className: string, template: PositionGestureTemplate<G2>): PositionGestureClass<G2>;
-  extend<G2 extends G>(className: string, template: PositionGestureTemplate<G2>): PositionGestureClass<G2>;
+  extend<G2 extends G>(className: string | symbol, template: PositionGestureTemplate<G2>): PositionGestureClass<G2>;
+  extend<G2 extends G>(className: string | symbol, template: PositionGestureTemplate<G2>): PositionGestureClass<G2>;
 
   /** @override */
-  define<G2 extends G>(className: string, template: PositionGestureTemplate<G2>): PositionGestureClass<G2>;
-  define<G2 extends G>(className: string, template: PositionGestureTemplate<G2>): PositionGestureClass<G2>;
+  define<G2 extends G>(className: string | symbol, template: PositionGestureTemplate<G2>): PositionGestureClass<G2>;
+  define<G2 extends G>(className: string | symbol, template: PositionGestureTemplate<G2>): PositionGestureClass<G2>;
 
   /** @override */
-  <G2 extends G>(template: PositionGestureTemplate<G2>): PropertyDecorator;
+  <G2 extends G>(template: PositionGestureTemplate<G2>): PositionGestureDecorator<G2>;
 }
 
 /** @public */
@@ -254,14 +263,14 @@ export const PositionGesture = (function (_super: typeof Gesture) {
   const PositionGesture = _super.extend("PositionGesture", {}) as PositionGestureClass;
 
   PositionGesture.prototype.attachEvents = function (this: PositionGesture, view: View): void {
-    Gesture.prototype.attachEvents.call(this, view);
+    _super.prototype.attachEvents.call(this, view);
     this.attachHoverEvents(view);
   };
 
   PositionGesture.prototype.detachEvents = function (this: PositionGesture, view: View): void {
     this.detachPressEvents(view);
     this.detachHoverEvents(view);
-    Gesture.prototype.detachEvents.call(this, view);
+    _super.prototype.detachEvents.call(this, view);
   };
 
   PositionGesture.prototype.attachHoverEvents = function (this: PositionGesture, view: View): void {
@@ -287,12 +296,12 @@ export const PositionGesture = (function (_super: typeof Gesture) {
 
   PositionGesture.prototype.clearInput = function (this: PositionGesture, input: PositionGestureInput): void {
     if (!input.hovering && !input.pressing) {
-      Gesture.prototype.clearInput.call(this, input);
+      _super.prototype.clearInput.call(this, input);
     }
   };
 
   PositionGesture.prototype.clearInputs = function (this: PositionGesture): void {
-    Gesture.prototype.clearInputs.call(this);
+    _super.prototype.clearInputs.call(this);
     (this as Mutable<typeof this>).hoverCount = 0;
     (this as Mutable<typeof this>).pressCount = 0;
   };
@@ -304,7 +313,7 @@ export const PositionGesture = (function (_super: typeof Gesture) {
     if (input.hovering) {
       this.endHover(input, null);
     }
-    Gesture.prototype.resetInput.call(this, input);
+    _super.prototype.resetInput.call(this, input);
   };
 
   Object.defineProperty(PositionGesture.prototype, "hovering", {
@@ -312,7 +321,7 @@ export const PositionGesture = (function (_super: typeof Gesture) {
       return this.hoverCount !== 0;
     },
     configurable: true,
-  })
+  });
 
   PositionGesture.prototype.startHovering = function (this: PositionGesture): void {
     this.willStartHovering();
@@ -406,7 +415,7 @@ export const PositionGesture = (function (_super: typeof Gesture) {
       return this.pressCount !== 0;
     },
     configurable: true,
-  })
+  });
 
   PositionGesture.prototype.startPressing = function (this: PositionGesture): void {
     this.willStartPressing();
@@ -622,7 +631,7 @@ export const PositionGesture = (function (_super: typeof Gesture) {
         superClass = MousePositionGesture;
       }
     }
-    return superClass
+    return superClass;
   };
 
   return PositionGesture;

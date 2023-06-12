@@ -13,9 +13,17 @@
 // limitations under the License.
 
 import type {AnyTiming} from "@swim/util";
-import {Affinity, Animator} from "@swim/component";
-import {AnyLength, Length, AnyAngle, Angle, AnyR2Point, R2Point, R2Box} from "@swim/math";
-import {AnyColor, Color} from "@swim/style";
+import {Affinity} from "@swim/component";
+import {Animator} from "@swim/component";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import type {AnyAngle} from "@swim/math";
+import {Angle} from "@swim/math";
+import type {AnyR2Point} from "@swim/math";
+import {R2Point} from "@swim/math";
+import {R2Box} from "@swim/math";
+import type {AnyColor} from "@swim/style";
+import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
 import {GraphicsView} from "../graphics/GraphicsView";
@@ -23,9 +31,12 @@ import type {PaintingContext} from "../painting/PaintingContext";
 import {PaintingRenderer} from "../painting/PaintingRenderer";
 import type {CanvasContext} from "../canvas/CanvasContext";
 import {CanvasRenderer} from "../canvas/CanvasRenderer";
-import type {FillViewInit, FillView} from "./FillView";
-import type {StrokeViewInit, StrokeView} from "./StrokeView";
-import {ArcInit, Arc} from "./Arc";
+import type {FillViewInit} from "./FillView";
+import type {FillView} from "./FillView";
+import type {StrokeViewInit} from "./StrokeView";
+import type {StrokeView} from "./StrokeView";
+import type {ArcInit} from "./Arc";
+import {Arc} from "./Arc";
 
 /** @public */
 export type AnyArcView = ArcView | Arc | ArcViewInit;

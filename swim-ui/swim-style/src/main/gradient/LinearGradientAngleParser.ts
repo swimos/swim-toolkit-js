@@ -12,9 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Input, Output, Parser, Diagnostic, Unicode} from "@swim/codec";
-import {Angle, AngleParser} from "@swim/math";
-import type {LinearGradientAngle, LinearGradientSide} from "./LinearGradient";
+import {Diagnostic} from "@swim/codec";
+import type {Input} from "@swim/codec";
+import type {Output} from "@swim/codec";
+import {Parser} from "@swim/codec";
+import {Unicode} from "@swim/codec";
+import type {Angle} from "@swim/math";
+import {AngleParser} from "@swim/math";
+import type {LinearGradientAngle} from "./LinearGradient";
+import type {LinearGradientSide} from "./LinearGradient";
 
 /** @internal */
 export class LinearGradientAngleParser extends Parser<LinearGradientAngle> {
@@ -172,7 +178,7 @@ export class LinearGradientAngleParser extends Parser<LinearGradientAngle> {
           identOutput = void 0;
           switch (ident) {
             case "left":
-            case "right": return Parser.done([side as "top" | "bottom", ident])
+            case "right": return Parser.done([side as "top" | "bottom", ident]);
             default: return Parser.error(Diagnostic.message("unknown side: " + ident, input));
           }
         }

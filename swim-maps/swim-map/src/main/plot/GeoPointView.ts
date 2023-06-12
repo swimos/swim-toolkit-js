@@ -12,16 +12,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, AnyTiming} from "@swim/util";
-import {Affinity, FastenerClass, Property, Animator} from "@swim/component";
-import {AnyLength, Length, AnyR2Point, R2Point, R2Box} from "@swim/math";
-import {AnyGeoPoint, GeoPointInit, GeoPointTuple, GeoPoint} from "@swim/geo";
-import {AnyFont, Font, AnyColor, Color} from "@swim/style";
+import type {Class} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
+import {Animator} from "@swim/component";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import type {AnyR2Point} from "@swim/math";
+import {R2Point} from "@swim/math";
+import {R2Box} from "@swim/math";
+import type {AnyGeoPoint} from "@swim/geo";
+import type {GeoPointInit} from "@swim/geo";
+import type {GeoPointTuple} from "@swim/geo";
+import {GeoPoint} from "@swim/geo";
+import type {AnyFont} from "@swim/style";
+import {Font} from "@swim/style";
+import type {AnyColor} from "@swim/style";
+import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
-import {ViewFlags, View, ViewRef} from "@swim/view";
-import {GraphicsView, TypesetView, TextRunView, CanvasContext, CanvasRenderer} from "@swim/graphics";
-import {GeoViewInit, GeoView} from "../geo/GeoView";
-import {GeoRippleOptions, GeoRippleView} from "../effect/GeoRippleView";
+import type {ViewFlags} from "@swim/view";
+import {View} from "@swim/view";
+import {ViewRef} from "@swim/view";
+import type {GraphicsView} from "@swim/graphics";
+import {TypesetView} from "@swim/graphics";
+import {TextRunView} from "@swim/graphics";
+import type {CanvasContext} from "@swim/graphics";
+import {CanvasRenderer} from "@swim/graphics";
+import type {GeoViewInit} from "../geo/GeoView";
+import {GeoView} from "../geo/GeoView";
+import type {GeoRippleOptions} from "../effect/GeoRippleView";
+import {GeoRippleView} from "../effect/GeoRippleView";
 import type {GeoPointViewObserver} from "./GeoPointViewObserver";
 
 /** @public */
@@ -57,7 +78,7 @@ export interface GeoPointViewInit extends GeoViewInit {
 export class GeoPointView extends GeoView {
   override readonly observerType?: Class<GeoPointViewObserver>;
 
-  @Animator<GeoPointView["geoPoint"]>({
+  @Animator({
     valueType: GeoPoint,
     value: GeoPoint.origin(),
     updateFlags: View.NeedsProject,
@@ -92,7 +113,7 @@ export class GeoPointView extends GeoView {
   @Property({valueType: Number})
   readonly hitRadius!: Property<this, number | undefined>;
 
-  @ViewRef<GeoPointView["label"]>({
+  @ViewRef({
     viewType: TextRunView,
     viewKey: true,
     binds: true,
@@ -117,7 +138,6 @@ export class GeoPointView extends GeoView {
   readonly label!: ViewRef<this, GraphicsView> & {
     setText(label: string | undefined): GraphicsView,
   };
-  static readonly label: FastenerClass<GeoPointView["label"]>;
 
   @Property({valueType: String, value: "auto"})
   readonly labelPlacement!: Property<this, GeoPointLabelPlacement>;

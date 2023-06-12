@@ -13,8 +13,11 @@
 // limitations under the License.
 
 import type {AnyTiming} from "@swim/util";
-import {Affinity, AnimatorClass, Animator} from "@swim/component";
-import {AnyExpansion, Expansion} from "./Expansion";
+import {Affinity} from "@swim/component";
+import type {AnimatorClass} from "@swim/component";
+import {Animator} from "@swim/component";
+import type {AnyExpansion} from "./Expansion";
+import {Expansion} from "./Expansion";
 
 /** @public */
 export interface ExpansionAnimator<O = unknown, T extends Expansion | null | undefined = Expansion | null | undefined, U extends AnyExpansion | null | undefined = AnyExpansion | T> extends Animator<O, T, U> {

@@ -16,4 +16,4 @@ export {WorldMapViewport} from "./WorldMapViewport";
 export {EquirectangularMapViewport} from "./EquirectangularMapViewport";
 
 export {WorldMapView} from "./WorldMapView";
-export {WorldMapViewObserver} from "./WorldMapViewObserver";
+export type {WorldMapViewObserver} from "./WorldMapViewObserver";

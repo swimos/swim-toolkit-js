@@ -12,12 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, AnyTiming, Timing, Observes} from "@swim/util";
-import {FastenerClass, Property} from "@swim/component";
+import type {Class} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {Timing} from "@swim/util";
+import type {Observes} from "@swim/util";
+import {Property} from "@swim/component";
 import type {Trait} from "@swim/model";
 import {ViewRef} from "@swim/view";
 import type {GraphicsView} from "@swim/graphics";
-import {Controller, TraitViewRef, TraitViewControllerSet} from "@swim/controller";
+import {Controller} from "@swim/controller";
+import {TraitViewRef} from "@swim/controller";
+import {TraitViewControllerSet} from "@swim/controller";
 import type {SliceView} from "../slice/SliceView";
 import type {SliceTrait} from "../slice/SliceTrait";
 import {SliceController} from "../slice/SliceController";
@@ -36,7 +41,7 @@ export class PieController extends Controller {
     }
   }
 
-  @TraitViewRef<PieController["pie"]>({
+  @TraitViewRef({
     traitType: PieTrait,
     observesTrait: true,
     willAttachTrait(pieTrait: PieTrait): void {
@@ -101,10 +106,9 @@ export class PieController extends Controller {
       this.owner.title.setView(null);
     },
   })
-  readonly pie!: TraitViewRef<this, PieTrait, PieView> & Observes<PieTrait & PieView>;
-  static readonly pie: FastenerClass<PieController["pie"]>;
+  readonly pie!: TraitViewRef<this, PieTrait, PieView> & Observes<PieTrait> & Observes<PieView>;
 
-  @ViewRef<PieController["title"]>({
+  @ViewRef({
     viewKey: true,
     willAttachView(titleView: GraphicsView): void {
       this.owner.callObservers("controllerWillAttachPieTitleView", titleView, this.owner);
@@ -114,12 +118,11 @@ export class PieController extends Controller {
     },
   })
   readonly title!: ViewRef<this, GraphicsView>;
-  static readonly title: FastenerClass<PieController["title"]>;
 
   @Property({valueType: Timing, value: true})
   readonly sliceTiming!: Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined>;
 
-  @TraitViewControllerSet<PieController["slices"]>({
+  @TraitViewControllerSet({
     controllerType: SliceController,
     binds: true,
     observes: true,
@@ -240,5 +243,4 @@ export class PieController extends Controller {
     attachSliceLegendView(legendView: GraphicsView, sliceController: SliceController): void,
     detachSliceLegendView(legendView: GraphicsView, sliceController: SliceController): void,
   };
-  static readonly slices: FastenerClass<PieController["slices"]>;
 }

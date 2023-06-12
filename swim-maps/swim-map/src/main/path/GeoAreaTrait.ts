@@ -14,8 +14,11 @@
 
 import type {Class} from "@swim/util";
 import {Property} from "@swim/component";
-import {AnyLength, Length} from "@swim/math";
-import {AnyColorOrLook, ColorOrLook, ColorLook} from "@swim/theme";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import type {AnyColorOrLook} from "@swim/theme";
+import type {ColorOrLook} from "@swim/theme";
+import {ColorLook} from "@swim/theme";
 import type {GeoController} from "../geo/GeoController";
 import {GeoPathTrait} from "./GeoPathTrait";
 import type {GeoAreaTraitObserver} from "./GeoAreaTraitObserver";
@@ -25,7 +28,7 @@ import {GeoAreaController} from "./"; // forward import
 export abstract class GeoAreaTrait extends GeoPathTrait {
   override readonly observerType?: Class<GeoAreaTraitObserver>;
 
-  @Property<GeoAreaTrait["fill"]>({
+  @Property({
     valueType: ColorLook,
     value: null,
     didSetValue(fill: ColorOrLook | null): void {
@@ -34,7 +37,7 @@ export abstract class GeoAreaTrait extends GeoPathTrait {
   })
   readonly fill!: Property<this, ColorOrLook | null, AnyColorOrLook | null>;
 
-  @Property<GeoAreaTrait["stroke"]>({
+  @Property({
     valueType: ColorLook,
     value: null,
     didSetValue(stroke: ColorOrLook | null): void {
@@ -43,7 +46,7 @@ export abstract class GeoAreaTrait extends GeoPathTrait {
   })
   readonly stroke!: Property<this, ColorOrLook | null, AnyColorOrLook | null>;
 
-  @Property<GeoAreaTrait["strokeWidth"]>({
+  @Property({
     valueType: Length,
     value: null,
     didSetValue(strokeWidth: Length | null): void {

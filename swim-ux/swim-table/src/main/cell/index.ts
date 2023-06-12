@@ -13,30 +13,30 @@
 // limitations under the License.
 
 export {CellView} from "./CellView";
-export {CellViewObserver} from "./CellViewObserver";
+export type {CellViewObserver} from "./CellViewObserver";
 
 export {TextCellView} from "./TextCellView";
-export {TextCellViewObserver} from "./TextCellViewObserver";
+export type {TextCellViewObserver} from "./TextCellViewObserver";
 
 export {IconCellView} from "./IconCellView";
-export {IconCellViewObserver} from "./IconCellViewObserver";
+export type {IconCellViewObserver} from "./IconCellViewObserver";
 
 export {DisclosureCellView} from "./DisclosureCellView";
 
 export {CellTrait} from "./CellTrait";
-export {CellTraitObserver} from "./CellTraitObserver";
+export type {CellTraitObserver} from "./CellTraitObserver";
 
 export {TextCellTrait} from "./TextCellTrait";
-export {TextCellTraitObserver} from "./TextCellTraitObserver";
+export type {TextCellTraitObserver} from "./TextCellTraitObserver";
 
 export {IconCellTrait} from "./IconCellTrait";
-export {IconCellTraitObserver} from "./IconCellTraitObserver";
+export type {IconCellTraitObserver} from "./IconCellTraitObserver";
 
 export {CellController} from "./CellController";
-export {CellControllerObserver} from "./CellControllerObserver";
+export type {CellControllerObserver} from "./CellControllerObserver";
 
 export {TextCellController} from "./TextCellController";
-export {TextCellControllerObserver} from "./TextCellControllerObserver";
+export type {TextCellControllerObserver} from "./TextCellControllerObserver";
 
 export {IconCellController} from "./IconCellController";
-export {IconCellControllerObserver} from "./IconCellControllerObserver";
+export type {IconCellControllerObserver} from "./IconCellControllerObserver";

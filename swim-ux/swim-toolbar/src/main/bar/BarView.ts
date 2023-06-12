@@ -12,13 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Instance, Creatable} from "@swim/util";
-import {Affinity, FastenerClass, Property, Animator} from "@swim/component";
-import {AnyLength, Length} from "@swim/math";
-import {Feel, ThemeConstraintAnimator} from "@swim/theme";
-import {ViewInsets, ViewFlags, View, ViewSet} from "@swim/view";
+import type {Class} from "@swim/util";
+import type {Instance} from "@swim/util";
+import type {Creatable} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
+import {Animator} from "@swim/component";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import {Feel} from "@swim/theme";
+import {ThemeConstraintAnimator} from "@swim/theme";
+import type {ViewInsets} from "@swim/view";
+import type {ViewFlags} from "@swim/view";
+import {View} from "@swim/view";
+import {ViewSet} from "@swim/view";
 import {HtmlView} from "@swim/dom";
-import {AnyBarLayout, BarLayout} from "../layout/BarLayout";
+import type {AnyBarLayout} from "../layout/BarLayout";
+import {BarLayout} from "../layout/BarLayout";
 import {ToolView} from "../tool/ToolView";
 import type {BarViewObserver} from "./BarViewObserver";
 
@@ -44,7 +54,7 @@ export class BarView extends HtmlView {
 
   override readonly observerType?: Class<BarViewObserver>;
 
-  @Property<BarView["placement"]>({
+  @Property({
     valueType: String,
     value: "none",
     updateFlags: View.NeedsResize | View.NeedsLayout,
@@ -56,7 +66,7 @@ export class BarView extends HtmlView {
   })
   readonly placement!: Property<this, BarPlacement>;
 
-  @Animator<BarView["layout"]>({
+  @Animator({
     valueType: BarLayout,
     value: null,
     inherits: true,
@@ -85,7 +95,7 @@ export class BarView extends HtmlView {
     resized(layout: BarLayout): BarLayout,
   };
 
-  @ThemeConstraintAnimator<BarView["barHeight"]>({
+  @ThemeConstraintAnimator({
     valueType: Length,
     value: null,
     updateFlags: View.NeedsResize,
@@ -114,7 +124,7 @@ export class BarView extends HtmlView {
   @Property({valueType: Length, value: Length.zero(), updateFlags: View.NeedsResize})
   readonly toolSpacing!: Property<this, Length | null, AnyLength | null>;
 
-  @Property<BarView["edgeInsets"]>({
+  @Property({
     extends: true,
     didSetValue(edgeInsets: ViewInsets): void {
       this.owner.barHeight.applyEdgeInsets(edgeInsets);
@@ -161,7 +171,7 @@ export class BarView extends HtmlView {
     this.setChild(key, toolView);
   }
 
-  @ViewSet<BarView["tools"]>({
+  @ViewSet({
     viewType: ToolView,
     binds: true,
     initView(toolView: ToolView): void {
@@ -179,7 +189,6 @@ export class BarView extends HtmlView {
     },
   })
   readonly tools!: ViewSet<this, ToolView>;
-  static readonly tools: FastenerClass<BarView["tools"]>;
 
   protected override onResize(): void {
     super.onResize();

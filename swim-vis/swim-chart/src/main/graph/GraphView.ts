@@ -14,11 +14,17 @@
 
 import type {Class} from "@swim/util";
 import type {R2Box} from "@swim/math";
-import {AnyFont, Font, AnyColor, Color} from "@swim/style";
+import type {AnyFont} from "@swim/style";
+import {Font} from "@swim/style";
+import type {AnyColor} from "@swim/style";
+import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
-import {GraphicsView, CanvasContext, CanvasRenderer} from "@swim/graphics";
-import {ScaledViewInit, ScaledView} from "../scaled/ScaledView";
+import type {GraphicsView} from "@swim/graphics";
+import type {CanvasContext} from "@swim/graphics";
+import {CanvasRenderer} from "@swim/graphics";
+import type {ScaledViewInit} from "../scaled/ScaledView";
+import {ScaledView} from "../scaled/ScaledView";
 import type {AnyPlotView, PlotView} from "../plot/PlotView";
 import type {GraphViewObserver} from "./GraphViewObserver";
 

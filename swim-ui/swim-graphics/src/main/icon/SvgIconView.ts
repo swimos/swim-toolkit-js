@@ -13,19 +13,27 @@
 // limitations under the License.
 
 import type {Timing} from "@swim/util";
-import {Affinity, Animator} from "@swim/component";
-import {AnyLength, Length, R2Box} from "@swim/math";
-import {AnyColor, Color} from "@swim/style";
-import type {MoodVector, ThemeMatrix} from "@swim/theme";
+import {Affinity} from "@swim/component";
+import {Animator} from "@swim/component";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import {R2Box} from "@swim/math";
+import type {AnyColor} from "@swim/style";
+import {Color} from "@swim/style";
+import type {MoodVector} from "@swim/theme";
+import type {ThemeMatrix} from "@swim/theme";
 import {ThemeAnimator} from "@swim/theme";
-import {ViewFlags, View} from "@swim/view";
-import {SvgViewInit, SvgView} from "@swim/dom";
+import type {ViewFlags} from "@swim/view";
+import {View} from "@swim/view";
+import type {SvgViewInit} from "@swim/dom";
+import {SvgView} from "@swim/dom";
 import {Graphics} from "../graphics/Graphics";
 import {SvgContext} from "../svg/SvgContext";
 import {SvgRenderer} from "../svg/SvgRenderer";
 import {Icon} from "./Icon";
 import {FilledIcon} from "./FilledIcon";
-import {IconViewInit, IconView} from "./IconView";
+import type {IconViewInit} from "./IconView";
+import {IconView} from "./IconView";
 import {IconGraphicsAnimator} from "./IconGraphicsAnimator";
 
 /** @public */
@@ -50,7 +58,7 @@ export class SvgIconView extends SvgView implements IconView {
   @ThemeAnimator({valueType: Length, value: null, updateFlags: View.NeedsLayout})
   readonly iconHeight!: ThemeAnimator<this, Length | null, AnyLength | null>;
 
-  @ThemeAnimator<SvgIconView["iconColor"]>({
+  @ThemeAnimator({
     valueType: Color,
     value: null,
     updateFlags: View.NeedsLayout,
@@ -67,7 +75,7 @@ export class SvgIconView extends SvgView implements IconView {
   })
   readonly iconColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @ThemeAnimator<SvgIconView["graphics"]>({
+  @ThemeAnimator({
     extends: IconGraphicsAnimator,
     valueType: Graphics,
     value: null,

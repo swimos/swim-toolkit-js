@@ -13,10 +13,14 @@
 // limitations under the License.
 
 import type {Proto} from "@swim/util";
-import type {AnimatorValue, AnimatorValueInit} from "@swim/component";
-import {Length, Transform} from "@swim/math";
+import type {AnimatorValue} from "@swim/component";
+import type {AnimatorValueInit} from "@swim/component";
+import {Length} from "@swim/math";
+import {Transform} from "@swim/math";
 import {Color} from "@swim/style";
-import {ThemeAnimatorDescriptor, ThemeAnimatorClass, ThemeAnimator} from "@swim/theme";
+import type {ThemeAnimatorDescriptor} from "@swim/theme";
+import type {ThemeAnimatorClass} from "@swim/theme";
+import {ThemeAnimator} from "@swim/theme";
 import {StringAttributeAnimator} from "./"; // forward import
 import {NumberAttributeAnimator} from "./"; // forward import
 import {BooleanAttributeAnimator} from "./"; // forward import
@@ -26,8 +30,13 @@ import {TransformAttributeAnimator} from "./"; // forward import
 import {ElementView} from "../"; // forward import
 
 /** @public */
+export type AttributeAnimatorDecorator<A extends AttributeAnimator<any, any, any>> = {
+  <T>(target: unknown, context: ClassFieldDecoratorContext<T, A>): (this: T, value: A | undefined) => A;
+};
+
+/** @public */
 export interface AttributeAnimatorDescriptor<T = unknown, U = T> extends ThemeAnimatorDescriptor<T, U> {
-  extends?: Proto<AttributeAnimator<any, any, any>> | string | boolean | null;
+  extends?: Proto<AttributeAnimator<any, any, any>> | boolean | null;
   attributeName?: string;
 }
 
@@ -46,15 +55,15 @@ export interface AttributeAnimatorClass<A extends AttributeAnimator<any, any, an
   refine(animatorClass: AttributeAnimatorClass<any>): void;
 
   /** @override */
-  extend<A2 extends A>(className: string, template: AttributeAnimatorTemplate<A2>): AttributeAnimatorClass<A2>;
-  extend<A2 extends A>(className: string, template: AttributeAnimatorTemplate<A2>): AttributeAnimatorClass<A2>;
+  extend<A2 extends A>(className: string | symbol, template: AttributeAnimatorTemplate<A2>): AttributeAnimatorClass<A2>;
+  extend<A2 extends A>(className: string | symbol, template: AttributeAnimatorTemplate<A2>): AttributeAnimatorClass<A2>;
 
   /** @override */
-  define<A2 extends A>(className: string, template: AttributeAnimatorTemplate<A2>): AttributeAnimatorClass<A2>;
-  define<A2 extends A>(className: string, template: AttributeAnimatorTemplate<A2>): AttributeAnimatorClass<A2>;
+  define<A2 extends A>(className: string | symbol, template: AttributeAnimatorTemplate<A2>): AttributeAnimatorClass<A2>;
+  define<A2 extends A>(className: string | symbol, template: AttributeAnimatorTemplate<A2>): AttributeAnimatorClass<A2>;
 
   /** @override */
-  <A2 extends A>(template: AttributeAnimatorTemplate<A2>): PropertyDecorator;
+  <A2 extends A>(template: AttributeAnimatorTemplate<A2>): AttributeAnimatorDecorator<A2>;
 }
 
 /** @public */
@@ -97,8 +106,9 @@ export const AttributeAnimator = (function (_super: typeof ThemeAnimator) {
     const attributeValue = this.attributeValue;
     if (attributeValue === void 0 || attributeValue === null) {
       let message = attributeValue + " ";
-      if (this.name.length !== 0) {
-        message += this.name + " ";
+      const name = this.name.toString();
+      if (name.length !== 0) {
+        message += name + " ";
       }
       message += "attribute value";
       throw new TypeError(message);
@@ -138,7 +148,7 @@ export const AttributeAnimator = (function (_super: typeof ThemeAnimator) {
         superClass = this;
       }
     }
-    return superClass
+    return superClass;
   };
 
   return AttributeAnimator;

@@ -12,66 +12,59 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {ViewIdiom} from "./ViewIdiom";
+export type {ViewIdiom} from "./ViewIdiom";
 
 export {ViewInsets} from "./ViewInsets";
 
-export {
-  ViewFlags,
-  AnyView,
-  ViewInit,
-  ViewFactory,
-  ViewClass,
-  ViewConstructor,
-  View,
-} from "./View";
-export {
-  ViewObserver,
-  ViewObserverCache,
-  ViewWillInsertChild,
-  ViewDidInsertChild,
-  ViewWillRemoveChild,
-  ViewDidRemoveChild,
-  ViewWillResize,
-  ViewDidResize,
-  ViewWillScroll,
-  ViewDidScroll,
-  ViewWillChange,
-  ViewDidChange,
-  ViewWillAnimate,
-  ViewDidAnimate,
-  ViewWillProject,
-  ViewDidProject,
-  ViewWillLayout,
-  ViewDidLayout,
-  ViewWillRender,
-  ViewDidRender,
-  ViewWillRasterize,
-  ViewDidRasterize,
-  ViewWillComposite,
-  ViewDidComposite,
-} from "./ViewObserver";
+export type {ViewFlags} from "./View";
+export type {AnyView} from "./View";
+export type {ViewInit} from "./View";
+export type {ViewFactory} from "./View";
+export type {ViewClass} from "./View";
+export type {ViewConstructor} from "./View";
+export {View} from "./View";
+export type {ViewObserver} from "./ViewObserver";
+export type {ViewObserverCache} from "./ViewObserver";
+export type {ViewWillInsertChild} from "./ViewObserver";
+export type {ViewDidInsertChild} from "./ViewObserver";
+export type {ViewWillRemoveChild} from "./ViewObserver";
+export type {ViewDidRemoveChild} from "./ViewObserver";
+export type {ViewWillResize} from "./ViewObserver";
+export type {ViewDidResize} from "./ViewObserver";
+export type {ViewWillScroll} from "./ViewObserver";
+export type {ViewDidScroll} from "./ViewObserver";
+export type {ViewWillChange} from "./ViewObserver";
+export type {ViewDidChange} from "./ViewObserver";
+export type {ViewWillAnimate} from "./ViewObserver";
+export type {ViewDidAnimate} from "./ViewObserver";
+export type {ViewWillProject} from "./ViewObserver";
+export type {ViewDidProject} from "./ViewObserver";
+export type {ViewWillLayout} from "./ViewObserver";
+export type {ViewDidLayout} from "./ViewObserver";
+export type {ViewWillRender} from "./ViewObserver";
+export type {ViewDidRender} from "./ViewObserver";
+export type {ViewWillRasterize} from "./ViewObserver";
+export type {ViewDidRasterize} from "./ViewObserver";
+export type {ViewWillComposite} from "./ViewObserver";
+export type {ViewDidComposite} from "./ViewObserver";
 
-export {
-  ViewRelationView,
-  ViewRelationDescriptor,
-  ViewRelationTemplate,
-  ViewRelationClass,
-  ViewRelation,
-} from "./ViewRelation";
+export type {ViewRelationView} from "./ViewRelation";
+export type {ViewRelationDecorator} from "./ViewRelation";
+export type {ViewRelationDescriptor} from "./ViewRelation";
+export type {ViewRelationTemplate} from "./ViewRelation";
+export type {ViewRelationClass} from "./ViewRelation";
+export {ViewRelation} from "./ViewRelation";
 
-export {
-  ViewRefView,
-  ViewRefDescriptor,
-  ViewRefTemplate,
-  ViewRefClass,
-  ViewRef,
-} from "./ViewRef";
+export type {ViewRefView} from "./ViewRef";
+export type {ViewRefDecorator} from "./ViewRef";
+export type {ViewRefDescriptor} from "./ViewRef";
+export type {ViewRefTemplate} from "./ViewRef";
+export type {ViewRefClass} from "./ViewRef";
+export {ViewRef} from "./ViewRef";
 
-export {
-  ViewSetView,
-  ViewSetDescriptor,
-  ViewSetTemplate,
-  ViewSetClass,
-  ViewSet,
-} from "./ViewSet";
+export type {ViewSetView} from "./ViewSet";
+export type {ViewSetDecorator} from "./ViewSet";
+export type {ViewSetDescriptor} from "./ViewSet";
+export type {ViewSetTemplate} from "./ViewSet";
+export type {ViewSetClass} from "./ViewSet";
+export {ViewSet} from "./ViewSet";

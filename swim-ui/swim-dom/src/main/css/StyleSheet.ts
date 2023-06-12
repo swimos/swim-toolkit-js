@@ -12,30 +12,39 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Proto, AnyTiming, Timing} from "@swim/util";
-import {
-  FastenerContext,
-  FastenerOwner,
-  FastenerDescriptor,
-  FastenerClass,
-  Fastener,
-} from "@swim/component";
-import type {
-  AnyConstraintExpression,
-  ConstraintVariable,
-  ConstraintProperty,
-  ConstraintRelation,
-  AnyConstraintStrength,
-  Constraint,
-  ConstraintScope,
-} from "@swim/constraint";
-import {Look, Feel, Mood, MoodVector, ThemeMatrix, ThemeContext} from "@swim/theme";
+import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {Timing} from "@swim/util";
+import {FastenerContext} from "@swim/component";
+import type {FastenerOwner} from "@swim/component";
+import type {FastenerDescriptor} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
+import {Fastener} from "@swim/component";
+import type {AnyConstraintExpression} from "@swim/constraint";
+import type {ConstraintVariable} from "@swim/constraint";
+import type {ConstraintProperty} from "@swim/constraint";
+import type {ConstraintRelation} from "@swim/constraint";
+import type {AnyConstraintStrength} from "@swim/constraint";
+import type {Constraint} from "@swim/constraint";
+import type {ConstraintScope} from "@swim/constraint";
+import {Look} from "@swim/theme";
+import type {Feel} from "@swim/theme";
+import {Mood} from "@swim/theme";
+import type {MoodVector} from "@swim/theme";
+import type {ThemeMatrix} from "@swim/theme";
+import {ThemeContext} from "@swim/theme";
 import type {CssContext} from "./CssContext";
 import {CssRule} from "./CssRule";
 
 /** @public */
+export type StyleSheetDecorator<F extends StyleSheet<any>> = {
+  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
+};
+
+/** @public */
 export interface StyleSheetDescriptor extends FastenerDescriptor {
-  extends?: Proto<StyleSheet<any>> | string | boolean | null;
+  extends?: Proto<StyleSheet<any>> | boolean | null;
   css?: string;
 }
 
@@ -54,15 +63,15 @@ export interface StyleSheetClass<F extends StyleSheet<any> = StyleSheet<any>> ex
   refine(fastenerClass: StyleSheetClass<any>): void;
 
   /** @override */
-  extend<F2 extends F>(className: string, template: StyleSheetTemplate<F2>): StyleSheetClass<F2>;
-  extend<F2 extends F>(className: string, template: StyleSheetTemplate<F2>): StyleSheetClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: StyleSheetTemplate<F2>): StyleSheetClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: StyleSheetTemplate<F2>): StyleSheetClass<F2>;
 
   /** @override */
-  define<F2 extends F>(className: string, template: StyleSheetTemplate<F2>): StyleSheetClass<F2>;
-  define<F2 extends F>(className: string, template: StyleSheetTemplate<F2>): StyleSheetClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: StyleSheetTemplate<F2>): StyleSheetClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: StyleSheetTemplate<F2>): StyleSheetClass<F2>;
 
   /** @override */
-  <F2 extends F>(template: StyleSheetTemplate<F2>): PropertyDecorator;
+  <F2 extends F>(template: StyleSheetTemplate<F2>): StyleSheetDecorator<F2>;
 }
 
 /** @public */
@@ -84,29 +93,10 @@ export interface StyleSheet<O = unknown> extends Fastener<O>, FastenerContext, C
   /** @override */
   removeRule(index: number): void;
 
-  /** @internal */
-  readonly fasteners: {[fastenerName: string]: Fastener | undefined} | null;
-
   /** @override */
-  hasFastener(fastenerName: string, fastenerBound?: Proto<Fastener> | null): boolean;
-
+  getParentFastener<F extends Fastener<any>>(fastenerName: string, fastenerBound: Proto<F>): F | null;
   /** @override */
-  getFastener<F extends Fastener<any>>(fastenerName: string, fastenerBound: Proto<F>): F | null;
-  /** @override */
-  getFastener(fastenerName: string, fastenerBound?: Proto<Fastener> | null): Fastener | null;
-
-  /** @override */
-  setFastener(fastenerName: string, fastener: Fastener | null): void;
-
-  /** @override */
-  getLazyFastener<F extends Fastener<any>>(fastenerName: string, fastenerBound: Proto<F>): F | null;
-  /** @override */
-  getLazyFastener(fastenerName: string, fastenerBound?: Proto<Fastener> | null): Fastener | null;
-
-  /** @override */
-  getSuperFastener<F extends Fastener<any>>(fastenerName: string, fastenerBound: Proto<F>): F | null;
-  /** @override */
-  getSuperFastener(fastenerName: string, fastenerBound?: Proto<Fastener> | null): Fastener | null;
+  getParentFastener(fastenerName: string, fastenerBound?: Proto<Fastener> | null): Fastener | null;
 
   /** @internal @protected */
   mountFasteners(): void;
@@ -220,77 +210,37 @@ export const StyleSheet = (function (_super: typeof Fastener) {
     }
   };
 
-  StyleSheet.prototype.hasFastener = function (this: StyleSheet, fastenerName: string, fastenerBound?: Proto<Fastener> | null): boolean {
-    const fasteners = this.fasteners;
-    if (fasteners !== null) {
-      const fastener = fasteners[fastenerName];
-      if (fastener !== void 0 && (fastenerBound === void 0 || fastenerBound === null || fastener instanceof fastenerBound)) {
-        return true;
-      }
-    }
-    return false;
-  };
-
-  StyleSheet.prototype.getFastener = function (this: StyleSheet, fastenerName: string, fastenerBound?: Proto<Fastener> | null): Fastener | null {
-    const fasteners = this.fasteners;
-    if (fasteners !== null) {
-      const fastener = fasteners[fastenerName];
-      if (fastener !== void 0 && (fastenerBound === void 0 || fastenerBound === null || fastener instanceof fastenerBound)) {
-        return fastener;
-      }
-    }
-    return null;
-  };
-
-  StyleSheet.prototype.setFastener = function (this: StyleSheet, fastenerName: string, newFastener: Fastener | null): void {
-    let fasteners = this.fasteners;
-    if (fasteners === null) {
-      fasteners = {};
-      (this as Mutable<typeof this>).fasteners = fasteners;
-    }
-    const oldFastener = fasteners[fastenerName];
-    if (oldFastener !== void 0 && this.mounted) {
-      oldFastener.unmount();
-    }
-    if (newFastener !== null) {
-      fasteners[fastenerName] = newFastener;
-      if (this.mounted) {
-        newFastener.mount();
-      }
-    } else {
-      delete fasteners[fastenerName];
-    }
-  };
-
-  StyleSheet.prototype.getLazyFastener = function (this: StyleSheet, fastenerName: string, fastenerBound?: Proto<Fastener> | null): Fastener | null {
-    return FastenerContext.getLazyFastener(this, fastenerName, fastenerBound);
-  };
-
-  StyleSheet.prototype.getSuperFastener = function (this: StyleSheet, fastenerName: string, fastenerBound?: Proto<Fastener> | null): Fastener | null {
+  StyleSheet.prototype.getParentFastener = function (this: StyleSheet, fastenerName: string, fastenerBound?: Proto<Fastener> | null): Fastener | null {
     return null;
   };
 
   StyleSheet.prototype.mountFasteners = function (this: StyleSheet): void {
-    const fasteners = this.fasteners;
-    for (const fastenerName in fasteners) {
-      const fastener = fasteners[fastenerName]!;
-      fastener.mount();
+    const fastenerNames = FastenerContext.getFastenerNames(this);
+    for (let i = 0; i < fastenerNames.length; i += 1) {
+      const fastener = this[fastenerNames[i]!];
+      if (fastener instanceof Fastener) {
+        fastener.mount();
+      }
     }
   };
 
   StyleSheet.prototype.unmountFasteners = function (this: StyleSheet): void {
-    const fasteners = this.fasteners;
-    for (const fastenerName in fasteners) {
-      const fastener = fasteners[fastenerName]!;
-      fastener.unmount();
+    const fastenerNames = FastenerContext.getFastenerNames(this);
+    for (let i = 0; i < fastenerNames.length; i += 1) {
+      const fastener = this[fastenerNames[i]!];
+      if (fastener instanceof Fastener) {
+        fastener.unmount();
+      }
     }
   };
 
   StyleSheet.prototype.requireUpdate = function (this: StyleSheet, updateFlags: number): void {
-    const fastenerContext = this.owner;
-    if (FastenerContext.has(fastenerContext, "requireUpdate")) {
-      fastenerContext.requireUpdate(updateFlags);
+    const owner = this.owner;
+    if (owner == null || typeof owner !== "object" && typeof owner !== "function"
+        || !("requireUpdate" in owner)) {
+      return;
     }
+    (owner as FastenerContext).requireUpdate!(updateFlags);
   };
 
   StyleSheet.prototype.decohereFastener = function (this: StyleSheet, fastener: Fastener): void {
@@ -398,9 +348,9 @@ export const StyleSheet = (function (_super: typeof Fastener) {
     } else {
       timing = Timing.fromAny(timing);
     }
-    const fasteners = this.fasteners;
-    for (const fastenerName in fasteners) {
-      const fastener = fasteners[fastenerName]!;
+    const fastenerNames = FastenerContext.getFastenerNames(this);
+    for (let i = 0; i < fastenerNames.length; i += 1) {
+      const fastener = this[fastenerNames[i]!];
       if (fastener instanceof CssRule) {
         fastener.applyTheme(theme, mood, timing);
       }
@@ -429,10 +379,8 @@ export const StyleSheet = (function (_super: typeof Fastener) {
 
   StyleSheet.construct = function <F extends StyleSheet<any>>(sheet: F | null, owner: FastenerOwner<F>): F {
     sheet = _super.construct.call(this, sheet, owner) as F;
-    (sheet as Mutable<typeof sheet>).fasteners = null;
     (sheet as Mutable<typeof sheet>).decoherent = null;
     (sheet as Mutable<typeof sheet>).stylesheet = null;
-    FastenerContext.init(sheet);
     return sheet;
   };
 

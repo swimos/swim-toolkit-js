@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  AnyIconLayout,
-  IconLayoutInit,
-  IconLayout,
-} from "./IconLayout";
+export type {AnyIconLayout} from "./IconLayout";
+export type {IconLayoutInit} from "./IconLayout";
+export {IconLayout} from "./IconLayout";
 
 export {Icon} from "./Icon";
 
@@ -34,23 +32,15 @@ export {PolygonIconInterpolator} from "./PolygonIconInterpolator";
 export {EnclosedIcon} from "./EnclosedIcon";
 export {EnclosedIconInterpolator} from "./EnclosedIconInterpolator";
 
-export {
-  IconViewInit,
-  IconView,
-} from "./IconView";
+export type {IconViewInit} from "./IconView";
+export {IconView} from "./IconView";
 export {IconGraphicsAnimator} from "./IconGraphicsAnimator";
 
-export {
-  GraphicsIconViewInit,
-  GraphicsIconView,
-} from "./GraphicsIconView";
+export type {GraphicsIconViewInit} from "./GraphicsIconView";
+export {GraphicsIconView} from "./GraphicsIconView";
 
-export {
-  SvgIconViewInit,
-  SvgIconView,
-} from "./SvgIconView";
+export type {SvgIconViewInit} from "./SvgIconView";
+export {SvgIconView} from "./SvgIconView";
 
-export {
-  HtmlIconViewInit,
-  HtmlIconView,
-} from "./HtmlIconView";
+export type {HtmlIconViewInit} from "./HtmlIconView";
+export {HtmlIconView} from "./HtmlIconView";

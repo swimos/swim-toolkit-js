@@ -15,7 +15,8 @@
 import type {Trait} from "@swim/model";
 import type {PositionGestureInput} from "@swim/view";
 import type {ControllerObserver} from "@swim/controller";
-import type {ToolView, ToolController} from "@swim/toolbar";
+import type {ToolView} from "@swim/toolbar";
+import type {ToolController} from "@swim/toolbar";
 import type {SheetView} from "./SheetView";
 import type {SheetController} from "./SheetController";
 

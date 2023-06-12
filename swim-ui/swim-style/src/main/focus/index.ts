@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  AnyFocus,
-  FocusInit,
-  Focus,
-} from "./Focus";
+export type {AnyFocus} from "./Focus";
+export type {FocusInit} from "./Focus";
+export {Focus} from "./Focus";
 export {FocusInterpolator} from "./FocusInterpolator";
 
 export {FocusAnimator} from "./FocusAnimator";

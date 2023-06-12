@@ -12,31 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {ButtonObserver} from "./ButtonObserver";
+export type {ButtonObserver} from "./ButtonObserver";
 
-export {
-  ButtonGlowState,
-  ButtonGlow,
-} from "./ButtonGlow";
+export type {ButtonGlowState} from "./ButtonGlow";
+export {ButtonGlow} from "./ButtonGlow";
 
-export {
-  ButtonMembraneInit,
-  ButtonMembrane,
-} from "./ButtonMembrane";
+export type {ButtonMembraneInit} from "./ButtonMembrane";
+export {ButtonMembrane} from "./ButtonMembrane";
 
-export {
-  FloatingButtonType,
-  FloatingButton,
-} from "./FloatingButton";
+export type {FloatingButtonType} from "./FloatingButton";
+export {FloatingButton} from "./FloatingButton";
 
 export {ButtonItem} from "./ButtonItem";
 
 export {ButtonStack} from "./ButtonStack";
-export {ButtonStackObserver} from "./ButtonStackObserver";
+export type {ButtonStackObserver} from "./ButtonStackObserver";
 
-export {
-  IconButtonInit,
-  IconButton,
-} from "./IconButton";
+export type {IconButtonInit} from "./IconButton";
+export {IconButton} from "./IconButton";
 
 export {DisclosureButton} from "./DisclosureButton";

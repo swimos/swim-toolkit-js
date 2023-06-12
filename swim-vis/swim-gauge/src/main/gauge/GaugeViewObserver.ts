@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {View, ViewObserver} from "@swim/view";
+import type {View} from "@swim/view";
+import type {ViewObserver} from "@swim/view";
 import type {GraphicsView} from "@swim/graphics";
 import type {DialView} from "../dial/DialView";
 import type {GaugeView} from "./GaugeView";

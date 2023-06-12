@@ -12,8 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Property, Component} from "@swim/component";
-import {Look, Feel, MoodVector, ThemeMatrix, ThemeContext} from "@swim/theme";
+import {Property} from "@swim/component";
+import {Component} from "@swim/component";
+import type {Look} from "@swim/theme";
+import type {Feel} from "@swim/theme";
+import {MoodVector} from "@swim/theme";
+import {ThemeMatrix} from "@swim/theme";
+import type {ThemeContext} from "@swim/theme";
 
 export class TestThemeComponent extends Component implements ThemeContext {
   @Property({valueType: MoodVector, value: null, inherits: true})

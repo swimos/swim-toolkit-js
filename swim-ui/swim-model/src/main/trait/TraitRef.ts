@@ -12,19 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Proto} from "@swim/util";
-import {Affinity, FastenerOwner, Fastener} from "@swim/component";
+import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
+import {Affinity} from "@swim/component";
+import type {FastenerOwner} from "@swim/component";
+import {Fastener} from "@swim/component";
 import type {Model} from "../model/Model";
-import type {AnyTrait, TraitFactory, Trait} from "./Trait";
-import {TraitRelationDescriptor, TraitRelationClass, TraitRelation} from "./TraitRelation";
+import type {AnyTrait} from "./Trait";
+import type {TraitFactory} from "./Trait";
+import type {Trait} from "./Trait";
+import type {TraitRelationDescriptor} from "./TraitRelation";
+import type {TraitRelationClass} from "./TraitRelation";
+import {TraitRelation} from "./TraitRelation";
 
 /** @public */
 export type TraitRefTrait<F extends TraitRef<any, any>> =
   F extends {traitType?: TraitFactory<infer T>} ? T : never;
 
 /** @public */
+export type TraitRefDecorator<F extends TraitRef<any, any>> = {
+  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
+};
+
+/** @public */
 export interface TraitRefDescriptor<T extends Trait = Trait> extends TraitRelationDescriptor<T> {
-  extends?: Proto<TraitRef<any, any>> | string | boolean | null;
+  extends?: Proto<TraitRef<any, any>> | boolean | null;
   traitKey?: string | boolean;
 }
 
@@ -43,15 +55,15 @@ export interface TraitRefClass<F extends TraitRef<any, any> = TraitRef<any, any>
   refine(fastenerClass: TraitRefClass<any>): void;
 
   /** @override */
-  extend<F2 extends F>(className: string, template: TraitRefTemplate<F2>): TraitRefClass<F2>;
-  extend<F2 extends F>(className: string, template: TraitRefTemplate<F2>): TraitRefClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: TraitRefTemplate<F2>): TraitRefClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: TraitRefTemplate<F2>): TraitRefClass<F2>;
 
   /** @override */
-  define<F2 extends F>(className: string, template: TraitRefTemplate<F2>): TraitRefClass<F2>;
-  define<F2 extends F>(className: string, template: TraitRefTemplate<F2>): TraitRefClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: TraitRefTemplate<F2>): TraitRefClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: TraitRefTemplate<F2>): TraitRefClass<F2>;
 
   /** @override */
-  <F2 extends F>(template: TraitRefTemplate<F2>): PropertyDecorator;
+  <F2 extends F>(template: TraitRefTemplate<F2>): TraitRefDecorator<F2>;
 }
 
 /** @public */
@@ -63,7 +75,7 @@ export interface TraitRef<O = unknown, T extends Trait = Trait> extends TraitRel
   get fastenerType(): Proto<TraitRef<any, any>>;
 
   /** @internal @override */
-  getSuper(): TraitRef<unknown, T> | null;
+  getParent(): TraitRef<unknown, T> | null;
 
   /** @internal @override */
   setDerived(derived: boolean, inlet: TraitRef<unknown, T>): void;
@@ -203,8 +215,9 @@ export const TraitRef = (function (_super: typeof TraitRelation) {
     const inletTrait = this.inletTrait;
     if (inletTrait === void 0 || inletTrait === null) {
       let message = inletTrait + " ";
-      if (this.name.length !== 0) {
-        message += this.name + " ";
+      const name = this.name.toString();
+      if (name.length !== 0) {
+        message += name + " ";
       }
       message += "inlet trait";
       throw new TypeError(message);
@@ -216,8 +229,9 @@ export const TraitRef = (function (_super: typeof TraitRelation) {
     const trait = this.trait;
     if (trait === null) {
       let message = trait + " ";
-      if (this.name.length !== 0) {
-        message += this.name + " ";
+      const name = this.name.toString();
+      if (name.length !== 0) {
+        message += name + " ";
       }
       message += "trait";
       throw new TypeError(message);
@@ -351,6 +365,9 @@ export const TraitRef = (function (_super: typeof TraitRelation) {
           this.deinitTrait(oldTrait);
           this.didDetachTrait(oldTrait);
           oldTrait.remove();
+          if (this.binds && model !== null && oldTrait.model === model) {
+            oldTrait.remove();
+          }
         }
         (this as Mutable<typeof this>).trait = newTrait;
         this.willAttachTrait(newTrait, target);

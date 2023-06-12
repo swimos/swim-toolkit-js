@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyLength, Length} from "@swim/math";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
 
 /** @public */
 export type AnyIconLayout = IconLayout | IconLayoutInit;

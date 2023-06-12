@@ -12,18 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Proto, Objects, Comparator, Consumer} from "@swim/util";
-import {Affinity, FastenerFlags, FastenerOwner, Fastener} from "@swim/component";
-import type {AnyModel, ModelFactory, Model} from "./Model";
-import {ModelRelationDescriptor, ModelRelationClass, ModelRelation} from "./ModelRelation";
+import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
+import {Objects} from "@swim/util";
+import type {Comparator} from "@swim/util";
+import type {Consumer} from "@swim/util";
+import {Affinity} from "@swim/component";
+import type {FastenerFlags} from "@swim/component";
+import type {FastenerOwner} from "@swim/component";
+import {Fastener} from "@swim/component";
+import type {AnyModel} from "./Model";
+import type {ModelFactory} from "./Model";
+import type {Model} from "./Model";
+import type {ModelRelationDescriptor} from "./ModelRelation";
+import type {ModelRelationClass} from "./ModelRelation";
+import {ModelRelation} from "./ModelRelation";
 
 /** @public */
 export type ModelSetModel<F extends ModelSet<any, any>> =
   F extends {modelType?: ModelFactory<infer M>} ? M : never;
 
 /** @public */
+export type ModelSetDecorator<F extends ModelSet<any, any>> = {
+  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
+};
+
+/** @public */
 export interface ModelSetDescriptor<M extends Model = Model> extends ModelRelationDescriptor<M> {
-  extends?: Proto<ModelSet<any, any>> | string | boolean | null;
+  extends?: Proto<ModelSet<any, any>> | boolean | null;
   ordered?: boolean;
   sorted?: boolean;
 }
@@ -43,15 +59,15 @@ export interface ModelSetClass<F extends ModelSet<any, any> = ModelSet<any, any>
   refine(fastenerClass: ModelSetClass<any>): void;
 
   /** @override */
-  extend<F2 extends F>(className: string, template: ModelSetTemplate<F2>): ModelSetClass<F2>;
-  extend<F2 extends F>(className: string, template: ModelSetTemplate<F2>): ModelSetClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: ModelSetTemplate<F2>): ModelSetClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: ModelSetTemplate<F2>): ModelSetClass<F2>;
 
   /** @override */
-  define<F2 extends F>(className: string, template: ModelSetTemplate<F2>): ModelSetClass<F2>;
-  define<F2 extends F>(className: string, template: ModelSetTemplate<F2>): ModelSetClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: ModelSetTemplate<F2>): ModelSetClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: ModelSetTemplate<F2>): ModelSetClass<F2>;
 
   /** @override */
-  <F2 extends F>(template: ModelSetTemplate<F2>): PropertyDecorator;
+  <F2 extends F>(template: ModelSetTemplate<F2>): ModelSetDecorator<F2>;
 
   /** @internal */
   readonly OrderedFlag: FastenerFlags;
@@ -72,7 +88,7 @@ export interface ModelSet<O = unknown, M extends Model = Model> extends ModelRel
   get fastenerType(): Proto<ModelSet<any, any>>;
 
   /** @internal @override */
-  getSuper(): ModelSet<unknown, M> | null;
+  getParent(): ModelSet<unknown, M> | null;
 
   /** @internal @override */
   setDerived(derived: boolean, inlet: ModelSet<unknown, M>): void;

@@ -14,7 +14,9 @@
 
 import type {Class} from "@swim/util";
 import {Property} from "@swim/component";
-import {AnyGeoPath, GeoPath, GeoBox} from "@swim/geo";
+import type {AnyGeoPath} from "@swim/geo";
+import {GeoPath} from "@swim/geo";
+import {GeoBox} from "@swim/geo";
 import {GeoTrait} from "../geo/GeoTrait";
 import type {GeoPathTraitObserver} from "./GeoPathTraitObserver";
 
@@ -27,7 +29,7 @@ export abstract class GeoPathTrait extends GeoTrait {
     return geoPath !== null ? geoPath.bounds : GeoBox.undefined();
   }
 
-  @Property<GeoPathTrait["geoPath"]>({
+  @Property({
     valueType: GeoPath,
     value: null,
     didSetValue(geoPath: GeoPath | null): void {

@@ -14,7 +14,5 @@
 
 export {GeoTree} from "./GeoTree";
 
-export {
-  GeoTreeViewInit,
-  GeoTreeView,
-} from "./GeoTreeView";
+export type {GeoTreeViewInit} from "./GeoTreeView";
+export {GeoTreeView} from "./GeoTreeView";

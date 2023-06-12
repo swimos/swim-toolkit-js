@@ -12,10 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Lazy, Equals, Equivalent, Interpolate, Interpolator} from "@swim/util";
-import {Output, Debug, Format} from "@swim/codec";
+import {Lazy} from "@swim/util";
+import {Equals} from "@swim/util";
+import {Equivalent} from "@swim/util";
+import type {Interpolate} from "@swim/util";
+import type {Interpolator} from "@swim/util";
+import type {Output} from "@swim/codec";
+import type {Debug} from "@swim/codec";
+import {Format} from "@swim/codec";
 import {R2Box} from "@swim/math";
-import {Feel, MoodVectorUpdates, MoodVector, MoodMatrix, ThemeMatrix} from "@swim/theme";
+import {Feel} from "@swim/theme";
+import type {MoodVectorUpdates} from "@swim/theme";
+import type {MoodVector} from "@swim/theme";
+import {MoodMatrix} from "@swim/theme";
+import type {ThemeMatrix} from "@swim/theme";
 import type {GraphicsRenderer} from "../graphics/GraphicsRenderer";
 import type {DrawingContext} from "../drawing/DrawingContext";
 import {DrawingRenderer} from "../drawing/DrawingRenderer";

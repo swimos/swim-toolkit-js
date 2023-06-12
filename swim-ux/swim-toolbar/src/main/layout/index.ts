@@ -12,16 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  AnyToolLayout,
-  ToolLayoutInit,
-  ToolLayout,
-} from "./ToolLayout";
+export type {AnyToolLayout} from "./ToolLayout";
+export type {ToolLayoutInit} from "./ToolLayout";
+export {ToolLayout} from "./ToolLayout";
 export {ToolLayoutInterpolator} from "./ToolLayoutInterpolator";
 
-export {
-  AnyBarLayout,
-  BarLayoutInit,
-  BarLayout,
-} from "./BarLayout";
+export type {AnyBarLayout} from "./BarLayout";
+export type {BarLayoutInit} from "./BarLayout";
+export {BarLayout} from "./BarLayout";
 export {BarLayoutInterpolator} from "./BarLayoutInterpolator";

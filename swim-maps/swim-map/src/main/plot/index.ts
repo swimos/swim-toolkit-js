@@ -12,17 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  GeoPointLabelPlacement,
-  AnyGeoPointView,
-  GeoPointViewInit,
-  GeoPointView,
-} from "./GeoPointView";
-export {GeoPointViewObserver} from "./GeoPointViewObserver";
+export type {GeoPointLabelPlacement} from "./GeoPointView";
+export type {AnyGeoPointView} from "./GeoPointView";
+export type {GeoPointViewInit} from "./GeoPointView";
+export {GeoPointView} from "./GeoPointView";
+export type {GeoPointViewObserver} from "./GeoPointViewObserver";
 
-export {
-  AnyGeoPlotView,
-  GeoPlotViewInit,
-  GeoPlotView,
-} from "./GeoPlotView";
-export {GeoPlotViewObserver} from "./GeoPlotViewObserver";
+export type {AnyGeoPlotView} from "./GeoPlotView";
+export type {GeoPlotViewInit} from "./GeoPlotView";
+export {GeoPlotView} from "./GeoPlotView";
+export type {GeoPlotViewObserver} from "./GeoPlotViewObserver";

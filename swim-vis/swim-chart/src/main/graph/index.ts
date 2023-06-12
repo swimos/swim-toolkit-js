@@ -12,15 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  AnyGraphView,
-  GraphViewInit,
-  GraphView,
-} from "./GraphView";
-export {GraphViewObserver} from "./GraphViewObserver";
+export type {AnyGraphView} from "./GraphView";
+export type {GraphViewInit} from "./GraphView";
+export {GraphView} from "./GraphView";
+export type {GraphViewObserver} from "./GraphViewObserver";
 
 export {GraphTrait} from "./GraphTrait";
-export {GraphTraitObserver} from "./GraphTraitObserver";
+export type {GraphTraitObserver} from "./GraphTraitObserver";
 
 export {GraphController} from "./GraphController";
-export {GraphControllerObserver} from "./GraphControllerObserver";
+export type {GraphControllerObserver} from "./GraphControllerObserver";

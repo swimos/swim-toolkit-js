@@ -13,9 +13,14 @@
 // limitations under the License.
 
 import type {Proto} from "@swim/util";
-import type {TraitFactory, Trait, TraitRef} from "@swim/model";
-import type {ControllerFactory, Controller} from "../controller/Controller";
-import {ControllerRefDescriptor, ControllerRefClass, ControllerRef} from "../controller/ControllerRef";
+import type {TraitFactory} from "@swim/model";
+import type {Trait} from "@swim/model";
+import type {TraitRef} from "@swim/model";
+import type {ControllerFactory} from "../controller/Controller";
+import type {Controller} from "../controller/Controller";
+import type {ControllerRefDescriptor} from "../controller/ControllerRef";
+import type {ControllerRefClass} from "../controller/ControllerRef";
+import {ControllerRef} from "../controller/ControllerRef";
 
 /** @public */
 export type TraitControllerRefTrait<F extends TraitControllerRef<any, any, any>> =
@@ -26,8 +31,13 @@ export type TraitControllerRefController<F extends TraitControllerRef<any, any, 
   F extends {controllerType?: ControllerFactory<infer C>} ? C : never;
 
 /** @public */
+export type TraitControllerRefDecorator<F extends TraitControllerRef<any, any, any>> = {
+  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
+};
+
+/** @public */
 export interface TraitControllerRefDescriptor<T extends Trait = Trait, C extends Controller = Controller> extends ControllerRefDescriptor<C> {
-  extends?: Proto<TraitControllerRef<any, any, any>> | string | boolean | null;
+  extends?: Proto<TraitControllerRef<any, any, any>> | boolean | null;
   traitType?: TraitFactory<T>;
   traitKey?: string | boolean;
 }
@@ -47,15 +57,15 @@ export interface TraitControllerRefClass<F extends TraitControllerRef<any, any, 
   refine(fastenerClass: TraitControllerRefClass<any>): void;
 
   /** @override */
-  extend<F2 extends F>(className: string, template: TraitControllerRefTemplate<F2>): TraitControllerRefClass<F2>;
-  extend<F2 extends F>(className: string, template: TraitControllerRefTemplate<F2>): TraitControllerRefClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: TraitControllerRefTemplate<F2>): TraitControllerRefClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: TraitControllerRefTemplate<F2>): TraitControllerRefClass<F2>;
 
   /** @override */
-  define<F2 extends F>(className: string, template: TraitControllerRefTemplate<F2>): TraitControllerRefClass<F2>;
-  define<F2 extends F>(className: string, template: TraitControllerRefTemplate<F2>): TraitControllerRefClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: TraitControllerRefTemplate<F2>): TraitControllerRefClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: TraitControllerRefTemplate<F2>): TraitControllerRefClass<F2>;
 
   /** @override */
-  <F2 extends F>(template: TraitControllerRefTemplate<F2>): PropertyDecorator;
+  <F2 extends F>(template: TraitControllerRefTemplate<F2>): TraitControllerRefDecorator<F2>;
 }
 
 /** @public */
@@ -249,11 +259,11 @@ export const TraitControllerRef = (function (_super: typeof ControllerRef) {
       const targetTrait = targetController !== null ? this.getTraitRef(targetController as C).trait : null;
       this.attachTrait(trait, targetTrait);
     }
-    ControllerRef.prototype.onAttachController.call(this, controller, targetController);
+    _super.prototype.onAttachController.call(this, controller, targetController);
   };
 
   TraitControllerRef.prototype.onDetachController = function <T extends Trait, C extends Controller>(this: TraitControllerRef<unknown, T, C>, controller: C): void {
-    ControllerRef.prototype.onDetachController.call(this, controller);
+    _super.prototype.onDetachController.call(this, controller);
     const trait = this.getTraitRef(controller).trait;
     if (trait !== null) {
       this.detachTrait(trait);
@@ -268,8 +278,9 @@ export const TraitControllerRef = (function (_super: typeof ControllerRef) {
     }
     if (trait === void 0 || trait === null) {
       let message = "Unable to create ";
-      if (this.name.length !== 0) {
-        message += this.name + " ";
+      const name = this.name.toString();
+      if (name.length !== 0) {
+        message += name + " ";
       }
       message += "trait";
       throw new Error(message);

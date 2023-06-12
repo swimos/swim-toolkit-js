@@ -12,9 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Observes} from "@swim/util";
-import {Affinity, FastenerClass, Property, Provider, Service} from "@swim/component";
-import {Mood, MoodVector, Theme, ThemeMatrix} from "@swim/theme";
+import type {Class} from "@swim/util";
+import type {Observes} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
+import {Provider} from "@swim/component";
+import {Service} from "@swim/component";
+import {Mood} from "@swim/theme";
+import {MoodVector} from "@swim/theme";
+import {Theme} from "@swim/theme";
+import {ThemeMatrix} from "@swim/theme";
 import {View} from "../view/View";
 import {ViewSet} from "../view/ViewSet";
 import type {ViewportColorScheme} from "../viewport/ViewportColorScheme";
@@ -25,7 +32,7 @@ import type {StylerServiceObserver} from "./StylerServiceObserver";
 export class StylerService extends Service {
   override readonly observerType?: Class<StylerServiceObserver>;
 
-  @ViewSet<StylerService["roots"]>({
+  @ViewSet({
     initView(rootView: View): void {
       rootView.mood.setValue(this.owner.mood.value, Affinity.Inherited);
       rootView.theme.setValue(this.owner.theme.value, Affinity.Inherited);
@@ -45,9 +52,8 @@ export class StylerService extends Service {
     },
   })
   readonly roots!: ViewSet<this, View>;
-  static readonly roots: FastenerClass<StylerService["roots"]>;
 
-  @Provider<StylerService["viewport"]>({
+  @Provider({
     serviceType: ViewportService,
     observes: true,
     lazy: false,
@@ -56,9 +62,8 @@ export class StylerService extends Service {
     },
   })
   readonly viewport!: Provider<this, ViewportService> & Observes<ViewportService>;
-  static readonly viewport: FastenerClass<StylerService["viewport"]>;
 
-  @Property<StylerService["theme"]>({
+  @Property({
     valueType: ThemeMatrix,
     initValue(): ThemeMatrix {
       return this.detect();
@@ -93,7 +98,7 @@ export class StylerService extends Service {
     detect(): ThemeMatrix,
   };
 
-  @Property<StylerService["mood"]>({
+  @Property({
     valueType: MoodVector,
     initValue(): MoodVector {
       return Mood.default;

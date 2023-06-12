@@ -13,8 +13,10 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {FastenerClass, Property} from "@swim/component";
-import {Model, Trait, TraitSet} from "@swim/model";
+import {Property} from "@swim/component";
+import type {Model} from "@swim/model";
+import {Trait} from "@swim/model";
+import {TraitSet} from "@swim/model";
 import {DialTrait} from "../dial/DialTrait";
 import type {GaugeTraitObserver} from "./GaugeTraitObserver";
 
@@ -22,16 +24,15 @@ import type {GaugeTraitObserver} from "./GaugeTraitObserver";
 export class GaugeTrait extends Trait {
   override readonly observerType?: Class<GaugeTraitObserver>;
 
-  @Property<GaugeTrait["title"]>({
+  @Property({
     valueType: String,
     didSetValue(title: string | undefined): void {
       this.owner.callObservers("traitDidSetTitle", title, this.owner);
     },
   })
   readonly title!: Property<this, string | undefined>;
-  static readonly title: FastenerClass<GaugeTrait["title"]>;
 
-  @Property<GaugeTrait["limit"]>({
+  @Property({
     valueType: Number,
     value: 0,
     didSetValue(limit: number): void {
@@ -39,9 +40,8 @@ export class GaugeTrait extends Trait {
     },
   })
   readonly limit!: Property<this, number>;
-  static readonly limit: FastenerClass<GaugeTrait["limit"]>;
 
-  @TraitSet<GaugeTrait["dials"]>({
+  @TraitSet({
     traitType: DialTrait,
     binds: true,
     willAttachTrait(dialTrait: DialTrait, targetTrait: Trait | null): void {
@@ -65,7 +65,6 @@ export class GaugeTrait extends Trait {
     },
   })
   readonly dials!: TraitSet<this, DialTrait>;
-  static readonly dials: FastenerClass<GaugeTrait["dials"]>;
 
   protected override onStartConsuming(): void {
     super.onStartConsuming();

@@ -12,18 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Proto, Objects, Comparator, Consumer} from "@swim/util";
-import {Affinity, FastenerOwner, FastenerFlags, Fastener} from "@swim/component";
-import type {AnyController, ControllerFactory, Controller} from "./Controller";
-import {ControllerRelationDescriptor, ControllerRelationClass, ControllerRelation} from "./ControllerRelation";
+import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
+import {Objects} from "@swim/util";
+import type {Comparator} from "@swim/util";
+import type {Consumer} from "@swim/util";
+import {Affinity} from "@swim/component";
+import type {FastenerOwner} from "@swim/component";
+import type {FastenerFlags} from "@swim/component";
+import {Fastener} from "@swim/component";
+import type {AnyController} from "./Controller";
+import type {ControllerFactory} from "./Controller";
+import type {Controller} from "./Controller";
+import type {ControllerRelationDescriptor} from "./ControllerRelation";
+import type {ControllerRelationClass} from "./ControllerRelation";
+import {ControllerRelation} from "./ControllerRelation";
 
 /** @public */
 export type ControllerSetController<F extends ControllerSet<any, any>> =
   F extends {controllerType?: ControllerFactory<infer C>} ? C : never;
 
 /** @public */
+export type ControllerSetDecorator<F extends ControllerSet<any, any>> = {
+  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
+};
+
+/** @public */
 export interface ControllerSetDescriptor<C extends Controller = Controller> extends ControllerRelationDescriptor<C> {
-  extends?: Proto<ControllerSet<any, any>> | string | boolean | null;
+  extends?: Proto<ControllerSet<any, any>> | boolean | null;
   ordered?: boolean;
   sorted?: boolean;
 }
@@ -43,15 +59,15 @@ export interface ControllerSetClass<F extends ControllerSet<any, any> = Controll
   refine(fastenerClass: ControllerSetClass<any>): void;
 
   /** @override */
-  extend<F2 extends F>(className: string, template: ControllerSetTemplate<F2>): ControllerSetClass<F2>;
-  extend<F2 extends F>(className: string, template: ControllerSetTemplate<F2>): ControllerSetClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: ControllerSetTemplate<F2>): ControllerSetClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: ControllerSetTemplate<F2>): ControllerSetClass<F2>;
 
   /** @override */
-  define<F2 extends F>(className: string, template: ControllerSetTemplate<F2>): ControllerSetClass<F2>;
-  define<F2 extends F>(className: string, template: ControllerSetTemplate<F2>): ControllerSetClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: ControllerSetTemplate<F2>): ControllerSetClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: ControllerSetTemplate<F2>): ControllerSetClass<F2>;
 
   /** @override */
-  <F2 extends F>(template: ControllerSetTemplate<F2>): PropertyDecorator;
+  <F2 extends F>(template: ControllerSetTemplate<F2>): ControllerSetDecorator<F2>;
 
   /** @internal */
   readonly OrderedFlag: FastenerFlags;
@@ -72,7 +88,7 @@ export interface ControllerSet<O = unknown, C extends Controller = Controller> e
   get fastenerType(): Proto<ControllerSet<any, any>>;
 
   /** @internal @override */
-  getSuper(): ControllerSet<unknown, C> | null;
+  getParent(): ControllerSet<unknown, C> | null;
 
   /** @internal @override */
   setDerived(derived: boolean, inlet: ControllerSet<unknown, C>): void;

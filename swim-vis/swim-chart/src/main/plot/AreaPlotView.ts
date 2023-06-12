@@ -14,11 +14,18 @@
 
 import type {Class} from "@swim/util";
 import type {R2Box} from "@swim/math";
-import {AnyColor, Color} from "@swim/style";
-import {Look, ThemeAnimator} from "@swim/theme";
+import type {AnyColor} from "@swim/style";
+import {Color} from "@swim/style";
+import {Look} from "@swim/theme";
+import {ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
-import type {GraphicsView, CanvasContext, CanvasRenderer, FillViewInit, FillView} from "@swim/graphics";
-import {SeriesPlotViewInit, SeriesPlotView} from "./SeriesPlotView";
+import type {GraphicsView} from "@swim/graphics";
+import type {CanvasContext} from "@swim/graphics";
+import type {CanvasRenderer} from "@swim/graphics";
+import type {FillViewInit} from "@swim/graphics";
+import type {FillView} from "@swim/graphics";
+import type {SeriesPlotViewInit} from "./SeriesPlotView";
+import {SeriesPlotView} from "./SeriesPlotView";
 import type {AreaPlotViewObserver} from "./AreaPlotViewObserver";
 
 /** @public */
@@ -32,7 +39,7 @@ export interface AreaPlotViewInit<X = unknown, Y = unknown> extends SeriesPlotVi
 export class AreaPlotView<X = unknown, Y = unknown> extends SeriesPlotView<X, Y> implements FillView {
   override readonly observerType?: Class<AreaPlotViewObserver<X, Y>>;
 
-  @ThemeAnimator<AreaPlotView<X, Y>["fill"]>({
+  @ThemeAnimator({
     valueType: Color,
     value: null,
     look: Look.accentColor,

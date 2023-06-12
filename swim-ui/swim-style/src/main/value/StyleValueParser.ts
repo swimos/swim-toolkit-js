@@ -12,18 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Input, Output, Parser, Diagnostic, Unicode, Base10} from "@swim/codec";
-import {
-  Length,
-  Angle,
-  Transform,
-  TranslateTransformParser,
-  ScaleTransformParser,
-  RotateTransformParser,
-  SkewTransformParser,
-  AffineTransformParser,
-} from "@swim/math";
-import {DateTimeInit, DateTimeFormat} from "@swim/time";
+import {Diagnostic} from "@swim/codec";
+import type {Input} from "@swim/codec";
+import type {Output} from "@swim/codec";
+import {Parser} from "@swim/codec";
+import {Unicode} from "@swim/codec";
+import {Base10} from "@swim/codec";
+import {Length} from "@swim/math";
+import {Angle} from "@swim/math";
+import {Transform} from "@swim/math";
+import {TranslateTransformParser} from "@swim/math";
+import {ScaleTransformParser} from "@swim/math";
+import {RotateTransformParser} from "@swim/math";
+import {SkewTransformParser} from "@swim/math";
+import {AffineTransformParser} from "@swim/math";
+import type {DateTimeInit} from "@swim/time";
+import {DateTimeFormat} from "@swim/time";
 import type {FontWeight} from "../font/FontWeight";
 import {FontParser} from "../font/FontParser";
 import {Color} from "../color/Color";

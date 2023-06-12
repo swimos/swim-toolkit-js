@@ -12,17 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Observes} from "@swim/util";
+import type {Class} from "@swim/util";
+import type {Observes} from "@swim/util";
 import type {Trait} from "@swim/model";
 import type {PositionGestureInput} from "@swim/view";
-import {FastenerClass, Property} from "@swim/component";
-import {
-  Controller,
-  TraitViewRef,
-  TraitViewControllerRef,
-  TraitViewControllerSet,
-} from "@swim/controller";
-import {ToolLayout, BarLayout, ToolController, BarController} from "@swim/toolbar";
+import {Property} from "@swim/component";
+import {Controller} from "@swim/controller";
+import type {TraitViewRef} from "@swim/controller";
+import {TraitViewControllerRef} from "@swim/controller";
+import {TraitViewControllerSet} from "@swim/controller";
+import {ToolLayout} from "@swim/toolbar";
+import {BarLayout} from "@swim/toolbar";
+import type {ToolController} from "@swim/toolbar";
+import {BarController} from "@swim/toolbar";
 import type {SheetView} from "../sheet/SheetView";
 import {SheetController} from "../sheet/SheetController";
 import type {TabBarControllerObserver} from "./TabBarControllerObserver";
@@ -57,7 +59,7 @@ export class TabBarController extends BarController {
     return BarLayout.create(tools);
   }
 
-  @TraitViewControllerSet<TabBarController["tabs"]>({
+  @TraitViewControllerSet({
     controllerType: SheetController,
     ordered: true,
     inherits: true,
@@ -85,9 +87,8 @@ export class TabBarController extends BarController {
     },
   })
   readonly tabs!: TraitViewControllerSet<this, Trait, SheetView, SheetController> & Observes<SheetController>;
-  static readonly tabs: FastenerClass<TabBarController["tabs"]>;
 
-  @TraitViewControllerRef<TabBarController["active"]>({
+  @TraitViewControllerRef({
     controllerType: SheetController,
     inherits: true,
     observes: true,
@@ -108,9 +109,8 @@ export class TabBarController extends BarController {
     },
   })
   readonly active!: TraitViewControllerRef<this, Trait, SheetView, SheetController> & Observes<SheetController>;
-  static readonly active: FastenerClass<TabBarController["active"]>;
 
-  @Property<TabBarController["tabStyle"]>({
+  @Property({
     valueType: String,
     value: "none",
     inherits: true,

@@ -13,12 +13,21 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {AnyLength, Length, R2Box} from "@swim/math";
-import {AnyColor, Color} from "@swim/style";
-import {Look, ThemeAnimator} from "@swim/theme";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import type {R2Box} from "@swim/math";
+import type {AnyColor} from "@swim/style";
+import {Color} from "@swim/style";
+import {Look} from "@swim/theme";
+import {ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
-import type {CanvasContext, FillViewInit, FillView, StrokeViewInit, StrokeView} from "@swim/graphics";
-import {ScatterPlotViewInit, ScatterPlotView} from "./ScatterPlotView";
+import type {CanvasContext} from "@swim/graphics";
+import type {FillViewInit} from "@swim/graphics";
+import type {FillView} from "@swim/graphics";
+import type {StrokeViewInit} from "@swim/graphics";
+import type {StrokeView} from "@swim/graphics";
+import type {ScatterPlotViewInit} from "./ScatterPlotView";
+import {ScatterPlotView} from "./ScatterPlotView";
 import type {BubblePlotViewObserver} from "./BubblePlotViewObserver";
 
 /** @public */
@@ -33,7 +42,7 @@ export interface BubblePlotViewInit<X = unknown, Y = unknown> extends ScatterPlo
 export class BubblePlotView<X = unknown, Y = unknown> extends ScatterPlotView<X, Y> implements FillView, StrokeView {
   override readonly observerType?: Class<BubblePlotViewObserver<X, Y>>;
 
-  @ThemeAnimator<BubblePlotView<X, Y>["radius"]>({
+  @ThemeAnimator({
     valueType: Length,
     value: Length.px(5),
     updateFlags: View.NeedsRender,
@@ -43,7 +52,7 @@ export class BubblePlotView<X = unknown, Y = unknown> extends ScatterPlotView<X,
   })
   readonly radius!: ThemeAnimator<this, Length | null, AnyLength | null>;
 
-  @ThemeAnimator<BubblePlotView<X, Y>["fill"]>({
+  @ThemeAnimator({
     valueType: Color,
     value: null,
     look: Look.accentColor,

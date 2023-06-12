@@ -12,18 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  TypesetViewInit,
-  TypesetView,
-} from "./TypesetView";
+export type {TypesetViewInit} from "./TypesetView";
+export {TypesetView} from "./TypesetView";
 
-export {
-  AnyTextRun,
-  TextRunInit,
-  TextRun,
-} from "./TextRun";
-export {
-  AnyTextRunView,
-  TextRunViewInit,
-  TextRunView,
-} from "./TextRunView";
+export type {AnyTextRun} from "./TextRun";
+export type {TextRunInit} from "./TextRun";
+export {TextRun} from "./TextRun";
+export type {AnyTextRunView} from "./TextRunView";
+export type {TextRunViewInit} from "./TextRunView";
+export {TextRunView} from "./TextRunView";

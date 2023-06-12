@@ -12,17 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  LengthUnits,
-  LengthBasis,
-  AnyLength,
-  Length,
-  PxLength,
-  EmLength,
-  RemLength,
-  PctLength,
-} from "@swim/math";
-import {StyleConstraintAnimatorClass, StyleConstraintAnimator} from "./StyleConstraintAnimator";
+import type {LengthUnits} from "@swim/math";
+import type {LengthBasis} from "@swim/math";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import {PxLength} from "@swim/math";
+import {EmLength} from "@swim/math";
+import {RemLength} from "@swim/math";
+import {PctLength} from "@swim/math";
+import type {StyleConstraintAnimatorClass} from "./StyleConstraintAnimator";
+import {StyleConstraintAnimator} from "./StyleConstraintAnimator";
 import {StyleContext} from "../"; // forward import
 
 /** @public */

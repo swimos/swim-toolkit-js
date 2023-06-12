@@ -13,8 +13,10 @@
 // limitations under the License.
 
 import type {View} from "@swim/view";
-import type {HtmlViewObserver, ModalViewObserver} from "@swim/dom";
-import type {PopoverPlacement, PopoverView} from "./PopoverView";
+import type {HtmlViewObserver} from "@swim/dom";
+import type {ModalViewObserver} from "@swim/dom";
+import type {PopoverPlacement} from "./PopoverView";
+import type {PopoverView} from "./PopoverView";
 
 /** @public */
 export interface PopoverViewObserver<V extends PopoverView = PopoverView> extends HtmlViewObserver<V>, ModalViewObserver<V> {

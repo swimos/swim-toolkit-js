@@ -12,9 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Class} from "@swim/util";
-import {FastenerClass, EventHandler, Service} from "@swim/component";
-import {ModelFlags, Model} from "../model/Model";
+import type {Mutable} from "@swim/util";
+import type {Class} from "@swim/util";
+import {EventHandler} from "@swim/component";
+import {Service} from "@swim/component";
+import type {ModelFlags} from "../model/Model";
+import {Model} from "../model/Model";
 import {ModelSet} from "../model/ModelSet";
 import type {RefresherServiceObserver} from "./RefresherServiceObserver";
 
@@ -34,7 +37,7 @@ export class RefresherService extends Service {
 
   override readonly observerType?: Class<RefresherServiceObserver>;
 
-  @ModelSet<RefresherService["roots"]>({
+  @ModelSet({
     initModel(rootModel: Model): void {
       this.owner.requestUpdate(rootModel, rootModel.flags & Model.UpdateMask, false);
     },
@@ -52,7 +55,6 @@ export class RefresherService extends Service {
     },
   })
   readonly roots!: ModelSet<this, Model>;
-  static readonly roots: FastenerClass<RefresherService["roots"]>;
 
   /** @internal */
   readonly updateFlags: ModelFlags;
@@ -235,7 +237,7 @@ export class RefresherService extends Service {
     this.updateDelay = RefresherService.MinUpdateDelay;
   }
 
-  @EventHandler<RefresherService["visibilityChange"]>({
+  @EventHandler({
     type: "visibilitychange",
     initTarget(): EventTarget | null {
       if (typeof document !== "undefined") {
@@ -253,7 +255,6 @@ export class RefresherService extends Service {
     },
   })
   readonly visibilityChange!: EventHandler<this>;
-  static readonly visibilityChange: FastenerClass<RefresherService["visibilityChange"]>;
 
   /** @internal */
   static MinUpdateDelay: number = 0;

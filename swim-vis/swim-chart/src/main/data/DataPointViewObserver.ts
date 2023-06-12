@@ -14,7 +14,8 @@
 
 import type {Length} from "@swim/math";
 import type {Color} from "@swim/style";
-import type {GraphicsView, GraphicsViewObserver} from "@swim/graphics";
+import type {GraphicsView} from "@swim/graphics";
+import type {GraphicsViewObserver} from "@swim/graphics";
 import type {DataPointView} from "./DataPointView";
 
 /** @public */

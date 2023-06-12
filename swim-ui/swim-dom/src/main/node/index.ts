@@ -12,14 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  ViewNodeType,
-  ViewNode,
-  AnyNodeView,
-  NodeViewInit,
-  NodeViewFactory,
-  NodeViewClass,
-  NodeViewConstructor,
-  NodeView,
-} from "./NodeView";
-export {NodeViewObserver} from "./NodeViewObserver";
+export type {ViewNodeType} from "./NodeView";
+export type {ViewNode} from "./NodeView";
+export type {AnyNodeView} from "./NodeView";
+export type {NodeViewInit} from "./NodeView";
+export type {NodeViewFactory} from "./NodeView";
+export type {NodeViewClass} from "./NodeView";
+export type {NodeViewConstructor} from "./NodeView";
+export {NodeView} from "./NodeView";
+export type {NodeViewObserver} from "./NodeViewObserver";

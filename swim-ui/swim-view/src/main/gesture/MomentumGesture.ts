@@ -12,20 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Proto} from "@swim/util";
+import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
 import type {FastenerOwner} from "@swim/component";
 import {View} from "../view/View";
 import type {GestureInputType} from "./GestureInput";
 import type {GestureView} from "./Gesture";
-import {PositionGestureDescriptor, PositionGestureClass, PositionGesture} from "./PositionGesture";
+import type {PositionGestureDescriptor} from "./PositionGesture";
+import type {PositionGestureClass} from "./PositionGesture";
+import {PositionGesture} from "./PositionGesture";
 import {MomentumGestureInput} from "./MomentumGestureInput";
 import {MouseMomentumGesture} from "./"; // forward import
 import {TouchMomentumGesture} from "./"; // forward import
 import {PointerMomentumGesture} from "./"; // forward import
 
 /** @public */
+export type MomentumGestureDecorator<G extends MomentumGesture<any, any>> = {
+  <T>(target: unknown, context: ClassFieldDecoratorContext<T, G>): (this: T, value: G | undefined) => G;
+};
+
+/** @public */
 export interface MomentumGestureDescriptor<V extends View = View> extends PositionGestureDescriptor<V> {
-  extends?: Proto<MomentumGesture<any, any>> | string | boolean | null;
+  extends?: Proto<MomentumGesture<any, any>> | boolean | null;
   hysteresis?: number;
   acceleration?: number;
   velocityMax?: number;
@@ -46,15 +54,15 @@ export interface MomentumGestureClass<G extends MomentumGesture<any, any> = Mome
   refine(gestureClass: MomentumGestureClass<any>): void;
 
   /** @override */
-  extend<G2 extends G>(className: string, template: MomentumGestureTemplate<G2>): MomentumGestureClass<G2>;
-  extend<G2 extends G>(className: string, template: MomentumGestureTemplate<G2>): MomentumGestureClass<G2>;
+  extend<G2 extends G>(className: string | symbol, template: MomentumGestureTemplate<G2>): MomentumGestureClass<G2>;
+  extend<G2 extends G>(className: string | symbol, template: MomentumGestureTemplate<G2>): MomentumGestureClass<G2>;
 
   /** @override */
-  define<G2 extends G>(className: string, template: MomentumGestureTemplate<G2>): MomentumGestureClass<G2>;
-  define<G2 extends G>(className: string, template: MomentumGestureTemplate<G2>): MomentumGestureClass<G2>;
+  define<G2 extends G>(className: string | symbol, template: MomentumGestureTemplate<G2>): MomentumGestureClass<G2>;
+  define<G2 extends G>(className: string | symbol, template: MomentumGestureTemplate<G2>): MomentumGestureClass<G2>;
 
   /** @override */
-  <G2 extends G>(template: MomentumGestureTemplate<G2>): PropertyDecorator;
+  <G2 extends G>(template: MomentumGestureTemplate<G2>): MomentumGestureDecorator<G2>;
 
   /** @internal */
   readonly Hysteresis: number;
@@ -253,12 +261,12 @@ export const MomentumGesture = (function (_super: typeof PositionGesture) {
 
   MomentumGesture.prototype.clearInput = function (this: MomentumGesture, input: MomentumGestureInput): void {
     if (!input.coasting) {
-      PositionGesture.prototype.clearInput.call(this, input);
+      _super.prototype.clearInput.call(this, input);
     }
   };
 
   MomentumGesture.prototype.clearInputs = function (this: MomentumGesture): void {
-    PositionGesture.prototype.clearInputs.call(this);
+    _super.prototype.clearInputs.call(this);
     (this as Mutable<typeof this>).coastCount = 0;
   };
 
@@ -266,7 +274,7 @@ export const MomentumGesture = (function (_super: typeof PositionGesture) {
     if (input.coasting) {
       this.endCoast(input, null);
     }
-    PositionGesture.prototype.resetInput.call(this, input);
+    _super.prototype.resetInput.call(this, input);
   };
 
   MomentumGesture.prototype.initHysteresis = function (this: MomentumGesture): number {
@@ -351,49 +359,49 @@ export const MomentumGesture = (function (_super: typeof PositionGesture) {
   };
 
   MomentumGesture.prototype.onStartPressing = function (this: MomentumGesture): void {
-    PositionGesture.prototype.onStartPressing.call(this);
+    _super.prototype.onStartPressing.call(this);
     if (this.coastCount === 0) {
       this.startInteracting();
     }
   };
 
   MomentumGesture.prototype.onStopPressing = function (this: MomentumGesture): void {
-    PositionGesture.prototype.onStopPressing.call(this);
+    _super.prototype.onStopPressing.call(this);
     if (this.coastCount === 0) {
       this.stopInteracting();
     }
   };
 
   MomentumGesture.prototype.beginPress = function (this: MomentumGesture, input: MomentumGestureInput, event: Event | null): void {
-    PositionGesture.prototype.beginPress.call(this, input, event);
+    _super.prototype.beginPress.call(this, input, event);
     this.interrupt(event);
   };
 
   MomentumGesture.prototype.onBeginPress = function (this: MomentumGesture, input: MomentumGestureInput, event: Event | null): void {
-    PositionGesture.prototype.onBeginPress.call(this, input, event);
+    _super.prototype.onBeginPress.call(this, input, event);
     input.updatePosition(this.hysteresis);
     input.deriveVelocity(this.velocityMax);
   };
 
   MomentumGesture.prototype.onMovePress = function (this: MomentumGesture, input: MomentumGestureInput, event: Event | null): void {
-    PositionGesture.prototype.onMovePress.call(this, input, event);
+    _super.prototype.onMovePress.call(this, input, event);
     input.updatePosition(this.hysteresis);
     input.deriveVelocity(this.velocityMax);
   };
 
   MomentumGesture.prototype.willEndPress = function (this: MomentumGesture, input: MomentumGestureInput, event: Event | null): void {
-    PositionGesture.prototype.willEndPress.call(this, input, event);
+    _super.prototype.willEndPress.call(this, input, event);
     this.beginCoast(input, event);
   };
 
   MomentumGesture.prototype.onEndPress = function (this: MomentumGesture, input: MomentumGestureInput, event: Event | null): void {
-    PositionGesture.prototype.onEndPress.call(this, input, event);
+    _super.prototype.onEndPress.call(this, input, event);
     input.updatePosition(this.hysteresis);
     input.deriveVelocity(this.velocityMax);
   };
 
   MomentumGesture.prototype.onCancelPress = function (this: MomentumGesture, input: MomentumGestureInput, event: Event | null): void {
-    PositionGesture.prototype.onCancelPress.call(this, input, event);
+    _super.prototype.onCancelPress.call(this, input, event);
     input.updatePosition(this.hysteresis);
     input.deriveVelocity(this.velocityMax);
   };
@@ -403,7 +411,7 @@ export const MomentumGesture = (function (_super: typeof PositionGesture) {
       return this.coastCount !== 0;
     },
     configurable: true,
-  })
+  });
 
   MomentumGesture.prototype.startCoasting = function (this: MomentumGesture): void {
     this.willStartCoasting();
@@ -585,7 +593,7 @@ export const MomentumGesture = (function (_super: typeof PositionGesture) {
         superClass = MouseMomentumGesture;
       }
     }
-    return superClass
+    return superClass;
   };
 
   (MomentumGesture as Mutable<typeof MomentumGesture>).Hysteresis = 67;

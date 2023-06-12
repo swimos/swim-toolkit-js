@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Observes} from "@swim/util";
-import type {FastenerClass} from "@swim/component";
-import {Controller, TraitViewRef} from "@swim/controller";
+import type {Class} from "@swim/util";
+import type {Observes} from "@swim/util";
+import {Controller} from "@swim/controller";
+import {TraitViewRef} from "@swim/controller";
 import type {ColLayout} from "../layout/ColLayout";
 import {ColView} from "./ColView";
 import {ColTrait} from "./ColTrait";
@@ -25,7 +26,7 @@ import type {ColControllerObserver} from "./ColControllerObserver";
 export class ColController extends Controller {
   override readonly observerType?: Class<ColControllerObserver>;
 
-  @TraitViewRef<ColController["col"]>({
+  @TraitViewRef({
     traitType: ColTrait,
     observesTrait: true,
     willAttachTrait(colTrait: ColTrait): void {
@@ -45,6 +46,5 @@ export class ColController extends Controller {
       this.owner.callObservers("controllerDidDetachColView", colView, this.owner);
     },
   })
-  readonly col!: TraitViewRef<this, ColTrait, ColView> & Observes<ColTrait & TextColTrait>;
-  static readonly col: FastenerClass<ColController["col"]>;
+  readonly col!: TraitViewRef<this, ColTrait, ColView> & Observes<ColTrait> & Observes<TextColTrait>;
 }

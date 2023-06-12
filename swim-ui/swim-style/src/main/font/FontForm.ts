@@ -12,9 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Item, Attr, Record, Form} from "@swim/structure";
+import type {Item} from "@swim/structure";
+import {Attr} from "@swim/structure";
+import {Record} from "@swim/structure";
+import {Form} from "@swim/structure";
 import {Length} from "@swim/math";
-import {AnyFont, Font} from "./Font";
+import type {AnyFont} from "./Font";
+import {Font} from "./Font";
 
 /** @internal */
 export class FontForm extends Form<Font, AnyFont> {

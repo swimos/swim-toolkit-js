@@ -12,10 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {AnyR2Point, R2Point} from "@swim/math";
-import type {AnyFont, Font, AnyColor, Color} from "@swim/style";
+import type {AnyR2Point} from "@swim/math";
+import type {R2Point} from "@swim/math";
+import type {AnyFont} from "@swim/style";
+import type {Font} from "@swim/style";
+import type {AnyColor} from "@swim/style";
+import type {Color} from "@swim/style";
 import type {ThemeAnimator} from "@swim/theme";
-import {GraphicsViewInit, GraphicsView} from "../graphics/GraphicsView";
+import type {GraphicsViewInit} from "../graphics/GraphicsView";
+import {GraphicsView} from "../graphics/GraphicsView";
 
 /** @public */
 export interface TypesetViewInit extends GraphicsViewInit {
@@ -43,7 +48,7 @@ export interface TypesetView extends GraphicsView {
 export const TypesetView = (function () {
   const TypesetView = {} as {
     init(view: TypesetView, init: TypesetViewInit): void;
- 
+
     is(object: unknown): object is TypesetView;
  };
 

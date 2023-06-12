@@ -12,9 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Proto, Arrays, Observes, Consumer, Consumable} from "@swim/util";
-import {FastenerFlags, FastenerOwner, FastenerDescriptor, FastenerClass, Fastener} from "@swim/component";
-import {AnyModel, ModelFactory, Model} from "./Model";
+import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
+import {Arrays} from "@swim/util";
+import type {Observes} from "@swim/util";
+import type {Consumer} from "@swim/util";
+import type {Consumable} from "@swim/util";
+import type {FastenerFlags} from "@swim/component";
+import type {FastenerOwner} from "@swim/component";
+import type {FastenerDescriptor} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
+import {Fastener} from "@swim/component";
+import type {AnyModel} from "./Model";
+import type {ModelFactory} from "./Model";
+import {Model} from "./Model";
 import {Trait} from "../"; // forward import
 
 /** @public */
@@ -22,8 +33,13 @@ export type ModelRelationModel<F extends ModelRelation<any, any>> =
   F extends {modelType?: ModelFactory<infer M>} ? M : never;
 
 /** @public */
+export type ModelRelationDecorator<F extends ModelRelation<any, any>> = {
+  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
+};
+
+/** @public */
 export interface ModelRelationDescriptor<M extends Model = Model> extends FastenerDescriptor {
-  extends?: Proto<ModelRelation<any, any>> | string | boolean | null;
+  extends?: Proto<ModelRelation<any, any>> | boolean | null;
   modelType?: ModelFactory<M>;
   binds?: boolean;
   observes?: boolean;
@@ -45,15 +61,15 @@ export interface ModelRelationClass<F extends ModelRelation<any, any> = ModelRel
   refine(fastenerClass: ModelRelationClass<any>): void;
 
   /** @override */
-  extend<F2 extends F>(className: string, template: ModelRelationTemplate<F2>): ModelRelationClass<F2>;
-  extend<F2 extends F>(className: string, template: ModelRelationTemplate<F2>): ModelRelationClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: ModelRelationTemplate<F2>): ModelRelationClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: ModelRelationTemplate<F2>): ModelRelationClass<F2>;
 
   /** @override */
-  define<F2 extends F>(className: string, template: ModelRelationTemplate<F2>): ModelRelationClass<F2>;
-  define<F2 extends F>(className: string, template: ModelRelationTemplate<F2>): ModelRelationClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: ModelRelationTemplate<F2>): ModelRelationClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: ModelRelationTemplate<F2>): ModelRelationClass<F2>;
 
   /** @override */
-  <F2 extends F>(template: ModelRelationTemplate<F2>): PropertyDecorator;
+  <F2 extends F>(template: ModelRelationTemplate<F2>): ModelRelationDecorator<F2>;
 
   /** @internal */
   readonly ConsumingFlag: FastenerFlags;
@@ -76,7 +92,7 @@ export interface ModelRelation<O = unknown, M extends Model = Model> extends Fas
   readonly observes?: boolean; // optional prototype property
 
   /** @internal @override */
-  getSuper(): ModelRelation<unknown, M> | null;
+  getParent(): ModelRelation<unknown, M> | null;
 
   /** @internal @override */
   setDerived(derived: boolean, inlet: ModelRelation<unknown, M>): void;
@@ -239,7 +255,6 @@ export interface ModelRelation<O = unknown, M extends Model = Model> extends Fas
 export const ModelRelation = (function (_super: typeof Fastener) {
   const ModelRelation = _super.extend("ModelRelation", {
     lazy: false,
-    static: true,
   }) as ModelRelationClass;
 
   Object.defineProperty(ModelRelation.prototype, "fastenerType", {
@@ -356,8 +371,9 @@ export const ModelRelation = (function (_super: typeof Fastener) {
     }
     if (model === void 0 || model === null) {
       let message = "Unable to create ";
-      if (this.name.length !== 0) {
-        message += this.name + " ";
+      const name = this.name.toString();
+      if (name.length !== 0) {
+        message += name + " ";
       }
       message += "model";
       throw new Error(message);
@@ -431,7 +447,7 @@ export const ModelRelation = (function (_super: typeof Fastener) {
       return (this.flags & ModelRelation.ConsumingFlag) !== 0;
     },
     configurable: true,
-  })
+  });
 
   ModelRelation.prototype.startConsuming = function (this: ModelRelation): void {
     if ((this.flags & ModelRelation.ConsumingFlag) === 0) {

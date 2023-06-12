@@ -12,18 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Proto, AnyTiming, Timing} from "@swim/util";
+import {__runInitializers} from "tslib";
+import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {Timing} from "@swim/util";
+import {FastenerContext} from "@swim/component";
 import type {FastenerOwner} from "@swim/component";
-import {ToStyleString, ToCssValue} from "@swim/style";
-import {Look, Mood, MoodVector, ThemeMatrix, ThemeAnimator} from "@swim/theme";
+import {ToStyleString} from "@swim/style";
+import {ToCssValue} from "@swim/style";
+import {Look} from "@swim/theme";
+import {Mood} from "@swim/theme";
+import type {MoodVector} from "@swim/theme";
+import type {ThemeMatrix} from "@swim/theme";
+import {ThemeAnimator} from "@swim/theme";
 import {StyleAnimator} from "../style/StyleAnimator";
-import {StyleMapInit, StyleMap} from "./StyleMap";
+import type {StyleMapInit} from "./StyleMap";
+import {StyleMap} from "./StyleMap";
 import {CssContext} from "./CssContext";
-import {CssRuleDescriptor, CssRuleClass, CssRule} from "./CssRule";
+import type {CssRuleDescriptor} from "./CssRule";
+import type {CssRuleClass} from "./CssRule";
+import {CssRule} from "./CssRule";
+
+/** @public */
+export type StyleRuleDecorator<F extends StyleRule<any>> = {
+  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
+};
 
 /** @public */
 export interface StyleRuleDescriptor extends CssRuleDescriptor {
-  extends?: Proto<StyleRule<any>> | string | boolean | null;
+  extends?: Proto<StyleRule<any>> | boolean | null;
   style?: StyleMapInit;
 }
 
@@ -42,15 +60,20 @@ export interface StyleRuleClass<F extends StyleRule<any> = StyleRule<any>> exten
   refine(fastenerClass: StyleRuleClass<any>): void;
 
   /** @override */
-  extend<F2 extends F>(className: string, template: StyleRuleTemplate<F2>): StyleRuleClass<F2>;
-  extend<F2 extends F>(className: string, template: StyleRuleTemplate<F2>): StyleRuleClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: StyleRuleTemplate<F2>): StyleRuleClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: StyleRuleTemplate<F2>): StyleRuleClass<F2>;
 
   /** @override */
-  define<F2 extends F>(className: string, template: StyleRuleTemplate<F2>): StyleRuleClass<F2>;
-  define<F2 extends F>(className: string, template: StyleRuleTemplate<F2>): StyleRuleClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: StyleRuleTemplate<F2>): StyleRuleClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: StyleRuleTemplate<F2>): StyleRuleClass<F2>;
 
   /** @override */
-  <F2 extends F>(template: StyleRuleTemplate<F2>): PropertyDecorator;
+  <F2 extends F>(template: StyleRuleTemplate<F2>): StyleRuleDecorator<F2>;
+
+  /** @internal */
+  readonly initializerMap: {[name: string | symbol]: Function[]};
+  /** @internal */
+  readonly extraInitializers: Function[];
 }
 
 /** @public */
@@ -223,9 +246,9 @@ export const StyleRule = (function (_super: typeof CssRule) {
     } else {
       timing = Timing.fromAny(timing);
     }
-    const fasteners = this.fasteners;
-    for (const fastenerName in fasteners) {
-      const fastener = fasteners[fastenerName]!;
+    const fastenerNames = FastenerContext.getFastenerNames(this);
+    for (let i = 0; i < fastenerNames.length; i += 1) {
+      const fastener = this[fastenerNames[i]!];
       if (fastener instanceof ThemeAnimator) {
         fastener.applyTheme(theme, mood, timing as Timing | boolean);
       }
@@ -233,9 +256,9 @@ export const StyleRule = (function (_super: typeof CssRule) {
   };
 
   StyleRule.prototype.applyStyles = function(this: StyleRule): void {
-    const fasteners = this.fasteners;
-    for (const fastenerName in fasteners) {
-      const fastener = fasteners[fastenerName]!;
+    const fastenerNames = FastenerContext.getFastenerNames(this);
+    for (let i = 0; i < fastenerNames.length; i += 1) {
+      const fastener = this[fastenerNames[i]!];
       if (fastener instanceof StyleAnimator) {
         fastener.applyStyle(fastener.value, fastener.priority);
       }
@@ -247,7 +270,9 @@ export const StyleRule = (function (_super: typeof CssRule) {
     this.applyStyles();
   };
 
-  StyleMap.define(StyleRule.prototype);
+  (StyleRule as Mutable<typeof StyleRule>).initializerMap = {};
+  (StyleRule as Mutable<typeof StyleRule>).extraInitializers = [];
+  StyleMap.define(StyleRule.prototype, StyleRule.initializerMap, StyleRule.extraInitializers);
 
   StyleRule.construct = function <F extends StyleRule<any>>(rule: F | null, owner: FastenerOwner<F>): F {
     if (rule === null) {
@@ -263,6 +288,10 @@ export const StyleRule = (function (_super: typeof CssRule) {
       Object.setPrototypeOf(rule, this.prototype);
     }
     rule = _super.construct.call(this, rule, owner) as F;
+    __runInitializers(this, StyleRule.extraInitializers);
+    for (const key in StyleRule.initializerMap) {
+      (this as any)[key] = __runInitializers(this, StyleRule.initializerMap[key]!, void 0);
+    }
     if (rule.style !== void 0) {
       StyleMap.init(rule, rule.style);
     }

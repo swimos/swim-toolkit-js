@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyTransform, Transform} from "@swim/math";
-import {StyleAnimatorClass, StyleAnimator} from "./StyleAnimator";
+import type {AnyTransform} from "@swim/math";
+import {Transform} from "@swim/math";
+import type {StyleAnimatorClass} from "./StyleAnimator";
+import {StyleAnimator} from "./StyleAnimator";
 
 /** @internal */
 export interface TransformStyleAnimator<O = unknown, T extends Transform | null = Transform | null, U extends AnyTransform | null = AnyTransform | T> extends StyleAnimator<O, T, U> {

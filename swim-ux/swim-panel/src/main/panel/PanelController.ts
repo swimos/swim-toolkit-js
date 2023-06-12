@@ -12,12 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Observes} from "@swim/util";
+import type {Class} from "@swim/util";
+import type {Observes} from "@swim/util";
 import type {Trait} from "@swim/model";
-import type {FastenerClass} from "@swim/component";
-import {View, ViewRef} from "@swim/view";
+import type {View} from "@swim/view";
+import {ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
-import {Controller, TraitViewRef, TraitViewControllerSet} from "@swim/controller";
+import {Controller} from "@swim/controller";
+import {TraitViewRef} from "@swim/controller";
+import {TraitViewControllerSet} from "@swim/controller";
 import {PanelView} from "./PanelView";
 import type {PanelControllerObserver} from "./PanelControllerObserver";
 
@@ -25,7 +28,7 @@ import type {PanelControllerObserver} from "./PanelControllerObserver";
 export class PanelController extends Controller {
   override readonly observerType?: Class<PanelControllerObserver>;
 
-  @TraitViewRef<PanelController["panel"]>({
+  @TraitViewRef({
     willAttachTrait(panelTrait: Trait): void {
       this.owner.callObservers("controllerWillAttachPanelTrait", panelTrait, this.owner);
     },
@@ -70,9 +73,8 @@ export class PanelController extends Controller {
     },
   })
   readonly panel!: TraitViewRef<this, Trait, PanelView> & Observes<PanelView>;
-  static readonly panel: FastenerClass<PanelController["panel"]>;
 
-  @ViewRef<PanelController["panelHeader"]>({
+  @ViewRef({
     viewType: HtmlView,
     viewKey: true,
     get parentView(): View | null {
@@ -86,9 +88,8 @@ export class PanelController extends Controller {
     },
   })
   readonly panelHeader!: ViewRef<this, HtmlView>;
-  static readonly panelHeader: FastenerClass<PanelController["panelHeader"]>;
 
-  @ViewRef<PanelController["panelTitle"]>({
+  @ViewRef({
     viewType: HtmlView,
     viewKey: true,
     get parentView(): View | null {
@@ -107,9 +108,8 @@ export class PanelController extends Controller {
   readonly panelTitle!: ViewRef<this, HtmlView> & {
     setText(title: string | undefined): HtmlView,
   };
-  static readonly panelTitle: FastenerClass<PanelController["panelTitle"]>;
 
-  @ViewRef<PanelController["panelSubtitle"]>({
+  @ViewRef({
     viewType: HtmlView,
     viewKey: true,
     get parentView(): View | null {
@@ -128,10 +128,11 @@ export class PanelController extends Controller {
   readonly panelSubtitle!: ViewRef<this, HtmlView> & {
     setText(subtitle: string | undefined): HtmlView,
   };
-  static readonly panelSubtitle: FastenerClass<PanelController["panelSubtitle"]>;
 
-  @TraitViewControllerSet<PanelController["panes"]>({
-    controllerType: PanelController,
+  @TraitViewControllerSet({
+    get controllerType(): typeof PanelController {
+      return PanelController;
+    },
     binds: true,
     observes: true,
     get parentView(): View | null {
@@ -201,5 +202,4 @@ export class PanelController extends Controller {
     attachPaneView(paneView: PanelView, paneController: PanelController): void,
     detachPaneView(paneView: PanelView, paneController: PanelController): void,
   };
-  static readonly panes: FastenerClass<PanelController["panes"]>;
 }

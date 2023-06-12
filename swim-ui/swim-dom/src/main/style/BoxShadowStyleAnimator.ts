@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyBoxShadow, BoxShadow} from "@swim/style";
-import {StyleAnimatorClass, StyleAnimator} from "./StyleAnimator";
+import type {AnyBoxShadow} from "@swim/style";
+import {BoxShadow} from "@swim/style";
+import type {StyleAnimatorClass} from "./StyleAnimator";
+import {StyleAnimator} from "./StyleAnimator";
 
 /** @internal */
 export interface BoxShadowStyleAnimator<O = unknown, T extends BoxShadow | null = BoxShadow | null, U extends AnyBoxShadow | null = AnyBoxShadow | T> extends StyleAnimator<O, T, U> {

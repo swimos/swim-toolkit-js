@@ -12,11 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Class, Proto, Observes} from "@swim/util";
+import type {Mutable} from "@swim/util";
+import type {Class} from "@swim/util";
+import type {Proto} from "@swim/util";
+import type {Observes} from "@swim/util";
 import type {FastenerOwner} from "@swim/component";
-import type {ModelFactory, Model} from "../model/Model";
-import {ModelRefDescriptor, ModelRefClass, ModelRef} from "../model/ModelRef";
-import {AnyTrait, TraitFactory, Trait} from "./Trait";
+import type {ModelFactory} from "../model/Model";
+import type {Model} from "../model/Model";
+import type {ModelRefDescriptor} from "../model/ModelRef";
+import type {ModelRefClass} from "../model/ModelRef";
+import {ModelRef} from "../model/ModelRef";
+import type {AnyTrait} from "./Trait";
+import type {TraitFactory} from "./Trait";
+import {Trait} from "./Trait";
 
 /** @public */
 export type TraitModelRefTrait<F extends TraitModelRef<any, any, any>> =
@@ -27,8 +35,13 @@ export type TraitModelRefModel<F extends TraitModelRef<any, any, any>> =
   F extends {modelType?: ModelFactory<infer M>} ? M : never;
 
 /** @public */
+export type TraitModelRefDecorator<F extends TraitModelRef<any, any, any>> = {
+  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
+};
+
+/** @public */
 export interface TraitModelRefDescriptor<T extends Trait = Trait, M extends Model = Model> extends ModelRefDescriptor<M> {
-  extends?: Proto<TraitModelRef<any, any, any>> | string | boolean | null;
+  extends?: Proto<TraitModelRef<any, any, any>> | boolean | null;
   traitType?: TraitFactory<T>;
   traitKey?: string | boolean;
   observesTrait?: boolean;
@@ -49,15 +62,15 @@ export interface TraitModelRefClass<F extends TraitModelRef<any, any, any> = Tra
   refine(fastenerClass: TraitModelRefClass<any>): void;
 
   /** @override */
-  extend<F2 extends F>(className: string, template: TraitModelRefTemplate<F2>): TraitModelRefClass<F2>;
-  extend<F2 extends F>(className: string, template: TraitModelRefTemplate<F2>): TraitModelRefClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: TraitModelRefTemplate<F2>): TraitModelRefClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: TraitModelRefTemplate<F2>): TraitModelRefClass<F2>;
 
   /** @override */
-  define<F2 extends F>(className: string, template: TraitModelRefTemplate<F2>): TraitModelRefClass<F2>;
-  define<F2 extends F>(className: string, template: TraitModelRefTemplate<F2>): TraitModelRefClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: TraitModelRefTemplate<F2>): TraitModelRefClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: TraitModelRefTemplate<F2>): TraitModelRefClass<F2>;
 
   /** @override */
-  <F2 extends F>(template: TraitModelRefTemplate<F2>): PropertyDecorator;
+  <F2 extends F>(template: TraitModelRefTemplate<F2>): TraitModelRefDecorator<F2>;
 }
 
 /** @public */
@@ -148,8 +161,9 @@ export const TraitModelRef = (function (_super: typeof ModelRef) {
     const trait = this.trait;
     if (trait === null) {
       let message = trait + " ";
-      if (this.name.length !== 0) {
-        message += this.name + " ";
+      const name = this.name.toString();
+      if (name.length !== 0) {
+        message += name + " ";
       }
       message += "trait";
       throw new TypeError(message);
@@ -356,8 +370,9 @@ export const TraitModelRef = (function (_super: typeof ModelRef) {
     }
     if (trait === void 0 || trait === null) {
       let message = "Unable to create ";
-      if (this.name.length !== 0) {
-        message += this.name + " ";
+      const name = this.name.toString();
+      if (name.length !== 0) {
+        message += name + " ";
       }
       message += "trait";
       throw new Error(message);
@@ -388,11 +403,11 @@ export const TraitModelRef = (function (_super: typeof ModelRef) {
       const targetTrait = targetModel !== null ? this.detectModelTrait(targetModel) : null;
       this.attachTrait(trait, targetTrait);
     }
-    ModelRef.prototype.onAttachModel.call(this, model, targetModel);
+    _super.prototype.onAttachModel.call(this, model, targetModel);
   };
 
   TraitModelRef.prototype.onDetachModel = function <T extends Trait, M extends Model>(this: TraitModelRef<unknown, T, M>, model: M): void {
-    ModelRef.prototype.onDetachModel.call(this, model);
+    _super.prototype.onDetachModel.call(this, model);
     this.detachTrait();
   };
 

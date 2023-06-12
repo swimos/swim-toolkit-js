@@ -12,9 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Class} from "@swim/util";
-import {FastenerClass, EventHandler, Service} from "@swim/component";
-import {ControllerFlags, Controller} from "../controller/Controller";
+import type {Mutable} from "@swim/util";
+import type {Class} from "@swim/util";
+import {EventHandler} from "@swim/component";
+import {Service} from "@swim/component";
+import type {ControllerFlags} from "../controller/Controller";
+import {Controller} from "../controller/Controller";
 import {ControllerSet} from "../controller/ControllerSet";
 import type {ExecutorServiceObserver} from "./ExecutorServiceObserver";
 
@@ -34,7 +37,7 @@ export class ExecutorService extends Service {
 
   override readonly observerType?: Class<ExecutorServiceObserver>;
 
-  @ControllerSet<ExecutorService["roots"]>({
+  @ControllerSet({
     initController(rootController: Controller): void {
       this.owner.requestUpdate(rootController, rootController.flags & Controller.UpdateMask, false);
     },
@@ -52,7 +55,6 @@ export class ExecutorService extends Service {
     },
   })
   readonly roots!: ControllerSet<this, Controller>;
-  static readonly roots: FastenerClass<ExecutorService["roots"]>;
 
   /** @internal */
   readonly updateFlags: ControllerFlags;
@@ -235,7 +237,7 @@ export class ExecutorService extends Service {
     this.updateDelay = ExecutorService.MinUpdateDelay;
   }
 
-  @EventHandler<ExecutorService["visibilityChange"]>({
+  @EventHandler({
     type: "visibilitychange",
     initTarget(): EventTarget | null {
       if (typeof document !== "undefined") {
@@ -253,7 +255,6 @@ export class ExecutorService extends Service {
     },
   })
   readonly visibilityChange!: EventHandler<this>;
-  static readonly visibilityChange: FastenerClass<ExecutorService["visibilityChange"]>;
 
   /** @internal */
   static MinUpdateDelay: number = 0;

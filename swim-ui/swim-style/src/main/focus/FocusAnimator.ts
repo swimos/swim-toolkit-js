@@ -13,8 +13,11 @@
 // limitations under the License.
 
 import type {AnyTiming} from "@swim/util";
-import {Affinity, AnimatorClass, Animator} from "@swim/component";
-import {AnyFocus, Focus} from "./Focus";
+import {Affinity} from "@swim/component";
+import type {AnimatorClass} from "@swim/component";
+import {Animator} from "@swim/component";
+import type {AnyFocus} from "./Focus";
+import {Focus} from "./Focus";
 
 /** @public */
 export interface FocusAnimator<O = unknown, T extends Focus | null | undefined = Focus | null | undefined, U extends AnyFocus | null | undefined = AnyFocus | T> extends Animator<O, T, U> {

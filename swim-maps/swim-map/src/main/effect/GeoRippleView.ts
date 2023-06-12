@@ -12,14 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Class, AnyTiming, Timing, Easing, Observes} from "@swim/util";
-import {Affinity, FastenerClass, Animator} from "@swim/component";
-import {AnyLength, Length, AnyR2Point, R2Point, R2Box} from "@swim/math";
-import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
-import {AnyColor, Color} from "@swim/style";
-import {Look, Mood, AnyColorOrLook, ThemeAnimator} from "@swim/theme";
-import {View, ViewRef} from "@swim/view";
-import {StrokeView, PaintingContext, PaintingRenderer} from "@swim/graphics";
+import type {Mutable} from "@swim/util";
+import type {Class} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {Timing} from "@swim/util";
+import {Easing} from "@swim/util";
+import type {Observes} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Animator} from "@swim/component";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import type {AnyR2Point} from "@swim/math";
+import {R2Point} from "@swim/math";
+import {R2Box} from "@swim/math";
+import type {AnyGeoPoint} from "@swim/geo";
+import {GeoPoint} from "@swim/geo";
+import {GeoBox} from "@swim/geo";
+import type {AnyColor} from "@swim/style";
+import {Color} from "@swim/style";
+import {Look} from "@swim/theme";
+import {Mood} from "@swim/theme";
+import type {AnyColorOrLook} from "@swim/theme";
+import {ThemeAnimator} from "@swim/theme";
+import {View} from "@swim/view";
+import {ViewRef} from "@swim/view";
+import type {StrokeView} from "@swim/graphics";
+import type {PaintingContext} from "@swim/graphics";
+import {PaintingRenderer} from "@swim/graphics";
 import {GeoView} from "../geo/GeoView";
 import type {GeoRippleViewObserver} from "./GeoRippleViewObserver";
 
@@ -49,7 +68,7 @@ export class GeoRippleView extends GeoView implements StrokeView {
 
   override readonly observerType?: Class<GeoRippleViewObserver>;
 
-  @Animator<GeoRippleView["geoCenter"]>({
+  @Animator({
     valueType: GeoPoint,
     value: null,
     didSetState(geoCenter: GeoPoint | null): void {
@@ -65,7 +84,7 @@ export class GeoRippleView extends GeoView implements StrokeView {
   })
   readonly geoCenter!: Animator<this, GeoPoint | null, AnyGeoPoint | null>;
 
-  @Animator<GeoRippleView["viewCenter"]>({
+  @Animator({
     valueType: R2Point,
     value: R2Point.undefined(),
     updateFlags: View.NeedsRender,
@@ -75,7 +94,7 @@ export class GeoRippleView extends GeoView implements StrokeView {
   })
   readonly viewCenter!: Animator<this, R2Point | null, AnyR2Point | null>;
 
-  @ThemeAnimator<GeoRippleView["radius"]>({
+  @ThemeAnimator({
     valueType: Length,
     value: Length.zero(),
     updateFlags: View.NeedsRender,
@@ -92,7 +111,7 @@ export class GeoRippleView extends GeoView implements StrokeView {
   @ThemeAnimator({valueType: Length, value: Length.px(1), inherits: true, updateFlags: View.NeedsRender})
   readonly strokeWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
 
-  @ViewRef<GeoRippleView["source"]>({
+  @ViewRef({
     observes: true,
     didAttachView(sourceView: GeoView): void {
       this.owner.geoCenter.setState(sourceView.geoBounds.center, Affinity.Intrinsic);
@@ -105,7 +124,6 @@ export class GeoRippleView extends GeoView implements StrokeView {
     },
   })
   readonly source!: ViewRef<this, GeoView> & Observes<GeoView>;
-  static readonly source: FastenerClass<GeoRippleView["source"]>;
 
   protected override onProject(): void {
     super.onProject();

@@ -12,15 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Lazy, Equals, Equivalent, Mutable, Values, Interpolate, Interpolator} from "@swim/util";
-import {Output, Parser, Debug, Diagnostic, Unicode} from "@swim/codec";
-import type {Value, Form} from "@swim/structure";
+import {Lazy} from "@swim/util";
+import type {Mutable} from "@swim/util";
+import {Values} from "@swim/util";
+import type {Equals} from "@swim/util";
+import type {Equivalent} from "@swim/util";
+import type {Interpolate} from "@swim/util";
+import type {Interpolator} from "@swim/util";
+import {Diagnostic} from "@swim/codec";
+import type {Output} from "@swim/codec";
+import {Parser} from "@swim/codec";
+import type {Debug} from "@swim/codec";
+import {Unicode} from "@swim/codec";
+import type {Value} from "@swim/structure";
+import type {Form} from "@swim/structure";
 import type {FontStyle} from "./FontStyle";
 import type {FontVariant} from "./FontVariant";
 import type {FontWeight} from "./FontWeight";
 import type {FontStretch} from "./FontStretch";
-import {AnyFontSize, FontSize} from "./FontSize";
-import {AnyLineHeight, LineHeight} from "./LineHeight";
+import type {AnyFontSize} from "./FontSize";
+import {FontSize} from "./FontSize";
+import type {AnyLineHeight} from "./LineHeight";
+import {LineHeight} from "./LineHeight";
 import {FontFamily} from "./FontFamily";
 import {FontInterpolator} from "../"; // forward import
 import {FontForm} from "../"; // forward import

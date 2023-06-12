@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Observes} from "@swim/util";
-import type {FastenerClass} from "@swim/component";
+import type {Class} from "@swim/util";
+import type {Observes} from "@swim/util";
 import type {Graphics} from "@swim/graphics";
 import {TraitViewRef} from "@swim/controller";
 import {CellController} from "./CellController";
@@ -32,7 +32,7 @@ export class IconCellController extends CellController {
     }
   }
 
-  @TraitViewRef<IconCellController["cell"]>({
+  @TraitViewRef({
     extends: true,
     traitType: IconCellTrait,
     observesTrait: true,
@@ -57,6 +57,5 @@ export class IconCellController extends CellController {
       this.owner.callObservers("controllerDidSetCellIcon", cellIcon, this.owner);
     },
   })
-  override readonly cell!: TraitViewRef<this, IconCellTrait, IconCellView> & CellController["cell"] & Observes<IconCellTrait & IconCellView>;
-  static override readonly cell: FastenerClass<IconCellController["cell"]>;
+  override readonly cell!: TraitViewRef<this, IconCellTrait, IconCellView> & CellController["cell"] & Observes<IconCellTrait> & Observes<IconCellView>;
 }

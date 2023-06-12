@@ -12,10 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Spec, Test, Exam} from "@swim/unit";
-import {Feel, MoodVector} from "@swim/theme";
+import type {Exam} from "@swim/unit";
+import {Test} from "@swim/unit";
+import {Suite} from "@swim/unit";
+import {Feel} from "@swim/theme";
+import {MoodVector} from "@swim/theme";
 
-export class MoodVectorSpec extends Spec {
+export class MoodVectorSpec extends Suite {
   @Test
   testEmpty(exam: Exam): void {
     const vector = MoodVector.empty();

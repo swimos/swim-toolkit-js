@@ -12,8 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Equals, Lazy, Arrays} from "@swim/util";
-import {Debug, Format, Output} from "@swim/codec";
+import {Lazy} from "@swim/util";
+import {Arrays} from "@swim/util";
+import type {Equals} from "@swim/util";
+import type {Output} from "@swim/codec";
+import type {Debug} from "@swim/codec";
+import {Format} from "@swim/codec";
 import type {Feel} from "../feel/Feel";
 import type {Mood} from "./Mood";
 
@@ -216,7 +220,7 @@ export class MoodVector<M extends Mood = Feel> implements Equals, Debug {
         if (combination === void 0) {
           combination = x * y;
         } else {
-          combination += x * y
+          combination += x * y;
         }
       }
     }

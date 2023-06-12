@@ -12,17 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Proto, Observes} from "@swim/util";
-import {FastenerOwner, FastenerDescriptor, FastenerClass, Fastener} from "@swim/component";
-import {AnyView, ViewFactory, View} from "./View";
+import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
+import type {Observes} from "@swim/util";
+import type {FastenerOwner} from "@swim/component";
+import type {FastenerDescriptor} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
+import {Fastener} from "@swim/component";
+import type {AnyView} from "./View";
+import type {ViewFactory} from "./View";
+import {View} from "./View";
 
 /** @public */
 export type ViewRelationView<F extends ViewRelation<any, any>> =
   F extends {viewType?: ViewFactory<infer V>} ? V : never;
 
 /** @public */
+export type ViewRelationDecorator<F extends ViewRelation<any, any>> = {
+  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
+};
+
+/** @public */
 export interface ViewRelationDescriptor<V extends View = View> extends FastenerDescriptor {
-  extends?: Proto<ViewRelation<any, any>> | string | boolean | null;
+  extends?: Proto<ViewRelation<any, any>> | boolean | null;
   viewType?: ViewFactory<V>;
   binds?: boolean;
   observes?: boolean;
@@ -43,15 +55,15 @@ export interface ViewRelationClass<F extends ViewRelation<any, any> = ViewRelati
   refine(fastenerClass: ViewRelationClass<any>): void;
 
   /** @override */
-  extend<F2 extends F>(className: string, template: ViewRelationTemplate<F2>): ViewRelationClass<F2>;
-  extend<F2 extends F>(className: string, template: ViewRelationTemplate<F2>): ViewRelationClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: ViewRelationTemplate<F2>): ViewRelationClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: ViewRelationTemplate<F2>): ViewRelationClass<F2>;
 
   /** @override */
-  define<F2 extends F>(className: string, template: ViewRelationTemplate<F2>): ViewRelationClass<F2>;
-  define<F2 extends F>(className: string, template: ViewRelationTemplate<F2>): ViewRelationClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: ViewRelationTemplate<F2>): ViewRelationClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: ViewRelationTemplate<F2>): ViewRelationClass<F2>;
 
   /** @override */
-  <F2 extends F>(template: ViewRelationTemplate<F2>): PropertyDecorator;
+  <F2 extends F>(template: ViewRelationTemplate<F2>): ViewRelationDecorator<F2>;
 }
 
 /** @public */
@@ -63,7 +75,7 @@ export interface ViewRelation<O = unknown, V extends View = View> extends Fasten
   readonly observes?: boolean; // optional prototype property
 
   /** @internal @override */
-  getSuper(): ViewRelation<unknown, V> | null;
+  getParent(): ViewRelation<unknown, V> | null;
 
   /** @internal @override */
   setDerived(derived: boolean, inlet: ViewRelation<unknown, V>): void;
@@ -167,7 +179,6 @@ export interface ViewRelation<O = unknown, V extends View = View> extends Fasten
 export const ViewRelation = (function (_super: typeof Fastener) {
   const ViewRelation = _super.extend("ViewRelation", {
     lazy: false,
-    static: true,
   }) as ViewRelationClass;
 
   Object.defineProperty(ViewRelation.prototype, "fastenerType", {
@@ -272,8 +283,9 @@ export const ViewRelation = (function (_super: typeof Fastener) {
     }
     if (view === void 0 || view === null) {
       let message = "Unable to create ";
-      if (this.name.length !== 0) {
-        message += this.name + " ";
+      const name = this.name.toString();
+      if (name.length !== 0) {
+        message += name + " ";
       }
       message += "view";
       throw new Error(message);

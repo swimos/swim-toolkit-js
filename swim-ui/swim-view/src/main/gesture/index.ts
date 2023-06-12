@@ -12,50 +12,44 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  GestureInputType,
-  GestureInput,
-} from "./GestureInput";
-export {
-  GestureMethod,
-  GestureView,
-  GestureDescriptor,
-  GestureTemplate,
-  GestureClass,
-  Gesture,
-} from "./Gesture";
+export type {GestureInputType} from "./GestureInput";
+export {GestureInput} from "./GestureInput";
+export type {GestureMethod} from "./Gesture";
+export type {GestureView} from "./Gesture";
+export type {GestureDecorator} from "./Gesture";
+export type {GestureDescriptor} from "./Gesture";
+export type {GestureTemplate} from "./Gesture";
+export type {GestureClass} from "./Gesture";
+export {Gesture} from "./Gesture";
 
 export {PositionGestureInput} from "./PositionGestureInput";
-export {
-  PositionGestureDescriptor,
-  PositionGestureTemplate,
-  PositionGestureClass,
-  PositionGesture,
-} from "./PositionGesture";
+export type {PositionGestureDecorator} from "./PositionGesture";
+export type {PositionGestureDescriptor} from "./PositionGesture";
+export type {PositionGestureTemplate} from "./PositionGesture";
+export type {PositionGestureClass} from "./PositionGesture";
+export {PositionGesture} from "./PositionGesture";
 export {PointerPositionGesture} from "./PointerPositionGesture";
 export {TouchPositionGesture} from "./TouchPositionGesture";
 export {MousePositionGesture} from "./MousePositionGesture";
 
 export {MomentumGestureInput} from "./MomentumGestureInput";
-export {
-  MomentumGestureDescriptor,
-  MomentumGestureTemplate,
-  MomentumGestureClass,
-  MomentumGesture,
-} from "./MomentumGesture";
+export type {MomentumGestureDecorator} from "./MomentumGesture";
+export type {MomentumGestureDescriptor} from "./MomentumGesture";
+export type {MomentumGestureTemplate} from "./MomentumGesture";
+export type {MomentumGestureClass} from "./MomentumGesture";
+export {MomentumGesture} from "./MomentumGesture";
 export {PointerMomentumGesture} from "./PointerMomentumGesture";
 export {TouchMomentumGesture} from "./TouchMomentumGesture";
 export {MouseMomentumGesture} from "./MouseMomentumGesture";
 
 export {ScaleGestureInput} from "./ScaleGestureInput";
-export {
-  ScaleGestureX,
-  ScaleGestureY,
-  ScaleGestureDescriptor,
-  ScaleGestureTemplate,
-  ScaleGestureClass,
-  ScaleGesture,
-} from "./ScaleGesture";
+export type {ScaleGestureX} from "./ScaleGesture";
+export type {ScaleGestureY} from "./ScaleGesture";
+export type {ScaleGestureDecorator} from "./ScaleGesture";
+export type {ScaleGestureDescriptor} from "./ScaleGesture";
+export type {ScaleGestureTemplate} from "./ScaleGesture";
+export type {ScaleGestureClass} from "./ScaleGesture";
+export {ScaleGesture} from "./ScaleGesture";
 export {PointerScaleGesture} from "./PointerScaleGesture";
 export {TouchScaleGesture} from "./TouchScaleGesture";
 export {MouseScaleGesture} from "./MouseScaleGesture";

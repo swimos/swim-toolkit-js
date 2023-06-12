@@ -13,13 +13,11 @@
 // limitations under the License.
 
 export {TabBarController} from "./TabBarController";
-export {TabBarControllerObserver} from "./TabBarControllerObserver";
+export type {TabBarControllerObserver} from "./TabBarControllerObserver";
 
-export {
-  BinderTabStyle,
-  BinderView,
-} from "./BinderView";
-export {BinderViewObserver} from "./BinderViewObserver";
+export type {BinderTabStyle} from "./BinderView";
+export {BinderView} from "./BinderView";
+export type {BinderViewObserver} from "./BinderViewObserver";
 
 export {BinderController} from "./BinderController";
-export {BinderControllerObserver} from "./BinderControllerObserver";
+export type {BinderControllerObserver} from "./BinderControllerObserver";

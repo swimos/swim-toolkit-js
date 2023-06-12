@@ -12,16 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  ThemeAnimatorDescriptor,
-  ThemeAnimatorTemplate,
-  ThemeAnimatorClass,
-  ThemeAnimator,
-} from "./ThemeAnimator";
+export type {ThemeAnimatorDecorator} from "./ThemeAnimator";
+export type {ThemeAnimatorDescriptor} from "./ThemeAnimator";
+export type {ThemeAnimatorTemplate} from "./ThemeAnimator";
+export type {ThemeAnimatorClass} from "./ThemeAnimator";
+export {ThemeAnimator} from "./ThemeAnimator";
 
-export {
-  ThemeConstraintAnimatorDescriptor,
-  ThemeConstraintAnimatorTemplate,
-  ThemeConstraintAnimatorClass,
-  ThemeConstraintAnimator,
-} from "./ThemeConstraintAnimator";
+export type {ThemeConstraintAnimatorDecorator} from "./ThemeConstraintAnimator";
+export type {ThemeConstraintAnimatorDescriptor} from "./ThemeConstraintAnimator";
+export type {ThemeConstraintAnimatorTemplate} from "./ThemeConstraintAnimator";
+export type {ThemeConstraintAnimatorClass} from "./ThemeConstraintAnimator";
+export {ThemeConstraintAnimator} from "./ThemeConstraintAnimator";

@@ -12,14 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Instance, Creatable, Observes} from "@swim/util";
-import type {FastenerClass} from "@swim/component";
+import type {Class} from "@swim/util";
+import type {Instance} from "@swim/util";
+import type {Creatable} from "@swim/util";
+import type {Observes} from "@swim/util";
 import type {Trait} from "@swim/model";
-import {Look, Mood} from "@swim/theme";
-import {PositionGestureInput, View} from "@swim/view";
+import {Look} from "@swim/theme";
+import {Mood} from "@swim/theme";
+import {View} from "@swim/view";
+import type {PositionGestureInput} from "@swim/view";
 import type {HtmlView} from "@swim/dom";
 import type {Graphics} from "@swim/graphics";
-import {Controller, TraitViewRef, TraitViewControllerSet} from "@swim/controller";
+import {Controller} from "@swim/controller";
+import {TraitViewRef} from "@swim/controller";
+import {TraitViewControllerSet} from "@swim/controller";
 import type {ToolLayout} from "../layout/ToolLayout";
 import {BarLayout} from "../layout/BarLayout";
 import type {ToolView} from "../tool/ToolView";
@@ -35,7 +41,7 @@ import type {BarControllerObserver} from "./BarControllerObserver";
 export class BarController extends Controller {
   override readonly observerType?: Class<BarControllerObserver>;
 
-  @TraitViewRef<BarController["bar"]>({
+  @TraitViewRef({
     viewType: BarView,
     observesView: true,
     initView(barView: BarView): void {
@@ -65,7 +71,6 @@ export class BarController extends Controller {
     },
   })
   readonly bar!: TraitViewRef<this, Trait, BarView> & Observes<BarView>;
-  static readonly bar: FastenerClass<BarController["bar"]>;
 
   protected createLayout(): BarLayout | null {
     const tools = new Array<ToolLayout>();
@@ -147,7 +152,7 @@ export class BarController extends Controller {
     barView.setTool(key, toolView);
   }
 
-  @TraitViewControllerSet<BarController["tools"]>({
+  @TraitViewControllerSet({
     controllerType: ToolController,
     binds: true,
     observes: true,
@@ -239,13 +244,12 @@ export class BarController extends Controller {
       this.owner.callObservers("controllerDidLongPressToolView", input, toolController, this.owner);
     },
   })
-  readonly tools!: TraitViewControllerSet<this, Trait, ToolView, ToolController> & Observes<ToolController & TitleToolController & ButtonToolController & SearchToolController> & {
+  readonly tools!: TraitViewControllerSet<this, Trait, ToolView, ToolController> & Observes<ToolController> & Observes<TitleToolController> & Observes<ButtonToolController> & Observes<SearchToolController> & {
     attachToolView(toolView: ToolView, toolController: ToolController): void;
     detachToolView(toolView: ToolView, toolController: ToolController): void;
     attachToolContentView(toolContentView: HtmlView, toolController: ToolController): void;
     detachToolContentView(toolContentView: HtmlView, toolController: ToolController): void;
   };
-  static readonly tools: FastenerClass<BarController["tools"]>;
 
   protected override onAssemble(): void {
     super.onAssemble();

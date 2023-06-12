@@ -12,10 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Class, Objects} from "@swim/util";
+import type {Mutable} from "@swim/util";
+import type {Class} from "@swim/util";
+import {Objects} from "@swim/util";
 import {Service} from "@swim/component";
 import type {Uri} from "@swim/uri";
-import {HistoryStateInit, HistoryState} from "./HistoryState";
+import type {HistoryStateInit} from "./HistoryState";
+import {HistoryState} from "./HistoryState";
 import type {HistoryServiceObserver} from "./HistoryServiceObserver";
 
 /** @public */

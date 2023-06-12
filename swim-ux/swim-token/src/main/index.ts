@@ -12,15 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  TokenViewState,
-  TokenViewInit,
-  TokenView,
-} from "./TokenView";
-export {TokenViewObserver} from "./TokenViewObserver";
+export type {TokenViewState} from "./TokenView";
+export type {TokenViewInit} from "./TokenView";
+export {TokenView} from "./TokenView";
+export type {TokenViewObserver} from "./TokenViewObserver";
 
-export {
-  InputTokenViewInit,
-  InputTokenView,
-} from "./InputTokenView";
-export {InputTokenViewObserver} from "./InputTokenViewObserver";
+export type {InputTokenViewInit} from "./InputTokenView";
+export {InputTokenView} from "./InputTokenView";
+export type {InputTokenViewObserver} from "./InputTokenViewObserver";

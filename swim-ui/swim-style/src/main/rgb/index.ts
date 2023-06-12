@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  AnyRgbColor,
-  RgbColorInit,
-  RgbColor,
-} from "./RgbColor";
+export type {AnyRgbColor} from "./RgbColor";
+export type {RgbColorInit} from "./RgbColor";
+export {RgbColor} from "./RgbColor";
 export {RgbColorInterpolator} from "./RgbColorInterpolator";
 
 export {HexColorParser} from "./HexColorParser";

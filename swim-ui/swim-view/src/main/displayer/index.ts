@@ -13,4 +13,4 @@
 // limitations under the License.
 
 export {DisplayerService} from "./DisplayerService";
-export {DisplayerServiceObserver} from "./DisplayerServiceObserver";
+export type {DisplayerServiceObserver} from "./DisplayerServiceObserver";

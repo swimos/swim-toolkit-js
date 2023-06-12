@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Observes} from "@swim/util";
-import type {FastenerClass} from "@swim/component";
+import type {Class} from "@swim/util";
+import type {Observes} from "@swim/util";
 import type {PositionGestureInput} from "@swim/view";
-import {Controller, TraitViewRef} from "@swim/controller";
+import {Controller} from "@swim/controller";
+import {TraitViewRef} from "@swim/controller";
 import {CellView} from "./CellView";
 import {CellTrait} from "./CellTrait";
 import type {CellControllerObserver} from "./CellControllerObserver";
@@ -24,7 +25,7 @@ import type {CellControllerObserver} from "./CellControllerObserver";
 export class CellController extends Controller {
   override readonly observerType?: Class<CellControllerObserver>;
 
-  @TraitViewRef<CellController["cell"]>({
+  @TraitViewRef({
     traitType: CellTrait,
     willAttachTrait(cellTrait: CellTrait): void {
       this.owner.callObservers("controllerWillAttachCellTrait", cellTrait, this.owner);
@@ -48,5 +49,4 @@ export class CellController extends Controller {
     },
   })
   readonly cell!: TraitViewRef<this, CellTrait, CellView> & Observes<CellView>;
-  static readonly cell: FastenerClass<CellController["cell"]>;
 }

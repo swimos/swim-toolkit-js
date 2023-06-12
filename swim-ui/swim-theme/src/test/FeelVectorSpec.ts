@@ -12,11 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Spec, Test, Exam} from "@swim/unit";
+import type {Exam} from "@swim/unit";
+import {Test} from "@swim/unit";
+import {Suite} from "@swim/unit";
 import {Color} from "@swim/style";
-import {Look, FeelVector} from "@swim/theme";
+import {Look} from "@swim/theme";
+import {FeelVector} from "@swim/theme";
 
-export class FeelVectorSpec extends Spec {
+export class FeelVectorSpec extends Suite {
   @Test
   testEmpty(exam: Exam): void {
     const vector = FeelVector.empty();

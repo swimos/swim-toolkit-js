@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Observes} from "@swim/util";
-import type {FastenerClass} from "@swim/component";
+import type {Class} from "@swim/util";
+import type {Observes} from "@swim/util";
 import type {Trait} from "@swim/model";
 import type {View} from "@swim/view";
-import {TraitViewRef, TraitViewControllerSet} from "@swim/controller";
+import {TraitViewRef} from "@swim/controller";
+import {TraitViewControllerSet} from "@swim/controller";
 import {SheetController} from "@swim/sheet";
 import type {PanelView} from "../panel/PanelView";
 import {PanelController} from "../panel/PanelController";
@@ -27,14 +28,13 @@ import type {BoardControllerObserver} from "./BoardControllerObserver";
 export class BoardController extends SheetController {
   override readonly observerType?: Class<BoardControllerObserver>;
 
-  @TraitViewRef<BoardController["sheet"]>({
-    extends: SheetController.sheet,
+  @TraitViewRef({
+    extends: true,
     viewType: BoardView,
   })
   override readonly sheet!: TraitViewRef<this, Trait, BoardView> & SheetController["sheet"];
-  static override readonly sheet: FastenerClass<BoardController["sheet"]>;
 
-  @TraitViewControllerSet<BoardController["panels"]>({
+  @TraitViewControllerSet({
     controllerType: PanelController,
     binds: true,
     observes: true,
@@ -105,5 +105,4 @@ export class BoardController extends SheetController {
     attachPanelView(panelView: PanelView, panelController: PanelController): void,
     detachPanelView(panelView: PanelView, panelController: PanelController): void,
   };
-  static readonly panels: FastenerClass<BoardController["panels"]>;
 }

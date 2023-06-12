@@ -13,7 +13,12 @@
 // limitations under the License.
 
 import type {Color} from "@swim/style";
-import type {Look, Feel, MoodVectorUpdates, MoodVector, MoodMatrix, ThemeMatrix} from "@swim/theme";
+import type {Look} from "@swim/theme";
+import type {Feel} from "@swim/theme";
+import type {MoodVectorUpdates} from "@swim/theme";
+import type {MoodVector} from "@swim/theme";
+import type {MoodMatrix} from "@swim/theme";
+import type {ThemeMatrix} from "@swim/theme";
 import {Icon} from "./Icon";
 
 /** @public */

@@ -13,4 +13,4 @@
 // limitations under the License.
 
 export {RefresherService} from "./RefresherService";
-export {RefresherServiceObserver} from "./RefresherServiceObserver";
+export type {RefresherServiceObserver} from "./RefresherServiceObserver";

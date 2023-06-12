@@ -12,10 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Proto, Observes} from "@swim/util";
-import {FastenerOwner, FastenerDescriptor, FastenerClass, Fastener} from "@swim/component";
+import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
+import type {Observes} from "@swim/util";
+import type {FastenerOwner} from "@swim/component";
+import type {FastenerDescriptor} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
+import {Fastener} from "@swim/component";
 import {View} from "../view/View";
-import {GestureInputType, GestureInput} from "./GestureInput";
+import type {GestureInputType} from "./GestureInput";
+import {GestureInput} from "./GestureInput";
 
 /** @public */
 export type GestureMethod = "auto" | "pointer" | "touch" | "mouse";
@@ -25,8 +31,13 @@ export type GestureView<G extends Gesture<any, any>> =
   G extends {view: infer V | null} ? V : never;
 
 /** @public */
+export type GestureDecorator<G extends Gesture<any, any>> = {
+  <T>(target: unknown, context: ClassFieldDecoratorContext<T, G>): (this: T, value: G | undefined) => G;
+};
+
+/** @public */
 export interface GestureDescriptor<V extends View = View> extends FastenerDescriptor {
-  extends?: Proto<Gesture<any, any>> | string | boolean | null;
+  extends?: Proto<Gesture<any, any>> | boolean | null;
   method?: GestureMethod;
   viewKey?: string | boolean;
   bindsOwner?: boolean;
@@ -49,15 +60,15 @@ export interface GestureClass<G extends Gesture<any, any> = Gesture<any, any>> e
   refine(gestureClass: GestureClass<any>): void;
 
   /** @override */
-  extend<G2 extends G>(className: string, template: GestureTemplate<G2>): GestureClass<G2>;
-  extend<G2 extends G>(className: string, template: GestureTemplate<G2>): GestureClass<G2>;
+  extend<G2 extends G>(className: string | symbol, template: GestureTemplate<G2>): GestureClass<G2>;
+  extend<G2 extends G>(className: string | symbol, template: GestureTemplate<G2>): GestureClass<G2>;
 
   /** @override */
-  define<G2 extends G>(className: string, template: GestureTemplate<G2>): GestureClass<G2>;
-  define<G2 extends G>(className: string, template: GestureTemplate<G2>): GestureClass<G2>;
+  define<G2 extends G>(className: string | symbol, template: GestureTemplate<G2>): GestureClass<G2>;
+  define<G2 extends G>(className: string | symbol, template: GestureTemplate<G2>): GestureClass<G2>;
 
   /** @override */
-  <G2 extends G>(template: GestureTemplate<G2>): PropertyDecorator;
+  <G2 extends G>(template: GestureTemplate<G2>): GestureDecorator<G2>;
 }
 
 /** @public */
@@ -156,7 +167,6 @@ export interface Gesture<O = unknown, V extends View = View> extends Fastener<O>
 export const Gesture = (function (_super: typeof Fastener) {
   const Gesture = _super.extend("Gesture", {
     lazy: false,
-    static: true,
   }) as GestureClass;
 
   Object.defineProperty(Gesture.prototype, "fastenerType", {
@@ -167,7 +177,7 @@ export const Gesture = (function (_super: typeof Fastener) {
   Gesture.prototype.getView = function <V extends View>(this: Gesture<unknown, V>): V {
     const view = this.view;
     if (view === null) {
-      throw new TypeError("null " + this.name + " view");
+      throw new TypeError("null " + this.name.toString() + " view");
     }
     return view;
   };

@@ -13,8 +13,9 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {FastenerClass} from "@swim/component";
-import {Model, Trait, TraitSet} from "@swim/model";
+import type {Model} from "@swim/model";
+import {Trait} from "@swim/model";
+import {TraitSet} from "@swim/model";
 import {DataPointTrait} from "./DataPointTrait";
 import type {DataSetTraitObserver} from "./DataSetTraitObserver";
 
@@ -22,7 +23,7 @@ import type {DataSetTraitObserver} from "./DataSetTraitObserver";
 export class DataSetTrait<X = unknown, Y = unknown> extends Trait {
   override readonly observerType?: Class<DataSetTraitObserver<X, Y>>;
 
-  @TraitSet<DataSetTrait<X, Y>["dataPoints"]>({
+  @TraitSet({
     traitType: DataPointTrait,
     binds: true,
     willAttachTrait(dataPointTrait: DataPointTrait<X, Y>, targetTrait: Trait | null): void {
@@ -46,7 +47,6 @@ export class DataSetTrait<X = unknown, Y = unknown> extends Trait {
     },
   })
   readonly dataPoints!: TraitSet<this, DataPointTrait<X, Y>>;
-  static readonly dataPoints: FastenerClass<DataSetTrait["dataPoints"]>;
 
   protected override onStartConsuming(): void {
     super.onStartConsuming();

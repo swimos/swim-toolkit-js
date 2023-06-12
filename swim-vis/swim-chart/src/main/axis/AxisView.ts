@@ -12,16 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, AnyTiming, Timing, Easing, ContinuousScale} from "@swim/util";
+import type {Class} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {Timing} from "@swim/util";
+import {Easing} from "@swim/util";
+import type {ContinuousScale} from "@swim/util";
 import {Property} from "@swim/component";
 import {BTree} from "@swim/collections";
-import {AnyR2Point, R2Point, R2Box} from "@swim/math";
-import {AnyFont, Font, AnyColor, Color} from "@swim/style";
+import type {AnyR2Point} from "@swim/math";
+import {R2Point} from "@swim/math";
+import type {R2Box} from "@swim/math";
+import type {AnyFont} from "@swim/style";
+import {Font} from "@swim/style";
+import type {AnyColor} from "@swim/style";
+import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
-import {ViewFlags, View} from "@swim/view";
-import {GraphicsViewInit, GraphicsView, PaintingContext, PaintingRenderer} from "@swim/graphics";
+import type {ViewFlags} from "@swim/view";
+import {View} from "@swim/view";
+import type {GraphicsViewInit} from "@swim/graphics";
+import {GraphicsView} from "@swim/graphics";
+import type {PaintingContext} from "@swim/graphics";
+import {PaintingRenderer} from "@swim/graphics";
 import type {ContinuousScaleAnimator} from "../scaled/ContinuousScaleAnimator";
-import {AnyTickView, TickView} from "../tick/TickView";
+import type {AnyTickView} from "../tick/TickView";
+import {TickView} from "../tick/TickView";
 import {TickGenerator} from "../tick/TickGenerator";
 import type {AxisViewObserver} from "./AxisViewObserver";
 
@@ -118,7 +132,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   @ThemeAnimator({valueType: Number, value: 2, inherits: true, updateFlags: View.NeedsRender})
   readonly tickLabelPadding!: ThemeAnimator<this, number>;
 
-  @Property<AxisView["tickTransition"]>({
+  @Property({
     valueType: Timing,
     inherits: true,
     initValue(): Timing {

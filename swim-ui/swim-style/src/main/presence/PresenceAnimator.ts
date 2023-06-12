@@ -13,8 +13,11 @@
 // limitations under the License.
 
 import type {AnyTiming} from "@swim/util";
-import {Affinity, AnimatorClass, Animator} from "@swim/component";
-import {AnyPresence, Presence} from "./Presence";
+import {Affinity} from "@swim/component";
+import type {AnimatorClass} from "@swim/component";
+import {Animator} from "@swim/component";
+import type {AnyPresence} from "./Presence";
+import {Presence} from "./Presence";
 
 /** @public */
 export interface PresenceAnimator<O = unknown, T extends Presence | null | undefined = Presence | null | undefined, U extends AnyPresence | null | undefined = AnyPresence | T> extends Animator<O, T, U> {

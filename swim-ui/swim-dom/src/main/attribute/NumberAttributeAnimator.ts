@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AttributeAnimatorClass, AttributeAnimator} from "./AttributeAnimator";
+import type {AttributeAnimatorClass} from "./AttributeAnimator";
+import {AttributeAnimator} from "./AttributeAnimator";
 
 /** @internal */
 export interface NumberAttributeAnimator<O = unknown, T extends number | undefined = number | undefined, U extends number | string | undefined = number | string | T> extends AttributeAnimator<O, T, U> {

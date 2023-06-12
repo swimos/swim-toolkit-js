@@ -14,14 +14,19 @@
 
 import type {AnyTiming} from "@swim/util";
 import {Animator} from "@swim/component";
-import {AnyR2Point, R2Point} from "@swim/math";
-import {AnyFont, Font, AnyColor, Color} from "@swim/style";
+import type {AnyR2Point} from "@swim/math";
+import {R2Point} from "@swim/math";
+import type {AnyFont} from "@swim/style";
+import {Font} from "@swim/style";
+import type {AnyColor} from "@swim/style";
+import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
 import {GraphicsView} from "../graphics/GraphicsView";
 import type {CanvasContext} from "../canvas/CanvasContext";
 import {CanvasRenderer} from "../canvas/CanvasRenderer";
-import type {TypesetViewInit, TypesetView} from "./TypesetView";
+import type {TypesetViewInit} from "./TypesetView";
+import type {TypesetView} from "./TypesetView";
 import {TextRun} from "./TextRun";
 
 /** @public */

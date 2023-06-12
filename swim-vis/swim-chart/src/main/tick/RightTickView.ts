@@ -13,9 +13,13 @@
 // limitations under the License.
 
 import {Affinity} from "@swim/component";
-import {R2Point, R2Box} from "@swim/math";
-import {GraphicsView, PaintingContext, TypesetView} from "@swim/graphics";
-import {TickOrientation, TickView} from "./TickView";
+import {R2Point} from "@swim/math";
+import type {R2Box} from "@swim/math";
+import type {GraphicsView} from "@swim/graphics";
+import type {PaintingContext} from "@swim/graphics";
+import {TypesetView} from "@swim/graphics";
+import type {TickOrientation} from "./TickView";
+import {TickView} from "./TickView";
 
 /** @public */
 export class RightTickView<Y = unknown> extends TickView<Y> {

@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Arrays, Interpolator} from "@swim/util";
+import type {Mutable} from "@swim/util";
+import {Arrays} from "@swim/util";
+import {Interpolator} from "@swim/util";
 import type {Look} from "../look/Look";
 import {FeelVector} from "./FeelVector";
 

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 export {SheetView} from "./SheetView";
-export {SheetViewObserver} from "./SheetViewObserver";
+export type {SheetViewObserver} from "./SheetViewObserver";
 
 export {SheetController} from "./SheetController";
-export {SheetControllerObserver} from "./SheetControllerObserver";
+export type {SheetControllerObserver} from "./SheetControllerObserver";

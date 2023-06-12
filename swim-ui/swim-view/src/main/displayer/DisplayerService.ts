@@ -12,11 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Class, Observes} from "@swim/util";
-import {Affinity, FastenerClass, EventHandler, Provider, Service} from "@swim/component";
+import type {Mutable} from "@swim/util";
+import type {Class} from "@swim/util";
+import type {Observes} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {EventHandler} from "@swim/component";
+import {Provider} from "@swim/component";
+import {Service} from "@swim/component";
 import type {ViewIdiom} from "../view/ViewIdiom";
 import type {ViewInsets} from "../view/ViewInsets";
-import {ViewFlags, View} from "../view/View";
+import type {ViewFlags} from "../view/View";
+import {View} from "../view/View";
 import {ViewSet} from "../view/ViewSet";
 import type {LayoutViewport} from "../viewport/LayoutViewport";
 import type {VisualViewport} from "../viewport/VisualViewport";
@@ -40,7 +46,7 @@ export class DisplayerService extends Service {
 
   override readonly observerType?: Class<DisplayerServiceObserver>;
 
-  @ViewSet<DisplayerService["roots"]>({
+  @ViewSet({
     initView(rootView: View): void {
       this.owner.requestUpdate(rootView, rootView.flags & View.UpdateMask, false);
       const safeArea = this.owner.viewport.getService().safeArea.value;
@@ -70,9 +76,8 @@ export class DisplayerService extends Service {
     /** @internal */
     updateSafeArea(safeArea: ViewInsets): void,
   };
-  static readonly roots: FastenerClass<DisplayerService["roots"]>;
 
-  @Provider<DisplayerService["viewport"]>({
+  @Provider({
     serviceType: ViewportService,
     lazy: false,
     observes: true,
@@ -115,7 +120,6 @@ export class DisplayerService extends Service {
     }
   })
   readonly viewport!: Provider<this, ViewportService> & Observes<ViewportService>;
-  static readonly viewport: FastenerClass<DisplayerService["viewport"]>;
 
   /** @internal */
   readonly updateFlags: ViewFlags;
@@ -300,7 +304,7 @@ export class DisplayerService extends Service {
     this.updateDelay = DisplayerService.MinUpdateDelay;
   }
 
-  @EventHandler<DisplayerService["visibilityChange"]>({
+  @EventHandler({
     type: "visibilitychange",
     initTarget(): EventTarget | null {
       if (typeof document !== "undefined") {
@@ -318,7 +322,6 @@ export class DisplayerService extends Service {
     },
   })
   readonly visibilityChange!: EventHandler<this>;
-  static readonly visibilityChange: FastenerClass<DisplayerService["visibilityChange"]>;
 
   /** @internal */
   static MinUpdateDelay: number = 0;

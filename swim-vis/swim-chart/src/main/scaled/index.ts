@@ -15,17 +15,15 @@
 export {ContinuousScaleAnimator} from "./ContinuousScaleAnimator";
 
 export {ScaledXView} from "./ScaledXView";
-export {ScaledXViewObserver} from "./ScaledXViewObserver";
+export type {ScaledXViewObserver} from "./ScaledXViewObserver";
 
 export {ScaledYView} from "./ScaledYView";
-export {ScaledYViewObserver} from "./ScaledYViewObserver";
+export type {ScaledYViewObserver} from "./ScaledYViewObserver";
 
 export {ScaledXYView} from "./ScaledXYView";
-export {ScaledXYViewObserver} from "./ScaledXYViewObserver";
+export type {ScaledXYViewObserver} from "./ScaledXYViewObserver";
 
-export {
-  ScaledFlags,
-  ScaledViewInit,
-  ScaledView,
-} from "./ScaledView";
-export {ScaledViewObserver} from "./ScaledViewObserver";
+export type {ScaledFlags} from "./ScaledView";
+export type {ScaledViewInit} from "./ScaledView";
+export {ScaledView} from "./ScaledView";
+export type {ScaledViewObserver} from "./ScaledViewObserver";

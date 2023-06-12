@@ -12,14 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, Equivalent, AnyTiming, Timing, Observes} from "@swim/util";
-import {Affinity, FastenerClass, Property, Provider} from "@swim/component";
+import type {Mutable} from "@swim/util";
+import type {Class} from "@swim/util";
+import {Equivalent} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {Timing} from "@swim/util";
+import type {Observes} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
+import {Provider} from "@swim/component";
 import {GeoPoint} from "@swim/geo";
-import {Look, Mood} from "@swim/theme";
-import {View, ViewRef, ViewportColorScheme, ViewportService} from "@swim/view";
+import {Look} from "@swim/theme";
+import {Mood} from "@swim/theme";
+import {View} from "@swim/view";
+import {ViewRef} from "@swim/view";
+import type {ViewportColorScheme} from "@swim/view";
+import type {ViewportService} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import type {CanvasView} from "@swim/graphics";
-import {AnyGeoPerspective, GeoViewport, MapView} from "@swim/map";
+import type {AnyGeoPerspective} from "@swim/map";
+import type {GeoViewport} from "@swim/map";
+import {MapView} from "@swim/map";
 import {MapboxViewport} from "./MapboxViewport";
 import type {MapboxViewObserver} from "./MapboxViewObserver";
 
@@ -28,6 +41,8 @@ export class MapboxView extends MapView {
   constructor(map: mapboxgl.Map) {
     super();
     this.map = map;
+    (this.geoViewport as Mutable<typeof this.geoViewport>).value = MapboxViewport.create(map);
+
     this.onMapRender = this.onMapRender.bind(this);
     this.onMoveStart = this.onMoveStart.bind(this);
     this.onMoveEnd = this.onMoveEnd.bind(this);
@@ -49,11 +64,8 @@ export class MapboxView extends MapView {
     }
   }
 
-  @Property<MapboxView["geoViewport"]>({
+  @Property({
     extends: true,
-    initValue(): GeoViewport {
-      return MapboxViewport.create(this.owner.map);
-    },
     willSetValue(newGeoViewport: GeoViewport, oldGeoViewport: GeoViewport): void {
       this.owner.callObservers("viewWillSetGeoViewport", newGeoViewport, oldGeoViewport, this.owner);
     },
@@ -126,26 +138,25 @@ export class MapboxView extends MapView {
     this.callObservers("viewDidMoveMap", this);
   }
 
-  @ViewRef<MapboxView["canvas"]>({
+  @ViewRef({
     extends: true,
     didAttachView(canvasView: CanvasView, targetView: View | null): void {
       if (this.owner.parent === null) {
         canvasView.appendChild(this.owner);
         canvasView.setEventNode(this.owner.map.getCanvasContainer());
       }
-      MapView.canvas.prototype.didAttachView.call(this, canvasView, targetView);
+      super.didAttachView(canvasView, targetView);
     },
     willDetachView(canvasView: CanvasView): void {
-      MapView.canvas.prototype.willDetachView.call(this, canvasView);
+      super.willDetachView(canvasView);
       if (this.owner.parent === canvasView) {
         canvasView.removeChild(this.owner);
       }
     },
   })
   override readonly canvas!: ViewRef<this, CanvasView> & MapView["canvas"];
-  static override readonly canvas: FastenerClass<MapboxView["canvas"]>;
 
-  @ViewRef<MapboxView["container"]>({
+  @ViewRef({
     extends: true,
     didAttachView(containerView: HtmlView, targetView: View | null): void {
       HtmlView.fromNode(this.owner.map.getContainer());
@@ -171,10 +182,10 @@ export class MapboxView extends MapView {
           this.owner.bottomRightControls.setView(HtmlView.fromNode(bottomRightControlsNode));
         }
       }
-      MapView.container.prototype.didAttachView.call(this, containerView, targetView);
+      super.didAttachView(containerView, targetView);
     },
     willDetachView(containerView: HtmlView): void {
-      MapView.container.prototype.willDetachView.call(this, containerView);
+      super.willDetachView(containerView);
       const canvasView = this.owner.canvas.view;
       const canvasContainerView = HtmlView.fromNode(this.owner.map.getCanvasContainer());
       if (canvasView !== null && canvasView.parent === canvasContainerView) {
@@ -188,29 +199,28 @@ export class MapboxView extends MapView {
     },
   })
   override readonly container!: ViewRef<this, HtmlView> & MapView["container"];
-  static override readonly container: FastenerClass<MapboxView["container"]>;
 
-  @ViewRef<MapboxView["controlContainer"]>({
+  @ViewRef({
     viewType: HtmlView,
   })
   readonly controlContainer!: ViewRef<this, HtmlView>;
 
-  @ViewRef<MapboxView["topLeftControls"]>({
+  @ViewRef({
     viewType: HtmlView,
   })
   readonly topLeftControls!: ViewRef<this, HtmlView>;
 
-  @ViewRef<MapboxView["topRightControls"]>({
+  @ViewRef({
     viewType: HtmlView,
   })
   readonly topRightControls!: ViewRef<this, HtmlView>;
 
-  @ViewRef<MapboxView["bottomLeftControls"]>({
+  @ViewRef({
     viewType: HtmlView,
   })
   readonly bottomLeftControls!: ViewRef<this, HtmlView>;
 
-  @ViewRef<MapboxView["bottomRightControls"]>({
+  @ViewRef({
     viewType: HtmlView,
   })
   readonly bottomRightControls!: ViewRef<this, HtmlView>;
@@ -256,7 +266,7 @@ export class MapboxView extends MapView {
     }
   }
 
-  @Provider<MapboxView["viewport"]>({
+  @Provider({
     extends: true,
     observes: true,
     serviceDidSetViewportColorScheme(colorScheme: ViewportColorScheme): void {
@@ -264,9 +274,8 @@ export class MapboxView extends MapView {
     },
   })
   override readonly viewport!: Provider<this, ViewportService> & MapView["viewport"] & Observes<ViewportService>;
-  static override readonly viewport: FastenerClass<MapboxView["viewport"]>;
 
-  @Property<MapboxView["mapStyle"]>({
+  @Property({
     value: null,
     init(): void {
       this.dark = "mapbox://styles/mapbox/dark-v10";

@@ -13,10 +13,16 @@
 // limitations under the License.
 
 import type {Proto} from "@swim/util";
-import type {TraitFactory, Trait} from "@swim/model";
-import type {AnyView, ViewFactory, View} from "@swim/view";
-import type {ControllerFactory, Controller} from "../controller/Controller";
-import {ControllerRefDescriptor, ControllerRefClass, ControllerRef} from "../controller/ControllerRef";
+import type {TraitFactory} from "@swim/model";
+import type {Trait} from "@swim/model";
+import type {AnyView} from "@swim/view";
+import type {ViewFactory} from "@swim/view";
+import type {View} from "@swim/view";
+import type {ControllerFactory} from "../controller/Controller";
+import type {Controller} from "../controller/Controller";
+import type {ControllerRefDescriptor} from "../controller/ControllerRef";
+import type {ControllerRefClass} from "../controller/ControllerRef";
+import {ControllerRef} from "../controller/ControllerRef";
 import type {TraitViewRef} from "./TraitViewRef";
 
 /** @public */
@@ -32,8 +38,13 @@ export type TraitViewControllerRefController<F extends TraitViewControllerRef<an
   F extends {controllerType?: ControllerFactory<infer C>} ? C : never;
 
 /** @public */
+export type TraitViewControllerRefDecorator<F extends TraitViewControllerRef<any, any, any, any>> = {
+  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
+};
+
+/** @public */
 export interface TraitViewControllerRefDescriptor<T extends Trait = Trait, V extends View = View, C extends Controller = Controller> extends ControllerRefDescriptor<C> {
-  extends?: Proto<TraitViewControllerRef<any, any, any, any>> | string | boolean | null;
+  extends?: Proto<TraitViewControllerRef<any, any, any, any>> | boolean | null;
   traitType?: TraitFactory<T>;
   traitKey?: string | boolean;
   viewType?: ViewFactory<V>;
@@ -55,15 +66,15 @@ export interface TraitViewControllerRefClass<F extends TraitViewControllerRef<an
   refine(fastenerClass: TraitViewControllerRefClass<any>): void;
 
   /** @override */
-  extend<F2 extends F>(className: string, template: TraitViewControllerRefTemplate<F2>): TraitViewControllerRefClass<F2>;
-  extend<F2 extends F>(className: string, template: TraitViewControllerRefTemplate<F2>): TraitViewControllerRefClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: TraitViewControllerRefTemplate<F2>): TraitViewControllerRefClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: TraitViewControllerRefTemplate<F2>): TraitViewControllerRefClass<F2>;
 
   /** @override */
-  define<F2 extends F>(className: string, template: TraitViewControllerRefTemplate<F2>): TraitViewControllerRefClass<F2>;
-  define<F2 extends F>(className: string, template: TraitViewControllerRefTemplate<F2>): TraitViewControllerRefClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: TraitViewControllerRefTemplate<F2>): TraitViewControllerRefClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: TraitViewControllerRefTemplate<F2>): TraitViewControllerRefClass<F2>;
 
   /** @override */
-  <F2 extends F>(template: TraitViewControllerRefTemplate<F2>): PropertyDecorator;
+  <F2 extends F>(template: TraitViewControllerRefTemplate<F2>): TraitViewControllerRefDecorator<F2>;
 }
 
 /** @public */
@@ -149,8 +160,9 @@ export const TraitViewControllerRef = (function (_super: typeof ControllerRef) {
     const trait = this.trait;
     if (trait === null) {
       let message = trait + " ";
-      if (this.name.length !== 0) {
-        message += this.name + " ";
+      const name = this.name.toString();
+      if (name.length !== 0) {
+        message += name + " ";
       }
       message += "trait";
       throw new TypeError(message);
@@ -212,8 +224,9 @@ export const TraitViewControllerRef = (function (_super: typeof ControllerRef) {
     }
     if (trait === void 0 || trait === null) {
       let message = "Unable to create ";
-      if (this.name.length !== 0) {
-        message += this.name + " ";
+      const name = this.name.toString();
+      if (name.length !== 0) {
+        message += name + " ";
       }
       message += "trait";
       throw new Error(message);
@@ -242,8 +255,9 @@ export const TraitViewControllerRef = (function (_super: typeof ControllerRef) {
     const view = this.view;
     if (view === null) {
       let message = view + " ";
-      if (this.name.length !== 0) {
-        message += this.name + " ";
+      const name = this.name.toString();
+      if (name.length !== 0) {
+        message += name + " ";
       }
       message += "view";
       throw new TypeError(message);

@@ -13,7 +13,9 @@
 // limitations under the License.
 
 import type {Interpolator} from "@swim/util";
-import {AnyLength, Length, LengthInterpolator} from "@swim/math";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import {LengthInterpolator} from "@swim/math";
 import {Look} from "./Look";
 
 /** @public */

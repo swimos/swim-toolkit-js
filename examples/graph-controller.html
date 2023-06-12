@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=0, shrink-to-fit=no, viewport-fit=cover">
   </head>
   <body swim-theme style="position: fixed; display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; margin: 0; overflow: hidden;">
+    <script src="../../node_modules/tslib/tslib.js"></script>
     <script src="../../swim-runtime/swim-core/dist/swim-core.js"></script>
     <script src="../../swim-runtime/swim-host/dist/swim-host.js"></script>
     <script src="../swim-ui/dist/swim-ui.js"></script>
@@ -26,36 +27,50 @@ const canvasView = swim.CanvasView.create()
     .touchEventsEnabled(true)
     .touchAction("manipulation");
 
-class ExampleGraphController extends swim.GraphController {
-}
-swim.TraitViewRef({
-  extends: true,
-  initView(graphView) {
-    swim.GraphController.graph.prototype.initView.call(this, graphView);
-    graphView.xDomainPadding([Math.PI, Math.PI])
-             .yDomainPadding([1, 1])
-             .xRangePadding([2, 2])
-             .yRangePadding([2, 2])
-             .fitAspectRatio(-1 / 4)
-             .preserveAspectRatio(true)
-             .domainTracking(true)
-             .xScaleGestures(true)
-             .yScaleGestures(true);
-  },
-})(ExampleGraphController.prototype, "graph");
-swim.TraitViewControllerSet({
-  extends: true,
-  attachPlotView(plotView, plotController) {
-    swim.GraphController.plots.prototype.attachPlotView.call(this, plotView, plotController);
-    plotView.hitMode("plot");
-    plotView.addEventListener("pointerenter", function (event) {
-      plotView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, 1]], true);
-    });
-    plotView.addEventListener("pointerleave", function (event) {
-      plotView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, void 0]], true);
-    });
-  },
-})(ExampleGraphController.prototype, "plots");
+const ExampleGraphController = (function () {
+  const extraInitializers = [];
+  const graphInitializers = [];
+  const plotsInitializers = [];
+  class ExampleGraphController extends swim.GraphController {
+    constructor() {
+      super();
+      __runInitializers(this, extraInitializers);
+      this.graph = __runInitializers(this, graphInitializers, this.graph);
+      this.plots = __runInitializers(this, plotsInitializers, this.plots);
+    }
+  }
+
+  __esDecorate(null, null, [swim.TraitViewRef({
+    extends: true,
+    initView(graphView) {
+      super.initView(graphView);
+      graphView.xDomainPadding([Math.PI, Math.PI])
+               .yDomainPadding([1, 1])
+               .xRangePadding([2, 2])
+               .yRangePadding([2, 2])
+               .fitAspectRatio(-1 / 4)
+               .preserveAspectRatio(true)
+               .domainTracking(true)
+               .xScaleGestures(true)
+               .yScaleGestures(true);
+    },
+  })], {kind: "field", name: "graph", static: false, private: false, access: {has: obj => "graph" in obj, get: obj => obj.graph, set: (obj, value) => { obj.graph = value; }}}, graphInitializers, extraInitializers);
+  __esDecorate(null, null, [swim.TraitViewControllerSet({
+    extends: true,
+    attachPlotView(plotView, plotController) {
+      super.attachPlotView(plotView, plotController);
+      plotView.hitMode("plot");
+      plotView.addEventListener("pointerenter", function (event) {
+        plotView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, 1]], true);
+      });
+      plotView.addEventListener("pointerleave", function (event) {
+        plotView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, void 0]], true);
+      });
+    },
+  })], {kind: "field", name: "plots", static: false, private: false, access: {has: obj => "plots" in obj, get: obj => obj.plots, set: (obj, value) => { obj.plots = value; }}}, plotsInitializers, extraInitializers);
+
+  return ExampleGraphController;
+})();
 
 const plot1Model = new swim.Model();
 const plot1Trait = new swim.LinePlotTrait()

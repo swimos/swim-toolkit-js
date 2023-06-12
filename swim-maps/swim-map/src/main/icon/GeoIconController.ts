@@ -12,11 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, AnyTiming, Timing, Observes} from "@swim/util";
-import {Affinity, FastenerClass} from "@swim/component";
+import type {Class} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {Timing} from "@swim/util";
+import type {Observes} from "@swim/util";
+import {Affinity} from "@swim/component";
 import type {GeoPoint} from "@swim/geo";
-import {Look, Mood} from "@swim/theme";
-import type {Graphics, IconLayout} from "@swim/graphics";
+import {Look} from "@swim/theme";
+import {Mood} from "@swim/theme";
+import type {Graphics} from "@swim/graphics";
+import type {IconLayout} from "@swim/graphics";
 import {TraitViewRef} from "@swim/controller";
 import {GeoController} from "../geo/GeoController";
 import {GeoIconView} from "./GeoIconView";
@@ -79,7 +84,7 @@ export class GeoIconController extends GeoController {
     }
   }
 
-  @TraitViewRef<GeoIconController["geo"]>({
+  @TraitViewRef({
     traitType: GeoIconTrait,
     observesTrait: true,
     willAttachTrait(geoTrait: GeoIconTrait): void {
@@ -128,6 +133,5 @@ export class GeoIconController extends GeoController {
       this.owner.callObservers("controllerDidSetGraphics", graphics, this.owner);
     },
   })
-  override readonly geo!: TraitViewRef<this, GeoIconTrait, GeoIconView> & Observes<GeoIconTrait & GeoIconView>;
-  static readonly geo: FastenerClass<GeoIconController["geo"]>;
+  override readonly geo!: TraitViewRef<this, GeoIconTrait, GeoIconView> & Observes<GeoIconTrait> & Observes<GeoIconView>;
 }

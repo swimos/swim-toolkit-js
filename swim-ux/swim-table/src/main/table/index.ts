@@ -13,10 +13,10 @@
 // limitations under the License.
 
 export {TableView} from "./TableView";
-export {TableViewObserver} from "./TableViewObserver";
+export type {TableViewObserver} from "./TableViewObserver";
 
 export {TableTrait} from "./TableTrait";
-export {TableTraitObserver} from "./TableTraitObserver";
+export type {TableTraitObserver} from "./TableTraitObserver";
 
 export {TableController} from "./TableController";
-export {TableControllerObserver} from "./TableControllerObserver";
+export type {TableControllerObserver} from "./TableControllerObserver";

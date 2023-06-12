@@ -12,12 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Class} from "@swim/util";
-import {Affinity, Animator} from "@swim/component";
-import {AnyR2Point, R2Point, R2Box, AnyR2Path, R2Path} from "@swim/math";
-import {AnyGeoPoint, GeoPoint, GeoBox, AnyGeoPath, GeoPath} from "@swim/geo";
-import {GeoViewInit, GeoView} from "../geo/GeoView";
-import {GeoRippleOptions, GeoRippleView} from "../effect/GeoRippleView";
+import type {Mutable} from "@swim/util";
+import type {Class} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Animator} from "@swim/component";
+import type {AnyR2Point} from "@swim/math";
+import {R2Point} from "@swim/math";
+import {R2Box} from "@swim/math";
+import type {AnyR2Path} from "@swim/math";
+import {R2Path} from "@swim/math";
+import type {AnyGeoPoint} from "@swim/geo";
+import {GeoPoint} from "@swim/geo";
+import {GeoBox} from "@swim/geo";
+import type {AnyGeoPath} from "@swim/geo";
+import {GeoPath} from "@swim/geo";
+import type {GeoViewInit} from "../geo/GeoView";
+import {GeoView} from "../geo/GeoView";
+import type {GeoRippleOptions} from "../effect/GeoRippleView";
+import {GeoRippleView} from "../effect/GeoRippleView";
 import type {GeoPathViewObserver} from "./GeoPathViewObserver";
 
 /** @public */
@@ -39,7 +51,7 @@ export class GeoPathView extends GeoView {
 
   override readonly observerType?: Class<GeoPathViewObserver>;
 
-  @Animator<GeoPathView["geoPath"]>({
+  @Animator({
     valueType: GeoPath,
     value: null,
     didSetValue(newGeoPath: GeoPath | null, oldGeoPath: GeoPath | null): void {

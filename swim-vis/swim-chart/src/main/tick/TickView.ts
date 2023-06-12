@@ -12,20 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Class, Timing} from "@swim/util";
-import {FastenerClass, Animator} from "@swim/component";
-import {AnyR2Point, R2Point, R2Box} from "@swim/math";
-import {AnyFont, Font, AnyColor, Color} from "@swim/style";
+import type {Mutable} from "@swim/util";
+import type {Class} from "@swim/util";
+import type {Timing} from "@swim/util";
+import {Animator} from "@swim/component";
+import type {AnyR2Point} from "@swim/math";
+import {R2Point} from "@swim/math";
+import type {R2Box} from "@swim/math";
+import type {AnyFont} from "@swim/style";
+import {Font} from "@swim/style";
+import type {AnyColor} from "@swim/style";
+import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
-import {View, ViewRef} from "@swim/view";
-import {
-  GraphicsViewInit,
-  GraphicsView,
-  PaintingContext,
-  PaintingRenderer,
-  CanvasRenderer,
-  TextRunView,
-} from "@swim/graphics";
+import {View} from "@swim/view";
+import {ViewRef} from "@swim/view";
+import type {GraphicsViewInit} from "@swim/graphics";
+import {GraphicsView} from "@swim/graphics";
+import type {PaintingContext} from "@swim/graphics";
+import {PaintingRenderer} from "@swim/graphics";
+import {CanvasRenderer} from "@swim/graphics";
+import {TextRunView} from "@swim/graphics";
 import type {TickViewObserver} from "./TickViewObserver";
 import {TopTickView} from "../"; // forward import
 import {RightTickView} from "../"; // forward import
@@ -122,7 +128,7 @@ export abstract class TickView<D = unknown> extends GraphicsView {
   @ThemeAnimator({valueType: Color, value: null, inherits: true})
   readonly textColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @ViewRef<TickView<D>["label"]>({
+  @ViewRef({
     viewType: TextRunView,
     viewKey: true,
     binds: true,
@@ -147,7 +153,6 @@ export abstract class TickView<D = unknown> extends GraphicsView {
   readonly label!: ViewRef<this, GraphicsView> & {
     setText(label: string | undefined): GraphicsView,
   };
-  static readonly label: FastenerClass<TickView["label"]>;
 
   /** @internal */
   readonly preserved: boolean;

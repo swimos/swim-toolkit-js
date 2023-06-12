@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {R2Box, Transform} from "@swim/math";
+import type {R2Box} from "@swim/math";
+import {Transform} from "@swim/math";
 import {Sprite} from "./Sprite";
 import type {CanvasContext} from "../canvas/CanvasContext";
 import {CanvasRenderer} from "../"; // forward import
@@ -32,7 +33,7 @@ export class SpriteSheet {
     canvas.height = canvasHeight * pixelRatio;
     canvas.style.width = canvasWidth + "px";
     canvas.style.height = canvasHeight + "px";
-    const context = canvas.getContext("2d")!
+    const context = canvas.getContext("2d")!;
     const renderer = new CanvasRenderer(context, Transform.identity(), pixelRatio);
 
     this.spriteWidth = spriteWidth;

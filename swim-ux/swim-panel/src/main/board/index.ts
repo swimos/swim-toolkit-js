@@ -13,7 +13,7 @@
 // limitations under the License.
 
 export {BoardView} from "./BoardView";
-export {BoardViewObserver} from "./BoardViewObserver";
+export type {BoardViewObserver} from "./BoardViewObserver";
 
 export {BoardController} from "./BoardController";
-export {BoardControllerObserver} from "./BoardControllerObserver";
+export type {BoardControllerObserver} from "./BoardControllerObserver";

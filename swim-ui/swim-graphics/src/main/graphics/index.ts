@@ -12,19 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {GraphicsContext} from "./GraphicsContext";
+export type {GraphicsContext} from "./GraphicsContext";
 
-export {
-  AnyGraphicsRenderer,
-  GraphicsRendererType,
-  GraphicsRenderer,
-} from "./GraphicsRenderer";
+export type {AnyGraphicsRenderer} from "./GraphicsRenderer";
+export type {GraphicsRendererType} from "./GraphicsRenderer";
+export {GraphicsRenderer} from "./GraphicsRenderer";
 
 export {Graphics} from "./Graphics";
 
-export {
-  GraphicsViewEventMap,
-  GraphicsViewInit,
-  GraphicsView,
-} from "./GraphicsView";
-export {GraphicsViewObserver} from "./GraphicsViewObserver";
+export type {GraphicsViewEventMap} from "./GraphicsView";
+export type {GraphicsViewInit} from "./GraphicsView";
+export {GraphicsView} from "./GraphicsView";
+export type {GraphicsViewObserver} from "./GraphicsViewObserver";

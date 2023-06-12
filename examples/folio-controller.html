@@ -12,6 +12,7 @@
     </style>
   </head>
   <body swim-theme style="display: flex;">
+    <script src="../../node_modules/tslib/tslib.js"></script>
     <script src="../../swim-runtime/swim-core/dist/swim-core.js"></script>
     <script src="../../swim-runtime/swim-host/dist/swim-host.js"></script>
     <script src="../swim-ui/dist/swim-ui.js"></script>
@@ -38,22 +39,34 @@ if (navigator.standalone) {
 
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-class ExampleFolioController extends swim.FolioController {
-}
-swim.TraitViewControllerRef({
-  extends: true,
-  attachAppBarView(appBarView, appBarController) {
-    appBarView.barHeight(48);
-    swim.FolioController.appBar.prototype.attachAppBarView.call(this, appBarView, appBarController);
-  },
-})(ExampleFolioController.prototype, "appBar");
-swim.TraitViewControllerRef({
-  extends: true,
-  attachNavBarView(navBarView, navBarController) {
-    navBarView.barHeight(48);
-    swim.FolioController.navBar.prototype.attachNavBarView.call(this, navBarView, navBarController);
-  },
-})(ExampleFolioController.prototype, "navBar");
+const ExampleFolioController = (function () {
+  const extraInitializers = [];
+  const appBarInitializers = [];
+  const navBarInitializers = [];
+  class ExampleFolioController extends swim.FolioController {
+    constructor() {
+      super();
+      __runInitializers(this, extraInitializers);
+      this.appBar = __runInitializers(this, appBarInitializers, this.appBar);
+      this.navBar = __runInitializers(this, navBarInitializers, this.navBar);
+    }
+  }
+  __esDecorate(null, null, [swim.TraitViewControllerRef({
+    extends: true,
+    attachAppBarView(appBarView, appBarController) {
+      appBarView.barHeight(48);
+      super.attachAppBarView(appBarView, appBarController);
+    },
+  })], {kind: "field", name: "appBar", static: false, private: false, access: {has: obj => "appBar" in obj, get: obj => obj.appBar, set: (obj, value) => { obj.appBar = value; }}}, appBarInitializers, extraInitializers);
+  __esDecorate(null, null, [swim.TraitViewControllerRef({
+    extends: true,
+    attachNavBarView(navBarView, navBarController) {
+      navBarView.barHeight(48);
+      super.attachNavBarView(navBarView, navBarController);
+    },
+  })], {kind: "field", name: "navBar", static: false, private: false, access: {has: obj => "navBar" in obj, get: obj => obj.navBar, set: (obj, value) => { obj.navBar = value; }}}, navBarInitializers, extraInitializers);
+  return ExampleFolioController;
+})();
 
 const folioController = new ExampleFolioController();
 folioController.mount();

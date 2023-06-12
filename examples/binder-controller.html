@@ -12,6 +12,7 @@
     </style>
   </head>
   <body swim-theme style="display: flex;">
+    <script src="../../node_modules/tslib/tslib.js"></script>
     <script src="../../swim-runtime/swim-core/dist/swim-core.js"></script>
     <script src="../../swim-runtime/swim-host/dist/swim-host.js"></script>
     <script src="../swim-ui/dist/swim-ui.js"></script>
@@ -38,26 +39,38 @@ if (navigator.standalone) {
 
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-class ExampleBinderController extends swim.BinderController {
-}
-swim.TraitViewControllerRef({
-  extends: true,
-  attachTabBarView(tabBarView, tabBarController) {
-    tabBarView.barHeight(48);
-    swim.BinderController.tabBar.prototype.attachTabBarView.call(this, tabBarView, tabBarController);
-  },
-})(ExampleBinderController.prototype, "tabBar");
-swim.TraitViewControllerSet({
-  extends: true,
-  attachTabView(tabView, tabController) {
-    swim.BinderController.tabs.prototype.attachTabView.call(this, tabView, tabController);
-    const tabTrait = tabController.sheet.trait;
-    if (tabTrait !== null) {
-      const tabTitle = tabTrait.title.value;
-      tabView.appendChild(swim.HtmlView.fromTag("h2").margin(12).text(tabTitle), "header");
+const ExampleBinderController = (function () {
+  const extraInitializers = [];
+  const tabBarInitializers = [];
+  const tabsInitializers = [];
+  class ExampleBinderController extends swim.BinderController {
+    constructor() {
+      super();
+      __runInitializers(this, extraInitializers);
+      this.tabBar = __runInitializers(this, tabBarInitializers, this.tabBar);
+      this.tabs = __runInitializers(this, tabsInitializers, this.tabs);
     }
-  },
-})(ExampleBinderController.prototype, "tabs");
+  }
+  __esDecorate(null, null, [swim.TraitViewControllerRef({
+    extends: true,
+    attachTabBarView(tabBarView, tabBarController) {
+      tabBarView.barHeight(48);
+      super.attachTabBarView(tabBarView, tabBarController);
+    },
+  })], {kind: "field", name: "tabBar", static: false, private: false, access: {has: obj => "tabBar" in obj, get: obj => obj.tabBar, set: (obj, value) => { obj.tabBar = value; }}}, tabBarInitializers, extraInitializers);
+  __esDecorate(null, null, [swim.TraitViewControllerSet({
+    extends: true,
+    attachTabView(tabView, tabController) {
+      super.attachTabView(tabView, tabController);
+      const tabTrait = tabController.sheet.trait;
+      if (tabTrait !== null) {
+        const tabTitle = tabTrait.title.value;
+        tabView.appendChild(swim.HtmlView.fromTag("h2").margin(12).text(tabTitle), "header");
+      }
+    },
+  })], {kind: "field", name: "tabs", static: false, private: false, access: {has: obj => "tabs" in obj, get: obj => obj.tabs, set: (obj, value) => { obj.tabs = value; }}}, tabsInitializers, extraInitializers);
+  return ExampleBinderController;
+})();
 
 const binderController = new ExampleBinderController();
 binderController.mount();

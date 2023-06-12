@@ -13,8 +13,11 @@
 // limitations under the License.
 
 import type {View} from "@swim/view";
-import type {HtmlView, HtmlViewObserver} from "@swim/dom";
-import type {PaneLayout, PanelStyle, PanelView} from "./PanelView";
+import type {HtmlView} from "@swim/dom";
+import type {HtmlViewObserver} from "@swim/dom";
+import type {PaneLayout} from "./PanelView";
+import type {PanelStyle} from "./PanelView";
+import type {PanelView} from "./PanelView";
 
 /** @public */
 export interface PanelViewObserver<V extends PanelView = PanelView> extends HtmlViewObserver<V> {

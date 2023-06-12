@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Observes} from "@swim/util";
-import type {FastenerClass} from "@swim/component";
+import type {Class} from "@swim/util";
+import type {Observes} from "@swim/util";
 import type {Trait} from "@swim/model";
 import {ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
@@ -26,7 +26,7 @@ import type {TitleToolControllerObserver} from "./TitleToolControllerObserver";
 export class TitleToolController extends ToolController {
   override readonly observerType?: Class<TitleToolControllerObserver>;
 
-  @TraitViewRef<TitleToolController["tool"]>({
+  @TraitViewRef({
     extends: true,
     viewType: TitleToolView,
     observesView: true,
@@ -44,9 +44,8 @@ export class TitleToolController extends ToolController {
     },
   })
   override readonly tool!: TraitViewRef<this, Trait, TitleToolView> & ToolController["tool"] & Observes<TitleToolView>;
-  static override readonly tool: FastenerClass<TitleToolController["tool"]>;
 
-  @ViewRef<TitleToolController["content"]>({
+  @ViewRef({
     viewType: HtmlView,
     willAttachView(contentView: HtmlView): void {
       this.owner.callObservers("controllerWillAttachToolContentView", contentView, this.owner);
@@ -56,5 +55,4 @@ export class TitleToolController extends ToolController {
     },
   })
   readonly content!: ViewRef<this, HtmlView>;
-  static readonly content: FastenerClass<TitleToolController["content"]>;
 }

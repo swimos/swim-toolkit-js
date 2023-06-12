@@ -12,19 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Proto, Objects, Comparator, Consumer} from "@swim/util";
-import {Affinity, FastenerFlags, FastenerOwner, Fastener} from "@swim/component";
+import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
+import {Objects} from "@swim/util";
+import type {Comparator} from "@swim/util";
+import type {Consumer} from "@swim/util";
+import {Affinity} from "@swim/component";
+import type {FastenerFlags} from "@swim/component";
+import type {FastenerOwner} from "@swim/component";
+import {Fastener} from "@swim/component";
 import type {Model} from "../model/Model";
-import type {AnyTrait, TraitFactory, Trait} from "./Trait";
-import {TraitRelationDescriptor, TraitRelationClass, TraitRelation} from "./TraitRelation";
+import type {AnyTrait} from "./Trait";
+import type {TraitFactory} from "./Trait";
+import type {Trait} from "./Trait";
+import type {TraitRelationDescriptor} from "./TraitRelation";
+import type {TraitRelationClass} from "./TraitRelation";
+import {TraitRelation} from "./TraitRelation";
 
 /** @public */
 export type TraitSetTrait<F extends TraitSet<any, any>> =
   F extends {traitType?: TraitFactory<infer T>} ? T : never;
 
 /** @public */
+export type TraitSetDecorator<F extends TraitSet<any, any>> = {
+  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
+};
+
+/** @public */
 export interface TraitSetDescriptor<T extends Trait = Trait> extends TraitRelationDescriptor<T> {
-  extends?: Proto<TraitSet<any, any>> | string | boolean | null;
+  extends?: Proto<TraitSet<any, any>> | boolean | null;
   ordered?: boolean;
   sorted?: boolean;
 }
@@ -44,15 +60,15 @@ export interface TraitSetClass<F extends TraitSet<any, any> = TraitSet<any, any>
   refine(fastenerClass: TraitSetClass<any>): void;
 
   /** @override */
-  extend<F2 extends F>(className: string, template: TraitSetTemplate<F2>): TraitSetClass<F2>;
-  extend<F2 extends F>(className: string, template: TraitSetTemplate<F2>): TraitSetClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: TraitSetTemplate<F2>): TraitSetClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: TraitSetTemplate<F2>): TraitSetClass<F2>;
 
   /** @override */
-  define<F2 extends F>(className: string, template: TraitSetTemplate<F2>): TraitSetClass<F2>;
-  define<F2 extends F>(className: string, template: TraitSetTemplate<F2>): TraitSetClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: TraitSetTemplate<F2>): TraitSetClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: TraitSetTemplate<F2>): TraitSetClass<F2>;
 
   /** @override */
-  <F2 extends F>(template: TraitSetTemplate<F2>): PropertyDecorator;
+  <F2 extends F>(template: TraitSetTemplate<F2>): TraitSetDecorator<F2>;
 
   /** @internal */
   readonly OrderedFlag: FastenerFlags;
@@ -73,7 +89,7 @@ export interface TraitSet<O = unknown, T extends Trait = Trait> extends TraitRel
   get fastenerType(): Proto<TraitSet<any, any>>;
 
   /** @internal @override */
-  getSuper(): TraitSet<unknown, T> | null;
+  getParent(): TraitSet<unknown, T> | null;
 
   /** @internal @override */
   setDerived(derived: boolean, inlet: TraitSet<unknown, T>): void;

@@ -13,7 +13,8 @@
 // limitations under the License.
 
 import type {GeoPoint} from "@swim/geo";
-import type {Graphics, IconLayout} from "@swim/graphics";
+import type {Graphics} from "@swim/graphics";
+import type {IconLayout} from "@swim/graphics";
 import type {GeoTraitObserver} from "../geo/GeoTraitObserver";
 import type {GeoIconTrait} from "./GeoIconTrait";
 

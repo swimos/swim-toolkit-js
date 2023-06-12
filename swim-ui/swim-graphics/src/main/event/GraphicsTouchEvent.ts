@@ -13,7 +13,8 @@
 // limitations under the License.
 
 import type {GraphicsView} from "../graphics/GraphicsView";
-import type {GraphicsEventInit, GraphicsEvent} from "./GraphicsEvent";
+import type {GraphicsEventInit} from "./GraphicsEvent";
+import type {GraphicsEvent} from "./GraphicsEvent";
 
 /** @public */
 export interface GraphicsTouchInit extends TouchInit {

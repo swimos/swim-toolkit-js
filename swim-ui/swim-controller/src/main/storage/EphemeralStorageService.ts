@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Dictionary, MutableDictionary} from "@swim/util";
+import type {Mutable} from "@swim/util";
+import type {Dictionary} from "@swim/util";
+import type {MutableDictionary} from "@swim/util";
 import {StorageService} from "./StorageService";
 
 /** @public */

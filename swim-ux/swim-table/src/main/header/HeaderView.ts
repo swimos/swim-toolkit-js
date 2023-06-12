@@ -12,14 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Instance, Creatable} from "@swim/util";
-import {Affinity, FastenerClass, Property} from "@swim/component";
-import {AnyLength, Length} from "@swim/math";
-import {AnyExpansion, Expansion, ExpansionAnimator} from "@swim/style";
-import {Look, ThemeConstraintAnimator} from "@swim/theme";
-import {ViewFlags, View, ViewSet} from "@swim/view";
+import type {Class} from "@swim/util";
+import type {Instance} from "@swim/util";
+import type {Creatable} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import type {AnyExpansion} from "@swim/style";
+import type {Expansion} from "@swim/style";
+import {ExpansionAnimator} from "@swim/style";
+import {Look} from "@swim/theme";
+import {ThemeConstraintAnimator} from "@swim/theme";
+import type {ViewFlags} from "@swim/view";
+import {View} from "@swim/view";
+import {ViewSet} from "@swim/view";
 import {HtmlView} from "@swim/dom";
-import {AnyTableLayout, TableLayout} from "../layout/TableLayout";
+import type {AnyTableLayout} from "../layout/TableLayout";
+import {TableLayout} from "../layout/TableLayout";
 import {ColView} from "../col/ColView";
 import type {HeaderViewObserver} from "./HeaderViewObserver";
 
@@ -77,7 +87,7 @@ export class HeaderView extends HtmlView {
     this.setChild(key, colView);
   }
 
-  @ViewSet<HeaderView["cols"]>({
+  @ViewSet({
     viewType: ColView,
     binds: true,
     initView(colView: ColView): void {
@@ -96,7 +106,6 @@ export class HeaderView extends HtmlView {
     },
   })
   readonly cols!: ViewSet<this, ColView>;
-  static readonly cols: FastenerClass<HeaderView["cols"]>;
 
   protected override onLayout(): void {
     super.onLayout();

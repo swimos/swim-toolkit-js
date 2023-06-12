@@ -12,15 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  AnyPieView,
-  PieViewInit,
-  PieView,
-} from "./PieView";
-export {PieViewObserver} from "./PieViewObserver";
+export type {AnyPieView} from "./PieView";
+export type {PieViewInit} from "./PieView";
+export {PieView} from "./PieView";
+export type {PieViewObserver} from "./PieViewObserver";
 
 export {PieTrait} from "./PieTrait";
-export {PieTraitObserver} from "./PieTraitObserver";
+export type {PieTraitObserver} from "./PieTraitObserver";
 
 export {PieController} from "./PieController";
-export {PieControllerObserver} from "./PieControllerObserver";
+export type {PieControllerObserver} from "./PieControllerObserver";

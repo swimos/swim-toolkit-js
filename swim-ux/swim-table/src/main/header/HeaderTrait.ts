@@ -12,9 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Instance, Creatable} from "@swim/util";
-import type {FastenerClass} from "@swim/component";
-import {Model, Trait, TraitSet} from "@swim/model";
+import type {Class} from "@swim/util";
+import type {Instance} from "@swim/util";
+import type {Creatable} from "@swim/util";
+import type {Model} from "@swim/model";
+import {Trait} from "@swim/model";
+import {TraitSet} from "@swim/model";
 import {ColTrait} from "../col/ColTrait";
 import type {HeaderTraitObserver} from "./HeaderTraitObserver";
 
@@ -45,7 +48,7 @@ export class HeaderTrait extends Trait {
     this.setTrait(key, colTrait);
   }
 
-  @TraitSet<HeaderTrait["cols"]>({
+  @TraitSet({
     traitType: ColTrait,
     binds: true,
     willAttachTrait(colTrait: ColTrait, targetTrait: Trait | null): void {
@@ -69,7 +72,6 @@ export class HeaderTrait extends Trait {
     },
   })
   readonly cols!: TraitSet<this, ColTrait>;
-  static readonly cols: FastenerClass<HeaderTrait["cols"]>;
 
   protected override onStartConsuming(): void {
     super.onStartConsuming();

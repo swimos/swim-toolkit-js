@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyColor, Color} from "@swim/style";
-import {AttributeAnimatorClass, AttributeAnimator} from "./AttributeAnimator";
+import type {AnyColor} from "@swim/style";
+import {Color} from "@swim/style";
+import type {AttributeAnimatorClass} from "./AttributeAnimator";
+import {AttributeAnimator} from "./AttributeAnimator";
 
 /** @internal */
 export interface ColorAttributeAnimator<O = unknown, T extends Color | null = Color | null, U extends AnyColor | null = AnyColor | T> extends AttributeAnimator<O, T, U> {

@@ -12,11 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Observes} from "@swim/util";
-import {Affinity, FastenerClass, Property, EventHandler, Service} from "@swim/component";
-import {View, ViewRef, ViewSet} from "@swim/view";
-import {ViewElement, ElementView} from "../element/ElementView";
-import type {ModalOptions, ModalView} from "./ModalView";
+import type {Class} from "@swim/util";
+import type {Observes} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
+import {EventHandler} from "@swim/component";
+import {Service} from "@swim/component";
+import type {View} from "@swim/view";
+import {ViewRef} from "@swim/view";
+import {ViewSet} from "@swim/view";
+import type {ViewElement} from "../element/ElementView";
+import {ElementView} from "../element/ElementView";
+import type {ModalOptions} from "./ModalView";
+import type {ModalView} from "./ModalView";
 import type {ModalServiceObserver} from "./ModalServiceObserver";
 
 /** @public */
@@ -24,13 +32,12 @@ export class ModalService extends Service {
   /** @override */
   override readonly observerType?: Class<ModalServiceObserver>;
 
-  @ViewRef<ModalService["matte"]>({
+  @ViewRef({
     viewType: ElementView,
   })
   readonly matte!: ViewRef<this, ElementView>;
-  static readonly matte: FastenerClass<ModalService["matte"]>;
 
-  @ViewSet<ModalService["modals"]>({
+  @ViewSet({
     observes: true,
     get parentView(): ElementView | null {
       let parentView = this.owner.matte.view;
@@ -44,7 +51,7 @@ export class ModalService extends Service {
       return parentView;
     },
     insertChild(parent: View, child: ElementView, target: View | null, key: string | undefined): void {
-      ViewSet.prototype.insertChild.call(this, parent, child, target, key);
+      super.insertChild(parent, child, target, key);
       if (child.parent === null && !child.mounted) {
         document.body.appendChild(child.node);
         child.mount();
@@ -86,7 +93,6 @@ export class ModalService extends Service {
     },
   })
   readonly modals!: ViewSet<this, ModalView> & Observes<ModalView>;
-  static readonly modals: FastenerClass<ModalService["modals"]>;
 
   presentModal(modalView: ModalView, options: ModalOptions = {}): void {
     if (!options.multi) {
@@ -129,7 +135,7 @@ export class ModalService extends Service {
     }
   }
 
-  @Property<ModalService["modality"]>({
+  @Property({
     valueType: Number,
     value: 0,
     update(): void {
@@ -152,7 +158,7 @@ export class ModalService extends Service {
     update(): void,
   };
 
-  @EventHandler<ModalService["fallthrough"]>({
+  @EventHandler({
     type: "click",
     initTarget(): EventTarget | null {
       if (typeof document !== "undefined") {
@@ -166,5 +172,4 @@ export class ModalService extends Service {
     },
   })
   readonly fallthrough!: EventHandler<this>;
-  static readonly fallthrough: FastenerClass<ModalService["fallthrough"]>;
 }

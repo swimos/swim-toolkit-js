@@ -12,13 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Item, Record, Num, Bool, Form} from "@swim/structure";
-import {Length, Angle, Transform} from "@swim/math";
+import {Item} from "@swim/structure";
+import {Record} from "@swim/structure";
+import {Num} from "@swim/structure";
+import {Bool} from "@swim/structure";
+import {Form} from "@swim/structure";
+import {Length} from "@swim/math";
+import {Angle} from "@swim/math";
+import {Transform} from "@swim/math";
 import {DateTime} from "@swim/time";
 import {Font} from "../font/Font";
 import {Color} from "../color/Color";
 import {BoxShadow} from "../shadow/BoxShadow";
-import {AnyStyleValue, StyleValue} from "./StyleValue";
+import type {AnyStyleValue} from "./StyleValue";
+import {StyleValue} from "./StyleValue";
 
 /** @internal */
 export class StyleValueForm extends Form<StyleValue, AnyStyleValue> {

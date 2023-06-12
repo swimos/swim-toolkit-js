@@ -12,35 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {FontStyle} from "./FontStyle";
+export type {FontStyle} from "./FontStyle";
 
-export {FontVariant} from "./FontVariant";
+export type {FontVariant} from "./FontVariant";
 
-export {FontWeight} from "./FontWeight";
+export type {FontWeight} from "./FontWeight";
 
-export {FontStretch} from "./FontStretch";
+export type {FontStretch} from "./FontStretch";
 
-export {
-  AnyFontSize,
-  FontSize,
-} from "./FontSize";
+export type {AnyFontSize} from "./FontSize";
+export {FontSize} from "./FontSize";
 
-export {
-  AnyLineHeight,
-  LineHeight,
-} from "./LineHeight";
+export type {AnyLineHeight} from "./LineHeight";
+export {LineHeight} from "./LineHeight";
 
-export {
-  GenericFamily,
-  FontFamily,
-} from "./FontFamily";
+export type {GenericFamily} from "./FontFamily";
+export {FontFamily} from "./FontFamily";
 export {FontFamilyParser} from "./FontFamilyParser";
 
-export {
-  AnyFont,
-  FontInit,
-  Font,
-} from "./Font";
+export type {AnyFont} from "./Font";
+export type {FontInit} from "./Font";
+export {Font} from "./Font";
 export {FontInterpolator} from "./FontInterpolator";
 export {FontForm} from "./FontForm";
 export {FontParser} from "./FontParser";

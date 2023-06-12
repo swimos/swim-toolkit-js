@@ -13,7 +13,8 @@
 // limitations under the License.
 
 import type {Value} from "@swim/structure";
-import {AnyLength, Length} from "@swim/math";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
 
 /** @public */
 export type AnyFontSize = AnyLength | FontSize;

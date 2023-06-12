@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {View, ViewObserver} from "@swim/view";
+import type {View} from "@swim/view";
+import type {ViewObserver} from "@swim/view";
 import type {GraphicsView} from "@swim/graphics";
 import type {SliceView} from "../slice/SliceView";
 import type {PieView} from "./PieView";

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=0, shrink-to-fit=no, viewport-fit=cover">
   </head>
   <body swim-theme style="position: fixed; display: flex; justify-content: center; align-items: center; width: 100vw; height: 100vh; margin: 0;">
+    <script src="../../node_modules/tslib/tslib.js"></script>
     <script src="../../swim-runtime/swim-core/dist/swim-core.js"></script>
     <script src="../../swim-runtime/swim-host/dist/swim-host.js"></script>
     <script src="../swim-ui/dist/swim-ui.js"></script>
@@ -25,37 +26,49 @@ const canvasView = containerView.appendChild(swim.CanvasView)
     .touchEventsEnabled(true)
     .touchAction("manipulation");
 
-class ExampleGaugeController extends swim.GaugeController {
-}
-swim.TraitViewRef({
-  extends: true,
-  initView(gaugeView) {
-    swim.GaugeController.gauge.prototype.initView.call(this, gaugeView);
-    gaugeView.innerRadius(swim.Length.pct(25))
-             .startAngle(swim.Angle.rad(3 * Math.PI / 4))
-             .sweepAngle(swim.Angle.rad(3 * Math.PI / 2))
-             .cornerRadius(0)
-             .tickAlign(1)
-             .font("14px sans-serif");
-  },
-})(ExampleGaugeController.prototype, "gauge");
-swim.TraitViewControllerSet({
-  extends: true,
-  attachDialView(dialView, dialController) {
-    swim.GaugeController.dials.prototype.attachDialView.call(this, dialView, dialController);
-    dialView.addEventListener("pointerenter", function (event) {
-      dialView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, 1]], true);
-    });
-    dialView.addEventListener("pointerleave", function (event) {
-      dialView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, void 0]], true);
-    });
-  },
-  controllerDidSetDialValue(dialValue, dialController, gaugeController) {
-    swim.GaugeController.dials.prototype.controllerDidSetDialValue.call(this, dialValue, dialController, gaugeController);
-    const label = Math.round(100 * dialValue).toString();
-    dialController.dial.trait.label.setValue(label);
-  },
-})(ExampleGaugeController.prototype, "dials");
+const ExampleGaugeController = (function () {
+  const extraInitializers = [];
+  const gaugeInitializers = [];
+  const dialsInitializers = [];
+  class ExampleGaugeController extends swim.GaugeController {
+    constructor() {
+      super();
+      __runInitializers(this, extraInitializers);
+      this.gauge = __runInitializers(this, gaugeInitializers, this.gauge);
+      this.dials = __runInitializers(this, dialsInitializers, this.dials);
+    }
+  }
+  __esDecorate(null, null, [swim.TraitViewRef({
+    extends: true,
+    initView(gaugeView) {
+      super.initView(gaugeView);
+      gaugeView.innerRadius(swim.Length.pct(25))
+               .startAngle(swim.Angle.rad(3 * Math.PI / 4))
+               .sweepAngle(swim.Angle.rad(3 * Math.PI / 2))
+               .cornerRadius(0)
+               .tickAlign(1)
+               .font("14px sans-serif");
+    },
+  })], {kind: "field", name: "gauge", static: false, private: false, access: {has: obj => "gauge" in obj, get: obj => obj.gauge, set: (obj, value) => { obj.gauge = value; }}}, gaugeInitializers, extraInitializers);
+  __esDecorate(null, null, [swim.TraitViewControllerSet({
+    extends: true,
+    attachDialView(dialView, dialController) {
+      super.attachDialView(dialView, dialController);
+      dialView.addEventListener("pointerenter", function (event) {
+        dialView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, 1]], true);
+      });
+      dialView.addEventListener("pointerleave", function (event) {
+        dialView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, void 0]], true);
+      });
+    },
+    controllerDidSetDialValue(dialValue, dialController, gaugeController) {
+      super.controllerDidSetDialValue(dialValue, dialController, gaugeController);
+      const label = Math.round(100 * dialValue).toString();
+      dialController.dial.trait.label.setValue(label);
+    },
+  })], {kind: "field", name: "dials", static: false, private: false, access: {has: obj => "dials" in obj, get: obj => obj.dials, set: (obj, value) => { obj.dials = value; }}}, dialsInitializers, extraInitializers);
+  return ExampleGaugeController;
+})();
 
 const dial1Model = new swim.Model();
 const dial1Trait = new swim.DialTrait()

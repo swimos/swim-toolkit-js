@@ -13,7 +13,8 @@
 // limitations under the License.
 
 import type {ServiceObserver} from "@swim/component";
-import type {SelectionOptions, SelectionService} from "./SelectionService";
+import type {SelectionOptions} from "./SelectionService";
+import type {SelectionService} from "./SelectionService";
 import type {Model} from "../model/Model";
 
 /** @public */

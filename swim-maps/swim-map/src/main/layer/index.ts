@@ -13,7 +13,7 @@
 // limitations under the License.
 
 export {GeoLayerTrait} from "./GeoLayerTrait";
-export {GeoLayerTraitObserver} from "./GeoLayerTraitObserver";
+export type {GeoLayerTraitObserver} from "./GeoLayerTraitObserver";
 
 export {GeoLayerController} from "./GeoLayerController";
-export {GeoLayerControllerObserver} from "./GeoLayerControllerObserver";
+export type {GeoLayerControllerObserver} from "./GeoLayerControllerObserver";

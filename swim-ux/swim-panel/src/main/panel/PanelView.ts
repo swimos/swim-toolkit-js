@@ -12,10 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Observes} from "@swim/util";
-import {Affinity, FastenerClass, Property} from "@swim/component";
-import {Look, Feel} from "@swim/theme";
-import {ViewFlags, View, ViewRef, ViewSet} from "@swim/view";
+import type {Class} from "@swim/util";
+import type {Observes} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
+import {Look} from "@swim/theme";
+import {Feel} from "@swim/theme";
+import type {ViewFlags} from "@swim/view";
+import {View} from "@swim/view";
+import {ViewRef} from "@swim/view";
+import {ViewSet} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import type {PanelViewObserver} from "./PanelViewObserver";
 
@@ -50,7 +56,7 @@ export class PanelView extends HtmlView {
   @Property({valueType: Number, updateFlags: View.NeedsResize})
   readonly heightBasis!: Property<this, number | undefined>;
 
-  @Property<PanelView["unitWidth"]>({
+  @Property({
     valueType: Number,
     value: 1,
     didSetValue(unitWidth: number): void {
@@ -59,7 +65,7 @@ export class PanelView extends HtmlView {
   })
   readonly unitWidth!: Property<this, number>;
 
-  @Property<PanelView["unitHeight"]>({
+  @Property({
     valueType: Number,
     value: 1,
     didSetValue(unitHeight: number): void {
@@ -68,7 +74,7 @@ export class PanelView extends HtmlView {
   })
   readonly unitHeight!: Property<this, number>;
 
-  @Property<PanelView["minPanelHeight"]>({
+  @Property({
     valueType: Number,
     value: 180,
     inherits: true,
@@ -78,7 +84,7 @@ export class PanelView extends HtmlView {
   })
   readonly minPanelHeight!: Property<this, number>;
 
-  @Property<PanelView["panelStyle"]>({
+  @Property({
     valueType: String,
     value: "none",
     updateFlags: View.NeedsResize,
@@ -119,7 +125,7 @@ export class PanelView extends HtmlView {
     applyPanelStyle(panelStyle: PanelStyle): void,
   };
 
-  @Property<PanelView["paneLayout"]>({
+  @Property({
     valueType: String,
     value: "frame",
     inherits: true,
@@ -130,7 +136,7 @@ export class PanelView extends HtmlView {
   })
   readonly paneLayout!: Property<this, PaneLayout | undefined>;
 
-  @Property<PanelView["minFrameWidth"]>({
+  @Property({
     valueType: Number,
     value: 720,
     inherits: true,
@@ -138,7 +144,7 @@ export class PanelView extends HtmlView {
   })
   readonly minFrameWidth!: Property<this, number>;
 
-  @Property<PanelView["minFrameHeight"]>({
+  @Property({
     valueType: Number,
     value: 540,
     inherits: true,
@@ -146,7 +152,7 @@ export class PanelView extends HtmlView {
   })
   readonly minFrameHeight!: Property<this, number>;
 
-  @ViewRef<PanelView["header"]>({
+  @ViewRef({
     viewType: HtmlView,
     viewKey: true,
     binds: true,
@@ -191,9 +197,8 @@ export class PanelView extends HtmlView {
     setTitle(title: string | undefined): HtmlView,
     setSubtitle(subtitle: string | undefined): HtmlView,
   };
-  static readonly header: FastenerClass<PanelView["header"]>;
 
-  @ViewRef<PanelView["headerTitle"]>({
+  @ViewRef({
     viewType: HtmlView,
     viewKey: "panel-title",
     get parentView(): HtmlView | null {
@@ -227,9 +232,8 @@ export class PanelView extends HtmlView {
   readonly headerTitle!: ViewRef<this, HtmlView> & {
     setText(tite: string | undefined): HtmlView,
   };
-  static readonly headerTitle: FastenerClass<PanelView["headerTitle"]>;
 
-  @ViewRef<PanelView["headerSubtitle"]>({
+  @ViewRef({
     viewType: HtmlView,
     viewKey: "panel-subtitle",
     get parentView(): HtmlView | null {
@@ -257,10 +261,11 @@ export class PanelView extends HtmlView {
   readonly headerSubtitle!: ViewRef<this, HtmlView> & {
     setText(subtitle: string | undefined): HtmlView,
   };
-  static readonly headerSubtitle: FastenerClass<PanelView["headerSubtitle"]>;
 
-  @ViewSet<PanelView["panes"]>({
-    viewType: PanelView,
+  @ViewSet({
+    get viewType(): typeof PanelView {
+      return PanelView;
+    },
     binds: true,
     observes: true,
     initView(paneView: PanelView): void {
@@ -287,7 +292,6 @@ export class PanelView extends HtmlView {
     },
   })
   readonly panes!: ViewSet<this, PanelView> & Observes<PanelView>;
-  static readonly panes: FastenerClass<PanelView["panes"]>;
 
   protected override onResize(): void {
     super.onResize();

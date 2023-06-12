@@ -15,14 +15,16 @@
 import type {Class} from "@swim/util";
 import {Property} from "@swim/component";
 import {Trait} from "@swim/model";
-import {AnyColorOrLook, ColorOrLook, ColorLook} from "@swim/theme";
+import type {AnyColorOrLook} from "@swim/theme";
+import type {ColorOrLook} from "@swim/theme";
+import {ColorLook} from "@swim/theme";
 import type {SliceTraitObserver} from "./SliceTraitObserver";
 
 /** @public */
 export class SliceTrait extends Trait {
   override readonly observerType?: Class<SliceTraitObserver>;
 
-  @Property<SliceTrait["value"]>({
+  @Property({
     valueType: Number,
     value: 0,
     didSetValue(value: number): void {
@@ -31,7 +33,7 @@ export class SliceTrait extends Trait {
   })
   readonly value!: Property<this, number>;
 
-  @Property<SliceTrait["sliceColor"]>({
+  @Property({
     valueType: ColorLook,
     value: null,
     didSetValue(sliceColor: ColorOrLook | null): void {
@@ -44,7 +46,7 @@ export class SliceTrait extends Trait {
     return void 0;
   }
 
-  @Property<SliceTrait["label"]>({
+  @Property({
     valueType: String,
     didSetValue(label: string | undefined): void {
       this.owner.callObservers("traitDidSetLabel", label, this.owner);
@@ -56,7 +58,7 @@ export class SliceTrait extends Trait {
     return void 0;
   }
 
-  @Property<SliceTrait["legend"]>({
+  @Property({
     valueType: String,
     didSetValue(legend: string | undefined): void {
       this.owner.callObservers("traitDidSetLegend", legend, this.owner);

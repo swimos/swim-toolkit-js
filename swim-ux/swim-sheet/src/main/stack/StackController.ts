@@ -12,17 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, AnyTiming, Observes} from "@swim/util";
-import type {FastenerClass} from "@swim/component";
+import type {Class} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import type {Observes} from "@swim/util";
 import type {Trait} from "@swim/model";
 import type {PositionGestureInput} from "@swim/view";
-import {
-  Controller,
-  TraitViewRef,
-  TraitViewControllerRef,
-  TraitViewControllerSet,
-} from "@swim/controller";
-import {ToolController, BarView, BarController} from "@swim/toolbar";
+import {Controller} from "@swim/controller";
+import {TraitViewRef} from "@swim/controller";
+import {TraitViewControllerRef} from "@swim/controller";
+import {TraitViewControllerSet} from "@swim/controller";
+import type {ToolController} from "@swim/toolbar";
+import type {BarView} from "@swim/toolbar";
+import {BarController} from "@swim/toolbar";
 import type {SheetView} from "../sheet/SheetView";
 import {SheetController} from "../sheet/SheetController";
 import {NavBarController} from "./NavBarController";
@@ -33,7 +34,7 @@ import type {StackControllerObserver} from "./StackControllerObserver";
 export class StackController extends Controller {
   override readonly observerType?: Class<StackControllerObserver>;
 
-  @TraitViewRef<StackController["stack"]>({
+  @TraitViewRef({
     willAttachTrait(stackTrait: Trait): void {
       this.owner.callObservers("controllerWillAttachStackTrait", stackTrait, this.owner);
     },
@@ -139,7 +140,6 @@ export class StackController extends Controller {
     },
   })
   readonly stack!: TraitViewRef<this, Trait, StackView> & Observes<StackView>;
-  static readonly stack: FastenerClass<StackController["stack"]>;
 
   protected didPressCloseButton(input: PositionGestureInput, event: Event | null): void {
     this.callObservers("controllerDidPressCloseButton", input, event, this);
@@ -156,7 +156,7 @@ export class StackController extends Controller {
     this.callObservers("controllerDidPressSearchButton", input, event, this);
   }
 
-  @TraitViewControllerRef<StackController["navBar"]>({
+  @TraitViewControllerRef({
     controllerType: BarController,
     binds: true,
     observes: true,
@@ -223,9 +223,8 @@ export class StackController extends Controller {
     detachNavBarView(navBarView: BarView, navBarController: BarController): void;
     frontViewDidScroll(frontView: SheetView, navBarController: BarController): void;
   };
-  static readonly navBar: FastenerClass<StackController["navBar"]>;
 
-  @TraitViewControllerSet<StackController["sheets"]>({
+  @TraitViewControllerSet({
     controllerType: SheetController,
     binds: false,
     observes: true,
@@ -354,9 +353,8 @@ export class StackController extends Controller {
     attachTitle(titleController: ToolController, sheetController: SheetController): void;
     detachTitle(titleController: ToolController, sheetController: SheetController): void;
   };
-  static readonly sheets: FastenerClass<StackController["sheets"]>;
 
-  @TraitViewControllerRef<StackController["front"]>({
+  @TraitViewControllerRef({
     controllerType: SheetController,
     binds: false,
     observes: true,
@@ -441,5 +439,4 @@ export class StackController extends Controller {
     detachFrontView(frontView: SheetView, frontController: SheetController): void;
     dismiss(timing?: AnyTiming | boolean): SheetView | null;
   };
-  static readonly front: FastenerClass<StackController["front"]>;
 }

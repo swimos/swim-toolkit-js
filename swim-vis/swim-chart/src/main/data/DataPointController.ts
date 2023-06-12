@@ -12,14 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, AnyTiming, Timing, Observes} from "@swim/util";
-import {Affinity, FastenerClass, Property} from "@swim/component";
-import type {AnyLength, Length} from "@swim/math";
+import type {Class} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {Timing} from "@swim/util";
+import type {Observes} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
+import type {AnyLength} from "@swim/math";
+import type {Length} from "@swim/math";
 import type {Color} from "@swim/style";
-import {Look, Mood, AnyColorOrLook, ColorOrLook} from "@swim/theme";
+import {Look} from "@swim/theme";
+import {Mood} from "@swim/theme";
+import type {AnyColorOrLook} from "@swim/theme";
+import type {ColorOrLook} from "@swim/theme";
 import {ViewRef} from "@swim/view";
 import type {GraphicsView} from "@swim/graphics";
-import {Controller, TraitViewRef} from "@swim/controller";
+import {Controller} from "@swim/controller";
+import {TraitViewRef} from "@swim/controller";
 import {DataPointView} from "./DataPointView";
 import {DataPointTrait} from "./DataPointTrait";
 import type {DataPointControllerObserver} from "./DataPointControllerObserver";
@@ -139,7 +148,7 @@ export class DataPointController<X = unknown, Y = unknown> extends Controller {
   @Property({valueType: Timing, inherits: true})
   readonly dataPointTiming!: Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined>;
 
-  @TraitViewRef<DataPointController<X, Y>["dataPoint"]>({
+  @TraitViewRef({
     traitType: DataPointTrait,
     observesTrait: true,
     willAttachTrait(dataPointTrait: DataPointTrait<X, Y>): void {
@@ -260,10 +269,9 @@ export class DataPointController<X = unknown, Y = unknown> extends Controller {
       return dataPointView;
     },
   })
-  readonly dataPoint!: TraitViewRef<this, DataPointTrait<X, Y>, DataPointView<X, Y>> & Observes<DataPointTrait<X, Y> & DataPointView<X, Y>>;
-  static readonly dataPoint: FastenerClass<DataPointController["dataPoint"]>;
+  readonly dataPoint!: TraitViewRef<this, DataPointTrait<X, Y>, DataPointView<X, Y>> & Observes<DataPointTrait<X, Y>> & Observes<DataPointView<X, Y>>;
 
-  @ViewRef<DataPointController<X, Y>["label"]>({
+  @ViewRef({
     viewKey: true,
     willAttachView(labelView: GraphicsView): void {
       this.owner.callObservers("controllerWillAttachDataPointLabelView", labelView, this.owner);
@@ -273,5 +281,4 @@ export class DataPointController<X = unknown, Y = unknown> extends Controller {
     },
   })
   readonly label!: ViewRef<this, GraphicsView>;
-  static readonly label: FastenerClass<DataPointController["label"]>;
 }

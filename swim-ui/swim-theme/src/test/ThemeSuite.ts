@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Spec, Unit} from "@swim/unit";
+import {Unit} from "@swim/unit";
+import {Suite} from "@swim/unit";
 import {LookVectorSpec} from "./LookVectorSpec";
 import {FeelVectorSpec} from "./FeelVectorSpec";
 import {MoodVectorSpec} from "./MoodVectorSpec";
@@ -20,35 +21,34 @@ import {MoodMatrixSpec} from "./MoodMatrixSpec";
 import {ThemeMatrixSpec} from "./ThemeMatrixSpec";
 import {ThemeAnimatorSpec} from "./ThemeAnimatorSpec";
 
-@Unit
-export class ThemeSuite extends Spec {
+export class ThemeSuite extends Suite {
   @Unit
-  lookVectorSpec(): Spec {
+  lookVectorSpec(): Suite {
     return new LookVectorSpec();
   }
 
   @Unit
-  feelVectorSpac(): Spec {
+  feelVectorSpac(): Suite {
     return new FeelVectorSpec();
   }
 
   @Unit
-  moodVectorSpec(): Spec {
+  moodVectorSpec(): Suite {
     return new MoodVectorSpec();
   }
 
   @Unit
-  moodMatrixSpec(): Spec {
+  moodMatrixSpec(): Suite {
     return new MoodMatrixSpec();
   }
 
   @Unit
-  themeMatrixSpec(): Spec {
+  themeMatrixSpec(): Suite {
     return new ThemeMatrixSpec();
   }
 
   @Unit
-  themeAnimatorSpec(): Spec {
+  themeAnimatorSpec(): Suite {
     return new ThemeAnimatorSpec();
   }
 }

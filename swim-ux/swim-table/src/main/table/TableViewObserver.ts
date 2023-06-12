@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {PositionGestureInput, View} from "@swim/view";
+import type {View} from "@swim/view";
+import type {PositionGestureInput} from "@swim/view";
 import type {HtmlViewObserver} from "@swim/dom";
 import type {LeafView} from "../leaf/LeafView";
 import type {RowView} from "../row/RowView";

@@ -14,9 +14,12 @@
 
 import type {Class} from "@swim/util";
 import {Property} from "@swim/component";
-import {AnyLength, Length} from "@swim/math";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
 import {Trait} from "@swim/model";
-import {AnyColorOrLook, ColorOrLook, ColorLook} from "@swim/theme";
+import type {AnyColorOrLook} from "@swim/theme";
+import type {ColorOrLook} from "@swim/theme";
+import {ColorLook} from "@swim/theme";
 import type {DataPointTraitObserver} from "./DataPointTraitObserver";
 
 /** @public */
@@ -29,28 +32,28 @@ export class DataPointTrait<X = unknown, Y = unknown> extends Trait {
 
   override readonly observerType?: Class<DataPointTraitObserver<X, Y>>;
 
-  @Property<DataPointTrait<X, Y>["x"]>({
+  @Property({
     didSetValue(x: X): void {
       this.owner.callObservers("traitDidSetX", x, this.owner);
     },
   })
   readonly x!: Property<this, X>;
 
-  @Property<DataPointTrait<X, Y>["y"]>({
+  @Property({
     didSetValue(y: Y): void {
       this.owner.callObservers("traitDidSetY", y, this.owner);
     },
   })
   readonly y!: Property<this, Y>;
 
-  @Property<DataPointTrait<X, Y>["y2"]>({
+  @Property({
     didSetValue(y2: Y | undefined): void {
       this.owner.callObservers("traitDidSetY2", y2, this.owner);
     },
   })
   readonly y2!: Property<this, Y | undefined>;
 
-  @Property<DataPointTrait<X, Y>["radius"]>({
+  @Property({
     valueType: Length,
     value: null,
     didSetValue(radius: Length | null): void {
@@ -59,7 +62,7 @@ export class DataPointTrait<X = unknown, Y = unknown> extends Trait {
   })
   readonly radius!: Property<this, Length | null, AnyLength | null>;
 
-  @Property<DataPointTrait<X, Y>["color"]>({
+  @Property({
     valueType: ColorLook,
     value: null,
     didSetValue(color: ColorOrLook | null): void {
@@ -68,7 +71,7 @@ export class DataPointTrait<X = unknown, Y = unknown> extends Trait {
   })
   readonly color!: Property<this, ColorOrLook | null, AnyColorOrLook | null>;
 
-  @Property<DataPointTrait<X, Y>["opacity"]>({
+  @Property({
     valueType: Number,
     didSetValue(opacity: number | undefined): void {
       this.owner.callObservers("traitDidSetOpacity", opacity, this.owner);
@@ -80,7 +83,7 @@ export class DataPointTrait<X = unknown, Y = unknown> extends Trait {
     return void 0;
   }
 
-  @Property<DataPointTrait<X, Y>["label"]>({
+  @Property({
     valueType: String,
     didSetValue(label: string | undefined): void {
       this.owner.callObservers("traitDidSetLabel", label, this.owner);

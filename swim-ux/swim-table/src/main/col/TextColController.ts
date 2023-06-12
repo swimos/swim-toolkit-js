@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Observes} from "@swim/util";
-import type {FastenerClass} from "@swim/component";
+import type {Class} from "@swim/util";
+import type {Observes} from "@swim/util";
 import {ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {TraitViewRef} from "@swim/controller";
@@ -26,7 +26,7 @@ import type {TextColControllerObserver} from "./TextColControllerObserver";
 export class TextColController extends ColController {
   override readonly observerType?: Class<TextColControllerObserver>;
 
-  @TraitViewRef<TextColController["col"]>({
+  @TraitViewRef({
     extends: true,
     traitType: TextColTrait,
     observesTrait: true,
@@ -58,8 +58,7 @@ export class TextColController extends ColController {
       this.owner.label.setView(null);
     },
   })
-  override readonly col!: TraitViewRef<this, TextColTrait, TextColView> & ColController["col"] & Observes<TextColTrait & TextColView>;
-  static override readonly col: FastenerClass<TextColController["col"]>;
+  override readonly col!: TraitViewRef<this, TextColTrait, TextColView> & ColController["col"] & Observes<TextColTrait> & Observes<TextColView>;
 
   protected setLabelView(label: string | undefined): void {
     const colView = this.col.view;
@@ -68,7 +67,7 @@ export class TextColController extends ColController {
     }
   }
 
-  @ViewRef<TextColController["label"]>({
+  @ViewRef({
     viewType: HtmlView,
     willAttachView(contentView: HtmlView): void {
       this.owner.callObservers("controllerWillAttachColLabelView", contentView, this.owner);
@@ -78,5 +77,4 @@ export class TextColController extends ColController {
     },
   })
   readonly label!: ViewRef<this, HtmlView>;
-  static readonly label: FastenerClass<TextColController["label"]>;
 }

@@ -12,30 +12,41 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Proto, Arrays} from "@swim/util";
-import {Affinity, FastenerOwner, Fastener} from "@swim/component";
-import {
-  AnyConstraintExpression,
-  ConstraintExpression,
-  ConstraintVariable,
-  ConstraintProperty,
-  ConstraintRelation,
-  AnyConstraintStrength,
-  ConstraintStrength,
-  Constraint,
-  ConstraintScope,
-  ConstraintContext,
-} from "@swim/constraint";
-import type {AnyView, ViewFactory, View} from "./View";
-import {ViewRelationDescriptor, ViewRelationClass, ViewRelation} from "./ViewRelation";
+import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
+import {Arrays} from "@swim/util";
+import {Affinity} from "@swim/component";
+import type {FastenerOwner} from "@swim/component";
+import {Fastener} from "@swim/component";
+import type {AnyConstraintExpression} from "@swim/constraint";
+import {ConstraintExpression} from "@swim/constraint";
+import type {ConstraintVariable} from "@swim/constraint";
+import {ConstraintProperty} from "@swim/constraint";
+import type {ConstraintRelation} from "@swim/constraint";
+import type {AnyConstraintStrength} from "@swim/constraint";
+import {ConstraintStrength} from "@swim/constraint";
+import {Constraint} from "@swim/constraint";
+import type {ConstraintScope} from "@swim/constraint";
+import type {ConstraintContext} from "@swim/constraint";
+import type {AnyView} from "./View";
+import type {ViewFactory} from "./View";
+import type {View} from "./View";
+import type {ViewRelationDescriptor} from "./ViewRelation";
+import type {ViewRelationClass} from "./ViewRelation";
+import {ViewRelation} from "./ViewRelation";
 
 /** @public */
 export type ViewRefView<F extends ViewRef<any, any>> =
   F extends {viewType?: ViewFactory<infer V>} ? V : never;
 
 /** @public */
+export type ViewRefDecorator<F extends ViewRef<any, any>> = {
+  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
+};
+
+/** @public */
 export interface ViewRefDescriptor<V extends View = View> extends ViewRelationDescriptor<V> {
-  extends?: Proto<ViewRef<any, any>> | string | boolean | null;
+  extends?: Proto<ViewRef<any, any>> | boolean | null;
   viewKey?: string | boolean;
 }
 
@@ -54,15 +65,15 @@ export interface ViewRefClass<F extends ViewRef<any, any> = ViewRef<any, any>> e
   refine(fastenerClass: ViewRefClass<any>): void;
 
   /** @override */
-  extend<F2 extends F>(className: string, template: ViewRefTemplate<F2>): ViewRefClass<F2>;
-  extend<F2 extends F>(className: string, template: ViewRefTemplate<F2>): ViewRefClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: ViewRefTemplate<F2>): ViewRefClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: ViewRefTemplate<F2>): ViewRefClass<F2>;
 
   /** @override */
-  define<F2 extends F>(className: string, template: ViewRefTemplate<F2>): ViewRefClass<F2>;
-  define<F2 extends F>(className: string, template: ViewRefTemplate<F2>): ViewRefClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: ViewRefTemplate<F2>): ViewRefClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: ViewRefTemplate<F2>): ViewRefClass<F2>;
 
   /** @override */
-  <F2 extends F>(template: ViewRefTemplate<F2>): PropertyDecorator;
+  <F2 extends F>(template: ViewRefTemplate<F2>): ViewRefDecorator<F2>;
 }
 
 /** @public */
@@ -74,7 +85,7 @@ export interface ViewRef<O = unknown, V extends View = View> extends ViewRelatio
   get fastenerType(): Proto<ViewRef<any, any>>;
 
   /** @internal @override */
-  getSuper(): ViewRef<unknown, V> | null;
+  getParent(): ViewRef<unknown, V> | null;
 
   /** @internal @override */
   setDerived(derived: boolean, inlet: ViewRef<unknown, V>): void;
@@ -255,8 +266,9 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
     const inletView = this.inletView;
     if (inletView === void 0 || inletView === null) {
       let message = inletView + " ";
-      if (this.name.length !== 0) {
-        message += this.name + " ";
+      const name = this.name.toString();
+      if (name.length !== 0) {
+        message += name + " ";
       }
       message += "inlet view";
       throw new TypeError(message);
@@ -268,8 +280,9 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
     const view = this.view;
     if (view === null) {
       let message = view + " ";
-      if (this.name.length !== 0) {
-        message += this.name + " ";
+      const name = this.name.toString();
+      if (name.length !== 0) {
+        message += name + " ";
       }
       message += "view";
       throw new TypeError(message);
@@ -406,7 +419,9 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
           this.onDetachView(oldView);
           this.deinitView(oldView);
           this.didDetachView(oldView);
-          oldView.remove();
+          if (this.binds && parent !== null && oldView.parent === parent) {
+            oldView.remove();
+          }
         }
         (this as Mutable<typeof this>).view = newView;
         this.willAttachView(newView, target);

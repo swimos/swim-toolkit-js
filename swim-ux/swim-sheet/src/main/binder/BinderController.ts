@@ -12,29 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, Objects, Observes} from "@swim/util";
-import {Affinity, FastenerClass, Property} from "@swim/component";
+import type {Class} from "@swim/util";
+import {Objects} from "@swim/util";
+import type {Observes} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
 import type {PositionGestureInput} from "@swim/view";
 import type {Trait} from "@swim/model";
-import {
-  Controller,
-  TraitViewRef,
-  TraitViewControllerRef,
-  TraitViewControllerSet,
-} from "@swim/controller";
-import {ToolController, BarView, BarController} from "@swim/toolbar";
+import type {Controller} from "@swim/controller";
+import {TraitViewRef} from "@swim/controller";
+import {TraitViewControllerRef} from "@swim/controller";
+import {TraitViewControllerSet} from "@swim/controller";
+import type {ToolController} from "@swim/toolbar";
+import type {BarView} from "@swim/toolbar";
+import {BarController} from "@swim/toolbar";
 import type {SheetView} from "../sheet/SheetView";
 import {SheetController} from "../sheet/SheetController";
 import type {FolioStyle} from "../folio/FolioView";
 import {TabBarController} from "./TabBarController";
-import {BinderTabStyle, BinderView} from "./BinderView";
+import type {BinderTabStyle} from "./BinderView";
+import {BinderView} from "./BinderView";
 import type {BinderControllerObserver} from "./BinderControllerObserver";
 
 /** @public */
 export class BinderController extends SheetController {
   override readonly observerType?: Class<BinderControllerObserver>;
 
-  @Property<BinderController["folioStyle"]>({
+  @Property({
     valueType: String,
     inherits: true,
     lazy: false,
@@ -48,7 +52,7 @@ export class BinderController extends SheetController {
   })
   readonly folioStyle!: Property<this, FolioStyle | undefined>;
 
-  @Property<BinderController["tabStyle"]>({
+  @Property({
     valueType: String,
     value: "none",
     didSetValue(tabStyle: BinderTabStyle): void {
@@ -70,7 +74,7 @@ export class BinderController extends SheetController {
   })
   readonly tabStyle!: Property<this, BinderTabStyle>;
 
-  @TraitViewRef<BinderController["binder"]>({
+  @TraitViewRef({
     willAttachTrait(binderTrait: Trait): void {
       this.owner.callObservers("controllerWillAttachBinderTrait", binderTrait, this.owner);
     },
@@ -129,7 +133,6 @@ export class BinderController extends SheetController {
     },
   })
   readonly binder!: TraitViewRef<this, Trait, BinderView> & Observes<BinderView>;
-  static readonly binder: FastenerClass<BinderController["binder"]>;
 
   protected didPressTabHandle(input: PositionGestureInput, event: Event | null, tabController: SheetController): void {
     this.callObservers("controllerDidPressTabHandle", input, event, tabController, this);
@@ -142,7 +145,7 @@ export class BinderController extends SheetController {
     this.callObservers("controllerDidLongPressTabHandle", input, tabController, this);
   }
 
-  @TraitViewControllerRef<BinderController["tabBar"]>({
+  @TraitViewControllerRef({
     controllerType: BarController,
     binds: true,
     observes: true,
@@ -212,7 +215,6 @@ export class BinderController extends SheetController {
     detachTabBarView(tabBarView: BarView, tabBarController: BarController): void,
     updateTabStyle(tabStyle: BinderTabStyle, tabBarController: BarController): void,
   };
-  static readonly tabBar: FastenerClass<BinderController["tabBar"]>;
 
   setTab(key: string, newTabController: SheetController | null): void {
     const oldTabController = this.getChild(key, SheetController);
@@ -234,7 +236,7 @@ export class BinderController extends SheetController {
     }
   }
 
-  @TraitViewControllerSet<BinderController["tabs"]>({
+  @TraitViewControllerSet({
     controllerType: SheetController,
     binds: false,
     ordered: true,
@@ -367,9 +369,8 @@ export class BinderController extends SheetController {
     detachTabHandle(tabHandleController: ToolController, tabController: SheetController): void,
     updateTabStyle(tabStyle: BinderTabStyle, tabController: SheetController): void,
   };
-  static readonly tabs: FastenerClass<BinderController["tabs"]>;
 
-  @TraitViewControllerRef<BinderController["active"]>({
+  @TraitViewControllerRef({
     controllerType: SheetController,
     consumed: true,
     binds: false,
@@ -453,5 +454,4 @@ export class BinderController extends SheetController {
     attachActiveView(activeView: SheetView, activeController: SheetController): void,
     detachActiveView(activeView: SheetView, activeController: SheetController): void,
   };
-  static readonly active: FastenerClass<BinderController["active"]>;
 }

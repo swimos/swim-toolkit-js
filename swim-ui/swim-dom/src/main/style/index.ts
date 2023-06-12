@@ -12,12 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  StyleAnimatorDescriptor,
-  StyleAnimatorTemplate,
-  StyleAnimatorClass,
-  StyleAnimator,
-} from "./StyleAnimator";
+export type {StyleAnimatorDecorator} from "./StyleAnimator";
+export type {StyleAnimatorDescriptor} from "./StyleAnimator";
+export type {StyleAnimatorTemplate} from "./StyleAnimator";
+export type {StyleAnimatorClass} from "./StyleAnimator";
+export {StyleAnimator} from "./StyleAnimator";
 export {StringStyleAnimator} from "./StringStyleAnimator";
 export {NumberStyleAnimator} from "./NumberStyleAnimator";
 export {LengthStyleAnimator} from "./LengthStyleAnimator";
@@ -26,11 +25,10 @@ export {FontFamilyStyleAnimator} from "./FontFamilyStyleAnimator";
 export {BoxShadowStyleAnimator} from "./BoxShadowStyleAnimator";
 export {TransformStyleAnimator} from "./TransformStyleAnimator";
 
-export {
-  StyleConstraintAnimatorDescriptor,
-  StyleConstraintAnimatorTemplate,
-  StyleConstraintAnimatorClass,
-  StyleConstraintAnimator,
-} from "./StyleConstraintAnimator";
+export type {StyleConstraintAnimatorDecorator} from "./StyleConstraintAnimator";
+export type {StyleConstraintAnimatorDescriptor} from "./StyleConstraintAnimator";
+export type {StyleConstraintAnimatorTemplate} from "./StyleConstraintAnimator";
+export type {StyleConstraintAnimatorClass} from "./StyleConstraintAnimator";
+export {StyleConstraintAnimator} from "./StyleConstraintAnimator";
 export {NumberStyleConstraintAnimator} from "./NumberStyleConstraintAnimator";
 export {LengthStyleConstraintAnimator} from "./LengthStyleConstraintAnimator";

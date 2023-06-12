@@ -12,17 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  ViewSvg,
-  AnySvgView,
-  SvgViewInit,
-  SvgViewAttributesInit,
-  SvgViewStyleInit,
-  SvgViewTagMap,
-  SvgViewFactory,
-  SvgViewClass,
-  SvgViewConstructor,
-  SvgView,
-  SvgViewTagFactory,
-} from "./SvgView";
-export {SvgViewObserver} from "./SvgViewObserver";
+export type {ViewSvg} from "./SvgView";
+export type {AnySvgView} from "./SvgView";
+export type {SvgViewInit} from "./SvgView";
+export type {SvgViewAttributesInit} from "./SvgView";
+export type {SvgViewStyleInit} from "./SvgView";
+export type {SvgViewTagMap} from "./SvgView";
+export type {SvgViewFactory} from "./SvgView";
+export type {SvgViewClass} from "./SvgView";
+export type {SvgViewConstructor} from "./SvgView";
+export {SvgView} from "./SvgView";
+export {SvgViewTagFactory} from "./SvgView";
+export type {SvgViewObserver} from "./SvgViewObserver";

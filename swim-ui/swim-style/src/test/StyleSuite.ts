@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Spec, Unit} from "@swim/unit";
+import {Unit} from "@swim/unit";
+import {Suite} from "@swim/unit";
 import {FontParserSpec} from "./FontParserSpec";
 import {FontWriterSpec} from "./FontWriterSpec";
 import {ColorParserSpec} from "./ColorParserSpec";
@@ -21,40 +22,39 @@ import {LinearGradientSpec} from "./LinearGradientSpec";
 import {BoxShadowSpec} from "./BoxShadowSpec";
 import {StyleValueSpec} from "./StyleValueSpec";
 
-@Unit
-export class StyleSuite extends Spec {
+export class StyleSuite extends Suite {
   @Unit
-  fontParserSpec(): Spec {
+  fontParserSpec(): Suite {
     return new FontParserSpec();
   }
 
   @Unit
-  fontWriterSpec(): Spec {
+  fontWriterSpec(): Suite {
     return new FontWriterSpec();
   }
 
   @Unit
-  colorParserSpec(): Spec {
+  colorParserSpec(): Suite {
     return new ColorParserSpec();
   }
 
   @Unit
-  colorStopSpec(): Spec {
+  colorStopSpec(): Suite {
     return new ColorStopSpec();
   }
 
   @Unit
-  linearGradientSpec(): Spec {
+  linearGradientSpec(): Suite {
     return new LinearGradientSpec();
   }
 
   @Unit
-  boxShadowSpec(): Spec {
+  boxShadowSpec(): Suite {
     return new BoxShadowSpec();
   }
 
   @Unit
-  styleValueSpec(): Spec {
+  styleValueSpec(): Suite {
     return new StyleValueSpec();
   }
 }

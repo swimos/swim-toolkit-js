@@ -13,10 +13,10 @@
 // limitations under the License.
 
 export {RowView} from "./RowView";
-export {RowViewObserver} from "./RowViewObserver";
+export type {RowViewObserver} from "./RowViewObserver";
 
 export {RowTrait} from "./RowTrait";
-export {RowTraitObserver} from "./RowTraitObserver";
+export type {RowTraitObserver} from "./RowTraitObserver";
 
 export {RowController} from "./RowController";
-export {RowControllerObserver} from "./RowControllerObserver";
+export type {RowControllerObserver} from "./RowControllerObserver";

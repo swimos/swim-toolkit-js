@@ -12,37 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  ControllerFlags,
-  AnyController,
-  ControllerInit,
-  ControllerFactory,
-  ControllerClass,
-  ControllerConstructor,
-  Controller,
-} from "./Controller";
-export {ControllerObserver} from "./ControllerObserver";
+export type {ControllerFlags} from "./Controller";
+export type {AnyController} from "./Controller";
+export type {ControllerInit} from "./Controller";
+export type {ControllerFactory} from "./Controller";
+export type {ControllerClass} from "./Controller";
+export type {ControllerConstructor} from "./Controller";
+export {Controller} from "./Controller";
+export type {ControllerObserver} from "./ControllerObserver";
 
-export {
-  ControllerRelationController,
-  ControllerRelationDescriptor,
-  ControllerRelationTemplate,
-  ControllerRelationClass,
-  ControllerRelation,
-} from "./ControllerRelation";
+export type {ControllerRelationController} from "./ControllerRelation";
+export type {ControllerRelationDecorator} from "./ControllerRelation";
+export type {ControllerRelationDescriptor} from "./ControllerRelation";
+export type {ControllerRelationTemplate} from "./ControllerRelation";
+export type {ControllerRelationClass} from "./ControllerRelation";
+export {ControllerRelation} from "./ControllerRelation";
 
-export {
-  ControllerRefController,
-  ControllerRefDescriptor,
-  ControllerRefTemplate,
-  ControllerRefClass,
-  ControllerRef,
-} from "./ControllerRef";
+export type {ControllerRefController} from "./ControllerRef";
+export type {ControllerRefDecorator} from "./ControllerRef";
+export type {ControllerRefDescriptor} from "./ControllerRef";
+export type {ControllerRefTemplate} from "./ControllerRef";
+export type {ControllerRefClass} from "./ControllerRef";
+export {ControllerRef} from "./ControllerRef";
 
-export {
-  ControllerSetController,
-  ControllerSetDescriptor,
-  ControllerSetTemplate,
-  ControllerSetClass,
-  ControllerSet,
-} from "./ControllerSet";
+export type {ControllerSetController} from "./ControllerSet";
+export type {ControllerSetDecorator} from "./ControllerSet";
+export type {ControllerSetDescriptor} from "./ControllerSet";
+export type {ControllerSetTemplate} from "./ControllerSet";
+export type {ControllerSetClass} from "./ControllerSet";
+export {ControllerSet} from "./ControllerSet";

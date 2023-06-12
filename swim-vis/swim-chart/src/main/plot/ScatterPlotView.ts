@@ -12,27 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  Mutable,
-  Class,
-  Equals,
-  Values,
-  Domain,
-  Range,
-  AnyTiming,
-  LinearRange,
-  ContinuousScale,
-  Observes,
-} from "@swim/util";
-import {Affinity, FastenerClass, Property} from "@swim/component";
+import type {Mutable} from "@swim/util";
+import type {Class} from "@swim/util";
+import {Equals} from "@swim/util";
+import {Values} from "@swim/util";
+import type {Domain} from "@swim/util";
+import type {Range} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {LinearRange} from "@swim/util";
+import type {ContinuousScale} from "@swim/util";
+import type {Observes} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
 import type {R2Box} from "@swim/math";
-import {AnyFont, Font, AnyColor, Color} from "@swim/style";
+import type {AnyFont} from "@swim/style";
+import {Font} from "@swim/style";
+import type {AnyColor} from "@swim/style";
+import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
-import {ViewFlags, View, ViewSet} from "@swim/view";
-import {GraphicsView, CanvasContext, CanvasRenderer} from "@swim/graphics";
-import {AnyDataPointView, DataPointView} from "../data/DataPointView";
+import type {ViewFlags} from "@swim/view";
+import {View} from "@swim/view";
+import {ViewSet} from "@swim/view";
+import {GraphicsView} from "@swim/graphics";
+import type {CanvasContext} from "@swim/graphics";
+import {CanvasRenderer} from "@swim/graphics";
+import type {AnyDataPointView} from "../data/DataPointView";
+import {DataPointView} from "../data/DataPointView";
 import {ContinuousScaleAnimator} from "../scaled/ContinuousScaleAnimator";
-import type {PlotViewInit, PlotView} from "./PlotView";
+import type {PlotViewInit} from "./PlotView";
+import type {PlotView} from "./PlotView";
 import type {ScatterPlotViewObserver} from "./ScatterPlotViewObserver";
 
 /** @public */
@@ -54,7 +62,7 @@ export abstract class ScatterPlotView<X = unknown, Y = unknown> extends Graphics
 
   override readonly observerType?: Class<ScatterPlotViewObserver<X, Y>>;
 
-  @ThemeAnimator<ScatterPlotView<X, Y>["opacity"]>({
+  @ThemeAnimator({
     valueType: Number,
     updateFlags: View.NeedsRender,
     didSetValue(opacity: number | undefined): void {
@@ -70,7 +78,7 @@ export abstract class ScatterPlotView<X = unknown, Y = unknown> extends Graphics
   readonly textColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
   /** @override */
-  @ContinuousScaleAnimator<ScatterPlotView<X, Y>["xScale"]>({
+  @ContinuousScaleAnimator({
     value: null,
     inherits: true,
     updateFlags: View.NeedsLayout,
@@ -82,7 +90,7 @@ export abstract class ScatterPlotView<X = unknown, Y = unknown> extends Graphics
   readonly xScale!: ContinuousScaleAnimator<this, X, number>;
 
   /** @override */
-  @ContinuousScaleAnimator<ScatterPlotView<X, Y>["yScale"]>({
+  @ContinuousScaleAnimator({
     value: null,
     inherits: true,
     updateFlags: View.NeedsLayout,
@@ -136,7 +144,7 @@ export abstract class ScatterPlotView<X = unknown, Y = unknown> extends Graphics
   }
 
   /** @override */
-  @Property<ScatterPlotView<X, Y>["xRangePadding"]>({
+  @Property({
     initValue(): readonly [number, number] {
       return [0, 0];
     },
@@ -144,10 +152,10 @@ export abstract class ScatterPlotView<X = unknown, Y = unknown> extends Graphics
       this.owner.callObservers("viewDidSetXRangePadding", xRangePadding, this.owner);
     },
   })
-  readonly xRangePadding!: Property<this, readonly [number, number]>
+  readonly xRangePadding!: Property<this, readonly [number, number]>;
 
   /** @override */
-  @Property<ScatterPlotView<X, Y>["yRangePadding"]>({
+  @Property({
     initValue(): readonly [number, number] {
       return [0, 0];
     },
@@ -155,7 +163,7 @@ export abstract class ScatterPlotView<X = unknown, Y = unknown> extends Graphics
       this.owner.callObservers("viewDidSetYRangePadding", yRangePadding, this.owner);
     },
   })
-  readonly yRangePadding!: Property<this, readonly [number, number]>
+  readonly yRangePadding!: Property<this, readonly [number, number]>;
 
   /** @override */
   readonly xDataDomain: Domain<X> | null;
@@ -285,7 +293,7 @@ export abstract class ScatterPlotView<X = unknown, Y = unknown> extends Graphics
     }
   }
 
-  @ViewSet<ScatterPlotView<X, Y>["dataPoints"]>({
+  @ViewSet({
     viewType: DataPointView,
     binds: true,
     observes: true,
@@ -339,7 +347,6 @@ export abstract class ScatterPlotView<X = unknown, Y = unknown> extends Graphics
     attachDataPointLabelView(labelView: GraphicsView): void,
     detachDataPointLabelView(labelView: GraphicsView): void,
   };
-  static readonly dataPoints: FastenerClass<ScatterPlotView["dataPoints"]>;
 
   protected override onLayout(): void {
     super.onLayout();

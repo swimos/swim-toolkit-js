@@ -15,14 +15,14 @@
 export {EsriViewport} from "./EsriViewport";
 
 export {EsriView} from "./EsriView";
-export {EsriViewObserver} from "./EsriViewObserver";
+export type {EsriViewObserver} from "./EsriViewObserver";
 
 export {EsriMapViewport} from "./EsriMapViewport";
 
 export {EsriMapView} from "./EsriMapView";
-export {EsriMapViewObserver} from "./EsriMapViewObserver";
+export type {EsriMapViewObserver} from "./EsriMapViewObserver";
 
 export {EsriSceneViewport} from "./EsriSceneViewport";
 
 export {EsriSceneView} from "./EsriSceneView";
-export {EsriSceneViewObserver} from "./EsriSceneViewObserver";
+export type {EsriSceneViewObserver} from "./EsriSceneViewObserver";

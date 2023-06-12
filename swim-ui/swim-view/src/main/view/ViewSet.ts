@@ -12,18 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Proto, Objects, Comparator} from "@swim/util";
-import {Affinity, FastenerFlags, FastenerOwner, Fastener} from "@swim/component";
-import type {AnyView, ViewFactory, View} from "./View";
-import {ViewRelationDescriptor, ViewRelationClass, ViewRelation} from "./ViewRelation";
+import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
+import {Objects} from "@swim/util";
+import type {Comparator} from "@swim/util";
+import {Affinity} from "@swim/component";
+import type {FastenerFlags} from "@swim/component";
+import type {FastenerOwner} from "@swim/component";
+import {Fastener} from "@swim/component";
+import type {AnyView} from "./View";
+import type {ViewFactory} from "./View";
+import type {View} from "./View";
+import type {ViewRelationDescriptor} from "./ViewRelation";
+import type {ViewRelationClass} from "./ViewRelation";
+import {ViewRelation} from "./ViewRelation";
 
 /** @public */
 export type ViewSetView<F extends ViewSet<any, any>> =
   F extends {viewType?: ViewFactory<infer V>} ? V : never;
 
 /** @public */
+export type ViewSetDecorator<F extends ViewSet<any, any>> = {
+  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
+};
+
+/** @public */
 export interface ViewSetDescriptor<V extends View = View> extends ViewRelationDescriptor<V> {
-  extends?: Proto<ViewSet<any, any>> | string | boolean | null;
+  extends?: Proto<ViewSet<any, any>> | boolean | null;
   ordered?: boolean;
   sorted?: boolean;
 }
@@ -43,15 +58,15 @@ export interface ViewSetClass<F extends ViewSet<any, any> = ViewSet<any, any>> e
   refine(fastenerClass: ViewSetClass<any>): void;
 
   /** @override */
-  extend<F2 extends F>(className: string, template: ViewSetTemplate<F2>): ViewSetClass<F2>;
-  extend<F2 extends F>(className: string, template: ViewSetTemplate<F2>): ViewSetClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: ViewSetTemplate<F2>): ViewSetClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: ViewSetTemplate<F2>): ViewSetClass<F2>;
 
   /** @override */
-  define<F2 extends F>(className: string, template: ViewSetTemplate<F2>): ViewSetClass<F2>;
-  define<F2 extends F>(className: string, template: ViewSetTemplate<F2>): ViewSetClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: ViewSetTemplate<F2>): ViewSetClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: ViewSetTemplate<F2>): ViewSetClass<F2>;
 
   /** @override */
-  <F2 extends F>(template: ViewSetTemplate<F2>): PropertyDecorator;
+  <F2 extends F>(template: ViewSetTemplate<F2>): ViewSetDecorator<F2>;
 
   /** @internal */
   readonly OrderedFlag: FastenerFlags;
@@ -72,7 +87,7 @@ export interface ViewSet<O = unknown, V extends View = View> extends ViewRelatio
   get fastenerType(): Proto<ViewSet<any, any>>;
 
   /** @internal @override */
-  getSuper(): ViewSet<unknown, V> | null;
+  getParent(): ViewSet<unknown, V> | null;
 
   /** @internal @override */
   setDerived(derived: boolean, inlet: ViewSet<unknown, V>): void;

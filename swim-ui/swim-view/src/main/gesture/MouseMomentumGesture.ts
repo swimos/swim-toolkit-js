@@ -15,7 +15,8 @@
 import type {FastenerOwner} from "@swim/component";
 import type {View} from "../view/View";
 import type {MomentumGestureInput} from "./MomentumGestureInput";
-import {MomentumGestureClass, MomentumGesture} from "./MomentumGesture";
+import type {MomentumGestureClass} from "./MomentumGesture";
+import {MomentumGesture} from "./MomentumGesture";
 
 /** @internal */
 export interface MouseMomentumGesture<O = unknown, V extends View = View> extends MomentumGesture<O, V> {

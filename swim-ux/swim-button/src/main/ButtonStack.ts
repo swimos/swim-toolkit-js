@@ -12,14 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Class, Lazy, AnyTiming, Timing} from "@swim/util";
-import {Affinity, FastenerClass, Property} from "@swim/component";
+import {Lazy} from "@swim/util";
+import type {Class} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {Timing} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
+import {EventHandler} from "@swim/component";
 import {Length} from "@swim/math";
-import {AnyPresence, Presence, PresenceAnimator} from "@swim/style";
-import {Look, ThemeAnimator} from "@swim/theme";
-import {View, PositionGestureInput, PositionGesture} from "@swim/view";
-import {StyleAnimator, ViewNode, HtmlView, ModalView} from "@swim/dom";
-import {Graphics, VectorIcon} from "@swim/graphics";
+import type {AnyPresence} from "@swim/style";
+import {Presence} from "@swim/style";
+import {PresenceAnimator} from "@swim/style";
+import {Look} from "@swim/theme";
+import {ThemeAnimator} from "@swim/theme";
+import {View} from "@swim/view";
+import {ViewRef} from "@swim/view";
+import {ViewSet} from "@swim/view";
+import type {PositionGestureInput} from "@swim/view";
+import {PositionGesture} from "@swim/view";
+import {StyleAnimator} from "@swim/dom";
+import type {ViewNode} from "@swim/dom";
+import {HtmlView} from "@swim/dom";
+import type {ModalView} from "@swim/dom";
+import type {Graphics} from "@swim/graphics";
+import {VectorIcon} from "@swim/graphics";
 import {FloatingButton} from "./FloatingButton";
 import {ButtonItem} from "./ButtonItem";
 import type {ButtonStackObserver} from "./ButtonStackObserver";
@@ -28,11 +44,7 @@ import type {ButtonStackObserver} from "./ButtonStackObserver";
 export class ButtonStack extends HtmlView implements ModalView {
   constructor(node: HTMLElement) {
     super(node);
-    this.stackHeight = 0;
-    this.onClick = this.onClick.bind(this);
-    this.onContextMenu = this.onContextMenu.bind(this);
     this.initButtonStack();
-    this.initButton();
   }
 
   protected initButtonStack(): void {
@@ -44,28 +56,136 @@ export class ButtonStack extends HtmlView implements ModalView {
     this.opacity.setState(1, Affinity.Intrinsic);
     this.userSelect.setState("none", Affinity.Intrinsic);
     this.cursor.setState("pointer", Affinity.Intrinsic);
-  }
-
-  protected initButton(): void {
-    const button = this.createButton();
-    if (button !== null) {
-      this.appendChild(button, "button");
-    }
+    this.button.insertView();
   }
 
   override readonly observerType?: Class<ButtonStackObserver>;
 
   /** @internal */
-  readonly stackHeight: number;
+  @Property({valueType: Number, value: 0})
+  readonly stackHeight!: Property<this, number>;
 
-  protected createButton(): HtmlView | null {
-    return FloatingButton.create();
+  @ThemeAnimator({valueType: Number, value: 28, updateFlags: View.NeedsLayout})
+  readonly buttonSpacing!: ThemeAnimator<this, number>;
+
+  @ThemeAnimator({valueType: Number, value: 20, updateFlags: View.NeedsLayout})
+  readonly itemSpacing!: ThemeAnimator<this, number>;
+
+  @StyleAnimator({
+    extends: true,
+    didTransition(opacity: number | undefined): void {
+      if (opacity === 1) {
+        this.owner.didShowStack();
+      } else if (opacity === 0) {
+        this.owner.didHideStack();
+      }
+    },
+  })
+  override readonly opacity!: StyleAnimator<this, number | undefined>;
+
+  get closeIcon(): Graphics {
+    return ButtonStack.closeIcon;
   }
 
-  @PositionGesture<ButtonStack["gesture"]>({
+  @ViewRef({
+    viewType: FloatingButton,
+    viewKey: true,
+    binds: true,
+    willAttachView(buttonView: FloatingButton, target: View | null): void {
+      buttonView.presence.setState(Presence.presented(), Affinity.Intrinsic);
+      if (this.owner.presence.presented || this.owner.presence.presenting) {
+        buttonView.icon.push(this.owner.closeIcon);
+      }
+    },
+    initView(buttonView: FloatingButton): void {
+      buttonView.zIndex.setState(0, Affinity.Intrinsic);
+    },
+  })
+  readonly button!: ViewRef<this, FloatingButton>;
+
+  @ViewSet({
+    viewType: ButtonItem,
+    binds: true,
+    willAttachView(itemView: ButtonItem, target: View | null): void {
+      itemView.position.setState("absolute", Affinity.Intrinsic);
+      itemView.right.setState(8, Affinity.Intrinsic);
+      itemView.bottom.setState(8, Affinity.Intrinsic);
+      itemView.left.setState(8, Affinity.Intrinsic);
+      itemView.zIndex.setState(0, Affinity.Intrinsic);
+    },
+  })
+  readonly items!: ViewSet<this, ButtonItem>;
+
+  insertItem(item: ButtonItem, index?: number, key?: string): void {
+    if (index === void 0) {
+      index = this.node.childNodes.length - 1;
+    }
+    this.insertChild(item.node, this.node.childNodes[1 + index] || null, key);
+  }
+
+  removeItems(): void {
+    const childNodes = this.node.childNodes;
+    for (let i = childNodes.length - 1; i >= 0; i -= 1) {
+      const childView = (childNodes[i] as ViewNode).view;
+      if (childView instanceof ButtonItem) {
+        this.removeChild(childView);
+      }
+    }
+  }
+
+  /** @override */
+  @PresenceAnimator({
+    value: Presence.dismissed(),
+    updateFlags: View.NeedsLayout,
+    get transition(): Timing | null {
+      return this.owner.getLookOr(Look.timing, null);
+    },
+    didSetValue(presence: Presence): void {
+      this.owner.callObservers("viewDidSetPresence", presence, this.owner);
+      this.owner.modality.setValue(presence.phase, Affinity.Intrinsic);
+    },
+    willPresent(): void {
+      this.owner.callObservers("viewWillPresent", this.owner);
+      const buttonView = this.owner.button.view;
+      if (buttonView !== null) {
+        const timing = this.timing;
+        buttonView.icon.push(this.owner.closeIcon, timing !== null ? timing : void 0);
+      }
+      this.owner.modal.present();
+    },
+    didPresent(): void {
+      this.owner.callObservers("viewDidPresent", this.owner);
+    },
+    willDismiss(): void {
+      this.owner.callObservers("viewWillDismiss", this.owner);
+      const buttonView = this.owner.button.view;
+      if (buttonView !== null && buttonView.icons.viewCount > 1) {
+        const timing = this.timing;
+        buttonView.icon.pop(timing !== null ? timing : void 0);
+      }
+    },
+    didDismiss(): void {
+      this.owner.callObservers("viewDidDismiss", this.owner);
+    },
+  })
+  readonly presence!: PresenceAnimator<this, Presence, AnyPresence>;
+
+  /** @override */
+  @Property({
+    valueType: Number,
+    value: 0,
+    didSetValue(modality: number): void {
+      this.owner.callObservers("viewDidSetModality", modality, this.owner);
+    },
+  })
+  readonly modality!: Property<this, number>;
+
+  @PositionGesture({
+    binds: true,
+    viewKey: "button",
     didMovePress(input: PositionGestureInput, event: Event | null): void {
       if (!input.defaultPrevented && !this.owner.presence.presented) {
-        const stackHeight = this.owner.stackHeight;
+        const stackHeight = this.owner.stackHeight.value;
         const phase = Math.min(Math.max(0, -(input.y - input.y0) / (0.5 * stackHeight)), 1);
         this.owner.presence.setPhase(phase);
         if (phase > 0.1) {
@@ -112,122 +232,24 @@ export class ButtonStack extends HtmlView implements ModalView {
     },
   })
   readonly gesture!: PositionGesture<this, HtmlView>;
-  static readonly gesture: FastenerClass<ButtonStack["gesture"]>;
 
-  /** @override */
-  @PresenceAnimator<ButtonStack["presence"]>({
-    value: Presence.dismissed(),
-    updateFlags: View.NeedsLayout,
-    get transition(): Timing | null {
-      return this.owner.getLookOr(Look.timing, null);
-    },
-    didSetValue(presence: Presence): void {
-      this.owner.callObservers("viewDidSetPresence", presence, this.owner);
-      this.owner.modality.setValue(presence.phase, Affinity.Intrinsic);
-    },
-    willPresent(): void {
-      this.owner.callObservers("viewWillPresent", this.owner);
-      const button = this.owner.button;
-      if (button instanceof FloatingButton) {
-        const timing = this.timing;
-        button.pushIcon(this.owner.closeIcon, timing !== null ? timing : void 0);
-      }
-      this.owner.modal.present();
-    },
-    didPresent(): void {
-      this.owner.callObservers("viewDidPresent", this.owner);
-    },
-    willDismiss(): void {
-      this.owner.callObservers("viewWillDismiss", this.owner);
-      const button = this.owner.button;
-      if (button instanceof FloatingButton && button.iconCount > 1) {
-        const timing = this.timing;
-        button.popIcon(timing !== null ? timing : void 0);
-      }
-    },
-    didDismiss(): void {
-      this.owner.callObservers("viewDidDismiss", this.owner);
-    },
-  })
-  readonly presence!: PresenceAnimator<this, Presence, AnyPresence>;
-
-  /** @override */
-  @Property<ButtonStack["modality"]>({
-    valueType: Number,
-    value: 0,
-    didSetValue(modality: number): void {
-      this.owner.callObservers("viewDidSetModality", modality, this.owner);
-    },
-  })
-  readonly modality!: Property<this, number>;
-
-  @ThemeAnimator({valueType: Number, value: 28, updateFlags: View.NeedsLayout})
-  readonly buttonSpacing!: ThemeAnimator<this, number>;
-
-  @ThemeAnimator({valueType: Number, value: 20, updateFlags: View.NeedsLayout})
-  readonly itemSpacing!: ThemeAnimator<this, number>;
-
-  @StyleAnimator<ButtonStack["opacity"]>({
-    extends: HtmlView.getFastenerClass("opacity"),
-    didTransition(opacity: number | undefined): void {
-      if (opacity === 1) {
-        this.owner.didShowStack();
-      } else if (opacity === 0) {
-        this.owner.didHideStack();
+  @EventHandler({
+    type: "click",
+    handle(event: MouseEvent): void {
+      if (event.target === this.owner.button.view?.node) {
+        event.stopPropagation();
       }
     },
   })
-  override readonly opacity!: StyleAnimator<this, number | undefined>;
+  readonly click!: EventHandler<this>;
 
-  get button(): HtmlView | null {
-    const childView = this.getChild("button");
-    return childView instanceof HtmlView ? childView : null;
-  }
-
-  get closeIcon(): Graphics {
-    return ButtonStack.closeIcon;
-  }
-
-  get items(): ReadonlyArray<ButtonItem> {
-    const childNodes = this.node.childNodes;
-    const children = [];
-    for (let i = 0, n = childNodes.length; i < n; i += 1) {
-      const childView = (childNodes[i] as ViewNode).view;
-      if (childView instanceof ButtonItem) {
-        children.push(childView);
-      }
-    }
-    return children;
-  }
-
-  insertItem(item: ButtonItem, index?: number, key?: string): void {
-    if (index === void 0) {
-      index = this.node.childNodes.length - 1;
-    }
-    this.insertChild(item.node, this.node.childNodes[1 + index] || null, key);
-  }
-
-  removeItems(): void {
-    const childNodes = this.node.childNodes;
-    for (let i = childNodes.length - 1; i >= 0; i -= 1) {
-      const childView = (childNodes[i] as ViewNode).view;
-      if (childView instanceof ButtonItem) {
-        this.removeChild(childView);
-      }
-    }
-  }
-
-  protected override onMount(): void {
-    super.onMount();
-    this.addEventListener("click", this.onClick);
-    this.addEventListener("contextmenu", this.onContextMenu);
-  }
-
-  protected override onUnmount(): void {
-    this.removeEventListener("click", this.onClick);
-    this.removeEventListener("contextmenu", this.onContextMenu);
-    super.onUnmount();
-  }
+  @EventHandler({
+    type: "contextmenu",
+    handle(event: MouseEvent): void {
+      event.preventDefault();
+    },
+  })
+  readonly contextmenu!: EventHandler<this>;
 
   protected override onLayout(): void {
     super.onLayout();
@@ -238,17 +260,17 @@ export class ButtonStack extends HtmlView implements ModalView {
     const phase = this.presence.getPhase();
     const childNodes = this.node.childNodes;
     const childCount = childNodes.length;
-    const button = this.button;
+    const buttonView = this.button.view;
     let zIndex = childCount - 1;
     let itemIndex = 0;
     let stackHeight = 0;
     let y: number;
-    if (button !== null) {
-      button.zIndex.setState(childCount, Affinity.Intrinsic);
-      const buttonHeight = button !== null ? button.height.value : void 0;
+    if (buttonView !== null) {
+      buttonView.zIndex.setState(childCount, Affinity.Intrinsic);
+      const buttonHeight = buttonView !== null ? buttonView.height.value : void 0;
       y = buttonHeight instanceof Length
         ? buttonHeight.pxValue()
-        : button.node.offsetHeight;
+        : buttonView.node.offsetHeight;
     } else {
       y = 0;
     }
@@ -277,54 +299,7 @@ export class ButtonStack extends HtmlView implements ModalView {
         zIndex -= 1;
       }
     }
-    (this as Mutable<this>).stackHeight = stackHeight;
-  }
-
-  protected override onInsertChild(childView: View, targetView: View | null): void {
-    super.onInsertChild(childView, targetView);
-    const childKey = childView.key;
-    if (childKey === "button" && childView instanceof HtmlView) {
-      this.onInsertButton(childView);
-    } else if (childView instanceof ButtonItem) {
-      this.onInsertItem(childView);
-    }
-  }
-
-  protected override onRemoveChild(childView: View): void {
-    const childKey = childView.key;
-    if (childKey === "button" && childView instanceof HtmlView) {
-      this.onRemoveButton(childView);
-    } else if (childView instanceof ButtonItem) {
-      this.onRemoveItem(childView);
-    }
-    super.onRemoveChild(childView);
-  }
-
-  protected onInsertButton(button: HtmlView): void {
-    this.gesture.setView(button);
-    if (button instanceof FloatingButton) {
-      button.presence.setState(Presence.presented(), Affinity.Intrinsic);
-      if (this.presence.presented || this.presence.presenting) {
-        button.pushIcon(this.closeIcon);
-      }
-    }
-    button.zIndex.setState(0, Affinity.Intrinsic);
-  }
-
-  protected onRemoveButton(button: HtmlView): void {
-    this.gesture.setView(null);
-  }
-
-  protected onInsertItem(item: ButtonItem): void {
-    item.position.setState("absolute", Affinity.Intrinsic);
-    item.right.setState(8, Affinity.Intrinsic);
-    item.bottom.setState(8, Affinity.Intrinsic);
-    item.left.setState(8, Affinity.Intrinsic);
-    item.zIndex.setState(0, Affinity.Intrinsic);
-  }
-
-  protected onRemoveItem(item: ButtonItem): void {
-    // hook
+    this.stackHeight.setValue(stackHeight);
   }
 
   show(timing?: AnyTiming | boolean): void {
@@ -406,16 +381,6 @@ export class ButtonStack extends HtmlView implements ModalView {
         observer.buttonStackDidHide(this);
       }
     }
-  }
-
-  protected onClick(event: MouseEvent): void {
-    if (event.target === this.button?.node) {
-      event.stopPropagation();
-    }
-  }
-
-  protected onContextMenu(event: MouseEvent): void {
-    event.preventDefault();
   }
 
   @Lazy

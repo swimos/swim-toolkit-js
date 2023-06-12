@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {GraphicsEventInit, GraphicsEvent} from "./GraphicsEvent";
+import type {GraphicsEventInit} from "./GraphicsEvent";
+import type {GraphicsEvent} from "./GraphicsEvent";
 
 /** @public */
 export interface GraphicsMouseEventInit extends MouseEventInit, GraphicsEventInit {

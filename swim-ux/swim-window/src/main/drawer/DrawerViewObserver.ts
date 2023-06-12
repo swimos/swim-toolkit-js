@@ -13,8 +13,10 @@
 // limitations under the License.
 
 import type {Length} from "@swim/math";
-import type {HtmlViewObserver, ModalViewObserver} from "@swim/dom";
-import type {DrawerPlacement, DrawerView} from "./DrawerView";
+import type {HtmlViewObserver} from "@swim/dom";
+import type {ModalViewObserver} from "@swim/dom";
+import type {DrawerPlacement} from "./DrawerView";
+import type {DrawerView} from "./DrawerView";
 
 /** @public */
 export interface DrawerViewObserver<V extends DrawerView = DrawerView> extends HtmlViewObserver<V>, ModalViewObserver<V> {

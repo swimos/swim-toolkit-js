@@ -12,11 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Proto, Observes} from "@swim/util";
+import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
+import type {Observes} from "@swim/util";
 import type {FastenerOwner} from "@swim/component";
-import {AnyView, ViewFactory, View} from "@swim/view";
-import type {ControllerFactory, Controller} from "../controller/Controller";
-import {ControllerRefDescriptor, ControllerRefClass, ControllerRef} from "../controller/ControllerRef";
+import type {AnyView} from "@swim/view";
+import type {ViewFactory} from "@swim/view";
+import {View} from "@swim/view";
+import type {ControllerFactory} from "../controller/Controller";
+import type {Controller} from "../controller/Controller";
+import type {ControllerRefDescriptor} from "../controller/ControllerRef";
+import type {ControllerRefClass} from "../controller/ControllerRef";
+import {ControllerRef} from "../controller/ControllerRef";
 
 /** @public */
 export type ViewControllerRefView<F extends ViewControllerRef<any, any, any>> =
@@ -27,8 +34,13 @@ export type ViewControllerRefController<F extends ViewControllerRef<any, any, an
   F extends {controllerType?: ControllerFactory<infer C>} ? C : never;
 
 /** @public */
+export type ViewControllerRefDecorator<F extends ViewControllerRef<any, any, any>> = {
+  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
+};
+
+/** @public */
 export interface ViewControllerRefDescriptor<V extends View = View, C extends Controller = Controller> extends ControllerRefDescriptor<C> {
-  extends?: Proto<ViewControllerRef<any, any, any>> | string | boolean | null;
+  extends?: Proto<ViewControllerRef<any, any, any>> | boolean | null;
   viewType?: ViewFactory<V>;
   viewKey?: string | boolean;
   observesView?: boolean;
@@ -49,15 +61,15 @@ export interface ViewControllerRefClass<F extends ViewControllerRef<any, any, an
   refine(fastenerClass: ViewControllerRefClass<any>): void;
 
   /** @override */
-  extend<F2 extends F>(className: string, template: ViewControllerRefTemplate<F2>): ViewControllerRefClass<F2>;
-  extend<F2 extends F>(className: string, template: ViewControllerRefTemplate<F2>): ViewControllerRefClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: ViewControllerRefTemplate<F2>): ViewControllerRefClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: ViewControllerRefTemplate<F2>): ViewControllerRefClass<F2>;
 
   /** @override */
-  define<F2 extends F>(className: string, template: ViewControllerRefTemplate<F2>): ViewControllerRefClass<F2>;
-  define<F2 extends F>(className: string, template: ViewControllerRefTemplate<F2>): ViewControllerRefClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: ViewControllerRefTemplate<F2>): ViewControllerRefClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: ViewControllerRefTemplate<F2>): ViewControllerRefClass<F2>;
 
   /** @override */
-  <F2 extends F>(template: ViewControllerRefTemplate<F2>): PropertyDecorator;
+  <F2 extends F>(template: ViewControllerRefTemplate<F2>): ViewControllerRefDecorator<F2>;
 }
 
 /** @public */
@@ -148,8 +160,9 @@ export const ViewControllerRef = (function (_super: typeof ControllerRef) {
     const view = this.view;
     if (view === null) {
       let message = view + " ";
-      if (this.name.length !== 0) {
-        message += this.name + " ";
+      const name = this.name.toString();
+      if (name.length !== 0) {
+        message += name + " ";
       }
       message += "view";
       throw new TypeError(message);
@@ -353,8 +366,9 @@ export const ViewControllerRef = (function (_super: typeof ControllerRef) {
     }
     if (view === void 0 || view === null) {
       let message = "Unable to create ";
-      if (this.name.length !== 0) {
-        message += this.name + " ";
+      const name = this.name.toString();
+      if (name.length !== 0) {
+        message += name + " ";
       }
       message += "view";
       throw new Error(message);
@@ -385,11 +399,11 @@ export const ViewControllerRef = (function (_super: typeof ControllerRef) {
       const targetView = targetController !== null ? this.detectControllerView(targetController) : null;
       this.attachView(view, targetView);
     }
-    ControllerRef.prototype.onAttachController.call(this, controller, targetController);
+    _super.prototype.onAttachController.call(this, controller, targetController);
   };
 
   ViewControllerRef.prototype.onDetachController = function <V extends View, C extends Controller>(this: ViewControllerRef<unknown, V, C>, controller: C): void {
-    ControllerRef.prototype.onDetachController.call(this, controller);
+    _super.prototype.onDetachController.call(this, controller);
     const view = this.detectControllerView(controller);
     if (view !== null && view === this.view) {
       this.detachView();

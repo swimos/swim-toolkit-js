@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="https://api.tiles.mapbox.com/mapbox-gl-js/v2.8.2/mapbox-gl.css">
   </head>
   <body swim-theme style="width: 100vw; height: 100vh; margin: 0;">
+    <script src="../../node_modules/tslib/tslib.js"></script>
     <script src="../../swim-runtime/swim-core/dist/swim-core.js"></script>
     <script src="../../swim-runtime/swim-host/dist/swim-host.js"></script>
     <script src="../swim-ui/dist/swim-ui.js"></script>
@@ -17,87 +18,120 @@ mapboxgl.accessToken = "pk.eyJ1Ijoic3dpbWl0IiwiYSI6ImNqY2c3NXZkYzFoa2QycXQ1eXl1M
 
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-class ExampleMapboxController extends swim.MapController {
-  createMapView(containerView) {
-    const map = new mapboxgl.Map({
-      container: containerView.node,
-      //style: "mapbox://styles/mapbox/dark-v10",
-      center: {lng: 0, lat: 0},
-      zoom: 1,
-    });
-    return new swim.MapboxView(map);
-  }
-}
-swim.TraitViewRef({
-  extends: true,
-  initView(mapView) {
-    swim.MapController.map.prototype.initView.call(this, mapView);
-    mapView.modifyMood(swim.Feel.default, [[swim.Feel.primary, 1]]);
-  },
-})(ExampleMapboxController.prototype, "map");
-swim.ViewRef({
-  extends: true,
-  initView(canvasView) {
-    swim.MapController.canvas.prototype.initView.call(this, canvasView);
-    canvasView.pointerEventsEnabled(true).touchAction("manipulation");
-  },
-})(ExampleMapboxController.prototype, "canvas");
-swim.TraitViewControllerSet({
-  extends: true,
-  createController(layerTrait) {
-    if (layerTrait instanceof ExampleTileTrait) {
-      return new ExampleTileController(swim.GeoTile.root());
-    } else {
-      return swim.MapController.layers.prototype.createController.call(this, layerTrait);
+const ExampleMapboxController = (function () {
+  const extraInitializers = [];
+  const mapInitializers = [];
+  const canvasInitializers = [];
+  const layersInitializers = [];
+  class ExampleMapboxController extends swim.MapController {
+    constructor() {
+      super();
+      __runInitializers(this, extraInitializers);
+      this.map = __runInitializers(this, mapInitializers, this.map);
+      this.canvas = __runInitializers(this, canvasInitializers, this.canvas);
+      this.layers = __runInitializers(this, layersInitializers, this.layers);
     }
-  },
-})(ExampleMapboxController.prototype, "layers");
+    createMapView(containerView) {
+      const map = new mapboxgl.Map({
+        container: containerView.node,
+        //style: "mapbox://styles/mapbox/dark-v10",
+        center: {lng: 0, lat: 0},
+        zoom: 1,
+      });
+      return new swim.MapboxView(map);
+    }
+  }
+  __esDecorate(null, null, [swim.TraitViewRef({
+    extends: true,
+    initView(mapView) {
+      super.initView(mapView);
+      mapView.modifyMood(swim.Feel.default, [[swim.Feel.primary, 1]]);
+    },
+  })], {kind: "field", name: "map", static: false, private: false, access: {has: obj => "map" in obj, get: obj => obj.map, set: (obj, value) => { obj.map = value; }}}, mapInitializers, extraInitializers);
+  __esDecorate(null, null, [swim.ViewRef({
+    extends: true,
+    initView(canvasView) {
+      super.initView(canvasView);
+      canvasView.pointerEventsEnabled(true).touchAction("manipulation");
+    },
+  })], {kind: "field", name: "canvas", static: false, private: false, access: {has: obj => "canvas" in obj, get: obj => obj.canvas, set: (obj, value) => { obj.canvas = value; }}}, canvasInitializers, extraInitializers);
+  __esDecorate(null, null, [swim.TraitViewControllerSet({
+    extends: true,
+    createController(layerTrait) {
+      if (layerTrait instanceof ExampleTileTrait) {
+        return new ExampleTileController(swim.GeoTile.root());
+      } else {
+        return super.createController(layerTrait);
+      }
+    },
+  })], {kind: "field", name: "layers", static: false, private: false, access: {has: obj => "layers" in obj, get: obj => obj.layers, set: (obj, value) => { obj.layers = value; }}}, layersInitializers, extraInitializers);
+  return ExampleMapboxController;
+})();
 
-class ExampleTileController extends swim.GeoTileController {
-}
-swim.TraitViewRef({
-  extends: true,
-  initView(tileView) {
-    swim.GeoTileController.geo.prototype.initView.call(this, tileView);
-    tileView.geoBoundsColor("#008f11");
-  },
-})(ExampleTileController.prototype, "geo");
-swim.TraitViewControllerSet({
-  extends: true,
-  attachTileView(tileView, tileController) {
-    swim.GeoTileController.tiles.prototype.attachTileView.call(this, tileView, tileController);
-  },
-  createController(tileTrait) {
-    return tileTrait !== void 0 ? new ExampleTileController(tileTrait.geoTile) : null;
-  },
-})(ExampleTileController.prototype, "tiles");
+const ExampleTileController = (function () {
+  const extraInitializers = [];
+  const geoInitializers = [];
+  const tilesInitializers = [];
+  class ExampleTileController extends swim.GeoTileController {
+    constructor(geoTile) {
+      super(geoTile);
+      __runInitializers(this, extraInitializers);
+      this.geo = __runInitializers(this, geoInitializers, this.geo);
+      this.tiles = __runInitializers(this, tilesInitializers, this.tiles);
+    }
+  }
+  __esDecorate(null, null, [swim.TraitViewRef({
+    extends: true,
+    initView(tileView) {
+      super.initView(tileView);
+      tileView.geoBoundsColor("#008f11");
+    },
+  })], {kind: "field", name: "geo", static: false, private: false, access: {has: obj => "geo" in obj, get: obj => obj.geo, set: (obj, value) => { obj.geo = value; }}}, geoInitializers, extraInitializers);
+  __esDecorate(null, null, [swim.TraitViewControllerSet({
+    extends: true,
+    attachTileView(tileView, tileController) {
+      super.attachTileView(tileView, tileController);
+    },
+    createController(tileTrait) {
+      return tileTrait !== void 0 ? new ExampleTileController(tileTrait.geoTile) : null;
+    },
+  })], {kind: "field", name: "tiles", static: false, private: false, access: {has: obj => "tiles" in obj, get: obj => obj.tiles, set: (obj, value) => { obj.tiles = value; }}}, tilesInitializers, extraInitializers);
+  return ExampleTileController;
+})();
 
-class ExampleTileTrait extends swim.GeoTileTrait {
-  constructor(geoTile) {
-    super(geoTile);
-    const tileId = geoTile.x + "," + geoTile.y + "," + geoTile.z;
-    this.nodeUri.setValue(swim.Uri.path(swim.UriPath.of("/", "map", "/", tileId)));
+const ExampleTileTrait = (function () {
+  const extraInitializers = [];
+  const vehiclesDownlinkInitializers = [];
+  class ExampleTileTrait extends swim.GeoTileTrait {
+    constructor(geoTile) {
+      super(geoTile);
+      __runInitializers(this, extraInitializers);
+      this.vehiclesDownlinkInitializers = __runInitializers(this, vehiclesDownlinkInitializers, this.vehiclesDownlinkInitializers);
+      const tileId = geoTile.x + "," + geoTile.y + "," + geoTile.z;
+      this.nodeUri.setValue(swim.Uri.path(swim.UriPath.of("/", "map", "/", tileId)));
+    }
+    createTileTrait(geoTile) {
+      return new ExampleTileTrait(geoTile);
+    }
+    onStartConsuming() {
+      super.onStartConsuming();
+      console.log("onStartConsuming " + this.geoTile);
+    }
+    onStopConsuming() {
+      super.onStopConsuming();
+      console.log("onStopConsuming " + this.geoTile);
+    }
   }
-  createTileTrait(geoTile) {
-    return new ExampleTileTrait(geoTile);
-  }
-  onStartConsuming() {
-    super.onStartConsuming();
-    console.log("onStartConsuming " + this.geoTile);
-  }
-  onStopConsuming() {
-    super.onStopConsuming();
-    console.log("onStopConsuming " + this.geoTile);
-  }
-}
-swim.MapDownlink({
-  lazy: false,
-  consumed: true,
-  laneUri: "vehicles",
-  didUpdate(key, value) {
-    console.log(this.nodeUri + " updateVehicle " + key.toAny() + ":", value.toAny());
-  },
-})(ExampleTileTrait.prototype, "vehiclesDownlink")
+  __esDecorate(null, null, [swim.MapDownlink({
+    lazy: false,
+    consumed: true,
+    laneUri: "vehicles",
+    didUpdate(key, value) {
+      console.log(this.nodeUri + " updateVehicle " + key.toAny() + ":", value.toAny());
+    },
+  })], {kind: "field", name: "vehiclesDownlink", static: false, private: false, access: {has: obj => "vehiclesDownlink" in obj, get: obj => obj.vehiclesDownlink, set: (obj, value) => { obj.vehiclesDownlink = value; }}}, vehiclesDownlinkInitializers, extraInitializers);
+  return ExampleTileTrait;
+})();
 
 const layerModel = new swim.Model();
 const layerTrait = new ExampleTileTrait(swim.GeoTile.root());

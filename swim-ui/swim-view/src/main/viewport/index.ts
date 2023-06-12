@@ -16,9 +16,9 @@ export {LayoutViewport} from "./LayoutViewport";
 
 export {VisualViewport} from "./VisualViewport";
 
-export {ViewportOrientation} from "./ViewportOrientation";
+export type {ViewportOrientation} from "./ViewportOrientation";
 
-export {ViewportColorScheme} from "./ViewportColorScheme";
+export type {ViewportColorScheme} from "./ViewportColorScheme";
 
 export {ViewportService} from "./ViewportService";
-export {ViewportServiceObserver} from "./ViewportServiceObserver";
+export type {ViewportServiceObserver} from "./ViewportServiceObserver";

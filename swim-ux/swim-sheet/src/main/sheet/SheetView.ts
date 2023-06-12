@@ -12,12 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, AnyTiming, Timing} from "@swim/util";
-import {Affinity, FastenerClass, Property} from "@swim/component";
-import {AnyPresence, Presence, PresenceAnimator} from "@swim/style";
-import {Look, Mood} from "@swim/theme";
-import {View, ViewRef} from "@swim/view";
-import {Overflow, PointerEvents, HtmlView} from "@swim/dom";
+import type {Class} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import type {Timing} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
+import type {AnyPresence} from "@swim/style";
+import {Presence} from "@swim/style";
+import {PresenceAnimator} from "@swim/style";
+import {Look} from "@swim/theme";
+import {Mood} from "@swim/theme";
+import {View} from "@swim/view";
+import {ViewRef} from "@swim/view";
+import type {Overflow} from "@swim/dom";
+import type {PointerEvents} from "@swim/dom";
+import {HtmlView} from "@swim/dom";
 import type {SheetViewObserver} from "./SheetViewObserver";
 
 /** @public */
@@ -41,8 +50,10 @@ export class SheetView extends HtmlView {
 
   override readonly observerType?: Class<SheetViewObserver>;
 
-  @ViewRef<SheetView["back"]>({
-    viewType: SheetView,
+  @ViewRef({
+    get viewType(): typeof SheetView {
+      return SheetView;
+    },
     binds: false,
     willAttachView(backView: SheetView): void {
       this.owner.callObservers("viewWillAttachBack", backView, this.owner);
@@ -52,10 +63,11 @@ export class SheetView extends HtmlView {
     },
   })
   readonly back!: ViewRef<this, SheetView>;
-  static readonly back: FastenerClass<SheetView["back"]>;
 
-  @ViewRef<SheetView["forward"]>({
-    viewType: SheetView,
+  @ViewRef({
+    get viewType(): typeof SheetView {
+      return SheetView;
+    },
     binds: false,
     willAttachView(forwardView: SheetView): void {
       this.owner.callObservers("viewWillAttachForward", forwardView, this.owner);
@@ -65,9 +77,8 @@ export class SheetView extends HtmlView {
     },
   })
   readonly forward!: ViewRef<this, SheetView>;
-  static readonly forward: FastenerClass<SheetView["forward"]>;
 
-  @Property<SheetView["fullBleed"]>({
+  @Property({
     valueType: Boolean,
     value: false,
     didSetValue(fullBleed: boolean): void {
@@ -76,10 +87,10 @@ export class SheetView extends HtmlView {
   })
   readonly fullBleed!: Property<this, boolean>;
 
-  @Property<SheetView["sheetAlign"]>({valueType: Number, value: 1})
+  @Property({valueType: Number, value: 1})
   readonly sheetAlign!: Property<this, number>;
 
-  @PresenceAnimator<SheetView["presence"]>({
+  @PresenceAnimator({
     value: Presence.presented(),
     updateFlags: View.NeedsLayout,
     init(): void {

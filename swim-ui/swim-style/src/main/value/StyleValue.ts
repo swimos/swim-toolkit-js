@@ -13,16 +13,30 @@
 // limitations under the License.
 
 import {Interpolator} from "@swim/util";
-import {Input, Parser, Diagnostic, Unicode} from "@swim/codec";
+import {Diagnostic} from "@swim/codec";
+import type {Input} from "@swim/codec";
+import {Parser} from "@swim/codec";
+import {Unicode} from "@swim/codec";
 import type {Form} from "@swim/structure";
-import {AnyLength, Length, AnyAngle, Angle, AnyTransform, Transform} from "@swim/math";
-import {AnyDateTime, DateTime} from "@swim/time";
-import {AnyFont, Font} from "../font/Font";
-import {AnyColor, Color} from "../color/Color";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import type {AnyAngle} from "@swim/math";
+import {Angle} from "@swim/math";
+import type {AnyTransform} from "@swim/math";
+import {Transform} from "@swim/math";
+import type {AnyDateTime} from "@swim/time";
+import {DateTime} from "@swim/time";
+import type {AnyFont} from "../font/Font";
+import {Font} from "../font/Font";
+import type {AnyColor} from "../color/Color";
+import {Color} from "../color/Color";
 import type {RgbColorInit} from "../rgb/RgbColor";
 import type {HslColorInit} from "../hsl/HslColor";
-import {AnyLinearGradient, LinearGradient} from "../gradient/LinearGradient";
-import {AnyBoxShadow, BoxShadowInit, BoxShadow} from "../shadow/BoxShadow";
+import type {AnyLinearGradient} from "../gradient/LinearGradient";
+import {LinearGradient} from "../gradient/LinearGradient";
+import type {AnyBoxShadow} from "../shadow/BoxShadow";
+import type {BoxShadowInit} from "../shadow/BoxShadow";
+import {BoxShadow} from "../shadow/BoxShadow";
 import {StyleValueForm} from "../"; // forward import
 import {StyleValueParser} from "../"; // forward import
 

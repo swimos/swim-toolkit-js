@@ -12,16 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, Initable, Range, AnyTiming, Timing, Easing, LinearRange} from "@swim/util";
-import {Affinity, FastenerClass, Property} from "@swim/component";
-import {AnyLength, Length, R2Point, R2Box} from "@swim/math";
-import {AnyFont, Font, AnyColor, Color} from "@swim/style";
-import {Look, ThemeAnimator} from "@swim/theme";
-import {View, ViewRef} from "@swim/view";
+import type {Class} from "@swim/util";
+import type {Initable} from "@swim/util";
+import type {Range} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {Timing} from "@swim/util";
+import {Easing} from "@swim/util";
+import {LinearRange} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import {R2Point} from "@swim/math";
+import {R2Box} from "@swim/math";
+import type {AnyFont} from "@swim/style";
+import {Font} from "@swim/style";
+import type {AnyColor} from "@swim/style";
+import {Color} from "@swim/style";
+import {Look} from "@swim/theme";
+import {ThemeAnimator} from "@swim/theme";
+import type {View} from "@swim/view";
+import {ViewRef} from "@swim/view";
 import type {ChartViewObserver} from "./ChartViewObserver";
-import {ScaledViewInit, ScaledView} from "../scaled/ScaledView";
-import {AnyGraphView, GraphView} from "../graph/GraphView";
-import type {AnyAxisView, AxisViewInit, AxisView} from "../axis/AxisView";
+import type {ScaledViewInit} from "../scaled/ScaledView";
+import {ScaledView} from "../scaled/ScaledView";
+import type {AnyGraphView} from "../graph/GraphView";
+import {GraphView} from "../graph/GraphView";
+import type {AnyAxisView} from "../axis/AxisView";
+import type {AxisViewInit} from "../axis/AxisView";
+import type {AxisView} from "../axis/AxisView";
 import {TopAxisView} from "../axis/TopAxisView";
 import {RightAxisView} from "../axis/RightAxisView";
 import {BottomAxisView} from "../axis/BottomAxisView";
@@ -98,7 +117,7 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
   @ThemeAnimator({valueType: Number, value: 2})
   readonly tickLabelPadding!: ThemeAnimator<this, number>;
 
-  @Property<ChartView["tickTransition"]>({
+  @Property({
     valueType: Timing,
     initValue(): Timing {
       return Easing.cubicOut.withDuration(250);
@@ -138,7 +157,7 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
     return LinearRange(yRangeMax, yRangeMin);
   }
 
-  @ViewRef<ChartView<X, Y>["graph"]>({
+  @ViewRef({
     viewType: GraphView,
     viewKey: true,
     binds: true,
@@ -153,9 +172,8 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
     },
   })
   readonly graph!: ViewRef<this, GraphView<X, Y>>;
-  static readonly graph: FastenerClass<ChartView["graph"]>;
 
-  @ViewRef<ChartView<X, Y>["topAxis"]>({
+  @ViewRef({
     viewType: TopAxisView,
     viewKey: true,
     binds: true,
@@ -170,9 +188,8 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
     },
   })
   readonly topAxis!: ViewRef<this, AxisView<X> & Initable<AxisViewInit<X> | true>>;
-  static readonly topAxis: FastenerClass<ChartView["topAxis"]>;
 
-  @ViewRef<ChartView<X, Y>["rightAxis"]>({
+  @ViewRef({
     viewType: RightAxisView,
     viewKey: true,
     binds: true,
@@ -187,9 +204,8 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
     },
   })
   readonly rightAxis!: ViewRef<this, AxisView<Y> & Initable<AxisViewInit<Y> | true>>;
-  static readonly rightAxis: FastenerClass<ChartView["rightAxis"]>;
 
-  @ViewRef<ChartView<X, Y>["bottomAxis"]>({
+  @ViewRef({
     viewType: BottomAxisView,
     viewKey: true,
     binds: true,
@@ -204,9 +220,8 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
     },
   })
   readonly bottomAxis!: ViewRef<this, AxisView<X> & Initable<AxisViewInit<X> | true>>;
-  static readonly bottomAxis: FastenerClass<ChartView["bottomAxis"]>;
 
-  @ViewRef<ChartView<X, Y>["leftAxis"]>({
+  @ViewRef({
     viewType: LeftAxisView,
     viewKey: true,
     binds: true,
@@ -221,7 +236,6 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
     },
   })
   readonly leftAxis!: ViewRef<this, AxisView<Y> & Initable<AxisViewInit<Y> | true>>;
-  static readonly leftAxis: FastenerClass<ChartView["leftAxis"]>;
 
   protected override updateScales(): void {
     this.layoutChart(this.viewFrame);

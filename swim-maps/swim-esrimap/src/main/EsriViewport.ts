@@ -13,8 +13,11 @@
 // limitations under the License.
 
 import type {Equals} from "@swim/util";
-import type {AnyR2Point, R2Point} from "@swim/math";
-import type {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
+import type {AnyR2Point} from "@swim/math";
+import type {R2Point} from "@swim/math";
+import type {AnyGeoPoint} from "@swim/geo";
+import type {GeoPoint} from "@swim/geo";
+import type {GeoBox} from "@swim/geo";
 import type {GeoViewport} from "@swim/map";
 
 /** @public */

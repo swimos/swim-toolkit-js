@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  AnyExpansion,
-  ExpansionInit,
-  Expansion,
-} from "./Expansion";
+export type {AnyExpansion} from "./Expansion";
+export type {ExpansionInit} from "./Expansion";
+export {Expansion} from "./Expansion";
 export {ExpansionInterpolator} from "./ExpansionInterpolator";
 
 export {ExpansionAnimator} from "./ExpansionAnimator";

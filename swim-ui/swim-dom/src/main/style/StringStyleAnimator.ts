@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {StyleAnimatorClass, StyleAnimator} from "./StyleAnimator";
+import type {StyleAnimatorClass} from "./StyleAnimator";
+import {StyleAnimator} from "./StyleAnimator";
 
 /** @internal */
 export interface StringStyleAnimator<O = unknown, T extends string | undefined = string | undefined, U extends string | undefined = string | undefined> extends StyleAnimator<O, T, U> {

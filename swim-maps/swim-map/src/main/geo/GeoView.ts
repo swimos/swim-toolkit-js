@@ -12,13 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Class} from "@swim/util";
+import type {Mutable} from "@swim/util";
+import type {Class} from "@swim/util";
 import {Property} from "@swim/component";
-import {GeoBox, GeoProjection} from "@swim/geo";
-import {AnyColor, Color} from "@swim/style";
+import {GeoBox} from "@swim/geo";
+import type {GeoProjection} from "@swim/geo";
+import type {AnyColor} from "@swim/style";
+import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
-import {ViewFlags, View} from "@swim/view";
-import {GraphicsViewInit, GraphicsView, PaintingContext, PaintingRenderer} from "@swim/graphics";
+import type {ViewFlags} from "@swim/view";
+import {View} from "@swim/view";
+import type {GraphicsViewInit} from "@swim/graphics";
+import {GraphicsView} from "@swim/graphics";
+import type {PaintingContext} from "@swim/graphics";
+import {PaintingRenderer} from "@swim/graphics";
 import {GeoViewport} from "./GeoViewport";
 import type {GeoViewObserver} from "./GeoViewObserver";
 
@@ -128,7 +135,7 @@ export class GeoView extends GraphicsView {
     this.setCulled(!geoFrame.intersects(this.geoBounds));
   }
 
-  @Property<GeoView["geoViewport"]>({
+  @Property({
     valueType: GeoViewport,
     inherits: true,
   })

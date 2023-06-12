@@ -14,7 +14,8 @@
 
 import type {Timing} from "@swim/util";
 import type {ComponentObserver} from "@swim/component";
-import type {MoodVector, ThemeMatrix} from "@swim/theme";
+import type {MoodVector} from "@swim/theme";
+import type {ThemeMatrix} from "@swim/theme";
 import type {View} from "./View";
 
 /** @public */

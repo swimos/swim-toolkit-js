@@ -14,11 +14,14 @@
 
 import type {Trait} from "@swim/model";
 import type {PositionGestureInput} from "@swim/view";
-import type {ToolController, BarView, BarController} from "@swim/toolbar";
+import type {ToolController} from "@swim/toolbar";
+import type {BarView} from "@swim/toolbar";
+import type {BarController} from "@swim/toolbar";
 import type {SheetView} from "../sheet/SheetView";
 import type {SheetController} from "../sheet/SheetController";
 import type {SheetControllerObserver} from "../sheet/SheetControllerObserver";
-import type {BinderTabStyle, BinderView} from "./BinderView";
+import type {BinderTabStyle} from "./BinderView";
+import type {BinderView} from "./BinderView";
 import type {BinderController} from "./BinderController";
 
 /** @public */

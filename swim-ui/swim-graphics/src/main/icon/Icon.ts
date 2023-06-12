@@ -13,7 +13,11 @@
 // limitations under the License.
 
 import type {R2Box} from "@swim/math";
-import type {Feel, MoodVectorUpdates, MoodVector, MoodMatrix, ThemeMatrix} from "@swim/theme";
+import type {Feel} from "@swim/theme";
+import type {MoodVectorUpdates} from "@swim/theme";
+import type {MoodVector} from "@swim/theme";
+import type {MoodMatrix} from "@swim/theme";
+import type {ThemeMatrix} from "@swim/theme";
 import type {GraphicsRenderer} from "../graphics/GraphicsRenderer";
 import type {Graphics} from "../graphics/Graphics";
 import type {DrawingContext} from "../drawing/DrawingContext";

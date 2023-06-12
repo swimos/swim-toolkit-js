@@ -14,11 +14,9 @@
 
 export {Mood} from "./Mood";
 
-export {
-  AnyMoodVector,
-  MoodVectorArray,
-  MoodVectorUpdates,
-  MoodVector,
-} from "./MoodVector";
+export type {AnyMoodVector} from "./MoodVector";
+export type {MoodVectorArray} from "./MoodVector";
+export type {MoodVectorUpdates} from "./MoodVector";
+export {MoodVector} from "./MoodVector";
 
 export {MoodMatrix} from "./MoodMatrix";

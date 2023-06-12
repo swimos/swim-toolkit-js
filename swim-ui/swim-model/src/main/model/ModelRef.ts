@@ -12,18 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Proto} from "@swim/util";
-import {Affinity, FastenerOwner, Fastener} from "@swim/component";
-import type {AnyModel, ModelFactory, Model} from "./Model";
-import {ModelRelationDescriptor, ModelRelationClass, ModelRelation} from "./ModelRelation";
+import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
+import {Affinity} from "@swim/component";
+import type {FastenerOwner} from "@swim/component";
+import {Fastener} from "@swim/component";
+import type {AnyModel} from "./Model";
+import type {ModelFactory} from "./Model";
+import type {Model} from "./Model";
+import type {ModelRelationDescriptor} from "./ModelRelation";
+import type {ModelRelationClass} from "./ModelRelation";
+import {ModelRelation} from "./ModelRelation";
 
 /** @public */
 export type ModelRefModel<F extends ModelRef<any, any>> =
   F extends {modelType?: ModelFactory<infer M>} ? M : never;
 
 /** @public */
+export type ModelRefDecorator<F extends ModelRef<any, any>> = {
+  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
+};
+
+/** @public */
 export interface ModelRefDescriptor<M extends Model = Model> extends ModelRelationDescriptor<M> {
-  extends?: Proto<ModelRef<any, any>> | string | boolean | null;
+  extends?: Proto<ModelRef<any, any>> | boolean | null;
   modelKey?: string | boolean;
 }
 
@@ -42,15 +54,15 @@ export interface ModelRefClass<F extends ModelRef<any, any> = ModelRef<any, any>
   refine(fastenerClass: ModelRefClass<any>): void;
 
   /** @override */
-  extend<F2 extends F>(className: string, template: ModelRefTemplate<F2>): ModelRefClass<F2>;
-  extend<F2 extends F>(className: string, template: ModelRefTemplate<F2>): ModelRefClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: ModelRefTemplate<F2>): ModelRefClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: ModelRefTemplate<F2>): ModelRefClass<F2>;
 
   /** @override */
-  define<F2 extends F>(className: string, template: ModelRefTemplate<F2>): ModelRefClass<F2>;
-  define<F2 extends F>(className: string, template: ModelRefTemplate<F2>): ModelRefClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: ModelRefTemplate<F2>): ModelRefClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: ModelRefTemplate<F2>): ModelRefClass<F2>;
 
   /** @override */
-  <F2 extends F>(template: ModelRefTemplate<F2>): PropertyDecorator;
+  <F2 extends F>(template: ModelRefTemplate<F2>): ModelRefDecorator<F2>;
 }
 
 /** @public */
@@ -62,7 +74,7 @@ export interface ModelRef<O = unknown, M extends Model = Model> extends ModelRel
   get fastenerType(): Proto<ModelRef<any, any>>;
 
   /** @internal @override */
-  getSuper(): ModelRef<unknown, M> | null;
+  getParent(): ModelRef<unknown, M> | null;
 
   /** @internal @override */
   setDerived(derived: boolean, inlet: ModelRef<unknown, M>): void;
@@ -193,8 +205,9 @@ export const ModelRef = (function (_super: typeof ModelRelation) {
     const inletModel = this.inletModel;
     if (inletModel === void 0 || inletModel === null) {
       let message = inletModel + " ";
-      if (this.name.length !== 0) {
-        message += this.name + " ";
+      const name = this.name.toString();
+      if (name.length !== 0) {
+        message += name + " ";
       }
       message += "inlet model";
       throw new TypeError(message);
@@ -206,8 +219,9 @@ export const ModelRef = (function (_super: typeof ModelRelation) {
     const model = this.model;
     if (model === null) {
       let message = model + " ";
-      if (this.name.length !== 0) {
-        message += this.name + " ";
+      const name = this.name.toString();
+      if (name.length !== 0) {
+        message += name + " ";
       }
       message += "model";
       throw new TypeError(message);
@@ -340,7 +354,9 @@ export const ModelRef = (function (_super: typeof ModelRelation) {
           this.onDetachModel(oldModel);
           this.deinitModel(oldModel);
           this.didDetachModel(oldModel);
-          oldModel.remove();
+          if (this.binds && parent !== null && oldModel.parent === parent) {
+            oldModel.remove();
+          }
         }
         (this as Mutable<typeof this>).model = newModel;
         this.willAttachModel(newModel, target);

@@ -13,10 +13,10 @@
 // limitations under the License.
 
 export {LeafView} from "./LeafView";
-export {LeafViewObserver} from "./LeafViewObserver";
+export type {LeafViewObserver} from "./LeafViewObserver";
 
 export {LeafTrait} from "./LeafTrait";
-export {LeafTraitObserver} from "./LeafTraitObserver";
+export type {LeafTraitObserver} from "./LeafTraitObserver";
 
 export {LeafController} from "./LeafController";
-export {LeafControllerObserver} from "./LeafControllerObserver";
+export type {LeafControllerObserver} from "./LeafControllerObserver";

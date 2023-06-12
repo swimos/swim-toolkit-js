@@ -12,15 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Equals, Equivalent, Interpolate, Interpolator} from "@swim/util";
-import {Output, Debug, Format} from "@swim/codec";
-import {AnyR2Path, R2Path, R2Box, Transform} from "@swim/math";
+import {Equals} from "@swim/util";
+import {Equivalent} from "@swim/util";
+import type {Interpolate} from "@swim/util";
+import type {Interpolator} from "@swim/util";
+import type {Output} from "@swim/codec";
+import type {Debug} from "@swim/codec";
+import {Format} from "@swim/codec";
+import type {AnyR2Path} from "@swim/math";
+import {R2Path} from "@swim/math";
+import type {R2Box} from "@swim/math";
+import {Transform} from "@swim/math";
 import type {Color} from "@swim/style";
-import {Look, Feel, MoodVectorUpdates, MoodVector, MoodMatrix, ThemeMatrix} from "@swim/theme";
+import {Look} from "@swim/theme";
+import type {Feel} from "@swim/theme";
+import type {MoodVectorUpdates} from "@swim/theme";
+import type {MoodVector} from "@swim/theme";
+import {MoodMatrix} from "@swim/theme";
+import type {ThemeMatrix} from "@swim/theme";
 import type {GraphicsRenderer} from "../graphics/GraphicsRenderer";
 import type {DrawingContext} from "../drawing/DrawingContext";
 import {DrawingRenderer} from "../drawing/DrawingRenderer";
-import type {PaintingFillRule, PaintingContext} from "../painting/PaintingContext";
+import type {PaintingFillRule} from "../painting/PaintingContext";
+import type {PaintingContext} from "../painting/PaintingContext";
 import {PaintingRenderer} from "../painting/PaintingRenderer";
 import {FilledIcon} from "./FilledIcon";
 import {VectorIconInterpolator} from "../"; // forward import

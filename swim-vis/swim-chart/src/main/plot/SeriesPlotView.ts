@@ -12,30 +12,40 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  Mutable,
-  Class,
-  Instance,
-  Equals,
-  Values,
-  Creatable,
-  Domain,
-  Range,
-  AnyTiming,
-  LinearRange,
-  ContinuousScale,
-  Observes,
-} from "@swim/util";
-import {Affinity, FastenerClass, Property} from "@swim/component";
+import type {Mutable} from "@swim/util";
+import type {Class} from "@swim/util";
+import type {Instance} from "@swim/util";
+import {Equals} from "@swim/util";
+import {Values} from "@swim/util";
+import type {Creatable} from "@swim/util";
+import type {Domain} from "@swim/util";
+import type {Range} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {LinearRange} from "@swim/util";
+import type {ContinuousScale} from "@swim/util";
+import type {Observes} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
 import {BTree} from "@swim/collections";
 import type {R2Box} from "@swim/math";
-import {AnyFont, Font, AnyColor, Color} from "@swim/style";
+import type {AnyFont} from "@swim/style";
+import {Font} from "@swim/style";
+import type {AnyColor} from "@swim/style";
+import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
-import {ViewFlags, AnyView, View, ViewSet} from "@swim/view";
-import {GraphicsView, CanvasContext, CanvasRenderer} from "@swim/graphics";
-import {DataPointCategory, AnyDataPointView, DataPointView} from "../data/DataPointView";
+import type {ViewFlags} from "@swim/view";
+import type {AnyView} from "@swim/view";
+import {View} from "@swim/view";
+import {ViewSet} from "@swim/view";
+import {GraphicsView} from "@swim/graphics";
+import type {CanvasContext} from "@swim/graphics";
+import {CanvasRenderer} from "@swim/graphics";
+import type {DataPointCategory} from "../data/DataPointView";
+import type {AnyDataPointView} from "../data/DataPointView";
+import {DataPointView} from "../data/DataPointView";
 import {ContinuousScaleAnimator} from "../scaled/ContinuousScaleAnimator";
-import type {PlotViewInit, PlotView} from "./PlotView";
+import type {PlotViewInit} from "./PlotView";
+import type {PlotView} from "./PlotView";
 import type {SeriesPlotViewObserver} from "./SeriesPlotViewObserver";
 
 /** @public */
@@ -63,7 +73,7 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
 
   override readonly observerType?: Class<SeriesPlotViewObserver<X, Y>>;
 
-  @ThemeAnimator<SeriesPlotView<X, Y>["opacity"]>({
+  @ThemeAnimator({
     valueType: Number,
     updateFlags: View.NeedsRender,
     didSetValue(opacity: number | undefined): void {
@@ -78,11 +88,11 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
   @ThemeAnimator({valueType: Color, value: null, inherits: true})
   readonly textColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @Property<SeriesPlotView<X, Y>["hitMode"]>({valueType: String, value: "domain"})
+  @Property({valueType: String, value: "domain"})
   readonly hitMode!: Property<this, SeriesPlotHitMode>;
 
   /** @override */
-  @ContinuousScaleAnimator<SeriesPlotView<X, Y>["xScale"]>({
+  @ContinuousScaleAnimator({
     value: null,
     inherits: true,
     updateFlags: View.NeedsLayout,
@@ -94,7 +104,7 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
   readonly xScale!: ContinuousScaleAnimator<this, X, number>;
 
   /** @override */
-  @ContinuousScaleAnimator<SeriesPlotView<X, Y>["yScale"]>({
+  @ContinuousScaleAnimator({
     value: null,
     inherits: true,
     updateFlags: View.NeedsLayout,
@@ -148,7 +158,7 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
   }
 
   /** @override */
-  @Property<SeriesPlotView<X, Y>["xRangePadding"]>({
+  @Property({
     initValue(): readonly [number, number] {
       return [0, 0];
     },
@@ -156,10 +166,10 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
       this.owner.callObservers("viewDidSetXRangePadding", xRangePadding, this.owner);
     },
   })
-  readonly xRangePadding!: Property<this, readonly [number, number]>
+  readonly xRangePadding!: Property<this, readonly [number, number]>;
 
   /** @override */
-  @Property<SeriesPlotView<X, Y>["yRangePadding"]>({
+  @Property({
     initValue(): readonly [number, number] {
       return [0, 0];
     },
@@ -167,7 +177,7 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
       this.owner.callObservers("viewDidSetYRangePadding", yRangePadding, this.owner);
     },
   })
-  readonly yRangePadding!: Property<this, readonly [number, number]>
+  readonly yRangePadding!: Property<this, readonly [number, number]>;
 
   /** @override */
   readonly xDataDomain: Domain<X> | null;
@@ -299,7 +309,7 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
   /** @internal */
   readonly gradientStops: number;
 
-  @ViewSet<SeriesPlotView<X, Y>["dataPoints"]>({
+  @ViewSet({
     viewType: DataPointView,
     binds: true,
     observes: true,
@@ -360,7 +370,6 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
     attachDataPointLabelView(labelView: GraphicsView): void,
     detachDataPointLabelView(labelView: GraphicsView): void,
   };
-  static readonly dataPoints: FastenerClass<SeriesPlotView["dataPoints"]>;
 
   /** @internal */
   readonly dataPointViews: BTree<X, DataPointView<X, Y>>;
@@ -633,8 +642,8 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
       const v1 = this.dataPointViews.nextValue(d);
       const x0 = v0 !== void 0 ? v0.x.value : void 0;
       const x1 = v1 !== void 0 ? v1.x.value : void 0;
-      const dx0 = x0 !== void 0 ? +d - +x0 : NaN;
-      const dx1 = x1 !== void 0 ? +x1 - +d : NaN;
+      const dx0 = x0 !== void 0 ? +d - +x0! : NaN;
+      const dx1 = x1 !== void 0 ? +x1! - +d : NaN;
       if (dx0 <= dx1) {
         return v0!;
       } else if (dx0 > dx1) {

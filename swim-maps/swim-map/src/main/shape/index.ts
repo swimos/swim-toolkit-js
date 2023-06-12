@@ -12,16 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  AnyGeoCircleView,
-  GeoCircleViewInit,
-  GeoCircleView,
-} from "./GeoCircleView";
-export {GeoCircleViewObserver} from "./GeoCircleViewObserver";
+export type {AnyGeoCircleView} from "./GeoCircleView";
+export type {GeoCircleViewInit} from "./GeoCircleView";
+export {GeoCircleView} from "./GeoCircleView";
+export type {GeoCircleViewObserver} from "./GeoCircleViewObserver";
 
-export {
-  AnyGeoArcView,
-  GeoArcViewInit,
-  GeoArcView,
-} from "./GeoArcView";
-export {GeoArcViewObserver} from "./GeoArcViewObserver";
+export type {AnyGeoArcView} from "./GeoArcView";
+export type {GeoArcViewInit} from "./GeoArcView";
+export {GeoArcView} from "./GeoArcView";
+export type {GeoArcViewObserver} from "./GeoArcViewObserver";

@@ -24,7 +24,7 @@ import {IconCellController} from "./"; // forward import
 export class IconCellTrait extends CellTrait {
   override readonly observerType?: Class<IconCellTraitObserver>;
 
-  @Property<IconCellTrait["icon"]>({
+  @Property({
     valueType: Graphics,
     value: null,
     didSetValue(icon: Graphics | null): void {

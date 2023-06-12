@@ -12,10 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Instance, Creatable, Observes} from "@swim/util";
-import {Affinity, FastenerClass, Property} from "@swim/component";
+import type {Class} from "@swim/util";
+import type {Instance} from "@swim/util";
+import type {Creatable} from "@swim/util";
+import type {Observes} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
 import type {Length} from "@swim/math";
-import {ViewInsets, View, ViewRef, ViewSet} from "@swim/view";
+import type {ViewInsets} from "@swim/view";
+import {View} from "@swim/view";
+import {ViewRef} from "@swim/view";
+import {ViewSet} from "@swim/view";
 import {BarView} from "@swim/toolbar";
 import {SheetView} from "../sheet/SheetView";
 import type {BinderViewObserver} from "./BinderViewObserver";
@@ -39,7 +46,7 @@ export class BinderView extends SheetView {
 
   override readonly observerType?: Class<BinderViewObserver>;
 
-  @Property<BinderView["tabStyle"]>({
+  @Property({
     valueType: String,
     value: "none",
     updateFlags: View.NeedsResize,
@@ -50,7 +57,7 @@ export class BinderView extends SheetView {
   })
   readonly tabStyle!: Property<this, BinderTabStyle>;
 
-  @ViewRef<BinderView["tabBar"]>({
+  @ViewRef({
     viewType: BarView,
     binds: true,
     observes: true,
@@ -86,7 +93,6 @@ export class BinderView extends SheetView {
     },
   })
   readonly tabBar!: ViewRef<this, BarView> & Observes<BarView>;
-  static readonly tabBar: FastenerClass<BinderView["tabBar"]>;
 
   getTab<F extends Class<SheetView>>(key: string, tabViewClass: F): InstanceType<F> | null;
   getTab(key: string): SheetView | null;
@@ -111,7 +117,7 @@ export class BinderView extends SheetView {
     this.setChild(key, tabView);
   }
 
-  @ViewSet<BinderView["tabs"]>({
+  @ViewSet({
     viewType: SheetView,
     binds: false,
     observes: true,
@@ -149,9 +155,8 @@ export class BinderView extends SheetView {
     },
   })
   readonly tabs!: ViewSet<this, SheetView> & Observes<SheetView>;
-  static readonly tabs: FastenerClass<BinderView["tabs"]>;
 
-  @ViewRef<BinderView["active"]>({
+  @ViewRef({
     viewType: SheetView,
     binds: false,
     observes: true,
@@ -172,9 +177,8 @@ export class BinderView extends SheetView {
     },
   })
   readonly active!: ViewRef<this, SheetView> & Observes<SheetView>;
-  static readonly active: FastenerClass<BinderView["active"]>;
 
-  @Property<BinderView["edgeInsets"]>({
+  @Property({
     extends: true,
     getOutletValue(outlet: Property<unknown, ViewInsets>): ViewInsets {
       let edgeInsets = this.value;

@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Domain, Range, AnyTiming} from "@swim/util";
+import type {Class} from "@swim/util";
+import type {Domain} from "@swim/util";
+import type {Range} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
 import {GraphicsView} from "@swim/graphics";
 import type {ContinuousScaleAnimator} from "./ContinuousScaleAnimator";
 import type {ScaledXViewObserver} from "./ScaledXViewObserver";

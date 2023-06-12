@@ -12,25 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Class, Arrays, Observes} from "@swim/util";
-import {Affinity, FastenerClass, Property, Provider} from "@swim/component";
-import {R2Box, Transform} from "@swim/math";
-import {
-  ViewFlags,
-  View,
-  ViewWillRender,
-  ViewDidRender,
-  ViewWillRasterize,
-  ViewDidRasterize,
-  ViewWillComposite,
-  ViewDidComposite,
-} from "@swim/view";
-import {HtmlViewInit, HtmlView} from "@swim/dom";
+import type {Mutable} from "@swim/util";
+import type {Class} from "@swim/util";
+import {Arrays} from "@swim/util";
+import type {Observes} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
+import {Provider} from "@swim/component";
+import {R2Box} from "@swim/math";
+import {Transform} from "@swim/math";
+import type {ViewFlags} from "@swim/view";
+import {View} from "@swim/view";
+import type {ViewWillRender} from "@swim/view";
+import type {ViewDidRender} from "@swim/view";
+import type {ViewWillRasterize} from "@swim/view";
+import type {ViewDidRasterize} from "@swim/view";
+import type {ViewWillComposite} from "@swim/view";
+import type {ViewDidComposite} from "@swim/view";
+import type {HtmlViewInit} from "@swim/dom";
+import {HtmlView} from "@swim/dom";
 import type {GraphicsEvent} from "../event/GraphicsEvent";
-import type {GraphicsMouseEventInit, GraphicsMouseEvent} from "../event/GraphicsMouseEvent";
-import type {GraphicsPointerEventInit, GraphicsPointerEvent} from "../event/GraphicsPointerEvent";
-import type {GraphicsTouchInit, GraphicsTouch, GraphicsTouchEvent} from "../event/GraphicsTouchEvent";
-import {AnyGraphicsRenderer, GraphicsRendererType, GraphicsRenderer} from "../graphics/GraphicsRenderer";
+import type {GraphicsMouseEventInit} from "../event/GraphicsMouseEvent";
+import type {GraphicsMouseEvent} from "../event/GraphicsMouseEvent";
+import type {GraphicsPointerEventInit} from "../event/GraphicsPointerEvent";
+import type {GraphicsPointerEvent} from "../event/GraphicsPointerEvent";
+import type {GraphicsTouchInit} from "../event/GraphicsTouchEvent";
+import type {GraphicsTouch} from "../event/GraphicsTouchEvent";
+import type {GraphicsTouchEvent} from "../event/GraphicsTouchEvent";
+import type {AnyGraphicsRenderer} from "../graphics/GraphicsRenderer";
+import type {GraphicsRendererType} from "../graphics/GraphicsRenderer";
+import {GraphicsRenderer} from "../graphics/GraphicsRenderer";
 import {GraphicsView} from "../graphics/GraphicsView";
 import {WebGLRenderer} from "../webgl/WebGLRenderer";
 import {CanvasRenderer} from "./CanvasRenderer";
@@ -148,7 +159,7 @@ export class CanvasView extends HtmlView {
     return displayFlags;
   }
 
-  @Provider<CanvasView["sprites"]>({
+  @Provider({
     serviceType: SpriteService,
     inherits: false,
     createService(): SpriteService {
@@ -156,13 +167,12 @@ export class CanvasView extends HtmlView {
     },
   })
   readonly sprites!: Provider<this, SpriteService>;
-  static readonly sprites: FastenerClass<CanvasView["sprites"]>;
 
   get pixelRatio(): number {
     return window.devicePixelRatio || 1;
   }
 
-  @Property<CanvasView["renderer"]>({
+  @Property({
     valueType: GraphicsRenderer,
     inherits: true,
     initValue(): GraphicsRenderer | null {
@@ -1299,11 +1309,11 @@ export class CanvasView extends HtmlView {
   /** @internal */
   static readonly TouchEventsFlag: CanvasFlags = 1 << 4;
   /** @internal */
-  static readonly EventsMask: CanvasFlags = CanvasView.ClickEventsFlag
-                                          | CanvasView.WheelEventsFlag
-                                          | CanvasView.MouseEventsFlag
-                                          | CanvasView.PointerEventsFlag
-                                          | CanvasView.TouchEventsFlag;
+  static readonly EventsMask: CanvasFlags = this.ClickEventsFlag
+                                          | this.WheelEventsFlag
+                                          | this.MouseEventsFlag
+                                          | this.PointerEventsFlag
+                                          | this.TouchEventsFlag;
 
   static override readonly UncullFlags: ViewFlags = HtmlView.UncullFlags | View.NeedsRender | View.NeedsComposite;
   static override readonly UnhideFlags: ViewFlags = HtmlView.UnhideFlags | View.NeedsRender | View.NeedsComposite;

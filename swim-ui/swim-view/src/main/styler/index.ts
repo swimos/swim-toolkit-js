@@ -13,4 +13,4 @@
 // limitations under the License.
 
 export {StylerService} from "./StylerService";
-export {StylerServiceObserver} from "./StylerServiceObserver";
+export type {StylerServiceObserver} from "./StylerServiceObserver";

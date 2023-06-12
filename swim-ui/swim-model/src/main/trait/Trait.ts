@@ -12,44 +12,46 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  Murmur3,
-  Mutable,
-  Class,
-  Instance,
-  Proto,
-  Arrays,
-  HashCode,
-  Comparator,
-  FromAny,
-  Creatable,
-  Inits,
-  Initable,
-  Observes,
-  Observable,
-  ObserverMethods,
-  ObserverParameters,
-  Consumer,
-  Consumable,
-} from "@swim/util";
-import {FastenerContext, Fastener, Property} from "@swim/component";
-import {AnyValue, Value} from "@swim/structure";
-import {AnyUri, Uri} from "@swim/uri";
-import {
-  WarpDownlinkModel,
-  WarpDownlink,
-  EventDownlinkTemplate,
-  EventDownlink,
-  ValueDownlinkTemplate,
-  ValueDownlink,
-  ListDownlinkTemplate,
-  ListDownlink,
-  MapDownlinkTemplate,
-  MapDownlink,
-  WarpRef,
-  WarpClient,
-} from "@swim/client";
-import {ModelFlags, AnyModel, Model} from "../model/Model";
+import {Murmur3} from "@swim/util";
+import type {Mutable} from "@swim/util";
+import type {Class} from "@swim/util";
+import type {Instance} from "@swim/util";
+import type {Proto} from "@swim/util";
+import {Arrays} from "@swim/util";
+import type {HashCode} from "@swim/util";
+import type {Comparator} from "@swim/util";
+import type {FromAny} from "@swim/util";
+import {Creatable} from "@swim/util";
+import type {Inits} from "@swim/util";
+import type {Initable} from "@swim/util";
+import type {Observes} from "@swim/util";
+import type {Observable} from "@swim/util";
+import type {ObserverMethods} from "@swim/util";
+import type {ObserverParameters} from "@swim/util";
+import type {Consumer} from "@swim/util";
+import type {Consumable} from "@swim/util";
+import {FastenerContext} from "@swim/component";
+import {Fastener} from "@swim/component";
+import {Property} from "@swim/component";
+import type {AnyValue} from "@swim/structure";
+import {Value} from "@swim/structure";
+import type {AnyUri} from "@swim/uri";
+import {Uri} from "@swim/uri";
+import type {WarpDownlinkModel} from "@swim/client";
+import {WarpDownlink} from "@swim/client";
+import type {EventDownlinkTemplate} from "@swim/client";
+import {EventDownlink} from "@swim/client";
+import type {ValueDownlinkTemplate} from "@swim/client";
+import {ValueDownlink} from "@swim/client";
+import type {ListDownlinkTemplate} from "@swim/client";
+import {ListDownlink} from "@swim/client";
+import type {MapDownlinkTemplate} from "@swim/client";
+import {MapDownlink} from "@swim/client";
+import {WarpRef} from "@swim/client";
+import {WarpClient} from "@swim/client";
+import type {ModelFlags} from "../model/Model";
+import type {AnyModel} from "../model/Model";
+import {Model} from "../model/Model";
 import {ModelRelation} from "../model/ModelRelation";
 import type {TraitObserver} from "./TraitObserver";
 import {TraitRelation} from "./"; // forward import
@@ -93,12 +95,9 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     this.model = null;
     this.nextTrait = null;
     this.previousTrait = null;
-    this.fasteners = null;
     this.decoherent = null;
     this.observers = Arrays.empty;
     this.consumers = Arrays.empty;
-
-    FastenerContext.init(this);
   }
 
   readonly observerType?: Class<TraitObserver>;
@@ -542,9 +541,9 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     }
   }
 
-  getSuper<F extends Class<Model>>(superBound: F): InstanceType<F> | null {
+  getParent<F extends Class<Model>>(superBound: F): InstanceType<F> | null {
     const model = this.model;
-    return model !== null ? model.getSuper(superBound) : null;
+    return model !== null ? model.getParent(superBound) : null;
   }
 
   getBase<F extends Class<Model>>(baseBound: F): InstanceType<F> | null {
@@ -947,7 +946,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     warpRef.openDownlink(downlink);
   }
 
-  @Property<Trait["warpRef"]>({
+  @Property({
     valueType: WarpRef,
     inherits: true,
     updateFlags: Model.NeedsReconcile,
@@ -1274,156 +1273,42 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     refreshChildren.call(this.model!, refreshFlags, refreshChild);
   }
 
-  /** @internal */
-  readonly fasteners: {[fastenerName: string]: Fastener | undefined} | null;
-
   /** @override */
-  hasFastener(fastenerName: string, fastenerBound?: Proto<Fastener> | null): boolean {
-    const fasteners = this.fasteners;
-    if (fasteners !== null) {
-      const fastener = fasteners[fastenerName];
-      if (fastener !== void 0 && (fastenerBound === void 0 || fastenerBound === null || fastener instanceof fastenerBound)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
+  getParentFastener<F extends Fastener<any>>(fastenerName: string, fastenerBound: Proto<F>): F | null;
   /** @override */
-  getFastener<F extends Fastener<any>>(fastenerName: string, fastenerBound: Proto<F>): F | null;
-  /** @override */
-  getFastener(fastenerName: string, fastenerBound?: Proto<Fastener> | null): Fastener | null;
-  getFastener(fastenerName: string, fastenerBound?: Proto<Fastener> | null): Fastener | null {
-    const fasteners = this.fasteners;
-    if (fasteners !== null) {
-      const fastener = fasteners[fastenerName];
-      if (fastener !== void 0 && (fastenerBound === void 0 || fastenerBound === null || fastener instanceof fastenerBound)) {
-        return fastener;
-      }
-    }
-    return null;
-  }
-
-  /** @override */
-  setFastener(fastenerName: string, newFastener: Fastener | null): void {
-    const fasteners = this.fasteners;
-    let oldFastener: Fastener | null | undefined = fasteners !== null ? fasteners[fastenerName] : void 0;
-    if (oldFastener === void 0) {
-      oldFastener = null;
-    }
-    if (oldFastener !== newFastener) {
-      if (oldFastener !== null) {
-        this.detachFastener(fastenerName, oldFastener);
-      }
-      if (newFastener !== null) {
-        this.attachFastener(fastenerName, newFastener);
-      }
-    }
-  }
-
-  /** @internal */
-  protected attachFastener(fastenerName: string, fastener: Fastener): void {
-    let fasteners = this.fasteners;
-    if (fasteners === null) {
-      fasteners = {};
-      (this as Mutable<this>).fasteners = fasteners;
-    }
-    // assert(fasteners[fastenerName] === void 0);
-    this.willAttachFastener(fastenerName, fastener);
-    fasteners[fastenerName] = fastener;
-    if (fastener.lazy === false) {
-      Object.defineProperty(this, fastenerName, {
-        value: fastener,
-        enumerable: true,
-        configurable: true,
-      });
-    }
-    if (this.mounted) {
-      fastener.mount();
-    }
-    this.onAttachFastener(fastenerName, fastener);
-    this.didAttachFastener(fastenerName, fastener);
-  }
-
-  protected willAttachFastener(fastenerName: string, fastener: Fastener): void {
-    // hook
-  }
-
-  protected onAttachFastener(fastenerName: string, fastener: Fastener): void {
-    this.bindFastener(fastener);
-  }
-
-  protected didAttachFastener(fastenerName: string, fastener: Fastener): void {
-    // hook
-  }
-
-  /** @internal */
-  protected detachFastener(fastenerName: string, fastener: Fastener): void {
-    const fasteners = this.fasteners!;
-    // assert(fasteners !== null);
-    // assert(fasteners[fastenerName] === fastener);
-    this.willDetachFastener(fastenerName, fastener);
-    this.onDetachFastener(fastenerName, fastener);
-    if (this.mounted) {
-      fastener.unmount();
-    }
-    delete fasteners[fastenerName];
-    this.didDetachFastener(fastenerName, fastener);
-  }
-
-  protected willDetachFastener(fastenerName: string, fastener: Fastener): void {
-    // hook
-  }
-
-  protected onDetachFastener(fastenerName: string, fastener: Fastener): void {
-    // hook
-  }
-
-  protected didDetachFastener(fastenerName: string, fastener: Fastener): void {
-    // hook
-  }
-
-  /** @override */
-  getLazyFastener<F extends Fastener<any>>(fastenerName: string, fastenerBound: Proto<F>): F | null;
-  /** @override */
-  getLazyFastener(fastenerName: string, fastenerBound?: Proto<Fastener> | null): Fastener | null;
-  getLazyFastener(fastenerName: string, fastenerBound?: Proto<Fastener> | null): Fastener | null {
-    return FastenerContext.getLazyFastener(this, fastenerName, fastenerBound);
-  }
-
-  /** @override */
-  getSuperFastener<F extends Fastener<any>>(fastenerName: string, fastenerBound: Proto<F>): F | null;
-  /** @override */
-  getSuperFastener(fastenerName: string, fastenerBound?: Proto<Fastener> | null): Fastener | null;
-  getSuperFastener(fastenerName: string, fastenerBound?: Proto<Fastener> | null): Fastener | null {
+  getParentFastener(fastenerName: string, fastenerBound?: Proto<Fastener> | null): Fastener | null;
+  getParentFastener(fastenerName: string, fastenerBound?: Proto<Fastener> | null): Fastener | null {
     const model = this.model;
     if (model === null) {
       return null;
-    } else {
-      const modelFastener = model.getLazyFastener(fastenerName, fastenerBound);
-      if (modelFastener !== null) {
-        return modelFastener;
-      } else {
-        return model.getSuperFastener(fastenerName, fastenerBound);
-      }
     }
+    const modelFastener = (model as any)[fastenerName] as Fastener<any> | undefined;
+    if (modelFastener !== void 0 && (fastenerBound === void 0 || fastenerBound === null
+        || modelFastener instanceof fastenerBound)) {
+      return modelFastener;
+    }
+    return model.getParentFastener(fastenerName, fastenerBound);
   }
 
   /** @internal */
   protected mountFasteners(): void {
-    const fasteners = this.fasteners;
-    for (const fastenerName in fasteners) {
-      const fastener = fasteners[fastenerName]!;
-      fastener.mount();
+    const fastenerNames = FastenerContext.getFastenerNames(this);
+    for (let i = 0; i < fastenerNames.length; i += 1) {
+      const fastener = this[fastenerNames[i]!];
+      if (fastener instanceof Fastener) {
+        fastener.mount();
+      }
     }
   }
 
   /** @internal */
   protected unmountFasteners(): void {
-    const fasteners = this.fasteners;
-    for (const fastenerName in fasteners) {
-      const fastener = fasteners[fastenerName]!;
-      fastener.unmount();
+    const fastenerNames = FastenerContext.getFastenerNames(this);
+    for (let i = 0; i < fastenerNames.length; i += 1) {
+      const fastener = this[fastenerNames[i]!];
+      if (fastener instanceof Fastener) {
+        fastener.unmount();
+      }
     }
   }
 
@@ -1451,44 +1336,54 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @internal */
   protected bindModelFasteners(model: Model): void {
-    const fasteners = this.fasteners;
+    const fastenerNames = FastenerContext.getFastenerNames(this);
     model.forEachChild(function (child: Model): void {
-      for (const fastenerName in fasteners) {
-        const fastener = fasteners[fastenerName]!;
-        this.bindChildFastener(fastener, child, null);
+      for (let i = 0; i < fastenerNames.length; i += 1) {
+        const fastener = this[fastenerNames[i]!];
+        if (fastener instanceof Fastener) {
+          this.bindChildFastener(fastener, child, null);
+        }
       }
     }, this);
     model.forEachTrait(function (trait: Trait): void {
-      for (const fastenerName in fasteners) {
-        const fastener = fasteners[fastenerName]!;
-        this.bindTraitFastener(fastener, trait, null);
+      for (let i = 0; i < fastenerNames.length; i += 1) {
+        const fastener = this[fastenerNames[i]!];
+        if (fastener instanceof Fastener) {
+          this.bindTraitFastener(fastener, trait, null);
+        }
       }
     }, this);
   }
 
   /** @internal */
   protected unbindModelFasteners(model: Model): void {
-    const fasteners = this.fasteners;
+    const fastenerNames = FastenerContext.getFastenerNames(this);
     model.forEachTrait(function (trait: Trait): void {
-      for (const fastenerName in fasteners) {
-        const fastener = fasteners[fastenerName]!;
-        this.unbindTraitFastener(fastener, trait);
+      for (let i = 0; i < fastenerNames.length; i += 1) {
+        const fastener = this[fastenerNames[i]!];
+        if (fastener instanceof Fastener) {
+          this.unbindTraitFastener(fastener, trait);
+        }
       }
     }, this);
     model.forEachChild(function (child: Model): void {
-      for (const fastenerName in fasteners) {
-        const fastener = fasteners[fastenerName]!;
-        this.unbindChildFastener(fastener, child);
+      for (let i = 0; i < fastenerNames.length; i += 1) {
+        const fastener = this[fastenerNames[i]!];
+        if (fastener instanceof Fastener) {
+          this.unbindChildFastener(fastener, child);
+        }
       }
     }, this);
   }
 
   /** @internal */
   protected bindChildFasteners(child: Model, target: Model | null): void {
-    const fasteners = this.fasteners;
-    for (const fastenerName in fasteners) {
-      const fastener = fasteners[fastenerName]!;
-      this.bindChildFastener(fastener, child, target);
+    const fastenerNames = FastenerContext.getFastenerNames(this);
+    for (let i = 0; i < fastenerNames.length; i += 1) {
+      const fastener = this[fastenerNames[i]!];
+      if (fastener instanceof Fastener) {
+        this.bindChildFastener(fastener, child, target);
+      }
     }
   }
 
@@ -1501,10 +1396,12 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @internal */
   protected unbindChildFasteners(child: Model): void {
-    const fasteners = this.fasteners;
-    for (const fastenerName in fasteners) {
-      const fastener = fasteners[fastenerName]!;
-      this.unbindChildFastener(fastener, child);
+    const fastenerNames = FastenerContext.getFastenerNames(this);
+    for (let i = 0; i < fastenerNames.length; i += 1) {
+      const fastener = this[fastenerNames[i]!];
+      if (fastener instanceof Fastener) {
+        this.unbindChildFastener(fastener, child);
+      }
     }
   }
 
@@ -1517,10 +1414,12 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @internal */
   protected bindTraitFasteners(trait: Trait, target: Trait | null): void {
-    const fasteners = this.fasteners;
-    for (const fastenerName in fasteners) {
-      const fastener = fasteners[fastenerName]!;
-      this.bindTraitFastener(fastener, trait, target);
+    const fastenerNames = FastenerContext.getFastenerNames(this);
+    for (let i = 0; i < fastenerNames.length; i += 1) {
+      const fastener = this[fastenerNames[i]!];
+      if (fastener instanceof Fastener) {
+        this.bindTraitFastener(fastener, trait, target);
+      }
     }
   }
 
@@ -1533,10 +1432,12 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @internal */
   protected unbindTraitFasteners(trait: Trait): void {
-    const fasteners = this.fasteners;
-    for (const fastenerName in fasteners) {
-      const fastener = fasteners[fastenerName]!;
-      this.unbindTraitFastener(fastener, trait);
+    const fastenerNames = FastenerContext.getFastenerNames(this);
+    for (let i = 0; i < fastenerNames.length; i += 1) {
+      const fastener = this[fastenerNames[i]!];
+      if (fastener instanceof Fastener) {
+        this.unbindTraitFastener(fastener, trait);
+      }
     }
   }
 
@@ -1657,8 +1558,8 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     // hook
   }
 
-  callObservers<O, K extends keyof ObserverMethods<O>>(this: this & {readonly observerType?: Class<O>}, key: K, ...args: ObserverParameters<O, K>): void {
-    const observers = this.observers;
+  callObservers<O, K extends keyof ObserverMethods<O>>(this: {readonly observerType?: Class<O>}, key: K, ...args: ObserverParameters<O, K>): void {
+    const observers = (this as Trait).observers;
     for (let i = 0, n = observers.length; i < n; i += 1) {
       const observer = observers[i]! as ObserverMethods<O>;
       const method = observer[key];
@@ -1807,9 +1708,9 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @internal */
   protected startConsumingFasteners(): void {
-    const fasteners = this.fasteners;
-    for (const fastenerName in fasteners) {
-      const fastener = fasteners[fastenerName]!;
+    const fastenerNames = FastenerContext.getFastenerNames(this);
+    for (let i = 0; i < fastenerNames.length; i += 1) {
+      const fastener = this[fastenerNames[i]!];
       if (fastener instanceof WarpDownlink && fastener.consumed === true) {
         fastener.consume(this);
       } else if (fastener instanceof TraitRelation && fastener.consumed === true) {
@@ -1822,9 +1723,9 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @internal */
   protected stopConsumingFasteners(): void {
-    const fasteners = this.fasteners;
-    for (const fastenerName in fasteners) {
-      const fastener = fasteners[fastenerName]!;
+    const fastenerNames = FastenerContext.getFastenerNames(this);
+    for (let i = 0; i < fastenerNames.length; i += 1) {
+      const fastener = this[fastenerNames[i]!];
       if (fastener instanceof WarpDownlink && fastener.consumed === true) {
         fastener.unconsume(this);
       } else if (fastener instanceof TraitRelation && fastener.consumed === true) {
@@ -1882,7 +1783,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     } else if (Creatable.is(value)) {
       return (value as Creatable<InstanceType<S>>).create();
     } else {
-      return (this as unknown as TraitFactory<InstanceType<S>>).fromInit(value);
+      return (this as unknown as TraitFactory<InstanceType<S>>).fromInit(value as Inits<InstanceType<S>>);
     }
   }
 
@@ -1893,7 +1794,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
       const id = ~~nextId;
       nextId += 1;
       return "trait" + id;
-    }
+    };
   })();
 
   /** @internal */
@@ -1908,7 +1809,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   /** @internal */
   static readonly FlagShift: number = 4;
   /** @internal */
-  static readonly FlagMask: ModelFlags = (1 << Trait.FlagShift) - 1;
+  static readonly FlagMask: ModelFlags = (1 << this.FlagShift) - 1;
 
   static readonly MountFlags: ModelFlags = 0;
   static readonly InsertChildFlags: ModelFlags = 0;

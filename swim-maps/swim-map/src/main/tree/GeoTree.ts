@@ -13,7 +13,8 @@
 // limitations under the License.
 
 import {Arrays} from "@swim/util";
-import {GeoPoint, GeoBox} from "@swim/geo";
+import type {GeoPoint} from "@swim/geo";
+import {GeoBox} from "@swim/geo";
 import type {GeoView} from "../geo/GeoView";
 
 /** @public */
@@ -41,7 +42,7 @@ export class GeoTree {
 
   readonly maxDepth: number;
 
-  readonly density: number
+  readonly density: number;
 
   readonly geoFrame: GeoBox;
 

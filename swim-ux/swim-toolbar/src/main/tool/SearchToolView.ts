@@ -13,12 +13,14 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {Affinity, FastenerClass} from "@swim/component";
+import {Affinity} from "@swim/component";
 import {Length} from "@swim/math";
 import {Color} from "@swim/style";
 import {Look} from "@swim/theme";
 import {ViewRef} from "@swim/view";
-import {StyleRule, HtmlView, StyleView} from "@swim/dom";
+import {StyleRule} from "@swim/dom";
+import {HtmlView} from "@swim/dom";
+import {StyleView} from "@swim/dom";
 import {ToolView} from "./ToolView";
 import type {SearchToolViewObserver} from "./SearchToolViewObserver";
 
@@ -31,7 +33,7 @@ export class SearchToolView extends ToolView {
 
   override readonly observerType?: Class<SearchToolViewObserver>;
 
-  @ViewRef<SearchToolView["input"]>({
+  @ViewRef({
     viewType: HtmlView,
     viewKey: true,
     binds: true,
@@ -93,22 +95,20 @@ export class SearchToolView extends ToolView {
     onInput(event: InputEvent): void,
     onKeyDown(event: KeyboardEvent): void,
   };
-  static readonly input: FastenerClass<SearchToolView["input"]>;
 
-  @ViewRef<SearchToolView["stylesheet"]>({
+  @ViewRef({
     viewType: StyleView,
     viewKey: true,
     binds: true,
     initView(styleView: StyleView): void {
-      const sheet = styleView.sheet;
-      sheet.setFastener("input", SearchToolView.InputRule.create(sheet));
-      sheet.setFastener("inputFocus", SearchToolView.InputFocusRule.create(sheet));
-      sheet.setFastener("inputPlaceholder", SearchToolView.InputPlaceholderRule.create(sheet));
-      sheet.setFastener("inputSearchCancelButton", SearchToolView.InputSearchCancelButtonRule.create(sheet));
+      //const sheet = styleView.sheet;
+      //sheet.setFastener("input", SearchToolView.InputRule.create(sheet));
+      //sheet.setFastener("inputFocus", SearchToolView.InputFocusRule.create(sheet));
+      //sheet.setFastener("inputPlaceholder", SearchToolView.InputPlaceholderRule.create(sheet));
+      //sheet.setFastener("inputSearchCancelButton", SearchToolView.InputSearchCancelButtonRule.create(sheet));
     },
   })
   readonly stylesheet!: ViewRef<this, StyleView>;
-  static readonly stylesheet: FastenerClass<SearchToolView["stylesheet"]>;
 
   /** @internal */
   static InputRule = StyleRule.define("InputRule", {

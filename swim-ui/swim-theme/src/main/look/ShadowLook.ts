@@ -13,7 +13,9 @@
 // limitations under the License.
 
 import type {Interpolator} from "@swim/util";
-import {AnyBoxShadow, BoxShadow, BoxShadowInterpolator} from "@swim/style";
+import type {AnyBoxShadow} from "@swim/style";
+import {BoxShadow} from "@swim/style";
+import {BoxShadowInterpolator} from "@swim/style";
 import {Look} from "./Look";
 
 /** @public */

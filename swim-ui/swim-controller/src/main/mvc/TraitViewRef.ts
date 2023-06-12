@@ -12,10 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Proto, Arrays, Observes, Consumer, Consumable} from "@swim/util";
-import {FastenerFlags, FastenerOwner, FastenerDescriptor, FastenerClass, Fastener} from "@swim/component";
-import {Model, AnyTrait, TraitFactory, Trait} from "@swim/model";
-import {AnyView, ViewFactory, View} from "@swim/view";
+import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
+import {Arrays} from "@swim/util";
+import type {Observes} from "@swim/util";
+import type {Consumer} from "@swim/util";
+import type {Consumable} from "@swim/util";
+import type {FastenerFlags} from "@swim/component";
+import type {FastenerOwner} from "@swim/component";
+import type {FastenerDescriptor} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
+import {Fastener} from "@swim/component";
+import {Model} from "@swim/model";
+import type {AnyTrait} from "@swim/model";
+import type {TraitFactory} from "@swim/model";
+import {Trait} from "@swim/model";
+import type {AnyView} from "@swim/view";
+import type {ViewFactory} from "@swim/view";
+import {View} from "@swim/view";
 
 /** @public */
 export type TraitViewRefTrait<F extends TraitViewRef<any, any, any>> =
@@ -26,8 +40,13 @@ export type TraitViewRefView<F extends TraitViewRef<any, any, any>> =
   F extends {viewType?: ViewFactory<infer V>} ? V : never;
 
 /** @public */
+export type TraitViewRefDecorator<F extends TraitViewRef<any, any, any>> = {
+  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
+};
+
+/** @public */
 export interface TraitViewRefDescriptor<T extends Trait = Trait, V extends View = View> extends FastenerDescriptor {
-  extends?: Proto<TraitViewRef<any, any, any>> | string | boolean | null;
+  extends?: Proto<TraitViewRef<any, any, any>> | boolean | null;
   consumed?: boolean;
 
   traitKey?: string | boolean;
@@ -56,15 +75,15 @@ export interface TraitViewRefClass<F extends TraitViewRef<any, any, any> = Trait
   refine(fastenerClass: TraitViewRefClass<any>): void;
 
   /** @override */
-  extend<F2 extends F>(className: string, template: TraitViewRefTemplate<F2>): TraitViewRefClass<F2>;
-  extend<F2 extends F>(className: string, template: TraitViewRefTemplate<F2>): TraitViewRefClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: TraitViewRefTemplate<F2>): TraitViewRefClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: TraitViewRefTemplate<F2>): TraitViewRefClass<F2>;
 
   /** @override */
-  define<F2 extends F>(className: string, template: TraitViewRefTemplate<F2>): TraitViewRefClass<F2>;
-  define<F2 extends F>(className: string, template: TraitViewRefTemplate<F2>): TraitViewRefClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: TraitViewRefTemplate<F2>): TraitViewRefClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: TraitViewRefTemplate<F2>): TraitViewRefClass<F2>;
 
   /** @override */
-  <F2 extends F>(template: TraitViewRefTemplate<F2>): PropertyDecorator;
+  <F2 extends F>(template: TraitViewRefTemplate<F2>): TraitViewRefDecorator<F2>;
 
   /** @internal */
   readonly ConsumingFlag: FastenerFlags;
@@ -301,7 +320,6 @@ export interface TraitViewRef<O = unknown, T extends Trait = Trait, V extends Vi
 export const TraitViewRef = (function (_super: typeof Fastener) {
   const TraitViewRef = _super.extend("TraitViewRef", {
     lazy: false,
-    static: true,
   }) as TraitViewRefClass;
 
   Object.defineProperty(TraitViewRef.prototype, "fastenerType", {
@@ -318,8 +336,9 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
     const trait = this.trait;
     if (trait === null) {
       let message = trait + " ";
-      if (this.name.length !== 0) {
-        message += this.name + " ";
+      const name = this.name.toString();
+      if (name.length !== 0) {
+        message += name + " ";
       }
       message += "trait";
       throw new TypeError(message);
@@ -488,7 +507,9 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
           this.onDetachTrait(oldTrait);
           this.deinitTrait(oldTrait);
           this.didDetachTrait(oldTrait);
-          oldTrait.remove();
+          if (this.bindsTrait && model !== null && oldTrait.parent === model) {
+            oldTrait.remove();
+          }
         }
         (this as Mutable<typeof this>).trait = newTrait;
         this.willAttachTrait(newTrait, target);
@@ -606,8 +627,9 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
     }
     if (trait === void 0 || trait === null) {
       let message = "Unable to create ";
-      if (this.name.length !== 0) {
-        message += this.name + " ";
+      const name = this.name.toString();
+      if (name.length !== 0) {
+        message += name + " ";
       }
       message += "trait";
       throw new Error(message);
@@ -628,8 +650,9 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
     const view = this.view;
     if (view === null) {
       let message = view + " ";
-      if (this.name.length !== 0) {
-        message += this.name + " ";
+      const name = this.name.toString();
+      if (name.length !== 0) {
+        message += name + " ";
       }
       message += "view";
       throw new TypeError(message);
@@ -792,7 +815,9 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
           this.onDetachView(oldView);
           this.deinitView(oldView);
           this.didDetachView(oldView);
-          oldView.remove();
+          if (this.bindsView && parent !== null && oldView.parent === parent) {
+            oldView.remove();
+          }
         }
         (this as Mutable<typeof this>).view = newView;
         this.willAttachView(newView, target);
@@ -874,8 +899,9 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
     }
     if (view === void 0 || view === null) {
       let message = "Unable to create ";
-      if (this.name.length !== 0) {
-        message += this.name + " ";
+      const name = this.name.toString();
+      if (name.length !== 0) {
+        message += name + " ";
       }
       message += "view";
       throw new Error(message);
@@ -949,7 +975,7 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
       return (this.flags & TraitViewRef.ConsumingFlag) !== 0;
     },
     configurable: true,
-  })
+  });
 
   TraitViewRef.prototype.startConsuming = function (this: TraitViewRef): void {
     if ((this.flags & TraitViewRef.ConsumingFlag) === 0) {

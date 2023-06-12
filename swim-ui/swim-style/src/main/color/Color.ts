@@ -12,15 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Lazy, Equivalent, HashCode, Interpolate, Interpolator} from "@swim/util";
-import {Output, Parser, Debug, Diagnostic, Unicode} from "@swim/codec";
-import type {Value, Form} from "@swim/structure";
-import {AnyAngle, Angle} from "@swim/math";
+import {Lazy} from "@swim/util";
+import type {HashCode} from "@swim/util";
+import type {Equivalent} from "@swim/util";
+import type {Interpolate} from "@swim/util";
+import type {Interpolator} from "@swim/util";
+import {Diagnostic} from "@swim/codec";
+import type {Output} from "@swim/codec";
+import {Parser} from "@swim/codec";
+import type {Debug} from "@swim/codec";
+import {Unicode} from "@swim/codec";
+import type {Value} from "@swim/structure";
+import type {Form} from "@swim/structure";
+import type {AnyAngle} from "@swim/math";
+import {Angle} from "@swim/math";
 import {ColorForm} from "../"; // forward import
 import {ColorParser} from "../"; // forward import
-import {RgbColorInit, RgbColor} from "../"; // forward import
+import type {RgbColorInit} from "../rgb/RgbColor";
+import {RgbColor} from "../"; // forward import
 import {RgbColorInterpolator} from "../"; // forward import
-import {HslColorInit, HslColor} from "../"; // forward import
+import type {HslColorInit} from "../hsl/HslColor";
+import {HslColor} from "../"; // forward import
 
 /** @public */
 export type AnyColor = Color | ColorInit | string;
@@ -184,5 +196,5 @@ export abstract class Color implements Interpolate<Color>, HashCode, Equivalent,
   /** @internal */
   static Darker: number = 0.7;
   /** @internal */
-  static Brighter: number = 1 / Color.Darker;
+  static Brighter: number = 1 / this.Darker;
 }

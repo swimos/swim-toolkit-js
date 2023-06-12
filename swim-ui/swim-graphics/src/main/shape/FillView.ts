@@ -12,9 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {AnyColor, Color} from "@swim/style";
+import type {AnyColor} from "@swim/style";
+import type {Color} from "@swim/style";
 import type {ThemeAnimator} from "@swim/theme";
-import {GraphicsViewInit, GraphicsView} from "../graphics/GraphicsView";
+import type {GraphicsViewInit} from "../graphics/GraphicsView";
+import {GraphicsView} from "../graphics/GraphicsView";
 
 /** @public */
 export interface FillViewInit extends GraphicsViewInit {

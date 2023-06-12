@@ -13,9 +13,11 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {Affinity, FastenerClass} from "@swim/component";
+import {Affinity} from "@swim/component";
 import {Length} from "@swim/math";
-import {PositionGestureInput, PositionGesture, ViewRef} from "@swim/view";
+import type {PositionGestureInput} from "@swim/view";
+import {PositionGesture} from "@swim/view";
+import {ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {ToolView} from "./ToolView";
 import type {TitleToolViewObserver} from "./TitleToolViewObserver";
@@ -30,7 +32,7 @@ export class TitleToolView extends ToolView {
 
   override readonly observerType?: Class<TitleToolViewObserver>;
 
-  @ViewRef<TitleToolView["content"]>({
+  @ViewRef({
     viewType: HtmlView,
     viewKey: true,
     binds: true,
@@ -67,7 +69,6 @@ export class TitleToolView extends ToolView {
   readonly content!: ViewRef<this, HtmlView> & {
     setText(content: string | undefined): HtmlView,
   };
-  static readonly content: FastenerClass<TitleToolView["content"]>;
 
   protected override onLayout(): void {
     super.onLayout();
@@ -97,7 +98,7 @@ export class TitleToolView extends ToolView {
     }
   }
 
-  @PositionGesture<TitleToolView["gesture"]>({
+  @PositionGesture({
     bindsOwner: true,
     didPress(input: PositionGestureInput, event: Event | null): void {
       if (!input.defaultPrevented && this.owner.clientBounds.contains(input.x, input.y)) {
@@ -113,7 +114,6 @@ export class TitleToolView extends ToolView {
     },
   })
   readonly gesture!: PositionGesture<this, HtmlView>;
-  static readonly gesture: FastenerClass<TitleToolView["gesture"]>;
 
   onPress(input: PositionGestureInput, event: Event | null): void {
     // hook

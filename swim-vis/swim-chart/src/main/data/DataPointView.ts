@@ -12,20 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Class, Instance, AnyTiming} from "@swim/util";
-import {Affinity, FastenerClass, Property, Animator} from "@swim/component";
-import {AnyLength, Length, R2Point, R2Box} from "@swim/math";
-import {AnyFont, Font, AnyColor, Color} from "@swim/style";
+import type {Mutable} from "@swim/util";
+import type {Class} from "@swim/util";
+import type {Instance} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
+import {Animator} from "@swim/component";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import {R2Point} from "@swim/math";
+import type {R2Box} from "@swim/math";
+import type {AnyFont} from "@swim/style";
+import {Font} from "@swim/style";
+import type {AnyColor} from "@swim/style";
+import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
-import {AnyView, View, ViewRef} from "@swim/view";
-import {
-  GraphicsViewInit,
-  GraphicsView,
-  CanvasContext,
-  CanvasRenderer,
-  TypesetView,
-  TextRunView,
-} from "@swim/graphics";
+import type {AnyView} from "@swim/view";
+import {View} from "@swim/view";
+import {ViewRef} from "@swim/view";
+import type {GraphicsViewInit} from "@swim/graphics";
+import {GraphicsView} from "@swim/graphics";
+import type {CanvasContext} from "@swim/graphics";
+import {CanvasRenderer} from "@swim/graphics";
+import {TypesetView} from "@swim/graphics";
+import {TextRunView} from "@swim/graphics";
 import type {DataPointViewObserver} from "./DataPointViewObserver";
 
 /** @public */
@@ -70,14 +81,14 @@ export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
 
   override readonly observerType?: Class<DataPointViewObserver<X, Y>>;
 
-  readonly xCoord: number
+  readonly xCoord: number;
 
   /** @internal */
   setXCoord(xCoord: number): void {
     (this as Mutable<this>).xCoord = xCoord;
   }
 
-  readonly yCoord: number
+  readonly yCoord: number;
 
   /** @internal */
   setYCoord(yCoord: number): void {
@@ -91,28 +102,28 @@ export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
     (this as Mutable<this>).y2Coord = y2Coord;
   }
 
-  @Animator<DataPointView<X, Y>["x"]>({
+  @Animator({
     didSetValue(x: X | undefined, oldX: X | undefined): void {
       this.owner.callObservers("viewDidSetX", x, this.owner);
     },
   })
   readonly x!: Animator<this, X | undefined>;
 
-  @Animator<DataPointView<X, Y>["y"]>({
+  @Animator({
     didSetValue(y: Y | undefined, oldY: Y | undefined): void {
       this.owner.callObservers("viewDidSetY", y, this.owner);
     },
   })
   readonly y!: Animator<this, Y | undefined>;
 
-  @Animator<DataPointView<X, Y>["y2"]>({
+  @Animator({
     didSetValue(y2: Y | undefined, oldY2: Y | undefined): void {
       this.owner.callObservers("viewDidSetY2", y2, this.owner);
     },
   })
   readonly y2!: Animator<this, Y | undefined>;
 
-  @ThemeAnimator<DataPointView<X, Y>["radius"]>({
+  @ThemeAnimator({
     valueType: Length,
     value: null,
     didSetValue(radius: Length | null): void {
@@ -124,7 +135,7 @@ export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
   @Property({valueType: Number, value: 5})
   readonly hitRadius!: Property<this, number>;
 
-  @ThemeAnimator<DataPointView<X, Y>["color"]>({
+  @ThemeAnimator({
     valueType: Color,
     value: null,
     didSetValue(color: Color | null): void {
@@ -134,7 +145,7 @@ export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
   })
   readonly color!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @ThemeAnimator<DataPointView<X, Y>["opacity"]>({
+  @ThemeAnimator({
     valueType: Number,
     didSetValue(opacity: number | undefined): void {
       this.owner.updateGradientStop();
@@ -155,7 +166,7 @@ export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
   @ThemeAnimator({valueType: Length, value: Length.zero(), updateFlags: View.NeedsLayout})
   readonly labelPadding!: ThemeAnimator<this, Length, AnyLength>;
 
-  @ViewRef<DataPointView<X, Y>["label"]>({
+  @ViewRef({
     viewType: TextRunView,
     viewKey: true,
     binds: true,
@@ -180,7 +191,6 @@ export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
   readonly label!: ViewRef<this, GraphicsView> & {
     setText(label: string | undefined): GraphicsView,
   };
-  static readonly label: FastenerClass<DataPointView["label"]>;
 
   @Property({valueType: String, value: "auto"})
   readonly labelPlacement!: Property<this, DataPointLabelPlacement>;

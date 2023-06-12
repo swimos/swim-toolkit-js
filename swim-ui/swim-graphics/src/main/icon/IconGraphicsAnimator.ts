@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ThemeAnimatorClass, ThemeAnimator} from "@swim/theme";
+import type {ThemeAnimatorClass} from "@swim/theme";
+import {ThemeAnimator} from "@swim/theme";
 import {Graphics} from "../graphics/Graphics";
 import {Icon} from "./Icon";
 import {FilledIcon} from "./FilledIcon";

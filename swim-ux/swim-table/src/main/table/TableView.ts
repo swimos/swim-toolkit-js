@@ -12,14 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Instance, Creatable, Observes} from "@swim/util";
-import {Affinity, FastenerClass, Property} from "@swim/component";
-import {AnyLength, Length, R2Box} from "@swim/math";
-import {AnyExpansion, Expansion, ExpansionAnimator} from "@swim/style";
-import {Look, Feel, ThemeConstraintAnimator} from "@swim/theme";
-import {ViewFlags, View, ViewRef, ViewSet, PositionGestureInput} from "@swim/view";
+import type {Class} from "@swim/util";
+import type {Instance} from "@swim/util";
+import type {Creatable} from "@swim/util";
+import type {Observes} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import {R2Box} from "@swim/math";
+import type {AnyExpansion} from "@swim/style";
+import type {Expansion} from "@swim/style";
+import {ExpansionAnimator} from "@swim/style";
+import {Look} from "@swim/theme";
+import {Feel} from "@swim/theme";
+import {ThemeConstraintAnimator} from "@swim/theme";
+import type {ViewFlags} from "@swim/view";
+import {View} from "@swim/view";
+import {ViewRef} from "@swim/view";
+import {ViewSet} from "@swim/view";
+import type {PositionGestureInput} from "@swim/view";
 import {HtmlView} from "@swim/dom";
-import {AnyTableLayout, TableLayout} from "../layout/TableLayout";
+import type {AnyTableLayout} from "../layout/TableLayout";
+import {TableLayout} from "../layout/TableLayout";
 import type {LeafView} from "../leaf/LeafView";
 import {RowView} from "../row/RowView";
 import {HeaderView} from "../header/HeaderView";
@@ -45,7 +60,7 @@ export class TableView extends HtmlView {
   @Property({valueType: TableLayout, value: null, inherits: true, updateFlags: View.NeedsLayout})
   readonly layout!: Property<this, TableLayout | null, AnyTableLayout | null>;
 
-  @Property<TableView["depth"]>({
+  @Property({
     valueType: Number,
     value: 0,
     inherits: true,
@@ -77,7 +92,7 @@ export class TableView extends HtmlView {
   @ExpansionAnimator({value: null, inherits: true, updateFlags: View.NeedsLayout})
   readonly stretch!: ExpansionAnimator<this, Expansion | null, AnyExpansion | null>;
 
-  @ViewRef<TableView["header"]>({
+  @ViewRef({
     viewType: HeaderView,
     viewKey: true,
     binds: true,
@@ -101,7 +116,6 @@ export class TableView extends HtmlView {
     }
   })
   readonly header!: ViewRef<this, HeaderView>;
-  static readonly header: FastenerClass<TableView["header"]>;
 
   getRow<F extends Class<RowView>>(key: string, rowViewClass: F): InstanceType<F> | null;
   getRow(key: string): RowView | null;
@@ -131,7 +145,7 @@ export class TableView extends HtmlView {
     this.setChild(key, rowView);
   }
 
-  @ViewSet<TableView["rows"]>({
+  @ViewSet({
     viewType: RowView,
     binds: true,
     observes: true,
@@ -200,12 +214,11 @@ export class TableView extends HtmlView {
     },
   })
   readonly rows!: ViewSet<this, RowView> & Observes<RowView>;
-  static readonly rows: FastenerClass<TableView["rows"]>;
 
   /** @internal */
   readonly visibleViews: ReadonlyArray<View>;
 
-  @Property<TableView["visibleFrame"]>({
+  @Property({
     valueType: R2Box,
     value: null,
     inherits: true,

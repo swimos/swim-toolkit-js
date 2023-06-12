@@ -12,22 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  AnyGeoPerspective,
-  GeoPerspectiveInit,
-  GeoPerspective,
-} from "./GeoPerspective";
+export type {AnyGeoPerspective} from "./GeoPerspective";
+export type {GeoPerspectiveInit} from "./GeoPerspective";
+export {GeoPerspective} from "./GeoPerspective";
 
 export {GeoViewport} from "./GeoViewport";
 
-export {
-  GeoViewInit,
-  GeoView,
-} from "./GeoView";
-export {GeoViewObserver} from "./GeoViewObserver";
+export type {GeoViewInit} from "./GeoView";
+export {GeoView} from "./GeoView";
+export type {GeoViewObserver} from "./GeoViewObserver";
 
 export {GeoTrait} from "./GeoTrait";
-export {GeoTraitObserver} from "./GeoTraitObserver";
+export type {GeoTraitObserver} from "./GeoTraitObserver";
 
 export {GeoController} from "./GeoController";
-export {GeoControllerObserver} from "./GeoControllerObserver";
+export type {GeoControllerObserver} from "./GeoControllerObserver";

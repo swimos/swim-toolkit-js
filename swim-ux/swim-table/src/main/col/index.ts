@@ -13,19 +13,19 @@
 // limitations under the License.
 
 export {ColView} from "./ColView";
-export {ColViewObserver} from "./ColViewObserver";
+export type {ColViewObserver} from "./ColViewObserver";
 
 export {TextColView} from "./TextColView";
-export {TextColViewObserver} from "./TextColViewObserver";
+export type {TextColViewObserver} from "./TextColViewObserver";
 
 export {ColTrait} from "./ColTrait";
-export {ColTraitObserver} from "./ColTraitObserver";
+export type {ColTraitObserver} from "./ColTraitObserver";
 
 export {TextColTrait} from "./TextColTrait";
-export {TextColTraitObserver} from "./TextColTraitObserver";
+export type {TextColTraitObserver} from "./TextColTraitObserver";
 
 export {ColController} from "./ColController";
-export {ColControllerObserver} from "./ColControllerObserver";
+export type {ColControllerObserver} from "./ColControllerObserver";
 
 export {TextColController} from "./TextColController";
-export {TextColControllerObserver} from "./TextColControllerObserver";
+export type {TextColControllerObserver} from "./TextColControllerObserver";

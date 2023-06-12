@@ -12,12 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Observes} from "@swim/util";
-import {Affinity, FastenerClass} from "@swim/component";
-import {ViewFlags, View, ViewSet} from "@swim/view";
+import type {Class} from "@swim/util";
+import type {Observes} from "@swim/util";
+import {Affinity} from "@swim/component";
+import type {ViewFlags} from "@swim/view";
+import {View} from "@swim/view";
+import {ViewSet} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {SheetView} from "@swim/sheet";
-import {PanelStyle, PanelView} from "../panel/PanelView";
+import type {PanelStyle} from "../panel/PanelView";
+import {PanelView} from "../panel/PanelView";
 import type {BoardViewObserver} from "./BoardViewObserver";
 
 /** @public */
@@ -29,7 +33,7 @@ export class BoardView extends SheetView {
 
   override readonly observerType?: Class<BoardViewObserver>;
 
-  @ViewSet<BoardView["panels"]>({
+  @ViewSet({
     viewType: PanelView,
     binds: true,
     observes: true,
@@ -57,7 +61,6 @@ export class BoardView extends SheetView {
     },
   })
   readonly panels!: ViewSet<this, PanelView> & Observes<PanelView>;
-  static readonly panels: FastenerClass<BoardView["panels"]>;
 
   protected override processChildren(processFlags: ViewFlags, processChild: (this: this, child: View, processFlags: ViewFlags) => void): void {
     if ((processFlags & View.NeedsResize) !== 0) {

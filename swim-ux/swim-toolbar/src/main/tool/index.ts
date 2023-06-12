@@ -13,25 +13,25 @@
 // limitations under the License.
 
 export {ToolView} from "./ToolView";
-export {ToolViewObserver} from "./ToolViewObserver";
+export type {ToolViewObserver} from "./ToolViewObserver";
 
 export {TitleToolView} from "./TitleToolView";
-export {TitleToolViewObserver} from "./TitleToolViewObserver";
+export type {TitleToolViewObserver} from "./TitleToolViewObserver";
 
 export {ButtonToolView} from "./ButtonToolView";
-export {ButtonToolViewObserver} from "./ButtonToolViewObserver";
+export type {ButtonToolViewObserver} from "./ButtonToolViewObserver";
 
 export {SearchToolView} from "./SearchToolView";
-export {SearchToolViewObserver} from "./SearchToolViewObserver";
+export type {SearchToolViewObserver} from "./SearchToolViewObserver";
 
 export {ToolController} from "./ToolController";
-export {ToolControllerObserver} from "./ToolControllerObserver";
+export type {ToolControllerObserver} from "./ToolControllerObserver";
 
 export {TitleToolController} from "./TitleToolController";
-export {TitleToolControllerObserver} from "./TitleToolControllerObserver";
+export type {TitleToolControllerObserver} from "./TitleToolControllerObserver";
 
 export {ButtonToolController} from "./ButtonToolController";
-export {ButtonToolControllerObserver} from "./ButtonToolControllerObserver";
+export type {ButtonToolControllerObserver} from "./ButtonToolControllerObserver";
 
 export {SearchToolController} from "./SearchToolController";
-export {SearchToolControllerObserver} from "./SearchToolControllerObserver";
+export type {SearchToolControllerObserver} from "./SearchToolControllerObserver";

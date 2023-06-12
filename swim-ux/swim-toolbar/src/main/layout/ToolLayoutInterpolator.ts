@@ -12,8 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Interpolator, StepInterpolator} from "@swim/util";
-import {Length, PxLength} from "@swim/math";
+import type {Mutable} from "@swim/util";
+import {Interpolator} from "@swim/util";
+import {StepInterpolator} from "@swim/util";
+import type {Length} from "@swim/math";
+import {PxLength} from "@swim/math";
 import type {Presence} from "@swim/style";
 import {ToolLayout} from "./ToolLayout";
 

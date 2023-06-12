@@ -12,14 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, Equivalent, AnyTiming, Timing} from "@swim/util";
-import {Affinity, FastenerClass, Property} from "@swim/component";
+import type {Mutable} from "@swim/util";
+import type {Class} from "@swim/util";
+import {Equivalent} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {Timing} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
 import {GeoPoint} from "@swim/geo";
-import {Look, Mood} from "@swim/theme";
-import {View, ViewRef} from "@swim/view";
+import {Look} from "@swim/theme";
+import {Mood} from "@swim/theme";
+import {View} from "@swim/view";
+import {ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import type {CanvasView} from "@swim/graphics";
-import type {AnyGeoPerspective, GeoViewport} from "@swim/map";
+import type {AnyGeoPerspective} from "@swim/map";
+import type {GeoViewport} from "@swim/map";
 import {EsriView} from "./EsriView";
 import {EsriMapViewport} from "./EsriMapViewport";
 import type {EsriMapViewObserver} from "./EsriMapViewObserver";
@@ -29,6 +37,8 @@ export class EsriMapView extends EsriView {
   constructor(map: __esri.MapView) {
     super();
     this.map = map;
+    (this.geoViewport as Mutable<typeof this.geoViewport>).value = EsriMapViewport.create(map);
+
     this.onMapRender = this.onMapRender.bind(this);
     this.initMap(map);
   }
@@ -41,11 +51,8 @@ export class EsriMapView extends EsriView {
     map.watch("extent", this.onMapRender);
   }
 
-  @Property<EsriMapView["geoViewport"]>({
+  @Property({
     extends: true,
-    initValue(): GeoViewport {
-      return EsriMapViewport.create(this.owner.map);
-    },
     willSetValue(newGeoViewport: GeoViewport, oldGeoViewport: GeoViewport): void {
       this.owner.callObservers("viewWillSetGeoViewport", newGeoViewport, oldGeoViewport, this.owner);
     },
@@ -103,36 +110,35 @@ export class EsriMapView extends EsriView {
     this.map.goTo(target, options);
   }
 
-  @ViewRef<EsriMapView["canvas"]>({
+  @ViewRef({
     extends: true,
     didAttachView(canvasView: CanvasView, targetView: View | null): void {
       if (this.owner.parent === null) {
         canvasView.appendChild(this.owner);
         canvasView.setEventNode(this.owner.map.container.querySelector(".esri-view-root") as HTMLElement);
       }
-      EsriView.canvas.prototype.didAttachView.call(this, canvasView, targetView);
+      super.didAttachView(canvasView, targetView);
     },
     willDetachView(canvasView: CanvasView): void {
-      EsriView.canvas.prototype.willDetachView.call(this, canvasView);
+      super.willDetachView(canvasView);
       if (this.owner.parent === canvasView) {
         canvasView.removeChild(this.owner);
       }
     },
   })
   override readonly canvas!: ViewRef<this, CanvasView> & EsriView["canvas"];
-  static override readonly canvas: FastenerClass<EsriMapView["canvas"]>;
 
-  @ViewRef<EsriMapView["container"]>({
+  @ViewRef({
     extends: true,
     didAttachView(containerView: HtmlView, targetView: View | null): void {
       const esriContainerView = HtmlView.fromNode(this.owner.map.container);
       const esriRootView = HtmlView.fromNode(esriContainerView.node.querySelector(".esri-view-root") as HTMLDivElement);
       const esriSurfaceView = HtmlView.fromNode(esriRootView.node.querySelector(".esri-overlay-surface") as HTMLDivElement);
       this.owner.canvas.insertView(esriSurfaceView);
-      EsriView.container.prototype.didAttachView.call(this, containerView, targetView);
+      super.didAttachView(containerView, targetView);
     },
     willDetachView(containerView: HtmlView): void {
-      EsriView.container.prototype.willDetachView.call(this, containerView);
+      super.willDetachView(containerView);
       const canvasView = this.owner.canvas.view;
       const esriContainerView = HtmlView.fromNode(this.owner.map.container);
       const esriRootView = HtmlView.fromNode(esriContainerView.node.querySelector(".esri-view-root") as HTMLDivElement);
@@ -143,5 +149,4 @@ export class EsriMapView extends EsriView {
     },
   })
   override readonly container!: ViewRef<this, HtmlView> & EsriView["container"];
-  static override readonly container: FastenerClass<EsriMapView["container"]>;
 }

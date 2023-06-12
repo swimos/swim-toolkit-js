@@ -12,8 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Item, Text, Form} from "@swim/structure";
-import {AnyColor, Color} from "./Color";
+import type {Item} from "@swim/structure";
+import {Text} from "@swim/structure";
+import {Form} from "@swim/structure";
+import type {AnyColor} from "./Color";
+import {Color} from "./Color";
 
 /** @internal */
 export class ColorForm extends Form<Color, AnyColor> {

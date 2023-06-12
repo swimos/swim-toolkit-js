@@ -12,11 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Class, Proto, Observes, Consumer} from "@swim/util";
+import type {Mutable} from "@swim/util";
+import type {Class} from "@swim/util";
+import type {Proto} from "@swim/util";
+import type {Observes} from "@swim/util";
+import type {Consumer} from "@swim/util";
 import type {FastenerOwner} from "@swim/component";
-import type {ModelFactory, Model} from "../model/Model";
-import {ModelSetDescriptor, ModelSetClass, ModelSet} from "../model/ModelSet";
-import {AnyTrait, TraitFactory, Trait} from "./Trait";
+import type {ModelFactory} from "../model/Model";
+import type {Model} from "../model/Model";
+import type {ModelSetDescriptor} from "../model/ModelSet";
+import type {ModelSetClass} from "../model/ModelSet";
+import {ModelSet} from "../model/ModelSet";
+import type {AnyTrait} from "./Trait";
+import type {TraitFactory} from "./Trait";
+import {Trait} from "./Trait";
 
 /** @public */
 export type TraitModelSetTrait<F extends TraitModelSet<any, any, any>> =
@@ -27,8 +36,13 @@ export type TraitModelSetModel<F extends TraitModelSet<any, any, any>> =
   F extends {modelType?: ModelFactory<infer M>} ? M : never;
 
 /** @public */
+export type TraitModelSetDecorator<F extends TraitModelSet<any, any, any>> = {
+  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
+};
+
+/** @public */
 export interface TraitModelSetDescriptor<T extends Trait = Trait, M extends Model = Model> extends ModelSetDescriptor<M> {
-  extends?: Proto<TraitModelSet<any, any, any>> | string | boolean | null;
+  extends?: Proto<TraitModelSet<any, any, any>> | boolean | null;
   traitType?: TraitFactory<T>;
   traitKey?: string | boolean;
   observesTrait?: boolean;
@@ -49,15 +63,15 @@ export interface TraitModelSetClass<F extends TraitModelSet<any, any, any> = Tra
   refine(fastenerClass: TraitModelSetClass<any>): void;
 
   /** @override */
-  extend<F2 extends F>(className: string, template: TraitModelSetTemplate<F2>): TraitModelSetClass<F2>;
-  extend<F2 extends F>(className: string, template: TraitModelSetTemplate<F2>): TraitModelSetClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: TraitModelSetTemplate<F2>): TraitModelSetClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: TraitModelSetTemplate<F2>): TraitModelSetClass<F2>;
 
   /** @override */
-  define<F2 extends F>(className: string, template: TraitModelSetTemplate<F2>): TraitModelSetClass<F2>;
-  define<F2 extends F>(className: string, template: TraitModelSetTemplate<F2>): TraitModelSetClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: TraitModelSetTemplate<F2>): TraitModelSetClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: TraitModelSetTemplate<F2>): TraitModelSetClass<F2>;
 
   /** @override */
-  <F2 extends F>(template: TraitModelSetTemplate<F2>): PropertyDecorator;
+  <F2 extends F>(template: TraitModelSetTemplate<F2>): TraitModelSetDecorator<F2>;
 }
 
 /** @public */
@@ -395,8 +409,9 @@ export const TraitModelSet = (function (_super: typeof ModelSet) {
     }
     if (trait === void 0 || trait === null) {
       let message = "Unable to create ";
-      if (this.name.length !== 0) {
-        message += this.name + " ";
+      const name = this.name.toString();
+      if (name.length !== 0) {
+        message += name + " ";
       }
       message += "trait";
       throw new Error(message);
@@ -433,11 +448,11 @@ export const TraitModelSet = (function (_super: typeof ModelSet) {
     if (trait !== null) {
       this.attachTrait(trait, targetModel);
     }
-    ModelSet.prototype.onAttachModel.call(this, model, targetModel);
+    _super.prototype.onAttachModel.call(this, model, targetModel);
   };
 
   TraitModelSet.prototype.onDetachModel = function <T extends Trait, M extends Model>(this: TraitModelSet<unknown, T, M>, model: M): void {
-    ModelSet.prototype.onDetachModel.call(this, model);
+    _super.prototype.onDetachModel.call(this, model);
     const trait = this.detectModelTrait(model);
     if (trait !== null) {
       this.detachTrait(trait);

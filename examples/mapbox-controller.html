@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="https://api.tiles.mapbox.com/mapbox-gl-js/v2.8.2/mapbox-gl.css">
   </head>
   <body swim-theme style="width: 100vw; height: 100vh; margin: 0;">
+    <script src="../../node_modules/tslib/tslib.js"></script>
     <script src="../../swim-runtime/swim-core/dist/swim-core.js"></script>
     <script src="../../swim-runtime/swim-host/dist/swim-host.js"></script>
     <script src="../swim-ui/dist/swim-ui.js"></script>
@@ -17,44 +18,61 @@ mapboxgl.accessToken = "pk.eyJ1Ijoic3dpbWl0IiwiYSI6ImNqY2c3NXZkYzFoa2QycXQ1eXl1M
 
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-class ExampleMapboxController extends swim.MapController {
-  createMapView(containerView) {
-    const map = new mapboxgl.Map({
-      container: containerView.node,
-      //style: "mapbox://styles/mapbox/dark-v10",
-      center: {lng: 0, lat: 0},
-      zoom: 1,
-    });
-    return new swim.MapboxView(map);
-  }
-}
-swim.TraitViewRef({
-  extends: true,
-  initView(mapView) {
-    swim.MapController.map.prototype.initView.call(this, mapView);
-    mapView.modifyMood(swim.Feel.default, [[swim.Feel.primary, 1]]);
-  },
-})(ExampleMapboxController.prototype, "map");
-swim.ViewRef({
-  extends: true,
-  initView(canvasView) {
-    swim.MapController.canvas.prototype.initView.call(this, canvasView);
-    canvasView.pointerEventsEnabled(true).touchAction("manipulation");
-  },
-})(ExampleMapboxController.prototype, "canvas");
-swim.TraitViewControllerSet({
-  extends: true,
-  createController(layerTrait) {
-    if (layerTrait instanceof swim.GeoLayerTrait) {
-      return new ExampleLayerController();
-    } else {
-      return swim.MapController.layers.prototype.createController.call(this, layerTrait);
+const ExampleMapboxController = (function () {
+  const extraInitializers = [];
+  const mapInitializers = [];
+  const canvasInitializers = [];
+  const layersInitializers = [];
+  class ExampleMapboxController extends swim.MapController {
+    constructor() {
+      super();
+      __runInitializers(this, extraInitializers);
+      this.map = __runInitializers(this, mapInitializers, this.map);
+      this.canvas = __runInitializers(this, canvasInitializers, this.canvas);
+      this.layers = __runInitializers(this, layersInitializers, this.layers);
     }
-  },
-})(ExampleMapboxController.prototype, "layers");
+    createMapView(containerView) {
+      const map = new mapboxgl.Map({
+        container: containerView.node,
+        //style: "mapbox://styles/mapbox/dark-v10",
+        center: {lng: 0, lat: 0},
+        zoom: 1,
+      });
+      return new swim.MapboxView(map);
+    }
+  }
+  __esDecorate(null, null, [swim.TraitViewRef({
+    extends: true,
+    initView(mapView) {
+      super.initView(mapView);
+      mapView.modifyMood(swim.Feel.default, [[swim.Feel.primary, 1]]);
+    },
+  })], {kind: "field", name: "map", static: false, private: false, access: {has: obj => "map" in obj, get: obj => obj.map, set: (obj, value) => { obj.map = value; }}}, mapInitializers, extraInitializers);
+  __esDecorate(null, null, [swim.ViewRef({
+    extends: true,
+    initView(canvasView) {
+      super.initView(canvasView);
+      canvasView.pointerEventsEnabled(true).touchAction("manipulation");
+    },
+  })], {kind: "field", name: "canvas", static: false, private: false, access: {has: obj => "canvas" in obj, get: obj => obj.canvas, set: (obj, value) => { obj.canvas = value; }}}, canvasInitializers, extraInitializers);
+  __esDecorate(null, null, [swim.TraitViewControllerSet({
+    extends: true,
+    createController(layerTrait) {
+      if (layerTrait instanceof swim.GeoLayerTrait) {
+        return new ExampleLayerController();
+      } else {
+        return super.createController(layerTrait);
+      }
+    },
+  })], {kind: "field", name: "layers", static: false, private: false, access: {has: obj => "layers" in obj, get: obj => obj.layers, set: (obj, value) => { obj.layers = value; }}}, layersInitializers, extraInitializers);
+  return ExampleMapboxController;
+})();
 
-class ExampleLayerController extends swim.GeoLayerController {
-}
+const ExampleLayerController = (function () {
+  class ExampleLayerController extends swim.GeoLayerController {
+  }
+  return ExampleLayerController;
+})();
 
 const layerModel = new swim.Model();
 const layerTrait = new swim.GeoLayerTrait();

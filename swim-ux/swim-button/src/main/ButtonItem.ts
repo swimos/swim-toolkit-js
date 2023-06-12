@@ -14,8 +14,12 @@
 
 import type {Timing} from "@swim/util";
 import {Affinity} from "@swim/component";
-import {AnyPresence, Presence, PresenceAnimator} from "@swim/style";
-import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
+import type {AnyPresence} from "@swim/style";
+import type {Presence} from "@swim/style";
+import {PresenceAnimator} from "@swim/style";
+import {Look} from "@swim/theme";
+import type {MoodVector} from "@swim/theme";
+import type {ThemeMatrix} from "@swim/theme";
 import type {View} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import type {HtmlIconView} from "@swim/graphics";
@@ -39,7 +43,7 @@ export class ButtonItem extends HtmlView {
 
   protected createButton(): FloatingButton | null {
     const button = FloatingButton.create();
-    button.setButtonType("mini");
+    button.buttonType.setValue("mini", Affinity.Intrinsic);
     return button;
   }
 

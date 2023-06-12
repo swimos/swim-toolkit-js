@@ -14,7 +14,10 @@
 
 import type {Class} from "@swim/util";
 import {Service} from "@swim/component";
-import {ConstraintVariable, Constraint, ConstraintContext, ConstraintSolver} from "@swim/constraint";
+import type {ConstraintVariable} from "@swim/constraint";
+import type {Constraint} from "@swim/constraint";
+import type {ConstraintContext} from "@swim/constraint";
+import {ConstraintSolver} from "@swim/constraint";
 import type {SolverServiceObserver} from "./SolverServiceObserver";
 
 /** @public */

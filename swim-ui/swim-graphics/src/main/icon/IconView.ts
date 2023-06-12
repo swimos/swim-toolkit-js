@@ -13,10 +13,13 @@
 // limitations under the License.
 
 import type {Animator} from "@swim/component";
-import type {AnyLength, Length} from "@swim/math";
-import type {AnyColor, Color} from "@swim/style";
+import type {AnyLength} from "@swim/math";
+import type {Length} from "@swim/math";
+import type {AnyColor} from "@swim/style";
+import type {Color} from "@swim/style";
 import type {ThemeAnimator} from "@swim/theme";
-import {ViewInit, View} from "@swim/view";
+import type {ViewInit} from "@swim/view";
+import {View} from "@swim/view";
 import type {Graphics} from "../graphics/Graphics";
 import {GraphicsIconView} from "../"; // forward import
 import {SvgIconView} from "../"; // forward import

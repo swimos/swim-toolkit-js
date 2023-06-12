@@ -12,22 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Class} from "@swim/util";
-import {Affinity, Property, Animator} from "@swim/component";
-import {AnyLength, Length, AnyR2Point, R2Point, R2Box, Transform} from "@swim/math";
-import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
+import type {Mutable} from "@swim/util";
+import type {Class} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
+import {Animator} from "@swim/component";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import type {AnyR2Point} from "@swim/math";
+import {R2Point} from "@swim/math";
+import {R2Box} from "@swim/math";
+import {Transform} from "@swim/math";
+import type {AnyGeoPoint} from "@swim/geo";
+import {GeoPoint} from "@swim/geo";
+import {GeoBox} from "@swim/geo";
 import {ThemeAnimator} from "@swim/theme";
-import {ViewFlags, View} from "@swim/view";
-import {
-  AnyGraphicsRenderer,
-  GraphicsRendererType,
-  GraphicsRenderer,
-  CanvasCompositeOperation,
-  CanvasRenderer,
-  WebGLRenderer,
-} from "@swim/graphics";
-import {GeoViewInit, GeoView} from "../geo/GeoView";
-import {GeoRippleOptions, GeoRippleView} from "../effect/GeoRippleView";
+import type {ViewFlags} from "@swim/view";
+import {View} from "@swim/view";
+import type {AnyGraphicsRenderer} from "@swim/graphics";
+import type {GraphicsRendererType} from "@swim/graphics";
+import {GraphicsRenderer} from "@swim/graphics";
+import type {CanvasCompositeOperation} from "@swim/graphics";
+import {CanvasRenderer} from "@swim/graphics";
+import {WebGLRenderer} from "@swim/graphics";
+import type {GeoViewInit} from "../geo/GeoView";
+import {GeoView} from "../geo/GeoView";
+import type {GeoRippleOptions} from "../effect/GeoRippleView";
+import {GeoRippleView} from "../effect/GeoRippleView";
 import type {GeoRasterViewObserver} from "./GeoRasterViewObserver";
 
 /** @public */
@@ -48,11 +59,12 @@ export class GeoRasterView extends GeoView {
     super();
     this.canvas = this.createCanvas();
     this.ownRasterFrame = null;
+    (this.renderer as Mutable<typeof this.renderer>).value = this.createRenderer();
   }
 
   override readonly observerType?: Class<GeoRasterViewObserver>;
 
-  @Animator<GeoRasterView["geoAnchor"]>({
+  @Animator({
     valueType: GeoPoint,
     value: null,
     didSetState(newGeoCenter: GeoPoint | null, oldGeoCenter: GeoPoint | null): void {
@@ -96,20 +108,17 @@ export class GeoRasterView extends GeoView {
   /** @internal */
   readonly canvas: HTMLCanvasElement;
 
-  @Property<GeoRasterView["compositor"]>({
+  @Property({
     valueType: GraphicsRenderer,
     value: null,
     inherits: "renderer",
   })
   readonly compositor!: Property<this, GraphicsRenderer | null>;
 
-  @Property<GeoRasterView["renderer"]>({
+  @Property({
     extends: true,
     inherits: false,
     updateFlags: View.NeedsRender | View.NeedsComposite,
-    initValue(): GraphicsRenderer | null {
-      return this.owner.createRenderer();
-    },
     fromAny(renderer: AnyGraphicsRenderer | null): GraphicsRenderer | null {
       if (typeof renderer === "string") {
         renderer = this.owner.createRenderer(renderer as GraphicsRendererType);

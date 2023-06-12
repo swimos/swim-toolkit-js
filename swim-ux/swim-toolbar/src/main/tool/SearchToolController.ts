@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Observes} from "@swim/util";
-import type {FastenerClass} from "@swim/component";
+import type {Class} from "@swim/util";
+import type {Observes} from "@swim/util";
 import type {Trait} from "@swim/model";
 import {ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
@@ -26,7 +26,7 @@ import type {SearchToolControllerObserver} from "./SearchToolControllerObserver"
 export class SearchToolController extends ToolController {
   override readonly observerType?: Class<SearchToolControllerObserver>;
 
-  @TraitViewRef<SearchToolController["tool"]>({
+  @TraitViewRef({
     extends: true,
     viewType: SearchToolView,
     observesView: true,
@@ -53,9 +53,8 @@ export class SearchToolController extends ToolController {
     },
   })
   override readonly tool!: TraitViewRef<this, Trait, SearchToolView> & ToolController["tool"] & Observes<SearchToolView>;
-  static override readonly tool: FastenerClass<SearchToolController["tool"]>;
 
-  @ViewRef<SearchToolController["input"]>({
+  @ViewRef({
     viewType: HtmlView,
     willAttachView(inputView: HtmlView): void {
       this.owner.callObservers("controllerWillAttachToolInputView", inputView, this.owner);
@@ -65,5 +64,4 @@ export class SearchToolController extends ToolController {
     },
   })
   readonly input!: ViewRef<this, HtmlView>;
-  static readonly input: FastenerClass<SearchToolController["input"]>;
 }

@@ -14,12 +14,17 @@
 
 import {Easing} from "@swim/util";
 import {Affinity} from "@swim/component";
-import {Spec, Test, Exam} from "@swim/unit";
+import type {Exam} from "@swim/unit";
+import {Test} from "@swim/unit";
+import {Suite} from "@swim/unit";
 import {Color} from "@swim/style";
-import {Look, Mood, Theme, ThemeAnimator} from "@swim/theme";
+import {Look} from "@swim/theme";
+import {Mood} from "@swim/theme";
+import {Theme} from "@swim/theme";
+import {ThemeAnimator} from "@swim/theme";
 import {TestThemeComponent} from "./TestThemeComponent";
 
-export class ThemeAnimatorSpec extends Spec {
+export class ThemeAnimatorSpec extends Suite {
   @Test
   testThemeAnimator(exam: Exam): void {
     const animator = ThemeAnimator.create(null);

@@ -12,12 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Equals, Lazy, Arrays} from "@swim/util";
-import {Debug, Format, Output} from "@swim/codec";
+import {Lazy} from "@swim/util";
+import {Arrays} from "@swim/util";
+import type {Equals} from "@swim/util";
+import type {Output} from "@swim/codec";
+import type {Debug} from "@swim/codec";
+import {Format} from "@swim/codec";
 import type {Look} from "../look/Look";
-import {AnyLookVector, LookVectorUpdates, LookVector} from "../look/LookVector";
+import type {AnyLookVector} from "../look/LookVector";
+import type {LookVectorUpdates} from "../look/LookVector";
+import {LookVector} from "../look/LookVector";
 import type {Feel} from "../feel/Feel";
-import {AnyFeelVector, FeelVectorUpdates, FeelVector} from "../feel/FeelVector";
+import type {AnyFeelVector} from "../feel/FeelVector";
+import type {FeelVectorUpdates} from "../feel/FeelVector";
+import {FeelVector} from "../feel/FeelVector";
 import {MoodVector} from "../mood/MoodVector";
 import type {MoodMatrix} from "../mood/MoodMatrix";
 

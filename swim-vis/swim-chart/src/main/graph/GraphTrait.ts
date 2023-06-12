@@ -13,8 +13,9 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {FastenerClass} from "@swim/component";
-import {Model, Trait, TraitSet} from "@swim/model";
+import type {Model} from "@swim/model";
+import {Trait} from "@swim/model";
+import {TraitSet} from "@swim/model";
 import {PlotTrait} from "../plot/PlotTrait";
 import type {GraphTraitObserver} from "./GraphTraitObserver";
 
@@ -22,7 +23,7 @@ import type {GraphTraitObserver} from "./GraphTraitObserver";
 export class GraphTrait<X = unknown, Y = unknown> extends Trait {
   override readonly observerType?: Class<GraphTraitObserver<X, Y>>;
 
-  @TraitSet<GraphTrait<X, Y>["plots"]>({
+  @TraitSet({
     traitType: PlotTrait,
     binds: true,
     willAttachTrait(plotTrait: PlotTrait<X, Y>): void {
@@ -46,7 +47,6 @@ export class GraphTrait<X = unknown, Y = unknown> extends Trait {
     },
   })
   readonly plots!: TraitSet<this, PlotTrait<X, Y>>;
-  static readonly plots: FastenerClass<GraphTrait["plots"]>;
 
   protected override onStartConsuming(): void {
     super.onStartConsuming();

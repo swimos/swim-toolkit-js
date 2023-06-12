@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Numbers, Interpolator, NumberInterpolator} from "@swim/util";
+import {Numbers} from "@swim/util";
+import type {Interpolator} from "@swim/util";
+import {NumberInterpolator} from "@swim/util";
 import {Look} from "./Look";
 
 /** @public */

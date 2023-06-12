@@ -12,42 +12,44 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, Instance, AnyTiming, Creatable, Inits} from "@swim/util";
+import type {Class} from "@swim/util";
+import type {Instance} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {Creatable} from "@swim/util";
+import type {Inits} from "@swim/util";
 import type {AnyAnimatorValue} from "@swim/component";
-import {AnyLength, Length, AnyTransform, Transform} from "@swim/math";
-import {
-  FontStyle,
-  FontVariant,
-  FontWeight,
-  FontStretch,
-  FontFamily,
-  AnyFont,
-  Font,
-  AnyColor,
-  Color,
-} from "@swim/style";
-import {AnyView, View} from "@swim/view";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import type {AnyTransform} from "@swim/math";
+import {Transform} from "@swim/math";
+import type {FontStyle} from "@swim/style";
+import type {FontVariant} from "@swim/style";
+import type {FontWeight} from "@swim/style";
+import type {FontStretch} from "@swim/style";
+import {FontFamily} from "@swim/style";
+import type {AnyFont} from "@swim/style";
+import {Font} from "@swim/style";
+import type {AnyColor} from "@swim/style";
+import {Color} from "@swim/style";
+import type {AnyView} from "@swim/view";
+import {View} from "@swim/view";
 import {AttributeAnimator} from "../attribute/AttributeAnimator";
 import {StyleAnimator} from "../style/StyleAnimator";
-import type {
-  AlignmentBaseline,
-  CssCursor,
-  FillRule,
-  StrokeLinecap,
-  StrokeLinejoin,
-  SvgPointerEvents,
-  TextAnchor,
-  TouchAction,
-} from "../css/types";
+import type {AlignmentBaseline} from "../css/types";
+import type {CssCursor} from "../css/types";
+import type {FillRule} from "../css/types";
+import type {StrokeLinecap} from "../css/types";
+import type {StrokeLinejoin} from "../css/types";
+import type {SvgPointerEvents} from "../css/types";
+import type {TextAnchor} from "../css/types";
+import type {TouchAction} from "../css/types";
 import type {ViewNodeType} from "../node/NodeView";
-import {
-  AnyElementView,
-  ElementViewInit,
-  ElementViewFactory,
-  ElementViewClass,
-  ElementViewConstructor,
-  ElementView,
-} from "../element/ElementView";
+import type {AnyElementView} from "../element/ElementView";
+import type {ElementViewInit} from "../element/ElementView";
+import type {ElementViewFactory} from "../element/ElementView";
+import type {ElementViewClass} from "../element/ElementView";
+import type {ElementViewConstructor} from "../element/ElementView";
+import {ElementView} from "../element/ElementView";
 import type {SvgViewObserver} from "./SvgViewObserver";
 
 /** @public */
@@ -493,13 +495,13 @@ export class SvgView extends ElementView {
   @StyleAnimator({propertyNames: "font-variant", valueType: String})
   readonly fontVariant!: StyleAnimator<this, FontVariant | undefined>;
 
-  @StyleAnimator<SvgView["fontWeight"]>({propertyNames: "font-weight", valueType: String})
+  @StyleAnimator({propertyNames: "font-weight", valueType: String})
   readonly fontWeight!: StyleAnimator<this, FontWeight | undefined>;
 
-  @StyleAnimator<SvgView["lineHeight"]>({propertyNames: "line-height", valueType: Length, value: null})
+  @StyleAnimator({propertyNames: "line-height", valueType: Length, value: null})
   readonly lineHeight!: StyleAnimator<this, Length | null, AnyLength | null>;
 
-  @StyleAnimator<SvgView["touchAction"]>({propertyNames: "touch-action", valueType: String})
+  @StyleAnimator({propertyNames: "touch-action", valueType: String})
   readonly touchAction!: StyleAnimator<this, TouchAction | undefined>;
 
   override get parentTransform(): Transform {

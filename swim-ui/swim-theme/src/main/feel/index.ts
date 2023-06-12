@@ -14,12 +14,10 @@
 
 export {Feel} from "./Feel";
 
-export {
-  AnyFeelVector,
-  FeelVectorArray,
-  FeelVectorUpdates,
-  FeelVector,
-} from "./FeelVector";
+export type {AnyFeelVector} from "./FeelVector";
+export type {FeelVectorArray} from "./FeelVector";
+export type {FeelVectorUpdates} from "./FeelVector";
+export {FeelVector} from "./FeelVector";
 export {FeelVectorInterpolator} from "./FeelVectorInterpolator";
 
 export {InterpolatedFeel} from "./InterpolatedFeel";

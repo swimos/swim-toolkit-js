@@ -12,10 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Equals, Equivalent, Interpolate, Interpolator} from "@swim/util";
-import {Parser, Diagnostic, Unicode} from "@swim/codec";
-import {AnyLength, Length} from "@swim/math";
-import {AnyColor, Color} from "../color/Color";
+import {Equals} from "@swim/util";
+import {Equivalent} from "@swim/util";
+import type {Interpolate} from "@swim/util";
+import type {Interpolator} from "@swim/util";
+import {Diagnostic} from "@swim/codec";
+import {Parser} from "@swim/codec";
+import {Unicode} from "@swim/codec";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import type {AnyColor} from "../color/Color";
+import {Color} from "../color/Color";
 import {ColorStopInterpolator} from "../"; // forward import
 import {ColorStopParser} from "../"; // forward import
 import {ColorStopListParser} from "../"; // forward import

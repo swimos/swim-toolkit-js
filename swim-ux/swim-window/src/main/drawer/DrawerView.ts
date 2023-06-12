@@ -12,21 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, AnyTiming, Timing} from "@swim/util";
-import {Affinity, Property} from "@swim/component";
+import type {Class} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {Timing} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
 import {ConstraintProperty} from "@swim/constraint";
-import {AnyLength, Length} from "@swim/math";
-import {
-  AnyPresence,
-  Presence,
-  PresenceAnimator,
-  AnyExpansion,
-  Expansion,
-  ExpansionAnimator,
-} from "@swim/style";
-import {Look, Mood, ThemeConstraintAnimator} from "@swim/theme";
-import {ViewInsets, View} from "@swim/view";
-import {HtmlViewInit, HtmlView, ModalView} from "@swim/dom";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import type {AnyPresence} from "@swim/style";
+import {Presence} from "@swim/style";
+import {PresenceAnimator} from "@swim/style";
+import type {AnyExpansion} from "@swim/style";
+import {Expansion} from "@swim/style";
+import {ExpansionAnimator} from "@swim/style";
+import {Look} from "@swim/theme";
+import {Mood} from "@swim/theme";
+import {ThemeConstraintAnimator} from "@swim/theme";
+import type {ViewInsets} from "@swim/view";
+import {View} from "@swim/view";
+import type {HtmlViewInit} from "@swim/dom";
+import {HtmlView} from "@swim/dom";
+import type {ModalView} from "@swim/dom";
 import type {DrawerViewObserver} from "./DrawerViewObserver";
 
 /** @public */
@@ -63,7 +70,7 @@ export class DrawerView extends HtmlView implements ModalView {
   @ThemeConstraintAnimator({valueType: Length, value: Length.px(200)})
   readonly expandedWidth!: ThemeConstraintAnimator<this, Length, AnyLength>;
 
-  @ConstraintProperty<DrawerView["effectiveWidth"]>({
+  @ConstraintProperty({
     valueType: Length,
     value: null,
     didSetValue(newValue: Length | null, oldValue: Length | null): void {
@@ -75,7 +82,7 @@ export class DrawerView extends HtmlView implements ModalView {
   })
   readonly effectiveWidth!: ConstraintProperty<this, Length | null, AnyLength | null>;
 
-  @ConstraintProperty<DrawerView["effectiveHeight"]>({
+  @ConstraintProperty({
     valueType: Length,
     value: null,
     didSetValue(newValue: Length | null, oldValue: Length | null): void {
@@ -95,7 +102,7 @@ export class DrawerView extends HtmlView implements ModalView {
     return this.placement.value === "left" || this.placement.value === "right";
   }
 
-  @Property<DrawerView["placement"]>({
+  @Property({
     valueType: String,
     value: "left",
     updateFlags: View.NeedsResize | View.NeedsLayout,
@@ -107,7 +114,7 @@ export class DrawerView extends HtmlView implements ModalView {
   readonly placement!: Property<this, DrawerPlacement>;
 
   /** @override */
-  @PresenceAnimator<DrawerView["presence"]>({
+  @PresenceAnimator({
     value: Presence.presented(),
     updateFlags: View.NeedsLayout,
     get transition(): Timing | null {
@@ -131,7 +138,7 @@ export class DrawerView extends HtmlView implements ModalView {
   })
   readonly presence!: PresenceAnimator<this, Presence, AnyPresence>;
 
-  @ExpansionAnimator<DrawerView["stretch"]>({
+  @ExpansionAnimator({
     value: Expansion.expanded(),
     updateFlags: View.NeedsResize | View.NeedsLayout,
     get transition(): Timing | null {
@@ -154,7 +161,7 @@ export class DrawerView extends HtmlView implements ModalView {
   })
   readonly stretch!: ExpansionAnimator<this, Expansion, AnyExpansion>;
 
-  @Property<DrawerView["edgeInsets"]>({
+  @Property({
     extends: true,
     getOutletValue(outlet: Property<unknown, ViewInsets>): ViewInsets {
       let edgeInsets = this.value;
@@ -331,7 +338,7 @@ export class DrawerView extends HtmlView implements ModalView {
   }
 
   /** @override */
-  @Property<DrawerView["modality"]>({
+  @Property({
     valueType: Number,
     value: 0,
     didSetValue(modality: number): void {

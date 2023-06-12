@@ -12,8 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyR2Point, R2PointInit, R2Point, R2Box} from "@swim/math";
-import {AnyGeoPoint, GeoPointInit, GeoPoint} from "@swim/geo";
+import type {AnyR2Point} from "@swim/math";
+import type {R2PointInit} from "@swim/math";
+import {R2Point} from "@swim/math";
+import {R2Box} from "@swim/math";
+import type {AnyGeoPoint} from "@swim/geo";
+import type {GeoPointInit} from "@swim/geo";
+import {GeoPoint} from "@swim/geo";
 import {WorldMapViewport} from "./WorldMapViewport";
 
 /** @public */

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=0, shrink-to-fit=no, viewport-fit=cover">
   </head>
   <body swim-theme style="display: flex; justify-content: center; align-items: center; width: 100vw; height: 100vh; margin: 0;">
+    <script src="../../node_modules/tslib/tslib.js"></script>
     <script src="../../swim-runtime/swim-core/dist/swim-core.js"></script>
     <script src="../../swim-runtime/swim-host/dist/swim-host.js"></script>
     <script src="../swim-ui/dist/swim-ui.js"></script>
@@ -25,36 +26,49 @@ const canvasView = containerView.appendChild(swim.CanvasView)
     .touchEventsEnabled(true)
     .touchAction("manipulation");
 
-class ExamplePieController extends swim.PieController {
-}
-swim.TraitViewRef({
-  extends: true,
-  initView(pieView) {
-    swim.PieController.pie.prototype.initView.call(this, pieView);
-    pieView.font("14px sans-serif");
-  },
-})(ExamplePieController.prototype, "pie");
-swim.TraitViewControllerSet({
-  extends: true,
-  attachSliceView(sliceView, sliceController) {
-    swim.PieController.slices.prototype.attachSliceView.call(this, sliceView, sliceController);
-    sliceView.addEventListener("pointerenter", function (event) {
-      sliceView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, 1]], true);
-    });
-    sliceView.addEventListener("pointerleave", function (event) {
-      sliceView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, void 0]], true);
-    });
-  },
-  controllerDidSetSliceValue(sliceValue, sliceController, pieController) {
-    swim.PieController.slices.prototype.controllerDidSetSliceValue.call(this, sliceValue, sliceController, pieController);
-    const label = Math.round(100 * sliceValue).toString();
-    sliceController.slice.trait.label.setValue(label);
-  },
-  attachSliceLabelView(labelView, sliceController) {
-    swim.PieController.slices.prototype.attachSliceLabelView.call(this, labelView, sliceController);
-    labelView.textColor.setLook(swim.Look.backgroundColor);
-  },
-})(ExamplePieController.prototype, "slices");
+const ExamplePieController = (function () {
+  const extraInitializers = [];
+  const pieInitializers = [];
+  const slicesInitializers = [];
+  class ExamplePieController extends swim.PieController {
+    constructor() {
+      super();
+      __runInitializers(this, extraInitializers);
+      this.pie = __runInitializers(this, pieInitializers, this.pie);
+      this.slices = __runInitializers(this, slicesInitializers, this.slices);
+    }
+  }
+  __esDecorate(null, null, [swim.TraitViewRef({
+    extends: true,
+    initView(pieView) {
+      super.initView(pieView);
+      pieView.font("14px sans-serif");
+    },
+  })], {kind: "field", name: "pie", static: false, private: false, access: {has: obj => "pie" in obj, get: obj => obj.pie, set: (obj, value) => { obj.pie = value; }}}, pieInitializers, extraInitializers);
+  __esDecorate(null, null, [swim.TraitViewControllerSet({
+    extends: true,
+    attachSliceView(sliceView, sliceController) {
+      super.attachSliceView(sliceView, sliceController);
+      sliceView.addEventListener("pointerenter", function (event) {
+        sliceView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, 1]], true);
+      });
+      sliceView.addEventListener("pointerleave", function (event) {
+        sliceView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, void 0]], true);
+      });
+    },
+    controllerDidSetSliceValue(sliceValue, sliceController, pieController) {
+      super.controllerDidSetSliceValue(sliceValue, sliceController, pieController);
+      const label = Math.round(100 * sliceValue).toString();
+      sliceController.slice.trait.label.setValue(label);
+    },
+    attachSliceLabelView(labelView, sliceController) {
+      super.attachSliceLabelView(labelView, sliceController);
+      labelView.textColor.setLook(swim.Look.backgroundColor);
+    },
+  })], {kind: "field", name: "slices", static: false, private: false, access: {has: obj => "slices" in obj, get: obj => obj.slices, set: (obj, value) => { obj.slices = value; }}}, slicesInitializers, extraInitializers);
+
+  return ExamplePieController;
+})();
 
 const slice1Model = new swim.Model();
 const slice1Trait = new swim.SliceTrait()

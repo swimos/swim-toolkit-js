@@ -12,17 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Proto, Arrays, Observes, Consumer, Consumable} from "@swim/util";
-import {FastenerFlags, FastenerOwner, FastenerDescriptor, FastenerClass, Fastener} from "@swim/component";
-import {AnyController, ControllerFactory, Controller} from "./Controller";
+import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
+import {Arrays} from "@swim/util";
+import type {Observes} from "@swim/util";
+import type {Consumer} from "@swim/util";
+import type {Consumable} from "@swim/util";
+import type {FastenerFlags} from "@swim/component";
+import type {FastenerOwner} from "@swim/component";
+import type {FastenerDescriptor} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
+import {Fastener} from "@swim/component";
+import type {AnyController} from "./Controller";
+import type {ControllerFactory} from "./Controller";
+import {Controller} from "./Controller";
 
 /** @public */
 export type ControllerRelationController<F extends ControllerRelation<any, any>> =
   F extends {controllerType?: ControllerFactory<infer C>} ? C : never;
 
 /** @public */
+export type ControllerRelationDecorator<F extends ControllerRelation<any, any>> = {
+  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
+};
+
+/** @public */
 export interface ControllerRelationDescriptor<C extends Controller = Controller> extends FastenerDescriptor {
-  extends?: Proto<ControllerRelation<any, any>> | string | boolean | null;
+  extends?: Proto<ControllerRelation<any, any>> | boolean | null;
   controllerType?: ControllerFactory<C>;
   binds?: boolean;
   consumed?: boolean;
@@ -44,15 +60,15 @@ export interface ControllerRelationClass<F extends ControllerRelation<any, any> 
   refine(fastenerClass: ControllerRelationClass<any>): void;
 
   /** @override */
-  extend<F2 extends F>(className: string, template: ControllerRelationTemplate<F2>): ControllerRelationClass<F2>;
-  extend<F2 extends F>(className: string, template: ControllerRelationTemplate<F2>): ControllerRelationClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: ControllerRelationTemplate<F2>): ControllerRelationClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: ControllerRelationTemplate<F2>): ControllerRelationClass<F2>;
 
   /** @override */
-  define<F2 extends F>(className: string, template: ControllerRelationTemplate<F2>): ControllerRelationClass<F2>;
-  define<F2 extends F>(className: string, template: ControllerRelationTemplate<F2>): ControllerRelationClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: ControllerRelationTemplate<F2>): ControllerRelationClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: ControllerRelationTemplate<F2>): ControllerRelationClass<F2>;
 
   /** @override */
-  <F2 extends F>(template: ControllerRelationTemplate<F2>): PropertyDecorator;
+  <F2 extends F>(template: ControllerRelationTemplate<F2>): ControllerRelationDecorator<F2>;
 
   /** @internal */
   readonly ConsumingFlag: FastenerFlags;
@@ -75,7 +91,7 @@ export interface ControllerRelation<O = unknown, C extends Controller = Controll
   readonly observes?: boolean; // optional prototype property
 
   /** @internal @override */
-  getSuper(): ControllerRelation<unknown, C> | null;
+  getParent(): ControllerRelation<unknown, C> | null;
 
   /** @internal @override */
   setDerived(derived: boolean, inlet: ControllerRelation<unknown, C>): void;
@@ -238,7 +254,6 @@ export interface ControllerRelation<O = unknown, C extends Controller = Controll
 export const ControllerRelation = (function (_super: typeof Fastener) {
   const ControllerRelation = _super.extend("ControllerRelation", {
     lazy: false,
-    static: true,
   }) as ControllerRelationClass;
 
   Object.defineProperty(ControllerRelation.prototype, "fastenerType", {
@@ -349,8 +364,9 @@ export const ControllerRelation = (function (_super: typeof Fastener) {
     }
     if (controller === void 0 || controller === null) {
       let message = "Unable to create ";
-      if (this.name.length !== 0) {
-        message += this.name + " ";
+      const name = this.name.toString();
+      if (name.length !== 0) {
+        message += name + " ";
       }
       message += "controller";
       throw new Error(message);
@@ -424,7 +440,7 @@ export const ControllerRelation = (function (_super: typeof Fastener) {
       return (this.flags & ControllerRelation.ConsumingFlag) !== 0;
     },
     configurable: true,
-  })
+  });
 
   ControllerRelation.prototype.startConsuming = function (this: ControllerRelation): void {
     if ((this.flags & ControllerRelation.ConsumingFlag) === 0) {

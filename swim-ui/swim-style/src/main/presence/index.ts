@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  AnyPresence,
-  PresenceInit,
-  Presence,
-} from "./Presence";
+export type {AnyPresence} from "./Presence";
+export type {PresenceInit} from "./Presence";
+export {Presence} from "./Presence";
 export {PresenceInterpolator} from "./PresenceInterpolator";
 
 export {PresenceAnimator} from "./PresenceAnimator";

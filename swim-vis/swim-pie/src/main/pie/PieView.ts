@@ -12,14 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Observes} from "@swim/util";
-import {Affinity, FastenerClass, Animator} from "@swim/component";
-import {AnyLength, Length, AnyAngle, Angle, AnyR2Point, R2Point, R2Box} from "@swim/math";
-import {AnyFont, Font, AnyColor, Color} from "@swim/style";
-import {Look, ThemeAnimator} from "@swim/theme";
-import {View, ViewRef, ViewSet} from "@swim/view";
-import {GraphicsViewInit, GraphicsView, TypesetView, TextRunView} from "@swim/graphics";
-import {AnySliceView, SliceView} from "../slice/SliceView";
+import type {Class} from "@swim/util";
+import type {Observes} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Animator} from "@swim/component";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import type {AnyAngle} from "@swim/math";
+import {Angle} from "@swim/math";
+import type {AnyR2Point} from "@swim/math";
+import {R2Point} from "@swim/math";
+import type {R2Box} from "@swim/math";
+import type {AnyFont} from "@swim/style";
+import {Font} from "@swim/style";
+import type {AnyColor} from "@swim/style";
+import {Color} from "@swim/style";
+import {Look} from "@swim/theme";
+import {ThemeAnimator} from "@swim/theme";
+import {View} from "@swim/view";
+import {ViewRef} from "@swim/view";
+import {ViewSet} from "@swim/view";
+import type {GraphicsViewInit} from "@swim/graphics";
+import {GraphicsView} from "@swim/graphics";
+import {TypesetView} from "@swim/graphics";
+import {TextRunView} from "@swim/graphics";
+import type {AnySliceView} from "../slice/SliceView";
+import {SliceView} from "../slice/SliceView";
 import type {PieViewObserver} from "./PieViewObserver";
 
 /** @public */
@@ -107,7 +125,7 @@ export class PieView extends GraphicsView {
   @ThemeAnimator({valueType: Color, value: null, look: Look.legendColor})
   readonly textColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @ViewRef<PieView["title"]>({
+  @ViewRef({
     viewType: TextRunView,
     viewKey: true,
     binds: true,
@@ -139,9 +157,8 @@ export class PieView extends GraphicsView {
   readonly title!: ViewRef<this, GraphicsView> & {
     setText(title: string | undefined): GraphicsView,
   };
-  static readonly title: FastenerClass<PieView["title"]>;
 
-  @ViewSet<PieView["slices"]>({
+  @ViewSet({
     viewType: SliceView,
     binds: true,
     observes: true,
@@ -205,7 +222,6 @@ export class PieView extends GraphicsView {
     attachLegendView(legendView: GraphicsView): void,
     detachLegendView(legendView: GraphicsView): void,
   };
-  static readonly slices: FastenerClass<PieView["slices"]>;
 
   protected override onLayout(): void {
     super.onLayout();

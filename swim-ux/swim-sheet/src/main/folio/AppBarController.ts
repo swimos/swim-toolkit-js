@@ -12,28 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, Lazy, Observes} from "@swim/util";
-import {Affinity, FastenerClass, Property} from "@swim/component";
+import {Lazy} from "@swim/util";
+import type {Class} from "@swim/util";
+import type {Observes} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
 import type {Trait} from "@swim/model";
-import {Look, Mood} from "@swim/theme";
+import {Look} from "@swim/theme";
+import {Mood} from "@swim/theme";
 import type {PositionGestureInput} from "@swim/view";
 import {VectorIcon} from "@swim/graphics";
-import {
-  Controller,
-  TraitViewRef,
-  TraitViewControllerRef,
-  TraitViewControllerSet,
-} from "@swim/controller";
-import {
-  ToolLayout,
-  BarLayout,
-  ToolView,
-  ToolController,
-  ButtonToolView,
-  ButtonToolController,
-  BarView,
-  BarController,
-} from "@swim/toolbar";
+import {Controller} from "@swim/controller";
+import type {TraitViewRef} from "@swim/controller";
+import {TraitViewControllerRef} from "@swim/controller";
+import {TraitViewControllerSet} from "@swim/controller";
+import {ToolLayout} from "@swim/toolbar";
+import {BarLayout} from "@swim/toolbar";
+import type {ToolView} from "@swim/toolbar";
+import {ToolController} from "@swim/toolbar";
+import {ButtonToolView} from "@swim/toolbar";
+import {ButtonToolController} from "@swim/toolbar";
+import type {BarView} from "@swim/toolbar";
+import {BarController} from "@swim/toolbar";
 import type {SheetView} from "../sheet/SheetView";
 import {SheetController} from "../sheet/SheetController";
 import type {AppBarControllerObserver} from "./AppBarControllerObserver";
@@ -108,7 +108,7 @@ export class AppBarController extends BarController {
     return BarLayout.create(tools);
   }
 
-  @TraitViewControllerRef<AppBarController["menuButton"]>({
+  @TraitViewControllerRef({
     controllerType: ToolController,
     binds: true,
     viewKey: "menuButton",
@@ -138,9 +138,8 @@ export class AppBarController extends BarController {
     },
   })
   readonly menuButton!: TraitViewControllerRef<this, Trait, ToolView, ToolController> & Observes<ButtonToolController>;
-  static readonly menuButton: FastenerClass<AppBarController["menuButton"]>;
 
-  @TraitViewControllerRef<AppBarController["actionButton"]>({
+  @TraitViewControllerRef({
     controllerType: ToolController,
     binds: true,
     viewKey: "actionButton",
@@ -166,9 +165,8 @@ export class AppBarController extends BarController {
     },
   })
   readonly actionButton!: TraitViewControllerRef<this, Trait, ToolView, ToolController> & Observes<ButtonToolController>;
-  static readonly actionButton: FastenerClass<AppBarController["actionButton"]>;
 
-  @TraitViewControllerRef<AppBarController["cover"]>({
+  @TraitViewControllerRef({
     controllerType: SheetController,
     inherits: true,
     observes: true,
@@ -192,9 +190,8 @@ export class AppBarController extends BarController {
     },
   })
   readonly cover!: TraitViewControllerRef<this, Trait, SheetView, SheetController> & Observes<SheetController>;
-  static readonly cover: FastenerClass<AppBarController["cover"]>;
 
-  @TraitViewControllerSet<AppBarController["modeTools"]>({
+  @TraitViewControllerSet({
     controllerType: ToolController,
     ordered: true,
     inherits: true,
@@ -216,9 +213,8 @@ export class AppBarController extends BarController {
     },
   })
   readonly modeTools!: TraitViewControllerSet<this, Trait, ToolView, ToolController> & Observes<ToolController>;
-  static readonly modeTools: FastenerClass<AppBarController["modeTools"]>;
 
-  @Property<AppBarController["fullScreen"]>({
+  @Property({
     valueType: Boolean,
     value: false,
     inherits: true,

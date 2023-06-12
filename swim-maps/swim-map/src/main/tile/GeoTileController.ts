@@ -12,12 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Observes} from "@swim/util";
-import type {FastenerClass} from "@swim/component";
+import type {Class} from "@swim/util";
+import type {Observes} from "@swim/util";
 import type {GeoTile} from "@swim/geo";
 import type {Trait} from "@swim/model";
 import type {View} from "@swim/view";
-import {Controller, TraitViewRef, TraitViewControllerRef, TraitViewControllerSet} from "@swim/controller";
+import type {Controller} from "@swim/controller";
+import {TraitViewRef} from "@swim/controller";
+import {TraitViewControllerRef} from "@swim/controller";
+import {TraitViewControllerSet} from "@swim/controller";
 import type {GeoViewport} from "../geo/GeoViewport";
 import type {GeoView} from "../geo/GeoView";
 import type {GeoTrait} from "../geo/GeoTrait";
@@ -73,17 +76,17 @@ export class GeoTileController extends GeoLayerController {
     }
   }
 
-  @TraitViewRef<GeoTileController["geo"]>({
+  @TraitViewRef({
     extends: true,
     consumed: true,
     traitType: GeoTileTrait,
     observesTrait: true,
     didAttachTrait(geoTrait: GeoTileTrait, targetTrait: Trait | null): void {
       this.owner.tiles.addTraits(geoTrait.tiles.traits);
-      GeoLayerController.geo.prototype.didAttachTrait.call(this, geoTrait, targetTrait);
+      super.didAttachTrait(geoTrait, targetTrait);
     },
     willDetachTrait(geoTrait: GeoTileTrait): void {
-      GeoLayerController.geo.prototype.willDetachTrait.call(this, geoTrait);
+      super.willDetachTrait(geoTrait);
       this.owner.tiles.deleteTraits(geoTrait.tiles.traits);
     },
     traitWillAttachTile(tileTrait: GeoTileTrait, targetTrait: Trait): void {
@@ -95,7 +98,7 @@ export class GeoTileController extends GeoLayerController {
     viewType: GeoTileView,
     observesView: true,
     didAttachView(geoView: GeoView, targetView: View | null): void {
-      GeoLayerController.geo.prototype.didAttachView.call(this, geoView, targetView);
+      super.didAttachView(geoView, targetView);
       geoView.setCulled(true);
       const tileControllers = this.owner.tiles.controllers;
       for (const controllerId in tileControllers) {
@@ -107,7 +110,7 @@ export class GeoTileController extends GeoLayerController {
       }
     },
     willDetachView(geoView: GeoView): void {
-      GeoLayerController.geo.prototype.willDetachView.call(this, geoView);
+      super.willDetachView(geoView);
       this.owner.unconsume(geoView);
     },
     viewDidProject(geoView: GeoView): void {
@@ -119,20 +122,20 @@ export class GeoTileController extends GeoLayerController {
       return new GeoTileView(this.owner.geoTile);
     },
   })
-  override readonly geo!: TraitViewRef<this, GeoTileTrait, GeoView> & GeoLayerController["geo"] & Observes<GeoTileTrait & GeoView>;
-  static override readonly geo: FastenerClass<GeoTileController["geo"]>;
+  override readonly geo!: TraitViewRef<this, GeoTileTrait, GeoView> & GeoLayerController["geo"] & Observes<GeoTileTrait> & Observes<GeoView>;
 
-  @TraitViewControllerSet<GeoTileController["features"]>({
+  @TraitViewControllerSet({
     extends: true,
     detectController(controller: Controller): GeoController | null {
       return controller instanceof GeoController && !(controller instanceof GeoTileController) ? controller : null;
     },
   })
   override readonly features!: TraitViewControllerSet<this, GeoTrait, GeoView, GeoController> & GeoLayerController["features"];
-  static override readonly features: FastenerClass<GeoTileController["features"]>;
 
-  @TraitViewControllerSet<GeoTileController["tiles"]>({
-    controllerType: GeoTileController,
+  @TraitViewControllerSet({
+    get controllerType(): typeof GeoTileController {
+      return GeoTileController;
+    },
     binds: true,
     observes: true,
     get parentView(): GeoView | null {
@@ -202,7 +205,7 @@ export class GeoTileController extends GeoLayerController {
       if (tileTrait !== void 0) {
         return this.owner.createTileController(tileTrait.geoTile);
       } else {
-        return TraitViewControllerSet.prototype.createController.call(this);
+        return super.createController();
       }
     },
   })
@@ -212,10 +215,11 @@ export class GeoTileController extends GeoLayerController {
     attachTileView(tileView: GeoView, tileController: GeoTileController): void,
     detachTileView(tileView: GeoView, tileController: GeoTileController): void,
   };
-  static readonly tiles: FastenerClass<GeoTileController["tiles"]>;
 
-  @TraitViewControllerRef<GeoTileController["southWest"]>({
-    controllerType: GeoTileController,
+  @TraitViewControllerRef({
+    get controllerType(): typeof GeoTileController {
+      return GeoTileController;
+    },
     controllerKey: true,
     binds: true,
     get parentView(): GeoView | null {
@@ -229,10 +233,11 @@ export class GeoTileController extends GeoLayerController {
     },
   })
   readonly southWest!: TraitViewControllerRef<this, GeoTileTrait, GeoView, GeoTileController>;
-  static readonly southWest: FastenerClass<GeoTileController["southWest"]>;
 
-  @TraitViewControllerRef<GeoTileController["northWest"]>({
-    controllerType: GeoTileController,
+  @TraitViewControllerRef({
+    get controllerType(): typeof GeoTileController {
+      return GeoTileController;
+    },
     controllerKey: true,
     binds: true,
     get parentView(): GeoView | null {
@@ -246,10 +251,11 @@ export class GeoTileController extends GeoLayerController {
     },
   })
   readonly northWest!: TraitViewControllerRef<this, GeoTileTrait, GeoView, GeoTileController>;
-  static readonly northWest: FastenerClass<GeoTileController["northWest"]>;
 
-  @TraitViewControllerRef<GeoTileController["southEast"]>({
-    controllerType: GeoTileController,
+  @TraitViewControllerRef({
+    get controllerType(): typeof GeoTileController {
+      return GeoTileController;
+    },
     controllerKey: true,
     binds: true,
     get parentView(): GeoView | null {
@@ -263,10 +269,11 @@ export class GeoTileController extends GeoLayerController {
     },
   })
   readonly southEast!: TraitViewControllerRef<this, GeoTileTrait, GeoView, GeoTileController>;
-  static readonly southEast: FastenerClass<GeoTileController["southEast"]>;
 
-  @TraitViewControllerRef<GeoTileController["northEast"]>({
-    controllerType: GeoTileController,
+  @TraitViewControllerRef({
+    get controllerType(): typeof GeoTileController {
+      return GeoTileController;
+    },
     controllerKey: true,
     binds: true,
     get parentView(): GeoView | null {
@@ -280,7 +287,6 @@ export class GeoTileController extends GeoLayerController {
     },
   })
   readonly northEast!: TraitViewControllerRef<this, GeoTileTrait, GeoView, GeoTileController>;
-  static readonly northEast: FastenerClass<GeoTileController["northEast"]>;
 
   protected createTileController(geoTile: GeoTile): GeoTileController {
     return new GeoTileController(geoTile);

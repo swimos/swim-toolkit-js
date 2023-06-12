@@ -16,37 +16,31 @@ export * from "./types";
 
 export {StyleContext} from "./StyleContext";
 
-export {
-  StyleMapInit,
-  StyleMap,
-} from "./StyleMap";
+export type {StyleMapInit} from "./StyleMap";
+export {StyleMap} from "./StyleMap";
 
 export {CssContext} from "./CssContext";
 
-export {
-  CssRuleDescriptor,
-  CssRuleTemplate,
-  CssRuleClass,
-  CssRule,
-} from "./CssRule";
+export type {CssRuleDecorator} from "./CssRule";
+export type {CssRuleDescriptor} from "./CssRule";
+export type {CssRuleTemplate} from "./CssRule";
+export type {CssRuleClass} from "./CssRule";
+export {CssRule} from "./CssRule";
 
-export {
-  StyleRuleDescriptor,
-  StyleRuleTemplate,
-  StyleRuleClass,
-  StyleRule,
-} from "./StyleRule";
+export type {StyleRuleDecorator} from "./StyleRule";
+export type {StyleRuleDescriptor} from "./StyleRule";
+export type {StyleRuleTemplate} from "./StyleRule";
+export type {StyleRuleClass} from "./StyleRule";
+export {StyleRule} from "./StyleRule";
 
-export {
-  MediaRuleDescriptor,
-  MediaRuleTemplate,
-  MediaRuleClass,
-  MediaRule,
-} from "./MediaRule";
+export type {MediaRuleDecorator} from "./MediaRule";
+export type {MediaRuleDescriptor} from "./MediaRule";
+export type {MediaRuleTemplate} from "./MediaRule";
+export type {MediaRuleClass} from "./MediaRule";
+export {MediaRule} from "./MediaRule";
 
-export {
-  StyleSheetDescriptor,
-  StyleSheetTemplate,
-  StyleSheetClass,
-  StyleSheet,
-} from "./StyleSheet";
+export type {StyleSheetDecorator} from "./StyleSheet";
+export type {StyleSheetDescriptor} from "./StyleSheet";
+export type {StyleSheetTemplate} from "./StyleSheet";
+export type {StyleSheetClass} from "./StyleSheet";
+export {StyleSheet} from "./StyleSheet";

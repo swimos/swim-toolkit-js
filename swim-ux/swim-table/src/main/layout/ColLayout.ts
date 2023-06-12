@@ -12,10 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Equivalent, Equals} from "@swim/util"
-import {Debug, Format, Output} from "@swim/codec";
-import {AnyLength, Length} from "@swim/math";
-import {AnyColorOrLook, ColorOrLook, ColorLook} from "@swim/theme";
+import {Equals} from "@swim/util";
+import {Equivalent} from "@swim/util";
+import type {Output} from "@swim/codec";
+import type {Debug} from "@swim/codec";
+import {Format} from "@swim/codec";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import type {AnyColorOrLook} from "@swim/theme";
+import type {ColorOrLook} from "@swim/theme";
+import {ColorLook} from "@swim/theme";
 
 /** @public */
 export type AnyColLayout = ColLayout | ColLayoutInit;

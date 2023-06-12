@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {GraphicsView, GraphicsViewObserver} from "@swim/graphics";
+import type {GraphicsView} from "@swim/graphics";
+import type {GraphicsViewObserver} from "@swim/graphics";
 import type {TickView} from "./TickView";
 
 /** @public */

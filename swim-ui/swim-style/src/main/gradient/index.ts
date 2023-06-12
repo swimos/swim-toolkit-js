@@ -12,26 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  AnyColorStop,
-  ColorStopInit,
-  ColorStopTuple,
-  ColorStop,
-} from "./ColorStop";
+export type {AnyColorStop} from "./ColorStop";
+export type {ColorStopInit} from "./ColorStop";
+export type {ColorStopTuple} from "./ColorStop";
+export {ColorStop} from "./ColorStop";
 export {ColorStopInterpolator} from "./ColorStopInterpolator";
 
 export {ColorStopParser} from "./ColorStopParser";
 export {ColorStopListParser} from "./ColorStopListParser";
 
-export {
-  AnyLinearGradient,
-  AnyLinearGradientAngle,
-  LinearGradientAngle,
-  LinearGradientCorner,
-  LinearGradientSide,
-  LinearGradientInit,
-  LinearGradient,
-} from "./LinearGradient";
+export type {AnyLinearGradient} from "./LinearGradient";
+export type {AnyLinearGradientAngle} from "./LinearGradient";
+export type {LinearGradientAngle} from "./LinearGradient";
+export type {LinearGradientCorner} from "./LinearGradient";
+export type {LinearGradientSide} from "./LinearGradient";
+export type {LinearGradientInit} from "./LinearGradient";
+export {LinearGradient} from "./LinearGradient";
 export {LinearGradientInterpolator} from "./LinearGradientInterpolator";
 
 export {LinearGradientAngleParser} from "./LinearGradientAngleParser";

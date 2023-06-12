@@ -14,8 +14,12 @@
 
 import type {Class} from "@swim/util";
 import {Property} from "@swim/component";
-import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
-import {Graphics, AnyIconLayout, IconLayout} from "@swim/graphics";
+import type {AnyGeoPoint} from "@swim/geo";
+import {GeoPoint} from "@swim/geo";
+import {GeoBox} from "@swim/geo";
+import {Graphics} from "@swim/graphics";
+import type {AnyIconLayout} from "@swim/graphics";
+import {IconLayout} from "@swim/graphics";
 import {GeoTrait} from "../geo/GeoTrait";
 import type {GeoController} from "../geo/GeoController";
 import type {GeoIconTraitObserver} from "./GeoIconTraitObserver";
@@ -30,7 +34,7 @@ export class GeoIconTrait extends GeoTrait {
     return geoCenter !== null ? geoCenter.bounds : GeoBox.undefined();
   }
 
-  @Property<GeoIconTrait["geoCenter"]>({
+  @Property({
     valueType: GeoPoint,
     value: null,
     didSetValue(geoCenter: GeoPoint | null): void {
@@ -39,7 +43,7 @@ export class GeoIconTrait extends GeoTrait {
   })
   readonly geoCenter!: Property<this, GeoPoint | null, AnyGeoPoint | null>;
 
-  @Property<GeoIconTrait["iconLayout"]>({
+  @Property({
     valueType: IconLayout,
     value: null,
     didSetValue(iconLayout: IconLayout | null): void {
@@ -48,7 +52,7 @@ export class GeoIconTrait extends GeoTrait {
   })
   readonly iconLayout!: Property<this, IconLayout | null, AnyIconLayout | null>;
 
-  @Property<GeoIconTrait["graphics"]>({
+  @Property({
     valueType: Graphics,
     value: null,
     didSetValue(graphics: Graphics | null): void {

@@ -12,27 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  GraphicsEventInit,
-  GraphicsEvent,
-} from "./GraphicsEvent";
+export type {GraphicsEventInit} from "./GraphicsEvent";
+export type {GraphicsEvent} from "./GraphicsEvent";
 
-export {
-  GraphicsMouseEventInit,
-  GraphicsMouseEvent,
-} from "./GraphicsMouseEvent";
+export type {GraphicsMouseEventInit} from "./GraphicsMouseEvent";
+export type {GraphicsMouseEvent} from "./GraphicsMouseEvent";
 
-export {
-  GraphicsPointerEventInit,
-  GraphicsPointerEvent,
-} from "./GraphicsPointerEvent";
+export type {GraphicsPointerEventInit} from "./GraphicsPointerEvent";
+export type {GraphicsPointerEvent} from "./GraphicsPointerEvent";
 
-export {
-  GraphicsTouchInit,
-  GraphicsTouch,
-  GraphicsTouchList,
-  GraphicsTouchEventInit,
-  GraphicsTouchEvent,
-} from "./GraphicsTouchEvent";
+export type {GraphicsTouchInit} from "./GraphicsTouchEvent";
+export type {GraphicsTouch} from "./GraphicsTouchEvent";
+export type {GraphicsTouchList} from "./GraphicsTouchEvent";
+export type {GraphicsTouchEventInit} from "./GraphicsTouchEvent";
+export type {GraphicsTouchEvent} from "./GraphicsTouchEvent";
 
-export {GraphicsEventHandler} from "./GraphicsEventHandler";
+export type {GraphicsEventHandler} from "./GraphicsEventHandler";

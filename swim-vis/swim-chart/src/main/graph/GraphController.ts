@@ -12,11 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Observes} from "@swim/util";
-import type {FastenerClass} from "@swim/component";
+import type {Class} from "@swim/util";
+import type {Observes} from "@swim/util";
 import type {Trait} from "@swim/model";
 import type {GraphicsView} from "@swim/graphics";
-import {Controller, TraitViewRef, TraitViewControllerSet} from "@swim/controller";
+import {Controller} from "@swim/controller";
+import {TraitViewRef} from "@swim/controller";
+import {TraitViewControllerSet} from "@swim/controller";
 import type {DataPointView} from "../data/DataPointView";
 import type {DataPointTrait} from "../data/DataPointTrait";
 import type {DataPointController} from "../data/DataPointController";
@@ -32,7 +34,7 @@ import type {GraphControllerObserver} from "./GraphControllerObserver";
 export class GraphController<X = unknown, Y = unknown> extends Controller {
   override readonly observerType?: Class<GraphControllerObserver<X, Y>>;
 
-  @TraitViewRef<GraphController<X, Y>["graph"]>({
+  @TraitViewRef({
     traitType: GraphTrait,
     observesTrait: true,
     willAttachTrait(graphTrait: GraphTrait<X, Y>): void {
@@ -72,9 +74,8 @@ export class GraphController<X = unknown, Y = unknown> extends Controller {
     },
   })
   readonly graph!: TraitViewRef<this, GraphTrait<X, Y>, GraphView<X, Y>> & Observes<GraphTrait<X, Y>>;
-  static readonly graph: FastenerClass<GraphController["graph"]>;
 
-  @TraitViewControllerSet<GraphController<X, Y>["plots"]>({
+  @TraitViewControllerSet({
     controllerType: PlotController,
     binds: true,
     observes: true,
@@ -240,7 +241,7 @@ export class GraphController<X = unknown, Y = unknown> extends Controller {
       if (plotTrait !== void 0) {
         return plotTrait.createPlotController();
       } else {
-        return TraitViewControllerSet.prototype.createController.call(this);
+        return super.createController();
       }
     },
   })
@@ -260,5 +261,4 @@ export class GraphController<X = unknown, Y = unknown> extends Controller {
     attachDataPointLabelView(dataPointLabelView: GraphicsView, dataPointController: DataPointController<X, Y>, plotController: PlotController<X, Y>): void,
     detachDataPointLabelView(dataPointLabelView: GraphicsView, dataPointController: DataPointController<X, Y>, plotController: PlotController<X, Y>): void,
   };
-  static readonly plots: FastenerClass<GraphController["plots"]>;
 }

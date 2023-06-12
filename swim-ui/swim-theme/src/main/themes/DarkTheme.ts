@@ -14,7 +14,9 @@
 
 import {Easing} from "@swim/util";
 import {Length} from "@swim/math";
-import {Font, Color, BoxShadow} from "@swim/style";
+import {Font} from "@swim/style";
+import {Color} from "@swim/style";
+import {BoxShadow} from "@swim/style";
 import {Look} from "../look/Look";
 import {Feel} from "../feel/Feel";
 import {FeelVector} from "../feel/FeelVector";

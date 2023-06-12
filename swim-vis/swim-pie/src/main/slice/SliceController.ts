@@ -12,12 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, AnyTiming, Timing, Observes} from "@swim/util";
-import {Affinity, FastenerClass, Property} from "@swim/component";
-import {Look, Mood, ColorOrLook} from "@swim/theme";
+import type {Class} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {Timing} from "@swim/util";
+import type {Observes} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
+import {Look} from "@swim/theme";
+import {Mood} from "@swim/theme";
+import type {ColorOrLook} from "@swim/theme";
 import {ViewRef} from "@swim/view";
 import type {GraphicsView} from "@swim/graphics";
-import {Controller, TraitViewRef} from "@swim/controller";
+import {Controller} from "@swim/controller";
+import {TraitViewRef} from "@swim/controller";
 import {SliceView} from "./SliceView";
 import {SliceTrait} from "./SliceTrait";
 import type {SliceControllerObserver} from "./SliceControllerObserver";
@@ -95,7 +102,7 @@ export class SliceController extends Controller {
   @Property({valueType: Timing, inherits: true})
   readonly sliceTiming!: Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined>;
 
-  @TraitViewRef<SliceController["slice"]>({
+  @TraitViewRef({
     traitType: SliceTrait,
     observesTrait: true,
     willAttachTrait(sliceTrait: SliceTrait): void {
@@ -182,10 +189,9 @@ export class SliceController extends Controller {
       this.owner.legend.setView(null);
     },
   })
-  readonly slice!: TraitViewRef<this, SliceTrait, SliceView> & Observes<SliceTrait & SliceView>;
-  static readonly slice: FastenerClass<SliceController["slice"]>;
+  readonly slice!: TraitViewRef<this, SliceTrait, SliceView> & Observes<SliceTrait> & Observes<SliceView>;
 
-  @ViewRef<SliceController["label"]>({
+  @ViewRef({
     viewKey: true,
     willAttachView(labelView: GraphicsView): void {
       this.owner.callObservers("controllerWillAttachSliceLabelView", labelView, this.owner);
@@ -195,9 +201,8 @@ export class SliceController extends Controller {
     },
   })
   readonly label!: ViewRef<this, GraphicsView>;
-  static readonly label: FastenerClass<SliceController["label"]>;
 
-  @ViewRef<SliceController["legend"]>({
+  @ViewRef({
     viewKey: true,
     willAttachView(legendView: GraphicsView): void {
       this.owner.callObservers("controllerWillAttachSliceLegendView", legendView, this.owner);
@@ -207,5 +212,4 @@ export class SliceController extends Controller {
     },
   })
   readonly legend!: ViewRef<this, GraphicsView>;
-  static readonly legend: FastenerClass<SliceController["legend"]>;
 }

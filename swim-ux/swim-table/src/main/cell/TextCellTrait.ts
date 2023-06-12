@@ -23,7 +23,7 @@ import {TextCellController} from "./"; // forward import
 export class TextCellTrait extends CellTrait {
   override readonly observerType?: Class<TextCellTraitObserver>;
 
-  @Property<TextCellTrait["content"]>({
+  @Property({
     valueType: String,
     didSetValue(content: string | undefined): void {
       this.owner.callObservers("traitDidSetContent", content, this.owner);

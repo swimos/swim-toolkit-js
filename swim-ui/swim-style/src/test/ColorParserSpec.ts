@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Spec, Test, Exam} from "@swim/unit";
+import type {Exam} from "@swim/unit";
+import {Test} from "@swim/unit";
+import {Suite} from "@swim/unit";
 import {Color} from "@swim/style";
 
-export class ColorParserSpec extends Spec {
+export class ColorParserSpec extends Suite {
   @Test
   parseNamedColors(exam: Exam): void {
     exam.equal(Color.parse("transparent"), Color.transparent());

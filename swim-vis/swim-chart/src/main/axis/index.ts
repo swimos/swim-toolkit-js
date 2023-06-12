@@ -12,13 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  AxisOrientation,
-  AnyAxisView,
-  AxisViewInit,
-  AxisView,
-} from "./AxisView";
-export {AxisViewObserver} from "./AxisViewObserver";
+export type {AxisOrientation} from "./AxisView";
+export type {AnyAxisView} from "./AxisView";
+export type {AxisViewInit} from "./AxisView";
+export {AxisView} from "./AxisView";
+export type {AxisViewObserver} from "./AxisViewObserver";
 
 export {TopAxisView} from "./TopAxisView";
 export {RightAxisView} from "./RightAxisView";
@@ -26,7 +24,7 @@ export {BottomAxisView} from "./BottomAxisView";
 export {LeftAxisView} from "./LeftAxisView";
 
 export {AxisTrait} from "./AxisTrait";
-export {AxisTraitObserver} from "./AxisTraitObserver";
+export type {AxisTraitObserver} from "./AxisTraitObserver";
 
 export {TopAxisTrait} from "./TopAxisTrait";
 export {RightAxisTrait} from "./RightAxisTrait";
@@ -34,7 +32,7 @@ export {BottomAxisTrait} from "./BottomAxisTrait";
 export {LeftAxisTrait} from "./LeftAxisTrait";
 
 export {AxisController} from "./AxisController";
-export {AxisControllerObserver} from "./AxisControllerObserver";
+export type {AxisControllerObserver} from "./AxisControllerObserver";
 
 export {TopAxisController} from "./TopAxisController";
 export {RightAxisController} from "./RightAxisController";

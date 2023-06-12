@@ -12,11 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Proto, Observes} from "@swim/util";
+import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
+import type {Observes} from "@swim/util";
 import type {FastenerOwner} from "@swim/component";
-import {AnyView, ViewFactory, View} from "@swim/view";
-import type {ControllerFactory, Controller} from "../controller/Controller";
-import {ControllerSetDescriptor, ControllerSetClass, ControllerSet} from "../controller/ControllerSet";
+import type {AnyView} from "@swim/view";
+import type {ViewFactory} from "@swim/view";
+import {View} from "@swim/view";
+import type {ControllerFactory} from "../controller/Controller";
+import type {Controller} from "../controller/Controller";
+import type {ControllerSetDescriptor} from "../controller/ControllerSet";
+import type {ControllerSetClass} from "../controller/ControllerSet";
+import {ControllerSet} from "../controller/ControllerSet";
 
 /** @public */
 export type ViewControllerSetView<F extends ViewControllerSet<any, any, any>> =
@@ -27,8 +34,13 @@ export type ViewControllerSetController<F extends ViewControllerSet<any, any, an
   F extends {controllerType?: ControllerFactory<infer C>} ? C : never;
 
 /** @public */
+export type ViewControllerSetDecorator<F extends ViewControllerSet<any, any, any>> = {
+  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
+};
+
+/** @public */
 export interface ViewControllerSetDescriptor<V extends View = View, C extends Controller = Controller> extends ControllerSetDescriptor<C> {
-  extends?: Proto<ViewControllerSet<any, any, any>> | string | boolean | null;
+  extends?: Proto<ViewControllerSet<any, any, any>> | boolean | null;
   viewType?: ViewFactory<V>;
   viewKey?: string | boolean;
   observesView?: boolean;
@@ -49,15 +61,15 @@ export interface ViewControllerSetClass<F extends ViewControllerSet<any, any, an
   refine(fastenerClass: ViewControllerSetClass<any>): void;
 
   /** @override */
-  extend<F2 extends F>(className: string, template: ViewControllerSetTemplate<F2>): ViewControllerSetClass<F2>;
-  extend<F2 extends F>(className: string, template: ViewControllerSetTemplate<F2>): ViewControllerSetClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: ViewControllerSetTemplate<F2>): ViewControllerSetClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: ViewControllerSetTemplate<F2>): ViewControllerSetClass<F2>;
 
   /** @override */
-  define<F2 extends F>(className: string, template: ViewControllerSetTemplate<F2>): ViewControllerSetClass<F2>;
-  define<F2 extends F>(className: string, template: ViewControllerSetTemplate<F2>): ViewControllerSetClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: ViewControllerSetTemplate<F2>): ViewControllerSetClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: ViewControllerSetTemplate<F2>): ViewControllerSetClass<F2>;
 
   /** @override */
-  <F2 extends F>(template: ViewControllerSetTemplate<F2>): PropertyDecorator;
+  <F2 extends F>(template: ViewControllerSetTemplate<F2>): ViewControllerSetDecorator<F2>;
 }
 
 /** @public */
@@ -401,8 +413,9 @@ export const ViewControllerSet = (function (_super: typeof ControllerSet) {
     }
     if (view === void 0 || view === null) {
       let message = "Unable to create ";
-      if (this.name.length !== 0) {
-        message += this.name + " ";
+      const name = this.name.toString();
+      if (name.length !== 0) {
+        message += name + " ";
       }
       message += "view";
       throw new Error(message);
@@ -440,11 +453,11 @@ export const ViewControllerSet = (function (_super: typeof ControllerSet) {
       this.associateViewController(view, controller);
       this.attachView(view, targetController);
     }
-    ControllerSet.prototype.onAttachController.call(this, controller, targetController);
+    _super.prototype.onAttachController.call(this, controller, targetController);
   };
 
   ViewControllerSet.prototype.onDetachController = function <V extends View, C extends Controller>(this: ViewControllerSet<unknown, V, C>, controller: C): void {
-    ControllerSet.prototype.onDetachController.call(this, controller);
+    _super.prototype.onDetachController.call(this, controller);
     const view = this.detectControllerView(controller);
     if (view !== null) {
       this.detachView(view);

@@ -13,13 +13,11 @@
 // limitations under the License.
 
 export {AppBarController} from "./AppBarController";
-export {AppBarControllerObserver} from "./AppBarControllerObserver";
+export type {AppBarControllerObserver} from "./AppBarControllerObserver";
 
-export {
-  FolioStyle,
-  FolioView,
-} from "./FolioView";
-export {FolioViewObserver} from "./FolioViewObserver";
+export type {FolioStyle} from "./FolioView";
+export {FolioView} from "./FolioView";
+export type {FolioViewObserver} from "./FolioViewObserver";
 
 export {FolioController} from "./FolioController";
-export {FolioControllerObserver} from "./FolioControllerObserver";
+export type {FolioControllerObserver} from "./FolioControllerObserver";

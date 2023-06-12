@@ -12,24 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, Equivalent} from "@swim/util";
-import {Affinity, FastenerClass, Animator} from "@swim/component";
-import {AnyLength, Length, AnyAngle, Angle, AnyR2Point, R2Point, R2Box} from "@swim/math";
-import {AnyFont, Font, AnyColor, Color} from "@swim/style";
-import {Look, ThemeAnimator} from "@swim/theme";
-import {View, ViewRef} from "@swim/view";
-import {
-  GraphicsViewInit,
-  GraphicsView,
-  PaintingContext,
-  PaintingRenderer,
-  CanvasContext,
-  CanvasRenderer,
-  FillView,
-  Arc,
-  TypesetView,
-  TextRunView,
-} from "@swim/graphics";
+import type {Class} from "@swim/util";
+import {Equivalent} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Animator} from "@swim/component";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import type {AnyAngle} from "@swim/math";
+import {Angle} from "@swim/math";
+import type {AnyR2Point} from "@swim/math";
+import {R2Point} from "@swim/math";
+import type {R2Box} from "@swim/math";
+import type {AnyFont} from "@swim/style";
+import {Font} from "@swim/style";
+import type {AnyColor} from "@swim/style";
+import {Color} from "@swim/style";
+import {Look} from "@swim/theme";
+import {ThemeAnimator} from "@swim/theme";
+import {View} from "@swim/view";
+import {ViewRef} from "@swim/view";
+import type {GraphicsViewInit} from "@swim/graphics";
+import {GraphicsView} from "@swim/graphics";
+import type {PaintingContext} from "@swim/graphics";
+import {PaintingRenderer} from "@swim/graphics";
+import type {CanvasContext} from "@swim/graphics";
+import {CanvasRenderer} from "@swim/graphics";
+import {FillView} from "@swim/graphics";
+import {Arc} from "@swim/graphics";
+import {TypesetView} from "@swim/graphics";
+import {TextRunView} from "@swim/graphics";
 import type {SliceViewObserver} from "./SliceViewObserver";
 
 /** @public */
@@ -64,7 +75,7 @@ export interface SliceViewInit extends GraphicsViewInit {
 export class SliceView extends GraphicsView {
   override readonly observerType?: Class<SliceViewObserver>;
 
-  @Animator<SliceView["value"]>({
+  @Animator({
     valueType: Number,
     value: 0,
     updateFlags: View.NeedsRender,
@@ -135,7 +146,7 @@ export class SliceView extends GraphicsView {
   @ThemeAnimator({valueType: Color, value: null, look: Look.legendColor, inherits: true, updateFlags: View.NeedsRender})
   readonly textColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @ViewRef<SliceView["label"]>({
+  @ViewRef({
     viewType: TextRunView,
     viewKey: true,
     binds: true,
@@ -160,9 +171,8 @@ export class SliceView extends GraphicsView {
   readonly label!: ViewRef<this, GraphicsView> & {
     setText(label: string | undefined): GraphicsView,
   };
-  static readonly label: FastenerClass<SliceView["label"]>;
 
-  @ViewRef<SliceView["legend"]>({
+  @ViewRef({
     viewType: TextRunView,
     viewKey: true,
     binds: true,
@@ -187,7 +197,6 @@ export class SliceView extends GraphicsView {
   readonly legend!: ViewRef<this, GraphicsView> & {
     setText(legend: string | undefined): GraphicsView,
   };
-  static readonly legend: FastenerClass<SliceView["legend"]>;
 
   protected override onLayout(): void {
     super.onLayout();

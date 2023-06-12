@@ -12,9 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, Instance, Creatable} from "@swim/util";
+import type {Class} from "@swim/util";
+import type {Instance} from "@swim/util";
+import {Creatable} from "@swim/util";
 import {View} from "@swim/view";
-import {AnyNodeView, NodeViewInit, NodeViewConstructor, NodeView} from "../node/NodeView";
+import type {AnyNodeView} from "../node/NodeView";
+import type {NodeViewInit} from "../node/NodeView";
+import type {NodeViewConstructor} from "../node/NodeView";
+import {NodeView} from "../node/NodeView";
 import type {TextViewObserver} from "./TextViewObserver";
 
 /** @public */

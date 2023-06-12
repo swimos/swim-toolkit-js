@@ -12,13 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Class, Arrays, Timing, Observes} from "@swim/util";
-import {Affinity, FastenerClass, Property} from "@swim/component";
-import {AnyLength, Length, AnyR2Box, R2Box} from "@swim/math";
-import {AnyColor, Color, AnyPresence, Presence, PresenceAnimator} from "@swim/style";
-import {Look, ThemeAnimator} from "@swim/theme";
-import {ViewFlags, View, ViewRef} from "@swim/view";
-import {StyleAnimator, HtmlViewInit, HtmlView, ModalView} from "@swim/dom";
+import type {Mutable} from "@swim/util";
+import type {Class} from "@swim/util";
+import {Arrays} from "@swim/util";
+import type {Timing} from "@swim/util";
+import type {Observes} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import type {AnyR2Box} from "@swim/math";
+import {R2Box} from "@swim/math";
+import type {AnyColor} from "@swim/style";
+import {Color} from "@swim/style";
+import type {AnyPresence} from "@swim/style";
+import {Presence} from "@swim/style";
+import {PresenceAnimator} from "@swim/style";
+import {Look} from "@swim/theme";
+import {ThemeAnimator} from "@swim/theme";
+import type {ViewFlags} from "@swim/view";
+import {View} from "@swim/view";
+import {ViewRef} from "@swim/view";
+import {StyleAnimator} from "@swim/dom";
+import type {HtmlViewInit} from "@swim/dom";
+import {HtmlView} from "@swim/dom";
+import type {ModalView} from "@swim/dom";
 import type {PopoverViewObserver} from "./PopoverViewObserver";
 
 /** @public */
@@ -63,8 +81,8 @@ export class PopoverView extends HtmlView implements ModalView {
     return arrow;
   }
 
-  @StyleAnimator<PopoverView["backgroundColor"]>({
-    extends: HtmlView.getFastenerClass("backgroundColor"),
+  @StyleAnimator({
+    extends: true,
     didSetValue(backgroundColor: Color): void {
       this.owner.place();
     },
@@ -80,7 +98,7 @@ export class PopoverView extends HtmlView implements ModalView {
   @ThemeAnimator({valueType: Length, value: Length.px(8)})
   readonly arrowHeight!: ThemeAnimator<this, Length, AnyLength>;
 
-  @ViewRef<PopoverView["source"]>({
+  @ViewRef({
     observes: true,
     willAttachView(sourceView: View): void {
       this.owner.callObservers("popoverWillAttachSource", sourceView, this.owner);
@@ -117,10 +135,9 @@ export class PopoverView extends HtmlView implements ModalView {
     },
   })
   readonly source!: ViewRef<this, View> & Observes<HtmlView>;
-  static readonly source: FastenerClass<PopoverView["source"]>;
 
   /** @override */
-  @PresenceAnimator<PopoverView["presence"]>({
+  @PresenceAnimator({
     value: Presence.dismissed(),
     updateFlags: View.NeedsLayout,
     get transition(): Timing | null {
@@ -166,7 +183,7 @@ export class PopoverView extends HtmlView implements ModalView {
   readonly presence!: PresenceAnimator<this, Presence, AnyPresence>;
 
   /** @override */
-  @Property<PopoverView["modality"]>({
+  @Property({
     valueType: Number,
     value: 0,
     didSetValue(modality: number): void {
@@ -196,7 +213,7 @@ export class PopoverView extends HtmlView implements ModalView {
   /** @internal */
   readonly currentPlacement: PopoverPlacement;
 
-  @Property<PopoverView["placementFrame"]>({
+  @Property({
     valueType: R2Box,
     value: null,
     didSetValue(placementFrame: R2Box | null): void {
@@ -208,7 +225,7 @@ export class PopoverView extends HtmlView implements ModalView {
   })
   readonly placementFrame!: Property<this, R2Box | null, AnyR2Box | null>;
 
-  @Property<PopoverView["dropdown"]>({
+  @Property({
     valueType: Boolean,
     value: false,
     didSetValue(dropdown: boolean): void {

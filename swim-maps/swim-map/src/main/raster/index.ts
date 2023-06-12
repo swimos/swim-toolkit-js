@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  GeoRasterViewInit,
-  GeoRasterView,
-} from "./GeoRasterView";
-export {GeoRasterViewObserver} from "./GeoRasterViewObserver";
+export type {GeoRasterViewInit} from "./GeoRasterView";
+export {GeoRasterView} from "./GeoRasterView";
+export type {GeoRasterViewObserver} from "./GeoRasterViewObserver";

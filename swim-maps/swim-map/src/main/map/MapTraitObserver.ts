@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Trait, TraitObserver} from "@swim/model";
+import type {Trait} from "@swim/model";
+import type {TraitObserver} from "@swim/model";
 import type {GeoPerspective} from "../geo/GeoPerspective";
 import type {GeoTrait} from "../geo/GeoTrait";
 import type {MapTrait} from "./MapTrait";

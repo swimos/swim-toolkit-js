@@ -12,15 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Instance, Creatable, Timing} from "@swim/util";
-import {Affinity, FastenerClass, Property} from "@swim/component";
-import {AnyLength, Length} from "@swim/math";
-import {AnyFocus,  Focus, FocusAnimator, AnyExpansion,  Expansion, ExpansionAnimator} from "@swim/style";
-import {Look, Feel, ThemeConstraintAnimator} from "@swim/theme";
-import {ViewFlags, View, ViewSet, PositionGestureInput, PositionGesture} from "@swim/view";
-import {ViewNode, HtmlView} from "@swim/dom";
+import type {Class} from "@swim/util";
+import type {Instance} from "@swim/util";
+import type {Creatable} from "@swim/util";
+import type {Timing} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import type {AnyFocus} from "@swim/style";
+import {Focus} from "@swim/style";
+import {FocusAnimator} from "@swim/style";
+import type {AnyExpansion} from "@swim/style";
+import type {Expansion} from "@swim/style";
+import {ExpansionAnimator} from "@swim/style";
+import {Look} from "@swim/theme";
+import {Feel} from "@swim/theme";
+import {ThemeConstraintAnimator} from "@swim/theme";
+import type {ViewFlags} from "@swim/view";
+import {View} from "@swim/view";
+import {ViewSet} from "@swim/view";
+import type {PositionGestureInput} from "@swim/view";
+import {PositionGesture} from "@swim/view";
+import type {ViewNode} from "@swim/dom";
+import {HtmlView} from "@swim/dom";
 import {ButtonGlow} from "@swim/button";
-import {AnyTableLayout, TableLayout} from "../layout/TableLayout";
+import type {AnyTableLayout} from "../layout/TableLayout";
+import {TableLayout} from "../layout/TableLayout";
 import {CellView} from "../cell/CellView";
 import type {LeafViewObserver} from "./LeafViewObserver";
 
@@ -60,7 +78,7 @@ export class LeafView extends HtmlView {
   @Property({valueType: Boolean, value: false, inherits: true})
   readonly hovers!: Property<this, boolean>;
 
-  @FocusAnimator<LeafView["hover"]>({
+  @FocusAnimator({
     value: Focus.unfocused(),
     get transition(): Timing | null {
       return this.owner.getLookOr(Look.timing, null);
@@ -76,7 +94,7 @@ export class LeafView extends HtmlView {
   })
   readonly hover!: FocusAnimator<this, Focus, AnyFocus>;
 
-  @FocusAnimator<LeafView["highlight"]>({
+  @FocusAnimator({
     value: Focus.unfocused(),
     get transition(): Timing | null {
       return this.owner.getLookOr(Look.timing, null);
@@ -125,7 +143,7 @@ export class LeafView extends HtmlView {
     this.setChild(key, cellView);
   }
 
-  @ViewSet<LeafView["cells"]>({
+  @ViewSet({
     viewType: CellView,
     binds: true,
     initView(cellView: CellView): void {
@@ -144,7 +162,6 @@ export class LeafView extends HtmlView {
     },
   })
   readonly cells!: ViewSet<this, CellView>;
-  static readonly cells: FastenerClass<LeafView["cells"]>;
 
   protected override onLayout(): void {
     super.onLayout();
@@ -216,7 +233,7 @@ export class LeafView extends HtmlView {
     }
   }
 
-  @PositionGesture<LeafView["gesture"]>({
+  @PositionGesture({
     bindsOwner: true,
     didBeginPress(input: PositionGestureInput, event: Event | null): void {
       if (this.owner.glows.value) {
@@ -305,5 +322,4 @@ export class LeafView extends HtmlView {
     },
   })
   readonly gesture!: PositionGesture<this, LeafView>;
-  static readonly gesture: FastenerClass<LeafView["gesture"]>;
 }

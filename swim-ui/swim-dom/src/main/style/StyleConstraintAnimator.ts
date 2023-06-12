@@ -12,35 +12,39 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Proto} from "@swim/util";
-import {
-  Affinity,
-  FastenerFlags,
-  FastenerOwner,
-  AnimatorValue,
-  AnimatorValueInit,
-} from "@swim/component";
-import {
-  ConstraintId,
-  ConstraintMap,
-  AnyConstraintExpression,
-  ConstraintExpression,
-  ConstraintTerm,
-  ConstraintVariable,
-  AnyConstraintStrength,
-  ConstraintStrength,
-  Constraint,
-  ConstraintScope,
-  ConstraintSolver,
-} from "@swim/constraint";
+import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
+import {Affinity} from "@swim/component";
+import type {FastenerFlags} from "@swim/component";
+import type {FastenerOwner} from "@swim/component";
+import type {AnimatorValue} from "@swim/component";
+import type {AnimatorValueInit} from "@swim/component";
+import {ConstraintId} from "@swim/constraint";
+import {ConstraintMap} from "@swim/constraint";
+import type {AnyConstraintExpression} from "@swim/constraint";
+import {ConstraintExpression} from "@swim/constraint";
+import type {ConstraintTerm} from "@swim/constraint";
+import type {ConstraintVariable} from "@swim/constraint";
+import type {AnyConstraintStrength} from "@swim/constraint";
+import {ConstraintStrength} from "@swim/constraint";
+import type {Constraint} from "@swim/constraint";
+import {ConstraintScope} from "@swim/constraint";
+import type {ConstraintSolver} from "@swim/constraint";
 import {Length} from "@swim/math";
-import {StyleAnimatorDescriptor, StyleAnimatorClass, StyleAnimator} from "./StyleAnimator";
+import type {StyleAnimatorDescriptor} from "./StyleAnimator";
+import type {StyleAnimatorClass} from "./StyleAnimator";
+import {StyleAnimator} from "./StyleAnimator";
 import {NumberStyleConstraintAnimator} from "./"; // forward import
 import {LengthStyleConstraintAnimator} from "./"; // forward import
 
 /** @public */
+export type StyleConstraintAnimatorDecorator<A extends StyleConstraintAnimator<any, any, any>> = {
+  <T>(target: unknown, context: ClassFieldDecoratorContext<T, A>): (this: T, value: A | undefined) => A;
+};
+
+/** @public */
 export interface StyleConstraintAnimatorDescriptor<T = unknown, U = T> extends StyleAnimatorDescriptor<T, U> {
-  extends?: Proto<StyleConstraintAnimator<any, any, any>> | string | boolean | null;
+  extends?: Proto<StyleConstraintAnimator<any, any, any>> | boolean | null;
   strength?: AnyConstraintStrength;
   constrained?: boolean;
 }
@@ -60,15 +64,15 @@ export interface StyleConstraintAnimatorClass<A extends StyleConstraintAnimator<
   refine(animatorClass: StyleConstraintAnimatorClass<any>): void;
 
   /** @override */
-  extend<A2 extends A>(className: string, template: StyleConstraintAnimatorTemplate<A2>): StyleConstraintAnimatorClass<A2>;
-  extend<A2 extends A>(className: string, template: StyleConstraintAnimatorTemplate<A2>): StyleConstraintAnimatorClass<A2>;
+  extend<A2 extends A>(className: string | symbol, template: StyleConstraintAnimatorTemplate<A2>): StyleConstraintAnimatorClass<A2>;
+  extend<A2 extends A>(className: string | symbol, template: StyleConstraintAnimatorTemplate<A2>): StyleConstraintAnimatorClass<A2>;
 
   /** @override */
-  define<A2 extends A>(className: string, template: StyleConstraintAnimatorTemplate<A2>): StyleConstraintAnimatorClass<A2>;
-  define<A2 extends A>(className: string, template: StyleConstraintAnimatorTemplate<A2>): StyleConstraintAnimatorClass<A2>;
+  define<A2 extends A>(className: string | symbol, template: StyleConstraintAnimatorTemplate<A2>): StyleConstraintAnimatorClass<A2>;
+  define<A2 extends A>(className: string | symbol, template: StyleConstraintAnimatorTemplate<A2>): StyleConstraintAnimatorClass<A2>;
 
   /** @override */
-  <A2 extends A>(template: StyleConstraintAnimatorTemplate<A2>): PropertyDecorator;
+  <A2 extends A>(template: StyleConstraintAnimatorTemplate<A2>): StyleConstraintAnimatorDecorator<A2>;
 
   /** @internal */
   readonly ConstrainedFlag: FastenerFlags;
@@ -467,7 +471,7 @@ export const StyleConstraintAnimator = (function (_super: typeof StyleAnimator) 
         superClass = this;
       }
     }
-    return superClass
+    return superClass;
   };
 
   StyleConstraintAnimator.refine = function (animatorClass: StyleConstraintAnimatorClass<any>): void {

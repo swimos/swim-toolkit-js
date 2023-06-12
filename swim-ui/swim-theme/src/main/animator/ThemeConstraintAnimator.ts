@@ -12,32 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Proto} from "@swim/util";
-import {
-  Affinity,
-  FastenerFlags,
-  FastenerOwner,
-  AnimatorValue,
-  AnimatorValueInit,
-} from "@swim/component";
-import {
-  ConstraintId,
-  ConstraintMap,
-  AnyConstraintExpression,
-  ConstraintExpression,
-  ConstraintTerm,
-  ConstraintVariable,
-  AnyConstraintStrength,
-  ConstraintStrength,
-  Constraint,
-  ConstraintScope,
-  ConstraintSolver,
-} from "@swim/constraint";
-import {ThemeAnimatorDescriptor, ThemeAnimatorClass, ThemeAnimator} from "./ThemeAnimator";
+import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
+import {Affinity} from "@swim/component";
+import type {FastenerFlags} from "@swim/component";
+import type {FastenerOwner} from "@swim/component";
+import type {AnimatorValue} from "@swim/component";
+import type {AnimatorValueInit} from "@swim/component";
+import {ConstraintId} from "@swim/constraint";
+import {ConstraintMap} from "@swim/constraint";
+import type {AnyConstraintExpression} from "@swim/constraint";
+import {ConstraintExpression} from "@swim/constraint";
+import type {ConstraintTerm} from "@swim/constraint";
+import type {ConstraintVariable} from "@swim/constraint";
+import type {AnyConstraintStrength} from "@swim/constraint";
+import {ConstraintStrength} from "@swim/constraint";
+import type {Constraint} from "@swim/constraint";
+import {ConstraintScope} from "@swim/constraint";
+import type {ConstraintSolver} from "@swim/constraint";
+import type {ThemeAnimatorDescriptor} from "./ThemeAnimator";
+import type {ThemeAnimatorClass} from "./ThemeAnimator";
+import {ThemeAnimator} from "./ThemeAnimator";
+
+/** @public */
+export type ThemeConstraintAnimatorDecorator<A extends ThemeConstraintAnimator<any, any, any>> = {
+  <T>(target: unknown, context: ClassFieldDecoratorContext<T, A>): (this: T, value: A | undefined) => A;
+};
 
 /** @public */
 export interface ThemeConstraintAnimatorDescriptor<T = unknown, U = T> extends ThemeAnimatorDescriptor<T, U> {
-  extends?: Proto<ThemeConstraintAnimator<any, any, any>> | string | boolean | null;
+  extends?: Proto<ThemeConstraintAnimator<any, any, any>> | boolean | null;
   strength?: AnyConstraintStrength;
   constrained?: boolean;
 }
@@ -57,15 +61,15 @@ export interface ThemeConstraintAnimatorClass<A extends ThemeConstraintAnimator<
   refine(animatorClass: ThemeConstraintAnimatorClass<any>): void;
 
   /** @override */
-  extend<A2 extends A>(className: string, template: ThemeConstraintAnimatorTemplate<A2>): ThemeConstraintAnimatorClass<A2>;
-  extend<A2 extends A>(className: string, template: ThemeConstraintAnimatorTemplate<A2>): ThemeConstraintAnimatorClass<A2>;
+  extend<A2 extends A>(className: string | symbol, template: ThemeConstraintAnimatorTemplate<A2>): ThemeConstraintAnimatorClass<A2>;
+  extend<A2 extends A>(className: string | symbol, template: ThemeConstraintAnimatorTemplate<A2>): ThemeConstraintAnimatorClass<A2>;
 
   /** @override */
-  define<A2 extends A>(className: string, template: ThemeConstraintAnimatorTemplate<A2>): ThemeConstraintAnimatorClass<A2>;
-  define<A2 extends A>(className: string, template: ThemeConstraintAnimatorTemplate<A2>): ThemeConstraintAnimatorClass<A2>;
+  define<A2 extends A>(className: string | symbol, template: ThemeConstraintAnimatorTemplate<A2>): ThemeConstraintAnimatorClass<A2>;
+  define<A2 extends A>(className: string | symbol, template: ThemeConstraintAnimatorTemplate<A2>): ThemeConstraintAnimatorClass<A2>;
 
   /** @override */
-  <A2 extends A>(template: ThemeConstraintAnimatorTemplate<A2>): PropertyDecorator;
+  <A2 extends A>(template: ThemeConstraintAnimatorTemplate<A2>): ThemeConstraintAnimatorDecorator<A2>;
 
   /** @internal */
   readonly ConstrainedFlag: FastenerFlags;

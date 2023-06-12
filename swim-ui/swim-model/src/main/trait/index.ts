@@ -12,55 +12,48 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  TraitFlags,
-  AnyTrait,
-  TraitInit,
-  TraitFactory,
-  TraitClass,
-  TraitConstructor,
-  Trait,
-} from "./Trait";
-export {TraitObserver} from "./TraitObserver";
+export type {TraitFlags} from "./Trait";
+export type {AnyTrait} from "./Trait";
+export type {TraitInit} from "./Trait";
+export type {TraitFactory} from "./Trait";
+export type {TraitClass} from "./Trait";
+export type {TraitConstructor} from "./Trait";
+export {Trait} from "./Trait";
+export type {TraitObserver} from "./TraitObserver";
 
-export {
-  TraitRelationTrait,
-  TraitRelationDescriptor,
-  TraitRelationTemplate,
-  TraitRelationClass,
-  TraitRelation,
-} from "./TraitRelation";
+export type {TraitRelationTrait} from "./TraitRelation";
+export type {TraitRelationDecorator} from "./TraitRelation";
+export type {TraitRelationDescriptor} from "./TraitRelation";
+export type {TraitRelationTemplate} from "./TraitRelation";
+export type {TraitRelationClass} from "./TraitRelation";
+export {TraitRelation} from "./TraitRelation";
 
-export {
-  TraitRefTrait,
-  TraitRefDescriptor,
-  TraitRefTemplate,
-  TraitRefClass,
-  TraitRef,
-} from "./TraitRef";
+export type {TraitRefTrait} from "./TraitRef";
+export type {TraitRefDecorator} from "./TraitRef";
+export type {TraitRefDescriptor} from "./TraitRef";
+export type {TraitRefTemplate} from "./TraitRef";
+export type {TraitRefClass} from "./TraitRef";
+export {TraitRef} from "./TraitRef";
 
-export {
-  TraitSetTrait,
-  TraitSetDescriptor,
-  TraitSetTemplate,
-  TraitSetClass,
-  TraitSet,
-} from "./TraitSet";
+export type {TraitSetTrait} from "./TraitSet";
+export type {TraitSetDecorator} from "./TraitSet";
+export type {TraitSetDescriptor} from "./TraitSet";
+export type {TraitSetTemplate} from "./TraitSet";
+export type {TraitSetClass} from "./TraitSet";
+export {TraitSet} from "./TraitSet";
 
-export {
-  TraitModelRefTrait,
-  TraitModelRefModel,
-  TraitModelRefDescriptor,
-  TraitModelRefTemplate,
-  TraitModelRefClass,
-  TraitModelRef,
-} from "./TraitModelRef";
+export type {TraitModelRefTrait} from "./TraitModelRef";
+export type {TraitModelRefModel} from "./TraitModelRef";
+export type {TraitModelRefDecorator} from "./TraitModelRef";
+export type {TraitModelRefDescriptor} from "./TraitModelRef";
+export type {TraitModelRefTemplate} from "./TraitModelRef";
+export type {TraitModelRefClass} from "./TraitModelRef";
+export {TraitModelRef} from "./TraitModelRef";
 
-export {
-  TraitModelSetTrait,
-  TraitModelSetModel,
-  TraitModelSetDescriptor,
-  TraitModelSetTemplate,
-  TraitModelSetClass,
-  TraitModelSet,
-} from "./TraitModelSet";
+export type {TraitModelSetTrait} from "./TraitModelSet";
+export type {TraitModelSetModel} from "./TraitModelSet";
+export type {TraitModelSetDecorator} from "./TraitModelSet";
+export type {TraitModelSetDescriptor} from "./TraitModelSet";
+export type {TraitModelSetTemplate} from "./TraitModelSet";
+export type {TraitModelSetClass} from "./TraitModelSet";
+export {TraitModelSet} from "./TraitModelSet";

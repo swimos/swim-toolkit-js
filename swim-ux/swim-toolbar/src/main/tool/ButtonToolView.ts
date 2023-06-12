@@ -12,14 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Timing, Observes} from "@swim/util";
-import {Affinity, FastenerClass, Property, Animator} from "@swim/component";
-import {AnyLength, Length} from "@swim/math";
-import {AnyColor, Color, AnyFocus, Focus, FocusAnimator} from "@swim/style";
-import {Look, Feel, MoodVector, ThemeMatrix, ThemeAnimator} from "@swim/theme";
-import {ViewFlags, View, PositionGestureInput, PositionGesture} from "@swim/view";
+import type {Class} from "@swim/util";
+import type {Timing} from "@swim/util";
+import type {Observes} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
+import {Animator} from "@swim/component";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import type {AnyColor} from "@swim/style";
+import {Color} from "@swim/style";
+import type {AnyFocus} from "@swim/style";
+import {Focus} from "@swim/style";
+import {FocusAnimator} from "@swim/style";
+import {Look} from "@swim/theme";
+import {Feel} from "@swim/theme";
+import type {MoodVector} from "@swim/theme";
+import type {ThemeMatrix} from "@swim/theme";
+import {ThemeAnimator} from "@swim/theme";
+import type {ViewFlags} from "@swim/view";
+import {View} from "@swim/view";
+import type {PositionGestureInput} from "@swim/view";
+import {PositionGesture} from "@swim/view";
 import type {HtmlView} from "@swim/dom";
-import {Graphics, Icon, FilledIcon, IconGraphicsAnimator, SvgIconView} from "@swim/graphics";
+import {Graphics} from "@swim/graphics";
+import {Icon} from "@swim/graphics";
+import {FilledIcon} from "@swim/graphics";
+import {IconGraphicsAnimator} from "@swim/graphics";
+import {SvgIconView} from "@swim/graphics";
 import {ButtonGlow} from "@swim/button";
 import {ToolView} from "./ToolView";
 import type {ButtonToolViewObserver} from "./ButtonToolViewObserver";
@@ -44,11 +64,6 @@ export class ButtonToolView extends ToolView {
     this.userSelect.setState("none", Affinity.Intrinsic);
     this.cursor.setState("pointer", Affinity.Intrinsic);
     this.backgroundColor.setLook(Look.backgroundColor, Affinity.Intrinsic);
-
-    const hoverPhase = this.hover.getPhase();
-    this.modifyMood(Feel.default, [[Feel.hovering, 1],
-                                   [Feel.translucent, 1],
-                                   [Feel.transparent, 1 - hoverPhase]], false);
   }
 
   override readonly observerType?: Class<ButtonToolViewObserver>;
@@ -81,7 +96,7 @@ export class ButtonToolView extends ToolView {
   @ThemeAnimator({valueType: Length, value: null, updateFlags: View.NeedsLayout})
   readonly iconHeight!: ThemeAnimator<this, Length | null, AnyLength | null>;
 
-  @ThemeAnimator<ButtonToolView["iconColor"]>({
+  @ThemeAnimator({
     valueType: Color,
     value: null,
     updateFlags: View.NeedsLayout,
@@ -98,7 +113,7 @@ export class ButtonToolView extends ToolView {
   })
   readonly iconColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @ThemeAnimator<ButtonToolView["graphics"]>({
+  @ThemeAnimator({
     extends: IconGraphicsAnimator,
     valueType: Graphics,
     value: null,
@@ -173,14 +188,18 @@ export class ButtonToolView extends ToolView {
   @Property({valueType: Boolean, value: true, inherits: true})
   readonly hovers!: Property<this, boolean>;
 
-  @FocusAnimator<ButtonToolView["hover"]>({
+  @FocusAnimator({
     value: Focus.unfocused(),
     get transition(): Timing | null {
       return this.owner.getLookOr(Look.timing, null);
     },
     didSetValue(newHover: Focus, oldHover: Focus): void {
-      const hoverPhase = newHover.phase;
-      this.owner.modifyMood(Feel.default, [[Feel.transparent, 1 - hoverPhase]], false);
+      this.owner.modifyMood(Feel.default, [[Feel.transparent, 1 - newHover.phase]], false);
+    },
+    init(): void {
+      this.owner.modifyMood(Feel.default, [[Feel.hovering, 1],
+                                           [Feel.translucent, 1],
+                                           [Feel.transparent, 1 - this.value.phase]], false);
     },
   })
   readonly hover!: FocusAnimator<this, Focus, AnyFocus>;
@@ -200,7 +219,7 @@ export class ButtonToolView extends ToolView {
     }
   }
 
-  @PositionGesture<ButtonToolView["gesture"]>({
+  @PositionGesture({
     bindsOwner: true,
     observes: true,
     viewDidUnmount(): void {
@@ -267,7 +286,6 @@ export class ButtonToolView extends ToolView {
     },
   })
   readonly gesture!: PositionGesture<this, HtmlView> & Observes<HtmlView>;
-  static readonly gesture: FastenerClass<ButtonToolView["gesture"]>;
 
   onPress(input: PositionGestureInput, event: Event | null): void {
     // hook

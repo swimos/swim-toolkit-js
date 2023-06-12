@@ -12,14 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  AnyColLayout,
-  ColLayoutInit,
-  ColLayout,
-} from "./ColLayout";
+export type {AnyColLayout} from "./ColLayout";
+export type {ColLayoutInit} from "./ColLayout";
+export {ColLayout} from "./ColLayout";
 
-export {
-  AnyTableLayout,
-  TableLayoutInit,
-  TableLayout,
-} from "./TableLayout";
+export type {AnyTableLayout} from "./TableLayout";
+export type {TableLayoutInit} from "./TableLayout";
+export {TableLayout} from "./TableLayout";

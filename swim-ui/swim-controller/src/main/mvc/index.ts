@@ -12,67 +12,60 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  TraitViewRefTrait,
-  TraitViewRefView,
-  TraitViewRefDescriptor,
-  TraitViewRefTemplate,
-  TraitViewRefClass,
-  TraitViewRef,
-} from "./TraitViewRef";
+export type {TraitViewRefTrait} from "./TraitViewRef";
+export type {TraitViewRefView} from "./TraitViewRef";
+export type {TraitViewRefDecorator} from "./TraitViewRef";
+export type {TraitViewRefDescriptor} from "./TraitViewRef";
+export type {TraitViewRefTemplate} from "./TraitViewRef";
+export type {TraitViewRefClass} from "./TraitViewRef";
+export {TraitViewRef} from "./TraitViewRef";
 
-export {
-  ViewControllerRefView,
-  ViewControllerRefController,
-  ViewControllerRefDescriptor,
-  ViewControllerRefTemplate,
-  ViewControllerRefClass,
-  ViewControllerRef,
-} from "./ViewControllerRef";
+export type {ViewControllerRefView} from "./ViewControllerRef";
+export type {ViewControllerRefController} from "./ViewControllerRef";
+export type {ViewControllerRefDecorator} from "./ViewControllerRef";
+export type {ViewControllerRefDescriptor} from "./ViewControllerRef";
+export type {ViewControllerRefTemplate} from "./ViewControllerRef";
+export type {ViewControllerRefClass} from "./ViewControllerRef";
+export {ViewControllerRef} from "./ViewControllerRef";
 
-export {
-  ViewControllerSetView,
-  ViewControllerSetController,
-  ViewControllerSetDescriptor,
-  ViewControllerSetTemplate,
-  ViewControllerSetClass,
-  ViewControllerSet,
-} from "./ViewControllerSet";
+export type {ViewControllerSetView} from "./ViewControllerSet";
+export type {ViewControllerSetController} from "./ViewControllerSet";
+export type {ViewControllerSetDecorator} from "./ViewControllerSet";
+export type {ViewControllerSetDescriptor} from "./ViewControllerSet";
+export type {ViewControllerSetTemplate} from "./ViewControllerSet";
+export type {ViewControllerSetClass} from "./ViewControllerSet";
+export {ViewControllerSet} from "./ViewControllerSet";
 
-export {
-  TraitControllerRefTrait,
-  TraitControllerRefController,
-  TraitControllerRefDescriptor,
-  TraitControllerRefTemplate,
-  TraitControllerRefClass,
-  TraitControllerRef,
-} from "./TraitControllerRef";
+export type {TraitControllerRefTrait} from "./TraitControllerRef";
+export type {TraitControllerRefController} from "./TraitControllerRef";
+export type {TraitControllerRefDecorator} from "./TraitControllerRef";
+export type {TraitControllerRefDescriptor} from "./TraitControllerRef";
+export type {TraitControllerRefTemplate} from "./TraitControllerRef";
+export type {TraitControllerRefClass} from "./TraitControllerRef";
+export {TraitControllerRef} from "./TraitControllerRef";
 
-export {
-  TraitControllerSetTrait,
-  TraitControllerSetController,
-  TraitControllerSetDescriptor,
-  TraitControllerSetTemplate,
-  TraitControllerSetClass,
-  TraitControllerSet,
-} from "./TraitControllerSet";
+export type {TraitControllerSetTrait} from "./TraitControllerSet";
+export type {TraitControllerSetController} from "./TraitControllerSet";
+export type {TraitControllerSetDecorator} from "./TraitControllerSet";
+export type {TraitControllerSetDescriptor} from "./TraitControllerSet";
+export type {TraitControllerSetTemplate} from "./TraitControllerSet";
+export type {TraitControllerSetClass} from "./TraitControllerSet";
+export {TraitControllerSet} from "./TraitControllerSet";
 
-export {
-  TraitViewControllerRefTrait,
-  TraitViewControllerRefView,
-  TraitViewControllerRefController,
-  TraitViewControllerRefDescriptor,
-  TraitViewControllerRefTemplate,
-  TraitViewControllerRefClass,
-  TraitViewControllerRef,
-} from "./TraitViewControllerRef";
+export type {TraitViewControllerRefTrait} from "./TraitViewControllerRef";
+export type {TraitViewControllerRefView} from "./TraitViewControllerRef";
+export type {TraitViewControllerRefController} from "./TraitViewControllerRef";
+export type {TraitViewControllerRefDecorator} from "./TraitViewControllerRef";
+export type {TraitViewControllerRefDescriptor} from "./TraitViewControllerRef";
+export type {TraitViewControllerRefTemplate} from "./TraitViewControllerRef";
+export type {TraitViewControllerRefClass} from "./TraitViewControllerRef";
+export {TraitViewControllerRef} from "./TraitViewControllerRef";
 
-export {
-  TraitViewControllerSetTrait,
-  TraitViewControllerSetView,
-  TraitViewControllerSetController,
-  TraitViewControllerSetDescriptor,
-  TraitViewControllerSetTemplate,
-  TraitViewControllerSetClass,
-  TraitViewControllerSet,
-} from "./TraitViewControllerSet";
+export type {TraitViewControllerSetTrait} from "./TraitViewControllerSet";
+export type {TraitViewControllerSetView} from "./TraitViewControllerSet";
+export type {TraitViewControllerSetController} from "./TraitViewControllerSet";
+export type {TraitViewControllerSetDecorator} from "./TraitViewControllerSet";
+export type {TraitViewControllerSetDescriptor} from "./TraitViewControllerSet";
+export type {TraitViewControllerSetTemplate} from "./TraitViewControllerSet";
+export type {TraitViewControllerSetClass} from "./TraitViewControllerSet";
+export {TraitViewControllerSet} from "./TraitViewControllerSet";

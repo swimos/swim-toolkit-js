@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {Affinity, FastenerClass} from "@swim/component";
+import {Affinity} from "@swim/component";
 import {ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {CellView} from "./CellView";
@@ -28,7 +28,7 @@ export class TextCellView extends CellView {
 
   override readonly observerType?: Class<TextCellViewObserver>;
 
-  @ViewRef<TextCellView["content"]>({
+  @ViewRef({
     viewType: HtmlView,
     viewKey: true,
     binds: true,
@@ -60,5 +60,4 @@ export class TextCellView extends CellView {
   readonly content!: ViewRef<this, HtmlView> & {
     setText(content: string | undefined): HtmlView,
   };
-  static readonly content: FastenerClass<TextCellView["content"]>;
 }

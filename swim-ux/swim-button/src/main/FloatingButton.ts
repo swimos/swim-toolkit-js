@@ -12,14 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, AnyTiming, Timing, Observes} from "@swim/util";
-import {Affinity, FastenerClass} from "@swim/component";
-import {Length, Angle, Transform} from "@swim/math";
-import {AnyPresence, Presence, PresenceAnimator} from "@swim/style";
-import {Look, Feel, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewRef, PositionGestureInput, PositionGesture} from "@swim/view";
+import type {AnyTiming} from "@swim/util";
+import {Timing} from "@swim/util";
+import type {Observes} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
+import {Length} from "@swim/math";
+import {Angle} from "@swim/math";
+import {Transform} from "@swim/math";
+import type {AnyPresence} from "@swim/style";
+import type {Presence} from "@swim/style";
+import {PresenceAnimator} from "@swim/style";
+import {Look} from "@swim/theme";
+import {Feel} from "@swim/theme";
+import {Mood} from "@swim/theme";
+import type {MoodVector} from "@swim/theme";
+import type {ThemeMatrix} from "@swim/theme";
+import {ViewRef} from "@swim/view";
+import {ViewSet} from "@swim/view";
+import type {PositionGestureInput} from "@swim/view";
+import {PositionGesture} from "@swim/view";
 import type {HtmlView} from "@swim/dom";
-import {Graphics, HtmlIconView} from "@swim/graphics";
+import type {Graphics} from "@swim/graphics";
+import {HtmlIconView} from "@swim/graphics";
 import {ButtonMembrane} from "./ButtonMembrane";
 
 /** @public */
@@ -29,22 +44,12 @@ export type FloatingButtonType = "regular" | "mini";
 export class FloatingButton extends ButtonMembrane {
   constructor(node: HTMLElement) {
     super(node);
-    this.buttonType = "regular";
-    this.iconCount = 0;
-    this.icon = null;
     this.initButton();
   }
 
   protected initButton(): void {
     this.addClass("floating-button");
     this.position.setState("relative", Affinity.Intrinsic);
-    if (this.buttonType === "regular") {
-      this.width.setState(56, Affinity.Intrinsic);
-      this.height.setState(56, Affinity.Intrinsic);
-    } else if (this.buttonType === "mini") {
-      this.width.setState(40, Affinity.Intrinsic);
-      this.height.setState(40, Affinity.Intrinsic);
-    }
     this.borderTopLeftRadius.setState(Length.pct(50), Affinity.Intrinsic);
     this.borderTopRightRadius.setState(Length.pct(50), Affinity.Intrinsic);
     this.borderBottomLeftRadius.setState(Length.pct(50), Affinity.Intrinsic);
@@ -55,22 +60,139 @@ export class FloatingButton extends ButtonMembrane {
     this.cursor.setState("pointer", Affinity.Intrinsic);
   }
 
-  readonly buttonType: FloatingButtonType;
-
-  setButtonType(buttonType: FloatingButtonType): void {
-    if (this.buttonType !== buttonType) {
-      (this as Mutable<this>).buttonType = buttonType;
-      if (buttonType === "regular") {
-        this.width.setState(56, Affinity.Intrinsic);
-        this.height.setState(56, Affinity.Intrinsic);
-      } else if (buttonType === "mini") {
-        this.width.setState(40, Affinity.Intrinsic);
-        this.height.setState(40, Affinity.Intrinsic);
+  @Property({
+    valueType: String,
+    value: "regular",
+    init(): void {
+      this.updateButtonType(this.value);
+    },
+    didSetValue(newButtonType: FloatingButtonType, oldButtonType: FloatingButtonType): void {
+      if (newButtonType === oldButtonType) {
+        return;
       }
-    }
-  }
+      this.updateButtonType(newButtonType);
+    },
+    updateButtonType(buttonType: FloatingButtonType): void {
+      if (buttonType === "regular") {
+        this.owner.width.setState(56, Affinity.Intrinsic);
+        this.owner.height.setState(56, Affinity.Intrinsic);
+      } else if (buttonType === "mini") {
+        this.owner.width.setState(40, Affinity.Intrinsic);
+        this.owner.height.setState(40, Affinity.Intrinsic);
+      }
+    },
+  })
+  readonly buttonType!: Property<this, FloatingButtonType> & {
+    updateButtonType(buttonType: FloatingButtonType): void;
+  };
 
-  @PositionGesture<FloatingButton["gesture"]>({
+  @ViewSet({
+    viewType: HtmlIconView,
+    observes: true,
+    viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, iconView: HtmlIconView): void {
+      const iconColor = theme.getOr(Look.backgroundColor, mood, null);
+      iconView.iconColor.setState(iconColor, timing);
+    },
+    viewDidAnimate(iconView: HtmlIconView): void {
+      if (!iconView.opacity.tweening && iconView !== this.owner.icon.view) {
+        this.deleteView(iconView);
+      }
+    },
+  })
+  readonly icons!: ViewSet<this, HtmlIconView> & Observes<HtmlIconView>;
+
+  @ViewRef({
+    viewType: HtmlIconView,
+    createView(): HtmlIconView {
+      const iconView = HtmlIconView.create();
+      iconView.position.setState("absolute", Affinity.Intrinsic);
+      iconView.left.setState(0, Affinity.Intrinsic);
+      iconView.top.setState(0, Affinity.Intrinsic);
+      iconView.width.setState(this.owner.width.state, Affinity.Intrinsic);
+      iconView.height.setState(this.owner.height.state, Affinity.Intrinsic);
+      iconView.opacity.setState(0, Affinity.Intrinsic);
+      iconView.transform.setState(Transform.rotate(Angle.deg(-90)), Affinity.Intrinsic);
+      iconView.pointerEvents.setState("none", Affinity.Intrinsic);
+      iconView.iconWidth.setState(24, Affinity.Intrinsic);
+      iconView.iconHeight.setState(24, Affinity.Intrinsic);
+      iconView.iconColor.setAffinity(Affinity.Extrinsic);
+      return iconView;
+    },
+    push(icon: Graphics, timing?: AnyTiming | boolean): HtmlIconView {
+      if (timing === void 0 && this.owner.icons.viewCount === 0) {
+        timing = false;
+      } else if (timing === void 0 || timing === true) {
+        timing = this.owner.getLookOr(Look.timing, false);
+      } else {
+        timing = Timing.fromAny(timing);
+      }
+
+      const oldIconView = this.view;
+      if (oldIconView !== null) {
+        if (timing !== false) {
+          oldIconView.opacity.setState(0, timing, Affinity.Intrinsic);
+          oldIconView.transform.setState(Transform.rotate(Angle.deg(90)), timing, Affinity.Intrinsic);
+        } else {
+          this.owner.icons.deleteView(oldIconView);
+        }
+      }
+
+      const newIconView = this.createView();
+      newIconView.graphics.setState(icon, Affinity.Intrinsic);
+      this.owner.icons.attachView(newIconView);
+      this.insertView(void 0, newIconView);
+      newIconView.opacity.setState(1, timing, Affinity.Intrinsic);
+      newIconView.transform.setState(Transform.rotate(Angle.deg(0)), timing, Affinity.Intrinsic);
+
+      return newIconView;
+    },
+    pop(timing?: AnyTiming | boolean): HtmlIconView | null {
+      if (timing === void 0 || timing === true) {
+        timing = this.owner.getLookOr(Look.timing, false);
+      } else {
+        timing = Timing.fromAny(timing);
+      }
+
+      const oldIconView = this.view;
+      let newIconView: HtmlIconView | null = null;
+      const iconViews = this.owner.icons.views;
+      for (const viewId in iconViews) {
+        const iconView = iconViews[viewId]!;
+        if (iconView !== oldIconView) {
+          newIconView = iconView;
+        }
+      }
+
+      if (oldIconView !== null) {
+        if (timing !== false) {
+          oldIconView.opacity.setState(0, timing, Affinity.Intrinsic);
+          oldIconView.transform.setState(Transform.rotate(Angle.deg(-90)), timing, Affinity.Intrinsic);
+          this.owner.icons.insertView(void 0, oldIconView);
+        } else {
+          this.owner.icons.deleteView(oldIconView);
+        }
+      }
+
+      if (newIconView !== null) {
+        this.insertView(void 0, newIconView);
+        newIconView.opacity.setState(1, timing, Affinity.Intrinsic);
+        newIconView.transform.setState(Transform.rotate(Angle.deg(0)), timing, Affinity.Intrinsic);
+      }
+
+      return oldIconView;
+    },
+  })
+  readonly icon!: ViewRef<this, HtmlIconView> & {
+    push(icon: Graphics, timing?: AnyTiming | boolean): HtmlIconView;
+    pop(timing?: AnyTiming | boolean): HtmlIconView | null;
+  };
+
+  @PresenceAnimator({
+    inherits: true,
+  })
+  readonly presence!: PresenceAnimator<this, Presence | undefined, AnyPresence | undefined>;
+
+  @PositionGesture({
     extends: true,
     didStartHovering(): void {
       this.owner.modifyMood(Feel.default, [[Feel.hovering, 1]]);
@@ -91,122 +213,6 @@ export class FloatingButton extends ButtonMembrane {
     },
   })
   override readonly gesture!: PositionGesture<this, HtmlView>;
-  static override readonly gesture: FastenerClass<FloatingButton["gesture"]>;
-
-  /** @internal */
-  static IconRef = ViewRef.define<ViewRef<FloatingButton, HtmlIconView> & Observes<HtmlIconView> & {iconIndex: number}>("IconRef", {
-    viewType: HtmlIconView,
-    observes: true,
-    init(): void {
-      this.iconIndex = 0;
-    },
-    viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, iconView: HtmlIconView): void {
-      const iconColor = theme.getOr(Look.backgroundColor, mood, null);
-      iconView.iconColor.setState(iconColor, timing);
-    },
-    viewDidAnimate(iconView: HtmlIconView): void {
-      if (!iconView.opacity.tweening && this.iconIndex !== this.owner.iconCount) {
-        iconView.remove();
-        if (this.iconIndex > this.owner.iconCount) {
-          this.owner.setFastener(this.viewKey!, null);
-        }
-      }
-    },
-  });
-
-  /** @internal */
-  iconCount: number;
-
-  icon: ViewRef<this, HtmlIconView> | null;
-
-  pushIcon(icon: Graphics, timing?: AnyTiming | boolean): void {
-    if (timing === void 0 || timing === true) {
-      timing = this.getLookOr(Look.timing, false);
-    } else {
-      timing = Timing.fromAny(timing);
-    }
-
-    const oldIconCount = this.iconCount;
-    const oldIconKey = "icon" + oldIconCount;
-    const oldIconRef: ViewRef<this, HtmlIconView> | null = this.getFastener(oldIconKey, ViewRef);
-    const oldIconView = oldIconRef !== null ? oldIconRef.view : null;
-    if (oldIconView !== null) {
-      if (timing !== false) {
-        oldIconView.opacity.setState(0, timing, Affinity.Intrinsic);
-        oldIconView.transform.setState(Transform.rotate(Angle.deg(90)), timing, Affinity.Intrinsic);
-      } else {
-        oldIconView.remove();
-      }
-    }
-
-    const newIconCount = oldIconCount + 1;
-    const newIconKey = "icon" + newIconCount;
-    const newIconRef = FloatingButton.IconRef.create(this) as ViewRef<this, HtmlIconView> & {iconIndex: number};
-    Object.defineProperty(newIconRef, "name", {
-      value: newIconKey,
-      enumerable: true,
-      configurable: true,
-    });
-    newIconRef.iconIndex = newIconCount;
-    const newIconView = HtmlIconView.create();
-    newIconView.position.setState("absolute", Affinity.Intrinsic);
-    newIconView.left.setState(0, Affinity.Intrinsic);
-    newIconView.top.setState(0, Affinity.Intrinsic);
-    newIconView.width.setState(this.width.state, Affinity.Intrinsic);
-    newIconView.height.setState(this.height.state, Affinity.Intrinsic);
-    newIconView.opacity.setState(0, Affinity.Intrinsic);
-    newIconView.opacity.setState(1, timing, Affinity.Intrinsic);
-    newIconView.transform.setState(Transform.rotate(Angle.deg(-90)), Affinity.Intrinsic);
-    newIconView.transform.setState(Transform.rotate(Angle.deg(0)), timing, Affinity.Intrinsic);
-    newIconView.pointerEvents.setState("none", Affinity.Intrinsic);
-    newIconView.iconWidth.setState(24, Affinity.Intrinsic);
-    newIconView.iconHeight.setState(24, Affinity.Intrinsic);
-    newIconView.iconColor.setAffinity(Affinity.Extrinsic);
-    newIconView.graphics.setState(icon, Affinity.Intrinsic);
-    newIconRef.setView(newIconView);
-    this.setFastener(newIconKey, newIconRef);
-    this.appendChild(newIconView, newIconKey);
-
-    this.iconCount = newIconCount;
-    this.icon = newIconRef;
-  }
-
-  popIcon(timing?: AnyTiming | boolean): void {
-    if (timing === void 0 || timing === true) {
-      timing = this.getLookOr(Look.timing, false);
-    } else {
-      timing = Timing.fromAny(timing);
-    }
-
-    const oldIconCount = this.iconCount;
-    const oldIconKey = "icon" + oldIconCount;
-    const oldIconRef: ViewRef<this, HtmlIconView> | null = this.getFastener(oldIconKey, ViewRef);
-    const oldIconView = oldIconRef !== null ? oldIconRef.view : null;
-    if (oldIconView !== null) {
-      if (timing !== false) {
-        oldIconView.opacity.setState(0, timing, Affinity.Intrinsic);
-        oldIconView.transform.setState(Transform.rotate(Angle.deg(-90)), timing, Affinity.Intrinsic);
-      } else {
-        oldIconView.remove();
-      }
-    }
-
-    const newIconCount = oldIconCount - 1;
-    const newIconKey = "icon" + newIconCount;
-    const newIconRef: ViewRef<this, HtmlIconView> | null = this.getFastener(newIconKey, ViewRef);
-    const newIconView = newIconRef !== null ? newIconRef.view : null;
-    if (newIconView !== null) {
-      newIconView.opacity.setState(1, timing, Affinity.Intrinsic);
-      newIconView.transform.setState(Transform.rotate(Angle.deg(0)), timing, Affinity.Intrinsic);
-      this.appendChild(newIconView, newIconKey);
-    }
-
-    this.iconCount = newIconCount;
-    this.icon = newIconRef;
-  }
-
-  @PresenceAnimator({inherits: true})
-  readonly presence!: PresenceAnimator<this, Presence | undefined, AnyPresence | undefined>;
 
   protected override onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);

@@ -12,14 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Instance, Timing, Creatable, Observes} from "@swim/util";
-import {Affinity, FastenerClass, Property} from "@swim/component";
-import {AnyLength, Length, R2Box} from "@swim/math";
-import {AnyExpansion, Expansion, ExpansionAnimator} from "@swim/style";
-import {Look, ThemeConstraintAnimator} from "@swim/theme";
-import {ViewFlags, View, ViewRef, PositionGestureInput} from "@swim/view";
+import type {Class} from "@swim/util";
+import type {Instance} from "@swim/util";
+import type {Timing} from "@swim/util";
+import type {Creatable} from "@swim/util";
+import type {Observes} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import {R2Box} from "@swim/math";
+import type {AnyExpansion} from "@swim/style";
+import {Expansion} from "@swim/style";
+import {ExpansionAnimator} from "@swim/style";
+import {Look} from "@swim/theme";
+import {ThemeConstraintAnimator} from "@swim/theme";
+import type {ViewFlags} from "@swim/view";
+import {View} from "@swim/view";
+import {ViewRef} from "@swim/view";
+import type {PositionGestureInput} from "@swim/view";
 import {HtmlView} from "@swim/dom";
-import {AnyTableLayout, TableLayout} from "../layout/TableLayout";
+import type {AnyTableLayout} from "../layout/TableLayout";
+import {TableLayout} from "../layout/TableLayout";
 import type {CellView} from "../cell/CellView";
 import {LeafView} from "../leaf/LeafView";
 import type {RowViewObserver} from "./RowViewObserver";
@@ -42,7 +56,7 @@ export class RowView extends HtmlView {
   @Property({valueType: TableLayout, value: null, inherits: true, updateFlags: View.NeedsLayout})
   readonly layout!: Property<this, TableLayout | null, AnyTableLayout | null>;
 
-  @Property<RowView["depth"]>({
+  @Property({
     valueType: Number,
     value: 0,
     inherits: true,
@@ -91,7 +105,7 @@ export class RowView extends HtmlView {
     leafView.setCell(key, cellView);
   }
 
-  @ViewRef<RowView["leaf"]>({
+  @ViewRef({
     viewType: LeafView,
     viewKey: true,
     binds: true,
@@ -137,9 +151,8 @@ export class RowView extends HtmlView {
     },
   })
   readonly leaf!: ViewRef<this, LeafView> & Observes<LeafView>;
-  static readonly leaf: FastenerClass<RowView["leaf"]>;
 
-  @ViewRef<RowView["head"]>({
+  @ViewRef({
     viewType: HtmlView,
     viewKey: true,
     binds: true,
@@ -158,9 +171,8 @@ export class RowView extends HtmlView {
     },
   })
   readonly head!: ViewRef<this, HtmlView>;
-  static readonly head: FastenerClass<RowView["head"]>;
 
-  @ViewRef<RowView["tree"]>({
+  @ViewRef({
     // avoid cyclic static reference to viewType: TableView
     viewKey: true,
     binds: true,
@@ -185,9 +197,8 @@ export class RowView extends HtmlView {
     },
   })
   readonly tree!: ViewRef<this, TableView>;
-  static readonly tree: FastenerClass<RowView["tree"]>;
 
-  @ViewRef<RowView["foot"]>({
+  @ViewRef({
     viewType: HtmlView,
     viewKey: true,
     binds: true,
@@ -206,9 +217,8 @@ export class RowView extends HtmlView {
     },
   })
   readonly foot!: ViewRef<this, HtmlView>;
-  static readonly foot: FastenerClass<RowView["foot"]>;
 
-  @ExpansionAnimator<RowView["disclosure"]>({
+  @ExpansionAnimator({
     value: Expansion.collapsed(),
     get transition(): Timing | null {
       return this.owner.getLookOr(Look.timing, null);
@@ -251,7 +261,7 @@ export class RowView extends HtmlView {
   @ExpansionAnimator({value: null, inherits: true, updateFlags: View.NeedsLayout})
   readonly disclosing!: ExpansionAnimator<this, Expansion | null, AnyExpansion | null>;
 
-  @Property<TableView["visibleFrame"]>({
+  @Property({
     valueType: R2Box,
     value: null,
     inherits: true,

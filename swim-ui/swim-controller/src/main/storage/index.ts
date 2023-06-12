@@ -13,7 +13,7 @@
 // limitations under the License.
 
 export {StorageService} from "./StorageService";
-export {StorageServiceObserver} from "./StorageServiceObserver";
+export type {StorageServiceObserver} from "./StorageServiceObserver";
 
 export {WebStorageService} from "./WebStorageService";
 

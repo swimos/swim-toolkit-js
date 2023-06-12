@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Trait, TraitObserver} from "@swim/model";
+import type {Trait} from "@swim/model";
+import type {TraitObserver} from "@swim/model";
 import type {DataPointTrait} from "./DataPointTrait";
 import type {DataSetTrait} from "./DataSetTrait";
 

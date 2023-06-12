@@ -12,10 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  AnyStyleValue,
-  StyleValue,
-} from "./StyleValue";
+export type {AnyStyleValue} from "./StyleValue";
+export {StyleValue} from "./StyleValue";
 export {StyleValueForm} from "./StyleValueForm";
 export {StyleValueParser} from "./StyleValueParser";
 

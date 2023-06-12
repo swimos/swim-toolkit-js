@@ -12,11 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Proto, Consumer} from "@swim/util";
+import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
+import type {Consumer} from "@swim/util";
 import type {FastenerOwner} from "@swim/component";
-import type {TraitFactory, Trait, TraitRef} from "@swim/model";
-import type {ControllerFactory, Controller} from "../controller/Controller";
-import {ControllerSetDescriptor, ControllerSetClass, ControllerSet} from "../controller/ControllerSet";
+import type {TraitFactory} from "@swim/model";
+import type {Trait} from "@swim/model";
+import type {TraitRef} from "@swim/model";
+import type {ControllerFactory} from "../controller/Controller";
+import type {Controller} from "../controller/Controller";
+import type {ControllerSetDescriptor} from "../controller/ControllerSet";
+import type {ControllerSetClass} from "../controller/ControllerSet";
+import {ControllerSet} from "../controller/ControllerSet";
 
 /** @public */
 export type TraitControllerSetTrait<F extends TraitControllerSet<any, any, any>> =
@@ -27,8 +34,13 @@ export type TraitControllerSetController<F extends TraitControllerSet<any, any, 
   F extends {controllerType?: ControllerFactory<infer C>} ? C : never;
 
 /** @public */
+export type TraitControllerSetDecorator<F extends TraitControllerSet<any, any, any>> = {
+  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
+};
+
+/** @public */
 export interface TraitControllerSetDescriptor<T extends Trait = Trait, C extends Controller = Controller> extends ControllerSetDescriptor<C> {
-  extends?: Proto<TraitControllerSet<any, any, any>> | string | boolean | null;
+  extends?: Proto<TraitControllerSet<any, any, any>> | boolean | null;
   traitType?: TraitFactory<T>;
 }
 
@@ -47,15 +59,15 @@ export interface TraitControllerSetClass<F extends TraitControllerSet<any, any, 
   refine(fastenerClass: TraitControllerSetClass<any>): void;
 
   /** @override */
-  extend<F2 extends F>(className: string, template: TraitControllerSetTemplate<F2>): TraitControllerSetClass<F2>;
-  extend<F2 extends F>(className: string, template: TraitControllerSetTemplate<F2>): TraitControllerSetClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: TraitControllerSetTemplate<F2>): TraitControllerSetClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: TraitControllerSetTemplate<F2>): TraitControllerSetClass<F2>;
 
   /** @override */
-  define<F2 extends F>(className: string, template: TraitControllerSetTemplate<F2>): TraitControllerSetClass<F2>;
-  define<F2 extends F>(className: string, template: TraitControllerSetTemplate<F2>): TraitControllerSetClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: TraitControllerSetTemplate<F2>): TraitControllerSetClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: TraitControllerSetTemplate<F2>): TraitControllerSetClass<F2>;
 
   /** @override */
-  <F2 extends F>(template: TraitControllerSetTemplate<F2>): PropertyDecorator;
+  <F2 extends F>(template: TraitControllerSetTemplate<F2>): TraitControllerSetDecorator<F2>;
 }
 
 /** @public */
@@ -323,8 +335,9 @@ export const TraitControllerSet = (function (_super: typeof ControllerSet) {
     }
     if (trait === void 0 || trait === null) {
       let message = "Unable to create ";
-      if (this.name.length !== 0) {
-        message += this.name + " ";
+      const name = this.name.toString();
+      if (name.length !== 0) {
+        message += name + " ";
       }
       message += "trait";
       throw new Error(message);
@@ -338,11 +351,11 @@ export const TraitControllerSet = (function (_super: typeof ControllerSet) {
       const targetTrait = targetController !== null && this.hasController(targetController) ? this.getTraitRef(targetController as C).trait : null;
       this.attachTrait(trait, targetTrait, controller);
     }
-    ControllerSet.prototype.onAttachController.call(this, controller, targetController);
+    _super.prototype.onAttachController.call(this, controller, targetController);
   };
 
   TraitControllerSet.prototype.onDetachController = function <T extends Trait, C extends Controller>(this: TraitControllerSet<unknown, T, C>, controller: C): void {
-    ControllerSet.prototype.onDetachController.call(this, controller);
+    _super.prototype.onDetachController.call(this, controller);
     const trait = this.getTraitRef(controller).trait;
     if (trait !== null) {
       this.detachTrait(trait);

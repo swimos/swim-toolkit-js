@@ -13,7 +13,8 @@
 // limitations under the License.
 
 import type {Interpolator} from "@swim/util";
-import {AnyColor, Color} from "@swim/style";
+import type {AnyColor} from "@swim/style";
+import {Color} from "@swim/style";
 import {Look} from "./Look";
 
 /** @public */

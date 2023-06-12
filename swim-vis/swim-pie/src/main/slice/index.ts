@@ -12,15 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  AnySliceView,
-  SliceViewInit,
-  SliceView,
-} from "./SliceView";
-export {SliceViewObserver} from "./SliceViewObserver";
+export type {AnySliceView} from "./SliceView";
+export type {SliceViewInit} from "./SliceView";
+export {SliceView} from "./SliceView";
+export type {SliceViewObserver} from "./SliceViewObserver";
 
 export {SliceTrait} from "./SliceTrait";
-export {SliceTraitObserver} from "./SliceTraitObserver";
+export type {SliceTraitObserver} from "./SliceTraitObserver";
 
 export {SliceController} from "./SliceController";
-export {SliceControllerObserver} from "./SliceControllerObserver";
+export type {SliceControllerObserver} from "./SliceControllerObserver";

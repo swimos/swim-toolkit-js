@@ -12,10 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Spec, Test, Exam} from "@swim/unit";
-import {Look, Feel, MoodVector, MoodMatrix} from "@swim/theme";
+import type {Exam} from "@swim/unit";
+import {Test} from "@swim/unit";
+import {Suite} from "@swim/unit";
+import {Look} from "@swim/theme";
+import {Feel} from "@swim/theme";
+import {MoodVector} from "@swim/theme";
+import {MoodMatrix} from "@swim/theme";
 
-export class MoodMatrixSpec extends Spec {
+export class MoodMatrixSpec extends Suite {
   @Test
   testEmpty(exam: Exam): void {
     const matrix = MoodMatrix.empty();

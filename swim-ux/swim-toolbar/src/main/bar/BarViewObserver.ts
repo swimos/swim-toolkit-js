@@ -18,7 +18,8 @@ import type {HtmlViewObserver} from "@swim/dom";
 import type {ToolLayout} from "../layout/ToolLayout";
 import type {BarLayout} from "../layout/BarLayout";
 import type {ToolView} from "../tool/ToolView";
-import type {BarPlacement, BarView} from "./BarView";
+import type {BarPlacement} from "./BarView";
+import type {BarView} from "./BarView";
 
 /** @public */
 export interface BarViewObserver<V extends BarView = BarView> extends HtmlViewObserver<V> {

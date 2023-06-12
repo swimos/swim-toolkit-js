@@ -12,9 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Equals, Mutable, Interpolator} from "@swim/util";
+import type {Mutable} from "@swim/util";
+import {Equals} from "@swim/util";
+import {Interpolator} from "@swim/util";
 import type {Color} from "@swim/style";
-import type {Look, MoodMatrix} from "@swim/theme";
+import type {Look} from "@swim/theme";
+import type {MoodMatrix} from "@swim/theme";
 import {CircleIcon} from "./CircleIcon";
 
 /** @internal */

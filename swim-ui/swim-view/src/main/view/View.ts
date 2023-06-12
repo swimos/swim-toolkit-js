@@ -12,82 +12,73 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  Mutable,
-  Class,
-  Instance,
-  Arrays,
-  FromAny,
-  AnyTiming,
-  Timing,
-  Creatable,
-  Inits,
-  Initable,
-  Observes,
-} from "@swim/util";
-import {
-  Affinity,
-  FastenerClass,
-  Fastener,
-  Property,
-  Animator,
-  Provider,
-  ComponentFlags,
-  ComponentInit,
-  Component,
-} from "@swim/component";
-import {
-  AnyConstraintExpression,
-  ConstraintExpression,
-  ConstraintVariable,
-  ConstraintProperty,
-  ConstraintRelation,
-  AnyConstraintStrength,
-  ConstraintStrength,
-  Constraint,
-  ConstraintScope,
-  ConstraintContext,
-} from "@swim/constraint";
-import {R2Box, Transform} from "@swim/math";
-import {
-  Look,
-  Feel,
-  Mood,
-  MoodVectorUpdates,
-  MoodVector,
-  MoodMatrix,
-  ThemeMatrix,
-  ThemeContext,
-  ThemeAnimator,
-} from "@swim/theme";
+import type {Mutable} from "@swim/util";
+import type {Class} from "@swim/util";
+import type {Instance} from "@swim/util";
+import {Arrays} from "@swim/util";
+import type {FromAny} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {Timing} from "@swim/util";
+import {Creatable} from "@swim/util";
+import type {Inits} from "@swim/util";
+import type {Initable} from "@swim/util";
+import type {Observes} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {FastenerContext} from "@swim/component";
+import type {Fastener} from "@swim/component";
+import {Property} from "@swim/component";
+import {Animator} from "@swim/component";
+import {Provider} from "@swim/component";
+import type {ComponentFlags} from "@swim/component";
+import type {ComponentInit} from "@swim/component";
+import {Component} from "@swim/component";
+import type {AnyConstraintExpression} from "@swim/constraint";
+import {ConstraintExpression} from "@swim/constraint";
+import type {ConstraintVariable} from "@swim/constraint";
+import {ConstraintProperty} from "@swim/constraint";
+import type {ConstraintRelation} from "@swim/constraint";
+import type {AnyConstraintStrength} from "@swim/constraint";
+import {ConstraintStrength} from "@swim/constraint";
+import {Constraint} from "@swim/constraint";
+import type {ConstraintScope} from "@swim/constraint";
+import type {ConstraintContext} from "@swim/constraint";
+import {R2Box} from "@swim/math";
+import {Transform} from "@swim/math";
+import {Look} from "@swim/theme";
+import {Feel} from "@swim/theme";
+import {Mood} from "@swim/theme";
+import type {MoodVectorUpdates} from "@swim/theme";
+import {MoodVector} from "@swim/theme";
+import {MoodMatrix} from "@swim/theme";
+import {ThemeMatrix} from "@swim/theme";
+import type {ThemeContext} from "@swim/theme";
+import {ThemeAnimator} from "@swim/theme";
 import type {ViewIdiom} from "./ViewIdiom";
 import {ViewInsets} from "./ViewInsets";
-import type {
-  ViewObserver,
-  ViewWillInsertChild,
-  ViewDidInsertChild,
-  ViewWillRemoveChild,
-  ViewDidRemoveChild,
-  ViewWillResize,
-  ViewDidResize,
-  ViewWillScroll,
-  ViewDidScroll,
-  ViewWillChange,
-  ViewDidChange,
-  ViewWillAnimate,
-  ViewDidAnimate,
-  ViewWillProject,
-  ViewDidProject,
-  ViewWillLayout,
-  ViewDidLayout,
-  ViewWillRender,
-  ViewDidRender,
-  ViewWillRasterize,
-  ViewDidRasterize,
-  ViewWillComposite,
-  ViewDidComposite,
-  ViewObserverCache,
-} from "./ViewObserver";
+import type {ViewObserver} from "./ViewObserver";
+import type {ViewWillInsertChild} from "./ViewObserver";
+import type {ViewDidInsertChild} from "./ViewObserver";
+import type {ViewWillRemoveChild} from "./ViewObserver";
+import type {ViewDidRemoveChild} from "./ViewObserver";
+import type {ViewWillResize} from "./ViewObserver";
+import type {ViewDidResize} from "./ViewObserver";
+import type {ViewWillScroll} from "./ViewObserver";
+import type {ViewDidScroll} from "./ViewObserver";
+import type {ViewWillChange} from "./ViewObserver";
+import type {ViewDidChange} from "./ViewObserver";
+import type {ViewWillAnimate} from "./ViewObserver";
+import type {ViewDidAnimate} from "./ViewObserver";
+import type {ViewWillProject} from "./ViewObserver";
+import type {ViewDidProject} from "./ViewObserver";
+import type {ViewWillLayout} from "./ViewObserver";
+import type {ViewDidLayout} from "./ViewObserver";
+import type {ViewWillRender} from "./ViewObserver";
+import type {ViewDidRender} from "./ViewObserver";
+import type {ViewWillRasterize} from "./ViewObserver";
+import type {ViewDidRasterize} from "./ViewObserver";
+import type {ViewWillComposite} from "./ViewObserver";
+import type {ViewDidComposite} from "./ViewObserver";
+import type {ViewObserverCache} from "./ViewObserver";
 import {ViewRelation} from "./"; // forward import
 import {Gesture} from "../"; // forward import
 import type {LayoutViewport} from "../viewport/LayoutViewport";
@@ -1257,55 +1248,51 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     return this.updater.getService().updateTime;
   }
 
-  @Provider<View["viewport"]>({
+  @Provider({
     get serviceType(): typeof ViewportService { // avoid static forward reference
       return ViewportService;
     },
   })
   readonly viewport!: Provider<this, ViewportService>;
-  static readonly viewport: FastenerClass<View["viewport"]>;
 
-  @Provider<View["updater"]>({
+  @Provider({
     get serviceType(): typeof DisplayerService { // avoid static forward reference
       return DisplayerService;
     },
     mountRootService(service: DisplayerService): void {
-      Provider.prototype.mountRootService.call(this, service);
+      super.mountRootService(service);
       service.roots.addView(this.owner);
     },
     unmountRootService(service: DisplayerService): void {
-      Provider.prototype.unmountRootService.call(this, service);
+      super.unmountRootService(service);
       service.roots.removeView(this.owner);
     },
   })
   readonly updater!: Provider<this, DisplayerService>;
-  static readonly updater: FastenerClass<View["updater"]>;
 
-  @Provider<View["solver"]>({
+  @Provider({
     get serviceType(): typeof SolverService { // avoid static forward reference
       return SolverService;
     },
   })
   readonly solver!: Provider<this, SolverService>;
-  static readonly solver: FastenerClass<View["solver"]>;
 
-  @Provider<View["styler"]>({
+  @Provider({
     get serviceType(): typeof StylerService { // avoid static forward reference
       return StylerService;
     },
     mountRootService(service: StylerService): void {
-      Provider.prototype.mountRootService.call(this, service);
+      super.mountRootService(service);
       service.roots.addView(this.owner);
     },
     unmountRootService(service: StylerService): void {
-      Provider.prototype.unmountRootService.call(this, service);
+      super.unmountRootService(service);
       service.roots.removeView(this.owner);
     },
   })
   readonly styler!: Provider<this, StylerService>;
-  static readonly styler: FastenerClass<View["styler"]>;
 
-  @Property<View["mood"]>({
+  @Property({
     valueType: MoodVector,
     value: null,
     affinity: Affinity.Inherited,
@@ -1315,8 +1302,8 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     },
     transformInletValue(superMood: MoodVector | null): MoodVector | null {
       if (superMood !== null) {
-        const moodModifierProperty = this.owner.getFastener<Property<unknown, MoodMatrix>>("moodModifier", Property);
-        const moodModifier = moodModifierProperty !== null ? moodModifierProperty.value : null;
+        const moodModifierProperty = this.owner.moodModifier;
+        const moodModifier = moodModifierProperty instanceof Property ? moodModifierProperty.value : null;
         if (moodModifier !== null) {
           superMood = moodModifier.timesCol(superMood, true);
         }
@@ -1336,7 +1323,7 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     timing: AnyTiming | boolean | undefined,
   };
 
-  @Property<View["theme"]>({
+  @Property({
     valueType: ThemeMatrix,
     value: null,
     affinity: Affinity.Inherited,
@@ -1346,8 +1333,8 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     },
     transformInletValue(superTheme: ThemeMatrix | null): ThemeMatrix | null {
       if (superTheme !== null) {
-        const themeModifierProperty = this.owner.getFastener<Property<unknown, MoodMatrix>>("themeModifier", Property);
-        const themeModifier = themeModifierProperty !== null ? themeModifierProperty.value : null;
+        const themeModifierProperty = this.owner.themeModifier;
+        const themeModifier = themeModifierProperty instanceof Property ? themeModifierProperty.value : null;
         if (themeModifier !== null) {
           superTheme = superTheme.transform(themeModifier, true);
         }
@@ -1448,16 +1435,16 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
 
   /** @internal */
   protected themeAnimators(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
-    const fasteners = this.fasteners;
-    for (const fastenerName in fasteners) {
-      const fastener = fasteners[fastenerName]!;
+    const fastenerNames = FastenerContext.getFastenerNames(this);
+    for (let i = 0; i < fastenerNames.length; i += 1) {
+      const fastener = this[fastenerNames[i]!];
       if (fastener instanceof ThemeAnimator) {
         fastener.applyTheme(theme, mood, timing);
       }
     }
   }
 
-  @Property<View["moodModifier"]>({
+  @Property({
     valueType: MoodMatrix,
     value: null,
     didSetValue(moodModifier: MoodMatrix | null): void {
@@ -1489,7 +1476,7 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     }
   }
 
-  @Property<View["themeModifier"]>({
+  @Property({
     valueType: MoodMatrix,
     value: null,
     didSetValue(themeModifier: MoodMatrix | null): void {
@@ -1790,11 +1777,13 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     return this.viewport.getService().viewIdiom.value;
   }
 
-  @Property<View["edgeInsets"]>({
+  @Property({
     valueType: ViewInsets,
     value: ViewInsets.zero,
     inherits: true,
-    updateFlags: View.NeedsResize | View.NeedsScroll | View.NeedsLayout,
+    get updateFlags(): ViewFlags {
+      return View.NeedsResize | View.NeedsScroll | View.NeedsLayout;
+    },
     equalValues: ViewInsets.equal,
   })
   readonly edgeInsets!: Property<this, ViewInsets>;
@@ -2060,7 +2049,7 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     } else if (Creatable.is(value)) {
       return (value as Creatable<InstanceType<S>>).create();
     } else {
-      return (this as unknown as ViewFactory<InstanceType<S>>).fromInit(value);
+      return (this as unknown as ViewFactory<InstanceType<S>>).fromInit(value as Inits<InstanceType<S>>);
     }
   }
 
@@ -2071,7 +2060,7 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
       const id = ~~nextId;
       nextId += 1;
       return "view" + id;
-    }
+    };
   })();
 
   /** @internal */
@@ -2097,25 +2086,25 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   /** @internal */
   static readonly IntangibleFlag: ViewFlags = 1 << (Component.FlagShift + 7);
   /** @internal */
-  static readonly CulledMask: ViewFlags = View.CullFlag
-                                        | View.CulledFlag;
+  static readonly CulledMask: ViewFlags = this.CullFlag
+                                        | this.CulledFlag;
   /** @internal */
-  static readonly HiddenMask: ViewFlags = View.HideFlag
-                                        | View.HiddenFlag;
+  static readonly HiddenMask: ViewFlags = this.HideFlag
+                                        | this.HiddenFlag;
   /** @internal */
-  static readonly UpdatingMask: ViewFlags = View.ProcessingFlag
-                                          | View.DisplayingFlag;
+  static readonly UpdatingMask: ViewFlags = this.ProcessingFlag
+                                          | this.DisplayingFlag;
   /** @internal */
-  static readonly StatusMask: ViewFlags = View.MountedFlag
-                                        | View.InsertingFlag
-                                        | View.RemovingFlag
-                                        | View.ProcessingFlag
-                                        | View.DisplayingFlag
-                                        | View.CullFlag
-                                        | View.CulledFlag
-                                        | View.HiddenFlag
-                                        | View.UnboundedFlag
-                                        | View.IntangibleFlag;
+  static readonly StatusMask: ViewFlags = this.MountedFlag
+                                        | this.InsertingFlag
+                                        | this.RemovingFlag
+                                        | this.ProcessingFlag
+                                        | this.DisplayingFlag
+                                        | this.CullFlag
+                                        | this.CulledFlag
+                                        | this.HiddenFlag
+                                        | this.UnboundedFlag
+                                        | this.IntangibleFlag;
 
   static readonly NeedsProcess: ViewFlags = 1 << (Component.FlagShift + 8);
   static readonly NeedsResize: ViewFlags = 1 << (Component.FlagShift + 9);
@@ -2124,12 +2113,12 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   static readonly NeedsAnimate: ViewFlags = 1 << (Component.FlagShift + 12);
   static readonly NeedsProject: ViewFlags = 1 << (Component.FlagShift + 13);
   /** @internal */
-  static readonly ProcessMask: ViewFlags = View.NeedsProcess
-                                         | View.NeedsResize
-                                         | View.NeedsScroll
-                                         | View.NeedsChange
-                                         | View.NeedsAnimate
-                                         | View.NeedsProject;
+  static readonly ProcessMask: ViewFlags = this.NeedsProcess
+                                         | this.NeedsResize
+                                         | this.NeedsScroll
+                                         | this.NeedsChange
+                                         | this.NeedsAnimate
+                                         | this.NeedsProject;
 
   static readonly NeedsDisplay: ViewFlags = 1 << (Component.FlagShift + 14);
   static readonly NeedsLayout: ViewFlags = 1 << (Component.FlagShift + 15);
@@ -2137,25 +2126,25 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   static readonly NeedsRasterize: ViewFlags = 1 << (Component.FlagShift + 17);
   static readonly NeedsComposite: ViewFlags = 1 << (Component.FlagShift + 18);
   /** @internal */
-  static readonly DisplayMask: ViewFlags = View.NeedsDisplay
-                                         | View.NeedsLayout
-                                         | View.NeedsRender
-                                         | View.NeedsRasterize
-                                         | View.NeedsComposite;
+  static readonly DisplayMask: ViewFlags = this.NeedsDisplay
+                                         | this.NeedsLayout
+                                         | this.NeedsRender
+                                         | this.NeedsRasterize
+                                         | this.NeedsComposite;
 
   /** @internal */
-  static readonly UpdateMask: ViewFlags = View.ProcessMask
-                                        | View.DisplayMask;
+  static readonly UpdateMask: ViewFlags = this.ProcessMask
+                                        | this.DisplayMask;
 
   /** @internal */
   static override readonly FlagShift: number = Component.FlagShift + 19;
   /** @internal */
-  static override readonly FlagMask: ViewFlags = (1 << View.FlagShift) - 1;
+  static override readonly FlagMask: ViewFlags = (1 << this.FlagShift) - 1;
 
-  static override readonly MountFlags: ViewFlags = Component.MountFlags | View.NeedsResize | View.NeedsChange | View.NeedsLayout;
-  static readonly UncullFlags: ViewFlags = View.NeedsResize | View.NeedsChange | View.NeedsLayout;
-  static readonly UnhideFlags: ViewFlags = View.NeedsLayout;
-  static override readonly InsertChildFlags: ViewFlags = Component.InsertChildFlags | View.NeedsLayout;
-  static override readonly RemoveChildFlags: ViewFlags = Component.RemoveChildFlags | View.NeedsLayout;
-  static override readonly ReinsertChildFlags: ViewFlags = Component.InsertChildFlags | View.NeedsLayout;
+  static override readonly MountFlags: ViewFlags = Component.MountFlags | this.NeedsResize | this.NeedsChange | this.NeedsLayout;
+  static readonly UncullFlags: ViewFlags = this.NeedsResize | this.NeedsChange | this.NeedsLayout;
+  static readonly UnhideFlags: ViewFlags = this.NeedsLayout;
+  static override readonly InsertChildFlags: ViewFlags = Component.InsertChildFlags | this.NeedsLayout;
+  static override readonly RemoveChildFlags: ViewFlags = Component.RemoveChildFlags | this.NeedsLayout;
+  static override readonly ReinsertChildFlags: ViewFlags = Component.InsertChildFlags | this.NeedsLayout;
 }

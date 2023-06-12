@@ -13,17 +13,20 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {FastenerClass, Property} from "@swim/component";
-import {Model, Trait, TraitSet} from "@swim/model";
+import {Property} from "@swim/component";
+import type {Model} from "@swim/model";
+import {Trait} from "@swim/model";
+import {TraitSet} from "@swim/model";
 import {GeoTrait} from "../geo/GeoTrait";
-import {AnyGeoPerspective, GeoPerspective} from "../geo/GeoPerspective";
+import type {AnyGeoPerspective} from "../geo/GeoPerspective";
+import {GeoPerspective} from "../geo/GeoPerspective";
 import type {MapTraitObserver} from "./MapTraitObserver";
 
 /** @public */
 export class MapTrait extends Trait {
   override readonly observerType?: Class<MapTraitObserver>;
 
-  @Property<MapTrait["geoPerspective"]>({
+  @Property({
     valueType: GeoPerspective,
     value: null,
     didSetValue(geoPerspective: GeoPerspective | null): void {
@@ -32,7 +35,7 @@ export class MapTrait extends Trait {
   })
   readonly geoPerspective!: Property<this, GeoPerspective | null, AnyGeoPerspective | null>;
 
-  @TraitSet<MapTrait["layers"]>({
+  @TraitSet({
     traitType: GeoTrait,
     binds: true,
     willAttachTrait(newLayerTrait: GeoTrait, targetTrait: Trait | null): void {
@@ -59,7 +62,6 @@ export class MapTrait extends Trait {
     },
   })
   readonly layers!: TraitSet<this, GeoTrait>;
-  static readonly layers: FastenerClass<MapTrait["layers"]>;
 
   protected override onStartConsuming(): void {
     super.onStartConsuming();

@@ -12,11 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Timing} from "@swim/util";
-import type {MoodVector, ThemeMatrix} from "@swim/theme";
+import type {Class} from "@swim/util";
+import type {Timing} from "@swim/util";
+import type {MoodVector} from "@swim/theme";
+import type {ThemeMatrix} from "@swim/theme";
 import type {StyleContext} from "../css/StyleContext";
 import {StyleSheet} from "../css/StyleSheet";
-import {HtmlViewInit, HtmlView} from "../html/HtmlView";
+import type {HtmlViewInit} from "../html/HtmlView";
+import {HtmlView} from "../html/HtmlView";
 import type {StyleViewObserver} from "./StyleViewObserver";
 
 /** @public */
@@ -33,7 +36,7 @@ export class StyleView extends HtmlView implements StyleContext {
 
   override readonly node!: HTMLStyleElement;
 
-  @StyleSheet<StyleView["sheet"]>({
+  @StyleSheet({
     initStylesheet(): CSSStyleSheet {
       return this.owner.node.sheet!;
     },

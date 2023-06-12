@@ -14,8 +14,11 @@
 
 import type {Class} from "@swim/util";
 import {Property} from "@swim/component";
-import {AnyLength, Length} from "@swim/math";
-import {AnyColorOrLook, ColorOrLook, ColorLook} from "@swim/theme";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import type {AnyColorOrLook} from "@swim/theme";
+import type {ColorOrLook} from "@swim/theme";
+import {ColorLook} from "@swim/theme";
 import {ScatterPlotTrait} from "./ScatterPlotTrait";
 import type {BubblePlotTraitObserver} from "./BubblePlotTraitObserver";
 import type {ScatterPlotController} from "./ScatterPlotController";
@@ -25,7 +28,7 @@ import {BubblePlotController} from "./"; // forward import
 export class BubblePlotTrait<X = unknown, Y = unknown> extends ScatterPlotTrait<X, Y> {
   override readonly observerType?: Class<BubblePlotTraitObserver<X, Y>>;
 
-  @Property<BubblePlotTrait<X, Y>["radius"]>({
+  @Property({
     valueType: Length,
     value: null,
     didSetValue(radius: Length | null): void {
@@ -34,7 +37,7 @@ export class BubblePlotTrait<X = unknown, Y = unknown> extends ScatterPlotTrait<
   })
   readonly radius!: Property<this, Length | null, AnyLength | null>;
 
-  @Property<BubblePlotTrait<X, Y>["fill"]>({
+  @Property({
     valueType: ColorLook,
     value: null,
     didSetValue(fill: ColorOrLook | null): void {

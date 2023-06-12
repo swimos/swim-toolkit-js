@@ -12,49 +12,46 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  Mutable,
-  Class,
-  Instance,
-  Arrays,
-  Comparator,
-  FromAny,
-  Dictionary,
-  MutableDictionary,
-  Creatable,
-  Inits,
-  Initable,
-  Consumer,
-  Consumable,
-} from "@swim/util";
-import {
-  FastenerClass,
-  Fastener,
-  Property,
-  Provider,
-  ComponentFlags,
-  ComponentInit,
-  Component,
-} from "@swim/component";
-import {AnyValue, Value} from "@swim/structure";
-import {AnyUri, Uri} from "@swim/uri";
-import {
-  WarpDownlinkModel,
-  WarpDownlink,
-  EventDownlinkTemplate,
-  EventDownlink,
-  ValueDownlinkTemplate,
-  ValueDownlink,
-  ListDownlinkTemplate,
-  ListDownlink,
-  MapDownlinkTemplate,
-  MapDownlink,
-  WarpRef,
-  WarpClient,
-} from "@swim/client";
+import type {Mutable} from "@swim/util";
+import type {Class} from "@swim/util";
+import type {Instance} from "@swim/util";
+import {Arrays} from "@swim/util";
+import type {Comparator} from "@swim/util";
+import type {FromAny} from "@swim/util";
+import type {Dictionary} from "@swim/util";
+import type {MutableDictionary} from "@swim/util";
+import {Creatable} from "@swim/util";
+import type {Inits} from "@swim/util";
+import type {Initable} from "@swim/util";
+import type {Consumer} from "@swim/util";
+import type {Consumable} from "@swim/util";
+import {FastenerContext} from "@swim/component";
+import {Fastener} from "@swim/component";
+import {Property} from "@swim/component";
+import {Provider} from "@swim/component";
+import type {ComponentFlags} from "@swim/component";
+import type {ComponentInit} from "@swim/component";
+import {Component} from "@swim/component";
+import type {AnyValue} from "@swim/structure";
+import {Value} from "@swim/structure";
+import type {AnyUri} from "@swim/uri";
+import {Uri} from "@swim/uri";
+import type {WarpDownlinkModel} from "@swim/client";
+import {WarpDownlink} from "@swim/client";
+import type {EventDownlinkTemplate} from "@swim/client";
+import {EventDownlink} from "@swim/client";
+import type {ValueDownlinkTemplate} from "@swim/client";
+import {ValueDownlink} from "@swim/client";
+import type {ListDownlinkTemplate} from "@swim/client";
+import {ListDownlink} from "@swim/client";
+import type {MapDownlinkTemplate} from "@swim/client";
+import {MapDownlink} from "@swim/client";
+import {WarpRef} from "@swim/client";
+import {WarpClient} from "@swim/client";
 import type {ModelObserver} from "./ModelObserver";
 import {ModelRelation} from "./"; // forward import
-import {AnyTrait, Trait} from "../"; // forward import
+import type {AnyTrait} from "../trait/Trait";
+import {Trait} from "../"; // forward import
 import {TraitRelation} from "../"; // forward import
 import {RefresherService} from "../"; // forward import
 import {SelectionService} from "../"; // forward import
@@ -1487,10 +1484,12 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
 
   /** @internal */
   protected bindTraitFasteners(trait: Trait, target: Trait | null): void {
-    const fasteners = this.fasteners;
-    for (const fastenerName in fasteners) {
-      const fastener = fasteners[fastenerName]!;
-      this.bindTraitFastener(fastener, trait, target);
+    const fastenerNames = FastenerContext.getFastenerNames(this);
+    for (let i = 0; i < fastenerNames.length; i += 1) {
+      const fastener = this[fastenerNames[i]!];
+      if (fastener instanceof Fastener) {
+        this.bindTraitFastener(fastener, trait, target);
+      }
     }
   }
 
@@ -1503,10 +1502,12 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
 
   /** @internal */
   protected unbindTraitFasteners(trait: Trait): void {
-    const fasteners = this.fasteners;
-    for (const fastenerName in fasteners) {
-      const fastener = fasteners[fastenerName]!;
-      this.unbindTraitFastener(fastener, trait);
+    const fastenerNames = FastenerContext.getFastenerNames(this);
+    for (let i = 0; i < fastenerNames.length; i += 1) {
+      const fastener = this[fastenerNames[i]!];
+      if (fastener instanceof Fastener) {
+        this.unbindTraitFastener(fastener, trait);
+      }
     }
   }
 
@@ -1707,9 +1708,9 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
 
   /** @internal */
   protected startConsumingFasteners(): void {
-    const fasteners = this.fasteners;
-    for (const fastenerName in fasteners) {
-      const fastener = fasteners[fastenerName]!;
+    const fastenerNames = FastenerContext.getFastenerNames(this);
+    for (let i = 0; i < fastenerNames.length; i += 1) {
+      const fastener = this[fastenerNames[i]!];
       if (fastener instanceof WarpDownlink && fastener.consumed === true) {
         fastener.consume(this);
       } else if (fastener instanceof TraitRelation && fastener.consumed === true) {
@@ -1722,9 +1723,9 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
 
   /** @internal */
   protected stopConsumingFasteners(): void {
-    const fasteners = this.fasteners;
-    for (const fastenerName in fasteners) {
-      const fastener = fasteners[fastenerName]!;
+    const fastenerNames = FastenerContext.getFastenerNames(this);
+    for (let i = 0; i < fastenerNames.length; i += 1) {
+      const fastener = this[fastenerNames[i]!];
       if (fastener instanceof WarpDownlink && fastener.consumed === true) {
         fastener.unconsume(this);
       } else if (fastener instanceof TraitRelation && fastener.consumed === true) {
@@ -1739,40 +1740,59 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
     return this.updater.getService().updateTime;
   }
 
-  @Provider<Model["updater"]>({
+  @Provider({
     get serviceType(): typeof RefresherService { // avoid static forward reference
       return RefresherService;
     },
     mountRootService(service: RefresherService): void {
-      Provider.prototype.mountRootService.call(this, service);
+      super.mountRootService(service);
       service.roots.addModel(this.owner);
     },
     unmountRootService(service: RefresherService): void {
-      Provider.prototype.unmountRootService.call(this, service);
+      super.unmountRootService(service);
       service.roots.removeModel(this.owner);
     },
   })
   readonly updater!: Provider<this, RefresherService>;
-  static readonly updater: FastenerClass<Model["updater"]>;
 
-  @Provider<Model["selection"]>({
+  @Provider({
     get serviceType(): typeof SelectionService { // avoid static forward reference
       return SelectionService;
     },
   })
   readonly selection!: Provider<this, SelectionService>;
-  static readonly selection: FastenerClass<Model["selection"]>;
 
   /** @override */
-  @Property({valueType: Uri, value: null, inherits: true, updateFlags: Model.NeedsReconcile})
+  @Property({
+    valueType: Uri,
+    value: null,
+    inherits: true,
+    get updateFlags(): ModelFlags {
+      return Model.NeedsReconcile;
+    },
+  })
   readonly hostUri!: Property<this, Uri | null, AnyUri | null>;
 
   /** @override */
-  @Property({valueType: Uri, value: null, inherits: true, updateFlags: Model.NeedsReconcile})
+  @Property({
+    valueType: Uri,
+    value: null,
+    inherits: true,
+    get updateFlags(): ModelFlags {
+      return Model.NeedsReconcile;
+    },
+  })
   readonly nodeUri!: Property<this, Uri | null, AnyUri | null>;
 
   /** @override */
-  @Property({valueType: Uri, value: null, inherits: true, updateFlags: Model.NeedsReconcile})
+  @Property({
+    valueType: Uri,
+    value: null,
+    inherits: true,
+    get updateFlags(): ModelFlags {
+      return Model.NeedsReconcile;
+    },
+  })
   readonly laneUri!: Property<this, Uri | null, AnyUri | null>;
 
   /** @override */
@@ -1953,10 +1973,12 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
     warpRef.openDownlink(downlink);
   }
 
-  @Property<Model["warpRef"]>({
+  @Property({
     valueType: WarpRef,
     inherits: true,
-    updateFlags: Model.NeedsReconcile,
+    get updateFlags(): ModelFlags {
+      return Model.NeedsReconcile;
+    },
     initValue(): WarpRef {
       return WarpClient.global();
     },
@@ -1999,7 +2021,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
     } else if (Creatable.is(value)) {
       return (value as Creatable<InstanceType<S>>).create();
     } else {
-      return (this as unknown as ModelFactory<InstanceType<S>>).fromInit(value);
+      return (this as unknown as ModelFactory<InstanceType<S>>).fromInit(value as Inits<InstanceType<S>>);
     }
   }
 
@@ -2010,7 +2032,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
       const id = ~~nextId;
       nextId += 1;
       return "model" + id;
-    }
+    };
   })();
 
   /** @internal */
@@ -2026,42 +2048,42 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
   /** @internal */
   static readonly ConsumingFlag: ModelFlags = 1 << (Component.FlagShift + 2);
   /** @internal */
-  static readonly UpdatingMask: ModelFlags = Model.AnalyzingFlag
-                                           | Model.RefreshingFlag;
+  static readonly UpdatingMask: ModelFlags = this.AnalyzingFlag
+                                           | this.RefreshingFlag;
   /** @internal */
-  static readonly StatusMask: ModelFlags = Model.MountedFlag
-                                         | Model.InsertingFlag
-                                         | Model.RemovingFlag
-                                         | Model.AnalyzingFlag
-                                         | Model.RefreshingFlag
-                                         | Model.ConsumingFlag;
+  static readonly StatusMask: ModelFlags = this.MountedFlag
+                                         | this.InsertingFlag
+                                         | this.RemovingFlag
+                                         | this.AnalyzingFlag
+                                         | this.RefreshingFlag
+                                         | this.ConsumingFlag;
 
   static readonly NeedsAnalyze: ModelFlags = 1 << (Component.FlagShift + 3);
   static readonly NeedsMutate: ModelFlags = 1 << (Component.FlagShift + 4);
   static readonly NeedsAggregate: ModelFlags = 1 << (Component.FlagShift + 5);
   static readonly NeedsCorrelate: ModelFlags = 1 << (Component.FlagShift + 6);
   /** @internal */
-  static readonly AnalyzeMask: ModelFlags = Model.NeedsAnalyze
-                                          | Model.NeedsMutate
-                                          | Model.NeedsAggregate
-                                          | Model.NeedsCorrelate;
+  static readonly AnalyzeMask: ModelFlags = this.NeedsAnalyze
+                                          | this.NeedsMutate
+                                          | this.NeedsAggregate
+                                          | this.NeedsCorrelate;
 
   static readonly NeedsRefresh: ModelFlags = 1 << (Component.FlagShift + 7);
   static readonly NeedsValidate: ModelFlags = 1 << (Component.FlagShift + 8);
   static readonly NeedsReconcile: ModelFlags = 1 << (Component.FlagShift + 9);
   /** @internal */
-  static readonly RefreshMask: ModelFlags = Model.NeedsRefresh
-                                          | Model.NeedsValidate
-                                          | Model.NeedsReconcile;
+  static readonly RefreshMask: ModelFlags = this.NeedsRefresh
+                                          | this.NeedsValidate
+                                          | this.NeedsReconcile;
 
   /** @internal */
-  static readonly UpdateMask: ModelFlags = Model.AnalyzeMask
-                                         | Model.RefreshMask;
+  static readonly UpdateMask: ModelFlags = this.AnalyzeMask
+                                         | this.RefreshMask;
 
   /** @internal */
   static override readonly FlagShift: number = Component.FlagShift + 10;
   /** @internal */
-  static override readonly FlagMask: ModelFlags = (1 << Model.FlagShift) - 1;
+  static override readonly FlagMask: ModelFlags = (1 << this.FlagShift) - 1;
 
   static override readonly MountFlags: ModelFlags = 0;
   static override readonly InsertChildFlags: ModelFlags = 0;

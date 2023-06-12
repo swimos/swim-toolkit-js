@@ -12,12 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Angle, Transform} from "@swim/math";
+import {Angle} from "@swim/math";
+import {Transform} from "@swim/math";
 import {Affinity} from "@swim/component";
-import {AnyColor, Color, AnyExpansion, Expansion, ExpansionAnimator} from "@swim/style";
-import {Look, ThemeAnimator} from "@swim/theme";
-import {ViewFlags, View} from "@swim/view";
-import {HtmlView, SvgView} from "@swim/dom";
+import type {AnyColor} from "@swim/style";
+import {Color} from "@swim/style";
+import type {AnyExpansion} from "@swim/style";
+import type {Expansion} from "@swim/style";
+import {ExpansionAnimator} from "@swim/style";
+import {Look} from "@swim/theme";
+import {ThemeAnimator} from "@swim/theme";
+import type {ViewFlags} from "@swim/view";
+import {View} from "@swim/view";
+import {HtmlView} from "@swim/dom";
+import {SvgView} from "@swim/dom";
 
 /** @public */
 export class DisclosureButton extends HtmlView {

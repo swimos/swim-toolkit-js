@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyUri, Uri, UriQuery, AnyUriFragment, UriFragment} from "@swim/uri";
+import type {AnyUri} from "@swim/uri";
+import {Uri} from "@swim/uri";
+import {UriQuery} from "@swim/uri";
+import type {AnyUriFragment} from "@swim/uri";
+import {UriFragment} from "@swim/uri";
 
 /** @internal */
 export interface MutableHistoryState {

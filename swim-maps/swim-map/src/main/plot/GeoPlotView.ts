@@ -12,25 +12,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Class, AnyTiming} from "@swim/util";
-import {Affinity, Property} from "@swim/component";
-import {AnyLength, Length, AnyR2Point, R2Point, R2Box} from "@swim/math";
-import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
-import {AnyFont, Font, AnyColor, Color} from "@swim/style";
+import type {Mutable} from "@swim/util";
+import type {Class} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import type {AnyR2Point} from "@swim/math";
+import {R2Point} from "@swim/math";
+import {R2Box} from "@swim/math";
+import type {AnyGeoPoint} from "@swim/geo";
+import {GeoPoint} from "@swim/geo";
+import {GeoBox} from "@swim/geo";
+import type {AnyFont} from "@swim/style";
+import {Font} from "@swim/style";
+import type {AnyColor} from "@swim/style";
+import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
-import {
-  GraphicsView,
-  StrokeViewInit,
-  StrokeView,
-  PaintingContext,
-  PaintingRenderer,
-  CanvasContext,
-  CanvasRenderer,
-} from "@swim/graphics";
-import {GeoViewInit, GeoView} from "../geo/GeoView";
-import {GeoRippleOptions, GeoRippleView} from "../effect/GeoRippleView";
-import {AnyGeoPointView, GeoPointView} from "./GeoPointView";
+import type {GraphicsView} from "@swim/graphics";
+import type {StrokeViewInit} from "@swim/graphics";
+import type {StrokeView} from "@swim/graphics";
+import type {PaintingContext} from "@swim/graphics";
+import {PaintingRenderer} from "@swim/graphics";
+import type {CanvasContext} from "@swim/graphics";
+import {CanvasRenderer} from "@swim/graphics";
+import type {GeoViewInit} from "../geo/GeoView";
+import {GeoView} from "../geo/GeoView";
+import type {GeoRippleOptions} from "../effect/GeoRippleView";
+import {GeoRippleView} from "../effect/GeoRippleView";
+import type {AnyGeoPointView} from "./GeoPointView";
+import {GeoPointView} from "./GeoPointView";
 import type {GeoPlotViewObserver} from "./GeoPlotViewObserver";
 
 /** @public */

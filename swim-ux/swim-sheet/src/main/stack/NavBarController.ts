@@ -12,27 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, Lazy, Observes} from "@swim/util";
-import {Affinity, FastenerClass, Property} from "@swim/component";
+import {Lazy} from "@swim/util";
+import type {Class} from "@swim/util";
+import type {Observes} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
 import type {Trait} from "@swim/model";
 import {Presence} from "@swim/style";
-import {Look, Mood} from "@swim/theme";
+import {Look} from "@swim/theme";
+import {Mood} from "@swim/theme";
 import type {PositionGestureInput} from "@swim/view";
 import type {HtmlView} from "@swim/dom";
 import {VectorIcon} from "@swim/graphics";
-import {Controller, TraitViewRef, TraitViewControllerRef} from "@swim/controller";
-import {
-  ToolLayout,
-  BarLayout,
-  ToolView,
-  SearchToolView,
-  ToolController,
-  TitleToolController,
-  ButtonToolController,
-  SearchToolController,
-  BarView,
-  BarController,
-} from "@swim/toolbar";
+import {Controller} from "@swim/controller";
+import type {TraitViewRef} from "@swim/controller";
+import {TraitViewControllerRef} from "@swim/controller";
+import {ToolLayout} from "@swim/toolbar";
+import {BarLayout} from "@swim/toolbar";
+import type {ToolView} from "@swim/toolbar";
+import {SearchToolView} from "@swim/toolbar";
+import {ToolController} from "@swim/toolbar";
+import {TitleToolController} from "@swim/toolbar";
+import {ButtonToolController} from "@swim/toolbar";
+import {SearchToolController} from "@swim/toolbar";
+import type {BarView} from "@swim/toolbar";
+import {BarController} from "@swim/toolbar";
 import type {SheetView} from "../sheet/SheetView";
 import {SheetController} from "../sheet/SheetController";
 import type {NavBarControllerObserver} from "./NavBarControllerObserver";
@@ -183,7 +187,7 @@ export class NavBarController extends BarController {
     return BarLayout.create(tools);
   }
 
-  @TraitViewControllerRef<NavBarController["closeButton"]>({
+  @TraitViewControllerRef({
     controllerType: ToolController,
     binds: true,
     viewKey: "closeButton",
@@ -209,9 +213,8 @@ export class NavBarController extends BarController {
     },
   })
   readonly closeButton!: TraitViewControllerRef<this, Trait, ToolView, ToolController> & Observes<ButtonToolController>;
-  static readonly closeButton: FastenerClass<NavBarController["closeButton"]>;
 
-  @TraitViewControllerRef<NavBarController["backButton"]>({
+  @TraitViewControllerRef({
     controllerType: ToolController,
     binds: true,
     viewKey: "backButton",
@@ -237,9 +240,8 @@ export class NavBarController extends BarController {
     },
   })
   readonly backButton!: TraitViewControllerRef<this, Trait, ToolView, ToolController> & Observes<ButtonToolController>;
-  static readonly backButton: FastenerClass<NavBarController["backButton"]>;
 
-  @TraitViewControllerRef<NavBarController["searchButton"]>({
+  @TraitViewControllerRef({
     controllerType: ToolController,
     binds: true,
     viewKey: "searchButton",
@@ -265,9 +267,8 @@ export class NavBarController extends BarController {
     },
   })
   readonly searchButton!: TraitViewControllerRef<this, Trait, ToolView, ToolController> & Observes<ButtonToolController>;
-  static readonly searchButton: FastenerClass<NavBarController["searchButton"]>;
 
-  @TraitViewControllerRef<NavBarController["searchInput"]>({
+  @TraitViewControllerRef({
     controllerType: ToolController,
     binds: true,
     viewKey: "searchInput",
@@ -301,9 +302,8 @@ export class NavBarController extends BarController {
     },
   })
   readonly searchInput!: TraitViewControllerRef<this, Trait, ToolView, ToolController> & Observes<SearchToolController>;
-  static readonly searchInput: FastenerClass<NavBarController["searchInput"]>;
 
-  @TraitViewControllerRef<NavBarController["cancelSearch"]>({
+  @TraitViewControllerRef({
     controllerType: ToolController,
     binds: true,
     viewKey: "cancelSearch",
@@ -331,9 +331,8 @@ export class NavBarController extends BarController {
     },
   })
   readonly cancelSearch!: TraitViewControllerRef<this, Trait, ToolView, ToolController> & Observes<ToolController>;
-  static readonly cancelSearch: FastenerClass<NavBarController["cancelSearch"]>;
 
-  @TraitViewControllerRef<NavBarController["front"]>({
+  @TraitViewControllerRef({
     controllerType: SheetController,
     inherits: true,
     observes: true,
@@ -367,7 +366,6 @@ export class NavBarController extends BarController {
     },
   })
   readonly front!: TraitViewControllerRef<this, Trait, SheetView, SheetController> & Observes<SheetController>;
-  static readonly front: FastenerClass<NavBarController["front"]>;
 
   get closeIcon(): VectorIcon {
     return NavBarController.closeIcon;

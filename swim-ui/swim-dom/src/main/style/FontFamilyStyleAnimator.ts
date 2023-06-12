@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {FontFamily, Font} from "@swim/style";
-import {StyleAnimatorClass, StyleAnimator} from "./StyleAnimator";
+import type {FontFamily} from "@swim/style";
+import {Font} from "@swim/style";
+import type {StyleAnimatorClass} from "./StyleAnimator";
+import {StyleAnimator} from "./StyleAnimator";
 
 /** @internal */
 export interface FontFamilyStyleAnimator<O = unknown, T extends FontFamily | ReadonlyArray<FontFamily> | undefined = FontFamily | ReadonlyArray<FontFamily> | undefined, U extends FontFamily | ReadonlyArray<FontFamily> | undefined = T> extends StyleAnimator<O, T, U> {

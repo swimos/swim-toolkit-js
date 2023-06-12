@@ -13,10 +13,10 @@
 // limitations under the License.
 
 export {MapView} from "./MapView";
-export {MapViewObserver} from "./MapViewObserver";
+export type {MapViewObserver} from "./MapViewObserver";
 
 export {MapTrait} from "./MapTrait";
-export {MapTraitObserver} from "./MapTraitObserver";
+export type {MapTraitObserver} from "./MapTraitObserver";
 
 export {MapController} from "./MapController";
-export {MapControllerObserver} from "./MapControllerObserver";
+export type {MapControllerObserver} from "./MapControllerObserver";

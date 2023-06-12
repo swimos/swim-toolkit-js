@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyGeoPoint, GeoPoint, AnyGeoBox, GeoBox} from "@swim/geo";
+import type {AnyGeoPoint} from "@swim/geo";
+import {GeoPoint} from "@swim/geo";
+import type {AnyGeoBox} from "@swim/geo";
+import {GeoBox} from "@swim/geo";
 
 /** @public */
 export type AnyGeoPerspective = GeoPerspective | GeoPerspectiveInit;

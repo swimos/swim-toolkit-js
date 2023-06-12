@@ -13,14 +13,24 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {Affinity, Property} from "@swim/component";
-import {AnyLength, Length, R2Box} from "@swim/math";
-import {AnyColor, Color} from "@swim/style";
-import {Look, ThemeAnimator} from "@swim/theme";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import type {R2Box} from "@swim/math";
+import type {AnyColor} from "@swim/style";
+import {Color} from "@swim/style";
+import {Look} from "@swim/theme";
+import {ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
-import type {GraphicsView, CanvasContext, CanvasRenderer, StrokeViewInit, StrokeView} from "@swim/graphics";
+import type {GraphicsView} from "@swim/graphics";
+import type {CanvasContext} from "@swim/graphics";
+import type {CanvasRenderer} from "@swim/graphics";
+import type {StrokeViewInit} from "@swim/graphics";
+import type {StrokeView} from "@swim/graphics";
 import type {DataPointView} from "../data/DataPointView";
-import {SeriesPlotViewInit, SeriesPlotView} from "./SeriesPlotView";
+import type {SeriesPlotViewInit} from "./SeriesPlotView";
+import {SeriesPlotView} from "./SeriesPlotView";
 import type {LinePlotViewObserver} from "./LinePlotViewObserver";
 
 /** @public */
@@ -35,7 +45,7 @@ export interface LinePlotViewInit<X = unknown, Y = unknown> extends SeriesPlotVi
 export class LinePlotView<X = unknown, Y = unknown> extends SeriesPlotView<X, Y> implements StrokeView {
   override readonly observerType?: Class<LinePlotViewObserver<X, Y>>;
 
-  @ThemeAnimator<LinePlotView<X, Y>["stroke"]>({
+  @ThemeAnimator({
     valueType: Color,
     value: null,
     look: Look.accentColor,
@@ -46,7 +56,7 @@ export class LinePlotView<X = unknown, Y = unknown> extends SeriesPlotView<X, Y>
   })
   readonly stroke!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @ThemeAnimator<LinePlotView<X, Y>["strokeWidth"]>({
+  @ThemeAnimator({
     valueType: Length,
     value: Length.px(1),
     updateFlags: View.NeedsRender,

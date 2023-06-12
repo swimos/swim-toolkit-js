@@ -18,7 +18,8 @@ import type {BarView} from "@swim/toolbar";
 import type {DrawerView} from "@swim/window";
 import type {SheetView} from "../sheet/SheetView";
 import type {StackView} from "../stack/StackView";
-import type {FolioStyle, FolioView} from "./FolioView";
+import type {FolioStyle} from "./FolioView";
+import type {FolioView} from "./FolioView";
 
 /** @public */
 export interface FolioViewObserver<V extends FolioView = FolioView> extends HtmlViewObserver<V> {

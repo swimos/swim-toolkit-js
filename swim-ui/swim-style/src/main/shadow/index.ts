@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  AnyBoxShadow,
-  BoxShadowInit,
-  BoxShadow,
-} from "./BoxShadow";
+export type {AnyBoxShadow} from "./BoxShadow";
+export type {BoxShadowInit} from "./BoxShadow";
+export {BoxShadow} from "./BoxShadow";
 export {BoxShadowInterpolator} from "./BoxShadowInterpolator";
 export {BoxShadowForm} from "./BoxShadowForm";
 export {BoxShadowParser} from "./BoxShadowParser";

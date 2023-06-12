@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  MutableHistoryState,
-  HistoryStateInit,
-  HistoryState,
-} from "./HistoryState";
+export type {MutableHistoryState} from "./HistoryState";
+export type {HistoryStateInit} from "./HistoryState";
+export {HistoryState} from "./HistoryState";
 
 export {HistoryService} from "./HistoryService";
-export {HistoryServiceObserver} from "./HistoryServiceObserver";
+export type {HistoryServiceObserver} from "./HistoryServiceObserver";

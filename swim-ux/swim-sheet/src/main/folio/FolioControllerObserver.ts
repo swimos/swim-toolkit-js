@@ -14,12 +14,16 @@
 
 import type {Trait} from "@swim/model";
 import type {PositionGestureInput} from "@swim/view";
-import type {ToolView, ToolController, BarView, BarController} from "@swim/toolbar";
+import type {ToolView} from "@swim/toolbar";
+import type {ToolController} from "@swim/toolbar";
+import type {BarView} from "@swim/toolbar";
+import type {BarController} from "@swim/toolbar";
 import type {DrawerView} from "@swim/window";
 import type {SheetView} from "../sheet/SheetView";
 import type {SheetController} from "../sheet/SheetController";
 import type {StackControllerObserver} from "../stack/StackControllerObserver";
-import type {FolioStyle, FolioView} from "./FolioView";
+import type {FolioStyle} from "./FolioView";
+import type {FolioView} from "./FolioView";
 import type {FolioController} from "./FolioController";
 
 /** @public */

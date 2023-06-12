@@ -12,12 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, Instance, Creatable} from "@swim/util";
-import {R2Box, Transform} from "@swim/math";
-import {AnyView, ViewInit, ViewFactory, ViewClass, View} from "@swim/view";
+import type {Class} from "@swim/util";
+import type {Instance} from "@swim/util";
+import {Creatable} from "@swim/util";
+import {R2Box} from "@swim/math";
+import {Transform} from "@swim/math";
+import type {AnyView} from "@swim/view";
+import type {ViewInit} from "@swim/view";
+import type {ViewFactory} from "@swim/view";
+import type {ViewClass} from "@swim/view";
+import {View} from "@swim/view";
 import type {NodeViewObserver} from "./NodeViewObserver";
 import {TextView} from "../"; // forward import
-import {ViewElement, ElementView} from "../"; // forward import
+import type {ViewElement} from "../"; // forward import
+import {ElementView} from "../"; // forward import
 
 /** @public */
 export type ViewNodeType<V extends NodeView> =

@@ -12,13 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Proto, AnyTiming, ContinuousScale} from "@swim/util";
-import type {FastenerFlags, FastenerOwner} from "@swim/component";
+import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import type {ContinuousScale} from "@swim/util";
+import type {FastenerFlags} from "@swim/component";
+import type {FastenerOwner} from "@swim/component";
 import type {R2Box} from "@swim/math";
 import {View} from "../view/View";
 import type {GestureInputType} from "./GestureInput";
 import type {GestureView} from "./Gesture";
-import {MomentumGestureDescriptor, MomentumGestureClass, MomentumGesture} from "./MomentumGesture";
+import type {MomentumGestureDescriptor} from "./MomentumGesture";
+import type {MomentumGestureClass} from "./MomentumGesture";
+import {MomentumGesture} from "./MomentumGesture";
 import {ScaleGestureInput} from "./ScaleGestureInput";
 import {MouseScaleGesture} from "./"; // forward import
 import {TouchScaleGesture} from "./"; // forward import
@@ -33,8 +39,13 @@ export type ScaleGestureY<R extends ScaleGesture<any, any, any, any>> =
   R extends ScaleGesture<any, any, any, infer Y> ? Y : never;
 
 /** @public */
+export type ScaleGestureDecorator<G extends ScaleGesture<any, any, any, any>> = {
+  <T>(target: unknown, context: ClassFieldDecoratorContext<T, G>): (this: T, value: G | undefined) => G;
+};
+
+/** @public */
 export interface ScaleGestureDescriptor<V extends View = View, X = unknown, Y = unknown> extends MomentumGestureDescriptor<V> {
-  extends?: Proto<ScaleGesture<any, any, any, any>> | string | boolean | null;
+  extends?: Proto<ScaleGesture<any, any, any, any>> | boolean | null;
   distanceMin?: number;
   preserveAspectRatio?: boolean;
   wheel?: boolean;
@@ -55,15 +66,15 @@ export interface ScaleGestureClass<G extends ScaleGesture<any, any, any, any> = 
   refine(gestureClass: ScaleGestureClass<any>): void;
 
   /** @override */
-  extend<G2 extends G>(className: string, template: ScaleGestureTemplate<G2>): ScaleGestureClass<G2>;
-  extend<G2 extends G>(className: string, template: ScaleGestureTemplate<G2>): ScaleGestureClass<G2>;
+  extend<G2 extends G>(className: string | symbol, template: ScaleGestureTemplate<G2>): ScaleGestureClass<G2>;
+  extend<G2 extends G>(className: string | symbol, template: ScaleGestureTemplate<G2>): ScaleGestureClass<G2>;
 
   /** @override */
-  define<G2 extends G>(className: string, template: ScaleGestureTemplate<G2>): ScaleGestureClass<G2>;
-  define<G2 extends G>(className: string, template: ScaleGestureTemplate<G2>): ScaleGestureClass<G2>;
+  define<G2 extends G>(className: string | symbol, template: ScaleGestureTemplate<G2>): ScaleGestureClass<G2>;
+  define<G2 extends G>(className: string | symbol, template: ScaleGestureTemplate<G2>): ScaleGestureClass<G2>;
 
   /** @override */
-  <G2 extends G>(template: ScaleGestureTemplate<G2>): PropertyDecorator;
+  <G2 extends G>(template: ScaleGestureTemplate<G2>): ScaleGestureDecorator<G2>;
 
   /** @internal */
   readonly DistanceMin: number;
@@ -247,7 +258,7 @@ export const ScaleGesture = (function (_super: typeof MomentumGesture) {
   };
 
   ScaleGesture.prototype.clearInputs = function (this: ScaleGesture): void {
-    MomentumGesture.prototype.clearInputs.call(this);
+    _super.prototype.clearInputs.call(this);
     this.setFlags(this.flags & ~ScaleGesture.NeedsRescale);
   };
 
@@ -348,34 +359,34 @@ export const ScaleGesture = (function (_super: typeof MomentumGesture) {
   };
 
   ScaleGesture.prototype.viewWillAnimate = function (this: ScaleGesture, view: View): void {
-    MomentumGesture.prototype.viewWillAnimate.call(this, view);
+    _super.prototype.viewWillAnimate.call(this, view);
     if ((this.flags & ScaleGesture.NeedsRescale) !== 0) {
       this.rescale();
     }
   };
 
   ScaleGesture.prototype.onBeginPress = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>, input: ScaleGestureInput<X, Y>, event: Event | null): void {
-    MomentumGesture.prototype.onBeginPress.call(this, input, event);
+    _super.prototype.onBeginPress.call(this, input, event);
     this.updateInputDomain(input);
     this.view!.requireUpdate(View.NeedsAnimate);
     this.setFlags(this.flags | ScaleGesture.NeedsRescale);
   };
 
   ScaleGesture.prototype.onMovePress = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>, input: ScaleGestureInput<X, Y>, event: Event | null): void {
-    MomentumGesture.prototype.onMovePress.call(this, input, event);
+    _super.prototype.onMovePress.call(this, input, event);
     this.view!.requireUpdate(View.NeedsAnimate);
     this.setFlags(this.flags | ScaleGesture.NeedsRescale);
   };
 
   ScaleGesture.prototype.onEndPress = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>, input: ScaleGestureInput<X, Y>, event: Event | null): void {
-    MomentumGesture.prototype.onEndPress.call(this, input, event);
+    _super.prototype.onEndPress.call(this, input, event);
     this.updateInputDomain(input);
     this.view!.requireUpdate(View.NeedsAnimate);
     this.setFlags(this.flags | ScaleGesture.NeedsRescale);
   };
 
   ScaleGesture.prototype.onCancelPress = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>, input: ScaleGestureInput<X, Y>, event: Event | null): void {
-    MomentumGesture.prototype.onCancelPress.call(this, input, event);
+    _super.prototype.onCancelPress.call(this, input, event);
     this.updateInputDomain(input);
     this.view!.requireUpdate(View.NeedsAnimate);
     this.setFlags(this.flags | ScaleGesture.NeedsRescale);
@@ -383,12 +394,12 @@ export const ScaleGesture = (function (_super: typeof MomentumGesture) {
 
   ScaleGesture.prototype.beginCoast = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>, input: ScaleGestureInput<X, Y>, event: Event | null): void {
     if (this.coastCount < 2) {
-      MomentumGesture.prototype.beginCoast.call(this, input, event);
+      _super.prototype.beginCoast.call(this, input, event);
     }
   };
 
   ScaleGesture.prototype.onBeginCoast = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>, input: ScaleGestureInput<X, Y>, event: Event | null): void {
-    MomentumGesture.prototype.onBeginCoast.call(this, input, event);
+    _super.prototype.onBeginCoast.call(this, input, event);
     this.updateInputDomain(input);
     this.conserveMomentum(input);
     this.view!.requireUpdate(View.NeedsAnimate);
@@ -396,7 +407,7 @@ export const ScaleGesture = (function (_super: typeof MomentumGesture) {
   };
 
   ScaleGesture.prototype.onEndCoast = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>, input: ScaleGestureInput<X, Y>, event: Event | null): void {
-    MomentumGesture.prototype.onEndCoast.call(this, input, event);
+    _super.prototype.onEndCoast.call(this, input, event);
     input.disableX = false;
     input.disableY = false;
     this.view!.requireUpdate(View.NeedsAnimate);
@@ -404,7 +415,7 @@ export const ScaleGesture = (function (_super: typeof MomentumGesture) {
   };
 
   ScaleGesture.prototype.onCoast = function (this: ScaleGesture): void {
-    MomentumGesture.prototype.onCoast.call(this);
+    _super.prototype.onCoast.call(this);
     this.view!.requireUpdate(View.NeedsAnimate);
     this.setFlags(this.flags | ScaleGesture.NeedsRescale);
   };
@@ -1103,7 +1114,7 @@ export const ScaleGesture = (function (_super: typeof MomentumGesture) {
         superClass = MouseScaleGesture;
       }
     }
-    return superClass
+    return superClass;
   };
 
   ScaleGesture.refine = function (gestureClass: ScaleGestureClass<any>): void {

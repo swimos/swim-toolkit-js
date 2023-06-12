@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  AnyColor,
-  ColorInit,
-  Color,
-} from "./Color";
+export type {AnyColor} from "./Color";
+export type {ColorInit} from "./Color";
+export {Color} from "./Color";
 
 export {ColorForm} from "./ColorForm";
 

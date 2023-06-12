@@ -15,14 +15,16 @@
 import type {Class} from "@swim/util";
 import {Property} from "@swim/component";
 import {Trait} from "@swim/model";
-import {AnyColorOrLook, ColorOrLook, ColorLook} from "@swim/theme";
+import type {AnyColorOrLook} from "@swim/theme";
+import type {ColorOrLook} from "@swim/theme";
+import {ColorLook} from "@swim/theme";
 import type {DialTraitObserver} from "./DialTraitObserver";
 
 /** @public */
 export class DialTrait extends Trait {
   override readonly observerType?: Class<DialTraitObserver>;
 
-  @Property<DialTrait["value"]>({
+  @Property({
     valueType: Number,
     value: 0,
     didSetValue(value: number): void {
@@ -31,7 +33,7 @@ export class DialTrait extends Trait {
   })
   readonly value!: Property<this, number>;
 
-  @Property<DialTrait["limit"]>({
+  @Property({
     valueType: Number,
     value: 1,
     didSetValue(limit: number): void {
@@ -40,7 +42,7 @@ export class DialTrait extends Trait {
   })
   readonly limit!: Property<this, number>;
 
-  @Property<DialTrait["dialColor"]>({
+  @Property({
     valueType: ColorLook,
     value: null,
     didSetValue(dialColor: ColorOrLook | null): void {
@@ -49,7 +51,7 @@ export class DialTrait extends Trait {
   })
   readonly dialColor!: Property<this, ColorOrLook | null, AnyColorOrLook | null>;
 
-  @Property<DialTrait["meterColor"]>({
+  @Property({
     valueType: ColorLook,
     value: null,
     didSetValue(meterColor: ColorOrLook | null): void {
@@ -62,7 +64,7 @@ export class DialTrait extends Trait {
     return void 0;
   }
 
-  @Property<DialTrait["label"]>({
+  @Property({
     valueType: String,
     didSetValue(label: string | undefined): void {
       this.owner.callObservers("traitDidSetLabel", label, this.owner);
@@ -74,7 +76,7 @@ export class DialTrait extends Trait {
     return void 0;
   }
 
-  @Property<DialTrait["legend"]>({
+  @Property({
     valueType: String,
     didSetValue(legend: string | undefined): void {
       this.owner.callObservers("traitDidSetLegend", legend, this.owner);

@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyLength, Length} from "@swim/math";
-import {AttributeAnimatorClass, AttributeAnimator} from "./AttributeAnimator";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import type {AttributeAnimatorClass} from "./AttributeAnimator";
+import {AttributeAnimator} from "./AttributeAnimator";
 
 /** @internal */
 export interface LengthAttributeAnimator<O = unknown, T extends Length | null = Length | null, U extends AnyLength | null = AnyLength | T> extends AttributeAnimator<O, T, U> {

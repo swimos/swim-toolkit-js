@@ -12,10 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, AnyTiming} from "@swim/util";
-import {Affinity, FastenerClass, Property} from "@swim/component";
+import type {Mutable} from "@swim/util";
+import type {Class} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
 import {R2Box} from "@swim/math";
-import {ViewFlags, View, ViewRef} from "@swim/view";
+import type {ViewFlags} from "@swim/view";
+import {View} from "@swim/view";
+import {ViewRef} from "@swim/view";
 import type {HtmlView} from "@swim/dom";
 import type {CanvasView} from "@swim/graphics";
 import type {AnyGeoPerspective} from "../geo/GeoPerspective";
@@ -29,12 +34,12 @@ import type {WorldMapViewObserver} from "./WorldMapViewObserver";
 export class WorldMapView extends MapView {
   constructor(geoViewport: WorldMapViewport) {
     super();
-    this.geoViewport.setValue(geoViewport, Affinity.Intrinsic);
+    (this.geoViewport as Mutable<typeof this.geoViewport>).value = geoViewport;
   }
 
   override readonly observerType?: Class<WorldMapViewObserver>;
 
-  @Property<WorldMapView["geoViewport"]>({
+  @Property({
     extends: true,
     willSetValue(newGeoViewport: GeoViewport, oldGeoViewport: GeoViewport): void {
       this.owner.callObservers("viewWillSetGeoViewport", newGeoViewport, oldGeoViewport, this.owner);
@@ -64,32 +69,31 @@ export class WorldMapView extends MapView {
     // nop
   }
 
-  @ViewRef<WorldMapView["canvas"]>({
+  @ViewRef({
     extends: true,
     didAttachView(canvasView: CanvasView, targetView: View | null): void {
       if (this.owner.parent === null) {
         canvasView.appendChild(this.owner);
       }
-      MapView.canvas.prototype.didAttachView.call(this, canvasView, targetView);
+      super.didAttachView(canvasView, targetView);
     },
     willDetachView(canvasView: CanvasView): void {
-      MapView.canvas.prototype.willDetachView.call(this, canvasView);
+      super.willDetachView(canvasView);
       if (this.owner.parent === canvasView) {
         canvasView.removeChild(this.owner);
       }
     },
   })
   override readonly canvas!: ViewRef<this, CanvasView> & MapView["canvas"];
-  static override readonly canvas: FastenerClass<WorldMapView["canvas"]>;
 
-  @ViewRef<WorldMapView["container"]>({
+  @ViewRef({
     extends: true,
     didAttachView(containerView: HtmlView, targetView: View | null): void {
       this.owner.canvas.insertView(containerView);
-      MapView.container.prototype.didAttachView.call(this, containerView, targetView);
+      super.didAttachView(containerView, targetView);
     },
     willDetachView(containerView: HtmlView): void {
-      MapView.container.prototype.willDetachView.call(this, containerView);
+      super.willDetachView(containerView);
       const canvasView = this.owner.canvas.view;
       if (canvasView !== null && canvasView.parent === containerView) {
         containerView.removeChild(canvasView);
@@ -97,7 +101,6 @@ export class WorldMapView extends MapView {
     },
   })
   override readonly container!: ViewRef<this, HtmlView> & MapView["container"];
-  static override readonly container: FastenerClass<WorldMapView["container"]>;
 
   static override create(geoViewport?: WorldMapViewport): WorldMapView;
   static override create(): WorldMapView;

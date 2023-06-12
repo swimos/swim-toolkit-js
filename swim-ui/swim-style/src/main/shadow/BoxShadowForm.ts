@@ -12,10 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Item, Record, Form} from "@swim/structure";
+import type {Item} from "@swim/structure";
+import {Record} from "@swim/structure";
+import {Form} from "@swim/structure";
 import {Length} from "@swim/math";
 import {Color} from "../color/Color";
-import {AnyBoxShadow, BoxShadow} from "./BoxShadow";
+import type {AnyBoxShadow} from "./BoxShadow";
+import {BoxShadow} from "./BoxShadow";
 
 /** @internal */
 export class BoxShadowForm extends Form<BoxShadow | null, AnyBoxShadow> {

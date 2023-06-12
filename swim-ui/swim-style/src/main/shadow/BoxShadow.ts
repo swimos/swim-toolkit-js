@@ -12,11 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Lazy, Equals, Equivalent, Mutable, Interpolate, Interpolator} from "@swim/util";
-import {Parser, Diagnostic, Unicode} from "@swim/codec";
-import {Item, Value, Text, Form} from "@swim/structure";
-import {AnyLength, Length} from "@swim/math";
-import {AnyColor, Color} from "../color/Color";
+import type {Mutable} from "@swim/util";
+import {Lazy} from "@swim/util";
+import {Equals} from "@swim/util";
+import {Equivalent} from "@swim/util";
+import type {Interpolate} from "@swim/util";
+import type {Interpolator} from "@swim/util";
+import {Diagnostic} from "@swim/codec";
+import {Parser} from "@swim/codec";
+import {Unicode} from "@swim/codec";
+import type {Item} from "@swim/structure";
+import {Value} from "@swim/structure";
+import {Text} from "@swim/structure";
+import type {Form} from "@swim/structure";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import type {AnyColor} from "../color/Color";
+import {Color} from "../color/Color";
 import {BoxShadowInterpolator} from "../"; // forward import
 import {BoxShadowForm} from "../"; // forward import
 import {BoxShadowParser} from "../"; // forward import

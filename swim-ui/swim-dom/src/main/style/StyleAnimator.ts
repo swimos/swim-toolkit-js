@@ -12,11 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Proto} from "@swim/util";
-import type {FastenerOwner, AnimatorValue, AnimatorValueInit} from "@swim/component";
-import {Length, Transform} from "@swim/math";
-import {FontFamily, Color, BoxShadow} from "@swim/style";
-import {ThemeAnimatorDescriptor, ThemeAnimatorClass, ThemeAnimator} from "@swim/theme";
+import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
+import type {FastenerOwner} from "@swim/component";
+import type {AnimatorValue} from "@swim/component";
+import type {AnimatorValueInit} from "@swim/component";
+import {Length} from "@swim/math";
+import {Transform} from "@swim/math";
+import {FontFamily} from "@swim/style";
+import {Color} from "@swim/style";
+import {BoxShadow} from "@swim/style";
+import type {ThemeAnimatorDescriptor} from "@swim/theme";
+import type {ThemeAnimatorClass} from "@swim/theme";
+import {ThemeAnimator} from "@swim/theme";
 import {StringStyleAnimator} from "./"; // forward import
 import {NumberStyleAnimator} from "./"; // forward import
 import {LengthStyleAnimator} from "./"; // forward import
@@ -27,8 +35,13 @@ import {BoxShadowStyleAnimator} from "./"; // forward import
 import {StyleContext} from "../"; // forward import
 
 /** @public */
+export type StyleAnimatorDecorator<A extends StyleAnimator<any, any, any>> = {
+  <T>(target: unknown, context: ClassFieldDecoratorContext<T, A>): (this: T, value: A | undefined) => A;
+};
+
+/** @public */
 export interface StyleAnimatorDescriptor<T = unknown, U = T> extends ThemeAnimatorDescriptor<T, U> {
-  extends?: Proto<StyleAnimator<any, any, any>> | string | boolean | null;
+  extends?: Proto<StyleAnimator<any, any, any>> | boolean | null;
   propertyNames?: string | ReadonlyArray<string>;
 }
 
@@ -47,15 +60,15 @@ export interface StyleAnimatorClass<A extends StyleAnimator<any, any, any> = Sty
   refine(animatorClass: StyleAnimatorClass<any>): void;
 
   /** @override */
-  extend<A2 extends A>(className: string, template: StyleAnimatorTemplate<A2>): StyleAnimatorClass<A2>;
-  extend<A2 extends A>(className: string, template: StyleAnimatorTemplate<A2>): StyleAnimatorClass<A2>;
+  extend<A2 extends A>(className: string | symbol, template: StyleAnimatorTemplate<A2>): StyleAnimatorClass<A2>;
+  extend<A2 extends A>(className: string | symbol, template: StyleAnimatorTemplate<A2>): StyleAnimatorClass<A2>;
 
   /** @override */
-  define<A2 extends A>(className: string, template: StyleAnimatorTemplate<A2>): StyleAnimatorClass<A2>;
-  define<A2 extends A>(className: string, template: StyleAnimatorTemplate<A2>): StyleAnimatorClass<A2>;
+  define<A2 extends A>(className: string | symbol, template: StyleAnimatorTemplate<A2>): StyleAnimatorClass<A2>;
+  define<A2 extends A>(className: string | symbol, template: StyleAnimatorTemplate<A2>): StyleAnimatorClass<A2>;
 
   /** @override */
-  <A2 extends A>(template: StyleAnimatorTemplate<A2>): PropertyDecorator;
+  <A2 extends A>(template: StyleAnimatorTemplate<A2>): StyleAnimatorDecorator<A2>;
 }
 
 /** @public */
@@ -103,12 +116,12 @@ export const StyleAnimator = (function (_super: typeof ThemeAnimator) {
     get: function <T>(this: StyleAnimator<unknown, T>): T {
       const styleContext = this.owner;
       if (StyleContext.is(styleContext)) {
-        let value = styleContext.getStyle(this.propertyNames);
+        let value: T | CSSStyleValue | string | undefined = styleContext.getStyle(this.propertyNames);
         if (typeof CSSStyleValue !== "undefined" && value instanceof CSSStyleValue) { // CSS Typed OM support
           try {
             value = this.fromCssValue(value);
           } catch (e) {
-            value = value.toString(); // coerce to string on decode error
+            value = "" + value; // coerce to string on decode error
           }
         }
         if (typeof value === "string" && value.length !== 0) {
@@ -128,8 +141,9 @@ export const StyleAnimator = (function (_super: typeof ThemeAnimator) {
     const propertyValue = this.propertyValue;
     if (propertyValue === void 0 || propertyValue === null) {
       let message = propertyValue + " ";
-      if (this.name.length !== 0) {
-        message += this.name + " ";
+      const name = this.name.toString();
+      if (name.length !== 0) {
+        message += name + " ";
       }
       message += "property value";
       throw new TypeError(message);
@@ -174,8 +188,9 @@ export const StyleAnimator = (function (_super: typeof ThemeAnimator) {
     const computedValue = this.computedValue;
     if (computedValue === void 0 || computedValue === null) {
       let message = computedValue + " ";
-      if (this.name.length !== 0) {
-        message += this.name + " ";
+      const name = this.name.toString();
+      if (name.length !== 0) {
+        message += name + " ";
       }
       message += "computed value";
       throw new TypeError(message);
@@ -198,8 +213,9 @@ export const StyleAnimator = (function (_super: typeof ThemeAnimator) {
     const cssValue = this.cssValue;
     if (cssValue === void 0 || cssValue === null) {
       let message = cssValue + " ";
-      if (this.name.length !== 0) {
-        message += this.name + " ";
+      const name = this.name.toString();
+      if (name.length !== 0) {
+        message += name + " ";
       }
       message += "css value";
       throw new TypeError(message);
@@ -222,8 +238,9 @@ export const StyleAnimator = (function (_super: typeof ThemeAnimator) {
     const cssState = this.cssState;
     if (cssState === void 0 || cssState === null) {
       let message = cssState + " ";
-      if (this.name.length !== 0) {
-        message += this.name + " ";
+      const name = this.name.toString();
+      if (name.length !== 0) {
+        message += name + " ";
       }
       message += "css state";
       throw new TypeError(message);
@@ -295,7 +312,7 @@ export const StyleAnimator = (function (_super: typeof ThemeAnimator) {
         superClass = this;
       }
     }
-    return superClass
+    return superClass;
   };
 
   return StyleAnimator;

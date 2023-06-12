@@ -14,8 +14,11 @@
 
 import type {Class} from "@swim/util";
 import {Property} from "@swim/component";
-import {AnyLength, Length} from "@swim/math";
-import {AnyColorOrLook, ColorOrLook, ColorLook} from "@swim/theme";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import type {AnyColorOrLook} from "@swim/theme";
+import type {ColorOrLook} from "@swim/theme";
+import {ColorLook} from "@swim/theme";
 import {SeriesPlotTrait} from "./SeriesPlotTrait";
 import type {LinePlotTraitObserver} from "./LinePlotTraitObserver";
 import type {SeriesPlotController} from "./SeriesPlotController";
@@ -25,7 +28,7 @@ import {LinePlotController} from "./"; // forward import
 export class LinePlotTrait<X = unknown, Y = unknown> extends SeriesPlotTrait<X, Y> {
   override readonly observerType?: Class<LinePlotTraitObserver<X, Y>>;
 
-  @Property<LinePlotTrait<X, Y>["stroke"]>({
+  @Property({
     valueType: ColorLook,
     value: null,
     didSetValue(stroke: ColorOrLook | null): void {
@@ -34,7 +37,7 @@ export class LinePlotTrait<X = unknown, Y = unknown> extends SeriesPlotTrait<X, 
   })
   readonly stroke!: Property<this, ColorOrLook | null, AnyColorOrLook | null>;
 
-  @Property<LinePlotTrait<X, Y>["strokeWidth"]>({
+  @Property({
     valueType: Length,
     value: null,
     didSetValue(strokeWidth: Length | null): void {

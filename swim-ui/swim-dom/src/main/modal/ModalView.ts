@@ -14,7 +14,9 @@
 
 import type {Class} from "@swim/util";
 import {Property} from "@swim/component";
-import {AnyPresence, Presence, PresenceAnimator} from "@swim/style";
+import type {AnyPresence} from "@swim/style";
+import type {Presence} from "@swim/style";
+import {PresenceAnimator} from "@swim/style";
 import {ElementView} from "../element/ElementView";
 import type {ModalViewObserver} from "./ModalViewObserver";
 

@@ -13,11 +13,13 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {FastenerClass, Service} from "@swim/component";
+import {Service} from "@swim/component";
 import {ViewSet} from "@swim/view";
-import type {ViewNode, NodeView} from "../node/NodeView";
+import type {ViewNode} from "../node/NodeView";
+import type {NodeView} from "../node/NodeView";
 import type {TextView} from "../text/TextView";
-import {ViewElement, ElementView} from "../"; // forward import
+import type {ViewElement} from "../element/ElementView"; // forward import
+import {ElementView} from "../"; // forward import
 import {HtmlView} from "../"; // forward import
 import {SvgView} from "../"; // forward import
 import type {DomServiceObserver} from "./DomServiceObserver";
@@ -27,7 +29,7 @@ export class DomService extends Service {
   /** @override */
   override readonly observerType?: Class<DomServiceObserver>;
 
-  @ViewSet<DomService["roots"]>({
+  @ViewSet({
     initView(rootView: ElementView): void {
       if (rootView.node.hasAttribute("swim-app")) {
         this.owner.materializeView(rootView);
@@ -47,7 +49,6 @@ export class DomService extends Service {
     },
   })
   readonly roots!: ViewSet<this, ElementView>;
-  static readonly roots: FastenerClass<DomService["roots"]>;
 
   materializeView(parentView: NodeView): void {
     const childNodes = parentView.node.childNodes;

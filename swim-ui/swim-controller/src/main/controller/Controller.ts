@@ -12,44 +12,41 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  Mutable,
-  Class,
-  Instance,
-  Arrays,
-  FromAny,
-  Creatable,
-  Inits,
-  Initable,
-  Consumer,
-  Consumable,
-} from "@swim/util";
-import {
-  FastenerClass,
-  Fastener,
-  Property,
-  Provider,
-  ComponentFlags,
-  ComponentInit,
-  Component,
-} from "@swim/component";
-import {AnyValue, Value} from "@swim/structure";
-import {AnyUri, Uri} from "@swim/uri";
-import {
-  WarpDownlinkModel,
-  WarpDownlink,
-  EventDownlinkTemplate,
-  EventDownlink,
-  ValueDownlinkTemplate,
-  ValueDownlink,
-  ListDownlinkTemplate,
-  ListDownlink,
-  MapDownlinkTemplate,
-  MapDownlink,
-  WarpRef,
-  WarpClient,
-} from "@swim/client";
-import {ModelRelation, TraitRelation} from "@swim/model";
+import type {Mutable} from "@swim/util";
+import type {Class} from "@swim/util";
+import type {Instance} from "@swim/util";
+import {Arrays} from "@swim/util";
+import type {FromAny} from "@swim/util";
+import {Creatable} from "@swim/util";
+import type {Inits} from "@swim/util";
+import type {Initable} from "@swim/util";
+import type {Consumer} from "@swim/util";
+import type {Consumable} from "@swim/util";
+import {FastenerContext} from "@swim/component";
+import type {Fastener} from "@swim/component";
+import {Property} from "@swim/component";
+import {Provider} from "@swim/component";
+import type {ComponentFlags} from "@swim/component";
+import type {ComponentInit} from "@swim/component";
+import {Component} from "@swim/component";
+import type {AnyValue} from "@swim/structure";
+import {Value} from "@swim/structure";
+import type {AnyUri} from "@swim/uri";
+import {Uri} from "@swim/uri";
+import type {WarpDownlinkModel} from "@swim/client";
+import {WarpDownlink} from "@swim/client";
+import type {EventDownlinkTemplate} from "@swim/client";
+import {EventDownlink} from "@swim/client";
+import type {ValueDownlinkTemplate} from "@swim/client";
+import {ValueDownlink} from "@swim/client";
+import type {ListDownlinkTemplate} from "@swim/client";
+import {ListDownlink} from "@swim/client";
+import type {MapDownlinkTemplate} from "@swim/client";
+import {MapDownlink} from "@swim/client";
+import {WarpRef} from "@swim/client";
+import {WarpClient} from "@swim/client";
+import {ModelRelation} from "@swim/model";
+import {TraitRelation} from "@swim/model";
 import type {ControllerObserver} from "./ControllerObserver";
 import {ControllerRelation} from "./"; // forward import
 import {TraitViewRef} from "../"; // forward import
@@ -861,9 +858,9 @@ export class Controller extends Component<Controller> implements Initable<Contro
 
   /** @internal */
   protected startConsumingFasteners(): void {
-    const fasteners = this.fasteners;
-    for (const fastenerName in fasteners) {
-      const fastener = fasteners[fastenerName]!;
+    const fastenerNames = FastenerContext.getFastenerNames(this);
+    for (let i = 0; i < fastenerNames.length; i += 1) {
+      const fastener = this[fastenerNames[i]!];
       if (fastener instanceof WarpDownlink && fastener.consumed === true) {
         fastener.consume(this);
       } else if (fastener instanceof ControllerRelation && fastener.consumed === true) {
@@ -880,9 +877,9 @@ export class Controller extends Component<Controller> implements Initable<Contro
 
   /** @internal */
   protected stopConsumingFasteners(): void {
-    const fasteners = this.fasteners;
-    for (const fastenerName in fasteners) {
-      const fastener = fasteners[fastenerName]!;
+    const fastenerNames = FastenerContext.getFastenerNames(this);
+    for (let i = 0; i < fastenerNames.length; i += 1) {
+      const fastener = this[fastenerNames[i]!];
       if (fastener instanceof WarpDownlink && fastener.consumed === true) {
         fastener.unconsume(this);
       } else if (fastener instanceof ControllerRelation && fastener.consumed === true) {
@@ -901,48 +898,66 @@ export class Controller extends Component<Controller> implements Initable<Contro
     return this.updater.getService().updateTime;
   }
 
-  @Provider<Controller["updater"]>({
+  @Provider({
     get serviceType(): typeof ExecutorService { // avoid static forward reference
       return ExecutorService;
     },
     mountRootService(service: ExecutorService): void {
-      Provider.prototype.mountRootService.call(this, service);
+      super.mountRootService(service);
       service.roots.addController(this.owner);
     },
     unmountRootService(service: ExecutorService): void {
-      Provider.prototype.unmountRootService.call(this, service);
+      super.unmountRootService(service);
       service.roots.removeController(this.owner);
     },
   })
   readonly updater!: Provider<this, ExecutorService>;
-  static readonly updater: FastenerClass<Controller["updater"]>;
 
-  @Provider<Controller["history"]>({
+  @Provider({
     get serviceType(): typeof HistoryService { // avoid static forward reference
       return HistoryService;
     },
   })
   readonly history!: Provider<this, HistoryService>;
-  static readonly history: FastenerClass<Controller["history"]>;
 
-  @Provider<Controller["storage"]>({
+  @Provider({
     get serviceType(): typeof StorageService { // avoid static forward reference
       return StorageService;
     },
   })
   readonly storage!: Provider<this, StorageService>;
-  static readonly storage: FastenerClass<Controller["storage"]>;
 
   /** @override */
-  @Property({valueType: Uri, value: null, inherits: true, updateFlags: Controller.NeedsRevise})
+  @Property({
+    valueType: Uri,
+    value: null,
+    inherits: true,
+    get updateFlags(): ControllerFlags {
+      return Controller.NeedsRevise;
+    },
+  })
   readonly hostUri!: Property<this, Uri | null, AnyUri | null>;
 
   /** @override */
-  @Property({valueType: Uri, value: null, inherits: true, updateFlags: Controller.NeedsRevise})
+  @Property({
+    valueType: Uri,
+    value: null,
+    inherits: true,
+    get updateFlags(): ControllerFlags {
+      return Controller.NeedsRevise;
+    },
+  })
   readonly nodeUri!: Property<this, Uri | null, AnyUri | null>;
 
   /** @override */
-  @Property({valueType: Uri, value: null, inherits: true, updateFlags: Controller.NeedsRevise})
+  @Property({
+    valueType: Uri,
+    value: null,
+    inherits: true,
+    get updateFlags(): ControllerFlags {
+      return Controller.NeedsRevise;
+    },
+  })
   readonly laneUri!: Property<this, Uri | null, AnyUri | null>;
 
   /** @override */
@@ -1123,10 +1138,12 @@ export class Controller extends Component<Controller> implements Initable<Contro
     warpRef.openDownlink(downlink);
   }
 
-  @Property<Controller["warpRef"]>({
+  @Property({
     valueType: WarpRef,
     inherits: true,
-    updateFlags: Controller.NeedsRevise,
+    get updateFlags(): ControllerFlags {
+      return Controller.NeedsRevise;
+    },
     initValue(): WarpRef {
       return WarpClient.global();
     },
@@ -1169,7 +1186,7 @@ export class Controller extends Component<Controller> implements Initable<Contro
     } else if (Creatable.is(value)) {
       return (value as Creatable<InstanceType<S>>).create();
     } else {
-      return (this as unknown as ControllerFactory<InstanceType<S>>).fromInit(value);
+      return (this as unknown as ControllerFactory<InstanceType<S>>).fromInit(value as Inits<InstanceType<S>>);
     }
   }
 
@@ -1180,7 +1197,7 @@ export class Controller extends Component<Controller> implements Initable<Contro
       const id = ~~nextId;
       nextId += 1;
       return "controller" + id;
-    }
+    };
   })();
 
   /** @internal */
@@ -1196,41 +1213,41 @@ export class Controller extends Component<Controller> implements Initable<Contro
   /** @internal */
   static readonly ConsumingFlag: ControllerFlags = 1 << (Component.FlagShift + 2);
   /** @internal */
-  static readonly UpdatingMask: ControllerFlags = Controller.CompilingFlag
-                                                | Controller.ExecutingFlag;
+  static readonly UpdatingMask: ControllerFlags = this.CompilingFlag
+                                                | this.ExecutingFlag;
   /** @internal */
-  static readonly StatusMask: ControllerFlags = Controller.MountedFlag
-                                              | Controller.InsertingFlag
-                                              | Controller.RemovingFlag
-                                              | Controller.CompilingFlag
-                                              | Controller.ExecutingFlag;
+  static readonly StatusMask: ControllerFlags = this.MountedFlag
+                                              | this.InsertingFlag
+                                              | this.RemovingFlag
+                                              | this.CompilingFlag
+                                              | this.ExecutingFlag;
 
   static readonly NeedsCompile: ControllerFlags = 1 << (Component.FlagShift + 3);
   static readonly NeedsResolve: ControllerFlags = 1 << (Component.FlagShift + 4);
   static readonly NeedsGenerate: ControllerFlags = 1 << (Component.FlagShift + 5);
   static readonly NeedsAssemble: ControllerFlags = 1 << (Component.FlagShift + 6);
   /** @internal */
-  static readonly CompileMask: ControllerFlags = Controller.NeedsCompile
-                                               | Controller.NeedsResolve
-                                               | Controller.NeedsGenerate
-                                               | Controller.NeedsAssemble;
+  static readonly CompileMask: ControllerFlags = this.NeedsCompile
+                                               | this.NeedsResolve
+                                               | this.NeedsGenerate
+                                               | this.NeedsAssemble;
 
   static readonly NeedsExecute: ControllerFlags = 1 << (Component.FlagShift + 7);
   static readonly NeedsRevise: ControllerFlags = 1 << (Component.FlagShift + 8);
   static readonly NeedsCompute: ControllerFlags = 1 << (Component.FlagShift + 9);
   /** @internal */
-  static readonly ExecuteMask: ControllerFlags = Controller.NeedsExecute
-                                               | Controller.NeedsRevise
-                                               | Controller.NeedsCompute;
+  static readonly ExecuteMask: ControllerFlags = this.NeedsExecute
+                                               | this.NeedsRevise
+                                               | this.NeedsCompute;
 
   /** @internal */
-  static readonly UpdateMask: ControllerFlags = Controller.CompileMask
-                                              | Controller.ExecuteMask;
+  static readonly UpdateMask: ControllerFlags = this.CompileMask
+                                              | this.ExecuteMask;
 
   /** @internal */
   static override readonly FlagShift: number = Component.FlagShift + 10;
   /** @internal */
-  static override readonly FlagMask: ControllerFlags = (1 << Controller.FlagShift) - 1;
+  static override readonly FlagMask: ControllerFlags = (1 << this.FlagShift) - 1;
 
   static override readonly MountFlags: ControllerFlags = 0;
   static override readonly InsertChildFlags: ControllerFlags = 0;

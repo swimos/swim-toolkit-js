@@ -13,10 +13,10 @@
 // limitations under the License.
 
 export {NavBarController} from "./NavBarController";
-export {NavBarControllerObserver} from "./NavBarControllerObserver";
+export type {NavBarControllerObserver} from "./NavBarControllerObserver";
 
 export {StackView} from "./StackView";
-export {StackViewObserver} from "./StackViewObserver";
+export type {StackViewObserver} from "./StackViewObserver";
 
 export {StackController} from "./StackController";
-export {StackControllerObserver} from "./StackControllerObserver";
+export type {StackControllerObserver} from "./StackControllerObserver";

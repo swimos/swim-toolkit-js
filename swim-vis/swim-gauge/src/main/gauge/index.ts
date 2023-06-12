@@ -12,15 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  AnyGaugeView,
-  GaugeViewInit,
-  GaugeView,
-} from "./GaugeView";
-export {GaugeViewObserver} from "./GaugeViewObserver";
+export type {AnyGaugeView} from "./GaugeView";
+export type {GaugeViewInit} from "./GaugeView";
+export {GaugeView} from "./GaugeView";
+export type {GaugeViewObserver} from "./GaugeViewObserver";
 
 export {GaugeTrait} from "./GaugeTrait";
-export {GaugeTraitObserver} from "./GaugeTraitObserver";
+export type {GaugeTraitObserver} from "./GaugeTraitObserver";
 
 export {GaugeController} from "./GaugeController";
-export {GaugeControllerObserver} from "./GaugeControllerObserver";
+export type {GaugeControllerObserver} from "./GaugeControllerObserver";

@@ -12,24 +12,41 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, AnyTiming, Timing, Observes} from "@swim/util";
-import {Affinity, FastenerClass, Animator} from "@swim/component";
-import {AnyLength, Length, Angle, Transform} from "@swim/math";
-import {AnyColor, Color} from "@swim/style";
-import {Look, Feel, MoodVector, ThemeMatrix, ThemeAnimator} from "@swim/theme";
-import {ViewFlags, View, ViewRef, PositionGesture} from "@swim/view";
-import type {HtmlView, HtmlViewObserver} from "@swim/dom";
-import {
-  Graphics,
-  Icon,
-  FilledIcon,
-  IconViewInit,
-  IconView,
-  IconGraphicsAnimator,
-  SvgIconView,
-} from "@swim/graphics";
+import type {Class} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {Timing} from "@swim/util";
+import type {Observes} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
+import {Animator} from "@swim/component";
+import {EventHandler} from "@swim/component";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import {Angle} from "@swim/math";
+import {Transform} from "@swim/math";
+import type {AnyColor} from "@swim/style";
+import {Color} from "@swim/style";
+import {Look} from "@swim/theme";
+import {Feel} from "@swim/theme";
+import type {MoodVector} from "@swim/theme";
+import type {ThemeMatrix} from "@swim/theme";
+import {ThemeAnimator} from "@swim/theme";
+import {View} from "@swim/view";
+import {ViewRef} from "@swim/view";
+import {ViewSet} from "@swim/view";
+import {PositionGesture} from "@swim/view";
+import type {HtmlView} from "@swim/dom";
+import type {HtmlViewObserver} from "@swim/dom";
+import {Graphics} from "@swim/graphics";
+import {Icon} from "@swim/graphics";
+import {FilledIcon} from "@swim/graphics";
+import type {IconViewInit} from "@swim/graphics";
+import {IconView} from "@swim/graphics";
+import {IconGraphicsAnimator} from "@swim/graphics";
+import {SvgIconView} from "@swim/graphics";
 import type {ButtonObserver} from "./ButtonObserver";
-import {ButtonMembraneInit, ButtonMembrane} from "./ButtonMembrane";
+import type {ButtonMembraneInit} from "./ButtonMembrane";
+import {ButtonMembrane} from "./ButtonMembrane";
 
 /** @public */
 export interface IconButtonInit extends ButtonMembraneInit, IconViewInit {
@@ -39,9 +56,6 @@ export interface IconButtonInit extends ButtonMembraneInit, IconViewInit {
 export class IconButton extends ButtonMembrane implements IconView {
   constructor(node: HTMLElement) {
     super(node);
-    this.iconCount = 0;
-    this.icon = null;
-    this.onClick = this.onClick.bind(this);
     this.initButton();
     this.initTheme();
   }
@@ -82,24 +96,25 @@ export class IconButton extends ButtonMembrane implements IconView {
   @ThemeAnimator({valueType: Length, value: Length.px(24), updateFlags: View.NeedsLayout})
   readonly iconHeight!: ThemeAnimator<this, Length | null, AnyLength | null>;
 
-  @ThemeAnimator<IconButton["iconColor"]>({
+  @ThemeAnimator({
     valueType: Color,
     value: null,
     updateFlags: View.NeedsLayout,
     didSetState(iconColor: Color | null): void {
-      if (iconColor !== null) {
-        const oldGraphics = this.owner.graphics.value;
-        if (oldGraphics instanceof FilledIcon) {
-          const newGraphics = oldGraphics.withFillColor(iconColor);
-          const timing = this.timing !== null ? this.timing : false;
-          this.owner.graphics.setState(newGraphics, timing, Affinity.Reflexive);
-        }
+      if (iconColor === null) {
+        return;
+      }
+      const oldGraphics = this.owner.graphics.value;
+      if (oldGraphics instanceof FilledIcon) {
+        const newGraphics = oldGraphics.withFillColor(iconColor);
+        const timing = this.timing !== null ? this.timing : false;
+        this.owner.graphics.setState(newGraphics, timing, Affinity.Reflexive);
       }
     },
   })
   readonly iconColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @ThemeAnimator<IconButton["graphics"]>({
+  @ThemeAnimator({
     extends: IconGraphicsAnimator,
     valueType: Graphics,
     value: null,
@@ -107,119 +122,152 @@ export class IconButton extends ButtonMembrane implements IconView {
   })
   readonly graphics!: ThemeAnimator<this, Graphics | null>;
 
-  /** @internal */
-  static IconRef = ViewRef.define<ViewRef<IconButton, SvgIconView> & Observes<SvgIconView> & {iconIndex: number}>("IconRef", {
+  @ViewSet({
     viewType: SvgIconView,
     observes: true,
-    init(): void {
-      this.iconIndex = 0;
+    viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, iconView: SvgIconView): void {
+      const iconColor = theme.getOr(Look.backgroundColor, mood, null);
+      iconView.iconColor.setState(iconColor, timing);
     },
     viewDidAnimate(iconView: SvgIconView): void {
-      if (!iconView.opacity.tweening && this.iconIndex !== this.owner.iconCount) {
-        iconView.remove();
-        if (this.iconIndex > this.owner.iconCount) {
-          this.owner.setFastener(this.name, null);
+      if (!iconView.opacity.tweening && iconView !== this.owner.icon.view) {
+        this.deleteView(iconView);
+      }
+    },
+    viewWillLayout(iconView: SvgIconView): void {
+      let viewWidth: Length | number | null = this.owner.width.value;
+      viewWidth = viewWidth instanceof Length ? viewWidth.pxValue() : this.owner.node.offsetWidth;
+      let viewHeight: Length | number | null = this.owner.height.value;
+      viewHeight = viewHeight instanceof Length ? viewHeight.pxValue() : this.owner.node.offsetHeight;
+      iconView.width.setState(viewWidth, Affinity.Intrinsic);
+      iconView.height.setState(viewHeight, Affinity.Intrinsic);
+      iconView.viewBox.setState("0 0 " + viewWidth + " " + viewHeight, Affinity.Intrinsic);
+    },
+  })
+  readonly icons!: ViewSet<this, SvgIconView> & Observes<SvgIconView>;
+
+  @ViewRef({
+    viewType: SvgIconView,
+    createView(): SvgIconView {
+      const iconView = SvgIconView.create();
+      iconView.setStyle("position", "absolute");
+      iconView.setStyle("left", "0");
+      iconView.setStyle("top", "0");
+      iconView.opacity.setState(0, Affinity.Intrinsic);
+      iconView.cssTransform.setState(Transform.rotate(Angle.deg(-90)), Affinity.Intrinsic);
+      iconView.pointerEvents.setState("none", Affinity.Intrinsic);
+      iconView.xAlign.setInherits(true);
+      iconView.yAlign.setInherits(true);
+      iconView.iconWidth.setInherits(true);
+      iconView.iconHeight.setInherits(true);
+      iconView.iconColor.setInherits(true);
+      return iconView;
+    },
+    push(icon: Graphics, timing?: AnyTiming | boolean): SvgIconView {
+      if (timing === void 0 && this.owner.icons.viewCount === 0) {
+        timing = false;
+      } else if (timing === void 0 || timing === true) {
+        timing = this.owner.getLookOr(Look.timing, false);
+      } else {
+        timing = Timing.fromAny(timing);
+      }
+
+      const oldIconView = this.view;
+      if (oldIconView !== null) {
+        if (timing !== false) {
+          oldIconView.opacity.setState(0, timing, Affinity.Intrinsic);
+          oldIconView.transform.setState(Transform.rotate(Angle.deg(90)), timing, Affinity.Intrinsic);
+        } else {
+          this.owner.icons.deleteView(oldIconView);
+        }
+      }
+
+      const newIconView = this.createView();
+      newIconView.graphics.setState(icon, Affinity.Intrinsic);
+      this.owner.icons.attachView(newIconView);
+      this.insertView(void 0, newIconView);
+      newIconView.opacity.setState(1, timing, Affinity.Intrinsic);
+      newIconView.transform.setState(Transform.rotate(Angle.deg(0)), timing, Affinity.Intrinsic);
+
+      return newIconView;
+    },
+    pop(timing?: AnyTiming | boolean): SvgIconView | null {
+      if (timing === void 0 || timing === true) {
+        timing = this.owner.getLookOr(Look.timing, false);
+      } else {
+        timing = Timing.fromAny(timing);
+      }
+
+      const oldIconView = this.view;
+      let newIconView: SvgIconView | null = null;
+      const iconViews = this.owner.icons.views;
+      for (const viewId in iconViews) {
+        const iconView = iconViews[viewId]!;
+        if (iconView !== oldIconView) {
+          newIconView = iconView;
+        }
+      }
+
+      if (oldIconView !== null) {
+        if (timing !== false) {
+          oldIconView.opacity.setState(0, timing, Affinity.Intrinsic);
+          oldIconView.transform.setState(Transform.rotate(Angle.deg(-90)), timing, Affinity.Intrinsic);
+          this.owner.icons.insertView(void 0, oldIconView);
+        } else {
+          this.owner.icons.deleteView(oldIconView);
+        }
+      }
+
+      if (newIconView !== null) {
+        this.insertView(void 0, newIconView);
+        newIconView.opacity.setState(1, timing, Affinity.Intrinsic);
+        newIconView.transform.setState(Transform.rotate(Angle.deg(0)), timing, Affinity.Intrinsic);
+      }
+
+      return oldIconView;
+    },
+  })
+  readonly icon!: ViewRef<this, SvgIconView> & {
+    push(icon: Graphics, timing?: AnyTiming | boolean): SvgIconView;
+    pop(timing?: AnyTiming | boolean): SvgIconView | null;
+  };
+
+  @Property({valueType: Boolean, value: true})
+  readonly hovers!: Property<this, boolean>;
+
+  @PositionGesture({
+    extends: true,
+    didStartHovering(): void {
+      if (this.owner.hovers.value) {
+        this.owner.modifyMood(Feel.default, [[Feel.hovering, 1]]);
+        const timing = this.owner.getLook(Look.timing);
+        if (this.owner.backgroundColor.hasAffinity(Affinity.Intrinsic)) {
+          this.owner.backgroundColor.setState(this.owner.getLookOr(Look.backgroundColor, null), timing, Affinity.Intrinsic);
         }
       }
     },
-  });
-
-  /** @internal */
-  iconCount: number;
-
-  icon: ViewRef<this, SvgIconView> | null;
-
-  pushIcon(icon: Graphics, timing?: AnyTiming | boolean): void {
-    const oldIconCount = this.iconCount;
-    const newIconCount = oldIconCount + 1;
-    this.iconCount = newIconCount;
-
-    if (timing === void 0 && oldIconCount === 0) {
-      timing = false;
-    } else if (timing === void 0 || timing === true) {
-      timing = this.getLookOr(Look.timing, false);
-    } else {
-      timing = Timing.fromAny(timing);
-    }
-
-    const oldIconKey = "icon" + oldIconCount;
-    const oldIconRef: ViewRef<this, SvgIconView> | null = this.getFastener(oldIconKey, ViewRef);
-    const oldIconView = oldIconRef !== null ? oldIconRef.view : null;
-    if (oldIconView !== null) {
-      if (timing !== false) {
-        oldIconView.opacity.setState(0, timing, Affinity.Intrinsic);
-        oldIconView.cssTransform.setState(Transform.rotate(Angle.deg(90)), timing, Affinity.Intrinsic);
-      } else {
-        oldIconView.remove();
+    didStopHovering(): void {
+      this.owner.modifyMood(Feel.default, [[Feel.hovering, void 0]]);
+      const timing = this.owner.getLook(Look.timing);
+      if (this.owner.backgroundColor.hasAffinity(Affinity.Intrinsic)) {
+        let backgroundColor = this.owner.getLookOr(Look.backgroundColor, null);
+        if (backgroundColor !== null) {
+          backgroundColor = backgroundColor.alpha(0);
+        }
+        this.owner.backgroundColor.setState(backgroundColor, timing, Affinity.Intrinsic);
       }
-    }
+    },
+  })
+  override readonly gesture!: PositionGesture<this, HtmlView>;
 
-    const newIconKey = "icon" + newIconCount;
-    const newIconRef = IconButton.IconRef.create(this) as ViewRef<this, SvgIconView> & {iconIndex: number};
-    Object.defineProperty(newIconRef, "name", {
-      value: newIconKey,
-      enumerable: true,
-      configurable: true,
-    });
-    newIconRef.iconIndex = newIconCount;
-    this.icon = newIconRef;
-    const newIconView = SvgIconView.create();
-
-    newIconView.setStyle("position", "absolute");
-    newIconView.setStyle("left", "0");
-    newIconView.setStyle("top", "0");
-    newIconView.opacity.setState(0, Affinity.Intrinsic);
-    newIconView.opacity.setState(1, timing, Affinity.Intrinsic);
-    newIconView.cssTransform.setState(Transform.rotate(Angle.deg(-90)), Affinity.Intrinsic);
-    newIconView.cssTransform.setState(Transform.rotate(Angle.deg(0)), timing, Affinity.Intrinsic);
-    newIconView.pointerEvents.setState("none", Affinity.Intrinsic);
-    newIconView.xAlign.setInherits(true);
-    newIconView.yAlign.setInherits(true);
-    newIconView.iconWidth.setInherits(true);
-    newIconView.iconHeight.setInherits(true);
-    newIconView.iconColor.setInherits(true);
-    newIconView.graphics.setState(icon, Affinity.Intrinsic);
-    newIconRef.setView(newIconView);
-    this.setFastener(newIconKey, newIconRef);
-    this.appendChild(newIconView, newIconKey);
-  }
-
-  popIcon(timing?: AnyTiming | boolean): SvgIconView | null {
-    const oldIconCount = this.iconCount;
-    const newIconCount = oldIconCount - 1;
-    this.iconCount = newIconCount;
-
-    if (timing === void 0 || timing === true) {
-      timing = this.getLookOr(Look.timing, false);
-    } else {
-      timing = Timing.fromAny(timing);
-    }
-
-    const oldIconKey = "icon" + oldIconCount;
-    const oldIconRef: ViewRef<this, SvgIconView> | null = this.getFastener(oldIconKey, ViewRef);
-    const oldIconView = oldIconRef !== null ? oldIconRef.view : null;
-    if (oldIconView !== null) {
-      if (timing !== false) {
-        oldIconView.opacity.setState(0, timing, Affinity.Intrinsic);
-        oldIconView.cssTransform.setState(Transform.rotate(Angle.deg(-90)), timing, Affinity.Intrinsic);
-      } else {
-        oldIconView.remove();
-        this.setFastener(oldIconKey, null);
-      }
-    }
-
-    const newIconKey = "icon" + newIconCount;
-    const newIconRef: ViewRef<this, SvgIconView> | null = this.getFastener(newIconKey, ViewRef);
-    this.icon = newIconRef;
-    const newIconView = newIconRef !== null ? newIconRef.view : null;
-    if (newIconView !== null) {
-      newIconView.opacity.setState(1, timing, Affinity.Intrinsic);
-      newIconView.cssTransform.setState(Transform.rotate(Angle.deg(0)), timing, Affinity.Intrinsic);
-      this.appendChild(newIconView, newIconKey);
-    }
-
-    return oldIconView;
-  }
+  @EventHandler({
+    type: "click",
+    handle(event: MouseEvent): void {
+      event.stopPropagation();
+      this.owner.callObservers("buttonDidPress", this.owner);
+    },
+  })
+  readonly click!: EventHandler<this>;
 
   protected override onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
@@ -242,100 +290,6 @@ export class IconButton extends ButtonMembrane implements IconView {
   protected override onResize(): void {
     super.onResize();
     this.requireUpdate(View.NeedsLayout);
-  }
-
-  protected override needsDisplay(displayFlags: ViewFlags): ViewFlags {
-    if ((this.flags & View.NeedsLayout) === 0) {
-      displayFlags &= ~View.NeedsLayout;
-    }
-    return displayFlags;
-  }
-
-  protected override onLayout(): void {
-    super.onLayout();
-    this.layoutIcon();
-  }
-
-  protected layoutIcon(): void {
-    const fasteners = this.fasteners;
-    if (fasteners !== null) {
-      let viewWidth: Length | number | null = this.width.value;
-      viewWidth = viewWidth instanceof Length ? viewWidth.pxValue() : this.node.offsetWidth;
-      let viewHeight: Length | number | null = this.height.value;
-      viewHeight = viewHeight instanceof Length ? viewHeight.pxValue() : this.node.offsetHeight;
-      for (const fastenerName in fasteners) {
-        const fastener = fasteners[fastenerName];
-        if (fastener instanceof IconButton.IconRef) {
-          const iconView = fastener.view;
-          if (iconView !== null) {
-            iconView.width.setState(viewWidth, Affinity.Intrinsic);
-            iconView.height.setState(viewHeight, Affinity.Intrinsic);
-            iconView.viewBox.setState("0 0 " + viewWidth + " " + viewHeight, Affinity.Intrinsic);
-          }
-        }
-      }
-    }
-  }
-
-  protected override onMount(): void {
-    super.onMount();
-    this.addEventListener("click", this.onClick);
-  }
-
-  protected override onUnmount(): void {
-    super.onUnmount();
-    this.removeEventListener("click", this.onClick);
-  }
-
-  get hovers(): boolean {
-    return true;
-  }
-
-  setHovers(hovers: boolean): void {
-    if (this.hovers !== hovers) {
-      Object.defineProperty(this, "hovers", {
-        value: hovers,
-        configurable: true,
-      });
-    }
-  }
-
-  @PositionGesture<IconButton["gesture"]>({
-    extends: true,
-    didStartHovering(): void {
-      if (this.owner.hovers) {
-        this.owner.modifyMood(Feel.default, [[Feel.hovering, 1]]);
-        const timing = this.owner.getLook(Look.timing);
-        if (this.owner.backgroundColor.hasAffinity(Affinity.Intrinsic)) {
-          this.owner.backgroundColor.setState(this.owner.getLookOr(Look.backgroundColor, null), timing, Affinity.Intrinsic);
-        }
-      }
-    },
-    didStopHovering(): void {
-      this.owner.modifyMood(Feel.default, [[Feel.hovering, void 0]]);
-      const timing = this.owner.getLook(Look.timing);
-      if (this.owner.backgroundColor.hasAffinity(Affinity.Intrinsic)) {
-        let backgroundColor = this.owner.getLookOr(Look.backgroundColor, null);
-        if (backgroundColor !== null) {
-          backgroundColor = backgroundColor.alpha(0);
-        }
-        this.owner.backgroundColor.setState(backgroundColor, timing, Affinity.Intrinsic);
-      }
-    },
-  })
-  override readonly gesture!: PositionGesture<this, HtmlView>;
-  static override readonly gesture: FastenerClass<IconButton["gesture"]>;
-
-  protected onClick(event: MouseEvent): void {
-    event.stopPropagation();
-
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.buttonDidPress !== void 0) {
-        observer.buttonDidPress(this);
-      }
-    }
   }
 
   override init(init: IconButtonInit): void {

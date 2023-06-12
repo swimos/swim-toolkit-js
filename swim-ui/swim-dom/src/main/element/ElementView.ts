@@ -12,34 +12,42 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, Instance, Arrays, Creatable, Observes} from "@swim/util";
-import {Affinity, FastenerClass, Provider} from "@swim/component";
+import type {Class} from "@swim/util";
+import type {Instance} from "@swim/util";
+import {Arrays} from "@swim/util";
+import {Creatable} from "@swim/util";
+import type {Observes} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Provider} from "@swim/component";
 import {R2Box} from "@swim/math";
-import {ThemeMatrix, Theme} from "@swim/theme";
-import {ToAttributeString, ToStyleString, ToCssValue} from "@swim/style";
-import {View, ViewportColorScheme, ViewportService, StylerService} from "@swim/view";
+import {ThemeMatrix} from "@swim/theme";
+import {Theme} from "@swim/theme";
+import {ToAttributeString} from "@swim/style";
+import {ToStyleString} from "@swim/style";
+import {ToCssValue} from "@swim/style";
+import {View} from "@swim/view";
+import type {ViewportColorScheme} from "@swim/view";
+import type {ViewportService} from "@swim/view";
+import type {StylerService} from "@swim/view";
 import type {StyleContext} from "../css/StyleContext";
-import {
-  ViewNodeType,
-  AnyNodeView,
-  NodeViewInit,
-  NodeViewFactory,
-  NodeViewClass,
-  NodeViewConstructor,
-  NodeView,
-} from "../node/NodeView";
-import type {
-  ElementViewObserver,
-  ElementViewObserverCache,
-  ViewWillSetAttribute,
-  ViewDidSetAttribute,
-  ViewWillSetStyle,
-  ViewDidSetStyle,
-} from "./ElementViewObserver";
+import type {ViewNodeType} from "../node/NodeView";
+import type {AnyNodeView} from "../node/NodeView";
+import type {NodeViewInit} from "../node/NodeView";
+import type {NodeViewFactory} from "../node/NodeView";
+import type {NodeViewClass} from "../node/NodeView";
+import type {NodeViewConstructor} from "../node/NodeView";
+import {NodeView} from "../node/NodeView";
+import type {ElementViewObserver} from "./ElementViewObserver";
+import type {ElementViewObserverCache} from "./ElementViewObserver";
+import type {ViewWillSetAttribute} from "./ElementViewObserver";
+import type {ViewDidSetAttribute} from "./ElementViewObserver";
+import type {ViewWillSetStyle} from "./ElementViewObserver";
+import type {ViewDidSetStyle} from "./ElementViewObserver";
 import {HtmlView} from "../"; // forward import
 import {SvgView} from "../"; // forward import
 import {DomService} from "../"; // forward import
-import {ModalOptions, ModalView} from "../"; // forward import
+import type {ModalOptions} from "../"; // forward import
+import {ModalView} from "../"; // forward import
 import {ModalService} from "../"; // forward import
 
 /** @public */
@@ -81,7 +89,7 @@ export class ElementView extends NodeView implements StyleContext {
 
   override readonly node!: Element & ElementCSSInlineStyle;
 
-  @Provider<ElementView["viewport"]>({
+  @Provider({
     extends: true,
     observes: true,
     serviceDidSetViewportColorScheme(colorScheme: ViewportColorScheme): void {
@@ -89,32 +97,29 @@ export class ElementView extends NodeView implements StyleContext {
     },
   })
   override readonly viewport!: Provider<this, ViewportService> & NodeView["viewport"] & Observes<ViewportService>;
-  static override readonly viewport: FastenerClass<ElementView["viewport"]>;
 
-  @Provider<ElementView["styler"]>({
+  @Provider({
     extends: true,
     lazy: false,
   })
   override readonly styler!: Provider<this, StylerService> & NodeView["styler"];
-  static override readonly styler: FastenerClass<ElementView["styler"]>;
 
-  @Provider<ElementView["dom"]>({
+  @Provider({
     get serviceType(): typeof DomService { // avoid static forward reference
       return DomService;
     },
     mountRootService(service: DomService,): void {
-      Provider.prototype.mountRootService.call(this, service);
+      super.mountRootService(service);
       service.roots.addView(this.owner);
     },
     unmountRootService(service: DomService): void {
-      Provider.prototype.unmountService.call(this, service);
+      super.unmountService(service);
       service.roots.removeView(this.owner);
     },
   })
   readonly dom!: Provider<this, DomService>;
-  static readonly dom: FastenerClass<ElementView["dom"]>;
 
-  @Provider<ElementView["modal"]>({
+  @Provider({
     get serviceType(): typeof ModalService { // avoid static forward reference
       return ModalService;
     },
@@ -148,7 +153,6 @@ export class ElementView extends NodeView implements StyleContext {
     dismiss(modalView?: ModalView): void,
     toggle(modalView?: ModalView): void,
   };
-  static readonly modal: FastenerClass<ElementView["modal"]>;
 
   protected detectTheme(): void {
     let themeName = this.node.getAttribute("swim-theme");

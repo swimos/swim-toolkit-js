@@ -12,9 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  PopoverPlacement,
-  PopoverViewInit,
-  PopoverView,
-} from "./PopoverView";
-export {PopoverViewObserver} from "./PopoverViewObserver";
+export type {PopoverPlacement} from "./PopoverView";
+export type {PopoverViewInit} from "./PopoverView";
+export {PopoverView} from "./PopoverView";
+export type {PopoverViewObserver} from "./PopoverViewObserver";

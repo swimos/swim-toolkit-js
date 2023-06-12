@@ -12,12 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, AnyTiming, Timing, Observes} from "@swim/util";
-import {Affinity, FastenerClass} from "@swim/component";
+import type {Class} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {Timing} from "@swim/util";
+import type {Observes} from "@swim/util";
+import {Affinity} from "@swim/component";
 import type {Length} from "@swim/math";
 import type {Color} from "@swim/style";
-import {Look, Mood, ColorOrLook} from "@swim/theme";
-import {TraitViewRef, TraitViewControllerSet} from "@swim/controller";
+import {Look} from "@swim/theme";
+import {Mood} from "@swim/theme";
+import type {ColorOrLook} from "@swim/theme";
+import {TraitViewRef} from "@swim/controller";
+import {TraitViewControllerSet} from "@swim/controller";
 import type {DataPointView} from "../data/DataPointView";
 import type {DataPointTrait} from "../data/DataPointTrait";
 import type {DataPointController} from "../data/DataPointController";
@@ -31,14 +37,13 @@ import type {BubblePlotControllerObserver} from "./BubblePlotControllerObserver"
 export class BubblePlotController<X = unknown, Y = unknown> extends ScatterPlotController<X, Y> {
   override readonly observerType?: Class<BubblePlotControllerObserver<X, Y>>;
 
-  @TraitViewControllerSet<BubblePlotController<X, Y>["dataPoints"]>({
+  @TraitViewControllerSet({
     extends: true,
     get parentView(): BubblePlotView<X, Y> | null {
       return this.owner.plot.view;
     },
   })
   override readonly dataPoints!: TraitViewControllerSet<this, DataPointTrait<X, Y>, DataPointView<X, Y>, DataPointController<X, Y>> & ScatterPlotController<X, Y>["dataPoints"];
-  static override readonly dataPoints: FastenerClass<BubblePlotController["dataPoints"]>;
 
   protected setRadius(radius: Length | null, timing?: AnyTiming | boolean): void {
     const plotView = this.plot.view;
@@ -74,7 +79,7 @@ export class BubblePlotController<X = unknown, Y = unknown> extends ScatterPlotC
     }
   }
 
-  @TraitViewRef<BubblePlotController<X, Y>["plot"]>({
+  @TraitViewRef({
     traitType: BubblePlotTrait,
     observesTrait: true,
     initTrait(plotTrait: BubblePlotTrait<X, Y>): void {
@@ -129,6 +134,5 @@ export class BubblePlotController<X = unknown, Y = unknown> extends ScatterPlotC
       this.owner.callObservers("controllerDidSetPlotFill", fill, this.owner);
     },
   })
-  readonly plot!: TraitViewRef<this, BubblePlotTrait<X, Y>, BubblePlotView<X, Y>> & Observes<BubblePlotTrait<X, Y> & BubblePlotView<X, Y>>;
-  static readonly plot: FastenerClass<BubblePlotController["plot"]>;
+  readonly plot!: TraitViewRef<this, BubblePlotTrait<X, Y>, BubblePlotView<X, Y>> & Observes<BubblePlotTrait<X, Y>> & Observes<BubblePlotView<X, Y>>;
 }

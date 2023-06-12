@@ -12,5 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {DrawingContext} from "./DrawingContext";
+export type {DrawingContext} from "./DrawingContext";
 export {DrawingRenderer} from "./DrawingRenderer";

@@ -12,38 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  GeoPathViewInit,
-  GeoPathView,
-} from "./GeoPathView";
-export {GeoPathViewObserver} from "./GeoPathViewObserver";
+export type {GeoPathViewInit} from "./GeoPathView";
+export {GeoPathView} from "./GeoPathView";
+export type {GeoPathViewObserver} from "./GeoPathViewObserver";
 
-export {
-  GeoLineViewInit,
-  GeoLineView,
-} from "./GeoLineView";
-export {GeoLineViewObserver} from "./GeoLineViewObserver";
+export type {GeoLineViewInit} from "./GeoLineView";
+export {GeoLineView} from "./GeoLineView";
+export type {GeoLineViewObserver} from "./GeoLineViewObserver";
 
-export {
-  GeoAreaViewInit,
-  GeoAreaView,
-} from "./GeoAreaView";
-export {GeoAreaViewObserver} from "./GeoAreaViewObserver";
+export type {GeoAreaViewInit} from "./GeoAreaView";
+export {GeoAreaView} from "./GeoAreaView";
+export type {GeoAreaViewObserver} from "./GeoAreaViewObserver";
 
 export {GeoPathTrait} from "./GeoPathTrait";
-export {GeoPathTraitObserver} from "./GeoPathTraitObserver";
+export type {GeoPathTraitObserver} from "./GeoPathTraitObserver";
 
 export {GeoLineTrait} from "./GeoLineTrait";
-export {GeoLineTraitObserver} from "./GeoLineTraitObserver";
+export type {GeoLineTraitObserver} from "./GeoLineTraitObserver";
 
 export {GeoAreaTrait} from "./GeoAreaTrait";
-export {GeoAreaTraitObserver} from "./GeoAreaTraitObserver";
+export type {GeoAreaTraitObserver} from "./GeoAreaTraitObserver";
 
 export {GeoPathController} from "./GeoPathController";
-export {GeoPathControllerObserver} from "./GeoPathControllerObserver";
+export type {GeoPathControllerObserver} from "./GeoPathControllerObserver";
 
 export {GeoLineController} from "./GeoLineController";
-export {GeoLineControllerObserver} from "./GeoLineControllerObserver";
+export type {GeoLineControllerObserver} from "./GeoLineControllerObserver";
 
 export {GeoAreaController} from "./GeoAreaController";
-export {GeoAreaControllerObserver} from "./GeoAreaControllerObserver";
+export type {GeoAreaControllerObserver} from "./GeoAreaControllerObserver";

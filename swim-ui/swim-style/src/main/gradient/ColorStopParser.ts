@@ -12,8 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Input, Parser, Diagnostic, Unicode} from "@swim/codec";
-import {Length, LengthParser} from "@swim/math";
+import {Diagnostic} from "@swim/codec";
+import type {Input} from "@swim/codec";
+import {Parser} from "@swim/codec";
+import {Unicode} from "@swim/codec";
+import type {Length} from "@swim/math";
+import {LengthParser} from "@swim/math";
 import type {Color} from "../color/Color";
 import {ColorParser} from "../color/ColorParser";
 import {ColorStop} from "./ColorStop";

@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  ViewText,
-  AnyTextView,
-  TextViewInit,
-  TextViewConstructor,
-  TextView,
-} from "./TextView";
-export {TextViewObserver} from "./TextViewObserver";
+export type {ViewText} from "./TextView";
+export type {AnyTextView} from "./TextView";
+export type {TextViewInit} from "./TextView";
+export type {TextViewConstructor} from "./TextView";
+export {TextView} from "./TextView";
+export type {TextViewObserver} from "./TextViewObserver";

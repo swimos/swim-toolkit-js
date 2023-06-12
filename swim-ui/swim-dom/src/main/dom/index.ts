@@ -13,4 +13,4 @@
 // limitations under the License.
 
 export {DomService} from "./DomService";
-export {DomServiceObserver} from "./DomServiceObserver";
+export type {DomServiceObserver} from "./DomServiceObserver";

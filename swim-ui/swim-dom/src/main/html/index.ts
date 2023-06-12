@@ -12,23 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  ViewHtml,
-  AnyHtmlView,
-  HtmlViewInit,
-  HtmlViewAttributesInit,
-  HtmlViewStyleInit,
-  HtmlViewTagMap,
-  HtmlViewFactory,
-  HtmlViewClass,
-  HtmlViewConstructor,
-  HtmlView,
-  HtmlViewTagFactory,
-} from "./HtmlView";
-export {HtmlViewObserver} from "./HtmlViewObserver";
+export type {ViewHtml} from "./HtmlView";
+export type {AnyHtmlView} from "./HtmlView";
+export type {HtmlViewInit} from "./HtmlView";
+export type {HtmlViewAttributesInit} from "./HtmlView";
+export type {HtmlViewStyleInit} from "./HtmlView";
+export type {HtmlViewTagMap} from "./HtmlView";
+export type {HtmlViewFactory} from "./HtmlView";
+export type {HtmlViewClass} from "./HtmlView";
+export type {HtmlViewConstructor} from "./HtmlView";
+export {HtmlView} from "./HtmlView";
+export {HtmlViewTagFactory} from "./HtmlView";
+export type {HtmlViewObserver} from "./HtmlViewObserver";
 
-export {
-  StyleViewInit,
-  StyleView,
-} from "./StyleView";
-export {StyleViewObserver} from "./StyleViewObserver";
+export type {StyleViewInit} from "./StyleView";
+export {StyleView} from "./StyleView";
+export type {StyleViewObserver} from "./StyleViewObserver";

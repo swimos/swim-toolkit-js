@@ -12,29 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Proto, AnyTiming} from "@swim/util";
-import {
-  FastenerContext,
-  FastenerOwner,
-  FastenerDescriptor,
-  FastenerClass,
-  Fastener,
-} from "@swim/component";
-import type {
-  AnyConstraintExpression,
-  ConstraintVariable,
-  ConstraintProperty,
-  ConstraintRelation,
-  AnyConstraintStrength,
-  Constraint,
-  ConstraintScope,
-} from "@swim/constraint";
-import {Look, Feel, MoodVector, ThemeMatrix, ThemeContext} from "@swim/theme";
+import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {FastenerContext} from "@swim/component";
+import type {FastenerOwner} from "@swim/component";
+import type {FastenerDescriptor} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
+import {Fastener} from "@swim/component";
+import type {AnyConstraintExpression} from "@swim/constraint";
+import type {ConstraintVariable} from "@swim/constraint";
+import type {ConstraintProperty} from "@swim/constraint";
+import type {ConstraintRelation} from "@swim/constraint";
+import type {AnyConstraintStrength} from "@swim/constraint";
+import type {Constraint} from "@swim/constraint";
+import type {ConstraintScope} from "@swim/constraint";
+import type {Look} from "@swim/theme";
+import type {Feel} from "@swim/theme";
+import type {MoodVector} from "@swim/theme";
+import type {ThemeMatrix} from "@swim/theme";
+import {ThemeContext} from "@swim/theme";
 import {CssContext} from "./CssContext";
 
 /** @public */
+export type CssRuleDecorator<F extends CssRule<any>> = {
+  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
+};
+
+/** @public */
 export interface CssRuleDescriptor extends FastenerDescriptor {
-  extends?: Proto<CssRule<any>> | string | boolean | null;
+  extends?: Proto<CssRule<any>> | boolean | null;
   css?: string;
 }
 
@@ -53,15 +60,15 @@ export interface CssRuleClass<F extends CssRule<any> = CssRule<any>> extends Fas
   refine(fastenerClass: CssRuleClass<any>): void;
 
   /** @override */
-  extend<F2 extends F>(className: string, template: CssRuleTemplate<F2>): CssRuleClass<F2>;
-  extend<F2 extends F>(className: string, template: CssRuleTemplate<F2>): CssRuleClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: CssRuleTemplate<F2>): CssRuleClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: CssRuleTemplate<F2>): CssRuleClass<F2>;
 
   /** @override */
-  define<F2 extends F>(className: string, template: CssRuleTemplate<F2>): CssRuleClass<F2>;
-  define<F2 extends F>(className: string, template: CssRuleTemplate<F2>): CssRuleClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: CssRuleTemplate<F2>): CssRuleClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: CssRuleTemplate<F2>): CssRuleClass<F2>;
 
   /** @override */
-  <F2 extends F>(template: CssRuleTemplate<F2>): PropertyDecorator;
+  <F2 extends F>(template: CssRuleTemplate<F2>): CssRuleDecorator<F2>;
 }
 
 /** @public */
@@ -82,29 +89,10 @@ export interface CssRule<O = unknown> extends Fastener<O>, FastenerContext, Cons
 
   readonly rule: CSSRule | null;
 
-  /** @internal */
-  readonly fasteners: {[fastenerName: string]: Fastener | undefined} | null;
-
   /** @override */
-  hasFastener(fastenerName: string, fastenerBound?: Proto<Fastener> | null): boolean;
-
+  getParentFastener<F extends Fastener<any>>(fastenerName: string, fastenerBound: Proto<F>): F | null;
   /** @override */
-  getFastener<F extends Fastener<any>>(fastenerName: string, fastenerBound: Proto<F>): F | null;
-  /** @override */
-  getFastener(fastenerName: string, fastenerBound?: Proto<Fastener> | null): Fastener | null;
-
-  /** @override */
-  setFastener(fastenerName: string, fastener: Fastener | null): void;
-
-  /** @override */
-  getLazyFastener<F extends Fastener<any>>(fastenerName: string, fastenerBound: Proto<F>): F | null;
-  /** @override */
-  getLazyFastener(fastenerName: string, fastenerBound?: Proto<Fastener> | null): Fastener | null;
-
-  /** @override */
-  getSuperFastener<F extends Fastener<any>>(fastenerName: string, fastenerBound: Proto<F>): F | null;
-  /** @override */
-  getSuperFastener(fastenerName: string, fastenerBound?: Proto<Fastener> | null): Fastener | null;
+  getParentFastener(fastenerName: string, fastenerBound?: Proto<Fastener> | null): Fastener | null;
 
   /** @internal @protected */
   mountFasteners(): void;
@@ -214,77 +202,37 @@ export const CssRule = (function (_super: typeof Fastener) {
     }
   };
 
-  CssRule.prototype.hasFastener = function (this: CssRule, fastenerName: string, fastenerBound?: Proto<Fastener> | null): boolean {
-    const fasteners = this.fasteners;
-    if (fasteners !== null) {
-      const fastener = fasteners[fastenerName];
-      if (fastener !== void 0 && (fastenerBound === void 0 || fastenerBound === null || fastener instanceof fastenerBound)) {
-        return true;
-      }
-    }
-    return false;
-  };
-
-  CssRule.prototype.getFastener = function (this: CssRule, fastenerName: string, fastenerBound?: Proto<Fastener> | null): Fastener | null {
-    const fasteners = this.fasteners;
-    if (fasteners !== null) {
-      const fastener = fasteners[fastenerName];
-      if (fastener !== void 0 && (fastenerBound === void 0 || fastenerBound === null || fastener instanceof fastenerBound)) {
-        return fastener;
-      }
-    }
-    return null;
-  };
-
-  CssRule.prototype.setFastener = function (this: CssRule, fastenerName: string, newFastener: Fastener | null): void {
-    let fasteners = this.fasteners;
-    if (fasteners === null) {
-      fasteners = {};
-      (this as Mutable<typeof this>).fasteners = fasteners;
-    }
-    const oldFastener = fasteners[fastenerName];
-    if (oldFastener !== void 0 && this.mounted) {
-      oldFastener.unmount();
-    }
-    if (newFastener !== null) {
-      fasteners[fastenerName] = newFastener;
-      if (this.mounted) {
-        newFastener.mount();
-      }
-    } else {
-      delete fasteners[fastenerName];
-    }
-  };
-
-  CssRule.prototype.getLazyFastener = function (this: CssRule, fastenerName: string, fastenerBound?: Proto<Fastener> | null): Fastener | null {
-    return FastenerContext.getLazyFastener(this, fastenerName, fastenerBound);
-  };
-
-  CssRule.prototype.getSuperFastener = function (this: CssRule, fastenerName: string, fastenerBound?: Proto<Fastener> | null): Fastener | null {
+  CssRule.prototype.getParentFastener = function (this: CssRule, fastenerName: string, fastenerBound?: Proto<Fastener> | null): Fastener | null {
     return null;
   };
 
   CssRule.prototype.mountFasteners = function (this: CssRule): void {
-    const fasteners = this.fasteners;
-    for (const fastenerName in fasteners) {
-      const fastener = fasteners[fastenerName]!;
-      fastener.mount();
+    const fastenerNames = FastenerContext.getFastenerNames(this);
+    for (let i = 0; i < fastenerNames.length; i += 1) {
+      const fastener = this[fastenerNames[i]!];
+      if (fastener instanceof Fastener) {
+        fastener.mount();
+      }
     }
   };
 
   CssRule.prototype.unmountFasteners = function (this: CssRule): void {
-    const fasteners = this.fasteners;
-    for (const fastenerName in fasteners) {
-      const fastener = fasteners[fastenerName]!;
-      fastener.unmount();
+    const fastenerNames = FastenerContext.getFastenerNames(this);
+    for (let i = 0; i < fastenerNames.length; i += 1) {
+      const fastener = this[fastenerNames[i]!];
+      if (fastener instanceof Fastener) {
+        fastener.unmount();
+      }
     }
   };
 
   CssRule.prototype.requireUpdate = function (this: CssRule, updateFlags: number): void {
-    const propertyContext = this.owner;
-    if (FastenerContext.has(propertyContext, "requireUpdate")) {
-      propertyContext.requireUpdate(updateFlags);
+    const owner = this.owner;
+    if (owner == null || typeof owner !== "object" && typeof owner !== "function"
+        || !("requireUpdate" in owner)) {
+      return;
     }
+    (owner as FastenerContext).requireUpdate!(updateFlags);
   };
 
   CssRule.prototype.decohereFastener = function (this: CssRule, fastener: Fastener): void {
@@ -412,10 +360,8 @@ export const CssRule = (function (_super: typeof Fastener) {
 
   CssRule.construct = function <F extends CssRule<any>>(rule: F | null, owner: FastenerOwner<F>): F {
     rule = _super.construct.call(this, rule, owner) as F;
-    (rule as Mutable<typeof rule>).fasteners = null;
     (rule as Mutable<typeof rule>).decoherent = null;
     (rule as Mutable<typeof rule>).rule = null;
-    FastenerContext.init(rule);
     return rule;
   };
 

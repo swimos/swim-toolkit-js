@@ -13,8 +13,12 @@
 // limitations under the License.
 
 import type {Equals} from "@swim/util";
-import {Output, Debug, Format} from "@swim/codec";
-import {AnyLength, Length, R2Box} from "@swim/math";
+import type {Output} from "@swim/codec";
+import type {Debug} from "@swim/codec";
+import {Format} from "@swim/codec";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import type {R2Box} from "@swim/math";
 import type {Graphics} from "../graphics/Graphics";
 import type {GraphicsRenderer} from "../graphics/GraphicsRenderer";
 import type {DrawingContext} from "../drawing/DrawingContext";

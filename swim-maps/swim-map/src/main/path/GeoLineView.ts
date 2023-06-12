@@ -13,21 +13,23 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {AnyLength, Length, R2Box} from "@swim/math";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import type {R2Box} from "@swim/math";
 import {Property} from "@swim/component";
-import {AnyColor, Color} from "@swim/style";
+import type {AnyColor} from "@swim/style";
+import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
-import {
-  GraphicsView,
-  StrokeViewInit,
-  StrokeView,
-  PaintingContext,
-  PaintingRenderer,
-  CanvasContext,
-  CanvasRenderer,
-} from "@swim/graphics";
-import {GeoPathViewInit, GeoPathView} from "./GeoPathView";
+import type {GraphicsView} from "@swim/graphics";
+import type {StrokeViewInit} from "@swim/graphics";
+import type {StrokeView} from "@swim/graphics";
+import type {PaintingContext} from "@swim/graphics";
+import {PaintingRenderer} from "@swim/graphics";
+import type {CanvasContext} from "@swim/graphics";
+import {CanvasRenderer} from "@swim/graphics";
+import type {GeoPathViewInit} from "./GeoPathView";
+import {GeoPathView} from "./GeoPathView";
 import type {GeoLineViewObserver} from "./GeoLineViewObserver";
 
 /** @public */
@@ -39,7 +41,7 @@ export interface GeoLineViewInit extends GeoPathViewInit, StrokeViewInit {
 export class GeoLineView extends GeoPathView implements StrokeView {
   override readonly observerType?: Class<GeoLineViewObserver>;
 
-  @ThemeAnimator<GeoLineView["stroke"]>({
+  @ThemeAnimator({
     valueType: Color,
     value: null,
     inherits: true,
@@ -50,7 +52,7 @@ export class GeoLineView extends GeoPathView implements StrokeView {
   })
   readonly stroke!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @ThemeAnimator<GeoLineView["strokeWidth"]>({
+  @ThemeAnimator({
     valueType: Length,
     value: null,
     inherits: true,

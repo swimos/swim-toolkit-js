@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Observes} from "@swim/util";
-import type {FastenerClass} from "@swim/component";
+import type {Class} from "@swim/util";
+import type {Observes} from "@swim/util";
 import {ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {TraitViewRef} from "@swim/controller";
@@ -26,7 +26,7 @@ import type {TextCellControllerObserver} from "./TextCellControllerObserver";
 export class TextCellController extends CellController {
   override readonly observerType?: Class<TextCellControllerObserver>;
 
-  @TraitViewRef<TextCellController["cell"]>({
+  @TraitViewRef({
     extends: true,
     traitType: TextCellTrait,
     observesTrait: true,
@@ -58,8 +58,7 @@ export class TextCellController extends CellController {
       this.owner.content.setView(null);
     },
   })
-  override readonly cell!: TraitViewRef<this, TextCellTrait, TextCellView> & CellController["cell"] & Observes<TextCellTrait & TextCellView>;
-  static override readonly cell: FastenerClass<TextCellController["cell"]>;
+  override readonly cell!: TraitViewRef<this, TextCellTrait, TextCellView> & CellController["cell"] & Observes<TextCellTrait> & Observes<TextCellView>;
 
   protected setContentView(content: string | undefined): void {
     const cellView = this.cell.view;
@@ -68,7 +67,7 @@ export class TextCellController extends CellController {
     }
   }
 
-  @ViewRef<TextCellController["content"]>({
+  @ViewRef({
     viewType: HtmlView,
     willAttachView(contentView: HtmlView): void {
       this.owner.callObservers("controllerWillAttachCellContentView", contentView, this.owner);
@@ -78,5 +77,4 @@ export class TextCellController extends CellController {
     },
   })
   readonly content!: ViewRef<this, HtmlView>;
-  static readonly content: FastenerClass<TextCellController["content"]>;
 }

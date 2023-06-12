@@ -12,15 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  CanvasCompositeOperation,
-  CanvasContext,
-} from "./CanvasContext";
+export type {CanvasCompositeOperation} from "./CanvasContext";
+export type {CanvasContext} from "./CanvasContext";
 export {CanvasRenderer} from "./CanvasRenderer";
 
-export {
-  CanvasFlags,
-  CanvasViewInit,
-  CanvasView,
-} from "./CanvasView";
-export {CanvasViewObserver} from "./CanvasViewObserver";
+export type {CanvasFlags} from "./CanvasView";
+export type {CanvasViewInit} from "./CanvasView";
+export {CanvasView} from "./CanvasView";
+export type {CanvasViewObserver} from "./CanvasViewObserver";

@@ -12,10 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Observes} from "@swim/util";
-import {Affinity, FastenerClass, Property} from "@swim/component";
+import type {Class} from "@swim/util";
+import type {Observes} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
 import type {Length} from "@swim/math";
-import {ViewInsets, View, ViewRef, ViewSet} from "@swim/view";
+import type {ViewInsets} from "@swim/view";
+import {View} from "@swim/view";
+import {ViewRef} from "@swim/view";
+import {ViewSet} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {BarView} from "@swim/toolbar";
 import {SheetView} from "../sheet/SheetView";
@@ -40,7 +45,7 @@ export class StackView extends HtmlView {
   @Property({valueType: Number, value: -(1 / 3)})
   readonly backAlign!: Property<this, number>;
 
-  @ViewRef<StackView["navBar"]>({
+  @ViewRef({
     viewType: BarView,
     binds: true,
     observes: true,
@@ -76,9 +81,8 @@ export class StackView extends HtmlView {
     },
   })
   readonly navBar!: ViewRef<this, BarView> & Observes<BarView>;
-  static readonly navBar: FastenerClass<StackView["navBar"]>;
 
-  @ViewSet<StackView["sheets"]>({
+  @ViewSet({
     viewType: SheetView,
     binds: true,
     observes: true,
@@ -160,9 +164,8 @@ export class StackView extends HtmlView {
     },
   })
   readonly sheets!: ViewSet<this, SheetView> & Observes<SheetView>;
-  static readonly sheets: FastenerClass<StackView["sheets"]>;
 
-  @ViewRef<StackView["front"]>({
+  @ViewRef({
     viewType: SheetView,
     binds: false,
     willAttachView(sheetView: SheetView, target: View | null): void {
@@ -190,9 +193,8 @@ export class StackView extends HtmlView {
     },
   })
   readonly front!: ViewRef<this, SheetView>;
-  static readonly front: FastenerClass<StackView["front"]>;
 
-  @Property<StackView["edgeInsets"]>({
+  @Property({
     extends: true,
     getOutletValue(outlet: Property<unknown, ViewInsets>): ViewInsets {
       let edgeInsets = this.value;

@@ -12,18 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Proto} from "@swim/util";
-import {Affinity, FastenerOwner, Fastener} from "@swim/component";
-import type {AnyController, ControllerFactory, Controller} from "./Controller";
-import {ControllerRelationDescriptor, ControllerRelationClass, ControllerRelation} from "./ControllerRelation";
+import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
+import {Affinity} from "@swim/component";
+import type {FastenerOwner} from "@swim/component";
+import {Fastener} from "@swim/component";
+import type {AnyController} from "./Controller";
+import type {ControllerFactory} from "./Controller";
+import type {Controller} from "./Controller";
+import type {ControllerRelationDescriptor} from "./ControllerRelation";
+import type {ControllerRelationClass} from "./ControllerRelation";
+import {ControllerRelation} from "./ControllerRelation";
 
 /** @public */
 export type ControllerRefController<F extends ControllerRef<any, any>> =
   F extends {controllerType?: ControllerFactory<infer C>} ? C : never;
 
 /** @public */
+export type ControllerRefDecorator<F extends ControllerRef<any, any>> = {
+  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
+};
+
+/** @public */
 export interface ControllerRefDescriptor<C extends Controller = Controller> extends ControllerRelationDescriptor<C> {
-  extends?: Proto<ControllerRef<any, any>> | string | boolean | null;
+  extends?: Proto<ControllerRef<any, any>> | boolean | null;
   controllerKey?: string | boolean;
 }
 
@@ -42,15 +54,15 @@ export interface ControllerRefClass<F extends ControllerRef<any, any> = Controll
   refine(fastenerClass: ControllerRefClass<any>): void;
 
   /** @override */
-  extend<F2 extends F>(className: string, template: ControllerRefTemplate<F2>): ControllerRefClass<F2>;
-  extend<F2 extends F>(className: string, template: ControllerRefTemplate<F2>): ControllerRefClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: ControllerRefTemplate<F2>): ControllerRefClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: ControllerRefTemplate<F2>): ControllerRefClass<F2>;
 
   /** @override */
-  define<F2 extends F>(className: string, template: ControllerRefTemplate<F2>): ControllerRefClass<F2>;
-  define<F2 extends F>(className: string, template: ControllerRefTemplate<F2>): ControllerRefClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: ControllerRefTemplate<F2>): ControllerRefClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: ControllerRefTemplate<F2>): ControllerRefClass<F2>;
 
   /** @override */
-  <F2 extends F>(template: ControllerRefTemplate<F2>): PropertyDecorator;
+  <F2 extends F>(template: ControllerRefTemplate<F2>): ControllerRefDecorator<F2>;
 }
 
 /** @public */
@@ -62,7 +74,7 @@ export interface ControllerRef<O = unknown, C extends Controller = Controller> e
   get fastenerType(): Proto<ControllerRef<any, any>>;
 
   /** @internal @override */
-  getSuper(): ControllerRef<unknown, C> | null;
+  getParent(): ControllerRef<unknown, C> | null;
 
   /** @internal @override */
   setDerived(derived: boolean, inlet: ControllerRef<unknown, C>): void;
@@ -193,8 +205,9 @@ export const ControllerRef = (function (_super: typeof ControllerRelation) {
     const inletController = this.inletController;
     if (inletController === void 0 || inletController === null) {
       let message = inletController + " ";
-      if (this.name.length !== 0) {
-        message += this.name + " ";
+      const name = this.name.toString();
+      if (name.length !== 0) {
+        message += name + " ";
       }
       message += "inlet controller";
       throw new TypeError(message);
@@ -206,8 +219,9 @@ export const ControllerRef = (function (_super: typeof ControllerRelation) {
     const controller = this.controller;
     if (controller === null) {
       let message = controller + " ";
-      if (this.name.length !== 0) {
-        message += this.name + " ";
+      const name = this.name.toString();
+      if (name.length !== 0) {
+        message += name + " ";
       }
       message += "controller";
       throw new TypeError(message);
@@ -340,7 +354,9 @@ export const ControllerRef = (function (_super: typeof ControllerRelation) {
           this.onDetachController(oldController);
           this.deinitController(oldController);
           this.didDetachController(oldController);
-          oldController.remove();
+          if (this.binds && parent !== null && oldController.parent === parent) {
+            oldController.remove();
+          }
         }
         (this as Mutable<typeof this>).controller = newController;
         this.willAttachController(newController, target);

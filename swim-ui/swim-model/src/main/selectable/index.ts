@@ -13,4 +13,4 @@
 // limitations under the License.
 
 export {SelectableTrait} from "./SelectableTrait";
-export {SelectableTraitObserver} from "./SelectableTraitObserver";
+export type {SelectableTraitObserver} from "./SelectableTraitObserver";

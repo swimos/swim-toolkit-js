@@ -15,7 +15,8 @@
 import type {Class} from "@swim/util";
 import {Property} from "@swim/component";
 import {Trait} from "@swim/model";
-import {AnyColLayout, ColLayout} from "../layout/ColLayout";
+import type {AnyColLayout} from "../layout/ColLayout";
+import {ColLayout} from "../layout/ColLayout";
 import type {ColTraitObserver} from "./ColTraitObserver";
 import {ColController} from "./"; // forward import
 
@@ -23,7 +24,7 @@ import {ColController} from "./"; // forward import
 export class ColTrait extends Trait {
   override readonly observerType?: Class<ColTraitObserver>;
 
-  @Property<ColTrait["layout"]>({
+  @Property({
     valueType: ColLayout,
     value: null,
     didSetValue(layout: ColLayout | null): void {

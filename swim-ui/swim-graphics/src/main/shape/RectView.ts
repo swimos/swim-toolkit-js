@@ -14,8 +14,11 @@
 
 import type {AnyTiming} from "@swim/util";
 import {Animator} from "@swim/component";
-import {AnyLength, Length, R2Box} from "@swim/math";
-import {AnyColor, Color} from "@swim/style";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import {R2Box} from "@swim/math";
+import type {AnyColor} from "@swim/style";
+import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
 import {GraphicsView} from "../graphics/GraphicsView";
@@ -23,8 +26,10 @@ import type {PaintingContext} from "../painting/PaintingContext";
 import {PaintingRenderer} from "../painting/PaintingRenderer";
 import type {CanvasContext} from "../canvas/CanvasContext";
 import {CanvasRenderer} from "../canvas/CanvasRenderer";
-import type {FillViewInit, FillView} from "./FillView";
-import type {StrokeViewInit, StrokeView} from "./StrokeView";
+import type {FillViewInit} from "./FillView";
+import type {FillView} from "./FillView";
+import type {StrokeViewInit} from "./StrokeView";
+import type {StrokeView} from "./StrokeView";
 import {Rect} from "./Rect";
 
 /** @public */

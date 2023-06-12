@@ -13,7 +13,11 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {Affinity, FastenerClass, Property, EventHandler, EventTimer, Service} from "@swim/component";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
+import {EventHandler} from "@swim/component";
+import {EventTimer} from "@swim/component";
+import {Service} from "@swim/component";
 import {Length} from "@swim/math";
 import type {ViewIdiom} from "../view/ViewIdiom";
 import {ViewInsets} from "../view/ViewInsets";
@@ -27,7 +31,7 @@ import type {ViewportServiceObserver} from "./ViewportServiceObserver";
 export class ViewportService extends Service {
   override readonly observerType?: Class<ViewportServiceObserver>;
 
-  @Property<ViewportService["layoutViewport"]>({
+  @Property({
     valueType: LayoutViewport,
     lazy: false,
     initValue(): LayoutViewport {
@@ -63,7 +67,7 @@ export class ViewportService extends Service {
     detect(): LayoutViewport,
   };
 
-  @EventTimer<ViewportService["layoutViewportChange"]>({
+  @EventTimer({
     delay: 33,
     type: ["resize", "scroll"],
     initTarget(): EventTarget | null {
@@ -78,9 +82,8 @@ export class ViewportService extends Service {
     },
   })
   readonly layoutViewportChange!: EventTimer<this>;
-  static readonly layoutViewportChange: FastenerClass<ViewportService["layoutViewportChange"]>;
 
-  @Property<ViewportService["visualViewport"]>({
+  @Property({
     valueType: VisualViewport,
     lazy: false,
     initValue(): VisualViewport {
@@ -94,7 +97,7 @@ export class ViewportService extends Service {
     },
     detect(): VisualViewport {
       let visualViewport: VisualViewport;
-      if (window.visualViewport !== void 0) {
+      if (window.visualViewport !== void 0 && window.visualViewport !== null) {
         visualViewport = {
           width: window.visualViewport.width,
           height: window.visualViewport.height,
@@ -127,7 +130,7 @@ export class ViewportService extends Service {
     detect(): VisualViewport,
   };
 
-  @EventTimer<ViewportService["visualViewportChange"]>({
+  @EventTimer({
     delay: 33,
     type: "resize",
     initTarget(): EventTarget | null {
@@ -142,9 +145,8 @@ export class ViewportService extends Service {
     },
   })
   readonly visualViewportChange!: EventTimer<this>;
-  static readonly visualViewportChange: FastenerClass<ViewportService["visualViewportChange"]>;
 
-  @Property<ViewportService["safeArea"]>({
+  @Property({
     valueType: ViewInsets,
     value: ViewInsets.zero,
     lazy: false,
@@ -189,7 +191,7 @@ export class ViewportService extends Service {
     detect(): ViewInsets,
   };
 
-  @Property<ViewportService["orientation"]>({
+  @Property({
     valueType: String,
     lazy: false,
     initValue(): ViewportOrientation {
@@ -223,7 +225,7 @@ export class ViewportService extends Service {
     detect(): ViewportOrientation,
   };
 
-  @EventHandler<ViewportService["orientationChange"]>({
+  @EventHandler({
     type: "change",
     initTarget(): EventTarget | null {
       if (typeof window !== "undefined") {
@@ -237,9 +239,8 @@ export class ViewportService extends Service {
     },
   })
   readonly orientationChange!: EventHandler<this>;
-  static readonly orientationChange: FastenerClass<ViewportService["orientationChange"]>;
 
-  @Property<ViewportService["colorScheme"]>({
+  @Property({
     valueType: String,
     lazy: false,
     initValue(): ViewportColorScheme {
@@ -271,7 +272,7 @@ export class ViewportService extends Service {
     detect(): ViewportColorScheme,
   };
 
-  @EventHandler<ViewportService["colorSchemeChange"]>({
+  @EventHandler({
     type: "change",
     initTarget(): EventTarget | null {
       if (typeof window !== "undefined") {
@@ -285,9 +286,8 @@ export class ViewportService extends Service {
     },
   })
   readonly colorSchemeChange!: EventHandler<this>;
-  static readonly colorSchemeChange: FastenerClass<ViewportService["colorSchemeChange"]>;
 
-  @Property<ViewportService["viewIdiom"]>({
+  @Property({
     valueType: String,
     lazy: false,
     initValue(): ViewIdiom {
@@ -320,7 +320,7 @@ export class ViewportService extends Service {
     detect(): ViewIdiom,
   };
 
-  @EventTimer<ViewportService["load"]>({
+  @EventTimer({
     delay: 100, // work around safe area not available on standalone load
     type: "load",
     initTarget(): EventTarget | null {
@@ -339,5 +339,4 @@ export class ViewportService extends Service {
     },
   })
   readonly load!: EventTimer<this>;
-  static readonly load: FastenerClass<ViewportService["load"]>;
 }

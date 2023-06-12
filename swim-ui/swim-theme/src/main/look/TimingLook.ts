@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyTiming, Timing, Interpolator} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {Timing} from "@swim/util";
+import {Interpolator} from "@swim/util";
 import {Look} from "./Look";
 
 /** @public */
@@ -29,7 +31,7 @@ export class TimingLook extends Look<Timing, AnyTiming> {
     } else if (combination !== void 0) {
       return combination;
     } else {
-      return value
+      return value;
     }
   }
 

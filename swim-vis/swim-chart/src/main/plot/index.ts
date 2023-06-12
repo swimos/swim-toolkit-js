@@ -12,81 +12,69 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  AnyPlotView,
-  PlotViewInit,
-  PlotView,
-} from "./PlotView";
-export {PlotViewObserver} from "./PlotViewObserver";
+export type {AnyPlotView} from "./PlotView";
+export type {PlotViewInit} from "./PlotView";
+export type {PlotView} from "./PlotView";
+export type {PlotViewObserver} from "./PlotViewObserver";
 
-export {
-  AnyScatterPlotView,
-  ScatterPlotViewInit,
-  ScatterPlotView,
-} from "./ScatterPlotView";
-export {ScatterPlotViewObserver} from "./ScatterPlotViewObserver";
+export type {AnyScatterPlotView} from "./ScatterPlotView";
+export type {ScatterPlotViewInit} from "./ScatterPlotView";
+export {ScatterPlotView} from "./ScatterPlotView";
+export type {ScatterPlotViewObserver} from "./ScatterPlotViewObserver";
 
-export {
-  SeriesPlotHitMode,
-  AnySeriesPlotView,
-  SeriesPlotViewInit,
-  SeriesPlotView,
-} from "./SeriesPlotView";
-export {SeriesPlotViewObserver} from "./SeriesPlotViewObserver";
+export type {SeriesPlotHitMode} from "./SeriesPlotView";
+export type {AnySeriesPlotView} from "./SeriesPlotView";
+export type {SeriesPlotViewInit} from "./SeriesPlotView";
+export {SeriesPlotView} from "./SeriesPlotView";
+export type {SeriesPlotViewObserver} from "./SeriesPlotViewObserver";
 
-export {
-  AnyBubblePlotView,
-  BubblePlotViewInit,
-  BubblePlotView,
-} from "./BubblePlotView";
-export {BubblePlotViewObserver} from "./BubblePlotViewObserver";
+export type {AnyBubblePlotView} from "./BubblePlotView";
+export type {BubblePlotViewInit} from "./BubblePlotView";
+export {BubblePlotView} from "./BubblePlotView";
+export type {BubblePlotViewObserver} from "./BubblePlotViewObserver";
 
-export {
-  AnyLinePlotView,
-  LinePlotViewInit,
-  LinePlotView,
-} from "./LinePlotView";
-export {LinePlotViewObserver} from "./LinePlotViewObserver";
+export type {AnyLinePlotView} from "./LinePlotView";
+export type {LinePlotViewInit} from "./LinePlotView";
+export {LinePlotView} from "./LinePlotView";
+export type {LinePlotViewObserver} from "./LinePlotViewObserver";
 
-export {
-  AnyAreaPlotView,
-  AreaPlotViewInit,
-  AreaPlotView,
-} from "./AreaPlotView";
-export {AreaPlotViewObserver} from "./AreaPlotViewObserver";
+export type {AnyAreaPlotView} from "./AreaPlotView";
+export type {AreaPlotViewInit} from "./AreaPlotView";
+export {AreaPlotView} from "./AreaPlotView";
+export type {AreaPlotViewObserver} from "./AreaPlotViewObserver";
 
 export {PlotTrait} from "./PlotTrait";
-export {PlotTraitObserver} from "./PlotTraitObserver";
+export type {PlotTraitObserver} from "./PlotTraitObserver";
 
 export {ScatterPlotTrait} from "./ScatterPlotTrait";
-export {ScatterPlotTraitObserver} from "./ScatterPlotTraitObserver";
+export type {ScatterPlotTraitObserver} from "./ScatterPlotTraitObserver";
 
 export {SeriesPlotTrait} from "./SeriesPlotTrait";
-export {SeriesPlotTraitObserver} from "./SeriesPlotTraitObserver";
+export type {SeriesPlotTraitObserver} from "./SeriesPlotTraitObserver";
 
 export {BubblePlotTrait} from "./BubblePlotTrait";
-export {BubblePlotTraitObserver} from "./BubblePlotTraitObserver";
+export type {BubblePlotTraitObserver} from "./BubblePlotTraitObserver";
 
 export {LinePlotTrait} from "./LinePlotTrait";
-export {LinePlotTraitObserver} from "./LinePlotTraitObserver";
+export type {LinePlotTraitObserver} from "./LinePlotTraitObserver";
 
 export {AreaPlotTrait} from "./AreaPlotTrait";
-export {AreaPlotTraitObserver} from "./AreaPlotTraitObserver";
+export type {AreaPlotTraitObserver} from "./AreaPlotTraitObserver";
 
 export {PlotController} from "./PlotController";
-export {PlotControllerObserver} from "./PlotControllerObserver";
+export type {PlotControllerObserver} from "./PlotControllerObserver";
 
 export {ScatterPlotController} from "./ScatterPlotController";
-export {ScatterPlotControllerObserver} from "./ScatterPlotControllerObserver";
+export type {ScatterPlotControllerObserver} from "./ScatterPlotControllerObserver";
 
 export {SeriesPlotController} from "./SeriesPlotController";
-export {SeriesPlotControllerObserver} from "./SeriesPlotControllerObserver";
+export type {SeriesPlotControllerObserver} from "./SeriesPlotControllerObserver";
 
 export {BubblePlotController} from "./BubblePlotController";
-export {BubblePlotControllerObserver} from "./BubblePlotControllerObserver";
+export type {BubblePlotControllerObserver} from "./BubblePlotControllerObserver";
 
 export {LinePlotController} from "./LinePlotController";
-export {LinePlotControllerObserver} from "./LinePlotControllerObserver";
+export type {LinePlotControllerObserver} from "./LinePlotControllerObserver";
 
 export {AreaPlotController} from "./AreaPlotController";
-export {AreaPlotControllerObserver} from "./AreaPlotControllerObserver";
+export type {AreaPlotControllerObserver} from "./AreaPlotControllerObserver";

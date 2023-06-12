@@ -12,20 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  ViewElement,
-  AnyElementView,
-  ElementViewInit,
-  ElementViewFactory,
-  ElementViewClass,
-  ElementViewConstructor,
-  ElementView,
-} from "./ElementView";
-export {
-  ElementViewObserver,
-  ElementViewObserverCache,
-  ViewWillSetAttribute,
-  ViewDidSetAttribute,
-  ViewWillSetStyle,
-  ViewDidSetStyle,
-} from "./ElementViewObserver";
+export type {ViewElement} from "./ElementView";
+export type {AnyElementView} from "./ElementView";
+export type {ElementViewInit} from "./ElementView";
+export type {ElementViewFactory} from "./ElementView";
+export type {ElementViewClass} from "./ElementView";
+export type {ElementViewConstructor} from "./ElementView";
+export {ElementView} from "./ElementView";
+export type {ElementViewObserver} from "./ElementViewObserver";
+export type {ElementViewObserverCache} from "./ElementViewObserver";
+export type {ViewWillSetAttribute} from "./ElementViewObserver";
+export type {ViewDidSetAttribute} from "./ElementViewObserver";
+export type {ViewWillSetStyle} from "./ElementViewObserver";
+export type {ViewDidSetStyle} from "./ElementViewObserver";

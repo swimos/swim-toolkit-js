@@ -12,14 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Proto, AnyTiming, Timing} from "@swim/util";
-import {Look, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
+import type {Proto} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {Timing} from "@swim/util";
+import {FastenerContext} from "@swim/component";
+import {Look} from "@swim/theme";
+import {Mood} from "@swim/theme";
+import type {MoodVector} from "@swim/theme";
+import type {ThemeMatrix} from "@swim/theme";
 import {CssContext} from "./CssContext";
-import {CssRuleDescriptor, CssRuleClass, CssRule} from "./CssRule";
+import type {CssRuleDescriptor} from "./CssRule";
+import type {CssRuleClass} from "./CssRule";
+import {CssRule} from "./CssRule";
+
+/** @public */
+export type MediaRuleDecorator<F extends MediaRule<any>> = {
+  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
+};
 
 /** @public */
 export interface MediaRuleDescriptor extends CssRuleDescriptor {
-  extends?: Proto<MediaRule<any>> | string | boolean | null;
+  extends?: Proto<MediaRule<any>> | boolean | null;
 }
 
 /** @public */
@@ -37,15 +50,15 @@ export interface MediaRuleClass<F extends MediaRule<any> = MediaRule<any>> exten
   refine(fastenerClass: MediaRuleClass<any>): void;
 
   /** @override */
-  extend<F2 extends F>(className: string, template: MediaRuleTemplate<F2>): MediaRuleClass<F2>;
-  extend<F2 extends F>(className: string, template: MediaRuleTemplate<F2>): MediaRuleClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: MediaRuleTemplate<F2>): MediaRuleClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: MediaRuleTemplate<F2>): MediaRuleClass<F2>;
 
   /** @override */
-  define<F2 extends F>(className: string, template: MediaRuleTemplate<F2>): MediaRuleClass<F2>;
-  define<F2 extends F>(className: string, template: MediaRuleTemplate<F2>): MediaRuleClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: MediaRuleTemplate<F2>): MediaRuleClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: MediaRuleTemplate<F2>): MediaRuleClass<F2>;
 
   /** @override */
-  <F2 extends F>(template: MediaRuleTemplate<F2>): PropertyDecorator;
+  <F2 extends F>(template: MediaRuleTemplate<F2>): MediaRuleDecorator<F2>;
 }
 
 /** @public */
@@ -124,9 +137,9 @@ export const MediaRule = (function (_super: typeof CssRule) {
     } else {
       timing = Timing.fromAny(timing);
     }
-    const fasteners = this.fasteners;
-    for (const fastenerName in fasteners) {
-      const fastener = fasteners[fastenerName]!;
+    const fastenerNames = FastenerContext.getFastenerNames(this);
+    for (let i = 0; i < fastenerNames.length; i += 1) {
+      const fastener = this[fastenerNames[i]!];
       if (fastener instanceof CssRule) {
         fastener.applyTheme(theme, mood, timing);
       }

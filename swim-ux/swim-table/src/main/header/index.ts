@@ -13,10 +13,10 @@
 // limitations under the License.
 
 export {HeaderView} from "./HeaderView";
-export {HeaderViewObserver} from "./HeaderViewObserver";
+export type {HeaderViewObserver} from "./HeaderViewObserver";
 
 export {HeaderTrait} from "./HeaderTrait";
-export {HeaderTraitObserver} from "./HeaderTraitObserver";
+export type {HeaderTraitObserver} from "./HeaderTraitObserver";
 
 export {HeaderController} from "./HeaderController";
-export {HeaderControllerObserver} from "./HeaderControllerObserver";
+export type {HeaderControllerObserver} from "./HeaderControllerObserver";

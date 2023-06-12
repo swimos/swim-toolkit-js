@@ -12,18 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, Proto, Arrays, Observes, Consumer, Consumable} from "@swim/util";
-import {FastenerFlags, FastenerOwner, FastenerDescriptor, FastenerClass, Fastener} from "@swim/component";
+import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
+import {Arrays} from "@swim/util";
+import type {Observes} from "@swim/util";
+import type {Consumer} from "@swim/util";
+import type {Consumable} from "@swim/util";
+import type {FastenerFlags} from "@swim/component";
+import type {FastenerOwner} from "@swim/component";
+import type {FastenerDescriptor} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
+import {Fastener} from "@swim/component";
 import {Model} from "../model/Model";
-import {AnyTrait, TraitFactory, Trait} from "./Trait";
+import type {AnyTrait} from "./Trait";
+import type {TraitFactory} from "./Trait";
+import {Trait} from "./Trait";
 
 /** @public */
 export type TraitRelationTrait<F extends TraitRelation<any, any>> =
   F extends {traitType?: TraitFactory<infer T>} ? T : never;
 
 /** @public */
+export type TraitRelationDecorator<F extends TraitRelation<any, any>> = {
+  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
+};
+
+/** @public */
 export interface TraitRelationDescriptor<T extends Trait = Trait> extends FastenerDescriptor {
-  extends?: Proto<TraitRelation<any, any>> | string | boolean | null;
+  extends?: Proto<TraitRelation<any, any>> | boolean | null;
   traitType?: TraitFactory<T>;
   binds?: boolean;
   observes?: boolean;
@@ -45,15 +61,15 @@ export interface TraitRelationClass<F extends TraitRelation<any, any> = TraitRel
   refine(fastenerClass: TraitRelationClass<any>): void;
 
   /** @override */
-  extend<F2 extends F>(className: string, template: TraitRelationTemplate<F2>): TraitRelationClass<F2>;
-  extend<F2 extends F>(className: string, template: TraitRelationTemplate<F2>): TraitRelationClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: TraitRelationTemplate<F2>): TraitRelationClass<F2>;
+  extend<F2 extends F>(className: string | symbol, template: TraitRelationTemplate<F2>): TraitRelationClass<F2>;
 
   /** @override */
-  define<F2 extends F>(className: string, template: TraitRelationTemplate<F2>): TraitRelationClass<F2>;
-  define<F2 extends F>(className: string, template: TraitRelationTemplate<F2>): TraitRelationClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: TraitRelationTemplate<F2>): TraitRelationClass<F2>;
+  define<F2 extends F>(className: string | symbol, template: TraitRelationTemplate<F2>): TraitRelationClass<F2>;
 
   /** @override */
-  <F2 extends F>(template: TraitRelationTemplate<F2>): PropertyDecorator;
+  <F2 extends F>(template: TraitRelationTemplate<F2>): TraitRelationDecorator<F2>;
 
   /** @internal */
   readonly ConsumingFlag: FastenerFlags;
@@ -76,7 +92,7 @@ export interface TraitRelation<O = unknown, T extends Trait = Trait> extends Fas
   readonly observes?: boolean; // optional prototype property
 
   /** @internal @override */
-  getSuper(): TraitRelation<unknown, T> | null;
+  getParent(): TraitRelation<unknown, T> | null;
 
   /** @internal @override */
   setDerived(derived: boolean, inlet: TraitRelation<unknown, T>): void;
@@ -247,7 +263,6 @@ export interface TraitRelation<O = unknown, T extends Trait = Trait> extends Fas
 export const TraitRelation = (function (_super: typeof Fastener) {
   const TraitRelation = _super.extend("TraitRelation", {
     lazy: false,
-    static: true,
   }) as TraitRelationClass;
 
   Object.defineProperty(TraitRelation.prototype, "fastenerType", {
@@ -376,8 +391,9 @@ export const TraitRelation = (function (_super: typeof Fastener) {
     }
     if (trait === void 0 || trait === null) {
       let message = "Unable to create ";
-      if (this.name.length !== 0) {
-        message += this.name + " ";
+      const name = this.name.toString();
+      if (name.length !== 0) {
+        message += name + " ";
       }
       message += "trait";
       throw new Error(message);
@@ -451,7 +467,7 @@ export const TraitRelation = (function (_super: typeof Fastener) {
       return (this.flags & TraitRelation.ConsumingFlag) !== 0;
     },
     configurable: true,
-  })
+  });
 
   TraitRelation.prototype.startConsuming = function (this: TraitRelation): void {
     if ((this.flags & TraitRelation.ConsumingFlag) === 0) {

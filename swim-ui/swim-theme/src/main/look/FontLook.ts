@@ -13,7 +13,9 @@
 // limitations under the License.
 
 import type {Interpolator} from "@swim/util";
-import {AnyFont, Font, FontInterpolator} from "@swim/style";
+import type {AnyFont} from "@swim/style";
+import {Font} from "@swim/style";
+import {FontInterpolator} from "@swim/style";
 import {Look} from "./Look";
 
 /** @public */

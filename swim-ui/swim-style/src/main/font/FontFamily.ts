@@ -13,8 +13,10 @@
 // limitations under the License.
 
 import {Strings} from "@swim/util";
-import {Unicode, Base16} from "@swim/codec";
-import {Item, Value} from "@swim/structure";
+import {Unicode} from "@swim/codec";
+import {Base16} from "@swim/codec";
+import type {Item} from "@swim/structure";
+import {Value} from "@swim/structure";
 
 /** @public */
 export type GenericFamily = "serif"

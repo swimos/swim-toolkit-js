@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  AnyHslColor,
-  HslColorInit,
-  HslColor,
-} from "./HslColor";
+export type {AnyHslColor} from "./HslColor";
+export type {HslColorInit} from "./HslColor";
+export {HslColor} from "./HslColor";
 export {HslColorInterpolator} from "./HslColorInterpolator";
 
 export {HslColorParser} from "./HslColorParser";

@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Observes} from "@swim/util";
-import type {FastenerClass} from "@swim/component";
+import type {Class} from "@swim/util";
+import type {Observes} from "@swim/util";
 import type {GeoBox} from "@swim/geo";
 import type {Trait} from "@swim/model";
-import {TraitViewRef, TraitViewControllerSet} from "@swim/controller";
+import {TraitViewRef} from "@swim/controller";
+import {TraitViewControllerSet} from "@swim/controller";
 import type {GeoView} from "../geo/GeoView";
 import type {GeoTrait} from "../geo/GeoTrait";
 import {GeoController} from "../geo/GeoController";
@@ -28,7 +29,7 @@ import type {GeoLayerControllerObserver} from "./GeoLayerControllerObserver";
 export class GeoLayerController extends GeoController {
   override readonly observerType?: Class<GeoLayerControllerObserver>;
 
-  @TraitViewRef<GeoLayerController["geo"]>({
+  @TraitViewRef({
     traitType: GeoLayerTrait,
     observesTrait: true,
     willAttachTrait(geoTrait: GeoLayerTrait): void {
@@ -74,9 +75,8 @@ export class GeoLayerController extends GeoController {
     },
   })
   readonly geo!: TraitViewRef<this, GeoLayerTrait, GeoView> & Observes<GeoLayerTrait>;
-  static readonly geo: FastenerClass<GeoLayerController["geo"]>;
 
-  @TraitViewControllerSet<GeoLayerController["features"]>({
+  @TraitViewControllerSet({
     controllerType: GeoController,
     binds: true,
     observes: true,
@@ -150,7 +150,7 @@ export class GeoLayerController extends GeoController {
       if (featureTrait !== void 0) {
         return featureTrait.createGeoController();
       } else {
-        return TraitViewControllerSet.prototype.createController.call(this);
+        return super.createController();
       }
     },
   })
@@ -160,5 +160,4 @@ export class GeoLayerController extends GeoController {
     attachFeatureView(featureView: GeoView, featureController: GeoController): void,
     detachFeatureView(featureView: GeoView, featureController: GeoController): void,
   };
-  static readonly features: FastenerClass<GeoLayerController["features"]>;
 }

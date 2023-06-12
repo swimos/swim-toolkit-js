@@ -13,4 +13,4 @@
 // limitations under the License.
 
 export {ExecutorService} from "./ExecutorService";
-export {ExecutorServiceObserver} from "./ExecutorServiceObserver";
+export type {ExecutorServiceObserver} from "./ExecutorServiceObserver";

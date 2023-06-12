@@ -12,8 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Lazy, Mutable} from "@swim/util";
-import {Graphics, VectorIcon} from "@swim/graphics";
+import {Lazy} from "@swim/util";
+import type {Mutable} from "@swim/util";
+import {EventHandler} from "@swim/component";
+import type {Graphics} from "@swim/graphics";
+import {VectorIcon} from "@swim/graphics";
 import {IconButton} from "@swim/button";
 import type {DrawerView} from "./DrawerView";
 
@@ -31,7 +34,7 @@ export class DrawerButton extends IconButton {
   }
 
   protected initIcon(): void {
-    this.pushIcon(DrawerButton.hamburgerIcon);
+    this.icon.push(DrawerButton.hamburgerIcon);
   }
 
   readonly drawerView: DrawerView | null;
@@ -40,13 +43,17 @@ export class DrawerButton extends IconButton {
     (this as Mutable<this>).drawerView = drawerView;
   }
 
-  protected override onClick(event: MouseEvent): void {
-    super.onClick(event);
-    const drawerView = this.drawerView;
-    if (drawerView !== null) {
-      drawerView.toggle();
-    }
-  }
+  @EventHandler({
+    extends: true,
+    handle(event: MouseEvent): void {
+      super.handle(event);
+      const drawerView = this.owner.drawerView;
+      if (drawerView !== null) {
+        drawerView.toggle();
+      }
+    },
+  })
+  override readonly click!: EventHandler<this>;
 
   @Lazy
   static get hamburgerIcon(): Graphics {

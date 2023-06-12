@@ -13,4 +13,4 @@
 // limitations under the License.
 
 export {SolverService} from "./SolverService";
-export {SolverServiceObserver} from "./SolverServiceObserver";
+export type {SolverServiceObserver} from "./SolverServiceObserver";

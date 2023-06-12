@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AttributeAnimatorClass, AttributeAnimator} from "./AttributeAnimator";
+import type {AttributeAnimatorClass} from "./AttributeAnimator";
+import {AttributeAnimator} from "./AttributeAnimator";
 
 /** @internal */
 export interface BooleanAttributeAnimator<O = unknown, T extends boolean | undefined = boolean | undefined, U extends boolean | string | undefined = boolean | string | T> extends AttributeAnimator<O, T, U> {

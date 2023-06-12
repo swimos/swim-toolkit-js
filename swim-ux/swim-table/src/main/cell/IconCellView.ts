@@ -12,13 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Class, Timing} from "@swim/util";
-import {Affinity, Animator} from "@swim/component";
-import {AnyLength, Length} from "@swim/math";
-import {AnyColor, Color} from "@swim/style";
-import {MoodVector, ThemeMatrix, ThemeAnimator} from "@swim/theme";
-import {ViewFlags, View} from "@swim/view";
-import {Graphics, Icon, FilledIcon, IconGraphicsAnimator, SvgIconView} from "@swim/graphics";
+import type {Class} from "@swim/util";
+import type {Timing} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Animator} from "@swim/component";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import type {AnyColor} from "@swim/style";
+import {Color} from "@swim/style";
+import type {MoodVector} from "@swim/theme";
+import type {ThemeMatrix} from "@swim/theme";
+import {ThemeAnimator} from "@swim/theme";
+import type {ViewFlags} from "@swim/view";
+import {View} from "@swim/view";
+import {Graphics} from "@swim/graphics";
+import {Icon} from "@swim/graphics";
+import {FilledIcon} from "@swim/graphics";
+import {IconGraphicsAnimator} from "@swim/graphics";
+import {SvgIconView} from "@swim/graphics";
 import {CellView} from "./CellView";
 import type {IconCellViewObserver} from "./IconCellViewObserver";
 
@@ -64,7 +75,7 @@ export class IconCellView extends CellView {
   @ThemeAnimator({valueType: Length, value: null, updateFlags: View.NeedsLayout})
   readonly iconHeight!: ThemeAnimator<this, Length | null, AnyLength | null>;
 
-  @ThemeAnimator<IconCellView["iconColor"]>({
+  @ThemeAnimator({
     valueType: Color,
     value: null,
     updateFlags: View.NeedsLayout,
@@ -81,7 +92,7 @@ export class IconCellView extends CellView {
   })
   readonly iconColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
-  @ThemeAnimator<IconCellView["graphics"]>({
+  @ThemeAnimator({
     extends: IconGraphicsAnimator,
     valueType: Graphics,
     value: null,

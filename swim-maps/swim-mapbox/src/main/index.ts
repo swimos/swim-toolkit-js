@@ -15,4 +15,4 @@
 export {MapboxViewport} from "./MapboxViewport";
 
 export {MapboxView} from "./MapboxView";
-export {MapboxViewObserver} from "./MapboxViewObserver";
+export type {MapboxViewObserver} from "./MapboxViewObserver";

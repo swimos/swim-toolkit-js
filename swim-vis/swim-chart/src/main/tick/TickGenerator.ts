@@ -12,9 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyDomain, Domain, LinearDomain, ContinuousScale, LinearScale} from "@swim/util";
+import type {AnyDomain} from "@swim/util";
+import type {Domain} from "@swim/util";
+import {LinearDomain} from "@swim/util";
+import type {ContinuousScale} from "@swim/util";
+import {LinearScale} from "@swim/util";
 import {BTree} from "@swim/collections";
-import {TimeZone, AnyDateTime, DateTime, TimeDomain, DateTimeFormat, TimeInterval, TimeScale} from "@swim/time";
+import type {TimeZone} from "@swim/time";
+import type {AnyDateTime} from "@swim/time";
+import {DateTime} from "@swim/time";
+import {TimeDomain} from "@swim/time";
+import {DateTimeFormat} from "@swim/time";
+import {TimeInterval} from "@swim/time";
+import {TimeScale} from "@swim/time";
 
 const ERROR_10 = Math.sqrt(50);
 const ERROR_5 = Math.sqrt(10);

@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {GeoTile, GeoBox} from "@swim/geo";
+import type {GeoTile} from "@swim/geo";
+import type {GeoBox} from "@swim/geo";
 import {GeoView} from "../geo/GeoView";
 
 /** @public */

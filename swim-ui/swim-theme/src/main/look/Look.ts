@@ -12,9 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {AnyTiming, Timing, Interpolator} from "@swim/util";
-import type {AnyLength, Length} from "@swim/math";
-import type {AnyFont, Font, AnyColor, Color, AnyBoxShadow, BoxShadow} from "@swim/style";
+import type {AnyTiming} from "@swim/util";
+import type {Timing} from "@swim/util";
+import type {Interpolator} from "@swim/util";
+import type {AnyLength} from "@swim/math";
+import type {Length} from "@swim/math";
+import type {AnyFont} from "@swim/style";
+import type {Font} from "@swim/style";
+import type {AnyColor} from "@swim/style";
+import type {Color} from "@swim/style";
+import type {AnyBoxShadow} from "@swim/style";
+import type {BoxShadow} from "@swim/style";
 import {LookVector} from "./LookVector";
 import type {Feel} from "../feel/Feel";
 import type {Mood} from "../mood/Mood";

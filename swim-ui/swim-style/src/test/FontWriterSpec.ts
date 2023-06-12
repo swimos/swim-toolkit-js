@@ -12,11 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Spec, Test, Exam} from "@swim/unit";
+import type {Exam} from "@swim/unit";
+import {Test} from "@swim/unit";
+import {Suite} from "@swim/unit";
 import {Length} from "@swim/math";
 import {Font} from "@swim/style";
 
-export class FontWriterSpec extends Spec {
+export class FontWriterSpec extends Suite {
   @Test
   writerSingleFontFamilies(exam: Exam): void {
     exam.equal(Font.family("serif").toString(), "serif");

@@ -23,7 +23,7 @@ import {TextColController} from "./"; // forward import
 export class TextColTrait extends ColTrait {
   override readonly observerType?: Class<TextColTraitObserver>;
 
-  @Property<TextColTrait["label"]>({
+  @Property({
     valueType: String,
     didSetValue(label: string | undefined): void {
       this.owner.callObservers("traitDidSetLabel", label, this.owner);

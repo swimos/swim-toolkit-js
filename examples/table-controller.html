@@ -12,6 +12,7 @@
     </style>
   </head>
   <body swim-theme style="display: flex; width: 100vw; height: 100vh; margin: 0;">
+    <script src="../../node_modules/tslib/tslib.js"></script>
     <script src="../../swim-runtime/swim-core/dist/swim-core.js"></script>
     <script src="../../swim-runtime/swim-host/dist/swim-host.js"></script>
     <script src="../swim-ui/dist/swim-ui.js"></script>
@@ -26,26 +27,36 @@ const containerView = bodyView.appendChild("div")
   .margin(60)
   .userSelect("none");
 
-class ExampleTableController extends swim.TableController {
-}
-swim.TraitViewControllerSet({
-  extends: true,
-  controllerDidEnterLeafView(leafView, rowController) {
-    leafView.hover.focus(false);
-  },
-  controllerDidLeaveLeafView(leafView, rowController) {
-    leafView.hover.unfocus(false);
-  },
-  controllerDidPressLeafView(input, event, leafView, rowController) {
-    leafView.highlight.toggle();
-  },
-  attachCellView(cellView, cellController, rowController) {
-    swim.TableController.rows.prototype.attachCellView.call(this, cellView, cellController, rowController);
-    if (cellFastener.key === "a") {
-      cellView.color("#989898");
+const ExampleTableController = (function () {
+  const extraInitializers = [];
+  const rowInitializers = [];
+  class ExampleTableController extends swim.TableController {
+    constructor() {
+      super();
+      __runInitializers(this, extraInitializers);
+      this.rows = __runInitializers(this, rowInitializers, this.rows);
     }
-  },
-})(ExampleTableController.prototype, "rows");
+  }
+  __esDecorate(null, null, [swim.TraitViewControllerSet({
+    extends: true,
+    controllerDidEnterLeafView(leafView, rowController) {
+      leafView.hover.focus(false);
+    },
+    controllerDidLeaveLeafView(leafView, rowController) {
+      leafView.hover.unfocus(false);
+    },
+    controllerDidPressLeafView(input, event, leafView, rowController) {
+      leafView.highlight.toggle();
+    },
+    attachCellView(cellView, cellController, rowController) {
+      super.attachCellView(cellView, cellController, rowController);
+      if (cellFastener.key === "a") {
+        cellView.color("#989898");
+      }
+    },
+  })], {kind: "field", name: "rows", static: false, private: false, access: {has: obj => "rows" in obj, get: obj => obj.rows, set: (obj, value) => { obj.appBar = value; }}}, rowInitializers, extraInitializers);
+  return ExampleTableController;
+})();
 
 const tableModel = new swim.Model();
 tableModel.mount();

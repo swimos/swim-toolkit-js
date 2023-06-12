@@ -12,10 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Equals, Equivalent, Mutable, Arrays, Values, Interpolate, Interpolator} from "@swim/util";
-import {Parser, Diagnostic, Unicode} from "@swim/codec";
+import type {Mutable} from "@swim/util";
+import {Arrays} from "@swim/util";
+import {Values} from "@swim/util";
+import type {Equals} from "@swim/util";
+import type {Equivalent} from "@swim/util";
+import type {Interpolate} from "@swim/util";
+import type {Interpolator} from "@swim/util";
+import {Diagnostic} from "@swim/codec";
+import {Parser} from "@swim/codec";
+import {Unicode} from "@swim/codec";
 import {Angle} from "@swim/math";
-import {AnyColorStop, ColorStop} from "./ColorStop";
+import type {AnyColorStop} from "./ColorStop";
+import {ColorStop} from "./ColorStop";
 import {LinearGradientInterpolator} from "../"; // forward import
 import {LinearGradientAngleParser} from "../"; // forward import
 import {LinearGradientParser} from "../"; // forward import
@@ -109,7 +118,7 @@ export class LinearGradient implements Interpolate<LinearGradient>, Equals, Equi
       if (this.angle instanceof Angle) {
         s += this.angle.toString();
       } else {
-        s += "to"
+        s += "to";
         if (typeof this.angle === "string") {
           s += " ";
           s += this.angle;

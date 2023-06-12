@@ -12,34 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  FillViewInit,
-  FillView,
-} from "./FillView";
+export type {FillViewInit} from "./FillView";
+export {FillView} from "./FillView";
 
-export {
-  StrokeViewInit,
-  StrokeView,
-} from "./StrokeView";
+export type {StrokeViewInit} from "./StrokeView";
+export {StrokeView} from "./StrokeView";
 
-export {
-  AnyRect,
-  RectInit,
-  Rect,
-} from "./Rect";
-export {
-  AnyRectView,
-  RectViewInit,
-  RectView,
-} from "./RectView";
+export type {AnyRect} from "./Rect";
+export type {RectInit} from "./Rect";
+export {Rect} from "./Rect";
+export type {AnyRectView} from "./RectView";
+export type {RectViewInit} from "./RectView";
+export {RectView} from "./RectView";
 
-export {
-  AnyArc,
-  ArcInit,
-  Arc,
-} from "./Arc";
-export {
-  AnyArcView,
-  ArcViewInit,
-  ArcView,
-} from "./ArcView";
+export type {AnyArc} from "./Arc";
+export type {ArcInit} from "./Arc";
+export {Arc} from "./Arc";
+export type {AnyArcView} from "./ArcView";
+export type {ArcViewInit} from "./ArcView";
+export {ArcView} from "./ArcView";

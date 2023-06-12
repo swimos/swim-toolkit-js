@@ -12,15 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  AnyGeoIconView,
-  GeoIconViewInit,
-  GeoIconView,
-} from "./GeoIconView";
-export {GeoIconViewObserver} from "./GeoIconViewObserver";
+export type {AnyGeoIconView} from "./GeoIconView";
+export type {GeoIconViewInit} from "./GeoIconView";
+export {GeoIconView} from "./GeoIconView";
+export type {GeoIconViewObserver} from "./GeoIconViewObserver";
 
 export {GeoIconTrait} from "./GeoIconTrait";
-export {GeoIconTraitObserver} from "./GeoIconTraitObserver";
+export type {GeoIconTraitObserver} from "./GeoIconTraitObserver";
 
 export {GeoIconController} from "./GeoIconController";
-export {GeoIconControllerObserver} from "./GeoIconControllerObserver";
+export type {GeoIconControllerObserver} from "./GeoIconControllerObserver";

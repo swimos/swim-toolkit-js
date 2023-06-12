@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Class} from "@swim/util";
-import type {FastenerClass} from "@swim/component";
+import type {Mutable} from "@swim/util";
+import type {Class} from "@swim/util";
 import {GeoBox} from "@swim/geo";
-import {Model, Trait, TraitSet} from "@swim/model";
+import type {Model} from "@swim/model";
+import type {Trait} from "@swim/model";
+import {TraitSet} from "@swim/model";
 import {GeoTrait} from "../geo/GeoTrait";
 import type {GeoController} from "../geo/GeoController";
 import type {GeoLayerTraitObserver} from "./GeoLayerTraitObserver";
@@ -54,7 +56,7 @@ export class GeoLayerTrait extends GeoTrait {
     this.callObservers("traitDidSetGeoBounds", newGeoBounds, oldGeoBounds, this);
   }
 
-  @TraitSet<GeoLayerTrait["features"]>({
+  @TraitSet({
     traitType: GeoTrait,
     binds: true,
     willAttachTrait(featureTrait: GeoTrait): void {
@@ -81,7 +83,6 @@ export class GeoLayerTrait extends GeoTrait {
     },
   })
   readonly features!: TraitSet<this, GeoTrait>;
-  static readonly features: FastenerClass<GeoLayerTrait["features"]>;
 
   protected override onStartConsuming(): void {
     super.onStartConsuming();

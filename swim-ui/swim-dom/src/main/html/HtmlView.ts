@@ -12,22 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, Instance, AnyTiming, Timing, Creatable, Inits} from "@swim/util";
-import {Affinity, AnyAnimatorValue} from "@swim/component";
+import {__runInitializers} from "tslib";
+import type {Class} from "@swim/util";
+import type {Instance} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import type {Timing} from "@swim/util";
+import {Creatable} from "@swim/util";
+import type {Inits} from "@swim/util";
+import {Affinity} from "@swim/component";
+import type {AnyAnimatorValue} from "@swim/component";
 import {Transform} from "@swim/math";
-import {Look, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewFlags, AnyView, View} from "@swim/view";
+import {Look} from "@swim/theme";
+import {Mood} from "@swim/theme";
+import type {MoodVector} from "@swim/theme";
+import type {ThemeMatrix} from "@swim/theme";
+import type {ViewFlags} from "@swim/view";
+import type {AnyView} from "@swim/view";
+import {View} from "@swim/view";
 import {AttributeAnimator} from "../attribute/AttributeAnimator";
-import {StyleMapInit, StyleMap} from "../css/StyleMap";
+import type {StyleMapInit} from "../css/StyleMap";
+import {StyleMap} from "../css/StyleMap";
 import type {ViewNodeType} from "../node/NodeView";
-import {
-  AnyElementView,
-  ElementViewInit,
-  ElementViewFactory,
-  ElementViewClass,
-  ElementViewConstructor,
-  ElementView,
-} from "../element/ElementView";
+import type {AnyElementView} from "../element/ElementView";
+import type {ElementViewInit} from "../element/ElementView";
+import type {ElementViewFactory} from "../element/ElementView";
+import type {ElementViewClass} from "../element/ElementView";
+import type {ElementViewConstructor} from "../element/ElementView";
+import {ElementView} from "../element/ElementView";
 import type {HtmlViewObserver} from "./HtmlViewObserver";
 import {StyleView} from "./"; // forward import
 import {SvgView} from "../"; // forward import
@@ -198,6 +209,10 @@ export interface HtmlViewConstructor<V extends HtmlView = HtmlView, U = AnyHtmlV
 export class HtmlView extends ElementView {
   constructor(node: HTMLElement) {
     super(node);
+    __runInitializers(this, HtmlView.extraInitializers);
+    for (const key in HtmlView.initializerMap) {
+      (this as any)[key] = __runInitializers(this, HtmlView.initializerMap[key]!, void 0);
+    }
   }
 
   override readonly observerType?: Class<HtmlViewObserver>;
@@ -509,13 +524,19 @@ export class HtmlView extends ElementView {
       return new HtmlViewTagFactory(this, tag);
     }
   }
+
+  /** @internal */
+  static readonly initializerMap: {[name: string | symbol]: Function[]} = {};
+  /** @internal */
+  static readonly extraInitializers: Function[] = [];
 }
 /** @public */
 export interface HtmlView extends StyleMap {
   applyTheme(theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean): void;
   requireUpdate(updateFlags: ViewFlags, immediate?: boolean): void;
 }
-StyleMap.define(HtmlView.prototype);
+
+StyleMap.define(HtmlView.prototype, HtmlView.initializerMap, HtmlView.extraInitializers);
 
 /** @internal */
 export class HtmlViewTagFactory<V extends HtmlView> implements HtmlViewFactory<V> {

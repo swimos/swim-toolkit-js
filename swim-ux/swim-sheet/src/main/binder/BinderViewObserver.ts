@@ -16,7 +16,8 @@ import type {View} from "@swim/view";
 import type {BarView} from "@swim/toolbar";
 import type {SheetView} from "../sheet/SheetView";
 import type {SheetViewObserver} from "../sheet/SheetViewObserver";
-import type {BinderTabStyle, BinderView} from "./BinderView";
+import type {BinderTabStyle} from "./BinderView";
+import type {BinderView} from "./BinderView";
 
 /** @public */
 export interface BinderViewObserver<V extends BinderView = BinderView> extends SheetViewObserver<V> {

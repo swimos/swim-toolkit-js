@@ -14,11 +14,16 @@
 
 import type {Mutable} from "@swim/util";
 import {Property} from "@swim/component";
-import {R2Box, Transform} from "@swim/math";
+import type {R2Box} from "@swim/math";
+import {Transform} from "@swim/math";
 import {ThemeConstraintAnimator} from "@swim/theme";
-import {ViewFlags, View} from "@swim/view";
-import {AnyGraphicsRenderer, GraphicsRendererType, GraphicsRenderer} from "../graphics/GraphicsRenderer";
-import {GraphicsViewInit, GraphicsView} from "../graphics/GraphicsView";
+import type {ViewFlags} from "@swim/view";
+import {View} from "@swim/view";
+import type {AnyGraphicsRenderer} from "../graphics/GraphicsRenderer";
+import type {GraphicsRendererType} from "../graphics/GraphicsRenderer";
+import {GraphicsRenderer} from "../graphics/GraphicsRenderer";
+import type {GraphicsViewInit} from "../graphics/GraphicsView";
+import {GraphicsView} from "../graphics/GraphicsView";
 import {WebGLRenderer} from "../webgl/WebGLRenderer";
 import type {CanvasCompositeOperation} from "../canvas/CanvasContext";
 import {CanvasRenderer} from "../canvas/CanvasRenderer";
@@ -35,6 +40,7 @@ export class RasterView extends GraphicsView {
     super();
     this.canvas = this.createCanvas();
     this.ownRasterFrame = null;
+    (this.renderer as Mutable<typeof this.renderer>).value = this.createRenderer();
   }
 
   @ThemeConstraintAnimator({valueType: Number, value: 1, updateFlags: View.NeedsComposite})
@@ -50,20 +56,17 @@ export class RasterView extends GraphicsView {
   /** @internal */
   readonly canvas: HTMLCanvasElement;
 
-  @Property<RasterView["compositor"]>({
+  @Property({
     valueType: GraphicsRenderer,
     value: null,
     inherits: "renderer",
   })
   readonly compositor!: Property<this, GraphicsRenderer | null>;
 
-  @Property<RasterView["renderer"]>({
+  @Property({
     extends: true,
     inherits: false,
     updateFlags: View.NeedsRender | View.NeedsComposite,
-    initValue(): GraphicsRenderer | null {
-      return this.owner.createRenderer();
-    },
     fromAny(renderer: AnyGraphicsRenderer | null): GraphicsRenderer | null {
       if (typeof renderer === "string") {
         renderer = this.owner.createRenderer(renderer as GraphicsRendererType);

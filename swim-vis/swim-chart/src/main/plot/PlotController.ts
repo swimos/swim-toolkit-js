@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, AnyTiming, Timing} from "@swim/util";
+import type {Class} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {Timing} from "@swim/util";
 import {Property} from "@swim/component";
 import type {TraitViewRef} from "@swim/controller";
 import {DataSetController} from "../data/DataSetController";

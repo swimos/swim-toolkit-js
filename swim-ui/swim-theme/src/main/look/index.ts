@@ -14,45 +14,31 @@
 
 export {Look} from "./Look";
 
-export {
-  AnyLookVector,
-  LookVectorArray,
-  LookVectorUpdates,
-  LookVector,
-} from "./LookVector";
+export type {AnyLookVector} from "./LookVector";
+export type {LookVectorArray} from "./LookVector";
+export type {LookVectorUpdates} from "./LookVector";
+export {LookVector} from "./LookVector";
 
-export {
-  AnyNumberOrLook,
-  NumberOrLook,
-  NumberLook,
-} from "./NumberLook";
+export type {AnyNumberOrLook} from "./NumberLook";
+export type {NumberOrLook} from "./NumberLook";
+export {NumberLook} from "./NumberLook";
 
-export {
-  AnyLengthOrLook,
-  LengthOrLook,
-  LengthLook,
-} from "./LengthLook";
+export type {AnyLengthOrLook} from "./LengthLook";
+export type {LengthOrLook} from "./LengthLook";
+export {LengthLook} from "./LengthLook";
 
-export {
-  AnyColorOrLook,
-  ColorOrLook,
-  ColorLook,
-} from "./ColorLook";
+export type {AnyColorOrLook} from "./ColorLook";
+export type {ColorOrLook} from "./ColorLook";
+export {ColorLook} from "./ColorLook";
 
-export {
-  AnyFontOrLook,
-  FontOrLook,
-  FontLook,
-} from "./FontLook";
+export type {AnyFontOrLook} from "./FontLook";
+export type {FontOrLook} from "./FontLook";
+export {FontLook} from "./FontLook";
 
-export {
-  AnyShadowOrLook,
-  ShadowOrLook,
-  ShadowLook,
-} from "./ShadowLook";
+export type {AnyShadowOrLook} from "./ShadowLook";
+export type {ShadowOrLook} from "./ShadowLook";
+export {ShadowLook} from "./ShadowLook";
 
-export {
-  AnyTimingOrLook,
-  TimingOrLook,
-  TimingLook,
-} from "./TimingLook";
+export type {AnyTimingOrLook} from "./TimingLook";
+export type {TimingOrLook} from "./TimingLook";
+export {TimingLook} from "./TimingLook";

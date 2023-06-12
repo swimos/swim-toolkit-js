@@ -12,11 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mutable, AnyTiming, Timing} from "@swim/util";
+import type {Mutable} from "@swim/util";
+import type {AnyTiming} from "@swim/util";
+import {Timing} from "@swim/util";
 import {Affinity} from "@swim/component";
-import {AnyLength, Length} from "@swim/math";
-import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
-import {StyleAnimator, LengthStyleConstraintAnimator, HtmlView} from "@swim/dom";
+import type {AnyLength} from "@swim/math";
+import {Length} from "@swim/math";
+import {Look} from "@swim/theme";
+import type {MoodVector} from "@swim/theme";
+import type {ThemeMatrix} from "@swim/theme";
+import {StyleAnimator} from "@swim/dom";
+import {LengthStyleConstraintAnimator} from "@swim/dom";
+import {HtmlView} from "@swim/dom";
 
 /** @public */
 export type ButtonGlowState = "ready" | "glowing" | "pulsing" | "fading";
@@ -47,7 +54,7 @@ export class ButtonGlow extends HtmlView {
   /** @internal */
   glowTimer: number;
 
-  @LengthStyleConstraintAnimator<ButtonGlow["left"]>({
+  @LengthStyleConstraintAnimator({
     extends: true,
     didTransition(): void {
       this.owner.didGlow();
@@ -55,7 +62,7 @@ export class ButtonGlow extends HtmlView {
   })
   override readonly left!: LengthStyleConstraintAnimator<this, Length | null, AnyLength | null>;
 
-  @StyleAnimator<ButtonGlow["opacity"]>({
+  @StyleAnimator({
     extends: true,
     didTransition(opacity: number | undefined): void {
       if (this.owner.glowState === "pulsing" && opacity === 0) {
@@ -187,7 +194,7 @@ export class ButtonGlow extends HtmlView {
   fade(clientX: number, clientY: number, timing?: AnyTiming | boolean): void {
     if (this.glowState === "ready") {
       this.cancelGlow();
-      this.didFade()
+      this.didFade();
     } else if (this.glowState === "glowing") {
       if (timing === void 0 || timing === true) {
         timing = this.getLookOr(Look.timing, false);

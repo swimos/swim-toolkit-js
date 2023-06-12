@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  PaintingFillRule,
-  PaintingContext,
-} from "./PaintingContext";
+export type {PaintingFillRule} from "./PaintingContext";
+export type {PaintingContext} from "./PaintingContext";
 export {PaintingRenderer} from "./PaintingRenderer";
