@@ -137,6 +137,7 @@ export const TraitViewControllerRef = (function (_super: typeof ControllerRef) {
 
   Object.defineProperty(TraitViewControllerRef.prototype, "fastenerType", {
     value: TraitViewControllerRef,
+    enumerable: true,
     configurable: true,
   });
 
@@ -153,6 +154,7 @@ export const TraitViewControllerRef = (function (_super: typeof ControllerRef) {
       }
       return null;
     },
+    enumerable: true,
     configurable: true,
   });
 
@@ -236,6 +238,7 @@ export const TraitViewControllerRef = (function (_super: typeof ControllerRef) {
 
   Object.defineProperty(TraitViewControllerRef.prototype, "parentView", {
     value: null,
+    enumerable: true,
     configurable: true,
   });
 
@@ -248,6 +251,7 @@ export const TraitViewControllerRef = (function (_super: typeof ControllerRef) {
       }
       return null;
     },
+    enumerable: true,
     configurable: true,
   });
 
@@ -323,6 +327,7 @@ export const TraitViewControllerRef = (function (_super: typeof ControllerRef) {
     get: function (this: TraitViewControllerRef): View | null {
       return null;
     },
+    enumerable: true,
     configurable: true,
   });
 

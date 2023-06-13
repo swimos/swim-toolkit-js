@@ -1453,7 +1453,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @internal */
   decohereFastener(fastener: Fastener): void {
-    let decoherent = this.decoherent as Fastener[];
+    let decoherent = this.decoherent as Fastener[] | null;
     if (decoherent === null) {
       decoherent = [];
       (this as Mutable<this>).decoherent = decoherent;

@@ -18,6 +18,7 @@ import {Length} from "@swim/math";
 import {Color} from "@swim/style";
 import {Look} from "@swim/theme";
 import {ViewRef} from "@swim/view";
+import type {StyleSheet} from "@swim/dom";
 import {StyleRule} from "@swim/dom";
 import {HtmlView} from "@swim/dom";
 import {StyleView} from "@swim/dom";
@@ -100,21 +101,15 @@ export class SearchToolView extends ToolView {
     viewType: StyleView,
     viewKey: true,
     binds: true,
-    initView(styleView: StyleView): void {
-      //const sheet = styleView.sheet;
-      //sheet.setFastener("input", SearchToolView.InputRule.create(sheet));
-      //sheet.setFastener("inputFocus", SearchToolView.InputFocusRule.create(sheet));
-      //sheet.setFastener("inputPlaceholder", SearchToolView.InputPlaceholderRule.create(sheet));
-      //sheet.setFastener("inputSearchCancelButton", SearchToolView.InputSearchCancelButtonRule.create(sheet));
-    },
   })
   readonly stylesheet!: ViewRef<this, StyleView>;
 
-  /** @internal */
-  static InputRule = StyleRule.define("InputRule", {
-    css: "input {"
-       + "  transition: border 100ms ease-out;"
-       + "}",
+  @StyleRule({
+    getInlet(): StyleSheet | null {
+      const styleView = this.owner.stylesheet.view;
+      return styleView !== null ? styleView.sheet : null;
+    },
+    selector: "input",
     init(): void {
       this.appearance.setState("none", Affinity.Intrinsic);
       this.borderTopWidth.setState(1, Affinity.Intrinsic);
@@ -138,14 +133,17 @@ export class SearchToolView extends ToolView {
       this.outlineColor.setState(Color.transparent(), Affinity.Intrinsic);
       this.backgroundColor.setState(Color.transparent(), Affinity.Intrinsic);
       this.color.setLook(Look.textColor, Affinity.Intrinsic);
+      this.setStyle("transition", "border 100ms ease-out");
     },
-  });
+  })
+  readonly inputRule!: StyleRule<this>;
 
-  /** @internal */
-  static InputFocusRule = StyleRule.define("InputFocusRule", {
-    css: "input:focus {"
-       + "  transition: border 100ms ease-out;"
-       + "}",
+  @StyleRule({
+    getInlet(): StyleSheet | null {
+      const styleView = this.owner.stylesheet.view;
+      return styleView !== null ? styleView.sheet : null;
+    },
+    selector: "input:focus",
     init(): void {
       this.borderTopWidth.setState(2, Affinity.Intrinsic);
       this.borderTopColor.setLook(Look.focusColor, Affinity.Intrinsic);
@@ -155,23 +153,34 @@ export class SearchToolView extends ToolView {
       this.borderBottomColor.setLook(Look.focusColor, Affinity.Intrinsic);
       this.borderLeftWidth.setState(2, Affinity.Intrinsic);
       this.borderLeftColor.setLook(Look.focusColor, Affinity.Intrinsic);
+      this.setStyle("transition", "border 100ms ease-out");
     },
-  });
+  })
+  readonly inputFocusRule!: StyleRule<this>;
 
-  /** @internal */
-  static InputPlaceholderRule = StyleRule.define("InputPlaceholderRule", {
-    css: "input::placeholder {}",
+  @StyleRule({
+    getInlet(): StyleSheet | null {
+      const styleView = this.owner.stylesheet.view;
+      return styleView !== null ? styleView.sheet : null;
+    },
+    selector: "input::placeholder",
     init(): void {
       this.color.setLook(Look.placeholderColor, Affinity.Intrinsic);
     },
-  });
+  })
+  readonly inputPlaceholderRule!: StyleRule<this>;
 
-  /** @internal */
-  static InputSearchCancelButtonRule = StyleRule.define("InputSearchCancelButtonRule", {
-    css: "input::-webkit-search-cancel-button {"
-       + "  -webkit-appearance: none;"
-       + "}",
-  });
+  @StyleRule({
+    getInlet(): StyleSheet | null {
+      const styleView = this.owner.stylesheet.view;
+      return styleView !== null ? styleView.sheet : null;
+    },
+    selector: "input::-webkit-search-cancel-button",
+    init(): void {
+      this.setStyle("-webkit-appearance", "none");
+    },
+  })
+  readonly inputSearchCancelButtonRule!: StyleRule<this>;
 
   protected override onLayout(): void {
     super.onLayout();

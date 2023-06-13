@@ -36,16 +36,22 @@ export class StyleView extends HtmlView implements StyleContext {
 
   override readonly node!: HTMLStyleElement;
 
-  @StyleSheet({
-    initStylesheet(): CSSStyleSheet {
-      return this.owner.node.sheet!;
-    },
-  })
+  @StyleSheet({})
   readonly sheet!: StyleSheet<this>;
 
   protected override onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
     this.sheet.applyTheme(theme, mood, timing);
+  }
+
+  protected override onMount(): void {
+    super.onMount();
+    this.sheet.attachCss(this.node.sheet!);
+  }
+
+  protected override onUnmount(): void {
+    this.sheet.detachCss();
+    super.onUnmount();
   }
 
   override init(init: StyleViewInit): void {

@@ -21,6 +21,7 @@ import {Look} from "@swim/theme";
 import type {MoodVector} from "@swim/theme";
 import type {ThemeMatrix} from "@swim/theme";
 import {ViewRef} from "@swim/view";
+import type {StyleSheet} from "@swim/dom";
 import {StyleRule} from "@swim/dom";
 import {HtmlView} from "@swim/dom";
 import {StyleView} from "@swim/dom";
@@ -49,19 +50,6 @@ export class InputTokenView extends TokenView {
     this.label.attachView();
   }
 
-  protected initStylesheet(styleView: StyleView): void {
-    const sheet = styleView.sheet;
-    if (sheet !== null) {
-      //const placeholder = InputTokenView.PlaceholderRule.create(sheet);
-      //sheet.setFastener("placeholder", placeholder);
-    }
-  }
-
-  /** @internal */
-  static PlaceholderRule = StyleRule.define("PlaceholderRule", {
-    css: "::placeholder {}",
-  });
-
   protected override initLabel(labelView: HtmlView): void {
     super.initLabel(labelView);
     labelView.paddingTop.setState(0, Affinity.Intrinsic);
@@ -83,15 +71,20 @@ export class InputTokenView extends TokenView {
     viewType: StyleView,
     viewKey: true,
     binds: true,
-    observes: true,
-    viewDidMount(styleView: StyleView): void {
-      this.owner.initStylesheet(styleView);
-    },
     init(): void {
       this.insertView();
     },
   })
-  readonly stylesheet!: ViewRef<this, StyleView> & Observes<StyleView>;
+  readonly stylesheet!: ViewRef<this, StyleView>;
+
+  @StyleRule({
+    getInlet(): StyleSheet | null {
+      const styleView = this.owner.stylesheet.view;
+      return styleView !== null ? styleView.sheet : null;
+    },
+    selector: "::placeholder",
+  })
+  readonly placeholderRule!: StyleRule<this>;
 
   @ViewRef({
     viewType: HtmlView.forTag("input"),
@@ -126,13 +119,7 @@ export class InputTokenView extends TokenView {
 
   protected override onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
-    const styleView = this.stylesheet.view;
-    if (styleView !== null) {
-      //const placeholder = styleView.getFastener("placeholder", StyleRule);
-      //if (placeholder !== null) {
-      //  placeholder.color.setState(theme.getOr(this.placeholderLook, mood, null), timing, Affinity.Intrinsic);
-      //}
-    }
+    this.placeholderRule.color.setState(theme.getOr(this.placeholderLook, mood, null), timing, Affinity.Intrinsic);
 
     const labelView = this.label.view;
     if (labelView !== null) {

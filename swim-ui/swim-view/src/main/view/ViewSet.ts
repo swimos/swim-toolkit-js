@@ -87,9 +87,6 @@ export interface ViewSet<O = unknown, V extends View = View> extends ViewRelatio
   get fastenerType(): Proto<ViewSet<any, any>>;
 
   /** @internal @override */
-  getParent(): ViewSet<unknown, V> | null;
-
-  /** @internal @override */
   setDerived(derived: boolean, inlet: ViewSet<unknown, V>): void;
 
   /** @protected @override */
@@ -109,6 +106,9 @@ export interface ViewSet<O = unknown, V extends View = View> extends ViewRelatio
 
   /** @protected @override */
   didUnderive(inlet: ViewSet<unknown, V>): void;
+
+  /** @override */
+  getInlet(): ViewSet<unknown, V> | null;
 
   /** @override */
   readonly inlet: ViewSet<unknown, V> | null;
@@ -247,6 +247,7 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
 
   Object.defineProperty(ViewSet.prototype, "fastenerType", {
     value: ViewSet,
+    enumerable: true,
     configurable: true,
   });
 
@@ -561,6 +562,7 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     get(this: ViewSet): boolean {
       return (this.flags & ViewSet.OrderedFlag) !== 0;
     },
+    enumerable: true,
     configurable: true,
   });
 
@@ -588,6 +590,7 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     get(this: ViewSet): boolean {
       return (this.flags & ViewSet.SortedFlag) !== 0;
     },
+    enumerable: true,
     configurable: true,
   });
 
@@ -710,6 +713,7 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     if (flagsInit !== void 0) {
       Object.defineProperty(fastenerPrototype, "flagsInit", {
         value: flagsInit,
+        enumerable: true,
         configurable: true,
       });
     }

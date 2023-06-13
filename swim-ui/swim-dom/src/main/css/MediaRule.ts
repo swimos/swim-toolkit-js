@@ -13,14 +13,7 @@
 // limitations under the License.
 
 import type {Proto} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
-import {Timing} from "@swim/util";
-import {FastenerContext} from "@swim/component";
-import {Look} from "@swim/theme";
-import {Mood} from "@swim/theme";
-import type {MoodVector} from "@swim/theme";
-import type {ThemeMatrix} from "@swim/theme";
-import {CssContext} from "./CssContext";
+import type {FastenerOwner} from "@swim/component";
 import type {CssRuleDescriptor} from "./CssRule";
 import type {CssRuleClass} from "./CssRule";
 import {CssRule} from "./CssRule";
@@ -31,12 +24,12 @@ export type MediaRuleDecorator<F extends MediaRule<any>> = {
 };
 
 /** @public */
-export interface MediaRuleDescriptor extends CssRuleDescriptor {
+export interface MediaRuleDescriptor extends CssRuleDescriptor<CSSMediaRule> {
   extends?: Proto<MediaRule<any>> | boolean | null;
 }
 
 /** @public */
-export type MediaRuleTemplate<F extends CssRule<any>> =
+export type MediaRuleTemplate<F extends MediaRule<any>> =
   ThisType<F> &
   MediaRuleDescriptor &
   Partial<Omit<F, keyof MediaRuleDescriptor>>;
@@ -62,88 +55,56 @@ export interface MediaRuleClass<F extends MediaRule<any> = MediaRule<any>> exten
 }
 
 /** @public */
-export interface MediaRule<O = unknown> extends CssRule<O>, CssContext {
-  /** @internal */
-  initRule(): CSSMediaRule | null;
-
-  /** @internal */
-  createRule(css: string): CSSMediaRule;
+export interface MediaRule<O = unknown> extends CssRule<O, CSSMediaRule> {
+  /** @override */
+  get fastenerType(): Proto<MediaRule<any>>;
 
   /** @override */
-  readonly rule: CSSMediaRule | null;
+  transformInletCss(inletCss: CSSStyleSheet | CSSRule): CSSMediaRule | null;
 
   /** @override */
-  getRule(index: number): CSSRule | null;
+  createRule(inletCss: CSSStyleSheet | CSSGroupingRule): CSSMediaRule | null;
 
-  /** @override */
-  insertRule(css: string, index?: number): number;
-
-  /** @override */
-  removeRule(index: number): void;
-
-  /** @override */
-  applyTheme(theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean | null): void;
+  get selector(): string;
 }
 
 /** @public */
 export const MediaRule = (function (_super: typeof CssRule) {
   const MediaRule = _super.extend("MediaRule", {}) as MediaRuleClass;
 
-  MediaRule.prototype.createRule = function (this: MediaRule, css: string): CSSMediaRule {
-    const cssContext = this.owner;
-    if (CssContext.is(cssContext)) {
-      const index = cssContext.insertRule(css);
-      const rule = cssContext.getRule(index);
-      if (rule instanceof CSSMediaRule) {
-        return rule;
-      } else {
-        throw new TypeError("" + rule);
-      }
-    } else {
-      throw new Error("no css context");
+  Object.defineProperty(MediaRule.prototype, "fastenerType", {
+    value: MediaRule,
+    enumerable: true,
+    configurable: true,
+  });
+
+  MediaRule.prototype.transformInletCss = function (this: MediaRule, inletCss: CSSStyleSheet | CSSRule): CSSMediaRule | null {
+    if (inletCss instanceof CSSMediaRule) {
+      return inletCss;
+    } else if (inletCss instanceof CSSStyleSheet || inletCss instanceof CSSGroupingRule) {
+      return this.createRule(inletCss);
     }
+    return null;
   };
 
-  MediaRule.prototype.getRule = function (this: MediaRule, index: number): CSSRule | null {
-    const rule = this.rule;
-    if (rule !== null) {
-      return rule.cssRules.item(index);
-    } else {
-      throw new Error("no media rule");
+  MediaRule.prototype.createRule = function (this: MediaRule, inletCss: CSSStyleSheet | CSSGroupingRule): CSSMediaRule | null {
+    const index = inletCss.insertRule(this.cssText);
+    const rule = inletCss.cssRules.item(index);
+    if (!(rule instanceof CSSMediaRule)) {
+      throw new TypeError("not a media rule: " + rule);
     }
+    return rule;
   };
 
-  MediaRule.prototype.insertRule = function (this: MediaRule, css: string, index?: number): number {
-    const rule = this.rule;
-    if (rule !== null) {
-      return rule.insertRule(css, index);
-    } else {
-      throw new Error("no media rule");
-    }
-  };
+  Object.defineProperty(MediaRule.prototype, "selector", {
+    value: "@media",
+    enumerable: true,
+    configurable: true,
+  });
 
-  MediaRule.prototype.removeRule = function (this: MediaRule, index: number): void {
-    const rule = this.rule;
-    if (rule !== null) {
-      rule.deleteRule(index);
-    } else {
-      throw new Error("no media rule");
-    }
-  };
-
-  MediaRule.prototype.applyTheme = function (theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean | null): void {
-    if (timing === void 0 || timing === true) {
-      timing = theme.getOr(Look.timing, Mood.ambient, false);
-    } else {
-      timing = Timing.fromAny(timing);
-    }
-    const fastenerNames = FastenerContext.getFastenerNames(this);
-    for (let i = 0; i < fastenerNames.length; i += 1) {
-      const fastener = this[fastenerNames[i]!];
-      if (fastener instanceof CssRule) {
-        fastener.applyTheme(theme, mood, timing);
-      }
-    }
+  MediaRule.construct = function <F extends MediaRule<any>>(fastener: F | null, owner: FastenerOwner<F>): F {
+    fastener = _super.construct.call(this, fastener, owner) as F;
+    return fastener;
   };
 
   return MediaRule;

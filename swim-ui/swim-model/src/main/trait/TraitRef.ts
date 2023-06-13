@@ -75,9 +75,6 @@ export interface TraitRef<O = unknown, T extends Trait = Trait> extends TraitRel
   get fastenerType(): Proto<TraitRef<any, any>>;
 
   /** @internal @override */
-  getParent(): TraitRef<unknown, T> | null;
-
-  /** @internal @override */
   setDerived(derived: boolean, inlet: TraitRef<unknown, T>): void;
 
   /** @protected @override */
@@ -97,6 +94,9 @@ export interface TraitRef<O = unknown, T extends Trait = Trait> extends TraitRel
 
   /** @protected @override */
   didUnderive(inlet: TraitRef<unknown, T>): void;
+
+  /** @override */
+  getInlet(): TraitRef<unknown, T> | null;
 
   /** @override */
   readonly inlet: TraitRef<unknown, T> | null;
@@ -191,6 +191,7 @@ export const TraitRef = (function (_super: typeof TraitRelation) {
 
   Object.defineProperty(TraitRef.prototype, "fastenerType", {
     value: TraitRef,
+    enumerable: true,
     configurable: true,
   });
 
@@ -208,6 +209,7 @@ export const TraitRef = (function (_super: typeof TraitRelation) {
       const inlet = this.inlet;
       return inlet !== null ? inlet.trait : null;
     },
+    enumerable: true,
     configurable: true,
   });
 

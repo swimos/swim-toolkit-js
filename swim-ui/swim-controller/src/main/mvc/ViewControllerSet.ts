@@ -192,6 +192,7 @@ export const ViewControllerSet = (function (_super: typeof ControllerSet) {
 
   Object.defineProperty(ViewControllerSet.prototype, "fastenerType", {
     value: ViewControllerSet,
+    enumerable: true,
     configurable: true,
   });
 

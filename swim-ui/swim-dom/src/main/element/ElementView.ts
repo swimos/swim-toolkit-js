@@ -271,7 +271,11 @@ export class ElementView extends NodeView implements StyleContext {
           this.node.style.setProperty(propertyName, ToStyleString(value), priority);
         }
       } else {
-        this.node.attributeStyleMap.delete(propertyName);
+        try {
+          this.node.attributeStyleMap.delete(propertyName);
+        } catch (e) {
+          // swallow
+        }
       }
     } else {
       if (value !== void 0 && value !== null) {

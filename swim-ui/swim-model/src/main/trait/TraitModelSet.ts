@@ -187,6 +187,7 @@ export const TraitModelSet = (function (_super: typeof ModelSet) {
 
   Object.defineProperty(TraitModelSet.prototype, "fastenerType", {
     value: TraitModelSet,
+    enumerable: true,
     configurable: true,
   });
 

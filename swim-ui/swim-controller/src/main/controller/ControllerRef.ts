@@ -74,9 +74,6 @@ export interface ControllerRef<O = unknown, C extends Controller = Controller> e
   get fastenerType(): Proto<ControllerRef<any, any>>;
 
   /** @internal @override */
-  getParent(): ControllerRef<unknown, C> | null;
-
-  /** @internal @override */
   setDerived(derived: boolean, inlet: ControllerRef<unknown, C>): void;
 
   /** @protected @override */
@@ -96,6 +93,9 @@ export interface ControllerRef<O = unknown, C extends Controller = Controller> e
 
   /** @protected @override */
   didUnderive(inlet: ControllerRef<unknown, C>): void;
+
+  /** @override */
+  getInlet(): ControllerRef<unknown, C> | null;
 
   /** @override */
   readonly inlet: ControllerRef<unknown, C> | null;
@@ -181,6 +181,7 @@ export const ControllerRef = (function (_super: typeof ControllerRelation) {
 
   Object.defineProperty(ControllerRef.prototype, "fastenerType", {
     value: ControllerRef,
+    enumerable: true,
     configurable: true,
   });
 
@@ -198,6 +199,7 @@ export const ControllerRef = (function (_super: typeof ControllerRelation) {
       const inlet = this.inlet;
       return inlet !== null ? inlet.controller : null;
     },
+    enumerable: true,
     configurable: true,
   });
 

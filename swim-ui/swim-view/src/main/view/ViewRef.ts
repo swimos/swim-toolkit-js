@@ -85,9 +85,6 @@ export interface ViewRef<O = unknown, V extends View = View> extends ViewRelatio
   get fastenerType(): Proto<ViewRef<any, any>>;
 
   /** @internal @override */
-  getParent(): ViewRef<unknown, V> | null;
-
-  /** @internal @override */
   setDerived(derived: boolean, inlet: ViewRef<unknown, V>): void;
 
   /** @protected @override */
@@ -107,6 +104,9 @@ export interface ViewRef<O = unknown, V extends View = View> extends ViewRelatio
 
   /** @protected @override */
   didUnderive(inlet: ViewRef<unknown, V>): void;
+
+  /** @override */
+  getInlet(): ViewRef<unknown, V> | null;
 
   /** @override */
   readonly inlet: ViewRef<unknown, V> | null;
@@ -242,6 +242,7 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
 
   Object.defineProperty(ViewRef.prototype, "fastenerType", {
     value: ViewRef,
+    enumerable: true,
     configurable: true,
   });
 
@@ -259,6 +260,7 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
       const inlet = this.inlet;
       return inlet !== null ? inlet.view : null;
     },
+    enumerable: true,
     configurable: true,
   });
 
@@ -573,6 +575,7 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
     const property = ConstraintProperty.create(this) as ConstraintProperty<unknown, number>;
     Object.defineProperty(property, "name", {
       value: name,
+      enumerable: true,
       configurable: true,
     });
     if (value !== void 0) {

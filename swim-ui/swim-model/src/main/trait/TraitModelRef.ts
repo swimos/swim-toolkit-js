@@ -154,6 +154,7 @@ export const TraitModelRef = (function (_super: typeof ModelRef) {
 
   Object.defineProperty(TraitModelRef.prototype, "fastenerType", {
     value: TraitModelRef,
+    enumerable: true,
     configurable: true,
   });
 

@@ -324,6 +324,7 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
 
   Object.defineProperty(TraitViewRef.prototype, "fastenerType", {
     value: TraitViewRef,
+    enumerable: true,
     configurable: true,
   });
 
@@ -548,6 +549,7 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
         return null;
       }
     },
+    enumerable: true,
     configurable: true,
   });
 
@@ -850,6 +852,7 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
       const owner = this.owner;
       return owner instanceof View ? owner : null;
     },
+    enumerable: true,
     configurable: true,
   });
 
@@ -974,6 +977,7 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
     get(this: TraitViewRef): boolean {
       return (this.flags & TraitViewRef.ConsumingFlag) !== 0;
     },
+    enumerable: true,
     configurable: true,
   });
 

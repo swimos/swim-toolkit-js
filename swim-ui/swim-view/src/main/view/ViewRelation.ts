@@ -75,9 +75,6 @@ export interface ViewRelation<O = unknown, V extends View = View> extends Fasten
   readonly observes?: boolean; // optional prototype property
 
   /** @internal @override */
-  getParent(): ViewRelation<unknown, V> | null;
-
-  /** @internal @override */
   setDerived(derived: boolean, inlet: ViewRelation<unknown, V>): void;
 
   /** @protected @override */
@@ -97,6 +94,9 @@ export interface ViewRelation<O = unknown, V extends View = View> extends Fasten
 
   /** @protected @override */
   didUnderive(inlet: ViewRelation<unknown, V>): void;
+
+  /** @override */
+  getInlet(): ViewRelation<unknown, V> | null;
 
   /** @override */
   readonly inlet: ViewRelation<unknown, V> | null;
@@ -183,6 +183,7 @@ export const ViewRelation = (function (_super: typeof Fastener) {
 
   Object.defineProperty(ViewRelation.prototype, "fastenerType", {
     value: ViewRelation,
+    enumerable: true,
     configurable: true,
   });
 
@@ -256,6 +257,7 @@ export const ViewRelation = (function (_super: typeof Fastener) {
       const owner = this.owner;
       return owner instanceof View ? owner : null;
     },
+    enumerable: true,
     configurable: true,
   });
 

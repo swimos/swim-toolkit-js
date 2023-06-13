@@ -92,9 +92,6 @@ export interface TraitRelation<O = unknown, T extends Trait = Trait> extends Fas
   readonly observes?: boolean; // optional prototype property
 
   /** @internal @override */
-  getParent(): TraitRelation<unknown, T> | null;
-
-  /** @internal @override */
   setDerived(derived: boolean, inlet: TraitRelation<unknown, T>): void;
 
   /** @protected @override */
@@ -114,6 +111,9 @@ export interface TraitRelation<O = unknown, T extends Trait = Trait> extends Fas
 
   /** @protected @override */
   didUnderive(inlet: TraitRelation<unknown, T>): void;
+
+  /** @override */
+  getInlet(): TraitRelation<unknown, T> | null;
 
   /** @override */
   readonly inlet: TraitRelation<unknown, T> | null;
@@ -267,6 +267,7 @@ export const TraitRelation = (function (_super: typeof Fastener) {
 
   Object.defineProperty(TraitRelation.prototype, "fastenerType", {
     value: TraitRelation,
+    enumerable: true,
     configurable: true,
   });
 
@@ -352,6 +353,7 @@ export const TraitRelation = (function (_super: typeof Fastener) {
         return null;
       }
     },
+    enumerable: true,
     configurable: true,
   });
 
@@ -466,6 +468,7 @@ export const TraitRelation = (function (_super: typeof Fastener) {
     get(this: TraitRelation): boolean {
       return (this.flags & TraitRelation.ConsumingFlag) !== 0;
     },
+    enumerable: true,
     configurable: true,
   });
 

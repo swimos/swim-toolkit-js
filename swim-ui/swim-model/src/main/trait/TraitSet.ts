@@ -89,9 +89,6 @@ export interface TraitSet<O = unknown, T extends Trait = Trait> extends TraitRel
   get fastenerType(): Proto<TraitSet<any, any>>;
 
   /** @internal @override */
-  getParent(): TraitSet<unknown, T> | null;
-
-  /** @internal @override */
   setDerived(derived: boolean, inlet: TraitSet<unknown, T>): void;
 
   /** @protected @override */
@@ -111,6 +108,9 @@ export interface TraitSet<O = unknown, T extends Trait = Trait> extends TraitRel
 
   /** @protected @override */
   didUnderive(inlet: TraitSet<unknown, T>): void;
+
+  /** @override */
+  getInlet(): TraitSet<unknown, T> | null;
 
   /** @override */
   readonly inlet: TraitSet<unknown, T> | null;
@@ -268,6 +268,7 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
 
   Object.defineProperty(TraitSet.prototype, "fastenerType", {
     value: TraitSet,
+    enumerable: true,
     configurable: true,
   });
 
@@ -645,6 +646,7 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     get(this: TraitSet): boolean {
       return (this.flags & TraitSet.OrderedFlag) !== 0;
     },
+    enumerable: true,
     configurable: true,
   });
 
@@ -672,6 +674,7 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     get(this: TraitSet): boolean {
       return (this.flags & TraitSet.SortedFlag) !== 0;
     },
+    enumerable: true,
     configurable: true,
   });
 
@@ -801,6 +804,7 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     if (flagsInit !== void 0) {
       Object.defineProperty(fastenerPrototype, "flagsInit", {
         value: flagsInit,
+        enumerable: true,
         configurable: true,
       });
     }

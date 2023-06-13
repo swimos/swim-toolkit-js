@@ -171,6 +171,7 @@ export const Gesture = (function (_super: typeof Fastener) {
 
   Object.defineProperty(Gesture.prototype, "fastenerType", {
     value: Gesture,
+    enumerable: true,
     configurable: true,
   });
 

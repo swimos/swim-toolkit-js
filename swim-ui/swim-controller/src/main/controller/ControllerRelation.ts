@@ -91,9 +91,6 @@ export interface ControllerRelation<O = unknown, C extends Controller = Controll
   readonly observes?: boolean; // optional prototype property
 
   /** @internal @override */
-  getParent(): ControllerRelation<unknown, C> | null;
-
-  /** @internal @override */
   setDerived(derived: boolean, inlet: ControllerRelation<unknown, C>): void;
 
   /** @protected @override */
@@ -113,6 +110,9 @@ export interface ControllerRelation<O = unknown, C extends Controller = Controll
 
   /** @protected @override */
   didUnderive(inlet: ControllerRelation<unknown, C>): void;
+
+  /** @override */
+  getInlet(): ControllerRelation<unknown, C> | null;
 
   /** @override */
   readonly inlet: ControllerRelation<unknown, C> | null;
@@ -258,6 +258,7 @@ export const ControllerRelation = (function (_super: typeof Fastener) {
 
   Object.defineProperty(ControllerRelation.prototype, "fastenerType", {
     value: ControllerRelation,
+    enumerable: true,
     configurable: true,
   });
 
@@ -337,6 +338,7 @@ export const ControllerRelation = (function (_super: typeof Fastener) {
       const owner = this.owner;
       return owner instanceof Controller ? owner : null;
     },
+    enumerable: true,
     configurable: true,
   });
 
@@ -439,6 +441,7 @@ export const ControllerRelation = (function (_super: typeof Fastener) {
     get(this: ControllerRelation): boolean {
       return (this.flags & ControllerRelation.ConsumingFlag) !== 0;
     },
+    enumerable: true,
     configurable: true,
   });
 

@@ -153,6 +153,7 @@ export const ViewControllerRef = (function (_super: typeof ControllerRef) {
 
   Object.defineProperty(ViewControllerRef.prototype, "fastenerType", {
     value: ViewControllerRef,
+    enumerable: true,
     configurable: true,
   });
 

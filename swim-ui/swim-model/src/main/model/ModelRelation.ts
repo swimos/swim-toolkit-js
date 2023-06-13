@@ -92,9 +92,6 @@ export interface ModelRelation<O = unknown, M extends Model = Model> extends Fas
   readonly observes?: boolean; // optional prototype property
 
   /** @internal @override */
-  getParent(): ModelRelation<unknown, M> | null;
-
-  /** @internal @override */
   setDerived(derived: boolean, inlet: ModelRelation<unknown, M>): void;
 
   /** @protected @override */
@@ -114,6 +111,9 @@ export interface ModelRelation<O = unknown, M extends Model = Model> extends Fas
 
   /** @protected @override */
   didUnderive(inlet: ModelRelation<unknown, M>): void;
+
+  /** @override */
+  getInlet(): ModelRelation<unknown, M> | null;
 
   /** @override */
   readonly inlet: ModelRelation<unknown, M> | null;
@@ -259,6 +259,7 @@ export const ModelRelation = (function (_super: typeof Fastener) {
 
   Object.defineProperty(ModelRelation.prototype, "fastenerType", {
     value: ModelRelation,
+    enumerable: true,
     configurable: true,
   });
 
@@ -344,6 +345,7 @@ export const ModelRelation = (function (_super: typeof Fastener) {
         return null;
       }
     },
+    enumerable: true,
     configurable: true,
   });
 
@@ -446,6 +448,7 @@ export const ModelRelation = (function (_super: typeof Fastener) {
     get(this: ModelRelation): boolean {
       return (this.flags & ModelRelation.ConsumingFlag) !== 0;
     },
+    enumerable: true,
     configurable: true,
   });
 

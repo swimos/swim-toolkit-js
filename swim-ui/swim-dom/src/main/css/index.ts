@@ -19,7 +19,17 @@ export {StyleContext} from "./StyleContext";
 export type {StyleMapInit} from "./StyleMap";
 export {StyleMap} from "./StyleMap";
 
-export {CssContext} from "./CssContext";
+export type {CssScopeDecorator} from "./CssScope";
+export type {CssScopeDescriptor} from "./CssScope";
+export type {CssScopeTemplate} from "./CssScope";
+export type {CssScopeClass} from "./CssScope";
+export {CssScope} from "./CssScope";
+
+export type {StyleSheetDecorator} from "./StyleSheet";
+export type {StyleSheetDescriptor} from "./StyleSheet";
+export type {StyleSheetTemplate} from "./StyleSheet";
+export type {StyleSheetClass} from "./StyleSheet";
+export {StyleSheet} from "./StyleSheet";
 
 export type {CssRuleDecorator} from "./CssRule";
 export type {CssRuleDescriptor} from "./CssRule";
@@ -38,9 +48,3 @@ export type {MediaRuleDescriptor} from "./MediaRule";
 export type {MediaRuleTemplate} from "./MediaRule";
 export type {MediaRuleClass} from "./MediaRule";
 export {MediaRule} from "./MediaRule";
-
-export type {StyleSheetDecorator} from "./StyleSheet";
-export type {StyleSheetDescriptor} from "./StyleSheet";
-export type {StyleSheetTemplate} from "./StyleSheet";
-export type {StyleSheetClass} from "./StyleSheet";
-export {StyleSheet} from "./StyleSheet";

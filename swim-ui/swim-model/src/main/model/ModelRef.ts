@@ -74,9 +74,6 @@ export interface ModelRef<O = unknown, M extends Model = Model> extends ModelRel
   get fastenerType(): Proto<ModelRef<any, any>>;
 
   /** @internal @override */
-  getParent(): ModelRef<unknown, M> | null;
-
-  /** @internal @override */
   setDerived(derived: boolean, inlet: ModelRef<unknown, M>): void;
 
   /** @protected @override */
@@ -96,6 +93,9 @@ export interface ModelRef<O = unknown, M extends Model = Model> extends ModelRel
 
   /** @protected @override */
   didUnderive(inlet: ModelRef<unknown, M>): void;
+
+  /** @override */
+  getInlet(): ModelRef<unknown, M> | null;
 
   /** @override */
   readonly inlet: ModelRef<unknown, M> | null;
@@ -181,6 +181,7 @@ export const ModelRef = (function (_super: typeof ModelRelation) {
 
   Object.defineProperty(ModelRef.prototype, "fastenerType", {
     value: ModelRef,
+    enumerable: true,
     configurable: true,
   });
 
@@ -198,6 +199,7 @@ export const ModelRef = (function (_super: typeof ModelRelation) {
       const inlet = this.inlet;
       return inlet !== null ? inlet.model : null;
     },
+    enumerable: true,
     configurable: true,
   });
 

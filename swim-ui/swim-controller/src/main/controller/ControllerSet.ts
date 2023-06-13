@@ -88,9 +88,6 @@ export interface ControllerSet<O = unknown, C extends Controller = Controller> e
   get fastenerType(): Proto<ControllerSet<any, any>>;
 
   /** @internal @override */
-  getParent(): ControllerSet<unknown, C> | null;
-
-  /** @internal @override */
   setDerived(derived: boolean, inlet: ControllerSet<unknown, C>): void;
 
   /** @protected @override */
@@ -110,6 +107,9 @@ export interface ControllerSet<O = unknown, C extends Controller = Controller> e
 
   /** @protected @override */
   didUnderive(inlet: ControllerSet<unknown, C>): void;
+
+  /** @override */
+  getInlet(): ControllerSet<unknown, C> | null;
 
   /** @override */
   readonly inlet: ControllerSet<unknown, C> | null;
@@ -258,6 +258,7 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
 
   Object.defineProperty(ControllerSet.prototype, "fastenerType", {
     value: ControllerSet,
+    enumerable: true,
     configurable: true,
   });
 
@@ -604,6 +605,7 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     get(this: ControllerSet): boolean {
       return (this.flags & ControllerSet.OrderedFlag) !== 0;
     },
+    enumerable: true,
     configurable: true,
   });
 
@@ -623,6 +625,7 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     get(this: ControllerSet): boolean {
       return (this.flags & ControllerSet.SortedFlag) !== 0;
     },
+    enumerable: true,
     configurable: true,
   });
 
@@ -745,6 +748,7 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     if (flagsInit !== void 0) {
       Object.defineProperty(fastenerPrototype, "flagsInit", {
         value: flagsInit,
+        enumerable: true,
         configurable: true,
       });
     }

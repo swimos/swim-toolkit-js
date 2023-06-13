@@ -88,9 +88,6 @@ export interface ModelSet<O = unknown, M extends Model = Model> extends ModelRel
   get fastenerType(): Proto<ModelSet<any, any>>;
 
   /** @internal @override */
-  getParent(): ModelSet<unknown, M> | null;
-
-  /** @internal @override */
   setDerived(derived: boolean, inlet: ModelSet<unknown, M>): void;
 
   /** @protected @override */
@@ -110,6 +107,9 @@ export interface ModelSet<O = unknown, M extends Model = Model> extends ModelRel
 
   /** @protected @override */
   didUnderive(inlet: ModelSet<unknown, M>): void;
+
+  /** @override */
+  getInlet(): ModelSet<unknown, M> | null;
 
   /** @override */
   readonly inlet: ModelSet<unknown, M> | null;
@@ -258,6 +258,7 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
 
   Object.defineProperty(ModelSet.prototype, "fastenerType", {
     value: ModelSet,
+    enumerable: true,
     configurable: true,
   });
 
@@ -596,6 +597,7 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
     get(this: ModelSet): boolean {
       return (this.flags & ModelSet.OrderedFlag) !== 0;
     },
+    enumerable: true,
     configurable: true,
   });
 
@@ -623,6 +625,7 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
     get(this: ModelSet): boolean {
       return (this.flags & ModelSet.SortedFlag) !== 0;
     },
+    enumerable: true,
     configurable: true,
   });
 
@@ -745,6 +748,7 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
     if (flagsInit !== void 0) {
       Object.defineProperty(fastenerPrototype, "flagsInit", {
         value: flagsInit,
+        enumerable: true,
         configurable: true,
       });
     }

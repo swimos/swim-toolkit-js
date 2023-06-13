@@ -135,6 +135,7 @@ export const TraitControllerRef = (function (_super: typeof ControllerRef) {
 
   Object.defineProperty(TraitControllerRef.prototype, "fastenerType", {
     value: TraitControllerRef,
+    enumerable: true,
     configurable: true,
   });
 
@@ -151,6 +152,7 @@ export const TraitControllerRef = (function (_super: typeof ControllerRef) {
       }
       return null;
     },
+    enumerable: true,
     configurable: true,
   });
 
