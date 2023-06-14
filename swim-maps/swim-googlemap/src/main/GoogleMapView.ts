@@ -28,9 +28,13 @@ import {HtmlView} from "@swim/dom";
 import type {CanvasView} from "@swim/graphics";
 import type {GeoViewport} from "@swim/map";
 import type {AnyGeoPerspective} from "@swim/map";
+import type {MapViewObserver} from "@swim/map";
 import {MapView} from "@swim/map";
 import {GoogleMapViewport} from "./GoogleMapViewport";
-import type {GoogleMapViewObserver} from "./GoogleMapViewObserver";
+
+/** @public */
+export interface GoogleMapViewObserver<V extends GoogleMapView = GoogleMapView> extends MapViewObserver<V> {
+}
 
 /** @public */
 export class GoogleMapView extends MapView {

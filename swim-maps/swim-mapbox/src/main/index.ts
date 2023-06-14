@@ -14,5 +14,5 @@
 
 export {MapboxViewport} from "./MapboxViewport";
 
+export type {MapboxViewObserver} from "./MapboxView";
 export {MapboxView} from "./MapboxView";
-export type {MapboxViewObserver} from "./MapboxViewObserver";

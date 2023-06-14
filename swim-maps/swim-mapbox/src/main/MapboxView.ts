@@ -32,9 +32,20 @@ import {HtmlView} from "@swim/dom";
 import type {CanvasView} from "@swim/graphics";
 import type {AnyGeoPerspective} from "@swim/map";
 import type {GeoViewport} from "@swim/map";
+import type {MapViewObserver} from "@swim/map";
 import {MapView} from "@swim/map";
 import {MapboxViewport} from "./MapboxViewport";
-import type {MapboxViewObserver} from "./MapboxViewObserver";
+
+/** @public */
+export interface MapboxViewObserver<V extends MapboxView = MapboxView> extends MapViewObserver<V> {
+  viewWillSetGeoViewport?(newGeoViewport: MapboxViewport, oldGeoViewport: MapboxViewport, view: V): void;
+
+  viewDidSetGeoViewport?(newGeoViewport: MapboxViewport, oldGeoViewport: MapboxViewport, view: V): void;
+
+  viewWillMoveMap?(view: V): void;
+
+  viewDidMoveMap?(view: V): void;
+}
 
 /** @public */
 export class MapboxView extends MapView {

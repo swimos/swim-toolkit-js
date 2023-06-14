@@ -12,8 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "./scrim";
+export {ScrimView} from "./ScrimView";
 
-export * from "./popover";
+export type {PopoverPlacement} from "./PopoverView";
+export type {PopoverViewInit} from "./PopoverView";
+export type {PopoverViewObserver} from "./PopoverView";
+export {PopoverView} from "./PopoverView";
 
-export * from "./drawer";
+export type {DrawerPlacement} from "./DrawerView";
+export type {DrawerViewInit} from "./DrawerView";
+export type {DrawerViewObserver} from "./DrawerView";
+export {DrawerView} from "./DrawerView";
+
+export {DrawerButton} from "./DrawerButton";

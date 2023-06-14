@@ -26,11 +26,20 @@ import {StyleRule} from "@swim/dom";
 import {HtmlView} from "@swim/dom";
 import {StyleView} from "@swim/dom";
 import type {TokenViewInit} from "./TokenView";
+import type {TokenViewObserver} from "./TokenView";
 import {TokenView} from "./TokenView";
-import type {InputTokenViewObserver} from "./InputTokenViewObserver";
 
 /** @public */
 export interface InputTokenViewInit extends TokenViewInit {
+}
+
+/** @public */
+export interface InputTokenViewObserver<V extends InputTokenView = InputTokenView> extends TokenViewObserver<V> {
+  tokenDidUpdateInput?(inputView: HtmlView, view: V): void;
+
+  tokenDidChangeInput?(inputView: HtmlView, view: V): void;
+
+  tokenDidAcceptInput?(inputView: HtmlView, view: V): void;
 }
 
 /** @public */

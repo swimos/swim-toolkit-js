@@ -44,7 +44,7 @@ export class Focus implements Interpolate<Focus>, HashCode, Equivalent, Debug {
   }
 
   /** @internal */
-  uid?: unknown; // force type ambiguity between Focus and FocusInit
+  declare uid?: unknown; // force type ambiguity between Focus and FocusInit
 
   readonly phase: number;
 

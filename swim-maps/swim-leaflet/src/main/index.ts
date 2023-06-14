@@ -14,5 +14,5 @@
 
 export {LeafletViewport} from "./LeafletViewport";
 
+export type {LeafletViewObserver} from "./LeafletView";
 export {LeafletView} from "./LeafletView";
-export type {LeafletViewObserver} from "./LeafletViewObserver";

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {View} from "@swim/view";
 import type {ViewObserver} from "@swim/view";
+import type {View} from "@swim/view";
 
 /** @public */
 export interface ButtonObserver<V extends View = View> extends ViewObserver<V> {

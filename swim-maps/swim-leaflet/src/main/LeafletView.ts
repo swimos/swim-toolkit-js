@@ -27,9 +27,16 @@ import {HtmlView} from "@swim/dom";
 import type {CanvasView} from "@swim/graphics";
 import type {AnyGeoPerspective} from "@swim/map";
 import type {GeoViewport} from "@swim/map";
+import type {MapViewObserver} from "@swim/map";
 import {MapView} from "@swim/map";
 import {LeafletViewport} from "./LeafletViewport";
-import type {LeafletViewObserver} from "./LeafletViewObserver";
+
+/** @public */
+export interface LeafletViewObserver<V extends LeafletView = LeafletView> extends MapViewObserver<V> {
+  viewWillMoveMap?(view: V): void;
+
+  viewDidMoveMap?(view: V): void;
+}
 
 /** @public */
 export class LeafletView extends MapView {

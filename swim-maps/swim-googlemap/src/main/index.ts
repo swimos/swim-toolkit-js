@@ -14,5 +14,5 @@
 
 export {GoogleMapViewport} from "./GoogleMapViewport";
 
+export type {GoogleMapViewObserver} from "./GoogleMapView";
 export {GoogleMapView} from "./GoogleMapView";
-export type {GoogleMapViewObserver} from "./GoogleMapViewObserver";

@@ -12,6 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "./panel";
+// Panel
 
-export * from "./board";
+export type {PaneLayout} from "./PanelView";
+export type {PanelStyle} from "./PanelView";
+export type {PanelViewObserver} from "./PanelView";
+export {PanelView} from "./PanelView";
+
+export type {PanelControllerObserver} from "./PanelController";
+export {PanelController} from "./PanelController";
+
+// Board
+
+export type {BoardViewObserver} from "./BoardView";
+export {BoardView} from "./BoardView";
+
+export type {BoardControllerObserver} from "./BoardController";
+export {BoardController} from "./BoardController";

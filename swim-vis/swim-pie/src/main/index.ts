@@ -12,6 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "./slice";
+// Slice
 
-export * from "./pie";
+export type {AnySliceView} from "./SliceView";
+export type {SliceViewInit} from "./SliceView";
+export type {SliceViewObserver} from "./SliceView";
+export {SliceView} from "./SliceView";
+
+export type {SliceTraitObserver} from "./SliceTrait";
+export {SliceTrait} from "./SliceTrait";
+
+export type {SliceControllerObserver} from "./SliceController";
+export {SliceController} from "./SliceController";
+
+// Pie
+
+export type {AnyPieView} from "./PieView";
+export type {PieViewInit} from "./PieView";
+export type {PieViewObserver} from "./PieView";
+export {PieView} from "./PieView";
+
+export type {PieTraitObserver} from "./PieTrait";
+export {PieTrait} from "./PieTrait";
+
+export type {PieControllerObserver} from "./PieController";
+export {PieController} from "./PieController";

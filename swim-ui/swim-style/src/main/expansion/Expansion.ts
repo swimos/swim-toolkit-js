@@ -44,7 +44,7 @@ export class Expansion implements Interpolate<Expansion>, HashCode, Equivalent, 
   }
 
   /** @internal */
-  uid?: unknown; // force type ambiguity between Expansion and ExpansionInit
+  declare uid?: unknown; // force type ambiguity between Expansion and ExpansionInit
 
   readonly phase: number;
 

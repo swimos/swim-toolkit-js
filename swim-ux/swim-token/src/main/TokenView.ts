@@ -33,18 +33,35 @@ import {ViewRef} from "@swim/view";
 import type {PositionGestureInput} from "@swim/view";
 import {PositionGesture} from "@swim/view";
 import type {HtmlViewInit} from "@swim/dom";
+import type {HtmlViewObserver} from "@swim/dom";
 import {HtmlView} from "@swim/dom";
 import {SvgView} from "@swim/dom";
 import {Graphics} from "@swim/graphics";
 import {PathContext} from "@swim/graphics";
 import {PathRenderer} from "@swim/graphics";
-import type {TokenViewObserver} from "./TokenViewObserver";
 
 /** @public */
 export type TokenViewState = "collapsed" | "expanding" | "expanded" | "collapsing";
 
 /** @public */
 export interface TokenViewInit extends HtmlViewInit {
+}
+
+/** @public */
+export interface TokenViewObserver<V extends TokenView = TokenView> extends HtmlViewObserver<V> {
+  tokenWillExpand?(view: V): void;
+
+  tokenDidExpand?(view: V): void;
+
+  tokenWillCollapse?(view: V): void;
+
+  tokenDidCollapse?(view: V): void;
+
+  tokenDidPressHead?(view: V): void;
+
+  tokenDidPressBody?(view: V): void;
+
+  tokenDidPressFoot?(view: V): void;
 }
 
 /** @public */

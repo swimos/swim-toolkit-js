@@ -44,7 +44,7 @@ export class Presence implements Interpolate<Presence>, HashCode, Equivalent, De
   }
 
   /** @internal */
-  uid?: unknown; // force type ambiguity between Presence and PresenceInit
+  declare uid?: unknown; // force type ambiguity between Presence and PresenceInit
 
   readonly phase: number;
 

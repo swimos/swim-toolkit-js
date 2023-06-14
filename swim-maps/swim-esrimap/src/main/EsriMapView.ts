@@ -28,9 +28,13 @@ import {HtmlView} from "@swim/dom";
 import type {CanvasView} from "@swim/graphics";
 import type {AnyGeoPerspective} from "@swim/map";
 import type {GeoViewport} from "@swim/map";
+import type {EsriViewObserver} from "./EsriView";
 import {EsriView} from "./EsriView";
 import {EsriMapViewport} from "./EsriMapViewport";
-import type {EsriMapViewObserver} from "./EsriMapViewObserver";
+
+/** @public */
+export interface EsriMapViewObserver<V extends EsriMapView = EsriMapView> extends EsriViewObserver<V> {
+}
 
 /** @public */
 export class EsriMapView extends EsriView {

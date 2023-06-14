@@ -13,9 +13,13 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
+import type {MapViewObserver} from "@swim/map";
 import {MapView} from "@swim/map";
 import {EsriViewport} from "./EsriViewport";
-import type {EsriViewObserver} from "./EsriViewObserver";
+
+/** @public */
+export interface EsriViewObserver<V extends EsriView = EsriView> extends MapViewObserver<V> {
+}
 
 /** @public */
 export abstract class EsriView extends MapView {

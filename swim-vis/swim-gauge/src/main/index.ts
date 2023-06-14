@@ -12,6 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "./dial";
+// Dial
 
-export * from "./gauge";
+export type {DialViewArrangement} from "./DialView";
+export type {AnyDialView} from "./DialView";
+export type {DialViewInit} from "./DialView";
+export type {DialViewObserver} from "./DialView";
+export {DialView} from "./DialView";
+
+export type {DialTraitObserver} from "./DialTrait";
+export {DialTrait} from "./DialTrait";
+
+export type {DialControllerObserver} from "./DialController";
+export {DialController} from "./DialController";
+
+// Gauge
+
+export type {AnyGaugeView} from "./GaugeView";
+export type {GaugeViewInit} from "./GaugeView";
+export type {GaugeViewObserver} from "./GaugeView";
+export {GaugeView} from "./GaugeView";
+
+export type {GaugeTraitObserver} from "./GaugeTrait";
+export {GaugeTrait} from "./GaugeTrait";
+
+export type {GaugeControllerObserver} from "./GaugeController";
+export {GaugeController} from "./GaugeController";
