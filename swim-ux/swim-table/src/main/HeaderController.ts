@@ -18,7 +18,9 @@ import type {Creatable} from "@swim/util";
 import type {Observes} from "@swim/util";
 import type {Trait} from "@swim/model";
 import type {View} from "@swim/view";
+import type {PositionGestureInput} from "@swim/view";
 import type {HtmlView} from "@swim/dom";
+import type {Graphics} from "@swim/graphics";
 import {Controller} from "@swim/controller";
 import type {ControllerObserver} from "@swim/controller";
 import {TraitViewRef} from "@swim/controller";
@@ -29,6 +31,7 @@ import {TextColView} from "./TextColView";
 import type {ColTrait} from "./ColTrait";
 import {ColController} from "./ColController";
 import type {TextColController} from "./TextColController";
+import type {IconColController} from "./IconColController";
 import {HeaderView} from "./HeaderView";
 import {HeaderTrait} from "./HeaderTrait";
 
@@ -42,6 +45,10 @@ export interface HeaderControllerObserver<C extends HeaderController = HeaderCon
 
   controllerDidDetachHeaderView?(headerView: HeaderView, controller: C): void;
 
+  controllerDidPressHeaderView?(input: PositionGestureInput, event: Event | null, headerView: HeaderView, controller: C): void;
+
+  controllerDidLongPressHeaderView?(input: PositionGestureInput, headerView: HeaderView, controller: C): void;
+
   controllerWillAttachCol?(colController: ColController, controller: C): void;
 
   controllerDidDetachCol?(colController: ColController, controller: C): void;
@@ -50,15 +57,21 @@ export interface HeaderControllerObserver<C extends HeaderController = HeaderCon
 
   controllerDidDetachColTrait?(colTrait: ColTrait, colController: ColController, controller: C): void;
 
+  controllerDidSetColLayout?(colLayout: ColLayout | null, colController: ColController, controller: C): void;
+
   controllerWillAttachColView?(colView: ColView, colController: ColController, controller: C): void;
 
   controllerDidDetachColView?(colView: ColView, colController: ColController, controller: C): void;
 
-  controllerDidSetColLayout?(colLayout: ColLayout | null, colController: ColController, controller: C): void;
+  controllerDidPressColView?(input: PositionGestureInput, event: Event | null, colView: ColView, colController: ColController, controller: C): void;
+
+  controllerDidLongPressColView?(input: PositionGestureInput, colView: ColView, colController: ColController, controller: C): void;
 
   controllerWillAttachColLabelView?(colLabelView: HtmlView, colController: ColController, controller: C): void;
 
   controllerDidDetachColLabelView?(colLabelView: HtmlView, colController: ColController, controller: C): void;
+
+  controllerDidSetColIcon?(colIcon: Graphics | null, colController: ColController, controller: C): void;
 }
 
 /** @public */
@@ -101,14 +114,20 @@ export class HeaderController extends Controller {
         }
       }
     },
+    insertChildView(parent: View, childView: HeaderView, targetView: View | null, key: string | undefined): void {
+      parent.prependChild(childView, key);
+    },
     willAttachView(headerView: HeaderView): void {
       this.owner.callObservers("controllerWillAttachHeaderView", headerView, this.owner);
     },
     didDetachView(headerView: HeaderView): void {
       this.owner.callObservers("controllerDidDetachHeaderView", headerView, this.owner);
     },
-    insertChildView(parent: View, childView: HeaderView, targetView: View | null, key: string | undefined): void {
-      parent.prependChild(childView, key);
+    viewDidPress(input: PositionGestureInput, event: Event | null, headerView: HeaderView): void {
+      this.owner.callObservers("controllerDidPressHeaderView", input, event, headerView, this.owner);
+    },
+    viewDidLongPress(input: PositionGestureInput, headerView: HeaderView): void {
+      this.owner.callObservers("controllerDidLongPressHeaderView", input, headerView, this.owner);
     },
   })
   readonly header!: TraitViewRef<this, HeaderTrait, HeaderView> & Observes<HeaderTrait> & Observes<HeaderView>;
@@ -248,6 +267,9 @@ export class HeaderController extends Controller {
       this.detachColView(colView, colController);
       this.owner.callObservers("controllerDidDetachColView", colView, colController, this.owner);
     },
+    controllerDidSetColLayout(colLayout: ColLayout | null, colController: ColController): void {
+      this.owner.callObservers("controllerDidSetColLayout", colLayout, colController, this.owner);
+    },
     attachColView(colView: ColView, colController: ColController): void {
       if (colView instanceof TextColView) {
         const colLabelView = colView.label.view;
@@ -265,8 +287,11 @@ export class HeaderController extends Controller {
       }
       colView.remove();
     },
-    controllerDidSetColLayout(colLayout: ColLayout | null, colController: ColController): void {
-      this.owner.callObservers("controllerDidSetColLayout", colLayout, colController, this.owner);
+    controllerDidPressColView(input: PositionGestureInput, event: Event | null, colView: ColView, colController: ColController): void {
+      this.owner.callObservers("controllerDidPressColView", input, event, colView, colController, this.owner);
+    },
+    controllerDidLongPressColView(input: PositionGestureInput, colView: ColView, colController: ColController): void {
+      this.owner.callObservers("controllerDidLongPressColView", input, colView, colController, this.owner);
     },
     controllerWillAttachColLabelView(colLabelView: HtmlView, colController: ColController): void {
       this.owner.callObservers("controllerWillAttachColLabelView", colLabelView, colController, this.owner);
@@ -282,6 +307,9 @@ export class HeaderController extends Controller {
     detachColLabelView(colLabelView: HtmlView, colController: ColController): void {
       // hook
     },
+    controllerDidSetColIcon(colIcon: Graphics | null, colController: ColController): void {
+      this.owner.callObservers("controllerDidSetColIcon", colIcon, colController, this.owner);
+    },
     createController(colTrait?: ColTrait): ColController {
       if (colTrait !== void 0) {
         return colTrait.createColController();
@@ -290,7 +318,7 @@ export class HeaderController extends Controller {
       }
     },
   })
-  readonly cols!: TraitViewControllerSet<this, ColTrait, ColView, ColController> & Observes<ColController> & Observes<TextColController> & {
+  readonly cols!: TraitViewControllerSet<this, ColTrait, ColView, ColController> & Observes<ColController> & Observes<TextColController> & Observes<IconColController> & {
     attachColTrait(colTrait: ColTrait, colController: ColController): void;
     detachColTrait(colTrait: ColTrait, colController: ColController): void;
     attachColView(colView: ColView, colController: ColController): void;

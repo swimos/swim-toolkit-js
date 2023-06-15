@@ -14,6 +14,7 @@
 
 import type {Class} from "@swim/util";
 import type {Instance} from "@swim/util";
+import type {Timing} from "@swim/util";
 import type {Creatable} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Affinity} from "@swim/component";
@@ -22,7 +23,7 @@ import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
 import {R2Box} from "@swim/math";
 import type {AnyExpansion} from "@swim/style";
-import type {Expansion} from "@swim/style";
+import {Expansion} from "@swim/style";
 import {ExpansionAnimator} from "@swim/style";
 import {Look} from "@swim/theme";
 import {Feel} from "@swim/theme";
@@ -81,6 +82,14 @@ export interface TableViewObserver<V extends TableView = TableView> extends Html
   viewWillCollapseRow?(rowView: RowView): void;
 
   viewDidCollapseRow?(rowView: RowView): void;
+
+  viewWillExpand?(view: V): void;
+
+  viewDidExpand?(view: V): void;
+
+  viewWillCollapse?(view: V): void;
+
+  viewDidCollapse?(view: V): void;
 }
 
 /** @public */
@@ -114,10 +123,10 @@ export class TableView extends HtmlView {
   })
   readonly depth!: Property<this, number>;
 
-  @ThemeConstraintAnimator({valueType: Length, value: Length.zero(), inherits: true, updateFlags: View.NeedsScroll})
+  @ThemeConstraintAnimator({valueType: Length, value: Length.zero(), inherits: true, updateFlags: View.NeedsLayout})
   readonly rowSpacing!: ThemeConstraintAnimator<this, Length, AnyLength>;
 
-  @ThemeConstraintAnimator({valueType: Length, value: Length.px(24), inherits: true, updateFlags: View.NeedsScroll})
+  @ThemeConstraintAnimator({valueType: Length, value: Length.px(24), inherits: true, updateFlags: View.NeedsLayout})
   readonly rowHeight!: ThemeConstraintAnimator<this, Length, AnyLength>;
 
   @Property({valueType: Boolean, value: false, inherits: true})
@@ -126,10 +135,46 @@ export class TableView extends HtmlView {
   @Property({valueType: Boolean, value: true, inherits: true})
   readonly glows!: Property<this, boolean>;
 
+  @ExpansionAnimator({
+    value: Expansion.expanded(),
+    get transition(): Timing | null {
+      return this.owner.getLookOr(Look.timing, null);
+    },
+    willExpand(): void {
+      this.owner.callObservers("viewWillExpand", this.owner);
+    },
+    didExpand(): void {
+      this.owner.callObservers("viewDidExpand", this.owner);
+    },
+    willCollapse(): void {
+      this.owner.callObservers("viewWillCollapse", this.owner);
+    },
+    didCollapse(): void {
+      this.owner.callObservers("viewDidCollapse", this.owner);
+    },
+    didSetValue(newExpansion: Expansion, oldExpansion: Expansion): void {
+      if (newExpansion.phase !== 1) {
+        this.owner.expanding.setState(newExpansion, Affinity.Intrinsic);
+      } else {
+        this.owner.expanding.setAffinity(Affinity.Transient);
+      }
+      const tableView = this.owner.getBase(TableView);
+      if (tableView !== null) {
+        tableView.requireUpdate(View.NeedsLayout);
+      } else {
+        this.owner.requireUpdate(View.NeedsLayout);
+      }
+    },
+  })
+  readonly expansion!: ExpansionAnimator<this, Expansion, AnyExpansion>;
+
+  @ExpansionAnimator({value: Expansion.expanded(), inherits: true})
+  readonly expanding!: ExpansionAnimator<this, Expansion | null, AnyExpansion | null>;
+
   @ExpansionAnimator({value: null, inherits: true})
   readonly disclosure!: ExpansionAnimator<this, Expansion | null, AnyExpansion | null>;
 
-  @ExpansionAnimator({value: null, inherits: true})
+  @ExpansionAnimator({value: Expansion.expanded(), inherits: true})
   readonly disclosing!: ExpansionAnimator<this, Expansion | null, AnyExpansion | null>;
 
   @ExpansionAnimator({value: null, inherits: true, updateFlags: View.NeedsLayout})
@@ -291,10 +336,8 @@ export class TableView extends HtmlView {
     const yBleed = this.rowHeight.getValueOr(Length.zero()).pxValue();
     const parentVisibleFrame = this.visibleFrame.value;
     if (parentVisibleFrame !== null) {
-      let left: Length | number | null = this.left.state;
-      left = left instanceof Length ? left.pxValue() : 0;
-      let top: Length | number | null = this.top.state;
-      top = top instanceof Length ? top.pxValue() : 0;
+      const left = this.left.pxState();
+      const top = this.top.pxState();
       return new R2Box(parentVisibleFrame.xMin - left - xBleed, parentVisibleFrame.yMin - top - yBleed,
                        parentVisibleFrame.xMax - left + xBleed, parentVisibleFrame.yMax - top + yBleed);
     } else {
@@ -368,8 +411,9 @@ export class TableView extends HtmlView {
   }
 
   protected scrollChildren(processFlags: ViewFlags, processChild: (this: this, child: View, processFlags: ViewFlags) => void): void {
-    const rowHeight = this.rowHeight.getValue();
-    const rowSpacing = this.rowSpacing.getValue().pxValue(rowHeight.pxValue());
+    const rowHeight = this.rowHeight.getValue().pxValue();
+    const rowSpacing = this.rowSpacing.getValue().pxValue(rowHeight);
+    const expandingPhase = this.expanding.getPhaseOr(1);
     const disclosingPhase = this.disclosing.getPhaseOr(1);
 
     const visibleViews = this.visibleViews as View[];
@@ -386,7 +430,11 @@ export class TableView extends HtmlView {
     function scrollChild(this: self, child: View, processFlags: ViewFlags): void {
       if (child instanceof RowView || child instanceof HeaderView) {
         if (rowIndex !== 0) {
-          yValue += rowSpacing * disclosingPhase;
+          if (child instanceof RowView) {
+            yValue += rowSpacing * disclosingPhase * expandingPhase;
+          } else {
+            yValue += rowSpacing * disclosingPhase;
+          }
           yState += rowSpacing;
         }
         if (child.top.hasAffinity(Affinity.Intrinsic)) {
@@ -397,12 +445,13 @@ export class TableView extends HtmlView {
       if (child instanceof HtmlView) {
         const top = child.top.state;
         const height = child.height.state;
-        if (top instanceof Length && height instanceof Length) {
+        if (top !== null && height !== null) {
           const yMin0 = visibleFrame.yMin;
           const yMax0 = visibleFrame.yMax;
           const yMin1 = top.pxValue();
           const yMax1 = yMin1 + height.pxValue();
-          isVisible = yMin0 <= yMax1 && yMin1 <= yMax0;
+          isVisible = disclosingPhase !== 0 && (child instanceof HeaderView || expandingPhase !== 0)
+                   && yMin0 <= yMax1 && yMin1 <= yMax0 && yMin1 !== yMax1;
           child.display.setState(isVisible ? "flex" : "none", Affinity.Intrinsic);
           child.setCulled(!isVisible);
         } else {
@@ -416,12 +465,12 @@ export class TableView extends HtmlView {
         processChild.call(this, child, processFlags);
       }
       if (child instanceof RowView || child instanceof HeaderView) {
-        let heightValue: Length | number | null = child.height.value;
-        heightValue = heightValue instanceof Length ? heightValue.pxValue() : child.node.offsetHeight;
-        let heightState: Length | number | null = child.height.state;
-        heightState = heightState instanceof Length ? heightState.pxValue() : heightValue;
-        yValue += heightValue * disclosingPhase;
-        yState += heightState;
+        if (child instanceof RowView) {
+          yValue += child.height.pxValue() * disclosingPhase * expandingPhase;
+        } else {
+          yValue += child.height.pxValue() * disclosingPhase;
+        }
+        yState += child.height.pxState();
         rowIndex += 1;
       }
     }
@@ -452,11 +501,14 @@ export class TableView extends HtmlView {
   }
 
   protected layoutChildren(displayFlags: ViewFlags, displayChild: (this: this, child: View, displayFlags: ViewFlags) => void): void {
+    this.rowHeight.recohere(this.updateTime);
     this.resizeTable();
     const layout = this.layout.value;
     const width = layout !== null ? layout.width : null;
-    const rowHeight = this.rowHeight.getValue();
-    const rowSpacing = this.rowSpacing.getValue().pxValue(rowHeight.pxValue());
+    const rowHeight = this.rowHeight.getValue().pxValue();
+    const rowSpacing = this.rowSpacing.getValue().pxValue(rowHeight);
+    const expandingPhase = this.expanding.getPhaseOr(1);
+    const disclosurePhase = this.disclosure.getPhaseOr(1);
     const disclosingPhase = this.disclosing.getPhaseOr(1);
     const timing = !this.disclosing.tweening ? this.getLook(Look.timing) : null;
 
@@ -474,11 +526,15 @@ export class TableView extends HtmlView {
     function layoutChild(this: self, child: View, displayFlags: ViewFlags): void {
       if (child instanceof RowView || child instanceof HeaderView) {
         if (rowIndex !== 0) {
-          yValue += rowSpacing * disclosingPhase;
+          if (child instanceof RowView) {
+            yValue += rowSpacing * disclosingPhase * expandingPhase;
+          } else {
+            yValue += rowSpacing * disclosingPhase;
+          }
           yState += rowSpacing;
         }
         if (child.top.hasAffinity(Affinity.Intrinsic)) {
-          if (child.top.pxValue() === 0 || yValue !== yState) {
+          if (yValue !== yState || child.display.value === "none") {
             child.top.setInterpolatedValue(Length.px(yValue), Length.px(yState));
           } else {
             child.top.setState(yState, timing, Affinity.Intrinsic);
@@ -490,14 +546,20 @@ export class TableView extends HtmlView {
       if (child instanceof HtmlView) {
         const top = child.top.state;
         const height = child.height.state;
-        if (top instanceof Length && height instanceof Length) {
+        if (top !== null && height !== null) {
           const yMin0 = visibleFrame.yMin;
           const yMax0 = visibleFrame.yMax;
           const yMin1 = top.pxValue();
           const yMax1 = yMin1 + height.pxValue();
-          isVisible = yMin0 <= yMax1 && yMin1 <= yMax0;
+          isVisible = disclosingPhase !== 0 && (child instanceof HeaderView || expandingPhase !== 0)
+                   && yMin0 <= yMax1 && yMin1 <= yMax0 && yMin1 !== yMax1;
         } else {
           isVisible = true;
+        }
+        if (child instanceof RowView) {
+          child.opacity.setState(disclosurePhase * expandingPhase, Affinity.Intrinsic);
+        } else {
+          child.opacity.setState(disclosurePhase, Affinity.Intrinsic);
         }
         child.display.setState(isVisible ? "flex" : "none", Affinity.Intrinsic);
         child.setCulled(!isVisible);
@@ -509,12 +571,12 @@ export class TableView extends HtmlView {
       }
       displayChild.call(this, child, displayFlags);
       if (child instanceof RowView || child instanceof HeaderView) {
-        let heightValue: Length | number | null = child.height.value;
-        heightValue = heightValue instanceof Length ? heightValue.pxValue() : child.node.offsetHeight;
-        let heightState: Length | number | null = child.height.state;
-        heightState = heightState instanceof Length ? heightState.pxValue() : heightValue;
-        yValue += heightValue * disclosingPhase;
-        yState += heightState;
+        if (child instanceof RowView) {
+          yValue += child.height.pxValue() * disclosingPhase * expandingPhase;
+        } else {
+          yValue += child.height.pxValue() * disclosingPhase;
+        }
+        yState += child.height.pxState();
         rowIndex += 1;
       }
     }
@@ -523,8 +585,5 @@ export class TableView extends HtmlView {
     if (this.height.hasAffinity(Affinity.Intrinsic)) {
       this.height.setInterpolatedValue(Length.px(yValue), Length.px(yState));
     }
-
-    const disclosurePhase = this.disclosure.getPhaseOr(1);
-    this.opacity.setState(disclosurePhase, Affinity.Intrinsic);
   }
 }

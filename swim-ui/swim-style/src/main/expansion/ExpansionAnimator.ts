@@ -52,6 +52,11 @@ export interface ExpansionAnimator<O = unknown, T extends Expansion | null | und
   toggle(timingOrAffinity: Affinity | AnyTiming | boolean | null | undefined): void;
   toggle(timing?: AnyTiming | boolean | null, affinity?: Affinity): void;
 
+  /** @override */
+  setState(newState: T | U, timingOrAffinity: Affinity | AnyTiming | boolean | null | undefined): void;
+  /** @override */
+  setState(newState: T | U, timing?: AnyTiming | boolean | null, affinity?: Affinity): void;
+
   /** @override @protected */
   onSetValue(newValue: T, oldValue: T): void;
 
@@ -166,50 +171,48 @@ export const ExpansionAnimator = (function (_super: typeof Animator) {
   ExpansionAnimator.prototype.expand = function (this: ExpansionAnimator, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue === void 0 || oldValue === null || !oldValue.expanded) {
-      if (typeof timing === "number") {
-        affinity = timing;
-        timing = void 0;
-      }
-      if (timing === void 0 || timing === true) {
-        timing = this.transition;
-      }
       if (oldValue !== void 0 && oldValue !== null) {
         this.setValue(oldValue.asExpanding(), Affinity.Reflexive);
       }
-      this.setState(Expansion.expanded(), timing, affinity);
+      this.setState(Expansion.expanded(), timing as any, affinity);
     }
   };
 
   ExpansionAnimator.prototype.collapse = function (this: ExpansionAnimator, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue === void 0 || oldValue === null || !oldValue.collapsed) {
-      if (typeof timing === "number") {
-        affinity = timing;
-        timing = void 0;
-      }
-      if (timing === void 0 || timing === true) {
-        timing = this.transition;
-      }
       if (oldValue !== void 0 && oldValue !== null) {
         this.setValue(oldValue.asCollapsing(), Affinity.Reflexive);
       }
-      this.setState(Expansion.collapsed(), timing, affinity);
+      this.setState(Expansion.collapsed(), timing as any, affinity);
     }
   };
 
   ExpansionAnimator.prototype.toggle = function (this: ExpansionAnimator, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue !== void 0 && oldValue !== null) {
-      if (typeof timing === "number") {
-        affinity = timing;
-        timing = void 0;
-      }
-      if (timing === void 0 || timing === true) {
-        timing = this.transition;
-      }
       this.setValue(oldValue.asToggling(), Affinity.Reflexive);
-      this.setState(oldValue.asToggled(), timing, affinity);
+      this.setState(oldValue.asToggled(), timing as any, affinity);
     }
+  };
+
+  ExpansionAnimator.prototype.setState = function (this: ExpansionAnimator, newState: AnyExpansion | null | undefined, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
+    if (typeof timing === "number") {
+      affinity = timing;
+      timing = void 0;
+    }
+    if (timing === void 0 || timing === true) {
+      timing = this.transition;
+    }
+    if (typeof newState === "boolean") {
+      const oldValue = this.value;
+      const newValue = newState ? Expansion.expanded() : Expansion.collapsed();
+      if (oldValue !== void 0 && oldValue !== null && !oldValue.equals(newValue)) {
+        this.setValue(newState ? oldValue.asExpanding() : oldValue.asCollapsing(), Affinity.Reflexive);
+      }
+      newState = newValue;
+    }
+    _super.prototype.setState.call(this, newState, timing, affinity);
   };
 
   ExpansionAnimator.prototype.onSetValue = function (this: ExpansionAnimator, newValue: Expansion | null | undefined, oldValue: Expansion | null | undefined): void {

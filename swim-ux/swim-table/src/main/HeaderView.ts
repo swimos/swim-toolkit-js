@@ -27,6 +27,9 @@ import {ThemeConstraintAnimator} from "@swim/theme";
 import type {ViewFlags} from "@swim/view";
 import {View} from "@swim/view";
 import {ViewSet} from "@swim/view";
+import type {PositionGestureInput} from "@swim/view";
+import {PositionGesture} from "@swim/view";
+import type {ViewNode} from "@swim/dom";
 import type {HtmlViewObserver} from "@swim/dom";
 import {HtmlView} from "@swim/dom";
 import type {AnyTableLayout} from "./TableLayout";
@@ -38,6 +41,10 @@ export interface HeaderViewObserver<V extends HeaderView = HeaderView> extends H
   viewWillAttachCol?(colView: ColView, targetView: View | null, view: V): void;
 
   viewDidDetachCol?(colView: ColView, view: V): void;
+
+  viewDidPress?(input: PositionGestureInput, event: Event | null, view: V): void;
+
+  viewDidLongPress?(input: PositionGestureInput, view: V): void;
 }
 
 /** @public */
@@ -120,6 +127,7 @@ export class HeaderView extends HtmlView {
   }
 
   protected layoutHeader(): void {
+    this.rowHeight.recohere(this.updateTime);
     const rowHeight = this.rowHeight.value;
     if (rowHeight !== null) {
       this.height.setState(rowHeight, Affinity.Intrinsic);
@@ -144,7 +152,7 @@ export class HeaderView extends HtmlView {
         const key = child.key;
         const col = layout !== null && key !== void 0 ? layout.getCol(key) : null;
         if (col !== null) {
-          child.display.setState(!col.hidden ? "flex" : "none", Affinity.Intrinsic);
+          child.display.setState(!col.hidden && col.width !== null ? "flex" : "none", Affinity.Intrinsic);
           child.left.setState(col.left, Affinity.Intrinsic);
           child.width.setState(col.width, Affinity.Intrinsic);
           child.height.setState(height, Affinity.Intrinsic);
@@ -168,4 +176,45 @@ export class HeaderView extends HtmlView {
     }
     super.displayChildren(displayFlags, layoutChild);
   }
+
+  @PositionGesture({
+    bindsOwner: true,
+    didPress(input: PositionGestureInput, event: Event | null): void {
+      if (this.owner.clientBounds.contains(input.x, input.y)) {
+        if (!input.defaultPrevented) {
+          let target = input.target;
+          while (target !== null && target !== this.owner.node) {
+            const targetView = (target as ViewNode).view;
+            if (targetView instanceof ColView) {
+              targetView.onPress(input, event);
+              targetView.didPress(input, event);
+              break;
+            }
+            target = target instanceof Node ? target.parentNode : null;
+          }
+        }
+        if (!input.defaultPrevented) {
+          this.owner.callObservers("viewDidPress", input, event, this.owner);
+        }
+      }
+    },
+    didLongPress(input: PositionGestureInput): void {
+      if (!input.defaultPrevented) {
+        let target = input.target;
+        while (target !== null && target !== this.owner.node) {
+          const targetView = (target as ViewNode).view;
+          if (targetView instanceof ColView) {
+            targetView.onLongPress(input);
+            targetView.didLongPress(input);
+            break;
+          }
+          target = target instanceof Node ? target.parentNode : null;
+        }
+      }
+      if (!input.defaultPrevented) {
+        this.owner.callObservers("viewDidLongPress", input, this.owner);
+      }
+    },
+  })
+  readonly gesture!: PositionGesture<this, HeaderView>;
 }

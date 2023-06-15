@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import {Murmur3} from "@swim/util";
-import {Lazy} from "@swim/util";
 import {Numbers} from "@swim/util";
 import {Constructors} from "@swim/util";
 import type {Equivalent} from "@swim/util";
@@ -26,7 +25,7 @@ import {Format} from "@swim/codec";
 import {PresenceInterpolator} from "./PresenceInterpolator";
 
 /** @public */
-export type AnyPresence = Presence | PresenceInit;
+export type AnyPresence = Presence | PresenceInit | boolean;
 
 /** @public */
 export interface PresenceInit {
@@ -182,14 +181,18 @@ export class Presence implements Interpolate<Presence>, HashCode, Equivalent, De
     return Format.debug(this);
   }
 
-  @Lazy
+  /** @internal */
+  static readonly Dismissed: Presence = new Presence(0, 0);
+
   static dismissed(): Presence {
-    return new Presence(0, 0);
+    return this.Dismissed;
   }
 
-  @Lazy
+  /** @internal */
+  static readonly Presented: Presence = new Presence(1, 0);
+
   static presented(): Presence {
-    return new Presence(1, 0);
+    return this.Presented
   }
 
   static presenting(phase?: number): Presence {
@@ -231,6 +234,10 @@ export class Presence implements Interpolate<Presence>, HashCode, Equivalent, De
       return value;
     } else if (Presence.isInit(value)) {
       return Presence.fromInit(value);
+    } else if (value === true) {
+      return Presence.presented();
+    } else if (value === false) {
+      return Presence.dismissed();
     }
     throw new TypeError("" + value);
   }
@@ -248,6 +255,7 @@ export class Presence implements Interpolate<Presence>, HashCode, Equivalent, De
   /** @internal */
   static isAny(value: unknown): value is AnyPresence {
     return value instanceof Presence
-        || Presence.isInit(value);
+        || Presence.isInit(value)
+        || typeof value === "boolean";
   }
 }

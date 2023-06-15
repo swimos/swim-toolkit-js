@@ -158,9 +158,8 @@ export const StyleAnimator = (function (_super: typeof ThemeAnimator) {
   Object.defineProperty(StyleAnimator.prototype, "computedValue", {
     get: function <T>(this: StyleAnimator<unknown, T>): T {
       let computedValue: T | undefined;
-      const styleContext = this.owner;
-      let node: Node | undefined;
-      if (StyleContext.is(styleContext) && (node = styleContext.node, node instanceof Element)) {
+      const node = StyleContext.is(this.owner) ? this.owner.node : void 0;
+      if (node instanceof Element) {
         const styles = getComputedStyle(node);
         const propertyNames = this.propertyNames;
         let propertyValue = "";
@@ -179,11 +178,10 @@ export const StyleAnimator = (function (_super: typeof ThemeAnimator) {
           }
         }
       }
-      if (computedValue !== void 0) {
-        return computedValue;
-      } else {
-        return (Object.getPrototypeOf(this) as StyleAnimator<unknown, T>).value;
+      if (computedValue === void 0) {
+        computedValue = (Object.getPrototypeOf(this) as StyleAnimator<unknown, T>).value;
       }
+      return computedValue;
     },
     configurable: true,
   });
@@ -394,31 +392,31 @@ export const NumberStyleAnimator = (function (_super: typeof StyleAnimator) {
 export interface LengthStyleAnimator<O = unknown, T extends Length | null = Length | null, U extends AnyLength | null = AnyLength | T> extends StyleAnimator<O, T, U>, LengthBasis {
   get units(): LengthUnits;
 
-  pxValue(basis?: LengthBasis | number): number;
+  pxValue(basis?: LengthBasis | number, defaultValue?: number): number;
 
-  emValue(basis?: LengthBasis | number): number;
+  emValue(basis?: LengthBasis | number, defaultValue?: number): number;
 
-  remValue(basis?: LengthBasis | number): number;
+  remValue(basis?: LengthBasis | number, defaultValue?: number): number;
 
-  pctValue(basis?: LengthBasis | number): number;
+  pctValue(basis?: LengthBasis | number, defaultValue?: number): number;
 
-  pxState(basis?: LengthBasis | number): number;
+  pxState(basis?: LengthBasis | number, defaultValue?: number): number;
 
-  emState(basis?: LengthBasis | number): number;
+  emState(basis?: LengthBasis | number, defaultValue?: number): number;
 
-  remState(basis?: LengthBasis | number): number;
+  remState(basis?: LengthBasis | number, defaultValue?: number): number;
 
-  pctState(basis?: LengthBasis | number): number;
+  pctState(basis?: LengthBasis | number, defaultValue?: number): number;
 
-  px(basis?: LengthBasis | number): PxLength;
+  px(basis?: LengthBasis | number, defaultValue?: number): PxLength;
 
-  em(basis?: LengthBasis | number): EmLength;
+  em(basis?: LengthBasis | number, defaultValue?: number): EmLength;
 
-  rem(basis?: LengthBasis | number): RemLength;
+  rem(basis?: LengthBasis | number, defaultValue?: number): RemLength;
 
-  pct(basis?: LengthBasis | number): PctLength;
+  pct(basis?: LengthBasis | number, defaultValue?: number): PctLength;
 
-  to(units: LengthUnits, basis?: LengthBasis | number): Length;
+  to(units: LengthUnits, basis?: LengthBasis | number, defaultValue?: number): Length;
 
   /** @override */
   get emUnit(): Node | number | undefined;
@@ -457,160 +455,134 @@ export const LengthStyleAnimator = (function (_super: typeof StyleAnimator) {
     configurable: true,
   });
 
-  LengthStyleAnimator.prototype.pxValue = function (this: LengthStyleAnimator, basis?: LengthBasis | number): number {
+  LengthStyleAnimator.prototype.pxValue = function (this: LengthStyleAnimator, basis?: LengthBasis | number, defaultValue?: number): number {
     const value = this.cssValue;
-    if (value !== null) {
-      if (basis === void 0) {
-        basis = this;
-      }
-      return value.pxValue(basis);
-    } else {
-      return 0;
+    if (value === null) {
+      return defaultValue !== void 0 ? defaultValue : 0;
+    } else if (basis === void 0) {
+      basis = this;
     }
+    return value.pxValue(basis);
   };
 
-  LengthStyleAnimator.prototype.emValue = function (this: LengthStyleAnimator, basis?: LengthBasis | number): number {
+  LengthStyleAnimator.prototype.emValue = function (this: LengthStyleAnimator, basis?: LengthBasis | number, defaultValue?: number): number {
     const value = this.cssValue;
-    if (value !== null) {
-      if (basis === void 0) {
-        basis = this;
-      }
-      return value.emValue(basis);
-    } else {
-      return 0;
+    if (value === null) {
+      return defaultValue !== void 0 ? defaultValue : 0;
+    } else if (basis === void 0) {
+      basis = this;
     }
+    return value.emValue(basis);
   };
 
-  LengthStyleAnimator.prototype.remValue = function (this: LengthStyleAnimator, basis?: LengthBasis | number): number {
+  LengthStyleAnimator.prototype.remValue = function (this: LengthStyleAnimator, basis?: LengthBasis | number, defaultValue?: number): number {
     const value = this.cssValue;
-    if (value !== null) {
-      if (basis === void 0) {
-        basis = this;
-      }
-      return value.remValue(basis);
-    } else {
-      return 0;
+    if (value === null) {
+      return defaultValue !== void 0 ? defaultValue : 0;
+    } else if (basis === void 0) {
+      basis = this;
     }
+    return value.remValue(basis);
   };
 
-  LengthStyleAnimator.prototype.pctValue = function (this: LengthStyleAnimator, basis?: LengthBasis | number): number {
+  LengthStyleAnimator.prototype.pctValue = function (this: LengthStyleAnimator, basis?: LengthBasis | number, defaultValue?: number): number {
     const value = this.cssValue;
-    if (value !== null) {
-      if (basis === void 0) {
-        basis = this;
-      }
-      return value.pctValue(basis);
-    } else {
-      return 0;
+    if (value === null) {
+      return defaultValue !== void 0 ? defaultValue : 0;
+    } else if (basis === void 0) {
+      basis = this;
     }
+    return value.pctValue(basis);
   };
 
-  LengthStyleAnimator.prototype.pxState = function (this: LengthStyleAnimator, basis?: LengthBasis | number): number {
+  LengthStyleAnimator.prototype.pxState = function (this: LengthStyleAnimator, basis?: LengthBasis | number, defaultValue?: number): number {
     const value = this.cssState;
-    if (value !== null) {
-      if (basis === void 0) {
-        basis = this;
-      }
-      return value.pxValue(basis);
-    } else {
-      return 0;
+    if (value === null) {
+      return defaultValue !== void 0 ? defaultValue : 0;
+    } else if (basis === void 0) {
+      basis = this;
     }
+    return value.pxValue(basis);
   };
 
-  LengthStyleAnimator.prototype.emState = function (this: LengthStyleAnimator, basis?: LengthBasis | number): number {
+  LengthStyleAnimator.prototype.emState = function (this: LengthStyleAnimator, basis?: LengthBasis | number, defaultValue?: number): number {
     const value = this.cssState;
-    if (value !== null) {
-      if (basis === void 0) {
-        basis = this;
-      }
-      return value.emValue(basis);
-    } else {
-      return 0;
+    if (value === null) {
+      return defaultValue !== void 0 ? defaultValue : 0;
+    } else if (basis === void 0) {
+      basis = this;
     }
+    return value.emValue(basis);
   };
 
-  LengthStyleAnimator.prototype.remState = function (this: LengthStyleAnimator, basis?: LengthBasis | number): number {
+  LengthStyleAnimator.prototype.remState = function (this: LengthStyleAnimator, basis?: LengthBasis | number, defaultValue?: number): number {
     const value = this.cssState;
-    if (value !== null) {
-      if (basis === void 0) {
-        basis = this;
-      }
-      return value.remValue(basis);
-    } else {
-      return 0;
+    if (value === null) {
+      return defaultValue !== void 0 ? defaultValue : 0;
+    } else if (basis === void 0) {
+      basis = this;
     }
+    return value.remValue(basis);
   };
 
-  LengthStyleAnimator.prototype.pctState = function (this: LengthStyleAnimator, basis?: LengthBasis | number): number {
+  LengthStyleAnimator.prototype.pctState = function (this: LengthStyleAnimator, basis?: LengthBasis | number, defaultValue?: number): number {
     const value = this.cssState;
-    if (value !== null) {
-      if (basis === void 0) {
-        basis = this;
-      }
-      return value.pctValue(basis);
-    } else {
-      return 0;
+    if (value === null) {
+      return defaultValue !== void 0 ? defaultValue : 0;
+    } else if (basis === void 0) {
+      basis = this;
     }
+    return value.pctValue(basis);
   };
 
-  LengthStyleAnimator.prototype.px = function (this: LengthStyleAnimator, basis?: LengthBasis | number): PxLength {
+  LengthStyleAnimator.prototype.px = function (this: LengthStyleAnimator, basis?: LengthBasis | number, defaultValue?: number): PxLength {
     const value = this.cssValue;
-    if (value !== null) {
-      if (basis === void 0) {
-        basis = this;
-      }
-      return value.px(basis);
-    } else {
-      return PxLength.zero();
+    if (value === null) {
+      return PxLength.of(defaultValue !== void 0 ? defaultValue : 0);
+    } else if (basis === void 0) {
+      basis = this;
     }
+    return value.px(basis);
   };
 
-  LengthStyleAnimator.prototype.em = function (this: LengthStyleAnimator, basis?: LengthBasis | number): EmLength {
+  LengthStyleAnimator.prototype.em = function (this: LengthStyleAnimator, basis?: LengthBasis | number, defaultValue?: number): EmLength {
     const value = this.cssValue;
-    if (value !== null) {
-      if (basis === void 0) {
-        basis = this;
-      }
-      return value.em(basis);
-    } else {
-      return EmLength.zero();
+    if (value === null) {
+      return EmLength.of(defaultValue !== void 0 ? defaultValue : 0);
+    } else if (basis === void 0) {
+      basis = this;
     }
+    return value.em(basis);
   };
 
-  LengthStyleAnimator.prototype.rem = function (this: LengthStyleAnimator, basis?: LengthBasis | number): RemLength {
+  LengthStyleAnimator.prototype.rem = function (this: LengthStyleAnimator, basis?: LengthBasis | number, defaultValue?: number): RemLength {
     const value = this.cssValue;
-    if (value !== null) {
-      if (basis === void 0) {
-        basis = this;
-      }
-      return value.rem(basis);
-    } else {
-      return RemLength.zero();
+    if (value === null) {
+      return RemLength.of(defaultValue !== void 0 ? defaultValue : 0);
+    } else if (basis === void 0) {
+      basis = this;
     }
+    return value.rem(basis);
   };
 
-  LengthStyleAnimator.prototype.pct = function (this: LengthStyleAnimator, basis?: LengthBasis | number): PctLength {
+  LengthStyleAnimator.prototype.pct = function (this: LengthStyleAnimator, basis?: LengthBasis | number, defaultValue?: number): PctLength {
     const value = this.cssValue;
-    if (value !== null) {
-      if (basis === void 0) {
-        basis = this;
-      }
-      return value.pct(basis);
-    } else {
-      return PctLength.zero();
+    if (value === null) {
+      return PctLength.of(defaultValue !== void 0 ? defaultValue : 0);
+    } else if (basis === void 0) {
+      basis = this;
     }
+    return value.pct(basis);
   };
 
-  LengthStyleAnimator.prototype.to = function (this: LengthStyleAnimator, units: LengthUnits, basis?: LengthBasis | number): Length {
+  LengthStyleAnimator.prototype.to = function (this: LengthStyleAnimator, units: LengthUnits, basis?: LengthBasis | number, defaultValue?: number): Length {
     const value = this.cssValue;
-    if (value !== null) {
-      if (basis === void 0) {
-        basis = this;
-      }
-      return value.to(units, basis);
-    } else {
-      return Length.zero(units);
+    if (value === null) {
+      return Length.of(defaultValue !== void 0 ? defaultValue : 0, units);
+    } else if (basis === void 0) {
+      basis = this;
     }
+    return value.to(units, basis);
   };
 
   Object.defineProperty(LengthStyleAnimator.prototype, "emUnit", {

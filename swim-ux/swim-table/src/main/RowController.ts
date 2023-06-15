@@ -133,7 +133,9 @@ export class RowController extends LeafController {
   readonly row!: TraitViewRef<this, RowTrait, RowView> & Observes<RowTrait> & Observes<RowView>;
 
   @TraitViewControllerRef({
-    // avoid cyclic static reference to controllerType: TableController
+    get controllerType(): typeof TableController {
+      return TableController;
+    },
     binds: true,
     observes: true,
     get parentView(): RowView | null {
@@ -205,9 +207,6 @@ export class RowController extends LeafController {
     },
     detectController(controller: Controller): TableController | null {
       return controller instanceof TableController ? controller : null;
-    },
-    createController(): TableController {
-      return TableController.create();
     },
   })
   readonly tree!: TraitViewControllerRef<this, TableTrait, TableView, TableController> & Observes<TableController> & {

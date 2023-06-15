@@ -32,6 +32,7 @@ import type {ThemeMatrix} from "@swim/theme";
 import {ThemeAnimator} from "@swim/theme";
 import type {ViewFlags} from "@swim/view";
 import {View} from "@swim/view";
+import {ViewRef} from "@swim/view";
 import type {PositionGestureInput} from "@swim/view";
 import {PositionGesture} from "@swim/view";
 import type {HtmlView} from "@swim/dom";
@@ -51,11 +52,6 @@ export interface ButtonToolViewObserver<V extends ButtonToolView = ButtonToolVie
 
 /** @public */
 export class ButtonToolView extends ToolView {
-  constructor(node: HTMLElement) {
-    super(node);
-    this.initSvg();
-  }
-
   protected override initTool(): void {
     super.initTool();
     this.addClass("tool-button");
@@ -72,22 +68,6 @@ export class ButtonToolView extends ToolView {
   }
 
   override readonly observerType?: Class<ButtonToolViewObserver>;
-
-  protected initSvg(): void {
-    const svgView = this.createSvgView();
-    if (svgView !== null) {
-      this.setChild("svg", svgView);
-    }
-  }
-
-  protected createSvgView(): SvgIconView | null {
-    return SvgIconView.create();
-  }
-
-  get svgView(): SvgIconView | null {
-    const svgView = this.getChild("svg");
-    return svgView instanceof SvgIconView ? svgView : null;
-  }
 
   @Animator({valueType: Number, value: 0.5, updateFlags: View.NeedsLayout})
   override readonly xAlign!: Animator<this, number>;
@@ -129,22 +109,24 @@ export class ButtonToolView extends ToolView {
   })
   readonly graphics!: ThemeAnimator<this, Graphics | null>;
 
-  protected override onInsertChild(child: View, target: View | null): void {
-    super.onInsertChild(child, target);
-    if (child.key === "svg" && child instanceof SvgIconView) {
-      this.onInsertSvg(child);
-    }
-  }
-
-  protected onInsertSvg(svgView: SvgIconView): void {
-    svgView.xAlign.setInherits(true);
-    svgView.yAlign.setInherits(true);
-    svgView.iconWidth.setInherits(true);
-    svgView.iconHeight.setInherits(true);
-    svgView.iconColor.setInherits(true);
-    svgView.graphics.setInherits(true);
-    svgView.setStyle("position", "absolute");
-  }
+  @ViewRef({
+    viewType: SvgIconView,
+    viewKey: true,
+    binds: true,
+    init(): void {
+      this.insertView();
+    },
+    initView(svgView: SvgIconView): void {
+      svgView.setStyle("position", "absolute");
+      svgView.xAlign.setInherits(true);
+      svgView.yAlign.setInherits(true);
+      svgView.iconWidth.setInherits(true);
+      svgView.iconHeight.setInherits(true);
+      svgView.iconColor.setInherits(true);
+      svgView.graphics.setInherits(true);
+    },
+  })
+  readonly svg!: ViewRef<this, SvgIconView>;
 
   protected override onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
@@ -175,7 +157,7 @@ export class ButtonToolView extends ToolView {
   }
 
   protected layoutTool(): void {
-    const svgView = this.svgView;
+    const svgView = this.svg.view;
     if (svgView !== null && (svgView.width.hasAffinity(Affinity.Intrinsic)
                           || svgView.height.hasAffinity(Affinity.Intrinsic)
                           || svgView.viewBox.hasAffinity(Affinity.Intrinsic))) {

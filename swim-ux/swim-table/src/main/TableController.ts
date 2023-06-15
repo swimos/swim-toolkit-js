@@ -41,6 +41,7 @@ import {TextColView} from "./TextColView";
 import type {ColTrait} from "./ColTrait";
 import {ColController} from "./ColController";
 import type {TextColController} from "./TextColController";
+import type {IconColController} from "./IconColController";
 import type {HeaderView} from "./HeaderView";
 import type {HeaderTrait} from "./HeaderTrait";
 import {HeaderController} from "./HeaderController";
@@ -59,6 +60,14 @@ export interface TableControllerObserver<C extends TableController = TableContro
 
   controllerDidDetachTableView?(tableView: TableView, controller: C): void;
 
+  controllerWillExpandTableView?(tableView: TableView, controller: C): void;
+
+  controllerDidExpandTableView?(tableView: TableView, controller: C): void;
+
+  controllerWillCollapseTableView?(tableView: TableView, controller: C): void;
+
+  controllerDidCollapseTableView?(tableView: TableView, controller: C): void;
+
   controllerWillAttachHeader?(headerController: HeaderController, controller: C): void;
 
   controllerDidDetachHeader?(headerController: HeaderController, controller: C): void;
@@ -70,6 +79,10 @@ export interface TableControllerObserver<C extends TableController = TableContro
   controllerWillAttachHeaderView?(headerView: HeaderView, controller: C): void;
 
   controllerDidDetachHeaderView?(headerView: HeaderView, controller: C): void;
+
+  controllerDidPressHeaderView?(input: PositionGestureInput, event: Event | null, headerView: HeaderView, controller: C): void;
+
+  controllerDidLongPressHeaderView?(input: PositionGestureInput, headerView: HeaderView, controller: C): void;
 
   controllerWillAttachCol?(colController: ColController, controller: C): void;
 
@@ -85,9 +98,15 @@ export interface TableControllerObserver<C extends TableController = TableContro
 
   controllerDidDetachColView?(colView: ColView, colController: ColController, controller: C): void;
 
+  controllerDidPressColView?(input: PositionGestureInput, event: Event | null, colView: ColView, colController: ColController, controller: C): void;
+
+  controllerDidLongPressColView?(input: PositionGestureInput, colView: ColView, colController: ColController, controller: C): void;
+
   controllerWillAttachColLabelView?(colLabelView: HtmlView, colController: ColController, controller: C): void;
 
   controllerDidDetachColLabelView?(colLabelView: HtmlView, colController: ColController, controller: C): void;
+
+  controllerDidSetColIcon?(colIcon: Graphics | null, colController: ColController, controller: C): void;
 
   controllerWillAttachRow?(rowController: RowController, controller: C): void;
 
@@ -274,6 +293,18 @@ export class TableController extends Controller {
         headerController.header.setView(null);
       }
     },
+    viewWillExpand(tableView: TableView): void {
+      this.owner.callObservers("controllerWillExpandTableView", tableView, this.owner);
+    },
+    viewDidExpand(tableView: TableView): void {
+      this.owner.callObservers("controllerDidExpandTableView", tableView, this.owner);
+    },
+    viewWillCollapse(tableView: TableView): void {
+      this.owner.callObservers("controllerWillCollapseTableView", tableView, this.owner);
+    },
+    viewDidCollapse(tableView: TableView): void {
+      this.owner.callObservers("controllerDidCollapseTableView", tableView, this.owner);
+    },
   })
   readonly table!: TraitViewRef<this, TableTrait, TableView> & Observes<TableTrait> & Observes<TableView>;
 
@@ -352,6 +383,12 @@ export class TableController extends Controller {
     },
     detachHeaderView(headerView: HeaderView, headerController: HeaderController): void {
       headerView.remove();
+    },
+    controllerDidPressHeaderView(input: PositionGestureInput, event: Event | null, headerView: HeaderView): void {
+      this.owner.callObservers("controllerDidPressHeaderView", input, event, headerView, this.owner);
+    },
+    controllerDidLongPressHeaderView(input: PositionGestureInput, headerView: HeaderView): void {
+      this.owner.callObservers("controllerDidLongPressHeaderView", input, headerView, this.owner);
     },
     detectController(controller: Controller): HeaderController | null {
       return controller instanceof HeaderController ? controller : null;
@@ -439,6 +476,12 @@ export class TableController extends Controller {
       }
       colView.remove();
     },
+    controllerDidPressColView(input: PositionGestureInput, event: Event | null, colView: ColView, colController: ColController): void {
+      this.owner.callObservers("controllerDidPressColView", input, event, colView, colController, this.owner);
+    },
+    controllerDidLongPressColView(input: PositionGestureInput, colView: ColView, colController: ColController): void {
+      this.owner.callObservers("controllerDidLongPressColView", input, colView, colController, this.owner);
+    },
     controllerWillAttachColLabelView(colLabelView: HtmlView, colController: ColController): void {
       this.owner.callObservers("controllerWillAttachColLabelView", colLabelView, colController, this.owner);
       this.attachColLabelView(colLabelView, colController);
@@ -453,8 +496,11 @@ export class TableController extends Controller {
     detachColLabelView(colLabelView: HtmlView, colController: ColController): void {
       // hook
     },
+    controllerDidSetColIcon(colIcon: Graphics | null, colController: ColController): void {
+      this.owner.callObservers("controllerDidSetColIcon", colIcon, colController, this.owner);
+    },
   })
-  readonly cols!: TraitViewControllerSet<this, ColTrait, ColView, ColController> & Observes<ColController> & Observes<TextColController> & {
+  readonly cols!: TraitViewControllerSet<this, ColTrait, ColView, ColController> & Observes<ColController> & Observes<TextColController> & Observes<IconColController> & {
     attachColTrait(colTrait: ColTrait, colController: ColController): void;
     detachColTrait(colTrait: ColTrait, colController: ColController): void;
     attachColView(colView: ColView, colController: ColController): void;

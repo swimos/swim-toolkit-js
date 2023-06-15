@@ -31,22 +31,22 @@ import {Icon} from "@swim/graphics";
 import {FilledIcon} from "@swim/graphics";
 import {IconGraphicsAnimator} from "@swim/graphics";
 import {SvgIconView} from "@swim/graphics";
-import type {CellViewObserver} from "./CellView";
-import {CellView} from "./CellView";
+import type {ColViewObserver} from "./ColView";
+import {ColView} from "./ColView";
 
 /** @public */
-export interface IconCellViewObserver<V extends IconCellView = IconCellView> extends CellViewObserver<V> {
+export interface IconColViewObserver<V extends IconColView = IconColView> extends ColViewObserver<V> {
   viewDidSetGraphics?(graphics: Graphics | null, view: V): void;
 }
 
 /** @public */
-export class IconCellView extends CellView {
-  protected override initCell(): void {
-    super.initCell();
-    this.addClass("cell-icon");
+export class IconColView extends ColView {
+  protected override initCol(): void {
+    super.initCol();
+    this.addClass("col-icon");
   }
 
-  override readonly observerType?: Class<IconCellViewObserver>;
+  override readonly observerType?: Class<IconColViewObserver>;
 
   @Animator({valueType: Number, value: 0.5, updateFlags: View.NeedsLayout})
   readonly xAlign!: Animator<this, number>;

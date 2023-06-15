@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import {Murmur3} from "@swim/util";
-import {Lazy} from "@swim/util";
 import {Numbers} from "@swim/util";
 import {Constructors} from "@swim/util";
 import type {Equivalent} from "@swim/util";
@@ -26,7 +25,7 @@ import {Format} from "@swim/codec";
 import {ExpansionInterpolator} from "./ExpansionInterpolator";
 
 /** @public */
-export type AnyExpansion = Expansion | ExpansionInit;
+export type AnyExpansion = Expansion | ExpansionInit | boolean;
 
 /** @public */
 export interface ExpansionInit {
@@ -182,14 +181,18 @@ export class Expansion implements Interpolate<Expansion>, HashCode, Equivalent, 
     return Format.debug(this);
   }
 
-  @Lazy
+  /** @internal */
+  static readonly Collapsed: Expansion = new Expansion(0, 0);
+
   static collapsed(): Expansion {
-    return new Expansion(0, 0);
+    return this.Collapsed;
   }
 
-  @Lazy
+  /** @internal */
+  static readonly Expanded: Expansion = new Expansion(1, 0);
+
   static expanded(): Expansion {
-    return new Expansion(1, 0);
+    return this.Expanded;
   }
 
   static expanding(phase?: number): Expansion {
@@ -231,6 +234,10 @@ export class Expansion implements Interpolate<Expansion>, HashCode, Equivalent, 
       return value;
     } else if (Expansion.isInit(value)) {
       return Expansion.fromInit(value);
+    } else if (value === true) {
+      return Expansion.expanded();
+    } else if (value === false) {
+      return Expansion.collapsed();
     }
     throw new TypeError("" + value);
   }
@@ -248,6 +255,7 @@ export class Expansion implements Interpolate<Expansion>, HashCode, Equivalent, 
   /** @internal */
   static isAny(value: unknown): value is AnyExpansion {
     return value instanceof Expansion
-        || Expansion.isInit(value);
+        || Expansion.isInit(value)
+        || typeof value === "boolean";
   }
 }

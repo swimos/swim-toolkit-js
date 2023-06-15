@@ -1623,10 +1623,17 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
     if (decoherent !== null) {
       const decoherentCount = decoherent.length;
       if (decoherentCount !== 0) {
+        let coherentDownlinkProps = false;
         (this as Mutable<this>).decoherent = null;
         for (let i = 0; i < decoherentCount; i += 1) {
           const fastener = decoherent[i]!;
           if (fastener instanceof WarpDownlink) {
+            if (!coherentDownlinkProps) {
+              coherentDownlinkProps = true;
+              this.hostUri.recohere(t);
+              this.nodeUri.recohere(t);
+              this.laneUri.recohere(t);
+            }
             fastener.recohere(t);
           } else {
             this.decohereFastener(fastener);

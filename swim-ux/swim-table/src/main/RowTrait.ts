@@ -32,7 +32,9 @@ export class RowTrait extends LeafTrait {
   override readonly observerType?: Class<RowTraitObserver>;
 
   @TraitRef({
-    // avoid cyclic static reference to traitType: TableTrait
+    get traitType(): typeof TableTrait {
+      return TableTrait;
+    },
     binds: true,
     willAttachTrait(treeTrait: TableTrait): void {
       this.owner.callObservers("traitWillAttachTree", treeTrait, this.owner);
@@ -45,9 +47,6 @@ export class RowTrait extends LeafTrait {
     },
     detectTrait(trait: Trait): TableTrait | null {
       return trait instanceof TableTrait ? trait : null;
-    },
-    createTrait(): TableTrait {
-      return TableTrait.create();
     },
   })
   readonly tree!: TraitRef<this, TableTrait>;

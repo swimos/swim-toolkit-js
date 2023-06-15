@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import {Murmur3} from "@swim/util";
-import {Lazy} from "@swim/util";
 import {Numbers} from "@swim/util";
 import {Constructors} from "@swim/util";
 import type {Equivalent} from "@swim/util";
@@ -26,7 +25,7 @@ import {Format} from "@swim/codec";
 import {FocusInterpolator} from "./FocusInterpolator";
 
 /** @public */
-export type AnyFocus = Focus | FocusInit;
+export type AnyFocus = Focus | FocusInit | boolean;
 
 /** @public */
 export interface FocusInit {
@@ -182,14 +181,18 @@ export class Focus implements Interpolate<Focus>, HashCode, Equivalent, Debug {
     return Format.debug(this);
   }
 
-  @Lazy
+  /** @internal */
+  static readonly Unfocused: Focus = new Focus(0, 0);
+
   static unfocused(): Focus {
-    return new Focus(0, 0);
+    return this.Unfocused;
   }
 
-  @Lazy
+  /** @internal */
+  static readonly Focused: Focus = new Focus(1, 0);
+
   static focused(): Focus {
-    return new Focus(1, 0);
+    return this.Focused
   }
 
   static focusing(phase?: number): Focus {
@@ -231,6 +234,10 @@ export class Focus implements Interpolate<Focus>, HashCode, Equivalent, Debug {
       return value;
     } else if (Focus.isInit(value)) {
       return Focus.fromInit(value);
+    } else if (value === true) {
+      return Focus.focused();
+    } else if (value === false) {
+      return Focus.unfocused();
     }
     throw new TypeError("" + value);
   }
@@ -248,6 +255,7 @@ export class Focus implements Interpolate<Focus>, HashCode, Equivalent, Debug {
   /** @internal */
   static isAny(value: unknown): value is AnyFocus {
     return value instanceof Focus
-        || Focus.isInit(value);
+        || Focus.isInit(value)
+        || typeof value === "boolean";
   }
 }

@@ -187,6 +187,7 @@ export class LeafView extends HtmlView {
   readonly cells!: ViewSet<this, CellView>;
 
   protected override onLayout(): void {
+    this.rowHeight.recohere(this.updateTime);
     super.onLayout();
     this.layoutLeaf();
   }
@@ -216,7 +217,7 @@ export class LeafView extends HtmlView {
         const key = child.key;
         const col = layout !== null && key !== void 0 ? layout.getCol(key) : null;
         if (col !== null) {
-          child.display.setState(!col.hidden ? "flex" : "none", Affinity.Intrinsic);
+          child.display.setState(!col.hidden && col.width !== null ? "flex" : "none", Affinity.Intrinsic);
           child.left.setState(col.left, Affinity.Intrinsic);
           child.width.setState(col.width, Affinity.Intrinsic);
           child.height.setState(height, Affinity.Intrinsic);

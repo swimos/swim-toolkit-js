@@ -14,6 +14,7 @@
 
 import type {Class} from "@swim/util";
 import type {Observes} from "@swim/util";
+import type {PositionGestureInput} from "@swim/view";
 import type {ControllerObserver} from "@swim/controller";
 import {Controller} from "@swim/controller";
 import {TraitViewRef} from "@swim/controller";
@@ -33,6 +34,10 @@ export interface ColControllerObserver<C extends ColController = ColController> 
   controllerDidDetachColView?(colView: ColView, controller: C): void;
 
   controllerDidSetColLayout?(colLayout: ColLayout | null, controller: C): void;
+
+  controllerDidPressColView?(input: PositionGestureInput, event: Event | null, colView: ColView, controller: C): void;
+
+  controllerDidLongPressColView?(input: PositionGestureInput, colView: ColView, controller: C): void;
 }
 
 /** @public */
@@ -52,12 +57,19 @@ export class ColController extends Controller {
       this.owner.callObservers("controllerDidSetColLayout", colLayout, this.owner);
     },
     viewType: ColView,
+    observesView: true,
     willAttachView(colView: ColView): void {
       this.owner.callObservers("controllerWillAttachColView", colView, this.owner);
     },
     didDetachView(colView: ColView): void {
       this.owner.callObservers("controllerDidDetachColView", colView, this.owner);
     },
+    viewDidPress(input: PositionGestureInput, event: Event | null, colView: ColView): void {
+      this.owner.callObservers("controllerDidPressColView", input, event, colView, this.owner);
+    },
+    viewDidLongPress(input: PositionGestureInput, colView: ColView): void {
+      this.owner.callObservers("controllerDidLongPressColView", input, colView, this.owner);
+    },
   })
-  readonly col!: TraitViewRef<this, ColTrait, ColView> & Observes<ColTrait> & Observes<TextColTrait>;
+  readonly col!: TraitViewRef<this, ColTrait, ColView> & Observes<ColTrait> & Observes<TextColTrait> & Observes<ColView>;
 }

@@ -84,17 +84,29 @@ export {ColView} from "./ColView";
 export type {TextColViewObserver} from "./TextColView";
 export {TextColView} from "./TextColView";
 
+export type {IconColViewObserver} from "./IconColView";
+export {IconColView} from "./IconColView";
+
+export type {DisclosureColViewObserver} from "./DisclosureColView";
+export {DisclosureColView} from "./DisclosureColView";
+
 export type {ColTraitObserver} from "./ColTrait";
 export {ColTrait} from "./ColTrait";
 
 export type {TextColTraitObserver} from "./TextColTrait";
 export {TextColTrait} from "./TextColTrait";
 
+export type {IconColTraitObserver} from "./IconColTrait";
+export {IconColTrait} from "./IconColTrait";
+
 export type {ColControllerObserver} from "./ColController";
 export {ColController} from "./ColController";
 
 export type {TextColControllerObserver} from "./TextColController";
 export {TextColController} from "./TextColController";
+
+export type {IconColControllerObserver} from "./IconColController";
+export {IconColController} from "./IconColController";
 
 // Header
 

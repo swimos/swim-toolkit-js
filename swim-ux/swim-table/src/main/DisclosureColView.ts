@@ -19,23 +19,23 @@ import {ExpansionAnimator} from "@swim/style";
 import {ViewRef} from "@swim/view";
 import type {PositionGestureInput} from "@swim/view";
 import {DisclosureButton} from "@swim/button";
-import type {CellViewObserver} from "./CellView";
-import {CellView} from "./CellView";
+import type {ColViewObserver} from "./ColView";
+import {ColView} from "./ColView";
 
 /** @public */
-export interface DisclosureCellViewObserver<V extends DisclosureCellView = DisclosureCellView> extends CellViewObserver<V> {
+export interface DisclosureColViewObserver<V extends DisclosureColView = DisclosureColView> extends ColViewObserver<V> {
 }
 
 /** @public */
-export class DisclosureCellView extends CellView {
-  protected override initCell(): void {
-    super.initCell();
-    this.addClass("cell-disclosure");
+export class DisclosureColView extends ColView {
+  protected override initCol(): void {
+    super.initCol();
+    this.addClass("col-disclosure");
   }
 
-  override readonly observerType?: Class<DisclosureCellViewObserver>;
+  override readonly observerType?: Class<DisclosureColViewObserver>;
 
-  @ExpansionAnimator({value: null, inherits: true})
+  @ExpansionAnimator({value: null, inherits: true, inheritName: "expansion"})
   readonly disclosure!: ExpansionAnimator<this, Expansion | null, AnyExpansion | null>;
 
   @ViewRef({

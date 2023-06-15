@@ -62,7 +62,7 @@ export class DisclosureButton extends HtmlView {
   }
 
   @ExpansionAnimator({inherits: true, updateFlags: View.NeedsLayout})
-  readonly disclosure!: ExpansionAnimator<this, Expansion, AnyExpansion>;
+  readonly disclosure!: ExpansionAnimator<this, Expansion | null, AnyExpansion | null>;
 
   @ThemeAnimator({valueType: Color, look: Look.textColor, inherits: true, updateFlags: View.NeedsLayout})
   readonly collapsedColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
@@ -79,7 +79,7 @@ export class DisclosureButton extends HtmlView {
 
   protected override onLayout(): void {
     super.onLayout();
-    const phase = this.disclosure.getPhase();
+    const phase = this.disclosure.getPhaseOr(1);
     const collapsedColor = this.collapsedColor.value;
     const expandedColor = this.expandedColor.value;
     if (collapsedColor !== null && expandedColor !== null && this.arrow.fill.hasAffinity(Affinity.Intrinsic)) {

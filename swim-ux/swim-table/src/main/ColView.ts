@@ -14,11 +14,15 @@
 
 import type {Class} from "@swim/util";
 import {Affinity} from "@swim/component";
+import type {PositionGestureInput} from "@swim/view";
 import type {HtmlViewObserver} from "@swim/dom";
 import {HtmlView} from "@swim/dom";
 
 /** @public */
 export interface ColViewObserver<V extends ColView = ColView> extends HtmlViewObserver<V> {
+  viewDidPress?(input: PositionGestureInput, event: Event | null, view: V): void;
+
+  viewDidLongPress?(input: PositionGestureInput, view: V): void;
 }
 
 /** @public */
@@ -35,4 +39,20 @@ export class ColView extends HtmlView {
   }
 
   override readonly observerType?: Class<ColViewObserver>;
+
+  onPress(input: PositionGestureInput, event: Event | null): void {
+    // hook
+  }
+
+  didPress(input: PositionGestureInput, event: Event | null): void {
+    this.callObservers("viewDidPress", input, event, this);
+  }
+
+  onLongPress(input: PositionGestureInput): void {
+    // hook
+  }
+
+  didLongPress(input: PositionGestureInput): void {
+    this.callObservers("viewDidLongPress", input, this);
+  }
 }

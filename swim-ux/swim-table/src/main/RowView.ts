@@ -201,14 +201,16 @@ export class RowView extends HtmlView {
       headView.width.setState(layout !== null ? layout.width : null, Affinity.Intrinsic);
       headView.height.setState(this.owner.rowSpacing.state, Affinity.Intrinsic);
       headView.backgroundColor.setLook(Look.accentColor, Affinity.Intrinsic);
-      headView.opacity.setState(this.owner.disclosing.phase, Affinity.Intrinsic);
+      headView.opacity.setState(this.owner.disclosing.getPhaseOr(1) * this.owner.expanding.getPhaseOr(1), Affinity.Intrinsic);
       headView.zIndex.setState(1, Affinity.Intrinsic);
     },
   })
   readonly head!: ViewRef<this, HtmlView>;
 
   @ViewRef({
-    // avoid cyclic static reference to viewType: TableView
+    get viewType(): typeof TableView {
+      return TableView;
+    },
     viewKey: true,
     binds: true,
     initView(treeView: TableView): void {
@@ -227,9 +229,6 @@ export class RowView extends HtmlView {
     didDetachView(treeView: TableView): void {
       this.owner.callObservers("viewDidDetachTree", treeView, this.owner);
     },
-    createView(): TableView {
-      return TableView.create();
-    },
   })
   readonly tree!: ViewRef<this, TableView>;
 
@@ -247,11 +246,17 @@ export class RowView extends HtmlView {
       footView.width.setState(layout !== null ? layout.width : null, Affinity.Intrinsic);
       footView.height.setState(this.owner.rowSpacing.state, Affinity.Intrinsic);
       footView.backgroundColor.setLook(Look.borderColor, Affinity.Intrinsic);
-      footView.opacity.setState(this.owner.disclosing.phase, Affinity.Intrinsic);
+      footView.opacity.setState(this.owner.disclosing.getPhaseOr(1) * this.owner.expanding.getPhaseOr(1), Affinity.Intrinsic);
       footView.zIndex.setState(1, Affinity.Intrinsic);
     },
   })
   readonly foot!: ViewRef<this, HtmlView>;
+
+  @ExpansionAnimator({value: null, inherits: true, updateFlags: View.NeedsLayout})
+  readonly expansion!: ExpansionAnimator<this, Expansion | null, AnyExpansion | null>;
+
+  @ExpansionAnimator({value: Expansion.expanded(), inherits: true, updateFlags: View.NeedsLayout})
+  readonly expanding!: ExpansionAnimator<this, Expansion | null, AnyExpansion | null>;
 
   @ExpansionAnimator({
     value: Expansion.collapsed(),
@@ -282,7 +287,6 @@ export class RowView extends HtmlView {
       if (newDisclosure.direction !== 0) {
         this.owner.disclosing.setState(newDisclosure, Affinity.Intrinsic);
       } else {
-        this.owner.disclosing.setState(null, Affinity.Intrinsic);
         this.owner.disclosing.setAffinity(Affinity.Transient);
       }
       const tableView = this.owner.getBase(TableView);
@@ -293,7 +297,7 @@ export class RowView extends HtmlView {
   })
   readonly disclosure!: ExpansionAnimator<this, Expansion, AnyExpansion>;
 
-  @ExpansionAnimator({value: null, inherits: true, updateFlags: View.NeedsLayout})
+  @ExpansionAnimator({value: Expansion.collapsed(), inherits: true, updateFlags: View.NeedsLayout})
   readonly disclosing!: ExpansionAnimator<this, Expansion | null, AnyExpansion | null>;
 
   @Property({
@@ -326,10 +330,8 @@ export class RowView extends HtmlView {
     const yBleed = this.rowHeight.getValueOr(Length.zero()).pxValue();
     const parentVisibleFrame = this.visibleFrame.value;
     if (parentVisibleFrame !== null) {
-      let left: Length | number | null = this.left.state;
-      left = left instanceof Length ? left.pxValue() : 0;
-      let top: Length | number | null = this.top.state;
-      top = top instanceof Length ? top.pxValue() : 0;
+      const left = this.left.pxState();
+      const top = this.top.pxState();
       return new R2Box(parentVisibleFrame.xMin - left - xBleed, parentVisibleFrame.yMin - top - yBleed,
                        parentVisibleFrame.xMax - left + xBleed, parentVisibleFrame.yMax - top + yBleed);
     } else {
@@ -362,6 +364,7 @@ export class RowView extends HtmlView {
   }
 
   protected override onLayout(): void {
+    this.rowHeight.recohere(this.updateTime);
     super.onLayout();
     this.resizeRow();
     const leafView = this.leaf.view;
@@ -372,19 +375,18 @@ export class RowView extends HtmlView {
 
   protected resizeRow(): void {
     const oldLayout = !this.layout.derived ? this.layout.value : null;
-    if (oldLayout !== null) {
-      const superLayout = this.layout.inletValue;
-      let width: Length | number | null = null;
-      if (superLayout !== void 0 && superLayout !== null && superLayout.width !== null) {
-        width = superLayout.width.pxValue();
-      }
-      if (width === null) {
-        width = this.width.state;
-        width = width instanceof Length ? width.pxValue() : this.node.offsetWidth;
-      }
-      const newLayout = oldLayout.resized(width, 0, 0);
-      this.layout.setValue(newLayout);
+    if (oldLayout === null) {
+      return;
     }
+    const superLayout = this.layout.inletValue;
+    let width: number;
+    if (superLayout !== void 0 && superLayout !== null && superLayout.width !== null) {
+      width = superLayout.width.pxValue();
+    } else {
+      width = this.width.pxState();
+    }
+    const newLayout = oldLayout.resized(width, 0, 0);
+    this.layout.setValue(newLayout);
   }
 
   protected layoutLeaf(leafView: LeafView): void {
@@ -405,18 +407,16 @@ export class RowView extends HtmlView {
     const width = layout !== null ? layout.width : null;
     const rowSpacing = this.rowSpacing.getValueOr(Length.zero()).pxValue();
     const disclosure = this.disclosure.getValue();
-    const disclosingPhase = this.disclosing.getPhaseOr(1);
+    const disclosingPhase = this.disclosing.getPhaseOr(1) * this.expanding.getPhaseOr(1);
 
-    let leafHeightValue: Length | number | null = 0;
-    let leafHeightState: Length | number | null = 0;
+    let leafHeightValue = 0;
+    let leafHeightState = 0;
     const leafView = this.leaf.view;
     if (leafView !== null) {
       leafView.width.setState(width, Affinity.Intrinsic);
       leafView.display.setState("flex", Affinity.Intrinsic);
-      leafHeightValue = leafView.height.value;
-      leafHeightValue = leafHeightValue instanceof Length ? leafHeightValue.pxValue() : leafView.node.offsetHeight;
-      leafHeightState = leafView.height.state;
-      leafHeightState = leafHeightState instanceof Length ? leafHeightState.pxValue() : leafHeightValue;
+      leafHeightValue = leafView.height.pxValue();
+      leafHeightState = leafView.height.pxState();
     }
 
     const headView = this.head.view;
@@ -424,7 +424,7 @@ export class RowView extends HtmlView {
       if (!disclosure.collapsed) {
         headView.top.setState(leafHeightValue, Affinity.Intrinsic);
         headView.width.setState(width, Affinity.Intrinsic);
-        headView.height.setState(rowSpacing * disclosingPhase, Affinity.Intrinsic);
+        headView.height.setState(rowSpacing, Affinity.Intrinsic);
         headView.opacity.setState(disclosingPhase, Affinity.Intrinsic);
         headView.display.setState("block", Affinity.Intrinsic);
       } else {
@@ -432,19 +432,17 @@ export class RowView extends HtmlView {
       }
     }
 
-    let treeHeightValue: Length | number | null = 0;
-    let treeHeightState: Length | number | null = 0;
+    let treeHeightValue = 0;
+    let treeHeightState = 0;
     const treeView = this.tree.view;
     if (treeView !== null) {
       if (!disclosure.collapsed) {
-        treeView.top.setState((leafHeightValue + rowSpacing) * disclosingPhase, Affinity.Intrinsic);
+        treeView.top.setState(leafHeightValue + rowSpacing * disclosingPhase, Affinity.Intrinsic);
         treeView.width.setState(width, Affinity.Intrinsic);
         treeView.display.setState("block", Affinity.Intrinsic);
-        treeHeightValue = treeView.height.value;
-        treeHeightValue = treeHeightValue instanceof Length ? treeHeightValue.pxValue() : treeView.node.offsetHeight;
-        treeHeightValue += rowSpacing;
-        treeHeightState = treeView.height.state;
-        treeHeightState = treeHeightState instanceof Length ? treeHeightState.pxValue() : treeHeightValue;
+        treeHeightValue = treeView.height.pxValue();
+        treeHeightValue += rowSpacing * disclosingPhase;
+        treeHeightState = treeView.height.pxState();
         treeHeightState += rowSpacing;
       } else {
         treeView.display.setState("none", Affinity.Intrinsic);
@@ -456,7 +454,7 @@ export class RowView extends HtmlView {
       if (!disclosure.collapsed) {
         footView.top.setState(leafHeightValue + treeHeightValue, Affinity.Intrinsic);
         footView.width.setState(width, Affinity.Intrinsic);
-        footView.height.setState(rowSpacing * disclosingPhase, Affinity.Intrinsic);
+        footView.height.setState(rowSpacing, Affinity.Intrinsic);
         footView.opacity.setState(disclosingPhase, Affinity.Intrinsic);
         footView.display.setState("block", Affinity.Intrinsic);
       } else {
@@ -465,7 +463,7 @@ export class RowView extends HtmlView {
     }
 
     if (this.height.hasAffinity(Affinity.Intrinsic)) {
-      const heightValue = leafHeightValue + treeHeightValue * disclosingPhase;
+      const heightValue = leafHeightValue + treeHeightValue;
       const heightState = leafHeightState + treeHeightState;
       this.height.setInterpolatedValue(Length.px(heightValue), Length.px(heightState));
     }

@@ -27,13 +27,13 @@ export interface FocusAnimator<O = unknown, T extends Focus | null | undefined =
 
   getPhaseOr<E>(elsePhase: E): number | E;
 
-  setPhase(newPhase: number, timingOrAffinity: Affinity | AnyTiming | boolean | undefined): void;
-  setPhase(newPhase: number, timing?: AnyTiming | boolean, affinity?: Affinity): void;
+  setPhase(newPhase: number, timingOrAffinity: Affinity | AnyTiming | boolean | null | undefined): void;
+  setPhase(newPhase: number, timing?: AnyTiming | boolean | null, affinity?: Affinity): void;
 
   get direction(): number;
 
-  setDirection(newDirection: number, timingOrAffinity: Affinity | AnyTiming | boolean | undefined): void;
-  setDirection(newDirection: number, timing?: AnyTiming | boolean, affinity?: Affinity): void;
+  setDirection(newDirection: number, timingOrAffinity: Affinity | AnyTiming | boolean | null | undefined): void;
+  setDirection(newDirection: number, timing?: AnyTiming | boolean | null, affinity?: Affinity): void;
 
   get unfocused(): boolean;
 
@@ -43,14 +43,17 @@ export interface FocusAnimator<O = unknown, T extends Focus | null | undefined =
 
   get unfocusing(): boolean;
 
-  focus(timingOrAffinity: Affinity | AnyTiming | boolean | undefined): void;
-  focus(timing?: AnyTiming | boolean, affinity?: Affinity): void;
+  focus(timingOrAffinity: Affinity | AnyTiming | boolean | null | undefined): void;
+  focus(timing?: AnyTiming | boolean | null, affinity?: Affinity): void;
 
-  unfocus(timingOrAffinity: Affinity | AnyTiming | boolean | undefined): void;
-  unfocus(timing?: AnyTiming | boolean, affinity?: Affinity): void;
+  unfocus(timingOrAffinity: Affinity | AnyTiming | boolean | null | undefined): void;
+  unfocus(timing?: AnyTiming | boolean | null, affinity?: Affinity): void;
 
-  toggle(timingOrAffinity: Affinity | AnyTiming | boolean | undefined): void;
-  toggle(timing?: AnyTiming | boolean, affinity?: Affinity): void;
+  toggle(timingOrAffinity: Affinity | AnyTiming | boolean | null | undefined): void;
+  toggle(timing?: AnyTiming | boolean | null, affinity?: Affinity): void;
+
+  setState(newState: T | U, timingOrAffinity: Affinity | AnyTiming | boolean | null | undefined): void;
+  setState(newState: T | U, timing?: AnyTiming | boolean | null, affinity?: Affinity): void;
 
   /** @override @protected */
   onSetValue(newValue: T, oldValue: T): void;
@@ -166,50 +169,48 @@ export const FocusAnimator = (function (_super: typeof Animator) {
   FocusAnimator.prototype.focus = function (this: FocusAnimator, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue === void 0 || oldValue === null || !oldValue.focused) {
-      if (typeof timing === "number") {
-        affinity = timing;
-        timing = void 0;
-      }
-      if (timing === void 0 || timing === true) {
-        timing = this.transition;
-      }
       if (oldValue !== void 0 && oldValue !== null) {
         this.setValue(oldValue.asFocusing(), Affinity.Reflexive);
       }
-      this.setState(Focus.focused(), timing, affinity);
+      this.setState(Focus.focused(), timing as any, affinity);
     }
   };
 
   FocusAnimator.prototype.unfocus = function (this: FocusAnimator, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue === void 0 || oldValue === null || !oldValue.unfocused) {
-      if (typeof timing === "number") {
-        affinity = timing;
-        timing = void 0;
-      }
-      if (timing === void 0 || timing === true) {
-        timing = this.transition;
-      }
       if (oldValue !== void 0 && oldValue !== null) {
         this.setValue(oldValue.asUnfocusing(), Affinity.Reflexive);
       }
-      this.setState(Focus.unfocused(), timing, affinity);
+      this.setState(Focus.unfocused(), timing as any, affinity);
     }
   };
 
   FocusAnimator.prototype.toggle = function (this: FocusAnimator, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue !== void 0 && oldValue !== null) {
-      if (typeof timing === "number") {
-        affinity = timing;
-        timing = void 0;
-      }
-      if (timing === void 0 || timing === true) {
-        timing = this.transition;
-      }
       this.setValue(oldValue.asToggling(), Affinity.Reflexive);
-      this.setState(oldValue.asToggled(), timing, affinity);
+      this.setState(oldValue.asToggled(), timing as any, affinity);
     }
+  };
+
+  FocusAnimator.prototype.setState = function (this: FocusAnimator, newState: AnyFocus | null | undefined, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
+    if (typeof timing === "number") {
+      affinity = timing;
+      timing = void 0;
+    }
+    if (timing === void 0 || timing === true) {
+      timing = this.transition;
+    }
+    if (typeof newState === "boolean") {
+      const oldValue = this.value;
+      const newValue = newState ? Focus.focused() : Focus.unfocused();
+      if (oldValue !== void 0 && oldValue !== null && !oldValue.equals(newValue)) {
+        this.setValue(newState ? oldValue.asFocusing() : oldValue.asUnfocusing(), Affinity.Reflexive);
+      }
+      newState = newValue;
+    }
+    _super.prototype.setState.call(this, newState, timing, affinity);
   };
 
   FocusAnimator.prototype.onSetValue = function (this: FocusAnimator, newValue: Focus | null | undefined, oldValue: Focus | null | undefined): void {

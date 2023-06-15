@@ -52,6 +52,9 @@ export interface PresenceAnimator<O = unknown, T extends Presence | null | undef
   toggle(timingOrAffinity: Affinity | AnyTiming | boolean | null | undefined): void;
   toggle(timing?: AnyTiming | boolean | null, affinity?: Affinity): void;
 
+  setState(newState: T | U, timingOrAffinity: Affinity | AnyTiming | boolean | null | undefined): void;
+  setState(newState: T | U, timing?: AnyTiming | boolean | null, affinity?: Affinity): void;
+
   /** @override @protected */
   onSetValue(newValue: T, oldValue: T): void;
 
@@ -166,50 +169,48 @@ export const PresenceAnimator = (function (_super: typeof Animator) {
   PresenceAnimator.prototype.present = function (this: PresenceAnimator, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue === void 0 || oldValue === null || !oldValue.presented) {
-      if (typeof timing === "number") {
-        affinity = timing;
-        timing = void 0;
-      }
-      if (timing === void 0 || timing === true) {
-        timing = this.transition;
-      }
       if (oldValue !== void 0 && oldValue !== null) {
         this.setValue(oldValue.asPresenting(), Affinity.Reflexive);
       }
-      this.setState(Presence.presented(), timing, affinity);
+      this.setState(Presence.presented(), timing as any, affinity);
     }
   };
 
   PresenceAnimator.prototype.dismiss = function (this: PresenceAnimator, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue === void 0 || oldValue === null || !oldValue.dismissed) {
-      if (typeof timing === "number") {
-        affinity = timing;
-        timing = void 0;
-      }
-      if (timing === void 0 || timing === true) {
-        timing = this.transition;
-      }
       if (oldValue !== void 0 && oldValue !== null) {
         this.setValue(oldValue.asDismissing(), Affinity.Reflexive);
       }
-      this.setState(Presence.dismissed(), timing, affinity);
+      this.setState(Presence.dismissed(), timing as any, affinity);
     }
   };
 
   PresenceAnimator.prototype.toggle = function (this: PresenceAnimator, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue !== void 0 && oldValue !== null) {
-      if (typeof timing === "number") {
-        affinity = timing;
-        timing = void 0;
-      }
-      if (timing === void 0 || timing === true) {
-        timing = this.transition;
-      }
       this.setValue(oldValue.asToggling(), Affinity.Reflexive);
-      this.setState(oldValue.asToggled(), timing, affinity);
+      this.setState(oldValue.asToggled(), timing as any, affinity);
     }
+  };
+
+  PresenceAnimator.prototype.setState = function (this: PresenceAnimator, newState: AnyPresence | null | undefined, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
+    if (typeof timing === "number") {
+      affinity = timing;
+      timing = void 0;
+    }
+    if (timing === void 0 || timing === true) {
+      timing = this.transition;
+    }
+    if (typeof newState === "boolean") {
+      const oldValue = this.value;
+      const newValue = newState ? Presence.presented() : Presence.dismissed();
+      if (oldValue !== void 0 && oldValue !== null && !oldValue.equals(newValue)) {
+        this.setValue(newState ? oldValue.asPresenting() : oldValue.asDismissing(), Affinity.Reflexive);
+      }
+      newState = newValue;
+    }
+    _super.prototype.setState.call(this, newState, timing, affinity);
   };
 
   PresenceAnimator.prototype.onSetValue = function (this: PresenceAnimator, newValue: Presence | null | undefined, oldValue: Presence | null | undefined): void {

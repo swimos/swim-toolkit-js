@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {GeoProjection,} from "@swim/geo";
+import {GeoProjection} from "@swim/geo";
 import type {GeoPoint} from "@swim/geo";
 import type {GeoBox} from "@swim/geo";
 import {GeoPerspective} from "./GeoPerspective";
