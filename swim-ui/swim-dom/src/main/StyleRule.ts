@@ -453,15 +453,17 @@ export const StyleRule = (function (_super: typeof CssRule) {
 
   StyleRule.prototype.recohereFasteners = function (this: StyleRule, t: number): void {
     const decoherent = this.decoherent;
-    if (decoherent !== null) {
-      const decoherentCount = decoherent.length;
-      if (decoherentCount !== 0) {
-        (this as Mutable<typeof this>).decoherent = null;
-        for (let i = 0; i < decoherentCount; i += 1) {
-          const fastener = decoherent[i]!;
-          fastener.recohere(t);
-        }
-      }
+    if (decoherent === null) {
+      return;
+    }
+    const decoherentCount = decoherent.length;
+    if (decoherentCount === 0) {
+      return;
+    }
+    (this as Mutable<typeof this>).decoherent = null;
+    for (let i = 0; i < decoherentCount; i += 1) {
+      const fastener = decoherent[i]!;
+      fastener.recohere(t);
     }
   };
 

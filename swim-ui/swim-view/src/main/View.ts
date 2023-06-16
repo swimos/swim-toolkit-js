@@ -1797,21 +1797,22 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   /** @internal */
   override recohereFasteners(t?: number): void {
     const decoherent = this.decoherent;
-    if (decoherent !== null) {
-      const decoherentCount = decoherent.length;
-      if (decoherentCount !== 0) {
-        if (t === void 0) {
-          t = performance.now();
-        }
-        (this as Mutable<this>).decoherent = null;
-        for (let i = 0; i < decoherentCount; i += 1) {
-          const fastener = decoherent[i]!;
-          if (!(fastener instanceof Animator)) {
-            fastener.recohere(t);
-          } else {
-            this.decohereFastener(fastener);
-          }
-        }
+    if (decoherent === null) {
+      return;
+    }
+    const decoherentCount = decoherent.length;
+    if (decoherentCount === 0) {
+      return;
+    } else if (t === void 0) {
+      t = performance.now();
+    }
+    (this as Mutable<this>).decoherent = null;
+    for (let i = 0; i < decoherentCount; i += 1) {
+      const fastener = decoherent[i]!;
+      if (!(fastener instanceof Animator)) {
+        fastener.recohere(t);
+      } else {
+        this.decohereFastener(fastener);
       }
     }
   }
@@ -1819,18 +1820,32 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   /** @internal */
   recohereAnimators(t: number): void {
     const decoherent = this.decoherent;
-    if (decoherent !== null) {
-      const decoherentCount = decoherent.length;
-      if (decoherentCount !== 0) {
-        (this as Mutable<this>).decoherent = null;
-        for (let i = 0; i < decoherentCount; i += 1) {
-          const fastener = decoherent[i]!;
-          if (fastener instanceof Animator) {
-            fastener.recohere(t);
-          } else {
-            this.decohereFastener(fastener);
-          }
-        }
+    if (decoherent === null) {
+      return;
+    }
+    const decoherentCount = decoherent.length;
+    if (decoherentCount === 0) {
+      return;
+    }
+    // The passed-in update time parameter is used to ensure that all animators
+    // update as if evaluated instantaneously. Jitter can occur if an update
+    // pass takes longer than an animation frame. This is especially noticeable
+    // when beginning new animations, such as when animating the insertion of
+    // new views. Since animators base their timing functions on the time of
+    // the first transition frame, update lag can truncate the important first
+    // frames of an animation. To counter this effect, we use the current time
+    // if more than 1/30 of a second has elapsed since the start of the update pass.
+    const now = performance.now();
+    if (now - t >= DisplayerService.MaxProcessInterval) {
+      t = now;
+    }
+    (this as Mutable<this>).decoherent = null;
+    for (let i = 0; i < decoherentCount; i += 1) {
+      const fastener = decoherent[i]!;
+      if (fastener instanceof Animator) {
+        fastener.recohere(t);
+      } else {
+        this.decohereFastener(fastener);
       }
     }
   }

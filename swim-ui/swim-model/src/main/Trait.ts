@@ -1544,21 +1544,22 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   /** @internal */
   recohereFasteners(t?: number): void {
     const decoherent = this.decoherent;
-    if (decoherent !== null) {
-      const decoherentCount = decoherent.length;
-      if (decoherentCount !== 0) {
-        if (t === void 0) {
-          t = performance.now();
-        }
-        (this as Mutable<this>).decoherent = null;
-        for (let i = 0; i < decoherentCount; i += 1) {
-          const fastener = decoherent[i]!;
-          if (!(fastener instanceof WarpDownlink)) {
-            fastener.recohere(t);
-          } else {
-            this.decohereFastener(fastener);
-          }
-        }
+    if (decoherent === null) {
+      return;
+    }
+    const decoherentCount = decoherent.length;
+    if (decoherentCount === 0) {
+      return;
+    } else if (t === void 0) {
+      t = performance.now();
+    }
+    (this as Mutable<this>).decoherent = null;
+    for (let i = 0; i < decoherentCount; i += 1) {
+      const fastener = decoherent[i]!;
+      if (!(fastener instanceof WarpDownlink)) {
+        fastener.recohere(t);
+      } else {
+        this.decohereFastener(fastener);
       }
     }
   }
@@ -1566,25 +1567,27 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   /** @internal */
   recohereDownlinks(t: number): void {
     const decoherent = this.decoherent;
-    if (decoherent !== null) {
-      const decoherentCount = decoherent.length;
-      if (decoherentCount !== 0) {
-        let coherentDownlinkProps = false;
-        (this as Mutable<this>).decoherent = null;
-        for (let i = 0; i < decoherentCount; i += 1) {
-          const fastener = decoherent[i]!;
-          if (fastener instanceof WarpDownlink) {
-            if (!coherentDownlinkProps) {
-              coherentDownlinkProps = true;
-              this.hostUri.recohere(t);
-              this.nodeUri.recohere(t);
-              this.laneUri.recohere(t);
-            }
-            fastener.recohere(t);
-          } else {
-            this.decohereFastener(fastener);
-          }
+    if (decoherent === null) {
+      return;
+    }
+    const decoherentCount = decoherent.length;
+    if (decoherentCount === 0) {
+      return;
+    }
+    let coherentDownlinkProps = false;
+    (this as Mutable<this>).decoherent = null;
+    for (let i = 0; i < decoherentCount; i += 1) {
+      const fastener = decoherent[i]!;
+      if (fastener instanceof WarpDownlink) {
+        if (!coherentDownlinkProps) {
+          coherentDownlinkProps = true;
+          this.hostUri.recohere(t);
+          this.nodeUri.recohere(t);
+          this.laneUri.recohere(t);
         }
+        fastener.recohere(t);
+      } else {
+        this.decohereFastener(fastener);
       }
     }
   }
