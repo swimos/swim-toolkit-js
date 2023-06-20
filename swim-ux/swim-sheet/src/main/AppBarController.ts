@@ -184,8 +184,7 @@ export class AppBarController extends BarController {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
     didDetachController(coverController: SheetController): void {
-      const sheetView = coverController.sheet.view;
-      if (sheetView !== null && sheetView.back.view === null && sheetView.forward.view === null) {
+      if (coverController.back.controller === null && coverController.forward.controller === null) {
         this.owner.requireUpdate(Controller.NeedsAssemble);
       }
     },

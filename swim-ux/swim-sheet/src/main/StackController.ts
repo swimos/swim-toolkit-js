@@ -15,6 +15,8 @@
 import type {Class} from "@swim/util";
 import type {AnyTiming} from "@swim/util";
 import type {Observes} from "@swim/util";
+import {Property} from "@swim/component";
+import {Affinity} from "@swim/component";
 import type {Trait} from "@swim/model";
 import type {PositionGestureInput} from "@swim/view";
 import type {ControllerObserver} from "@swim/controller";
@@ -70,6 +72,18 @@ export interface StackControllerObserver<C extends StackController = StackContro
 
   controllerDidDetachSheetTitle?(titleController: ToolController, sheetController: SheetController, controller: C): void;
 
+  controllerWillAttachRoot?(rootController: SheetController, controller: C): void;
+
+  controllerDidDetachRoot?(rootController: SheetController, controller: C): void;
+
+  controllerWillAttachRootTrait?(rootTrait: Trait, controller: C): void;
+
+  controllerDidDetachRootTrait?(rootTrait: Trait, controller: C): void;
+
+  controllerWillAttachRootView?(rootView: SheetView, controller: C): void;
+
+  controllerDidDetachRootView?(rootView: SheetView, controller: C): void;
+
   controllerWillAttachFront?(frontController: SheetController, controller: C): void;
 
   controllerDidDetachFront?(frontController: SheetController, controller: C): void;
@@ -86,6 +100,9 @@ export interface StackControllerObserver<C extends StackController = StackContro
 /** @public */
 export class StackController extends Controller {
   override readonly observerType?: Class<StackControllerObserver>;
+
+  @Property({valueType: Number, value: -(1 / 3)})
+  readonly backAlign!: Property<this, number>;
 
   @TraitViewRef({
     willAttachTrait(stackTrait: Trait): void {
@@ -119,36 +136,6 @@ export class StackController extends Controller {
     willAttachView(stackView: StackView): void {
       this.owner.callObservers("controllerWillAttachStackView", stackView, this.owner);
     },
-    didAttachView(stackView: StackView): void {
-      const frontView = stackView.front.view;
-      if (frontView !== null) {
-        const backView = frontView.back.view;
-        const forwardView = frontView.forward.view;
-        let sheetController: SheetController | null = null;
-        let backController: SheetController | null = null;
-        let forwardController: SheetController | null = null;
-        const sheetControllers = this.owner.sheets.controllers;
-        for (const controllerId in sheetControllers) {
-          const controller = sheetControllers[controllerId]!;
-          const sheetView = controller.sheet.view;
-          if (sheetView === frontView) {
-            sheetController = controller;
-          } else if (sheetView === backView) {
-            backController = controller;
-          } else if (sheetView === forwardView) {
-            forwardController = controller;
-          }
-        }
-        if (sheetController !== null) {
-          sheetController.back.setController(backController);
-          sheetController.forward.setController(forwardController);
-        }
-        this.owner.front.setController(sheetController);
-      }
-    },
-    willDetachView(stackView: StackView): void {
-      this.owner.front.setController(null);
-    },
     didDetachView(stackView: StackView): void {
       this.owner.callObservers("controllerDidDetachStackView", stackView, this.owner);
     },
@@ -163,33 +150,6 @@ export class StackController extends Controller {
       if (navBarController !== null) {
         navBarController.bar.setView(null);
       }
-    },
-    viewWillAttachFront(frontView: SheetView): void {
-      const backView = frontView.back.view;
-      const forwardView = frontView.forward.view;
-      let sheetController: SheetController | null = null;
-      let backController: SheetController | null = null;
-      let forwardController: SheetController | null = null;
-      const sheetControllers = this.owner.sheets.controllers;
-      for (const controllerId in sheetControllers) {
-        const controller = sheetControllers[controllerId]!;
-        const sheetView = controller.sheet.view;
-        if (sheetView === frontView) {
-          sheetController = controller;
-        } else if (sheetView === backView) {
-          backController = controller;
-        } else if (sheetView === forwardView) {
-          forwardController = controller;
-        }
-      }
-      if (sheetController !== null) {
-        sheetController.back.setController(backController);
-        sheetController.forward.setController(forwardController);
-        this.owner.front.setController(sheetController);
-      }
-    },
-    viewDidDetachFront(frontView: SheetView): void {
-      this.owner.front.setController(null);
     },
   })
   readonly stack!: TraitViewRef<this, Trait, StackView> & Observes<StackView>;
@@ -288,6 +248,17 @@ export class StackController extends Controller {
       return sheetController.sheet;
     },
     willAttachController(sheetController: SheetController): void {
+      const backController = this.owner.front.controller;
+      if (sheetController !== backController) {
+        sheetController.back.setController(backController);
+        if (backController !== null) {
+          backController.forward.setController(sheetController);
+        }
+        if (this.owner.root.controller === null) {
+          this.owner.root.setController(sheetController);
+        }
+        this.owner.front.setController(sheetController);
+      }
       this.owner.callObservers("controllerWillAttachSheet", sheetController, this.owner);
     },
     didAttachController(sheetController: SheetController): void {
@@ -311,6 +282,19 @@ export class StackController extends Controller {
       }
     },
     didDetachController(sheetController: SheetController): void {
+      const backController = sheetController.back.controller;
+      const forwardController = sheetController.forward.controller;
+      if (sheetController === this.owner.front.controller) {
+        this.owner.front.setController(backController, forwardController);
+      }
+      if (backController !== null) {
+        backController.forward.setController(forwardController);
+        sheetController.back.setController(null);
+      }
+      if (forwardController !== null) {
+        sheetController.forward.setController(null);
+        forwardController.back.setController(backController);
+      }
       this.owner.callObservers("controllerDidDetachSheet", sheetController, this.owner);
     },
     controllerWillAttachSheetTrait(sheetTrait: Trait, sheetController: SheetController): void {
@@ -352,30 +336,6 @@ export class StackController extends Controller {
       }
       sheetView.remove();
     },
-    controllerWillAttachBackView(backView: SheetView, sheetController: SheetController): void {
-      const sheetControllers = this.controllers;
-      for (const controllerId in sheetControllers) {
-        const sheetController = sheetControllers[controllerId]!;
-        if (sheetController.sheet.view === backView) {
-          sheetController.back.setController(sheetController);
-        }
-      }
-    },
-    controllerDidDetachBackView(backView: SheetView, sheetController: SheetController): void {
-      sheetController.back.setController(null);
-    },
-    controllerWillAttachForwardView(forwardView: SheetView, sheetController: SheetController): void {
-      const sheetControllers = this.controllers;
-      for (const controllerId in sheetControllers) {
-        const sheetController = sheetControllers[controllerId]!;
-        if (sheetController.sheet.view === forwardView) {
-          sheetController.forward.setController(sheetController);
-        }
-      }
-    },
-    controllerDidDetachForwardView(forwardView: SheetView, sheetController: SheetController): void {
-      sheetController.forward.setController(null);
-    },
     controllerWillAttachTitle(titleController: ToolController, sheetController: SheetController): void {
       this.owner.callObservers("controllerWillAttachSheetTitle", titleController, sheetController, this.owner);
       this.attachTitle(titleController, sheetController);
@@ -390,11 +350,36 @@ export class StackController extends Controller {
     detachTitle(titleController: ToolController, sheetController: SheetController): void {
       titleController.remove();
     },
+    controllerWillPresentSheetView(sheetView: SheetView, sheetController: SheetController): void {
+      // hook
+    },
+    controllerDidPresentSheetView(sheetView: SheetView, sheetController: SheetController): void {
+      // hook
+    },
+    controllerWillDismissSheetView(sheetView: SheetView, sheetController: SheetController): void {
+      if (sheetController === this.owner.front.controller) {
+        this.owner.front.setController(null);
+        const backController = sheetController.back.controller;
+        if (backController !== null) {
+          this.owner.front.setController(backController, sheetController);
+          backController.forward.setController(null);
+          sheetController.back.setController(null);
+        }
+      }
+    },
     controllerDidDismissSheetView(sheetView: SheetView, sheetController: SheetController): void {
-      const frontController = this.owner.front.controller;
-      if (frontController !== null && frontController !== sheetController
-          && sheetView.back.view === null && sheetView.forward.view === null) {
-        this.detachController(sheetController);
+      const stackView = this.owner.stack.view;
+      if (stackView !== null) {
+        if (sheetController.forward.controller !== null) {
+          stackView.sheets.removeView(sheetView);
+        } else {
+          stackView.sheets.deleteView(sheetView);
+        }
+      }
+      if (sheetController.forward.controller !== null) {
+        this.removeController(sheetController);
+      } else {
+        this.deleteController(sheetController);
       }
     },
   })
@@ -411,20 +396,90 @@ export class StackController extends Controller {
     controllerType: SheetController,
     binds: false,
     observes: true,
+    getTraitViewRef(rootController: SheetController): TraitViewRef<unknown, Trait, SheetView> {
+      return rootController.sheet;
+    },
+    willAttachController(rootController: SheetController, targetController: Controller | null): void {
+      this.owner.callObservers("controllerWillAttachRoot", rootController, this.owner);
+    },
+    didAttachController(rootController: SheetController, targetController: Controller | null): void {
+      const rootTrait = rootController.sheet.trait;
+      if (rootTrait !== null) {
+        this.attachRootTrait(rootTrait, rootController);
+      }
+      const rootView = rootController.sheet.view;
+      if (rootView !== null) {
+        this.attachRootView(rootView, rootController);
+      }
+    },
+    willDetachController(rootController: SheetController): void {
+      const rootView = rootController.sheet.view;
+      if (rootView !== null) {
+        this.detachRootView(rootView, rootController);
+      }
+      const rootTrait = rootController.sheet.trait;
+      if (rootTrait !== null) {
+        this.detachRootTrait(rootTrait, rootController);
+      }
+    },
+    didDetachController(rootController: SheetController): void {
+      this.owner.callObservers("controllerDidDetachRoot", rootController, this.owner);
+    },
+    controllerWillAttachSheetTrait(rootTrait: Trait, rootController: SheetController): void {
+      this.owner.callObservers("controllerWillAttachRootTrait", rootTrait, this.owner);
+      this.attachRootTrait(rootTrait, rootController);
+    },
+    controllerDidDetachSheetTrait(rootTrait: Trait, rootController: SheetController): void {
+      this.detachRootTrait(rootTrait, rootController);
+      this.owner.callObservers("controllerDidDetachRootTrait", rootTrait, this.owner);
+    },
+    attachRootTrait(rootTrait: Trait, rootController: SheetController): void {
+      // hook
+    },
+    detachRootTrait(rootTrait: Trait, rootController: SheetController): void {
+      // hook
+    },
+    controllerWillAttachSheetView(rootView: SheetView, rootController: SheetController): void {
+      this.owner.callObservers("controllerWillAttachRootView", rootView, this.owner);
+      this.attachRootView(rootView, rootController);
+    },
+    controllerDidDetachSheetView(rootView: SheetView, rootController: SheetController): void {
+      this.detachRootView(rootView, rootController);
+      this.owner.callObservers("controllerDidDetachRootView", rootView, this.owner);
+    },
+    attachRootView(rootView: SheetView, rootController: SheetController): void {
+      // hook
+    },
+    detachRootView(rootView: SheetView, rootController: SheetController): void {
+      // hook
+    },
+  })
+  readonly root!: TraitViewControllerRef<this, Trait, SheetView, SheetController> & Observes<SheetController> & {
+    attachRootTrait(rootTrait: Trait, rootController: SheetController): void;
+    detachRootTrait(rootTrait: Trait, rootController: SheetController): void;
+    attachRootView(rootView: SheetView, rootController: SheetController): void;
+    detachRootView(rootView: SheetView, rootController: SheetController): void;
+  };
+
+  @TraitViewControllerRef({
+    controllerType: SheetController,
+    binds: false,
+    observes: true,
     getTraitViewRef(frontController: SheetController): TraitViewRef<unknown, Trait, SheetView> {
       return frontController.sheet;
     },
-    willAttachController(frontController: SheetController): void {
+    willAttachController(frontController: SheetController, targetController: Controller | null): void {
       this.owner.callObservers("controllerWillAttachFront", frontController, this.owner);
     },
-    didAttachController(frontController: SheetController): void {
+    didAttachController(frontController: SheetController, targetController: Controller | null): void {
       const frontTrait = frontController.sheet.trait;
       if (frontTrait !== null) {
         this.attachFrontTrait(frontTrait, frontController);
       }
       const frontView = frontController.sheet.view;
       if (frontView !== null) {
-        this.attachFrontView(frontView, frontController);
+        const targetView = targetController instanceof SheetController ? targetController.sheet.view : null;
+        this.attachFrontView(frontView, targetView, frontController);
       }
     },
     willDetachController(frontController: SheetController): void {
@@ -456,20 +511,53 @@ export class StackController extends Controller {
     },
     controllerWillAttachSheetView(frontView: SheetView, frontController: SheetController): void {
       this.owner.callObservers("controllerWillAttachFrontView", frontView, this.owner);
-      this.attachFrontView(frontView, frontController);
+      const targetController = frontController.nextSibling;
+      const targetView = targetController instanceof SheetController ? targetController.sheet.view : null;
+      this.attachFrontView(frontView, targetView, frontController);
     },
     controllerDidDetachSheetView(frontView: SheetView, frontController: SheetController): void {
       this.detachFrontView(frontView, frontController);
       this.owner.callObservers("controllerDidDetachFrontView", frontView, this.owner);
     },
-    attachFrontView(frontView: SheetView, frontController: SheetController): void {
+    attachFrontView(frontView: SheetView, targetView: SheetView | null, frontController: SheetController): void {
+      const stackView = this.owner.stack.view;
+      if (stackView !== null) {
+        stackView.front.attachView(frontView, targetView);
+      }
+      this.presentFrontView(frontView, targetView, frontController);
       const navBarController = this.owner.navBar.controller;
       if (navBarController !== null) {
         this.owner.navBar.frontViewDidScroll(frontView, navBarController);
       }
     },
     detachFrontView(frontView: SheetView, frontController: SheetController): void {
-      // hook
+      const stackView = this.owner.stack.view;
+      if (stackView !== null) {
+        stackView.front.detachView();
+      }
+      this.dismissFrontView(frontView, frontController);
+    },
+    presentFrontView(frontView: SheetView, targetView: SheetView | null, frontController: SheetController): void {
+      let stackView: StackView | null;
+      if (frontView.parent === null && (stackView = this.owner.stack.view) !== null) {
+        stackView.insertChild(frontView, targetView);
+      }
+      if (frontController.forward.controller === null) {
+        frontView.sheetAlign.setValue(1, Affinity.Intrinsic);
+        frontView.present(frontController.back.controller !== null);
+      } else {
+        frontView.sheetAlign.setValue(this.owner.backAlign.value, Affinity.Intrinsic);
+        frontView.present();
+      }
+    },
+    dismissFrontView(frontView: SheetView, frontController: SheetController): void {
+      if (frontController.forward.controller !== null) {
+        frontView.sheetAlign.setValue(this.owner.backAlign.value, Affinity.Intrinsic);
+        frontView.dismiss();
+      } else {
+        frontView.sheetAlign.setValue(1, Affinity.Intrinsic);
+        frontView.dismiss();
+      }
     },
     controllerDidScrollSheetView(frontView: SheetView, frontController: SheetController): void {
       const navBarController = this.owner.navBar.controller;
@@ -477,7 +565,7 @@ export class StackController extends Controller {
         this.owner.navBar.frontViewDidScroll(frontView, navBarController);
       }
     },
-    dismiss(timing?: AnyTiming | boolean): SheetView | null {
+    dismiss(timing?: AnyTiming | boolean | null): SheetView | null {
       const frontView = this.view;
       if (frontView !== null) {
         frontView.dismiss(timing);
@@ -488,8 +576,10 @@ export class StackController extends Controller {
   readonly front!: TraitViewControllerRef<this, Trait, SheetView, SheetController> & Observes<SheetController> & {
     attachFrontTrait(frontTrait: Trait, frontController: SheetController): void;
     detachFrontTrait(frontTrait: Trait, frontController: SheetController): void;
-    attachFrontView(frontView: SheetView, frontController: SheetController): void;
+    attachFrontView(frontView: SheetView, targetView: SheetView | null, frontController: SheetController): void;
     detachFrontView(frontView: SheetView, frontController: SheetController): void;
-    dismiss(timing?: AnyTiming | boolean): SheetView | null;
+    presentFrontView(frontView: SheetView, targetView: SheetView | null, frontController: SheetController): void;
+    dismissFrontView(frontView: SheetView, frontController: SheetController): void;
+    dismiss(timing?: AnyTiming | boolean | null): SheetView | null;
   };
 }

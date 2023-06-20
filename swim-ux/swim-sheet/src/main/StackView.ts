@@ -65,9 +65,6 @@ export class StackView extends HtmlView {
 
   override readonly observerType?: Class<StackViewObserver>;
 
-  @Property({valueType: Number, value: -(1 / 3)})
-  readonly backAlign!: Property<this, number>;
-
   @ViewRef({
     viewType: BarView,
     binds: true,
@@ -128,29 +125,8 @@ export class StackView extends HtmlView {
     },
     willAttachView(sheetView: SheetView, target: View | null): void {
       this.owner.callObservers("viewWillAttachSheet", sheetView, target, this.owner);
-      const backView = this.owner.front.view;
-      if (sheetView !== backView) {
-        sheetView.back.setView(backView);
-        if (backView !== null) {
-          backView.forward.setView(sheetView);
-        }
-        this.owner.front.setView(sheetView);
-      }
     },
     didDetachView(sheetView: SheetView): void {
-      const backView = sheetView.back.view;
-      const forwardView = sheetView.forward.view;
-      if (sheetView === this.owner.front.view) {
-        this.owner.front.setView(backView, forwardView);
-      }
-      if (backView !== null) {
-        backView.forward.setView(forwardView);
-        sheetView.back.setView(null);
-      }
-      if (forwardView !== null) {
-        sheetView.forward.setView(null);
-        forwardView.back.setView(backView);
-      }
       this.owner.callObservers("viewDidDetachSheet", sheetView, this.owner);
     },
     viewWillPresent(sheetView: SheetView): void {
@@ -161,29 +137,12 @@ export class StackView extends HtmlView {
     },
     viewWillDismiss(sheetView: SheetView): void {
       this.owner.callObservers("viewWillDismissSheet", sheetView, this.owner);
-      if (sheetView === this.owner.front.view) {
-        this.owner.front.setView(null);
-        const backView = sheetView.back.view;
-        if (backView !== null) {
-          this.owner.front.setView(backView, sheetView);
-          backView.forward.setView(null);
-          sheetView.back.setView(null);
-        }
-      }
     },
     viewDidDismiss(sheetView: SheetView): void {
-      if (sheetView.forward.view !== null) {
-        this.removeView(sheetView);
-      } else {
-        this.deleteView(sheetView);
-      }
       this.owner.callObservers("viewDidDismissSheet", sheetView, this.owner);
     },
     viewWillLayout(sheetView: SheetView): void {
       sheetView.layoutSheet();
-    },
-    detectView(view: View): SheetView | null {
-      return view instanceof SheetView && view.forward.view === null ? view : null;
     },
   })
   readonly sheets!: ViewSet<this, SheetView> & Observes<SheetView>;
@@ -193,25 +152,8 @@ export class StackView extends HtmlView {
     binds: false,
     willAttachView(sheetView: SheetView, target: View | null): void {
       this.owner.callObservers("viewWillAttachFront", sheetView, target, this.owner);
-      if (sheetView.parent === null) {
-        this.owner.insertChild(sheetView, target);
-      }
-      if (sheetView.forward.view === null) {
-        sheetView.sheetAlign.setValue(1, Affinity.Intrinsic);
-        sheetView.present(sheetView.back.view !== null);
-      } else {
-        sheetView.sheetAlign.setValue(this.owner.backAlign.value, Affinity.Intrinsic);
-        sheetView.present();
-      }
     },
     didDetachView(sheetView: SheetView): void {
-      if (sheetView.forward.view !== null) {
-        sheetView.sheetAlign.setValue(this.owner.backAlign.value, Affinity.Intrinsic);
-        sheetView.dismiss();
-      } else {
-        sheetView.sheetAlign.setValue(1, Affinity.Intrinsic);
-        sheetView.dismiss();
-      }
       this.owner.callObservers("viewDidDetachFront", sheetView, this.owner);
     },
   })
@@ -221,16 +163,16 @@ export class StackView extends HtmlView {
     extends: true,
     getOutletValue(outlet: Property<unknown, ViewInsets>): ViewInsets {
       let edgeInsets = this.value;
-      if (outlet.owner instanceof SheetView) {
-        const navBarView = this.owner.navBar.view;
-        if (navBarView !== null && navBarView.mounted) {
-          edgeInsets = {
-            insetTop: 0,
-            insetRight: edgeInsets.insetRight,
-            insetBottom: edgeInsets.insetBottom,
-            insetLeft: edgeInsets.insetLeft,
-          };
-        }
+      let navBarView: BarView | null;
+      if (outlet.owner instanceof SheetView
+          && (navBarView = this.owner.navBar.view) !== null
+          && navBarView.mounted) {
+        edgeInsets = {
+          insetTop: 0,
+          insetRight: edgeInsets.insetRight,
+          insetBottom: edgeInsets.insetBottom,
+          insetLeft: edgeInsets.insetLeft,
+        };
       }
       return edgeInsets;
     },

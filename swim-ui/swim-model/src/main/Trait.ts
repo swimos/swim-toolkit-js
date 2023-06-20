@@ -616,14 +616,14 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     }
   }
 
-  getParent<F extends Class<Model>>(superBound: F): InstanceType<F> | null {
+  getParent<F extends Class<Model>>(parentType: F): InstanceType<F> | null {
     const model = this.model;
-    return model !== null ? model.getParent(superBound) : null;
+    return model !== null ? model.getParent(parentType) : null;
   }
 
-  getBase<F extends Class<Model>>(baseBound: F): InstanceType<F> | null {
+  getBase<F extends Class<Model>>(baseType: F): InstanceType<F> | null {
     const model = this.model;
-    return model !== null ? model.getBase(baseBound) : null;
+    return model !== null ? model.getBase(baseType) : null;
   }
 
   readonly nextTrait: Trait | null;
@@ -821,26 +821,50 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     }
   }
 
-  getSuperTrait<F extends Class<Trait>>(superBound: F): InstanceType<F> | null {
+  getParentTrait<F extends Class<Trait>>(parentType: F): InstanceType<F> | null {
     const model = this.model;
-    return model !== null ? model.getSuperTrait(superBound) : null;
+    return model !== null ? model.getParentTrait(parentType) : null;
   }
 
-  getBaseTrait<F extends Class<Trait>>(baseBound: F): InstanceType<F> | null {
+  getBaseTrait<F extends Class<Trait>>(baseType: F): InstanceType<F> | null {
     const model = this.model;
-    return model !== null ? model.getBaseTrait(baseBound) : null;
+    return model !== null ? model.getBaseTrait(baseType) : null;
   }
 
   /** @override */
-  @Property({valueType: Uri, value: null, inherits: true, updateFlags: Model.NeedsReconcile})
+  @Property({
+    valueType: Uri,
+    value: null,
+    inherits: true,
+    get parentType(): typeof Trait {
+      return Trait;
+    },
+    updateFlags: Model.NeedsReconcile,
+  })
   readonly hostUri!: Property<this, Uri | null, AnyUri | null>;
 
   /** @override */
-  @Property({valueType: Uri, value: null, inherits: true, updateFlags: Model.NeedsReconcile})
+  @Property({
+    valueType: Uri,
+    value: null,
+    inherits: true,
+    get parentType(): typeof Trait {
+      return Trait;
+    },
+    updateFlags: Model.NeedsReconcile,
+  })
   readonly nodeUri!: Property<this, Uri | null, AnyUri | null>;
 
   /** @override */
-  @Property({valueType: Uri, value: null, inherits: true, updateFlags: Model.NeedsReconcile})
+  @Property({
+    valueType: Uri,
+    value: null,
+    inherits: true,
+    get parentType(): typeof Trait {
+      return Trait;
+    },
+    updateFlags: Model.NeedsReconcile,
+  })
   readonly laneUri!: Property<this, Uri | null, AnyUri | null>;
 
   /** @override */
@@ -1348,21 +1372,48 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     refreshChildren.call(this.model!, refreshFlags, refreshChild);
   }
 
-  /** @override */
-  getParentFastener<F extends Fastener<any>>(fastenerName: string, fastenerBound: Proto<F>): F | null;
-  /** @override */
-  getParentFastener(fastenerName: string, fastenerBound?: Proto<Fastener> | null): Fastener | null;
-  getParentFastener(fastenerName: string, fastenerBound?: Proto<Fastener> | null): Fastener | null {
-    const model = this.model;
-    if (model === null) {
+  getFastener<F extends Fastener<unknown>>(fastenerName: string | symbol, fastenerType: Proto<F>, contextType?: Proto<unknown> | null): F | null {
+    if (contextType !== void 0 && contextType !== null && !(this instanceof contextType)) {
       return null;
     }
-    const modelFastener = (model as any)[fastenerName] as Fastener<any> | undefined;
-    if (modelFastener !== void 0 && (fastenerBound === void 0 || fastenerBound === null
-        || modelFastener instanceof fastenerBound)) {
-      return modelFastener;
+    const fastener = (this as any)[fastenerName] as F | null | undefined;
+    if (fastener === void 0 || (fastenerType !== void 0 && fastenerType !== null && !(fastener instanceof fastenerType))) {
+      return null;
     }
-    return model.getParentFastener(fastenerName, fastenerBound);
+    return fastener;
+  }
+
+  /** @override */
+  getParentFastener<F extends Fastener<unknown>>(fastenerName: string, fastenerType: Proto<F>, contextType?: Proto<unknown> | null): F | null {
+    let parent = this.model;
+    if (parent === null) {
+      return null;
+    }
+
+    let fastener: F | null;
+    if (contextType !== void 0 && contextType !== null && (contextType === Trait || contextType.prototype instanceof Trait)) {
+      // Traverse traits attached to ancestor models,
+      // starting with the parent of the model to which this trait is attached.
+      parent = parent.parent;
+      while (parent !== null) {
+        fastener = parent.getTraitFastener(fastenerName, fastenerType, contextType);
+        if (fastener !== null) {
+          return fastener;
+        }
+        parent = parent.parent;
+      }
+      return null;
+    }
+
+    // Traverse ancestor models, starting with the model to which this trait is attached.
+    do {
+      fastener = parent.getFastener(fastenerName, fastenerType, contextType);
+      if (fastener !== null) {
+        return fastener;
+      }
+      parent = parent.parent;
+    } while (parent !== null);
+    return null;
   }
 
   /** @internal */

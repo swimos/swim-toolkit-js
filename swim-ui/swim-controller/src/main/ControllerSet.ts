@@ -296,12 +296,18 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     let parent: Controller | null;
     if (this.binds && (parent = this.parentController, parent !== null)) {
       if (target === null) {
-        target = this.getTargetChild(parent, newController);
+        if (newController.parent === parent) {
+          target = newController.nextSibling;
+        } else {
+          target = this.getTargetChild(parent, newController);
+        }
       }
       if (key === void 0) {
         key = this.controllerKey(newController);
       }
-      this.insertChild(parent, newController, target, key);
+      if (newController.parent !== parent || newController.nextSibling !== target || newController.key !== key) {
+        this.insertChild(parent, newController, target, key);
+      }
     }
     if (this.controllers[newController.uid] === void 0) {
       this.insertControllerMap(newController, target);

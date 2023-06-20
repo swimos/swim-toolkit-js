@@ -53,17 +53,9 @@ export interface SheetControllerObserver<C extends SheetController = SheetContro
 
   controllerDidDetachBack?(backController: SheetController, controller: C): void;
 
-  controllerWillAttachBackView?(backView: SheetView, controller: C): void;
-
-  controllerDidDetachBackView?(backView: SheetView, controller: C): void;
-
   controllerWillAttachForward?(forwardController: SheetController, controller: C): void;
 
   controllerDidDetachForward?(forwardController: SheetController, controller: C): void;
-
-  controllerWillAttachForwardView?(forwardView: SheetView, controller: C): void;
-
-  controllerDidDetachForwardView?(forwardView: SheetView, controller: C): void;
 
   controllerDidSetFullBleed?(fullBleed: boolean, controller: C): void;
 
@@ -171,18 +163,6 @@ export class SheetController extends Controller {
     },
     viewDidScroll(sheetView: SheetView): void {
       this.owner.callObservers("controllerDidScrollSheetView", sheetView, this.owner);
-    },
-    viewWillAttachBack(backView: SheetView): void {
-      this.owner.callObservers("controllerWillAttachBackView", backView, this.owner);
-    },
-    viewDidDetachBack(backView: SheetView): void {
-      this.owner.callObservers("controllerDidDetachBackView", backView, this.owner);
-    },
-    viewWillAttachForward(forwardView: SheetView): void {
-      this.owner.callObservers("controllerWillAttachForwardView", forwardView, this.owner);
-    },
-    viewDidDetachForward(forwardView: SheetView): void {
-      this.owner.callObservers("controllerDidDetachForwardView", forwardView, this.owner);
     },
     viewDidSetFullBleed(fullBleed: boolean, sheetView: SheetView): void {
       this.owner.fullBleed.setValue(fullBleed, Affinity.Intrinsic);

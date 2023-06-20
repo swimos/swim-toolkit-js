@@ -169,6 +169,7 @@ export class FolioView extends HtmlView {
 
   @ViewRef({
     viewType: SheetView,
+    binds: false,
     observes: true,
     initView(coverView: SheetView): void {
       if (this.owner.folioStyle.value === "unstacked") {
@@ -294,23 +295,26 @@ export class FolioView extends HtmlView {
 
     this.stack.insertView(drawerView);
 
-    const coverView = this.cover.insertView(this);
-    if (this.fullBleed.value) {
-      coverView.left.setState(0, Affinity.Intrinsic);
-      coverView.top.setState(0, Affinity.Intrinsic);
-      coverView.width.setState(folioWidth, Affinity.Intrinsic);
-      coverView.height.setState(folioHeight, Affinity.Intrinsic);
-      coverView.paddingTop.setState(appBarHeight, Affinity.Intrinsic);
-      coverView.paddingLeft.setState(drawerWidth, Affinity.Intrinsic);
-    } else {
-      coverView.left.setState(drawerWidth, Affinity.Intrinsic);
-      coverView.top.setState(0, Affinity.Intrinsic);
-      coverView.width.setState(sheetWidth, Affinity.Intrinsic);
-      coverView.height.setState(folioHeight, Affinity.Intrinsic);
-      coverView.paddingTop.setState(appBarHeight, Affinity.Intrinsic);
-      coverView.paddingLeft.setState(null, Affinity.Intrinsic);
+    const coverView = this.cover.view;
+    if (coverView !== null) {
+      this.cover.insertView(this);
+      if (this.fullBleed.value) {
+        coverView.left.setState(0, Affinity.Intrinsic);
+        coverView.top.setState(0, Affinity.Intrinsic);
+        coverView.width.setState(folioWidth, Affinity.Intrinsic);
+        coverView.height.setState(folioHeight, Affinity.Intrinsic);
+        coverView.paddingTop.setState(appBarHeight, Affinity.Intrinsic);
+        coverView.paddingLeft.setState(drawerWidth, Affinity.Intrinsic);
+      } else {
+        coverView.left.setState(drawerWidth, Affinity.Intrinsic);
+        coverView.top.setState(0, Affinity.Intrinsic);
+        coverView.width.setState(sheetWidth, Affinity.Intrinsic);
+        coverView.height.setState(folioHeight, Affinity.Intrinsic);
+        coverView.paddingTop.setState(appBarHeight, Affinity.Intrinsic);
+        coverView.paddingLeft.setState(null, Affinity.Intrinsic);
+      }
+      coverView.present(false);
     }
-    coverView.present(false);
   }
 
   protected override didLayout(): void {

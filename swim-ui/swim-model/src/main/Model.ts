@@ -15,6 +15,7 @@
 import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
 import type {Instance} from "@swim/util";
+import type {Proto} from "@swim/util";
 import {Arrays} from "@swim/util";
 import type {Comparator} from "@swim/util";
 import type {FromAny} from "@swim/util";
@@ -525,6 +526,18 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
       }
     }
     super.didUnmount();
+  }
+
+  getTraitFastener<F extends Fastener<unknown>>(fastenerName: string | symbol, fastenerType: Proto<F>, contextType?: Proto<unknown> | null): F | null {
+    let trait = this.firstTrait;
+    while (trait !== null) {
+      const fastener = trait.getFastener(fastenerName, fastenerType, contextType);
+      if (fastener !== null) {
+        return fastener;
+      }
+      trait = trait.nextTrait;
+    }
+    return null;
   }
 
   override requireUpdate(updateFlags: ModelFlags, immediate: boolean = false): void {
@@ -1113,6 +1126,29 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
     return null;
   }
 
+  hasTrait(key: string, traitBound?: Class<Trait>): boolean;
+  hasTrait(traitBound: Class<Trait>): boolean;
+  hasTrait(key: string | Class<Trait>, traitBound?: Class<Trait>): boolean {
+    if (typeof key === "string") {
+      const traitMap = this.traitMap;
+      if (traitMap !== null) {
+        const trait = traitMap[key];
+        if (trait !== void 0 && (traitBound === void 0 || trait instanceof traitBound)) {
+          return true;
+        }
+      }
+    } else {
+      let trait = this.firstTrait;
+      while (trait !== null) {
+        if (trait instanceof key) {
+          return true;
+        }
+        trait = (trait as Trait).nextTrait;
+      }
+    }
+    return false;
+  }
+
   getTrait<F extends Class<Trait>>(key: string, traitBound: F): InstanceType<F> | null;
   getTrait(key: string, traitBound?: Class<Trait>): Trait | null;
   getTrait<F extends Class<Trait>>(traitBound: F): InstanceType<F> | null;
@@ -1484,32 +1520,29 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
     }
   }
 
-  getSuperTrait<F extends Class<Trait>>(superBound: F): InstanceType<F> | null {
-    const parent = this.parent;
-    if (parent === null) {
-      return null;
-    } else {
-      const trait = parent.getTrait(superBound);
+  getParentTrait<F extends Class<Trait>>(parentType: F): InstanceType<F> | null {
+    let parent = this.parent;
+    while (parent !== null) {
+      const trait = parent.getTrait(parentType);
       if (trait !== null) {
         return trait;
-      } else {
-        return parent.getSuperTrait(superBound);
       }
+      parent = parent.parent;
     }
+    return null;
   }
 
-  getBaseTrait<F extends Class<Trait>>(baseBound: F): InstanceType<F> | null {
-    const parent = this.parent;
-    if (parent === null) {
-      return null;
-    } else {
-      const baseTrait = parent.getBaseTrait(baseBound);
+  getBaseTrait<F extends Class<Trait>>(baseType: F): InstanceType<F> | null {
+    let base: InstanceType<F> | null = null;
+    let parent = this.parent;
+    while (parent !== null) {
+      const baseTrait = parent.getTrait(baseType);
       if (baseTrait !== null) {
-        return baseTrait;
-      } else {
-        return parent.getTrait(baseBound);
+        base = baseTrait;
       }
+      parent = parent.parent;
     }
+    return base;
   }
 
   protected override bindFastener(fastener: Fastener): void {

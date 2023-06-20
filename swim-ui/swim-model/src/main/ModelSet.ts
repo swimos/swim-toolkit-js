@@ -296,12 +296,18 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
     let parent: Model | null;
     if (this.binds && (parent = this.parentModel, parent !== null)) {
       if (target === null) {
-        target = this.getTargetChild(parent, newModel);
+        if (newModel.parent === parent) {
+          target = newModel.nextSibling;
+        } else {
+          target = this.getTargetChild(parent, newModel);
+        }
       }
       if (key === void 0) {
         key = this.modelKey(newModel);
       }
-      this.insertChild(parent, newModel, target, key);
+      if (newModel.parent !== parent || newModel.nextSibling !== target || newModel.key !== key) {
+        this.insertChild(parent, newModel, target, key);
+      }
     }
     if (this.models[newModel.uid] === void 0) {
       this.insertModelMap(newModel, target);

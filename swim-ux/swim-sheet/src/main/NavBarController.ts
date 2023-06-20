@@ -358,8 +358,7 @@ export class NavBarController extends BarController {
       this.owner.requireUpdate(Controller.NeedsAssemble);
     },
     didDetachController(frontController: SheetController): void {
-      const sheetView = frontController.sheet.view;
-      if (sheetView !== null && sheetView.back.view === null && sheetView.forward.view === null) {
+      if (frontController.back.controller === null && frontController.forward.controller === null) {
         this.owner.requireUpdate(Controller.NeedsAssemble);
       }
     },

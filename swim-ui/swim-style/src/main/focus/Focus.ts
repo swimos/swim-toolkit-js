@@ -192,7 +192,7 @@ export class Focus implements Interpolate<Focus>, HashCode, Equivalent, Debug {
   static readonly Focused: Focus = new Focus(1, 0);
 
   static focused(): Focus {
-    return this.Focused
+    return this.Focused;
   }
 
   static focusing(phase?: number): Focus {

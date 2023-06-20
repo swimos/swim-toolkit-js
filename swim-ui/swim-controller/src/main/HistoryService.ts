@@ -15,6 +15,7 @@
 import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
 import {Objects} from "@swim/util";
+import {EventHandler} from "@swim/component";
 import type {ServiceObserver} from "@swim/component";
 import {Service} from "@swim/component";
 import type {Uri} from "@swim/uri";
@@ -41,7 +42,6 @@ export class HistoryService extends Service {
   constructor() {
     super();
     this.historyState = HistoryState.current();
-    this.popHistory = this.popHistory.bind(this);
   }
 
   override readonly observerType?: Class<HistoryServiceObserver>;
@@ -101,19 +101,23 @@ export class HistoryService extends Service {
     this.callObservers("serviceDidReplaceHistory", newState, oldState, this);
   }
 
-  /** @internal */
-  popHistory(event: PopStateEvent): void {
-    const deltaState: HistoryStateInit = {};
-    if (typeof event.state === "object" && event.state !== null) {
-      deltaState.ephemeral = event.state;
-    }
-    const oldState = HistoryState.current();
-    const newState = HistoryState.updated(deltaState, oldState);
-    this.willPopHistory(newState, oldState);
-    (this as Mutable<this>).historyState = newState;
-    this.onPopHistory(newState, oldState);
-    this.didPopHistory(newState, oldState);
-  }
+  @EventHandler({
+    type: "popstate",
+    target: window,
+    handle(event: PopStateEvent): void {
+      const deltaState: HistoryStateInit = {};
+      if (typeof event.state === "object" && event.state !== null) {
+        deltaState.ephemeral = event.state;
+      }
+      const oldState = HistoryState.current();
+      const newState = HistoryState.updated(deltaState, oldState);
+      this.owner.willPopHistory(newState, oldState);
+      (this.owner as Mutable<typeof this.owner>).historyState = newState;
+      this.owner.onPopHistory(newState, oldState);
+      this.owner.didPopHistory(newState, oldState);
+    },
+  })
+  readonly popstate!: EventHandler<this>;
 
   protected willPopHistory(newState: HistoryState, oldState: HistoryState): void {
     this.callObservers("serviceWillPopHistory", newState, oldState, this);
@@ -125,19 +129,5 @@ export class HistoryService extends Service {
 
   protected didPopHistory(newState: HistoryState, oldState: HistoryState): void {
     this.callObservers("serviceDidPopHistory", newState, oldState, this);
-  }
-
-  protected override onMount(): void {
-    super.onMount();
-    if (typeof window !== "undefined") {
-      window.addEventListener("popstate", this.popHistory);
-    }
-  }
-
-  protected override onUnmount(): void {
-    super.onUnmount();
-    if (typeof window !== "undefined") {
-      window.removeEventListener("popstate", this.popHistory);
-    }
   }
 }

@@ -285,12 +285,18 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     let parent: View | null;
     if (this.binds && (parent = this.parentView, parent !== null)) {
       if (target === null) {
-        target = this.getTargetChild(parent, newView);
+        if (newView.parent === parent) {
+          target = newView.nextSibling;
+        } else {
+          target = this.getTargetChild(parent, newView);
+        }
       }
       if (key === void 0) {
         key = this.viewKey(newView);
       }
-      this.insertChild(parent, newView, target, key);
+      if (newView.parent !== parent || newView.nextSibling !== target || newView.key !== key) {
+        this.insertChild(parent, newView, target, key);
+      }
     }
     if (this.views[newView.uid] === void 0) {
       this.insertViewMap(newView, target);

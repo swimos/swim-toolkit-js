@@ -192,7 +192,7 @@ export class Presence implements Interpolate<Presence>, HashCode, Equivalent, De
   static readonly Presented: Presence = new Presence(1, 0);
 
   static presented(): Presence {
-    return this.Presented
+    return this.Presented;
   }
 
   static presenting(phase?: number): Presence {

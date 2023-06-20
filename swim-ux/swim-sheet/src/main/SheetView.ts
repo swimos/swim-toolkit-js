@@ -23,7 +23,6 @@ import {PresenceAnimator} from "@swim/style";
 import {Look} from "@swim/theme";
 import {Mood} from "@swim/theme";
 import {View} from "@swim/view";
-import {ViewRef} from "@swim/view";
 import type {Overflow} from "@swim/dom";
 import type {PointerEvents} from "@swim/dom";
 import type {HtmlViewObserver} from "@swim/dom";
@@ -31,14 +30,6 @@ import {HtmlView} from "@swim/dom";
 
 /** @public */
 export interface SheetViewObserver<V extends SheetView = SheetView> extends HtmlViewObserver<V> {
-  viewWillAttachBack?(backView: SheetView, view: V): void;
-
-  viewDidDetachBack?(backView: SheetView, view: V): void;
-
-  viewWillAttachForward?(forwardView: SheetView, view: V): void;
-
-  viewDidDetachForward?(forwardView: SheetView, view: V): void;
-
   viewDidSetFullBleed?(fullBleed: boolean, view: V): void;
 
   viewWillPresent?(view: V): void;
@@ -70,34 +61,6 @@ export class SheetView extends HtmlView {
   }
 
   override readonly observerType?: Class<SheetViewObserver>;
-
-  @ViewRef({
-    get viewType(): typeof SheetView {
-      return SheetView;
-    },
-    binds: false,
-    willAttachView(backView: SheetView): void {
-      this.owner.callObservers("viewWillAttachBack", backView, this.owner);
-    },
-    didDetachView(backView: SheetView): void {
-      this.owner.callObservers("viewDidDetachBack", backView, this.owner);
-    },
-  })
-  readonly back!: ViewRef<this, SheetView>;
-
-  @ViewRef({
-    get viewType(): typeof SheetView {
-      return SheetView;
-    },
-    binds: false,
-    willAttachView(forwardView: SheetView): void {
-      this.owner.callObservers("viewWillAttachForward", forwardView, this.owner);
-    },
-    didDetachView(forwardView: SheetView): void {
-      this.owner.callObservers("viewDidDetachForward", forwardView, this.owner);
-    },
-  })
-  readonly forward!: ViewRef<this, SheetView>;
 
   @Property({
     valueType: Boolean,
@@ -157,11 +120,11 @@ export class SheetView extends HtmlView {
     overflowY: Overflow | undefined,
   };
 
-  present(timing?: AnyTiming | boolean): void {
+  present(timing?: AnyTiming | boolean | null): void {
     this.presence.present(timing);
   }
 
-  dismiss(timing?: AnyTiming | boolean): void {
+  dismiss(timing?: AnyTiming | boolean | null): void {
     this.presence.dismiss(timing);
   }
 

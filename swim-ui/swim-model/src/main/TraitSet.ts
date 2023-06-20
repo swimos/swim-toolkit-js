@@ -306,12 +306,18 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     let model: Model | null;
     if (this.binds && (model = this.parentModel, model !== null)) {
       if (target === null) {
-        target = this.getTargetChild(model, newTrait);
+        if (newTrait.model === model) {
+          target = newTrait.nextTrait;
+        } else {
+          target = this.getTargetChild(model, newTrait);
+        }
       }
       if (key === void 0) {
         key = this.traitKey(newTrait);
       }
-      this.insertChild(model, newTrait, target, key);
+      if (newTrait.model !== model || newTrait.nextTrait !== target || newTrait.key !== key) {
+        this.insertChild(model, newTrait, target, key);
+      }
     }
     if (this.traits[newTrait.uid] === void 0) {
       this.insertTraitMap(newTrait, target);

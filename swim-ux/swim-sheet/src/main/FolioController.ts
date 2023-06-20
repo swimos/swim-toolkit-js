@@ -106,7 +106,9 @@ export class FolioController extends StackController {
         if (folioStyle === "stacked") {
           this.owner.sheets.attachController(coverController);
         } else if (folioStyle === "unstacked") {
-          this.owner.cover.insertView(this.owner.folio.view);
+          if (this.owner.cover.view !== null) {
+            this.owner.cover.insertView(this.owner.folio.view);
+          }
           this.owner.sheets.detachController(coverController);
         }
       }
@@ -204,7 +206,7 @@ export class FolioController extends StackController {
         }
       }
       const coverController = this.owner.cover.controller;
-      if (coverController !== null && folioView.cover.view === null) {
+      if (coverController !== null) {
         folioView.cover.setView(coverController.sheet.view);
       }
     },
@@ -515,7 +517,7 @@ export class FolioController extends StackController {
     attachCoverView(coverView: SheetView, coverController: SheetController): void {
       const folioView = this.owner.folio.view;
       if (folioView !== null) {
-        folioView.cover.setView(coverView);
+        folioView.cover.attachView(coverView);
       }
       const appBarController = this.owner.appBar.controller;
       if (appBarController !== null) {
@@ -523,7 +525,11 @@ export class FolioController extends StackController {
       }
     },
     detachCoverView(coverView: SheetView, coverController: SheetController): void {
-      // hook
+      const folioView = this.owner.folio.view;
+      if (folioView !== null) {
+        folioView.cover.removeView();
+      }
+      this.detachController();
     },
     controllerDidSetFullBleed(fullBleed: boolean): void {
       this.owner.fullBleed.setValue(fullBleed, Affinity.Intrinsic);
@@ -540,19 +546,18 @@ export class FolioController extends StackController {
         this.owner.appBar.coverViewDidScroll(coverView, appBarController);
       }
     },
-    present(timing?: AnyTiming | boolean): SheetView | null {
-      if (this.owner.folioStyle.value === "stacked") {
-        const coverController = this.controller;
-        const coverView = coverController !== null ? coverController.sheet.view : null;
-        if (coverView !== null && coverView.parent === null) {
+    present(timing?: AnyTiming | boolean | null): SheetView | null {
+      const coverController = this.controller;
+      const coverView = coverController !== null ? coverController.sheet.view : null;
+      if (coverView !== null) {
+        if (this.owner.folioStyle.value === "stacked") {
           this.owner.sheets.attachController(coverController!);
-          if (timing !== void 0) {
-            coverView.present(timing);
-          }
+          coverView.present(timing);
+        } else {
+          this.insertView(this.owner.folio.view);
         }
-        return coverView;
       }
-      return null;
+      return coverView;
     },
   })
   readonly cover!: TraitViewControllerRef<this, Trait, SheetView, SheetController> & Observes<SheetController> & {
@@ -560,7 +565,7 @@ export class FolioController extends StackController {
     detachCoverTrait(coverTrait: Trait, coverController: SheetController): void;
     attachCoverView(coverView: SheetView, coverController: SheetController): void;
     detachCoverView(coverView: SheetView, coverController: SheetController): void;
-    present(timing?: AnyTiming | boolean): SheetView | null;
+    present(timing?: AnyTiming | boolean | null): SheetView | null;
   };
 
   @TraitViewControllerSet({
