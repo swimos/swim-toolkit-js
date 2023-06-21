@@ -105,7 +105,7 @@ export interface ChartViewObserver<X = unknown, Y = unknown, V extends ChartView
 
 /** @public */
 export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
-  override readonly observerType?: Class<ChartViewObserver<X, Y>>;
+  declare readonly observerType?: Class<ChartViewObserver<X, Y>>;
 
   @ThemeAnimator({valueType: Length, value: Length.px(20)})
   readonly gutterTop!: ThemeAnimator<this, Length, AnyLength>;

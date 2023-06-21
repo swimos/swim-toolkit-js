@@ -88,7 +88,7 @@ export interface SliceViewObserver<V extends SliceView = SliceView> extends Grap
 
 /** @public */
 export class SliceView extends GraphicsView {
-  override readonly observerType?: Class<SliceViewObserver>;
+  declare readonly observerType?: Class<SliceViewObserver>;
 
   @Animator({
     valueType: Number,

@@ -33,7 +33,7 @@ export interface SliceTraitObserver<T extends SliceTrait = SliceTrait> extends T
 
 /** @public */
 export class SliceTrait extends Trait {
-  override readonly observerType?: Class<SliceTraitObserver>;
+  declare readonly observerType?: Class<SliceTraitObserver>;
 
   @Property({
     valueType: Number,

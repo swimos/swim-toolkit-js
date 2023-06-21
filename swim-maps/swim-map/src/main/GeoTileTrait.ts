@@ -37,7 +37,7 @@ export class GeoTileTrait extends GeoLayerTrait {
     this.geoBounds = geoTile.bounds;
   }
 
-  override readonly observerType?: Class<GeoTileTraitObserver>;
+  declare readonly observerType?: Class<GeoTileTraitObserver>;
 
   readonly geoTile: GeoTile;
 

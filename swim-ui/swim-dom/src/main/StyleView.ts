@@ -36,9 +36,9 @@ export class StyleView extends HtmlView implements StyleContext {
     super(node);
   }
 
-  override readonly observerType?: Class<StyleViewObserver>;
+  declare readonly observerType?: Class<StyleViewObserver>;
 
-  override readonly node!: HTMLStyleElement;
+  declare readonly node: HTMLStyleElement;
 
   @StyleSheet({})
   readonly sheet!: StyleSheet<this>;

@@ -23,7 +23,7 @@ export interface CellTraitObserver<T extends CellTrait = CellTrait> extends Trai
 
 /** @public */
 export class CellTrait extends Trait {
-  override readonly observerType?: Class<CellTraitObserver>;
+  declare readonly observerType?: Class<CellTraitObserver>;
 
   createCellController(): CellController {
     return new CellController();

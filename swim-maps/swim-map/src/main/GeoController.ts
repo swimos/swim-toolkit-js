@@ -40,7 +40,7 @@ export interface GeoControllerObserver<C extends GeoController = GeoController> 
 
 /** @public */
 export abstract class GeoController extends Controller {
-  override readonly observerType?: Class<GeoControllerObserver>;
+  declare readonly observerType?: Class<GeoControllerObserver>;
 
   @Property({valueType: Timing, inherits: true})
   readonly geoTiming!: Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined>;

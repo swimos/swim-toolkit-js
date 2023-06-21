@@ -38,28 +38,24 @@ export class SelectableTrait extends Trait {
     this.selected = false;
   }
 
-  override readonly observerType?: Class<SelectableTraitObserver>;
+  declare readonly observerType?: Class<SelectableTraitObserver>;
 
   readonly selected: boolean;
 
   select(options?: SelectionOptions | null): void {
-    if (!this.selected) {
-      (this as Mutable<this>).selected = true;
-      if (this.mounted) {
-        this.selection.getService().select(this.model!, options);
-      }
+    if (this.selected) {
+      return;
     }
+    (this as Mutable<this>).selected = true;
+    if (!this.mounted) {
+      return;
+    }
+    this.selection.getService().select(this.model!, options);
   }
 
   /** @protected */
   willSelect(options: SelectionOptions | null): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitWillSelect !== void 0) {
-        observer.traitWillSelect(options, this);
-      }
-    }
+    this.callObservers("traitWillSelect", options, this);
   }
 
   /** @protected */
@@ -69,33 +65,23 @@ export class SelectableTrait extends Trait {
 
   /** @protected */
   didSelect(options: SelectionOptions | null): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitDidSelect !== void 0) {
-        observer.traitDidSelect(options, this);
-      }
-    }
+    this.callObservers("traitDidSelect", options, this);
   }
 
   unselect(): void {
-    if (this.selected) {
-      (this as Mutable<this>).selected = false;
-      if (this.mounted) {
-        this.selection.getService().unselect(this.model!);
-      }
+    if (!this.selected) {
+      return;
     }
+    (this as Mutable<this>).selected = false;
+    if (!this.mounted) {
+      return;
+    }
+    this.selection.getService().unselect(this.model!);
   }
 
   /** @protected */
   willUnselect(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitWillUnselect !== void 0) {
-        observer.traitWillUnselect(this);
-      }
-    }
+    this.callObservers("traitWillUnselect", this);
   }
 
   /** @protected */
@@ -105,13 +91,7 @@ export class SelectableTrait extends Trait {
 
   /** @protected */
   didUnselect(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitDidUnselect !== void 0) {
-        observer.traitDidUnselect(this);
-      }
-    }
+    this.callObservers("traitDidUnselect", this);
   }
 
   unselectAll(): void {
@@ -126,9 +106,7 @@ export class SelectableTrait extends Trait {
     }
   }
 
-  @Provider({
-    serviceType: SelectionService,
-  })
+  @Provider({serviceType: SelectionService})
   readonly selection!: Provider<this, SelectionService>;
 
   protected override didMount(): void {

@@ -79,7 +79,7 @@ export class DrawerView extends HtmlView implements ModalView {
     this.initDrawer();
   }
 
-  override readonly observerType?: Class<DrawerViewObserver>;
+  declare readonly observerType?: Class<DrawerViewObserver>;
 
   protected initDrawer(): void {
     this.addClass("drawer");

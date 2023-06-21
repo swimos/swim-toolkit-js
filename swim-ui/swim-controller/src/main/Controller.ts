@@ -51,8 +51,6 @@ import {TraitRelation} from "@swim/model";
 import {ControllerRelation} from "./"; // forward import
 import {TraitViewRef} from "./"; // forward import
 import {ExecutorService} from "./"; // forward import
-import {HistoryService} from "./"; // forward import
-import {StorageService} from "./"; // forward import
 
 /** @public */
 export type ControllerFlags = ComponentFlags;
@@ -154,7 +152,7 @@ export class Controller extends Component<Controller> implements Initable<Contro
     return Controller;
   }
 
-  override readonly observerType?: Class<ControllerObserver>;
+  declare readonly observerType?: Class<ControllerObserver>;
 
   protected override willAttachParent(parent: Controller): void {
     const observers = this.observers;
@@ -997,20 +995,6 @@ export class Controller extends Component<Controller> implements Initable<Contro
     },
   })
   readonly updater!: Provider<this, ExecutorService>;
-
-  @Provider({
-    get serviceType(): typeof HistoryService { // avoid static forward reference
-      return HistoryService;
-    },
-  })
-  readonly history!: Provider<this, HistoryService>;
-
-  @Provider({
-    get serviceType(): typeof StorageService { // avoid static forward reference
-      return StorageService;
-    },
-  })
-  readonly storage!: Provider<this, StorageService>;
 
   /** @override */
   @Property({

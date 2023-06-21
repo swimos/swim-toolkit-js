@@ -113,7 +113,10 @@ export interface TraitRelation<O = unknown, T extends Trait = Trait> extends Fas
   didUnderive(inlet: TraitRelation<unknown, T>): void;
 
   /** @override */
-  getInlet(): TraitRelation<unknown, T> | null;
+  deriveInlet(): TraitRelation<unknown, T> | null;
+
+  /** @override */
+  bindInlet(inlet: TraitRelation<unknown, T>): void;
 
   /** @override */
   readonly inlet: TraitRelation<unknown, T> | null;

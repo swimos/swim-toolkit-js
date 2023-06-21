@@ -81,7 +81,7 @@ export class GeoArcView extends GeoView implements FillView, StrokeView {
     });
   }
 
-  override readonly observerType?: Class<GeoArcViewObserver>;
+  declare readonly observerType?: Class<GeoArcViewObserver>;
 
   @Animator({
     valueType: GeoPoint,

@@ -175,44 +175,46 @@ export const ViewControllerRef = (function (_super: typeof ControllerRef) {
     if (newView !== null) {
       newView = this.fromAnyView(newView);
     }
+    if (targetView === void 0) {
+      targetView = null;
+    }
     let oldView = this.view;
-    if (oldView !== newView) {
-      if (targetView === void 0) {
-        targetView = null;
-      }
-      let controller = this.controller;
-      if (controller === null && newView !== null) {
-        controller = this.createController(newView);
-        this.setController(controller, null, controllerKey);
-      }
-      if (controller !== null) {
-        if (oldView !== null) {
-          if (targetView === null) {
-            targetView = oldView.nextSibling;
-          }
-          oldView.remove();
+    if (oldView === newView) {
+      return oldView;
+    }
+    let controller = this.controller;
+    if (controller === null && newView !== null) {
+      controller = this.createController(newView);
+      this.setController(controller, null, controllerKey);
+    }
+    if (controller !== null) {
+      if (oldView !== null) {
+        if (targetView === null) {
+          targetView = oldView.nextSibling;
         }
-        if (newView !== null) {
-          this.insertControllerView(controller, newView, targetView, this.viewKey);
-        }
-        oldView = this.view;
+        oldView.remove();
       }
-      if (oldView !== newView) {
-        if (oldView !== null) {
-          (this as Mutable<typeof this>).view = null;
-          this.willDetachView(oldView);
-          this.onDetachView(oldView);
-          this.deinitView(oldView);
-          this.didDetachView(oldView);
-        }
-        if (newView !== null) {
-          (this as Mutable<typeof this>).view = newView;
-          this.willAttachView(newView, targetView);
-          this.onAttachView(newView, targetView);
-          this.initView(newView);
-          this.didAttachView(newView, targetView);
-        }
+      if (newView !== null) {
+        this.insertControllerView(controller, newView, targetView, this.viewKey);
       }
+      oldView = this.view;
+      if (oldView === newView) {
+        return oldView;
+      }
+    }
+    if (oldView !== null) {
+      (this as Mutable<typeof this>).view = null;
+      this.willDetachView(oldView);
+      this.onDetachView(oldView);
+      this.deinitView(oldView);
+      this.didDetachView(oldView);
+    }
+    if (newView !== null) {
+      (this as Mutable<typeof this>).view = newView;
+      this.willAttachView(newView, targetView);
+      this.onAttachView(newView, targetView);
+      this.initView(newView);
+      this.didAttachView(newView, targetView);
     }
     return oldView;
   };

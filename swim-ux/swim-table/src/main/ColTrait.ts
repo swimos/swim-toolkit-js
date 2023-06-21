@@ -27,7 +27,7 @@ export interface ColTraitObserver<T extends ColTrait = ColTrait> extends TraitOb
 
 /** @public */
 export class ColTrait extends Trait {
-  override readonly observerType?: Class<ColTraitObserver>;
+  declare readonly observerType?: Class<ColTraitObserver>;
 
   @Property({
     valueType: ColLayout,

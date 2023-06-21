@@ -96,7 +96,10 @@ export interface ViewRelation<O = unknown, V extends View = View> extends Fasten
   didUnderive(inlet: ViewRelation<unknown, V>): void;
 
   /** @override */
-  getInlet(): ViewRelation<unknown, V> | null;
+  deriveInlet(): ViewRelation<unknown, V> | null;
+
+  /** @override */
+  bindInlet(inlet: ViewRelation<unknown, V>): void;
 
   /** @override */
   readonly inlet: ViewRelation<unknown, V> | null;

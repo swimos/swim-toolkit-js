@@ -47,7 +47,7 @@ export interface GeoAreaControllerObserver<C extends GeoAreaController = GeoArea
 
 /** @public */
 export class GeoAreaController extends GeoPathController {
-  override readonly observerType?: Class<GeoAreaControllerObserver>;
+  declare readonly observerType?: Class<GeoAreaControllerObserver>;
 
   protected setGeoPath(geoPath: GeoPath | null, timing?: AnyTiming | boolean): void {
     const geoView = this.geo.view;

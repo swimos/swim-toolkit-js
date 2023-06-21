@@ -47,7 +47,7 @@ export interface BubblePlotViewObserver<X = unknown, Y = unknown, V extends Bubb
 
 /** @public */
 export class BubblePlotView<X = unknown, Y = unknown> extends ScatterPlotView<X, Y> implements FillView, StrokeView {
-  override readonly observerType?: Class<BubblePlotViewObserver<X, Y>>;
+  declare readonly observerType?: Class<BubblePlotViewObserver<X, Y>>;
 
   @ThemeAnimator({
     valueType: Length,

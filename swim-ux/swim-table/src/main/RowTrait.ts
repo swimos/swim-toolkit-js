@@ -29,7 +29,7 @@ export interface RowTraitObserver<T extends RowTrait = RowTrait> extends LeafTra
 
 /** @public */
 export class RowTrait extends LeafTrait {
-  override readonly observerType?: Class<RowTraitObserver>;
+  declare readonly observerType?: Class<RowTraitObserver>;
 
   @TraitRef({
     get traitType(): typeof TableTrait {

@@ -230,9 +230,9 @@ export class SvgView extends ElementView {
     super(node);
   }
 
-  override readonly observerType?: Class<SvgViewObserver>;
+  declare readonly observerType?: Class<SvgViewObserver>;
 
-  override readonly node!: SVGElement;
+  declare readonly node: SVGElement;
 
   override setChild<V extends View>(key: string, newChild: V): View | null;
   override setChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(key: string, factory: F): View | null;

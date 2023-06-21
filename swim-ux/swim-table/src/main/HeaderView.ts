@@ -61,7 +61,7 @@ export class HeaderView extends HtmlView {
     this.overflowY.setState("hidden", Affinity.Intrinsic);
   }
 
-  override readonly observerType?: Class<HeaderViewObserver>;
+  declare readonly observerType?: Class<HeaderViewObserver>;
 
   @Property({valueType: TableLayout, value: null, inherits: true, updateFlags: View.NeedsLayout})
   readonly layout!: Property<this, TableLayout | null, AnyTableLayout | null>;
@@ -186,7 +186,6 @@ export class HeaderView extends HtmlView {
           while (target !== null && target !== this.owner.node) {
             const targetView = (target as ViewNode).view;
             if (targetView instanceof ColView) {
-              targetView.onPress(input, event);
               targetView.didPress(input, event);
               break;
             }
@@ -204,7 +203,6 @@ export class HeaderView extends HtmlView {
         while (target !== null && target !== this.owner.node) {
           const targetView = (target as ViewNode).view;
           if (targetView instanceof ColView) {
-            targetView.onLongPress(input);
             targetView.didLongPress(input);
             break;
           }

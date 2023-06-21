@@ -47,7 +47,7 @@ export class EsriSceneView extends EsriView {
     this.initMap(map);
   }
 
-  override readonly observerType?: Class<EsriSceneViewObserver>;
+  declare readonly observerType?: Class<EsriSceneViewObserver>;
 
   override readonly map!: __esri.SceneView;
 

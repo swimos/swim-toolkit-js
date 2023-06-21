@@ -54,7 +54,7 @@ export class GeoPathView extends GeoView {
     });
   }
 
-  override readonly observerType?: Class<GeoPathViewObserver>;
+  declare readonly observerType?: Class<GeoPathViewObserver>;
 
   @Animator({
     valueType: GeoPath,

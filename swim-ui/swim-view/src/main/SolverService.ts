@@ -31,7 +31,7 @@ export class SolverService extends Service implements ConstraintContext {
     this.solver = this.createSolver();
   }
 
-  override readonly observerType?: Class<SolverServiceObserver>;
+  declare readonly observerType?: Class<SolverServiceObserver>;
 
   readonly solver: ConstraintSolver;
 

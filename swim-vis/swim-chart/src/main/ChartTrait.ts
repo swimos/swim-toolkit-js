@@ -49,7 +49,7 @@ export interface ChartTraitObserver<X = unknown, Y = unknown, T extends ChartTra
 
 /** @public */
 export class ChartTrait<X = unknown, Y = unknown> extends Trait {
-  override readonly observerType?: Class<ChartTraitObserver<X, Y>>;
+  declare readonly observerType?: Class<ChartTraitObserver<X, Y>>;
 
   @TraitRef({
     traitType: GraphTrait,

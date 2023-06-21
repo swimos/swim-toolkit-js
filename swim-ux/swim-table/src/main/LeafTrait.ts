@@ -30,7 +30,7 @@ export interface LeafTraitObserver<T extends LeafTrait = LeafTrait> extends Trai
 
 /** @public */
 export class LeafTrait extends Trait {
-  override readonly observerType?: Class<LeafTraitObserver>;
+  declare readonly observerType?: Class<LeafTraitObserver>;
 
   getCell<F extends Class<CellTrait>>(key: string, cellTraitClass: F): InstanceType<F> | null;
   getCell(key: string): CellTrait | null;

@@ -59,7 +59,7 @@ export class ButtonStack extends HtmlView implements ModalView {
     this.button.insertView();
   }
 
-  override readonly observerType?: Class<ButtonStackObserver>;
+  declare readonly observerType?: Class<ButtonStackObserver>;
 
   /** @internal */
   @Property({valueType: Number, value: 0})
@@ -320,27 +320,13 @@ export class ButtonStack extends HtmlView implements ModalView {
   }
 
   protected willShowStack(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.buttonStackWillShow !== void 0) {
-        observer.buttonStackWillShow(this);
-      }
-    }
-
+    this.callObservers("buttonStackWillShow", this);
     this.display("block");
   }
 
   protected didShowStack(): void {
     this.requireUpdate(View.NeedsLayout);
-
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.buttonStackDidShow !== void 0) {
-        observer.buttonStackDidShow(this);
-      }
-    }
+    this.callObservers("buttonStackDidShow", this);
   }
 
   hide(timing?: AnyTiming | boolean): void {
@@ -361,26 +347,13 @@ export class ButtonStack extends HtmlView implements ModalView {
   }
 
   protected willHideStack(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.buttonStackWillHide !== void 0) {
-        observer.buttonStackWillHide(this);
-      }
-    }
+    this.callObservers("buttonStackWillHide", this);
   }
 
   protected didHideStack(): void {
     this.display("none");
     this.requireUpdate(View.NeedsLayout);
-
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.buttonStackDidHide !== void 0) {
-        observer.buttonStackDidHide(this);
-      }
-    }
+    this.callObservers("buttonStackDidHide", this);
   }
 
   @Lazy

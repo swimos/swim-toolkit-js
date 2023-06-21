@@ -62,7 +62,7 @@ export interface DataPointControllerObserver<X = unknown, Y = unknown, C extends
 
 /** @public */
 export class DataPointController<X = unknown, Y = unknown> extends Controller {
-  override readonly observerType?: Class<DataPointControllerObserver<X, Y>>;
+  declare readonly observerType?: Class<DataPointControllerObserver<X, Y>>;
 
   protected updateLabel(x: X | undefined, y: Y | undefined, dataPointTrait: DataPointTrait<X, Y>): void {
     const label = dataPointTrait.formatLabel(x, y);

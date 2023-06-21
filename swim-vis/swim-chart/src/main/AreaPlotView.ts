@@ -42,7 +42,7 @@ export interface AreaPlotViewObserver<X = unknown, Y = unknown, V extends AreaPl
 
 /** @public */
 export class AreaPlotView<X = unknown, Y = unknown> extends SeriesPlotView<X, Y> implements FillView {
-  override readonly observerType?: Class<AreaPlotViewObserver<X, Y>>;
+  declare readonly observerType?: Class<AreaPlotViewObserver<X, Y>>;
 
   @ThemeAnimator({
     valueType: Color,

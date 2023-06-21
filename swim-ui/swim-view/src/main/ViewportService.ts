@@ -46,7 +46,7 @@ export interface ViewportServiceObserver<S extends ViewportService = ViewportSer
 
 /** @public */
 export class ViewportService extends Service {
-  override readonly observerType?: Class<ViewportServiceObserver>;
+  declare readonly observerType?: Class<ViewportServiceObserver>;
 
   @Property({
     valueType: LayoutViewport,

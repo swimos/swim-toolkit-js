@@ -36,7 +36,7 @@ export interface IconColControllerObserver<C extends IconColController = IconCol
 
 /** @public */
 export class IconColController extends ColController {
-  override readonly observerType?: Class<IconColControllerObserver>;
+  declare readonly observerType?: Class<IconColControllerObserver>;
 
   protected setIcon(icon: Graphics | null): void {
     const colView = this.col.view;

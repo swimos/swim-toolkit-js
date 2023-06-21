@@ -81,7 +81,7 @@ export interface GaugeViewObserver<V extends GaugeView = GaugeView> extends Grap
 
 /** @public */
 export class GaugeView extends GraphicsView {
-  override readonly observerType?: Class<GaugeViewObserver>;
+  declare readonly observerType?: Class<GaugeViewObserver>;
 
   @Animator({valueType: Number, value: 0, updateFlags: View.NeedsLayout})
   readonly limit!: Animator<this, number>;

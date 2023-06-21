@@ -47,7 +47,7 @@ export interface AreaPlotControllerObserver<X = unknown, Y = unknown, C extends 
 
 /** @public */
 export class AreaPlotController<X = unknown, Y = unknown> extends SeriesPlotController<X, Y> {
-  override readonly observerType?: Class<AreaPlotControllerObserver<X, Y>>;
+  declare readonly observerType?: Class<AreaPlotControllerObserver<X, Y>>;
 
   @TraitViewControllerSet({
     extends: true,

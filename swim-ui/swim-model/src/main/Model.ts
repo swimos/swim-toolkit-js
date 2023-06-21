@@ -167,7 +167,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
     return Model;
   }
 
-  override readonly observerType?: Class<ModelObserver>;
+  declare readonly observerType?: Class<ModelObserver>;
 
   protected override willAttachParent(parent: Model): void {
     const observers = this.observers;
@@ -1520,29 +1520,29 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
     }
   }
 
-  getParentTrait<F extends Class<Trait>>(parentType: F): InstanceType<F> | null {
-    let parent = this.parent;
-    while (parent !== null) {
-      const trait = parent.getTrait(parentType);
-      if (trait !== null) {
-        return trait;
+  getAncestorTrait<F extends Class<Trait>>(ancestorType: F): InstanceType<F> | null {
+    let ancestor = this.parent;
+    while (ancestor !== null) {
+      const ancestorTrait = ancestor.getTrait(ancestorType);
+      if (ancestorTrait !== null) {
+        return ancestorTrait;
       }
-      parent = parent.parent;
+      ancestor = ancestor.parent;
     }
     return null;
   }
 
-  getBaseTrait<F extends Class<Trait>>(baseType: F): InstanceType<F> | null {
-    let base: InstanceType<F> | null = null;
-    let parent = this.parent;
-    while (parent !== null) {
-      const baseTrait = parent.getTrait(baseType);
-      if (baseTrait !== null) {
-        base = baseTrait;
+  getRootTrait<F extends Class<Trait>>(rootType: F): InstanceType<F> | null {
+    let rootTrait: InstanceType<F> | null = null;
+    let ancestor = this.parent;
+    while (ancestor !== null) {
+      const ancestorTrait = ancestor.getTrait(rootType);
+      if (ancestorTrait !== null) {
+        rootTrait = ancestorTrait;
       }
-      parent = parent.parent;
+      ancestor = ancestor.parent;
     }
-    return base;
+    return rootTrait;
   }
 
   protected override bindFastener(fastener: Fastener): void {

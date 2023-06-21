@@ -49,9 +49,9 @@ export class TextView extends NodeView {
     super(node);
   }
 
-  override readonly observerType?: Class<TextViewObserver>;
+  declare readonly observerType?: Class<TextViewObserver>;
 
-  override readonly node!: Text;
+  declare readonly node: Text;
 
   override init(init: TextViewInit): void {
     super.init(init);

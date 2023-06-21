@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Lazy} from "@swim/util";
 import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
 import type {Dictionary} from "@swim/util";
 import type {MutableDictionary} from "@swim/util";
+import {EventHandler} from "@swim/component";
 import type {ServiceObserver} from "@swim/component";
 import {Service} from "@swim/component";
 
@@ -33,7 +33,7 @@ export interface StorageServiceObserver<S extends StorageService = StorageServic
 
 /** @public */
 export abstract class StorageService extends Service {
-  override readonly observerType?: Class<StorageServiceObserver>;
+  declare readonly observerType?: Class<StorageServiceObserver>;
 
   abstract get(key: string): string | undefined;
 
@@ -55,13 +55,6 @@ export abstract class StorageService extends Service {
 
   protected willClear(): void {
     this.callObservers("serviceWillClear", this);
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.serviceWillClear !== void 0) {
-        observer.serviceWillClear(this);
-      }
-    }
   }
 
   protected onClear(): void {
@@ -85,30 +78,29 @@ export abstract class StorageService extends Service {
 
 /** @public */
 export class WebStorageService extends StorageService {
-  constructor(storage: Storage) {
+  constructor(storageArea: Storage) {
     super();
-    this.storage = storage;
-    this.onStorage = this.onStorage.bind(this);
+    this.storageArea = storageArea;
   }
 
-  readonly storage: Storage;
+  readonly storageArea: Storage;
 
   override get(key: string): string | undefined {
-    const value = this.storage.getItem(key);
+    const value = this.storageArea.getItem(key);
     return value !== null ? value : void 0;
   }
 
   override set(key: string, newValue: string | undefined): string | undefined {
-    let oldValue: string | null | undefined = this.storage.getItem(key);
+    let oldValue: string | null | undefined = this.storageArea.getItem(key);
     if (oldValue === null) {
       oldValue = void 0;
     }
     if (newValue !== oldValue) {
       this.willSet(key, newValue, oldValue);
       if (newValue !== void 0) {
-        this.storage.setItem(key, newValue);
+        this.storageArea.setItem(key, newValue);
       } else {
-        this.storage.removeItem(key);
+        this.storageArea.removeItem(key);
       }
       this.onSet(key, newValue, oldValue);
       this.didSet(key, newValue, oldValue);
@@ -118,95 +110,96 @@ export class WebStorageService extends StorageService {
 
   override clear(): void {
     this.willClear();
-    this.storage.clear();
+    this.storageArea.clear();
     this.onClear();
     this.didClear();
   }
 
-  /** @internal */
-  onStorage(event: StorageEvent): void {
-    if (event.storageArea === this.storage) {
+  @EventHandler({
+    type: "storage",
+    target: window,
+    handle(event: StorageEvent): void {
+      if (event.storageArea !== this.owner.storageArea) {
+        return;
+      }
       const key = event.key;
-      if (key !== null) {
-        let newValue: string | null | undefined = event.newValue;
-        if (newValue === null) {
-          newValue = void 0;
-        }
-        let oldValue: string | null | undefined = event.oldValue;
-        if (oldValue === null) {
-          oldValue = void 0;
-        }
-        if (newValue !== oldValue) {
-          this.willSet(key, newValue, oldValue);
-          this.onSet(key, newValue, oldValue);
-          this.didSet(key, newValue, oldValue);
-        }
-      } else {
-        this.willClear();
-        this.onClear();
-        this.didClear();
+      if (key === null) {
+        this.owner.willClear();
+        this.owner.onClear();
+        this.owner.didClear();
+        return;
+      }
+      let newValue: string | null | undefined = event.newValue;
+      if (newValue === null) {
+        newValue = void 0;
+      }
+      let oldValue: string | null | undefined = event.oldValue;
+      if (oldValue === null) {
+        oldValue = void 0;
+      }
+      if (newValue !== oldValue) {
+        this.owner.willSet(key, newValue, oldValue);
+        this.owner.onSet(key, newValue, oldValue);
+        this.owner.didSet(key, newValue, oldValue);
+      }
+    },
+  })
+  readonly storageEvent!: EventHandler<this>;
+
+  /** @internal */
+  static Local: WebStorageService | null | undefined = void 0;
+
+  static local(): WebStorageService | null {
+    if (this.Local === void 0) {
+      try {
+        this.Local = new WebStorageService(window.localStorage);
+      } catch (e) {
+        this.Local = null;
       }
     }
+    return this.Local;
   }
 
-  protected override onMount(): void {
-    super.onMount();
-    if (typeof window !== "undefined") {
-      window.addEventListener("storage", this.onStorage);
-    }
-  }
+  /** @internal */
+  static Session: WebStorageService | null | undefined = void 0;
 
-  protected override onUnmount(): void {
-    super.onUnmount();
-    if (typeof window !== "undefined") {
-      window.removeEventListener("storage", this.onStorage);
-    }
-  }
-
-  @Lazy
-  static local(): WebStorageService | null {
-    try {
-      return new WebStorageService(window.localStorage);
-    } catch (e) {
-      return null;
-    }
-  }
-
-  @Lazy
   static session(): WebStorageService | null {
-    try {
-      return new WebStorageService(window.sessionStorage);
-    } catch (e) {
-      return null;
+    if (this.Session === void 0) {
+      try {
+        this.Session = new WebStorageService(window.sessionStorage);
+      } catch (e) {
+        this.Session = null;
+      }
     }
+    return this.Session;
   }
 }
 
 /** @public */
 export class EphemeralStorageService extends StorageService {
-  constructor(storage?: Dictionary<string>) {
+  constructor(storageArea?: Dictionary<string>) {
     super();
-    if (storage === void 0) {
-      storage = {};
+    if (storageArea === void 0) {
+      storageArea = {};
     }
-    this.storage = storage;
+    this.storageArea = storageArea;
   }
 
-  readonly storage: Dictionary<string>;
+  readonly storageArea: Dictionary<string>;
 
   override get(key: string): string | undefined {
-    return this.storage[key];
+    return this.storageArea[key];
   }
 
   override set(key: string, newValue: string | undefined): string | undefined {
-    const storage = this.storage as MutableDictionary<string>;
-    const oldValue = storage[key];
+    const storageArea = this.storageArea as MutableDictionary<string>;
+    const oldValue = storageArea[key];
     if (newValue !== oldValue) {
       this.willSet(key, newValue, oldValue);
       if (newValue !== void 0) {
-        storage[key] = newValue;
+        storageArea[key] = newValue;
       } else {
-        delete storage[key];
+        delete storageArea[key];
       }
       this.onSet(key, newValue, oldValue);
       this.didSet(key, newValue, oldValue);
@@ -216,7 +209,7 @@ export class EphemeralStorageService extends StorageService {
 
   override clear(): void {
     this.willClear();
-    (this as Mutable<this>).storage = {};
+    (this as Mutable<this>).storageArea = {};
     this.onClear();
     this.didClear();
   }

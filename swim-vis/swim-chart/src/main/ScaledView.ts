@@ -102,7 +102,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
     this.yDataDomainPadded = null;
   }
 
-  override readonly observerType?: Class<ScaledViewObserver<X, Y>>;
+  declare readonly observerType?: Class<ScaledViewObserver<X, Y>>;
 
   /** @internal */
   readonly scaledFlags: ScaledFlags;

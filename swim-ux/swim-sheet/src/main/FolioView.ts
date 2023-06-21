@@ -69,7 +69,7 @@ export class FolioView extends HtmlView {
     this.overflowY.setState("hidden", Affinity.Intrinsic);
   }
 
-  override readonly observerType?: Class<FolioViewObserver>;
+  declare readonly observerType?: Class<FolioViewObserver>;
 
   @Property({
     valueType: String,

@@ -84,7 +84,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     this.ticks = new BTree();
   }
 
-  override readonly observerType?: Class<AxisViewObserver<D>>;
+  declare readonly observerType?: Class<AxisViewObserver<D>>;
 
   abstract readonly orientation: AxisOrientation;
 

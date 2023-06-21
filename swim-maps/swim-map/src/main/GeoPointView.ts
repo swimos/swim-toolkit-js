@@ -85,7 +85,7 @@ export interface GeoPointViewObserver<V extends GeoPointView = GeoPointView> ext
 
 /** @public */
 export class GeoPointView extends GeoView {
-  override readonly observerType?: Class<GeoPointViewObserver>;
+  declare readonly observerType?: Class<GeoPointViewObserver>;
 
   @Animator({
     valueType: GeoPoint,

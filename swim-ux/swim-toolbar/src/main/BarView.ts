@@ -70,7 +70,7 @@ export class BarView extends HtmlView {
     this.modifyMood(Feel.default, [[Feel.primary, 1]]);
   }
 
-  override readonly observerType?: Class<BarViewObserver>;
+  declare readonly observerType?: Class<BarViewObserver>;
 
   @Property({
     valueType: String,

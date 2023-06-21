@@ -75,7 +75,7 @@ export class GeoCircleView extends GeoView implements FillView, StrokeView {
     });
   }
 
-  override readonly observerType?: Class<GeoCircleViewObserver>;
+  declare readonly observerType?: Class<GeoCircleViewObserver>;
 
   @Animator({
     valueType: GeoPoint,

@@ -80,7 +80,7 @@ export interface PieViewObserver<V extends PieView = PieView> extends GraphicsVi
 
 /** @public */
 export class PieView extends GraphicsView {
-  override readonly observerType?: Class<PieViewObserver>;
+  declare readonly observerType?: Class<PieViewObserver>;
 
   @Animator({valueType: Number, value: 0, updateFlags: View.NeedsLayout})
   readonly limit!: Animator<this, number>;

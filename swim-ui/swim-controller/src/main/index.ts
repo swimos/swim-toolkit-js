@@ -118,9 +118,12 @@ export {HistoryState} from "./HistoryState";
 export type {HistoryServiceObserver} from "./HistoryService";
 export {HistoryService} from "./HistoryService";
 
-// Storage
+// Hyperlink
 
-export type {StorageServiceObserver} from "./StorageService";
-export {StorageService} from "./StorageService";
-export {WebStorageService} from "./StorageService";
-export {EphemeralStorageService} from "./StorageService";
+export type {AnyHyperlink} from "./Hyperlink";
+export type {HyperlinkInit} from "./Hyperlink";
+export {Hyperlink} from "./Hyperlink";
+export type {HistoryHyperlinkInit} from "./Hyperlink";
+export {HistoryHyperlink} from "./Hyperlink";
+export type {LocationHyperlinkInit} from "./Hyperlink";
+export {LocationHyperlink} from "./Hyperlink";

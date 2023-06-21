@@ -39,7 +39,7 @@ export interface TabBarControllerObserver<C extends TabBarController = TabBarCon
 
 /** @public */
 export class TabBarController extends BarController {
-  override readonly observerType?: Class<TabBarControllerObserver>;
+  declare readonly observerType?: Class<TabBarControllerObserver>;
 
   protected override createLayout(): BarLayout | null {
     const tools = new Array<ToolLayout>();

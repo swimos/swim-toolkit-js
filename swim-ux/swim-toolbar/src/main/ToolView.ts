@@ -40,7 +40,7 @@ export class ToolView extends HtmlView {
     this.addClass("tool");
   }
 
-  override readonly observerType?: Class<ToolViewObserver>;
+  declare readonly observerType?: Class<ToolViewObserver>;
 
   @Animator({valueType: Number, value: 0.5, updateFlags: View.NeedsLayout})
   readonly xAlign!: Animator<this, number>;

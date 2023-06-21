@@ -49,7 +49,7 @@ export interface TableTraitObserver<T extends TableTrait = TableTrait> extends T
 
 /** @public */
 export class TableTrait extends Trait {
-  override readonly observerType?: Class<TableTraitObserver>;
+  declare readonly observerType?: Class<TableTraitObserver>;
 
   protected createLayout(): TableLayout | null {
     const colLayouts: ColLayout[] = [];

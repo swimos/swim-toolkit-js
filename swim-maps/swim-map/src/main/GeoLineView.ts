@@ -46,7 +46,7 @@ export interface GeoLineViewObserver<V extends GeoLineView = GeoLineView> extend
 
 /** @public */
 export class GeoLineView extends GeoPathView implements StrokeView {
-  override readonly observerType?: Class<GeoLineViewObserver>;
+  declare readonly observerType?: Class<GeoLineViewObserver>;
 
   @ThemeAnimator({
     valueType: Color,

@@ -29,7 +29,7 @@ export interface AreaPlotTraitObserver<X = unknown, Y = unknown, T extends AreaP
 
 /** @public */
 export class AreaPlotTrait<X = unknown, Y = unknown> extends SeriesPlotTrait<X, Y> {
-  override readonly observerType?: Class<AreaPlotTraitObserver<X, Y>>;
+  declare readonly observerType?: Class<AreaPlotTraitObserver<X, Y>>;
 
   @Property({
     valueType: ColorLook,

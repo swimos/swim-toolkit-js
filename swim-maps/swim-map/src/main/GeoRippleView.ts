@@ -71,7 +71,7 @@ export class GeoRippleView extends GeoView implements StrokeView {
     this.setFlags(this.flags | View.UnboundedFlag);
   }
 
-  override readonly observerType?: Class<GeoRippleViewObserver>;
+  declare readonly observerType?: Class<GeoRippleViewObserver>;
 
   @Animator({
     valueType: GeoPoint,
@@ -280,7 +280,7 @@ export class GeoRippleView extends GeoView implements StrokeView {
         sourceView.geoBounds.intersects(sourceView.geoViewport.value.geoFrame)) {
       const rippleView = GeoRippleView.create();
       rippleView.source.setView(sourceView);
-      let containerView = sourceView.getBase(GeoView);
+      let containerView = sourceView.getRoot(GeoView);
       if (containerView === null) {
         containerView = sourceView;
       }

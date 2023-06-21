@@ -102,7 +102,7 @@ export interface SheetControllerObserver<C extends SheetController = SheetContro
 
 /** @public */
 export class SheetController extends Controller {
-  override readonly observerType?: Class<SheetControllerObserver>;
+  declare readonly observerType?: Class<SheetControllerObserver>;
 
   @Property({
     valueType: Boolean,

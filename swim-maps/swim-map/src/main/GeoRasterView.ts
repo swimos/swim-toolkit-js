@@ -67,7 +67,7 @@ export class GeoRasterView extends GeoView {
     (this.renderer as Mutable<typeof this.renderer>).value = this.createRenderer();
   }
 
-  override readonly observerType?: Class<GeoRasterViewObserver>;
+  declare readonly observerType?: Class<GeoRasterViewObserver>;
 
   @Animator({
     valueType: GeoPoint,

@@ -37,7 +37,7 @@ export interface DialTraitObserver<T extends DialTrait = DialTrait> extends Trai
 
 /** @public */
 export class DialTrait extends Trait {
-  override readonly observerType?: Class<DialTraitObserver>;
+  declare readonly observerType?: Class<DialTraitObserver>;
 
   @Property({
     valueType: Number,

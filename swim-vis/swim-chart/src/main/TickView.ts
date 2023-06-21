@@ -86,7 +86,7 @@ export abstract class TickView<D = unknown> extends GraphicsView {
     this.preserved = true;
   }
 
-  override readonly observerType?: Class<TickViewObserver<D>>;
+  declare readonly observerType?: Class<TickViewObserver<D>>;
 
   abstract readonly orientation: TickOrientation;
 

@@ -45,7 +45,7 @@ export interface GeoIconControllerObserver<C extends GeoIconController = GeoIcon
 
 /** @public */
 export class GeoIconController extends GeoController {
-  override readonly observerType?: Class<GeoIconControllerObserver>;
+  declare readonly observerType?: Class<GeoIconControllerObserver>;
 
   protected setGeoCenter(geoCenter: GeoPoint | null, geoTrait: GeoIconTrait, timing?: AnyTiming | boolean): void {
     const geoView = this.geo.view;

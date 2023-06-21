@@ -29,7 +29,7 @@ export interface PlotTraitObserver<X = unknown, Y = unknown, T extends PlotTrait
 
 /** @public */
 export abstract class PlotTrait<X = unknown, Y = unknown> extends Trait {
-  override readonly observerType?: Class<PlotTraitObserver<X, Y>>;
+  declare readonly observerType?: Class<PlotTraitObserver<X, Y>>;
 
   @TraitRef({
     traitType: DataSetTrait,

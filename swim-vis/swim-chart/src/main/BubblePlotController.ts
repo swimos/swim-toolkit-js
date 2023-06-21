@@ -50,7 +50,7 @@ export interface BubblePlotControllerObserver<X = unknown, Y = unknown, C extend
 
 /** @public */
 export class BubblePlotController<X = unknown, Y = unknown> extends ScatterPlotController<X, Y> {
-  override readonly observerType?: Class<BubblePlotControllerObserver<X, Y>>;
+  declare readonly observerType?: Class<BubblePlotControllerObserver<X, Y>>;
 
   @TraitViewControllerSet({
     extends: true,

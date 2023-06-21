@@ -23,7 +23,7 @@ export interface SeriesPlotTraitObserver<X = unknown, Y = unknown, T extends Ser
 
 /** @public */
 export abstract class SeriesPlotTrait<X = unknown, Y = unknown> extends PlotTrait<X, Y> {
-  override readonly observerType?: Class<SeriesPlotTraitObserver<X, Y>>;
+  declare readonly observerType?: Class<SeriesPlotTraitObserver<X, Y>>;
 
   abstract override createPlotController(): SeriesPlotController<X, Y>;
 }

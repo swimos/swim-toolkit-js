@@ -74,7 +74,7 @@ export interface BarControllerObserver<C extends BarController = BarController> 
 
 /** @public */
 export class BarController extends Controller {
-  override readonly observerType?: Class<BarControllerObserver>;
+  declare readonly observerType?: Class<BarControllerObserver>;
 
   @TraitViewRef({
     viewType: BarView,
@@ -122,15 +122,17 @@ export class BarController extends Controller {
 
   updateLayout(): void {
     const barView = this.bar.view;
-    if (barView !== null) {
-      const barLayout = this.createLayout();
-      if (barLayout !== null) {
-        const timing = barView.getLookOr(Look.timing, Mood.navigating, false);
-        barView.layout.setState(barLayout, timing);
-        // Immediately run resize pass to prevent layout flicker.
-        barView.requireUpdate(View.NeedsResize, true);
-      }
+    if (barView === null) {
+      return;
     }
+    const barLayout = this.createLayout();
+    if (barLayout === null) {
+      return;
+    }
+    const timing = barView.getLookOr(Look.timing, Mood.navigating, false);
+    barView.layout.setState(barLayout, timing);
+    // Immediately run resize pass to prevent layout flicker.
+    barView.requireUpdate(View.NeedsResize, true);
   }
 
   getTool<F extends Class<ToolController>>(key: string, toolControllerClass: F): InstanceType<F> | null;

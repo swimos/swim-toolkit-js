@@ -97,6 +97,13 @@ export {TraitModelSet} from "./TraitModelSet";
 export type {RefresherServiceObserver} from "./RefresherService";
 export {RefresherService} from "./RefresherService";
 
+// Storage
+
+export type {StorageServiceObserver} from "./StorageService";
+export {StorageService} from "./StorageService";
+export {WebStorageService} from "./StorageService";
+export {EphemeralStorageService} from "./StorageService";
+
 // Selection
 
 export type {SelectionOptions} from "./SelectionService";

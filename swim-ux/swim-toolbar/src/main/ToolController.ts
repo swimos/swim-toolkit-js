@@ -39,7 +39,7 @@ export interface ToolControllerObserver<C extends ToolController = ToolControlle
 
 /** @public */
 export class ToolController extends Controller {
-  override readonly observerType?: Class<ToolControllerObserver>;
+  declare readonly observerType?: Class<ToolControllerObserver>;
 
   @TraitViewRef({
     viewType: ToolView,

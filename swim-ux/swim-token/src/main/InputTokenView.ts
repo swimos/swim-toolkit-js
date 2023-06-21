@@ -51,7 +51,7 @@ export class InputTokenView extends TokenView {
     this.onInputKey = this.onInputKey.bind(this);
   }
 
-  override readonly observerType?: Class<InputTokenViewObserver>;
+  declare readonly observerType?: Class<InputTokenViewObserver>;
 
   protected override initToken(): void {
     super.initToken();
@@ -87,7 +87,7 @@ export class InputTokenView extends TokenView {
   readonly stylesheet!: ViewRef<this, StyleView>;
 
   @StyleRule({
-    getInlet(): StyleSheet | null {
+    deriveInlet(): StyleSheet | null {
       const styleView = this.owner.stylesheet.view;
       return styleView !== null ? styleView.sheet : null;
     },
@@ -144,13 +144,7 @@ export class InputTokenView extends TokenView {
   }
 
   protected didUpdateInput(inputView: HtmlView): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.tokenDidUpdateInput !== void 0) {
-        observer.tokenDidUpdateInput(inputView, this);
-      }
-    }
+    this.callObservers("tokenDidUpdateInput", inputView, this);
   }
 
   protected onInputChange(event: Event): void {
@@ -161,13 +155,7 @@ export class InputTokenView extends TokenView {
   }
 
   protected didChangeInput(inputView: HtmlView): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.tokenDidChangeInput !== void 0) {
-        observer.tokenDidChangeInput(inputView, this);
-      }
-    }
+    this.callObservers("tokenDidChangeInput", inputView, this);
   }
 
   protected onInputKey(event: KeyboardEvent): void {
@@ -178,13 +166,7 @@ export class InputTokenView extends TokenView {
   }
 
   protected didAcceptInput(inputView: HtmlView): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.tokenDidAcceptInput !== void 0) {
-        observer.tokenDidAcceptInput(inputView, this);
-      }
-    }
+    this.callObservers("tokenDidAcceptInput", inputView, this);
   }
 
   override init(init: InputTokenViewInit): void {

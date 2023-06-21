@@ -91,7 +91,7 @@ export interface DialViewObserver<V extends DialView = DialView> extends Graphic
 
 /** @public */
 export class DialView extends GraphicsView {
-  override readonly observerType?: Class<DialViewObserver>;
+  declare readonly observerType?: Class<DialViewObserver>;
 
   @Animator({
     valueType: Number,

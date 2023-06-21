@@ -50,7 +50,7 @@ export class GoogleMapView extends MapView {
     this.initMap(map);
   }
 
-  override readonly observerType?: Class<GoogleMapViewObserver>;
+  declare readonly observerType?: Class<GoogleMapViewObserver>;
 
   readonly map: google.maps.Map;
 

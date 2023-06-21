@@ -86,7 +86,10 @@ export interface CssScope<O = unknown, S extends CSSStyleSheet | CSSRule = CSSSt
   didUnderive(inlet: CssScope): void;
 
   /** @override */
-  getInlet(): CssScope | null;
+  deriveInlet(): CssScope | null;
+
+  /** @override */
+  bindInlet(inlet: CssScope): void;
 
   /** @override */
   readonly inlet: CssScope | null;

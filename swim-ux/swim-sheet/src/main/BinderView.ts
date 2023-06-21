@@ -61,7 +61,7 @@ export class BinderView extends SheetView {
     this.overflowY.setState("hidden", Affinity.Intrinsic);
   }
 
-  override readonly observerType?: Class<BinderViewObserver>;
+  declare readonly observerType?: Class<BinderViewObserver>;
 
   @Property({
     valueType: String,

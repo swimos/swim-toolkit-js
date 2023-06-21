@@ -37,7 +37,7 @@ export class TitleToolView extends ToolView {
     this.overflowX.setState("hidden", Affinity.Intrinsic);
   }
 
-  override readonly observerType?: Class<TitleToolViewObserver>;
+  declare readonly observerType?: Class<TitleToolViewObserver>;
 
   @ViewRef({
     viewType: HtmlView,
@@ -109,29 +109,19 @@ export class TitleToolView extends ToolView {
     bindsOwner: true,
     didPress(input: PositionGestureInput, event: Event | null): void {
       if (!input.defaultPrevented && this.owner.clientBounds.contains(input.x, input.y)) {
-        this.owner.onPress(input, event);
         this.owner.didPress(input, event);
       }
     },
     didLongPress(input: PositionGestureInput): void {
       if (!input.defaultPrevented) {
-        this.owner.onLongPress(input);
         this.owner.didLongPress(input);
       }
     },
   })
   readonly gesture!: PositionGesture<this, HtmlView>;
 
-  onPress(input: PositionGestureInput, event: Event | null): void {
-    // hook
-  }
-
   didPress(input: PositionGestureInput, event: Event | null): void {
     this.callObservers("viewDidPress", input, event, this);
-  }
-
-  onLongPress(input: PositionGestureInput): void {
-    // hook
   }
 
   didLongPress(input: PositionGestureInput): void {

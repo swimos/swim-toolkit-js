@@ -63,6 +63,7 @@ export interface HtmlViewAttributesInit {
   checked?: AnyAnimatorValue<HtmlView["checked"]>;
   colspan?: AnyAnimatorValue<HtmlView["colspan"]>;
   disabled?: AnyAnimatorValue<HtmlView["disabled"]>;
+  href?: AnyAnimatorValue<HtmlView["href"]>;
   placeholder?: AnyAnimatorValue<HtmlView["placeholder"]>;
   rowspan?: AnyAnimatorValue<HtmlView["rowspan"]>;
   selected?: AnyAnimatorValue<HtmlView["selected"]>;
@@ -219,9 +220,9 @@ export class HtmlView extends ElementView {
     }
   }
 
-  override readonly observerType?: Class<HtmlViewObserver>;
+  declare readonly observerType?: Class<HtmlViewObserver>;
 
-  override readonly node!: HTMLElement;
+  declare readonly node: HTMLElement;
 
   override setChild<V extends View>(key: string, newChild: V): View | null;
   override setChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(key: string, factory: F): View | null;
@@ -286,6 +287,9 @@ export class HtmlView extends ElementView {
 
   @AttributeAnimator({attributeName: "disabled", valueType: Boolean})
   readonly disabled!: AttributeAnimator<this, boolean | undefined, boolean | string | undefined>;
+
+  @AttributeAnimator({attributeName: "href", valueType: String})
+  readonly href!: AttributeAnimator<this, string | undefined>;
 
   @AttributeAnimator({attributeName: "placeholder", valueType: String})
   readonly placeholder!: AttributeAnimator<this, string | undefined>;
@@ -425,6 +429,9 @@ export class HtmlView extends ElementView {
     }
     if (init.disabled !== void 0) {
       this.disabled(init.disabled);
+    }
+    if (init.href !== void 0) {
+      this.href(init.href);
     }
     if (init.placeholder !== void 0) {
       this.placeholder(init.placeholder);

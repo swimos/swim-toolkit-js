@@ -46,7 +46,7 @@ export class IconColView extends ColView {
     this.addClass("col-icon");
   }
 
-  override readonly observerType?: Class<IconColViewObserver>;
+  declare readonly observerType?: Class<IconColViewObserver>;
 
   @Animator({valueType: Number, value: 0.5, updateFlags: View.NeedsLayout})
   readonly xAlign!: Animator<this, number>;

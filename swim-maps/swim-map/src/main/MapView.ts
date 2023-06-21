@@ -43,7 +43,7 @@ export interface MapViewObserver<V extends MapView = MapView> extends GeoViewObs
 
 /** @public */
 export abstract class MapView extends GeoView {
-  override readonly observerType?: Class<MapViewObserver>;
+  declare readonly observerType?: Class<MapViewObserver>;
 
   @Property({
     extends: true,

@@ -27,7 +27,7 @@ export interface IconColTraitObserver<T extends IconColTrait = IconColTrait> ext
 
 /** @public */
 export class IconColTrait extends ColTrait {
-  override readonly observerType?: Class<IconColTraitObserver>;
+  declare readonly observerType?: Class<IconColTraitObserver>;
 
   @Property({
     valueType: Graphics,

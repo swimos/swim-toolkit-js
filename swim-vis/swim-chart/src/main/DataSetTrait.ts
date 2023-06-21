@@ -28,7 +28,7 @@ export interface DataSetTraitObserver<X = unknown, Y = unknown, T extends DataSe
 
 /** @public */
 export class DataSetTrait<X = unknown, Y = unknown> extends Trait {
-  override readonly observerType?: Class<DataSetTraitObserver<X, Y>>;
+  declare readonly observerType?: Class<DataSetTraitObserver<X, Y>>;
 
   @TraitSet({
     traitType: DataPointTrait,

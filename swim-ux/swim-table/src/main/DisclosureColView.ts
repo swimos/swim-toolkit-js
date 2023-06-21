@@ -33,7 +33,7 @@ export class DisclosureColView extends ColView {
     this.addClass("col-disclosure");
   }
 
-  override readonly observerType?: Class<DisclosureColViewObserver>;
+  declare readonly observerType?: Class<DisclosureColViewObserver>;
 
   @ExpansionAnimator({value: null, inherits: true, inheritName: "expansion"})
   readonly disclosure!: ExpansionAnimator<this, Expansion | null, AnyExpansion | null>;

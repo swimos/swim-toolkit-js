@@ -99,7 +99,7 @@ export interface StackControllerObserver<C extends StackController = StackContro
 
 /** @public */
 export class StackController extends Controller {
-  override readonly observerType?: Class<StackControllerObserver>;
+  declare readonly observerType?: Class<StackControllerObserver>;
 
   @Property({valueType: Number, value: -(1 / 3)})
   readonly backAlign!: Property<this, number>;

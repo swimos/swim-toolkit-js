@@ -176,45 +176,47 @@ export const TraitModelRef = (function (_super: typeof ModelRef) {
     if (newTrait !== null) {
       newTrait = this.fromAnyTrait(newTrait);
     }
+    if (targetTrait === void 0) {
+      targetTrait = null;
+    }
     let oldTrait = this.trait;
-    if (oldTrait !== newTrait) {
-      if (targetTrait === void 0) {
-        targetTrait = null;
-      }
-      let model = this.model;
-      if (model === null && newTrait !== null) {
-        model = this.createModel(newTrait);
-        const targetModel = targetTrait !== null ? targetTrait.model : null;
-        this.setModel(model, targetModel, modelKey);
-      }
-      if (model !== null) {
-        if (oldTrait !== null && oldTrait.model === model) {
-          if (targetTrait === null) {
-            targetTrait = oldTrait.nextTrait;
-          }
-          oldTrait.remove();
+    if (oldTrait === newTrait) {
+      return oldTrait;
+    }
+    let model = this.model;
+    if (model === null && newTrait !== null) {
+      model = this.createModel(newTrait);
+      const targetModel = targetTrait !== null ? targetTrait.model : null;
+      this.setModel(model, targetModel, modelKey);
+    }
+    if (model !== null) {
+      if (oldTrait !== null && oldTrait.model === model) {
+        if (targetTrait === null) {
+          targetTrait = oldTrait.nextTrait;
         }
-        if (newTrait !== null) {
-          this.insertModelTrait(model, newTrait, targetTrait, this.traitKey);
-        }
-        oldTrait = this.trait;
+        oldTrait.remove();
       }
-      if (oldTrait !== newTrait) {
-        if (oldTrait !== null) {
-          (this as Mutable<typeof this>).trait = null;
-          this.willDetachTrait(oldTrait);
-          this.onDetachTrait(oldTrait);
-          this.deinitTrait(oldTrait);
-          this.didDetachTrait(oldTrait);
-        }
-        if (newTrait !== null) {
-          (this as Mutable<typeof this>).trait = newTrait;
-          this.willAttachTrait(newTrait, targetTrait);
-          this.onAttachTrait(newTrait, targetTrait);
-          this.initTrait(newTrait);
-          this.didAttachTrait(newTrait, targetTrait);
-        }
+      if (newTrait !== null) {
+        this.insertModelTrait(model, newTrait, targetTrait, this.traitKey);
       }
+      oldTrait = this.trait;
+      if (oldTrait === newTrait) {
+        return oldTrait;
+      }
+    }
+    if (oldTrait !== null) {
+      (this as Mutable<typeof this>).trait = null;
+      this.willDetachTrait(oldTrait);
+      this.onDetachTrait(oldTrait);
+      this.deinitTrait(oldTrait);
+      this.didDetachTrait(oldTrait);
+    }
+    if (newTrait !== null) {
+      (this as Mutable<typeof this>).trait = newTrait;
+      this.willAttachTrait(newTrait, targetTrait);
+      this.onAttachTrait(newTrait, targetTrait);
+      this.initTrait(newTrait);
+      this.didAttachTrait(newTrait, targetTrait);
     }
     return oldTrait;
   };

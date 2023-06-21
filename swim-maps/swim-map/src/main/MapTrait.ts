@@ -33,7 +33,7 @@ export interface MapTraitObserver<T extends MapTrait = MapTrait> extends TraitOb
 
 /** @public */
 export class MapTrait extends Trait {
-  override readonly observerType?: Class<MapTraitObserver>;
+  declare readonly observerType?: Class<MapTraitObserver>;
 
   @Property({
     valueType: GeoPerspective,

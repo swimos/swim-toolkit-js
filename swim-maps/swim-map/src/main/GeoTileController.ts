@@ -56,7 +56,7 @@ export class GeoTileController extends GeoLayerController {
     this.geoTile = geoTile;
   }
 
-  override readonly observerType?: Class<GeoTileControllerObserver>;
+  declare readonly observerType?: Class<GeoTileControllerObserver>;
 
   readonly geoTile: GeoTile;
 

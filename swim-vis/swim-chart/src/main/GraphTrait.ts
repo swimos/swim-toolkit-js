@@ -28,7 +28,7 @@ export interface GraphTraitObserver<X = unknown, Y = unknown, T extends GraphTra
 
 /** @public */
 export class GraphTrait<X = unknown, Y = unknown> extends Trait {
-  override readonly observerType?: Class<GraphTraitObserver<X, Y>>;
+  declare readonly observerType?: Class<GraphTraitObserver<X, Y>>;
 
   @TraitSet({
     traitType: PlotTrait,

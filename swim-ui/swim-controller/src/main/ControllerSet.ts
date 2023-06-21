@@ -109,7 +109,10 @@ export interface ControllerSet<O = unknown, C extends Controller = Controller> e
   didUnderive(inlet: ControllerSet<unknown, C>): void;
 
   /** @override */
-  getInlet(): ControllerSet<unknown, C> | null;
+  deriveInlet(): ControllerSet<unknown, C> | null;
+
+  /** @override */
+  bindInlet(inlet: ControllerSet<unknown, C>): void;
 
   /** @override */
   readonly inlet: ControllerSet<unknown, C> | null;

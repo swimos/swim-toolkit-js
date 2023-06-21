@@ -77,7 +77,7 @@ export class GeoIconView extends GeoView implements IconView {
     });
   }
 
-  override readonly observerType?: Class<GeoIconViewObserver>;
+  declare readonly observerType?: Class<GeoIconViewObserver>;
 
   /** @internal */
   sprite: Sprite | null;

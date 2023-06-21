@@ -33,7 +33,7 @@ export interface GeoLineTraitObserver<T extends GeoLineTrait = GeoLineTrait> ext
 
 /** @public */
 export abstract class GeoLineTrait extends GeoPathTrait {
-  override readonly observerType?: Class<GeoLineTraitObserver>;
+  declare readonly observerType?: Class<GeoLineTraitObserver>;
 
   @Property({
     valueType: ColorLook,

@@ -38,7 +38,7 @@ export class BoardView extends SheetView {
     this.addClass("board");
   }
 
-  override readonly observerType?: Class<BoardViewObserver>;
+  declare readonly observerType?: Class<BoardViewObserver>;
 
   @ViewSet({
     viewType: PanelView,

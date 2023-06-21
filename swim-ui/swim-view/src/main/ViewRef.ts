@@ -106,7 +106,10 @@ export interface ViewRef<O = unknown, V extends View = View> extends ViewRelatio
   didUnderive(inlet: ViewRef<unknown, V>): void;
 
   /** @override */
-  getInlet(): ViewRef<unknown, V> | null;
+  deriveInlet(): ViewRef<unknown, V> | null;
+
+  /** @override */
+  bindInlet(inlet: ViewRef<unknown, V>): void;
 
   /** @override */
   readonly inlet: ViewRef<unknown, V> | null;
@@ -293,50 +296,53 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
   };
 
   ViewRef.prototype.setView = function <V extends View>(this: ViewRef<unknown, V>, newView: AnyView<V> | null, target?: View | null, key?: string): V | null {
-    let oldView = this.view;
     if (newView !== null) {
       newView = this.fromAny(newView);
     }
-    if (oldView !== newView) {
-      if (target === void 0) {
-        target = null;
+    if (target === void 0) {
+      target = null;
+    }
+    let oldView = this.view;
+    if (oldView === newView) {
+      this.setCoherent(true);
+      return oldView;
+    }
+    let parent: View | null;
+    if (this.binds && (parent = this.parentView, parent !== null)) {
+      if (oldView !== null && oldView.parent === parent) {
+        if (target === null) {
+          target = oldView.nextSibling;
+        }
+        oldView.remove();
       }
-      let parent: View | null;
-      if (this.binds && (parent = this.parentView, parent !== null)) {
-        if (oldView !== null && oldView.parent === parent) {
-          if (target === null) {
-            target = oldView.nextSibling;
-          }
-          oldView.remove();
+      if (newView !== null) {
+        if (key === void 0) {
+          key = this.viewKey;
         }
-        if (newView !== null) {
-          if (key === void 0) {
-            key = this.viewKey;
-          }
-          this.insertChild(parent, newView, target, key);
-        }
-        oldView = this.view;
+        this.insertChild(parent, newView, target, key);
       }
-      if (oldView !== newView) {
-        if (oldView !== null) {
-          this.deactivateLayout();
-          (this as Mutable<typeof this>).view = null;
-          this.willDetachView(oldView);
-          this.onDetachView(oldView);
-          this.deinitView(oldView);
-          this.didDetachView(oldView);
-        }
-        if (newView !== null) {
-          (this as Mutable<typeof this>).view = newView;
-          this.willAttachView(newView, target);
-          this.onAttachView(newView, target);
-          this.initView(newView);
-          this.didAttachView(newView, target);
-        }
-        this.setCoherent(true);
-        this.decohereOutlets();
+      oldView = this.view;
+      if (oldView === newView) {
+        return oldView;
       }
     }
+    if (oldView !== null) {
+      this.deactivateLayout();
+      (this as Mutable<typeof this>).view = null;
+      this.willDetachView(oldView);
+      this.onDetachView(oldView);
+      this.deinitView(oldView);
+      this.didDetachView(oldView);
+    }
+    if (newView !== null) {
+      (this as Mutable<typeof this>).view = newView;
+      this.willAttachView(newView, target);
+      this.onAttachView(newView, target);
+      this.initView(newView);
+      this.didAttachView(newView, target);
+    }
+    this.setCoherent(true);
+    this.decohereOutlets();
     return oldView;
   };
 
@@ -454,34 +460,38 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
   };
 
   ViewRef.prototype.bindView = function <V extends View>(this: ViewRef<unknown, V>, view: View, target: View | null): void {
-    if (this.binds && this.view === null) {
-      const newView = this.detectView(view);
-      if (newView !== null) {
-        (this as Mutable<typeof this>).view = newView;
-        this.willAttachView(newView, target);
-        this.onAttachView(newView, target);
-        this.initView(newView);
-        this.didAttachView(newView, target);
-        this.setCoherent(true);
-        this.decohereOutlets();
-      }
+    if (!this.binds || this.view !== null) {
+      return;
     }
+    const newView = this.detectView(view);
+    if (newView === null) {
+      return;
+    }
+    (this as Mutable<typeof this>).view = newView;
+    this.willAttachView(newView, target);
+    this.onAttachView(newView, target);
+    this.initView(newView);
+    this.didAttachView(newView, target);
+    this.setCoherent(true);
+    this.decohereOutlets();
   };
 
   ViewRef.prototype.unbindView = function <V extends View>(this: ViewRef<unknown, V>, view: View): void {
-    if (this.binds) {
-      const oldView = this.detectView(view);
-      if (oldView !== null && this.view === oldView) {
-        this.deactivateLayout();
-        (this as Mutable<typeof this>).view = null;
-        this.willDetachView(oldView);
-        this.onDetachView(oldView);
-        this.deinitView(oldView);
-        this.didDetachView(oldView);
-        this.setCoherent(true);
-        this.decohereOutlets();
-      }
+    if (!this.binds) {
+      return;
     }
+    const oldView = this.detectView(view);
+    if (oldView === null || this.view !== oldView) {
+      return;
+    }
+    this.deactivateLayout();
+    (this as Mutable<typeof this>).view = null;
+    this.willDetachView(oldView);
+    this.onDetachView(oldView);
+    this.deinitView(oldView);
+    this.didDetachView(oldView);
+    this.setCoherent(true);
+    this.decohereOutlets();
   };
 
   ViewRef.prototype.detectView = function <V extends View>(this: ViewRef<unknown, V>, view: View): V | null {
@@ -509,12 +519,14 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
   };
 
   ViewRef.prototype.recohere = function (this: ViewRef, t: number): void {
-    if ((this.flags & Fastener.DerivedFlag) !== 0) {
-      const inlet = this.inlet;
-      if (inlet !== null) {
-        this.setView(inlet.view);
-      }
+    if ((this.flags & Fastener.DerivedFlag) === 0) {
+      return;
     }
+    const inlet = this.inlet;
+    if (inlet === null) {
+      return;
+    }
+    this.setView(inlet.view);
   };
 
   ViewRef.prototype.constraint = function (this: ViewRef<ConstraintScope & ConstraintContext, View>, lhs: AnyConstraintExpression, relation: ConstraintRelation, rhs?: AnyConstraintExpression, strength?: AnyConstraintStrength): Constraint {

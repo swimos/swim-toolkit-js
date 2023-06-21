@@ -51,7 +51,7 @@ export interface GeoAreaViewObserver<V extends GeoAreaView = GeoAreaView> extend
 
 /** @public */
 export class GeoAreaView extends GeoPathView implements FillView, StrokeView {
-  override readonly observerType?: Class<GeoAreaViewObserver>;
+  declare readonly observerType?: Class<GeoAreaViewObserver>;
 
   @ThemeAnimator({
     valueType: Color,

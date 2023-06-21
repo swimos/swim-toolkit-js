@@ -96,7 +96,7 @@ export interface FolioControllerObserver<C extends FolioController = FolioContro
 
 /** @public */
 export class FolioController extends StackController {
-  override readonly observerType?: Class<FolioControllerObserver>;
+  declare readonly observerType?: Class<FolioControllerObserver>;
 
   @Property({
     valueType: String,
@@ -551,6 +551,9 @@ export class FolioController extends StackController {
       const coverView = coverController !== null ? coverController.sheet.view : null;
       if (coverView !== null) {
         if (this.owner.folioStyle.value === "stacked") {
+          if (this.owner.sheets.controllers[coverController!.uid] !== void 0) {
+            this.owner.sheets.detachController(coverController!);
+          }
           this.owner.sheets.attachController(coverController!);
           coverView.present(timing);
         } else {

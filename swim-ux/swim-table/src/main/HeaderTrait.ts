@@ -30,7 +30,7 @@ export interface HeaderTraitObserver<T extends HeaderTrait = HeaderTrait> extend
 
 /** @public */
 export class HeaderTrait extends Trait {
-  override readonly observerType?: Class<HeaderTraitObserver>;
+  declare readonly observerType?: Class<HeaderTraitObserver>;
 
   getCol<F extends Class<ColTrait>>(key: string, colTraitClass: F): InstanceType<F> | null;
   getCol(key: string): ColTrait | null;

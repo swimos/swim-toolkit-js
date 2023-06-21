@@ -52,7 +52,7 @@ export interface SliceControllerObserver<C extends SliceController = SliceContro
 
 /** @public */
 export class SliceController extends Controller {
-  override readonly observerType?: Class<SliceControllerObserver>;
+  declare readonly observerType?: Class<SliceControllerObserver>;
 
   protected updateLabel(value: number, sliceTrait: SliceTrait): void {
     if (sliceTrait.label.hasAffinity(Affinity.Intrinsic)) {

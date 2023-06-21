@@ -32,7 +32,7 @@ export interface SeriesPlotControllerObserver<X = unknown, Y = unknown, C extend
 
 /** @public */
 export abstract class SeriesPlotController<X = unknown, Y = unknown> extends PlotController<X, Y> {
-  override readonly observerType?: Class<SeriesPlotControllerObserver<X, Y>>;
+  declare readonly observerType?: Class<SeriesPlotControllerObserver<X, Y>>;
 
   abstract override readonly plot: TraitViewRef<this, SeriesPlotTrait<X, Y>, SeriesPlotView<X, Y>>;
 }

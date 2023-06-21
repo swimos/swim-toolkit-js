@@ -51,7 +51,7 @@ export class LeafletView extends MapView {
     this.initMap(map);
   }
 
-  override readonly observerType?: Class<LeafletViewObserver>;
+  declare readonly observerType?: Class<LeafletViewObserver>;
 
   readonly map: L.Map;
 

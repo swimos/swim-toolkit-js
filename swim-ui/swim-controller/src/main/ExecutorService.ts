@@ -46,7 +46,7 @@ export class ExecutorService extends Service {
     this.runExecutePass = this.runExecutePass.bind(this);
   }
 
-  override readonly observerType?: Class<ExecutorServiceObserver>;
+  declare readonly observerType?: Class<ExecutorServiceObserver>;
 
   @ControllerSet({
     initController(rootController: Controller): void {

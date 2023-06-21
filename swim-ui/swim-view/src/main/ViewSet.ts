@@ -108,7 +108,10 @@ export interface ViewSet<O = unknown, V extends View = View> extends ViewRelatio
   didUnderive(inlet: ViewSet<unknown, V>): void;
 
   /** @override */
-  getInlet(): ViewSet<unknown, V> | null;
+  deriveInlet(): ViewSet<unknown, V> | null;
+
+  /** @override */
+  bindInlet(inlet: ViewSet<unknown, V>): void;
 
   /** @override */
   readonly inlet: ViewSet<unknown, V> | null;

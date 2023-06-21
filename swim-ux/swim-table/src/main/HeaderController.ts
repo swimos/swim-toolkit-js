@@ -76,7 +76,7 @@ export interface HeaderControllerObserver<C extends HeaderController = HeaderCon
 
 /** @public */
 export class HeaderController extends Controller {
-  override readonly observerType?: Class<HeaderControllerObserver>;
+  declare readonly observerType?: Class<HeaderControllerObserver>;
 
   @TraitViewRef({
     traitType: HeaderTrait,

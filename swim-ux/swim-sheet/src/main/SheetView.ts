@@ -60,7 +60,7 @@ export class SheetView extends HtmlView {
     this.backgroundColor.setLook(Look.backgroundColor, Affinity.Intrinsic);
   }
 
-  override readonly observerType?: Class<SheetViewObserver>;
+  declare readonly observerType?: Class<SheetViewObserver>;
 
   @Property({
     valueType: Boolean,

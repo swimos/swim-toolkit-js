@@ -27,7 +27,7 @@ export interface GeoTraitObserver<T extends GeoTrait = GeoTrait> extends TraitOb
 
 /** @public */
 export abstract class GeoTrait extends Trait {
-  override readonly observerType?: Class<GeoTraitObserver>;
+  declare readonly observerType?: Class<GeoTraitObserver>;
 
   abstract readonly geoBounds: GeoBox;
 

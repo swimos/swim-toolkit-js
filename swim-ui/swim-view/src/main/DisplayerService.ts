@@ -55,7 +55,7 @@ export class DisplayerService extends Service {
     this.runDisplayPass = this.runDisplayPass.bind(this);
   }
 
-  override readonly observerType?: Class<DisplayerServiceObserver>;
+  declare readonly observerType?: Class<DisplayerServiceObserver>;
 
   @ViewSet({
     initView(rootView: View): void {

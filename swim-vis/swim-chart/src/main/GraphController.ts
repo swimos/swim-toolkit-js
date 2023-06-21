@@ -75,7 +75,7 @@ export interface GraphControllerObserver<X = unknown, Y = unknown, C extends Gra
 
 /** @public */
 export class GraphController<X = unknown, Y = unknown> extends Controller {
-  override readonly observerType?: Class<GraphControllerObserver<X, Y>>;
+  declare readonly observerType?: Class<GraphControllerObserver<X, Y>>;
 
   @TraitViewRef({
     traitType: GraphTrait,

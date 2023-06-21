@@ -38,18 +38,10 @@ export class ColView extends HtmlView {
     this.overflowY.setState("hidden", Affinity.Intrinsic);
   }
 
-  override readonly observerType?: Class<ColViewObserver>;
-
-  onPress(input: PositionGestureInput, event: Event | null): void {
-    // hook
-  }
+  declare readonly observerType?: Class<ColViewObserver>;
 
   didPress(input: PositionGestureInput, event: Event | null): void {
     this.callObservers("viewDidPress", input, event, this);
-  }
-
-  onLongPress(input: PositionGestureInput): void {
-    // hook
   }
 
   didLongPress(input: PositionGestureInput): void {

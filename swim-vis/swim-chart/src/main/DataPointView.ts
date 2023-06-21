@@ -98,7 +98,7 @@ export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
     this.gradientStop = false;
   }
 
-  override readonly observerType?: Class<DataPointViewObserver<X, Y>>;
+  declare readonly observerType?: Class<DataPointViewObserver<X, Y>>;
 
   readonly xCoord: number;
 

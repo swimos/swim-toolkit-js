@@ -46,7 +46,7 @@ export class RefresherService extends Service {
     this.runRefreshPass = this.runRefreshPass.bind(this);
   }
 
-  override readonly observerType?: Class<RefresherServiceObserver>;
+  declare readonly observerType?: Class<RefresherServiceObserver>;
 
   @ModelSet({
     initModel(rootModel: Model): void {

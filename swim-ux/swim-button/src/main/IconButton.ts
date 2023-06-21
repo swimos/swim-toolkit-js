@@ -60,7 +60,7 @@ export class IconButton extends ButtonMembrane implements IconView {
     this.initTheme();
   }
 
-  override readonly observerType?: Class<HtmlViewObserver & ButtonObserver>;
+  declare readonly observerType?: Class<HtmlViewObserver & ButtonObserver>;
 
   protected initButton(): void {
     this.addClass("icon-button");

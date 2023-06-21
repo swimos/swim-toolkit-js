@@ -51,7 +51,7 @@ export interface ModalServiceObserver<S extends ModalService = ModalService> ext
 /** @public */
 export class ModalService extends Service {
   /** @override */
-  override readonly observerType?: Class<ModalServiceObserver>;
+  declare readonly observerType?: Class<ModalServiceObserver>;
 
   @ViewRef({
     viewType: ElementView,

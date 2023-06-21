@@ -50,7 +50,7 @@ export interface LinePlotControllerObserver<X = unknown, Y = unknown, C extends 
 
 /** @public */
 export class LinePlotController<X = unknown, Y = unknown> extends SeriesPlotController<X, Y> {
-  override readonly observerType?: Class<LinePlotControllerObserver<X, Y>>;
+  declare readonly observerType?: Class<LinePlotControllerObserver<X, Y>>;
 
   @TraitViewControllerSet({
     extends: true,

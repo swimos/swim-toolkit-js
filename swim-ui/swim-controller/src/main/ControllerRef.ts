@@ -95,7 +95,10 @@ export interface ControllerRef<O = unknown, C extends Controller = Controller> e
   didUnderive(inlet: ControllerRef<unknown, C>): void;
 
   /** @override */
-  getInlet(): ControllerRef<unknown, C> | null;
+  deriveInlet(): ControllerRef<unknown, C> | null;
+
+  /** @override */
+  bindInlet(inlet: ControllerRef<unknown, C>): void;
 
   /** @override */
   readonly inlet: ControllerRef<unknown, C> | null;
@@ -232,49 +235,52 @@ export const ControllerRef = (function (_super: typeof ControllerRelation) {
   };
 
   ControllerRef.prototype.setController = function <C extends Controller>(this: ControllerRef<unknown, C>, newController: C  | null, target?: Controller | null, key?: string): C | null {
-    let oldController = this.controller;
     if (newController !== null) {
       newController = this.fromAny(newController);
     }
-    if (oldController !== newController) {
-      if (target === void 0) {
-        target = null;
+    if (target === void 0) {
+      target = null;
+    }
+    let oldController = this.controller;
+    if (oldController === newController) {
+      this.setCoherent(true);
+      return oldController;
+    }
+    let parent: Controller | null;
+    if (this.binds && (parent = this.parentController, parent !== null)) {
+      if (oldController !== null && oldController.parent === parent) {
+        if (target === null) {
+          target = oldController.nextSibling;
+        }
+        oldController.remove();
       }
-      let parent: Controller | null;
-      if (this.binds && (parent = this.parentController, parent !== null)) {
-        if (oldController !== null && oldController.parent === parent) {
-          if (target === null) {
-            target = oldController.nextSibling;
-          }
-          oldController.remove();
+      if (newController !== null) {
+        if (key === void 0) {
+          key = this.controllerKey;
         }
-        if (newController !== null) {
-          if (key === void 0) {
-            key = this.controllerKey;
-          }
-          this.insertChild(parent, newController, target, key);
-        }
-        oldController = this.controller;
+        this.insertChild(parent, newController, target, key);
       }
-      if (oldController !== newController) {
-        if (oldController !== null) {
-          (this as Mutable<typeof this>).controller = null;
-          this.willDetachController(oldController);
-          this.onDetachController(oldController);
-          this.deinitController(oldController);
-          this.didDetachController(oldController);
-        }
-        if (newController !== null) {
-          (this as Mutable<typeof this>).controller = newController;
-          this.willAttachController(newController, target);
-          this.onAttachController(newController, target);
-          this.initController(newController);
-          this.didAttachController(newController, target);
-        }
-        this.setCoherent(true);
-        this.decohereOutlets();
+      oldController = this.controller;
+      if (oldController === newController) {
+        return oldController;
       }
     }
+    if (oldController !== null) {
+      (this as Mutable<typeof this>).controller = null;
+      this.willDetachController(oldController);
+      this.onDetachController(oldController);
+      this.deinitController(oldController);
+      this.didDetachController(oldController);
+    }
+    if (newController !== null) {
+      (this as Mutable<typeof this>).controller = newController;
+      this.willAttachController(newController, target);
+      this.onAttachController(newController, target);
+      this.initController(newController);
+      this.didAttachController(newController, target);
+    }
+    this.setCoherent(true);
+    this.decohereOutlets();
     return oldController;
   };
 
@@ -389,33 +395,37 @@ export const ControllerRef = (function (_super: typeof ControllerRelation) {
   };
 
   ControllerRef.prototype.bindController = function <C extends Controller>(this: ControllerRef<unknown, C>, controller: Controller, target: Controller | null): void {
-    if (this.binds && this.controller === null) {
-      const newController = this.detectController(controller);
-      if (newController !== null) {
-        (this as Mutable<typeof this>).controller = newController;
-        this.willAttachController(newController, target);
-        this.onAttachController(newController, target);
-        this.initController(newController);
-        this.didAttachController(newController, target);
-        this.setCoherent(true);
-        this.decohereOutlets();
-      }
+    if (!this.binds || this.controller !== null) {
+      return;
     }
+    const newController = this.detectController(controller);
+    if (newController === null) {
+      return;
+    }
+    (this as Mutable<typeof this>).controller = newController;
+    this.willAttachController(newController, target);
+    this.onAttachController(newController, target);
+    this.initController(newController);
+    this.didAttachController(newController, target);
+    this.setCoherent(true);
+    this.decohereOutlets();
   };
 
   ControllerRef.prototype.unbindController = function <C extends Controller>(this: ControllerRef<unknown, C>, controller: Controller): void {
-    if (this.binds) {
-      const oldController = this.detectController(controller);
-      if (oldController !== null && this.controller === oldController) {
-        (this as Mutable<typeof this>).controller = null;
-        this.willDetachController(oldController);
-        this.onDetachController(oldController);
-        this.deinitController(oldController);
-        this.didDetachController(oldController);
-        this.setCoherent(true);
-        this.decohereOutlets();
-      }
+    if (!this.binds) {
+      return;
     }
+    const oldController = this.detectController(controller);
+    if (oldController === null || this.controller !== oldController) {
+      return;
+    }
+    (this as Mutable<typeof this>).controller = null;
+    this.willDetachController(oldController);
+    this.onDetachController(oldController);
+    this.deinitController(oldController);
+    this.didDetachController(oldController);
+    this.setCoherent(true);
+    this.decohereOutlets();
   };
 
   ControllerRef.prototype.detectController = function <C extends Controller>(this: ControllerRef<unknown, C>, controller: Controller): C | null {
@@ -457,12 +467,14 @@ export const ControllerRef = (function (_super: typeof ControllerRelation) {
   };
 
   ControllerRef.prototype.recohere = function (this: ControllerRef, t: number): void {
-    if ((this.flags & Fastener.DerivedFlag) !== 0) {
-      const inlet = this.inlet;
-      if (inlet !== null) {
-        this.setController(inlet.controller);
-      }
+    if ((this.flags & Fastener.DerivedFlag) === 0) {
+      return;
     }
+    const inlet = this.inlet;
+    if (inlet === null) {
+      return;
+    }
+    this.setController(inlet.controller);
   };
 
   ControllerRef.construct = function <F extends ControllerRef<any, any>>(fastener: F | null, owner: FastenerOwner<F>): F {

@@ -33,7 +33,7 @@ export class DisclosureCellView extends CellView {
     this.addClass("cell-disclosure");
   }
 
-  override readonly observerType?: Class<DisclosureCellViewObserver>;
+  declare readonly observerType?: Class<DisclosureCellViewObserver>;
 
   @ExpansionAnimator({value: null, inherits: true})
   readonly disclosure!: ExpansionAnimator<this, Expansion | null, AnyExpansion | null>;

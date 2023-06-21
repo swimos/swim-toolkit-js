@@ -54,7 +54,7 @@ export interface GeoLayerControllerObserver<C extends GeoLayerController = GeoLa
 
 /** @public */
 export class GeoLayerController extends GeoController {
-  override readonly observerType?: Class<GeoLayerControllerObserver>;
+  declare readonly observerType?: Class<GeoLayerControllerObserver>;
 
   @TraitViewRef({
     traitType: GeoLayerTrait,

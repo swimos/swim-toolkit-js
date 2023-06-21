@@ -47,7 +47,7 @@ export class DataPointTrait<X = unknown, Y = unknown> extends Trait {
     this.y.setValue(y);
   }
 
-  override readonly observerType?: Class<DataPointTraitObserver<X, Y>>;
+  declare readonly observerType?: Class<DataPointTraitObserver<X, Y>>;
 
   @Property({
     didSetValue(x: X): void {

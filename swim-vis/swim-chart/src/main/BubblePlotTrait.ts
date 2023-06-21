@@ -33,7 +33,7 @@ export interface BubblePlotTraitObserver<X = unknown, Y = unknown, T extends Bub
 
 /** @public */
 export class BubblePlotTrait<X = unknown, Y = unknown> extends ScatterPlotTrait<X, Y> {
-  override readonly observerType?: Class<BubblePlotTraitObserver<X, Y>>;
+  declare readonly observerType?: Class<BubblePlotTraitObserver<X, Y>>;
 
   @Property({
     valueType: Length,

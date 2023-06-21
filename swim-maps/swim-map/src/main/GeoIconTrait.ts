@@ -36,7 +36,7 @@ export interface GeoIconTraitObserver<T extends GeoIconTrait = GeoIconTrait> ext
 
 /** @public */
 export class GeoIconTrait extends GeoTrait {
-  override readonly observerType?: Class<GeoIconTraitObserver>;
+  declare readonly observerType?: Class<GeoIconTraitObserver>;
 
   override get geoBounds(): GeoBox {
     const geoCenter = this.geoCenter.value;

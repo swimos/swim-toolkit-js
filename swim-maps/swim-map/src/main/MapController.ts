@@ -75,7 +75,7 @@ export interface MapControllerObserver<C extends MapController = MapController> 
 
 /** @public */
 export class MapController extends Controller {
-  override readonly observerType?: Class<MapControllerObserver>;
+  declare readonly observerType?: Class<MapControllerObserver>;
 
   protected createMapView(containerView: HtmlView): MapView | null {
     return null;

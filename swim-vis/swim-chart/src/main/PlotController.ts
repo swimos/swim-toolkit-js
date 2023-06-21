@@ -35,7 +35,7 @@ export interface PlotControllerObserver<X = unknown, Y = unknown, C extends Plot
 
 /** @public */
 export abstract class PlotController<X = unknown, Y = unknown> extends DataSetController<X, Y> {
-  override readonly observerType?: Class<PlotControllerObserver<X, Y>>;
+  declare readonly observerType?: Class<PlotControllerObserver<X, Y>>;
 
   @Property({valueType: Timing, inherits: true})
   readonly plotTiming!: Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined>;

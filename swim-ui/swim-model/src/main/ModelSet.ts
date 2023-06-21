@@ -109,7 +109,10 @@ export interface ModelSet<O = unknown, M extends Model = Model> extends ModelRel
   didUnderive(inlet: ModelSet<unknown, M>): void;
 
   /** @override */
-  getInlet(): ModelSet<unknown, M> | null;
+  deriveInlet(): ModelSet<unknown, M> | null;
+
+  /** @override */
+  bindInlet(inlet: ModelSet<unknown, M>): void;
 
   /** @override */
   readonly inlet: ModelSet<unknown, M> | null;

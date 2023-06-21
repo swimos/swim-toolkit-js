@@ -47,7 +47,7 @@ export interface AppBarControllerObserver<C extends AppBarController = AppBarCon
 
 /** @public */
 export class AppBarController extends BarController {
-  override readonly observerType?: Class<AppBarControllerObserver>;
+  declare readonly observerType?: Class<AppBarControllerObserver>;
 
   protected override createLayout(): BarLayout | null {
     const tools = new Array<ToolLayout>();

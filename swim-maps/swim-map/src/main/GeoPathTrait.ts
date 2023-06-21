@@ -27,7 +27,7 @@ export interface GeoPathTraitObserver<T extends GeoPathTrait = GeoPathTrait> ext
 
 /** @public */
 export abstract class GeoPathTrait extends GeoTrait {
-  override readonly observerType?: Class<GeoPathTraitObserver>;
+  declare readonly observerType?: Class<GeoPathTraitObserver>;
 
   override get geoBounds(): GeoBox {
     const geoPath = this.geoPath.value;

@@ -89,7 +89,7 @@ export interface BinderControllerObserver<C extends BinderController = BinderCon
 
 /** @public */
 export class BinderController extends SheetController {
-  override readonly observerType?: Class<BinderControllerObserver>;
+  declare readonly observerType?: Class<BinderControllerObserver>;
 
   @Property({
     valueType: String,

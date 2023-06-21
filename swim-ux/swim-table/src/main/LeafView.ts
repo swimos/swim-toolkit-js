@@ -37,6 +37,8 @@ import {PositionGesture} from "@swim/view";
 import type {ViewNode} from "@swim/dom";
 import type {HtmlViewObserver} from "@swim/dom";
 import {HtmlView} from "@swim/dom";
+import type {AnyHyperlink} from "@swim/controller";
+import {Hyperlink} from "@swim/controller";
 import {ButtonGlow} from "@swim/button";
 import type {AnyTableLayout} from "./TableLayout";
 import {TableLayout} from "./TableLayout";
@@ -81,7 +83,7 @@ export class LeafView extends HtmlView {
     this.modifyMood(Feel.default, [[Feel.transparent, 1], [Feel.hovering, 0]], false);
   }
 
-  override readonly observerType?: Class<LeafViewObserver>;
+  declare readonly observerType?: Class<LeafViewObserver>;
 
   @Property({valueType: TableLayout, value: null, inherits: true, updateFlags: View.NeedsLayout})
   readonly layout!: Property<this, TableLayout | null, AnyTableLayout | null>;
@@ -257,6 +259,23 @@ export class LeafView extends HtmlView {
     }
   }
 
+  @Property({
+    valueType: Hyperlink,
+    value: null,
+    didSetValue(hyperlink: Hyperlink | null): void {
+      if (hyperlink !== null) {
+        this.owner.href.setState(hyperlink.href, Affinity.Intrinsic);
+        this.owner.title.setState(hyperlink.title, Affinity.Intrinsic);
+        this.owner.cursor.setState("pointer", Affinity.Intrinsic);
+      } else {
+        this.owner.href.setState(void 0, Affinity.Intrinsic);
+        this.owner.title.setState(void 0, Affinity.Intrinsic);
+        this.owner.cursor.setState(void 0, Affinity.Intrinsic);
+      }
+    },
+  })
+  readonly hyperlink!: Property<this, Hyperlink | null, AnyHyperlink | null>;
+
   @PositionGesture({
     bindsOwner: true,
     didBeginPress(input: PositionGestureInput, event: Event | null): void {
@@ -309,41 +328,55 @@ export class LeafView extends HtmlView {
       this.owner.callObservers("viewDidLeave", this.owner);
     },
     didPress(input: PositionGestureInput, event: Event | null): void {
-      if (this.owner.clientBounds.contains(input.x, input.y)) {
-        if (!input.defaultPrevented) {
-          let target = input.target;
-          while (target !== null && target !== this.owner.node) {
-            const targetView = (target as ViewNode).view;
-            if (targetView instanceof CellView) {
-              targetView.onPress(input, event);
-              targetView.didPress(input, event);
-              break;
-            }
-            target = target instanceof Node ? target.parentNode : null;
-          }
-        }
-        if (!input.defaultPrevented) {
-          this.owner.callObservers("viewDidPress", input, event, this.owner);
-        }
+      if (input.defaultPrevented || !this.owner.clientBounds.contains(input.x, input.y)) {
+        return;
       }
+      let target = input.target;
+      while (target !== null && target !== this.owner.node) {
+        const targetView = (target as ViewNode).view;
+        if (targetView instanceof CellView) {
+          targetView.didPress(input, event);
+          break;
+        }
+        target = target instanceof Node ? target.parentNode : null;
+      }
+      this.owner.didPress(input, event);
     },
     didLongPress(input: PositionGestureInput): void {
-      if (!input.defaultPrevented) {
-        let target = input.target;
-        while (target !== null && target !== this.owner.node) {
-          const targetView = (target as ViewNode).view;
-          if (targetView instanceof CellView) {
-            targetView.onLongPress(input);
-            targetView.didLongPress(input);
-            break;
-          }
-          target = target instanceof Node ? target.parentNode : null;
+      if (input.defaultPrevented) {
+        return;
+      }
+      let target = input.target;
+      while (target !== null && target !== this.owner.node) {
+        const targetView = (target as ViewNode).view;
+        if (targetView instanceof CellView) {
+          targetView.didLongPress(input);
+          break;
         }
+        target = target instanceof Node ? target.parentNode : null;
       }
-      if (!input.defaultPrevented) {
-        this.owner.callObservers("viewDidLongPress", input, this.owner);
-      }
+      this.owner.didLongPress(input);
     },
   })
   readonly gesture!: PositionGesture<this, LeafView>;
+
+  didPress(input: PositionGestureInput, event: Event | null): void {
+    if (input.defaultPrevented) {
+      return;
+    }
+    this.callObservers("viewDidPress", input, event, this);
+    const hyperlink = this.hyperlink.value;
+    if (hyperlink === null || input.defaultPrevented) {
+      return;
+    }
+    input.preventDefault();
+    hyperlink.activate(event);
+  }
+
+  didLongPress(input: PositionGestureInput): void {
+    if (input.defaultPrevented) {
+      return;
+    }
+    this.callObservers("viewDidLongPress", input, this);
+  }
 }

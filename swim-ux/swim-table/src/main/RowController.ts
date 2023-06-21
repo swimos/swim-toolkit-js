@@ -58,7 +58,7 @@ export interface RowControllerObserver<C extends RowController = RowController> 
 
 /** @public */
 export class RowController extends LeafController {
-  override readonly observerType?: Class<RowControllerObserver>;
+  declare readonly observerType?: Class<RowControllerObserver>;
 
   @TraitViewRef({
     traitType: RowTrait,

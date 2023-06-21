@@ -26,7 +26,7 @@ export interface TextCellTraitObserver<T extends TextCellTrait = TextCellTrait> 
 
 /** @public */
 export class TextCellTrait extends CellTrait {
-  override readonly observerType?: Class<TextCellTraitObserver>;
+  declare readonly observerType?: Class<TextCellTraitObserver>;
 
   @Property({
     valueType: String,

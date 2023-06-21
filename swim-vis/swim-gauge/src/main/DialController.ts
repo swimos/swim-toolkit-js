@@ -54,7 +54,7 @@ export interface DialControllerObserver<C extends DialController = DialControlle
 
 /** @public */
 export class DialController extends Controller {
-  override readonly observerType?: Class<DialControllerObserver>;
+  declare readonly observerType?: Class<DialControllerObserver>;
 
   protected updateLabel(value: number, limit: number, dialTrait: DialTrait): void {
     if (dialTrait.label.hasAffinity(Affinity.Intrinsic)) {

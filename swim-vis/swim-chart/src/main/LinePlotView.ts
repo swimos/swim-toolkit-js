@@ -50,7 +50,7 @@ export interface LinePlotViewObserver<X = unknown, Y = unknown, V extends LinePl
 
 /** @public */
 export class LinePlotView<X = unknown, Y = unknown> extends SeriesPlotView<X, Y> implements StrokeView {
-  override readonly observerType?: Class<LinePlotViewObserver<X, Y>>;
+  declare readonly observerType?: Class<LinePlotViewObserver<X, Y>>;
 
   @ThemeAnimator({
     valueType: Color,

@@ -35,7 +35,7 @@ export interface GeoPathControllerObserver<C extends GeoPathController = GeoPath
 
 /** @public */
 export abstract class GeoPathController extends GeoController {
-  override readonly observerType?: Class<GeoPathControllerObserver>;
+  declare readonly observerType?: Class<GeoPathControllerObserver>;
 
   abstract override readonly geo: TraitViewRef<this, GeoPathTrait, GeoPathView>;
 }

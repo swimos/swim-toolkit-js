@@ -58,7 +58,7 @@ export interface NavBarControllerObserver<C extends NavBarController = NavBarCon
 
 /** @public */
 export class NavBarController extends BarController {
-  override readonly observerType?: Class<NavBarControllerObserver>;
+  declare readonly observerType?: Class<NavBarControllerObserver>;
 
   @Property({valueType: Boolean, value: true, updateFlags: Controller.NeedsAssemble})
   readonly showBackTitle!: Property<this, boolean>;
@@ -361,6 +361,18 @@ export class NavBarController extends BarController {
       if (frontController.back.controller === null && frontController.forward.controller === null) {
         this.owner.requireUpdate(Controller.NeedsAssemble);
       }
+    },
+    controllerWillAttachBack(backController: SheetController, frontController: SheetController): void {
+      this.owner.requireUpdate(Controller.NeedsAssemble);
+    },
+    controllerDidDetachBack(backController: SheetController, frontController: SheetController): void {
+      this.owner.requireUpdate(Controller.NeedsAssemble);
+    },
+    controllerWillAttachForward(forwardController: SheetController, frontController: SheetController): void {
+      this.owner.requireUpdate(Controller.NeedsAssemble);
+    },
+    controllerDidDetachForward(forwardController: SheetController, frontController: SheetController): void {
+      this.owner.requireUpdate(Controller.NeedsAssemble);
     },
     controllerDidSetSearchable(searchable: boolean, frontController: SheetController): void {
       this.owner.requireUpdate(Controller.NeedsAssemble);

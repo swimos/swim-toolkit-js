@@ -33,7 +33,7 @@ export class TextCellView extends CellView {
     this.addClass("cell-text");
   }
 
-  override readonly observerType?: Class<TextCellViewObserver>;
+  declare readonly observerType?: Class<TextCellViewObserver>;
 
   @ViewRef({
     viewType: HtmlView,

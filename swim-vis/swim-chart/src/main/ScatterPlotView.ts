@@ -64,7 +64,7 @@ export abstract class ScatterPlotView<X = unknown, Y = unknown> extends Graphics
     this.yDataRange = null;
   }
 
-  override readonly observerType?: Class<ScatterPlotViewObserver<X, Y>>;
+  declare readonly observerType?: Class<ScatterPlotViewObserver<X, Y>>;
 
   @ThemeAnimator({
     valueType: Number,

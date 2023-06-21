@@ -63,7 +63,7 @@ export class StackView extends HtmlView {
     this.overflowY.setState("hidden", Affinity.Intrinsic);
   }
 
-  override readonly observerType?: Class<StackViewObserver>;
+  declare readonly observerType?: Class<StackViewObserver>;
 
   @ViewRef({
     viewType: BarView,

@@ -46,7 +46,7 @@ export class IconCellView extends CellView {
     this.addClass("cell-icon");
   }
 
-  override readonly observerType?: Class<IconCellViewObserver>;
+  declare readonly observerType?: Class<IconCellViewObserver>;
 
   @Animator({valueType: Number, value: 0.5, updateFlags: View.NeedsLayout})
   readonly xAlign!: Animator<this, number>;

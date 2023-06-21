@@ -60,7 +60,7 @@ export class MapboxView extends MapView {
     this.initMap(map);
   }
 
-  override readonly observerType?: Class<MapboxViewObserver>;
+  declare readonly observerType?: Class<MapboxViewObserver>;
 
   readonly map: mapboxgl.Map;
 

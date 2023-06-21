@@ -71,7 +71,7 @@ export interface GaugeControllerObserver<C extends GaugeController = GaugeContro
 
 /** @public */
 export class GaugeController extends Controller {
-  override readonly observerType?: Class<GaugeControllerObserver>;
+  declare readonly observerType?: Class<GaugeControllerObserver>;
 
   protected setTitleView(title: string | undefined): void {
     const gaugeView = this.gauge.view;

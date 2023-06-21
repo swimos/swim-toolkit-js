@@ -27,7 +27,7 @@ export interface IconCellTraitObserver<T extends IconCellTrait = IconCellTrait> 
 
 /** @public */
 export class IconCellTrait extends CellTrait {
-  override readonly observerType?: Class<IconCellTraitObserver>;
+  declare readonly observerType?: Class<IconCellTraitObserver>;
 
   @Property({
     valueType: Graphics,

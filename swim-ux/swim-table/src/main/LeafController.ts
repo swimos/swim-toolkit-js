@@ -16,6 +16,7 @@ import type {Class} from "@swim/util";
 import type {Instance} from "@swim/util";
 import type {Creatable} from "@swim/util";
 import type {Observes} from "@swim/util";
+import {Property} from "@swim/component";
 import type {Trait} from "@swim/model";
 import type {PositionGestureInput} from "@swim/view";
 import type {HtmlView} from "@swim/dom";
@@ -24,6 +25,8 @@ import type {ControllerObserver} from "@swim/controller";
 import {Controller} from "@swim/controller";
 import {TraitViewRef} from "@swim/controller";
 import {TraitViewControllerSet} from "@swim/controller";
+import type {AnyHyperlink} from "@swim/controller";
+import {Hyperlink} from "@swim/controller";
 import type {CellView} from "./CellView";
 import {TextCellView} from "./TextCellView";
 import type {CellTrait} from "./CellTrait";
@@ -84,7 +87,10 @@ export interface LeafControllerObserver<C extends LeafController = LeafControlle
 
 /** @public */
 export class LeafController extends Controller {
-  override readonly observerType?: Class<LeafControllerObserver>;
+  declare readonly observerType?: Class<LeafControllerObserver>;
+
+  @Property({valueType: Hyperlink, value: null})
+  readonly hyperlink!: Property<this, Hyperlink | null, AnyHyperlink | null>;
 
   @TraitViewRef({
     traitType: LeafTrait,
@@ -124,8 +130,10 @@ export class LeafController extends Controller {
     },
     willAttachView(leafView: LeafView): void {
       this.owner.callObservers("controllerWillAttachLeafView", leafView, this.owner);
+      leafView.hyperlink.bindInlet(this.owner.hyperlink);
     },
     didDetachView(leafView: LeafView): void {
+      leafView.hyperlink.unbindInlet();
       this.owner.callObservers("controllerDidDetachLeafView", leafView, this.owner);
     },
     viewWillHighlight(leafView: LeafView): void {

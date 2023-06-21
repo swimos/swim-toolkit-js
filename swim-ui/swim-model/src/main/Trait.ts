@@ -175,7 +175,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     this.consumers = Arrays.empty;
   }
 
-  readonly observerType?: Class<TraitObserver>;
+  declare readonly observerType?: Class<TraitObserver>;
 
   /** @internal */
   readonly uid: string;
@@ -412,11 +412,11 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     return model !== null ? model.forEachChild(callback, thisArg) : void 0;
   }
 
-  getChild<F extends Class<Model>>(key: string, childBound: F): InstanceType<F> | null;
-  getChild(key: string, childBound?: Class<Model>): Model | null;
-  getChild(key: string, childBound?: Class<Model>): Model | null {
+  getChild<F extends Class<Model>>(key: string, childType: F): InstanceType<F> | null;
+  getChild(key: string, childType?: Class<Model>): Model | null;
+  getChild(key: string, childType?: Class<Model>): Model | null {
     const model = this.model;
-    return model !== null ? model.getChild(key, childBound) : null;
+    return model !== null ? model.getChild(key, childType) : null;
   }
 
   setChild<M extends Model>(key: string, newChild: M): Model | null;
@@ -616,14 +616,14 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     }
   }
 
-  getParent<F extends Class<Model>>(parentType: F): InstanceType<F> | null {
+  getAncestor<F extends Class<Model>>(ancestorType: F): InstanceType<F> | null {
     const model = this.model;
-    return model !== null ? model.getParent(parentType) : null;
+    return model !== null ? model.getAncestor(ancestorType) : null;
   }
 
-  getBase<F extends Class<Model>>(baseType: F): InstanceType<F> | null {
+  getRoot<F extends Class<Model>>(rootType: F): InstanceType<F> | null {
     const model = this.model;
-    return model !== null ? model.getBase(baseType) : null;
+    return model !== null ? model.getRoot(rootType) : null;
   }
 
   readonly nextTrait: Trait | null;
@@ -821,14 +821,14 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     }
   }
 
-  getParentTrait<F extends Class<Trait>>(parentType: F): InstanceType<F> | null {
+  getAncestorTrait<F extends Class<Trait>>(ancestorType: F): InstanceType<F> | null {
     const model = this.model;
-    return model !== null ? model.getParentTrait(parentType) : null;
+    return model !== null ? model.getAncestorTrait(ancestorType) : null;
   }
 
-  getBaseTrait<F extends Class<Trait>>(baseType: F): InstanceType<F> | null {
+  getRootTrait<F extends Class<Trait>>(rootType: F): InstanceType<F> | null {
     const model = this.model;
-    return model !== null ? model.getBaseTrait(baseType) : null;
+    return model !== null ? model.getRootTrait(rootType) : null;
   }
 
   /** @override */

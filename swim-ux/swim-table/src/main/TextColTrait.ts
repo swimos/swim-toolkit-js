@@ -26,7 +26,7 @@ export interface TextColTraitObserver<T extends TextColTrait = TextColTrait> ext
 
 /** @public */
 export class TextColTrait extends ColTrait {
-  override readonly observerType?: Class<TextColTraitObserver>;
+  declare readonly observerType?: Class<TextColTraitObserver>;
 
   @Property({
     valueType: String,

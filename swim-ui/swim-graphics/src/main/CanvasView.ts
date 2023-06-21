@@ -103,9 +103,9 @@ export class CanvasView extends HtmlView {
     this.initCanvas();
   }
 
-  override readonly observerType?: Class<CanvasViewObserver>;
+  declare readonly observerType?: Class<CanvasViewObserver>;
 
-  override readonly node!: HTMLCanvasElement;
+  declare readonly node: HTMLCanvasElement;
 
   protected initCanvas(): void {
     this.position.setState("absolute", Affinity.Intrinsic);

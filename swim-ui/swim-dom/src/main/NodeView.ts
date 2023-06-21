@@ -70,7 +70,7 @@ export class NodeView extends View {
     (node as ViewNode).view = this;
   }
 
-  override readonly observerType?: Class<NodeViewObserver>;
+  declare readonly observerType?: Class<NodeViewObserver>;
 
   readonly node: Node;
 

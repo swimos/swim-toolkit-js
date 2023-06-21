@@ -36,7 +36,7 @@ export interface IconCellControllerObserver<C extends IconCellController = IconC
 
 /** @public */
 export class IconCellController extends CellController {
-  override readonly observerType?: Class<IconCellControllerObserver>;
+  declare readonly observerType?: Class<IconCellControllerObserver>;
 
   protected setIcon(icon: Graphics | null): void {
     const cellView = this.cell.view;

@@ -38,7 +38,7 @@ export interface DomServiceObserver<S extends DomService = DomService> extends S
 /** @public */
 export class DomService extends Service {
   /** @override */
-  override readonly observerType?: Class<DomServiceObserver>;
+  declare readonly observerType?: Class<DomServiceObserver>;
 
   @ViewSet({
     initView(rootView: ElementView): void {

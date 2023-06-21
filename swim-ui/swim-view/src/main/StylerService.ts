@@ -50,7 +50,7 @@ export interface StylerServiceObserver<S extends StylerService = StylerService> 
 
 /** @public */
 export class StylerService extends Service {
-  override readonly observerType?: Class<StylerServiceObserver>;
+  declare readonly observerType?: Class<StylerServiceObserver>;
 
   @ViewSet({
     initView(rootView: View): void {

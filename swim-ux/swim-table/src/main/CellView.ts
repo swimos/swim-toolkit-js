@@ -14,9 +14,12 @@
 
 import type {Class} from "@swim/util";
 import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
 import type {PositionGestureInput} from "@swim/view";
 import type {HtmlViewObserver} from "@swim/dom";
 import {HtmlView} from "@swim/dom";
+import type {AnyHyperlink} from "@swim/controller";
+import {Hyperlink} from "@swim/controller";
 
 /** @public */
 export interface CellViewObserver<V extends CellView = CellView> extends HtmlViewObserver<V> {
@@ -38,18 +41,35 @@ export class CellView extends HtmlView {
     this.overflowY.setState("hidden", Affinity.Intrinsic);
   }
 
-  override readonly observerType?: Class<CellViewObserver>;
+  declare readonly observerType?: Class<CellViewObserver>;
 
-  onPress(input: PositionGestureInput, event: Event | null): void {
-    // hook
-  }
+  @Property({
+    valueType: Hyperlink,
+    value: null,
+    didSetValue(hyperlink: Hyperlink | null): void {
+      if (hyperlink !== null) {
+        this.owner.href.setState(hyperlink.href, Affinity.Intrinsic);
+        this.owner.title.setState(hyperlink.title, Affinity.Intrinsic);
+        this.owner.textDecorationLine.setState("underline", Affinity.Intrinsic);
+        this.owner.cursor.setState("pointer", Affinity.Intrinsic);
+      } else {
+        this.owner.href.setState(void 0, Affinity.Intrinsic);
+        this.owner.title.setState(void 0, Affinity.Intrinsic);
+        this.owner.textDecorationLine.setState(void 0, Affinity.Intrinsic);
+        this.owner.cursor.setState(void 0, Affinity.Intrinsic);
+      }
+    },
+  })
+  readonly hyperlink!: Property<this, Hyperlink | null, AnyHyperlink | null>;
 
   didPress(input: PositionGestureInput, event: Event | null): void {
     this.callObservers("viewDidPress", input, event, this);
-  }
-
-  onLongPress(input: PositionGestureInput): void {
-    // hook
+    const hyperlink = this.hyperlink.value;
+    if (hyperlink === null || input.defaultPrevented) {
+      return;
+    }
+    input.preventDefault();
+    hyperlink.activate(event);
   }
 
   didLongPress(input: PositionGestureInput): void {

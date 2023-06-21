@@ -75,7 +75,7 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
     this.dataPointViews = new BTree();
   }
 
-  override readonly observerType?: Class<SeriesPlotViewObserver<X, Y>>;
+  declare readonly observerType?: Class<SeriesPlotViewObserver<X, Y>>;
 
   @ThemeAnimator({
     valueType: Number,

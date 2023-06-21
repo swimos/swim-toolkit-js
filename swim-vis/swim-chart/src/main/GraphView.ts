@@ -45,7 +45,7 @@ export interface GraphViewObserver<X = unknown, Y = unknown, V extends GraphView
 
 /** @public */
 export class GraphView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
-  override readonly observerType?: Class<GraphViewObserver<X, Y>>;
+  declare readonly observerType?: Class<GraphViewObserver<X, Y>>;
 
   @ThemeAnimator({valueType: Font, value: null, inherits: true})
   readonly font!: ThemeAnimator<this, Font | null, AnyFont | null>;

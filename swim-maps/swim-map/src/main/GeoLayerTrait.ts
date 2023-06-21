@@ -37,7 +37,7 @@ export class GeoLayerTrait extends GeoTrait {
     this.geoBounds = GeoBox.globe();
   }
 
-  override readonly observerType?: Class<GeoLayerTraitObserver>;
+  declare readonly observerType?: Class<GeoLayerTraitObserver>;
 
   override readonly geoBounds: GeoBox;
 

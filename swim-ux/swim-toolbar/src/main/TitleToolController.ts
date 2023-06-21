@@ -35,7 +35,7 @@ export interface TitleToolControllerObserver<C extends TitleToolController = Tit
 
 /** @public */
 export class TitleToolController extends ToolController {
-  override readonly observerType?: Class<TitleToolControllerObserver>;
+  declare readonly observerType?: Class<TitleToolControllerObserver>;
 
   @TraitViewRef({
     extends: true,

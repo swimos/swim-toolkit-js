@@ -32,7 +32,7 @@ export interface ButtonToolControllerObserver<C extends ButtonToolController = B
 
 /** @public */
 export class ButtonToolController extends ToolController {
-  override readonly observerType?: Class<ButtonToolControllerObserver>;
+  declare readonly observerType?: Class<ButtonToolControllerObserver>;
 
   @TraitViewRef({
     extends: true,

@@ -31,7 +31,7 @@ export interface PieTraitObserver<T extends PieTrait = PieTrait> extends TraitOb
 
 /** @public */
 export class PieTrait extends Trait {
-  override readonly observerType?: Class<PieTraitObserver>;
+  declare readonly observerType?: Class<PieTraitObserver>;
 
   @Property({
     valueType: String,

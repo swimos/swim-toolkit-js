@@ -376,7 +376,7 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     return View;
   }
 
-  override readonly observerType?: Class<ViewObserver>;
+  declare readonly observerType?: Class<ViewObserver>;
 
   /** @internal */
   override attachParent(parent: View, nextSibling: View | null): void {

@@ -33,7 +33,7 @@ export interface GaugeTraitObserver<T extends GaugeTrait = GaugeTrait> extends T
 
 /** @public */
 export class GaugeTrait extends Trait {
-  override readonly observerType?: Class<GaugeTraitObserver>;
+  declare readonly observerType?: Class<GaugeTraitObserver>;
 
   @Property({
     valueType: String,

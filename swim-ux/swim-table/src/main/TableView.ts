@@ -107,7 +107,7 @@ export class TableView extends HtmlView {
     this.boxSizing.setState("border-box", Affinity.Intrinsic);
   }
 
-  override readonly observerType?: Class<TableViewObserver>;
+  declare readonly observerType?: Class<TableViewObserver>;
 
   @Property({valueType: TableLayout, value: null, inherits: true, updateFlags: View.NeedsLayout})
   readonly layout!: Property<this, TableLayout | null, AnyTableLayout | null>;
@@ -158,7 +158,7 @@ export class TableView extends HtmlView {
       } else {
         this.owner.expanding.setAffinity(Affinity.Transient);
       }
-      const tableView = this.owner.getBase(TableView);
+      const tableView = this.owner.getRoot(TableView);
       if (tableView !== null) {
         tableView.requireUpdate(View.NeedsLayout);
       } else {

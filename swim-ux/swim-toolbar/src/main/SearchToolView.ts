@@ -45,7 +45,7 @@ export class SearchToolView extends ToolView {
     this.addClass("tool-search");
   }
 
-  override readonly observerType?: Class<SearchToolViewObserver>;
+  declare readonly observerType?: Class<SearchToolViewObserver>;
 
   @ViewRef({
     viewType: HtmlView,
@@ -118,7 +118,7 @@ export class SearchToolView extends ToolView {
   readonly stylesheet!: ViewRef<this, StyleView>;
 
   @StyleRule({
-    getInlet(): StyleSheet | null {
+    deriveInlet(): StyleSheet | null {
       const styleView = this.owner.stylesheet.view;
       return styleView !== null ? styleView.sheet : null;
     },
@@ -152,7 +152,7 @@ export class SearchToolView extends ToolView {
   readonly inputRule!: StyleRule<this>;
 
   @StyleRule({
-    getInlet(): StyleSheet | null {
+    deriveInlet(): StyleSheet | null {
       const styleView = this.owner.stylesheet.view;
       return styleView !== null ? styleView.sheet : null;
     },
@@ -172,7 +172,7 @@ export class SearchToolView extends ToolView {
   readonly inputFocusRule!: StyleRule<this>;
 
   @StyleRule({
-    getInlet(): StyleSheet | null {
+    deriveInlet(): StyleSheet | null {
       const styleView = this.owner.stylesheet.view;
       return styleView !== null ? styleView.sheet : null;
     },
@@ -184,7 +184,7 @@ export class SearchToolView extends ToolView {
   readonly inputPlaceholderRule!: StyleRule<this>;
 
   @StyleRule({
-    getInlet(): StyleSheet | null {
+    deriveInlet(): StyleSheet | null {
       const styleView = this.owner.stylesheet.view;
       return styleView !== null ? styleView.sheet : null;
     },

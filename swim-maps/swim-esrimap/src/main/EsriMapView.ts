@@ -47,7 +47,7 @@ export class EsriMapView extends EsriView {
     this.initMap(map);
   }
 
-  override readonly observerType?: Class<EsriMapViewObserver>;
+  declare readonly observerType?: Class<EsriMapViewObserver>;
 
   override readonly map: __esri.MapView;
 

@@ -42,7 +42,7 @@ export interface ColControllerObserver<C extends ColController = ColController> 
 
 /** @public */
 export class ColController extends Controller {
-  override readonly observerType?: Class<ColControllerObserver>;
+  declare readonly observerType?: Class<ColControllerObserver>;
 
   @TraitViewRef({
     traitType: ColTrait,

@@ -112,7 +112,10 @@ export interface ControllerRelation<O = unknown, C extends Controller = Controll
   didUnderive(inlet: ControllerRelation<unknown, C>): void;
 
   /** @override */
-  getInlet(): ControllerRelation<unknown, C> | null;
+  deriveInlet(): ControllerRelation<unknown, C> | null;
+
+  /** @override */
+  bindInlet(inlet: ControllerRelation<unknown, C>): void;
 
   /** @override */
   readonly inlet: ControllerRelation<unknown, C> | null;

@@ -32,7 +32,7 @@ export interface ScatterPlotControllerObserver<X = unknown, Y = unknown, C exten
 
 /** @public */
 export abstract class ScatterPlotController<X = unknown, Y = unknown> extends PlotController<X, Y> {
-  override readonly observerType?: Class<ScatterPlotControllerObserver<X, Y>>;
+  declare readonly observerType?: Class<ScatterPlotControllerObserver<X, Y>>;
 
   abstract override readonly plot: TraitViewRef<this, ScatterPlotTrait<X, Y>, ScatterPlotView<X, Y>>;
 }

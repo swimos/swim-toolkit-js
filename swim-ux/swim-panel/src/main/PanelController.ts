@@ -49,7 +49,7 @@ export interface PanelControllerObserver<C extends PanelController = PanelContro
 
 /** @public */
 export class PanelController extends Controller {
-  override readonly observerType?: Class<PanelControllerObserver>;
+  declare readonly observerType?: Class<PanelControllerObserver>;
 
   @TraitViewRef({
     willAttachTrait(panelTrait: Trait): void {

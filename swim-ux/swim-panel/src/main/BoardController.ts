@@ -49,7 +49,7 @@ export interface BoardControllerObserver<C extends BoardController = BoardContro
 
 /** @public */
 export class BoardController extends SheetController {
-  override readonly observerType?: Class<BoardControllerObserver>;
+  declare readonly observerType?: Class<BoardControllerObserver>;
 
   @TraitViewRef({
     extends: true,

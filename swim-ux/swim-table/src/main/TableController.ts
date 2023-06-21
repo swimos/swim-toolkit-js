@@ -185,7 +185,7 @@ export interface TableControllerObserver<C extends TableController = TableContro
 
 /** @public */
 export class TableController extends Controller {
-  override readonly observerType?: Class<TableControllerObserver>;
+  declare readonly observerType?: Class<TableControllerObserver>;
 
   protected layoutTable(tableLayout: TableLayout, tableView: TableView): void {
     tableView.layout.setValue(tableLayout, Affinity.Intrinsic);

@@ -40,7 +40,7 @@ export interface AxisControllerObserver<D = unknown, C extends AxisController<D>
 
 /** @public */
 export abstract class AxisController<D = unknown> extends Controller {
-  override readonly observerType?: Class<AxisControllerObserver<D>>;
+  declare readonly observerType?: Class<AxisControllerObserver<D>>;
 
   @TraitViewRef({
     traitType: AxisTrait,

@@ -41,7 +41,7 @@ export interface SearchToolControllerObserver<C extends SearchToolController = S
 
 /** @public */
 export class SearchToolController extends ToolController {
-  override readonly observerType?: Class<SearchToolControllerObserver>;
+  declare readonly observerType?: Class<SearchToolControllerObserver>;
 
   @TraitViewRef({
     extends: true,

@@ -74,7 +74,7 @@ export class PopoverView extends HtmlView implements ModalView {
     this.initArrow();
   }
 
-  override readonly observerType?: Class<PopoverViewObserver>;
+  declare readonly observerType?: Class<PopoverViewObserver>;
 
   protected initArrow(): void {
     const arrow = this.createArrow();
@@ -523,13 +523,7 @@ export class PopoverView extends HtmlView implements ModalView {
   }
 
   protected willPlacePopover(placement: PopoverPlacement): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.popoverWillPlace !== void 0) {
-        observer.popoverWillPlace(placement, this);
-      }
-    }
+    this.callObservers("popoverWillPlace", placement, this);
   }
 
   protected onPlacePopover(placement: PopoverPlacement): void {
@@ -537,13 +531,7 @@ export class PopoverView extends HtmlView implements ModalView {
   }
 
   protected didPlacePopover(placement: PopoverPlacement): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.popoverDidPlace !== void 0) {
-        observer.popoverDidPlace(placement, this);
-      }
-    }
+    this.callObservers("popoverDidPlace", placement, this);
   }
 
   /** @internal */

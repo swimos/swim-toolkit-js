@@ -86,7 +86,7 @@ export class RowView extends HtmlView {
     this.position.setState("relative", Affinity.Intrinsic);
   }
 
-  override readonly observerType?: Class<RowViewObserver>;
+  declare readonly observerType?: Class<RowViewObserver>;
 
   @Property({valueType: TableLayout, value: null, inherits: true, updateFlags: View.NeedsLayout})
   readonly layout!: Property<this, TableLayout | null, AnyTableLayout | null>;
@@ -289,7 +289,7 @@ export class RowView extends HtmlView {
       } else {
         this.owner.disclosing.setAffinity(Affinity.Transient);
       }
-      const tableView = this.owner.getBase(TableView);
+      const tableView = this.owner.getRoot(TableView);
       if (tableView !== null) {
         tableView.requireUpdate(View.NeedsLayout);
       }

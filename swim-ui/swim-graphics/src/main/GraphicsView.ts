@@ -75,7 +75,7 @@ export class GraphicsView extends View {
     this.eventHandlers = null;
   }
 
-  override readonly observerType?: Class<GraphicsViewObserver>;
+  declare readonly observerType?: Class<GraphicsViewObserver>;
 
   @Property({
     valueType: GraphicsRenderer,

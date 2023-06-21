@@ -77,7 +77,7 @@ export class PanelView extends HtmlView {
     this.panelStyle.applyPanelStyle(this.panelStyle.value);
   }
 
-  override readonly observerType?: Class<PanelViewObserver>;
+  declare readonly observerType?: Class<PanelViewObserver>;
 
   @Property({valueType: Number, updateFlags: View.NeedsResize})
   readonly widthBasis!: Property<this, number | undefined>;

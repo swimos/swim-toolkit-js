@@ -47,7 +47,7 @@ export class GeoView extends GraphicsView {
     this.geoBounds = GeoBox.undefined();
   }
 
-  override readonly observerType?: Class<GeoViewObserver>;
+  declare readonly observerType?: Class<GeoViewObserver>;
 
   @ThemeAnimator({valueType: Color, value: null, inherits: true})
   readonly geoBoundsColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
@@ -175,13 +175,7 @@ export class GeoView extends GraphicsView {
   }
 
   willSetGeoBounds(newGeoBounds: GeoBox, oldGeoBounds: GeoBox): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.viewWillSetGeoBounds !== void 0) {
-        observer.viewWillSetGeoBounds(newGeoBounds, oldGeoBounds, this);
-      }
-    }
+    this.callObservers("viewWillSetGeoBounds", newGeoBounds, oldGeoBounds, this);
   }
 
   protected onSetGeoBounds(newGeoBounds: GeoBox, oldGeoBounds: GeoBox): void {
@@ -194,13 +188,7 @@ export class GeoView extends GraphicsView {
   }
 
   didSetGeoBounds(newGeoBounds: GeoBox, oldGeoBounds: GeoBox): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.viewDidSetGeoBounds !== void 0) {
-        observer.viewDidSetGeoBounds(newGeoBounds, oldGeoBounds, this);
-      }
-    }
+    this.callObservers("viewDidSetGeoBounds", newGeoBounds, oldGeoBounds, this);
   }
 
   protected updateGeoBounds(): void {

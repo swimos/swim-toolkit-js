@@ -69,7 +69,7 @@ export interface PieControllerObserver<C extends PieController = PieController> 
 
 /** @public */
 export class PieController extends Controller {
-  override readonly observerType?: Class<PieControllerObserver>;
+  declare readonly observerType?: Class<PieControllerObserver>;
 
   protected setTitleView(title: string | undefined): void {
     const pieView = this.pie.view;

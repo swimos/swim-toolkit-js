@@ -75,7 +75,7 @@ export class TokenView extends HtmlView {
     this.initToken();
   }
 
-  override readonly observerType?: Class<TokenViewObserver>;
+  declare readonly observerType?: Class<TokenViewObserver>;
 
   protected initToken(): void {
     this.addClass("token");
@@ -673,14 +673,7 @@ export class TokenView extends HtmlView {
     if (labelContainer !== null) {
       labelContainer.display.setState("block", Affinity.Intrinsic);
     }
-
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.tokenWillExpand !== void 0) {
-        observer.tokenWillExpand(this);
-      }
-    }
+    this.callObservers("tokenWillExpand", this);
   }
 
   protected onExpand(): void {
@@ -690,14 +683,7 @@ export class TokenView extends HtmlView {
   protected didExpand(): void {
     (this as Mutable<this>).tokenState = "expanded";
     this.requireUpdate(View.NeedsLayout);
-
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.tokenDidExpand !== void 0) {
-        observer.tokenDidExpand(this);
-      }
-    }
+    this.callObservers("tokenDidExpand", this);
   }
 
   collapse(timing?: AnyTiming | boolean): void {
@@ -726,14 +712,7 @@ export class TokenView extends HtmlView {
 
   protected willCollapse(): void {
     (this as Mutable<this>).tokenState = "collapsing";
-
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.tokenWillCollapse !== void 0) {
-        observer.tokenWillCollapse(this);
-      }
-    }
+    this.callObservers("tokenWillCollapse", this);
   }
 
   protected onCollapse(): void {
@@ -746,14 +725,7 @@ export class TokenView extends HtmlView {
   protected didCollapse(): void {
     (this as Mutable<this>).tokenState = "collapsed";
     this.requireUpdate(View.NeedsLayout);
-
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.tokenDidCollapse !== void 0) {
-        observer.tokenDidCollapse(this);
-      }
-    }
+    this.callObservers("tokenDidCollapse", this);
   }
 
   toggle(timing?: AnyTiming | boolean): void {
@@ -775,13 +747,7 @@ export class TokenView extends HtmlView {
   }
 
   protected didPressHead(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.tokenDidPressHead !== void 0) {
-        observer.tokenDidPressHead(this);
-      }
-    }
+    this.callObservers("tokenDidPressHead", this);
   }
 
   protected onClickBody(event: MouseEvent): void {
@@ -789,13 +755,7 @@ export class TokenView extends HtmlView {
   }
 
   protected didPressBody(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.tokenDidPressBody !== void 0) {
-        observer.tokenDidPressBody(this);
-      }
-    }
+    this.callObservers("tokenDidPressBody", this);
   }
 
   protected onClickFoot(event: MouseEvent): void {
@@ -803,13 +763,7 @@ export class TokenView extends HtmlView {
   }
 
   protected didPressFoot(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.tokenDidPressFoot !== void 0) {
-        observer.tokenDidPressFoot(this);
-      }
-    }
+    this.callObservers("tokenDidPressFoot", this);
   }
 
   override init(init: TokenViewInit): void {

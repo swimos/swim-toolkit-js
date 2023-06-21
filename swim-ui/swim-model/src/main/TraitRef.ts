@@ -96,7 +96,10 @@ export interface TraitRef<O = unknown, T extends Trait = Trait> extends TraitRel
   didUnderive(inlet: TraitRef<unknown, T>): void;
 
   /** @override */
-  getInlet(): TraitRef<unknown, T> | null;
+  deriveInlet(): TraitRef<unknown, T> | null;
+
+  /** @override */
+  bindInlet(inlet: TraitRef<unknown, T>): void;
 
   /** @override */
   readonly inlet: TraitRef<unknown, T> | null;
@@ -242,49 +245,52 @@ export const TraitRef = (function (_super: typeof TraitRelation) {
   };
 
   TraitRef.prototype.setTrait = function <T extends Trait>(this: TraitRef<unknown, T>, newTrait: AnyTrait<T> | null, target?: Trait | null, key?: string): T | null {
-    let oldTrait = this.trait;
     if (newTrait !== null) {
       newTrait = this.fromAny(newTrait);
     }
-    if (oldTrait !== newTrait) {
-      if (target === void 0) {
-        target = null;
+    if (target === void 0) {
+      target = null;
+    }
+    let oldTrait = this.trait;
+    if (oldTrait === newTrait) {
+      this.setCoherent(true);
+      return oldTrait;
+    }
+    let model: Model | null;
+    if (this.binds && (model = this.parentModel, model !== null)) {
+      if (oldTrait !== null && oldTrait.model === model) {
+        if (target === null) {
+          target = oldTrait.nextTrait;
+        }
+        oldTrait.remove();
       }
-      let model: Model | null;
-      if (this.binds && (model = this.parentModel, model !== null)) {
-        if (oldTrait !== null && oldTrait.model === model) {
-          if (target === null) {
-            target = oldTrait.nextTrait;
-          }
-          oldTrait.remove();
+      if (newTrait !== null) {
+        if (key === void 0) {
+          key = this.traitKey;
         }
-        if (newTrait !== null) {
-          if (key === void 0) {
-            key = this.traitKey;
-          }
-          this.insertChild(model, newTrait, target, key);
-        }
-        oldTrait = this.trait;
+        this.insertChild(model, newTrait, target, key);
       }
-      if (oldTrait !== newTrait) {
-        if (oldTrait !== null) {
-          (this as Mutable<typeof this>).trait = null;
-          this.willDetachTrait(oldTrait);
-          this.onDetachTrait(oldTrait);
-          this.deinitTrait(oldTrait);
-          this.didDetachTrait(oldTrait);
-        }
-        if (newTrait !== null) {
-          (this as Mutable<typeof this>).trait = newTrait;
-          this.willAttachTrait(newTrait, target);
-          this.onAttachTrait(newTrait, target);
-          this.initTrait(newTrait);
-          this.didAttachTrait(newTrait, target);
-        }
-        this.setCoherent(true);
-        this.decohereOutlets();
+      oldTrait = this.trait;
+      if (oldTrait === newTrait) {
+        return oldTrait;
       }
     }
+    if (oldTrait !== null) {
+      (this as Mutable<typeof this>).trait = null;
+      this.willDetachTrait(oldTrait);
+      this.onDetachTrait(oldTrait);
+      this.deinitTrait(oldTrait);
+      this.didDetachTrait(oldTrait);
+    }
+    if (newTrait !== null) {
+      (this as Mutable<typeof this>).trait = newTrait;
+      this.willAttachTrait(newTrait, target);
+      this.onAttachTrait(newTrait, target);
+      this.initTrait(newTrait);
+      this.didAttachTrait(newTrait, target);
+    }
+    this.setCoherent(true);
+    this.decohereOutlets();
     return oldTrait;
   };
 
@@ -434,33 +440,37 @@ export const TraitRef = (function (_super: typeof TraitRelation) {
   };
 
   TraitRef.prototype.bindTrait = function <T extends Trait>(this: TraitRef<unknown, T>, trait: Trait, target: Trait | null): void {
-    if (this.binds && this.trait === null) {
-      const newTrait = this.detectTrait(trait);
-      if (newTrait !== null) {
-        (this as Mutable<typeof this>).trait = newTrait;
-        this.willAttachTrait(newTrait, target);
-        this.onAttachTrait(newTrait, target);
-        this.initTrait(newTrait);
-        this.didAttachTrait(newTrait, target);
-        this.setCoherent(true);
-        this.decohereOutlets();
-      }
+    if (!this.binds || this.trait !== null) {
+      return;
     }
+    const newTrait = this.detectTrait(trait);
+    if (newTrait === null) {
+      return;
+    }
+    (this as Mutable<typeof this>).trait = newTrait;
+    this.willAttachTrait(newTrait, target);
+    this.onAttachTrait(newTrait, target);
+    this.initTrait(newTrait);
+    this.didAttachTrait(newTrait, target);
+    this.setCoherent(true);
+    this.decohereOutlets();
   };
 
   TraitRef.prototype.unbindTrait = function <T extends Trait>(this: TraitRef<unknown, T>, trait: Trait): void {
-    if (this.binds) {
-      const oldTrait = this.detectTrait(trait);
-      if (oldTrait !== null && this.trait === oldTrait) {
-        (this as Mutable<typeof this>).trait = null;
-        this.willDetachTrait(oldTrait);
-        this.onDetachTrait(oldTrait);
-        this.deinitTrait(oldTrait);
-        this.didDetachTrait(oldTrait);
-        this.setCoherent(true);
-        this.decohereOutlets();
-      }
+    if (!this.binds) {
+      return;
     }
+    const oldTrait = this.detectTrait(trait);
+    if (oldTrait === null || this.trait !== oldTrait) {
+      return;
+    }
+    (this as Mutable<typeof this>).trait = null;
+    this.willDetachTrait(oldTrait);
+    this.onDetachTrait(oldTrait);
+    this.deinitTrait(oldTrait);
+    this.didDetachTrait(oldTrait);
+    this.setCoherent(true);
+    this.decohereOutlets();
   };
 
   TraitRef.prototype.detectTrait = function <T extends Trait>(this: TraitRef<unknown, T>, trait: Trait): T | null {
@@ -502,12 +512,14 @@ export const TraitRef = (function (_super: typeof TraitRelation) {
   };
 
   TraitRef.prototype.recohere = function (this: TraitRef, t: number): void {
-    if ((this.flags & Fastener.DerivedFlag) !== 0) {
-      const inlet = this.inlet;
-      if (inlet !== null) {
-        this.setTrait(inlet.trait);
-      }
+    if ((this.flags & Fastener.DerivedFlag) === 0) {
+      return;
     }
+    const inlet = this.inlet;
+    if (inlet === null) {
+      return;
+    }
+    this.setTrait(inlet.trait);
   };
 
   TraitRef.construct = function <F extends TraitRef<any, any>>(fastener: F | null, owner: FastenerOwner<F>): F {

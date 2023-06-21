@@ -33,7 +33,7 @@ export interface LinePlotTraitObserver<X = unknown, Y = unknown, T extends LineP
 
 /** @public */
 export class LinePlotTrait<X = unknown, Y = unknown> extends SeriesPlotTrait<X, Y> {
-  override readonly observerType?: Class<LinePlotTraitObserver<X, Y>>;
+  declare readonly observerType?: Class<LinePlotTraitObserver<X, Y>>;
 
   @Property({
     valueType: ColorLook,

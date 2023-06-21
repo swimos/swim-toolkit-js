@@ -44,7 +44,7 @@ export class WorldMapView extends MapView {
     (this.geoViewport as Mutable<typeof this.geoViewport>).value = geoViewport;
   }
 
-  override readonly observerType?: Class<WorldMapViewObserver>;
+  declare readonly observerType?: Class<WorldMapViewObserver>;
 
   @Property({
     extends: true,

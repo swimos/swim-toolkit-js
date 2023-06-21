@@ -120,9 +120,9 @@ export class ElementView extends NodeView implements StyleContext {
     super(node);
   }
 
-  override readonly observerType?: Class<ElementViewObserver>;
+  declare readonly observerType?: Class<ElementViewObserver>;
 
-  override readonly node!: Element & ElementCSSInlineStyle;
+  declare readonly node: Element & ElementCSSInlineStyle;
 
   @Provider({
     extends: true,

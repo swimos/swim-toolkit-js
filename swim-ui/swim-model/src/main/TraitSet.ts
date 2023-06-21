@@ -110,7 +110,10 @@ export interface TraitSet<O = unknown, T extends Trait = Trait> extends TraitRel
   didUnderive(inlet: TraitSet<unknown, T>): void;
 
   /** @override */
-  getInlet(): TraitSet<unknown, T> | null;
+  deriveInlet(): TraitSet<unknown, T> | null;
+
+  /** @override */
+  bindInlet(inlet: TraitSet<unknown, T>): void;
 
   /** @override */
   readonly inlet: TraitSet<unknown, T> | null;

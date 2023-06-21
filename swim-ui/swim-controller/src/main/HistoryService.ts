@@ -44,7 +44,7 @@ export class HistoryService extends Service {
     this.historyState = HistoryState.current();
   }
 
-  override readonly observerType?: Class<HistoryServiceObserver>;
+  declare readonly observerType?: Class<HistoryServiceObserver>;
 
   /** @internal */
   readonly historyState: HistoryState;

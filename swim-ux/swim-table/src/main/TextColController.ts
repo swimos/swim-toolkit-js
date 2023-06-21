@@ -39,7 +39,7 @@ export interface TextColControllerObserver<C extends TextColController = TextCol
 
 /** @public */
 export class TextColController extends ColController {
-  override readonly observerType?: Class<TextColControllerObserver>;
+  declare readonly observerType?: Class<TextColControllerObserver>;
 
   @TraitViewRef({
     extends: true,

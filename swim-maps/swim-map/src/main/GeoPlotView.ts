@@ -76,7 +76,7 @@ export class GeoPlotView extends GeoView implements StrokeView {
     });
   }
 
-  override readonly observerType?: Class<GeoPlotViewObserver>;
+  declare readonly observerType?: Class<GeoPlotViewObserver>;
 
   points(): ReadonlyArray<GeoPointView>;
   points(points: ReadonlyArray<AnyGeoPointView>, timing?: AnyTiming | boolean): this;

@@ -22,25 +22,25 @@ export interface AxisTraitObserver<D = unknown, T extends AxisTrait<D> = AxisTra
 
 /** @public */
 export abstract class AxisTrait<D = unknown> extends Trait {
-  override readonly observerType?: Class<AxisTraitObserver<D>>;
+  declare readonly observerType?: Class<AxisTraitObserver<D>>;
 }
 
 /** @public */
 export abstract class TopAxisTrait<X = unknown> extends AxisTrait<X> {
-  override readonly observerType?: Class<AxisTraitObserver<X, TopAxisTrait<X>>>;
+  declare readonly observerType?: Class<AxisTraitObserver<X, TopAxisTrait<X>>>;
 }
 
 /** @public */
 export abstract class RightAxisTrait<Y = unknown> extends AxisTrait<Y> {
-  override readonly observerType?: Class<AxisTraitObserver<Y, RightAxisTrait<Y>>>;
+  declare readonly observerType?: Class<AxisTraitObserver<Y, RightAxisTrait<Y>>>;
 }
 
 /** @public */
 export abstract class BottomAxisTrait<X = unknown> extends AxisTrait<X> {
-  override readonly observerType?: Class<AxisTraitObserver<X, BottomAxisTrait<X>>>;
+  declare readonly observerType?: Class<AxisTraitObserver<X, BottomAxisTrait<X>>>;
 }
 
 /** @public */
 export abstract class LeftAxisTrait<Y = unknown> extends AxisTrait<Y> {
-  override readonly observerType?: Class<AxisTraitObserver<Y, LeftAxisTrait<Y>>>;
+  declare readonly observerType?: Class<AxisTraitObserver<Y, LeftAxisTrait<Y>>>;
 }

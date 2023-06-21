@@ -93,7 +93,7 @@ export interface ChartControllerObserver<X = unknown, Y = unknown, C extends Cha
 
 /** @public */
 export class ChartController<X = unknown, Y = unknown> extends GraphController<X, Y> {
-  override readonly observerType?: Class<ChartControllerObserver<X, Y>>;
+  declare readonly observerType?: Class<ChartControllerObserver<X, Y>>;
 
   @TraitViewRef({
     traitType: ChartTrait,

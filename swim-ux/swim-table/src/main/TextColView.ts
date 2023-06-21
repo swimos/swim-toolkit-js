@@ -34,7 +34,7 @@ export class TextColView extends ColView {
     this.addClass("col-text");
   }
 
-  override readonly observerType?: Class<TextColViewObserver>;
+  declare readonly observerType?: Class<TextColViewObserver>;
 
   @ViewRef({
     viewType: HtmlView,

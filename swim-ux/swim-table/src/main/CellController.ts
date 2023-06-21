@@ -14,10 +14,13 @@
 
 import type {Class} from "@swim/util";
 import type {Observes} from "@swim/util";
+import {Property} from "@swim/component";
 import type {PositionGestureInput} from "@swim/view";
 import type {ControllerObserver} from "@swim/controller";
 import {Controller} from "@swim/controller";
 import {TraitViewRef} from "@swim/controller";
+import type {AnyHyperlink} from "@swim/controller";
+import {Hyperlink} from "@swim/controller";
 import {CellView} from "./CellView";
 import {CellTrait} from "./CellTrait";
 
@@ -38,7 +41,10 @@ export interface CellControllerObserver<C extends CellController = CellControlle
 
 /** @public */
 export class CellController extends Controller {
-  override readonly observerType?: Class<CellControllerObserver>;
+  declare readonly observerType?: Class<CellControllerObserver>;
+
+  @Property({valueType: Hyperlink, value: null})
+  readonly hyperlink!: Property<this, Hyperlink | null, AnyHyperlink | null>;
 
   @TraitViewRef({
     traitType: CellTrait,
@@ -50,14 +56,26 @@ export class CellController extends Controller {
     },
     viewType: CellView,
     observesView: true,
+    initView(cellView: CellView): void {
+      cellView.hyperlink.bindInlet(this.owner.hyperlink);
+    },
     willAttachView(cellView: CellView): void {
       this.owner.callObservers("controllerWillAttachCellView", cellView, this.owner);
+    },
+    deinitView(cellView: CellView): void {
+      cellView.hyperlink.unbindInlet();
     },
     didDetachView(cellView: CellView): void {
       this.owner.callObservers("controllerDidDetachCellView", cellView, this.owner);
     },
     viewDidPress(input: PositionGestureInput, event: Event | null, cellView: CellView): void {
       this.owner.callObservers("controllerDidPressCellView", input, event, cellView, this.owner);
+      const hyperlink = this.owner.hyperlink.value;
+      if (hyperlink === null || input.defaultPrevented) {
+        return;
+      }
+      input.preventDefault();
+      hyperlink.activate(event);
     },
     viewDidLongPress(input: PositionGestureInput, cellView: CellView): void {
       this.owner.callObservers("controllerDidLongPressCellView", input, cellView, this.owner);

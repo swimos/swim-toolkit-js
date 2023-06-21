@@ -23,7 +23,7 @@ export interface ScatterPlotTraitObserver<X = unknown, Y = unknown, T extends Sc
 
 /** @public */
 export abstract class ScatterPlotTrait<X = unknown, Y = unknown> extends PlotTrait<X, Y> {
-  override readonly observerType?: Class<ScatterPlotTraitObserver<X, Y>>;
+  declare readonly observerType?: Class<ScatterPlotTraitObserver<X, Y>>;
 
   abstract override createPlotController(): ScatterPlotController<X, Y>;
 }

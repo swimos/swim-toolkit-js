@@ -113,7 +113,10 @@ export interface ModelRelation<O = unknown, M extends Model = Model> extends Fas
   didUnderive(inlet: ModelRelation<unknown, M>): void;
 
   /** @override */
-  getInlet(): ModelRelation<unknown, M> | null;
+  deriveInlet(): ModelRelation<unknown, M> | null;
+
+  /** @override */
+  bindInlet(inlet: ModelRelation<unknown, M>): void;
 
   /** @override */
   readonly inlet: ModelRelation<unknown, M> | null;
