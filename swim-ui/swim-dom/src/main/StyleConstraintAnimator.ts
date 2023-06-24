@@ -16,9 +16,7 @@ import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
 import {Affinity} from "@swim/component";
 import type {FastenerFlags} from "@swim/component";
-import type {FastenerOwner} from "@swim/component";
-import type {AnimatorValue} from "@swim/component";
-import type {AnimatorValueInit} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
 import {ConstraintId} from "@swim/constraint";
 import {ConstraintMap} from "@swim/constraint";
 import type {AnyConstraintExpression} from "@swim/constraint";
@@ -39,14 +37,8 @@ import {EmLength} from "@swim/math";
 import {RemLength} from "@swim/math";
 import {PctLength} from "@swim/math";
 import type {StyleAnimatorDescriptor} from "./StyleAnimator";
-import type {StyleAnimatorClass} from "./StyleAnimator";
 import {StyleAnimator} from "./StyleAnimator";
 import {StyleContext} from "./"; // forward import
-
-/** @public */
-export type StyleConstraintAnimatorDecorator<A extends StyleConstraintAnimator<any, any, any>> = {
-  <T>(target: unknown, context: ClassFieldDecoratorContext<T, A>): (this: T, value: A | undefined) => A;
-};
 
 /** @public */
 export interface StyleConstraintAnimatorDescriptor<T = unknown, U = T> extends StyleAnimatorDescriptor<T, U> {
@@ -56,43 +48,10 @@ export interface StyleConstraintAnimatorDescriptor<T = unknown, U = T> extends S
 }
 
 /** @public */
-export type StyleConstraintAnimatorTemplate<A extends StyleConstraintAnimator<any, any, any>> =
-  ThisType<A> &
-  StyleConstraintAnimatorDescriptor<AnimatorValue<A>, AnimatorValueInit<A>> &
-  Partial<Omit<A, keyof StyleConstraintAnimatorDescriptor>>;
-
-/** @public */
-export interface StyleConstraintAnimatorClass<A extends StyleConstraintAnimator<any, any> = StyleConstraintAnimator<any, any, any>> extends StyleAnimatorClass<A> {
-  /** @override */
-  specialize(template: StyleConstraintAnimatorDescriptor<any, any>): StyleConstraintAnimatorClass<A>;
-
-  /** @override */
-  refine(animatorClass: StyleConstraintAnimatorClass<any>): void;
-
-  /** @override */
-  extend<A2 extends A>(className: string | symbol, template: StyleConstraintAnimatorTemplate<A2>): StyleConstraintAnimatorClass<A2>;
-  extend<A2 extends A>(className: string | symbol, template: StyleConstraintAnimatorTemplate<A2>): StyleConstraintAnimatorClass<A2>;
-
-  /** @override */
-  define<A2 extends A>(className: string | symbol, template: StyleConstraintAnimatorTemplate<A2>): StyleConstraintAnimatorClass<A2>;
-  define<A2 extends A>(className: string | symbol, template: StyleConstraintAnimatorTemplate<A2>): StyleConstraintAnimatorClass<A2>;
-
-  /** @override */
-  <A2 extends A>(template: StyleConstraintAnimatorTemplate<A2>): StyleConstraintAnimatorDecorator<A2>;
-
-  /** @internal */
-  readonly ConstrainedFlag: FastenerFlags;
-  /** @internal */
-  readonly ConstrainingFlag: FastenerFlags;
-
-  /** @internal @override */
-  readonly FlagShift: number;
-  /** @internal @override */
-  readonly FlagMask: FastenerFlags;
-}
-
-/** @public */
 export interface StyleConstraintAnimator<O = unknown, T = unknown, U = T> extends StyleAnimator<O, T, U>, ConstraintVariable {
+  /** @override */
+  get descriptorType(): Proto<StyleConstraintAnimatorDescriptor<T, U>>;
+
   /** @internal @override */
   readonly id: number;
 
@@ -210,7 +169,17 @@ export interface StyleConstraintAnimator<O = unknown, T = unknown, U = T> extend
 
 /** @public */
 export const StyleConstraintAnimator = (function (_super: typeof StyleAnimator) {
-  const StyleConstraintAnimator = _super.extend("StyleConstraintAnimator", {}) as StyleConstraintAnimatorClass;
+  const StyleConstraintAnimator = _super.extend("StyleConstraintAnimator", {}) as FastenerClass<StyleConstraintAnimator<any, any, any>> & {
+    /** @internal */
+    readonly ConstrainedFlag: FastenerFlags;
+    /** @internal */
+    readonly ConstrainingFlag: FastenerFlags;
+
+    /** @internal @override */
+    readonly FlagShift: number;
+    /** @internal @override */
+    readonly FlagMask: FastenerFlags;
+  };
 
   StyleConstraintAnimator.prototype.isExternal = function (this: StyleConstraintAnimator): boolean {
     return true;
@@ -237,12 +206,14 @@ export const StyleConstraintAnimator = (function (_super: typeof StyleAnimator) 
 
   StyleConstraintAnimator.prototype.evaluateConstraintVariable = function <T>(this: StyleConstraintAnimator<unknown, T>): void {
     const constraintScope = this.owner;
-    if (ConstraintScope.is(constraintScope) && !this.constrained && this.constraining) {
-      const value = this.constraintValue;
-      if (this.definedValue(value)) {
-        constraintScope.setConstraintVariable(this, this.toNumber(value));
-      }
+    if (!ConstraintScope.is(constraintScope) || this.constrained || !this.constraining) {
+      return;
     }
+    const value = this.constraintValue;
+    if (!this.definedValue(value)) {
+      return;
+    }
+    constraintScope.setConstraintVariable(this, this.toNumber(value));
   };
 
   StyleConstraintAnimator.prototype.updateConstraintSolution = function <T>(this: StyleConstraintAnimator<unknown, T>, state: number): void {
@@ -369,12 +340,13 @@ export const StyleConstraintAnimator = (function (_super: typeof StyleAnimator) 
   });
 
   StyleConstraintAnimator.prototype.startConstraining = function (this: StyleConstraintAnimator): void {
-    if ((this.flags & StyleConstraintAnimator.ConstrainingFlag) === 0) {
-      this.willStartConstraining();
-      this.setFlags(this.flags | StyleConstraintAnimator.ConstrainingFlag);
-      this.onStartConstraining();
-      this.didStartConstraining();
+    if ((this.flags & StyleConstraintAnimator.ConstrainingFlag) !== 0) {
+      return;
     }
+    this.willStartConstraining();
+    this.setFlags(this.flags | StyleConstraintAnimator.ConstrainingFlag);
+    this.onStartConstraining();
+    this.didStartConstraining();
   };
 
   StyleConstraintAnimator.prototype.willStartConstraining = function (this: StyleConstraintAnimator): void {
@@ -393,12 +365,13 @@ export const StyleConstraintAnimator = (function (_super: typeof StyleAnimator) 
   };
 
   StyleConstraintAnimator.prototype.stopConstraining = function (this: StyleConstraintAnimator): void {
-    if ((this.flags & StyleConstraintAnimator.ConstrainingFlag) !== 0) {
-      this.willStopConstraining();
-      this.setFlags(this.flags & ~StyleConstraintAnimator.ConstrainingFlag);
-      this.onStopConstraining();
-      this.didStopConstraining();
+    if ((this.flags & StyleConstraintAnimator.ConstrainingFlag) === 0) {
+      return;
     }
+    this.willStopConstraining();
+    this.setFlags(this.flags & ~StyleConstraintAnimator.ConstrainingFlag);
+    this.onStopConstraining();
+    this.didStopConstraining();
   };
 
   StyleConstraintAnimator.prototype.willStopConstraining = function (this: StyleConstraintAnimator): void {
@@ -453,7 +426,7 @@ export const StyleConstraintAnimator = (function (_super: typeof StyleAnimator) 
     return value !== void 0 && value !== null ? +value : 0;
   };
 
-  StyleConstraintAnimator.construct = function <A extends StyleConstraintAnimator<any, any>>(animator: A | null, owner: FastenerOwner<A>): A {
+  StyleConstraintAnimator.construct = function <A extends StyleConstraintAnimator<any, any>>(animator: A | null, owner: A extends StyleConstraintAnimator<infer O, any, any> ? O : never): A {
     animator = _super.construct.call(this, animator, owner) as A;
     (animator as Mutable<typeof animator>).id = ConstraintId.next();
     (animator as Mutable<typeof animator>).strength = animator.initStrength();
@@ -465,8 +438,8 @@ export const StyleConstraintAnimator = (function (_super: typeof StyleAnimator) 
     return animator;
   };
 
-  StyleConstraintAnimator.specialize = function (template: StyleConstraintAnimatorDescriptor<any, any>): StyleConstraintAnimatorClass {
-    let superClass = template.extends as StyleConstraintAnimatorClass | null | undefined;
+  StyleConstraintAnimator.specialize = function (template: StyleConstraintAnimatorDescriptor<any, any>): FastenerClass<StyleConstraintAnimator<any, any, any>> {
+    let superClass = template.extends as FastenerClass<StyleConstraintAnimator<any, any, any>> | null | undefined;
     if (superClass === void 0 || superClass === null) {
       const valueType = template.valueType;
       if (valueType === Number) {
@@ -480,7 +453,7 @@ export const StyleConstraintAnimator = (function (_super: typeof StyleAnimator) 
     return superClass;
   };
 
-  StyleConstraintAnimator.refine = function (animatorClass: StyleConstraintAnimatorClass<any>): void {
+  StyleConstraintAnimator.refine = function (animatorClass: FastenerClass<any>): void {
     _super.refine.call(this, animatorClass);
     const animatorPrototype = animatorClass.prototype;
     let flagsInit = animatorPrototype.flagsInit;
@@ -530,7 +503,7 @@ export interface NumberStyleConstraintAnimator<O = unknown, T extends number | u
 export const NumberStyleConstraintAnimator = (function (_super: typeof StyleConstraintAnimator) {
   const NumberStyleConstraintAnimator = _super.extend("NumberStyleConstraintAnimator", {
     valueType: Number,
-  }) as StyleConstraintAnimatorClass<NumberStyleConstraintAnimator<any, any, any>>;
+  }) as FastenerClass<NumberStyleConstraintAnimator<any, any, any>>;
 
   NumberStyleConstraintAnimator.prototype.toNumber = function (value: number): number {
     return typeof value === "number" ? value : 0;
@@ -622,7 +595,7 @@ export const LengthStyleConstraintAnimator = (function (_super: typeof StyleCons
   const LengthStyleConstraintAnimator = _super.extend("LengthStyleConstraintAnimator", {
     valueType: Length,
     value: null,
-  }) as StyleConstraintAnimatorClass<LengthStyleConstraintAnimator<any, any, any>>;
+  }) as FastenerClass<LengthStyleConstraintAnimator<any, any, any>>;
 
   Object.defineProperty(LengthStyleConstraintAnimator.prototype, "units", {
     get(this: LengthStyleConstraintAnimator): LengthUnits {

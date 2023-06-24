@@ -19,24 +19,13 @@ import type {Comparator} from "@swim/util";
 import type {Consumer} from "@swim/util";
 import {Affinity} from "@swim/component";
 import type {FastenerFlags} from "@swim/component";
-import type {FastenerOwner} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
 import {Fastener} from "@swim/component";
 import type {Model} from "./Model";
 import type {AnyTrait} from "./Trait";
-import type {TraitFactory} from "./Trait";
 import type {Trait} from "./Trait";
 import type {TraitRelationDescriptor} from "./TraitRelation";
-import type {TraitRelationClass} from "./TraitRelation";
 import {TraitRelation} from "./TraitRelation";
-
-/** @public */
-export type TraitSetTrait<F extends TraitSet<any, any>> =
-  F extends {traitType?: TraitFactory<infer T>} ? T : never;
-
-/** @public */
-export type TraitSetDecorator<F extends TraitSet<any, any>> = {
-  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
-};
 
 /** @public */
 export interface TraitSetDescriptor<T extends Trait = Trait> extends TraitRelationDescriptor<T> {
@@ -46,44 +35,11 @@ export interface TraitSetDescriptor<T extends Trait = Trait> extends TraitRelati
 }
 
 /** @public */
-export type TraitSetTemplate<F extends TraitSet<any, any>> =
-  ThisType<F> &
-  TraitSetDescriptor<TraitSetTrait<F>> &
-  Partial<Omit<F, keyof TraitSetDescriptor>>;
-
-/** @public */
-export interface TraitSetClass<F extends TraitSet<any, any> = TraitSet<any, any>> extends TraitRelationClass<F> {
-  /** @override */
-  specialize(template: TraitSetDescriptor<any>): TraitSetClass<F>;
-
-  /** @override */
-  refine(fastenerClass: TraitSetClass<any>): void;
-
-  /** @override */
-  extend<F2 extends F>(className: string | symbol, template: TraitSetTemplate<F2>): TraitSetClass<F2>;
-  extend<F2 extends F>(className: string | symbol, template: TraitSetTemplate<F2>): TraitSetClass<F2>;
-
-  /** @override */
-  define<F2 extends F>(className: string | symbol, template: TraitSetTemplate<F2>): TraitSetClass<F2>;
-  define<F2 extends F>(className: string | symbol, template: TraitSetTemplate<F2>): TraitSetClass<F2>;
-
-  /** @override */
-  <F2 extends F>(template: TraitSetTemplate<F2>): TraitSetDecorator<F2>;
-
-  /** @internal */
-  readonly OrderedFlag: FastenerFlags;
-  /** @internal */
-  readonly SortedFlag: FastenerFlags;
-
-  /** @internal @override */
-  readonly FlagShift: number;
-  /** @internal @override */
-  readonly FlagMask: FastenerFlags;
-}
-
-/** @public */
 export interface TraitSet<O = unknown, T extends Trait = Trait> extends TraitRelation<O, T> {
   (trait: AnyTrait<T>): O;
+
+  /** @override */
+  get descriptorType(): Proto<TraitSetDescriptor<T>>;
 
   /** @override */
   get fastenerType(): Proto<TraitSet<any, any>>;
@@ -110,13 +66,13 @@ export interface TraitSet<O = unknown, T extends Trait = Trait> extends TraitRel
   didUnderive(inlet: TraitSet<unknown, T>): void;
 
   /** @override */
-  deriveInlet(): TraitSet<unknown, T> | null;
-
-  /** @override */
-  bindInlet(inlet: TraitSet<unknown, T>): void;
+  get parent(): TraitSet<unknown, T> | null;
 
   /** @override */
   readonly inlet: TraitSet<unknown, T> | null;
+
+  /** @override */
+  bindInlet(inlet: TraitSet<unknown, T>): void;
 
   /** @protected @override */
   willBindInlet(inlet: TraitSet<unknown, T>): void;
@@ -267,7 +223,17 @@ export interface TraitSet<O = unknown, T extends Trait = Trait> extends TraitRel
 
 /** @public */
 export const TraitSet = (function (_super: typeof TraitRelation) {
-  const TraitSet = _super.extend("TraitSet", {}) as TraitSetClass;
+  const TraitSet = _super.extend("TraitSet", {}) as FastenerClass<TraitSet<any, any>> & {
+    /** @internal */
+    readonly OrderedFlag: FastenerFlags;
+    /** @internal */
+    readonly SortedFlag: FastenerFlags;
+
+    /** @internal @override */
+    readonly FlagShift: number;
+    /** @internal @override */
+    readonly FlagMask: FastenerFlags;
+  };
 
   Object.defineProperty(TraitSet.prototype, "fastenerType", {
     value: TraitSet,
@@ -516,35 +482,39 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
   };
 
   TraitSet.prototype.bindModel = function <T extends Trait>(this: TraitSet<unknown, T>, model: Model, target: Model | null): void {
-    if (this.binds) {
-      const newTrait = this.detectModel(model);
-      if (newTrait !== null && this.traits[newTrait.uid] === void 0) {
-        this.insertTraitMap(newTrait, null);
-        (this as Mutable<typeof this>).traitCount += 1;
-        this.willAttachTrait(newTrait, null);
-        this.onAttachTrait(newTrait, null);
-        this.initTrait(newTrait);
-        this.didAttachTrait(newTrait, null);
-        this.setCoherent(true);
-        this.decohereOutlets();
-      }
+    if (!this.binds) {
+      return;
     }
+    const newTrait = this.detectModel(model);
+    if (newTrait === null || this.traits[newTrait.uid] !== void 0) {
+      return;
+    }
+    this.insertTraitMap(newTrait, null);
+    (this as Mutable<typeof this>).traitCount += 1;
+    this.willAttachTrait(newTrait, null);
+    this.onAttachTrait(newTrait, null);
+    this.initTrait(newTrait);
+    this.didAttachTrait(newTrait, null);
+    this.setCoherent(true);
+    this.decohereOutlets();
   };
 
   TraitSet.prototype.unbindModel = function <T extends Trait>(this: TraitSet<unknown, T>, model: Model): void {
-    if (this.binds) {
-      const oldTrait = this.detectModel(model);
-      if (oldTrait !== null && this.traits[oldTrait.uid] !== void 0) {
-        (this as Mutable<typeof this>).traitCount -= 1;
-        this.removeTraitMap(oldTrait);
-        this.willDetachTrait(oldTrait);
-        this.onDetachTrait(oldTrait);
-        this.deinitTrait(oldTrait);
-        this.didDetachTrait(oldTrait);
-        this.setCoherent(true);
-        this.decohereOutlets();
-      }
+    if (!this.binds) {
+      return;
     }
+    const oldTrait = this.detectModel(model);
+    if (oldTrait === null || this.traits[oldTrait.uid] === void 0) {
+      return;
+    }
+    (this as Mutable<typeof this>).traitCount -= 1;
+    this.removeTraitMap(oldTrait);
+    this.willDetachTrait(oldTrait);
+    this.onDetachTrait(oldTrait);
+    this.deinitTrait(oldTrait);
+    this.didDetachTrait(oldTrait);
+    this.setCoherent(true);
+    this.decohereOutlets();
   };
 
   TraitSet.prototype.detectModel = function <T extends Trait>(this: TraitSet<unknown, T>, model: Model): T | null {
@@ -552,35 +522,39 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
   };
 
   TraitSet.prototype.bindTrait = function <T extends Trait>(this: TraitSet<unknown, T>, trait: Trait, target: Trait | null): void {
-    if (this.binds) {
-      const newTrait = this.detectTrait(trait);
-      if (newTrait !== null && this.traits[newTrait.uid] === void 0) {
-        this.insertTraitMap(newTrait, target);
-        (this as Mutable<typeof this>).traitCount += 1;
-        this.willAttachTrait(newTrait, target);
-        this.onAttachTrait(newTrait, target);
-        this.initTrait(newTrait);
-        this.didAttachTrait(newTrait, target);
-        this.setCoherent(true);
-        this.decohereOutlets();
-      }
+    if (!this.binds) {
+      return;
     }
+    const newTrait = this.detectTrait(trait);
+    if (newTrait === null || this.traits[newTrait.uid] !== void 0) {
+      return;
+    }
+    this.insertTraitMap(newTrait, target);
+    (this as Mutable<typeof this>).traitCount += 1;
+    this.willAttachTrait(newTrait, target);
+    this.onAttachTrait(newTrait, target);
+    this.initTrait(newTrait);
+    this.didAttachTrait(newTrait, target);
+    this.setCoherent(true);
+    this.decohereOutlets();
   };
 
   TraitSet.prototype.unbindTrait = function <T extends Trait>(this: TraitSet<unknown, T>, trait: Trait): void {
-    if (this.binds) {
-      const oldTrait = this.detectTrait(trait);
-      if (oldTrait !== null && this.traits[oldTrait.uid] !== void 0) {
-        (this as Mutable<typeof this>).traitCount -= 1;
-        this.removeTraitMap(oldTrait);
-        this.willDetachTrait(oldTrait);
-        this.onDetachTrait(oldTrait);
-        this.deinitTrait(oldTrait);
-        this.didDetachTrait(oldTrait);
-        this.setCoherent(true);
-        this.decohereOutlets();
-      }
+    if (!this.binds) {
+      return;
     }
+    const oldTrait = this.detectTrait(trait);
+    if (oldTrait === null || this.traits[oldTrait.uid] === void 0) {
+      return;
+    }
+    (this as Mutable<typeof this>).traitCount -= 1;
+    this.removeTraitMap(oldTrait);
+    this.willDetachTrait(oldTrait);
+    this.onDetachTrait(oldTrait);
+    this.deinitTrait(oldTrait);
+    this.didDetachTrait(oldTrait);
+    this.setCoherent(true);
+    this.decohereOutlets();
   };
 
   TraitSet.prototype.detectTrait = function <T extends Trait>(this: TraitSet<unknown, T>, trait: Trait): T | null {
@@ -631,12 +605,14 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
   };
 
   TraitSet.prototype.recohere = function (this: TraitSet, t: number): void {
-    if ((this.flags & Fastener.DerivedFlag) !== 0) {
-      const inlet = this.inlet;
-      if (inlet !== null) {
-        this.setTraits(inlet.traits);
-      }
+    if ((this.flags & Fastener.DerivedFlag) === 0) {
+      return;
     }
+    const inlet = this.inlet;
+    if (inlet === null) {
+      return;
+    }
+    this.setTraits(inlet.traits);
   };
 
   TraitSet.prototype.traitKey = function <T extends Trait>(this: TraitSet<unknown, T>, trait: T): string | undefined {
@@ -761,9 +737,9 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     return a.uid < b.uid ? -1 : a.uid > b.uid ? 1 : 0;
   };
 
-  TraitSet.construct = function <F extends TraitSet<any, any>>(fastener: F | null, owner: FastenerOwner<F>): F {
+  TraitSet.construct = function <F extends TraitSet<any, any>>(fastener: F | null, owner: F extends TraitSet<infer O, any> ? O : never): F {
     if (fastener === null) {
-      fastener = function (newTrait: AnyTrait<TraitSetTrait<F>>): FastenerOwner<F> {
+      fastener = function (newTrait: F extends TraitSet<any, infer T> ? AnyTrait<T> : never): F extends TraitSet<infer O, any> ? O : never {
         fastener!.addTrait(newTrait);
         return fastener!.owner;
       } as F;
@@ -781,7 +757,7 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     return fastener;
   };
 
-  TraitSet.refine = function (fastenerClass: TraitSetClass<any>): void {
+  TraitSet.refine = function (fastenerClass: FastenerClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
     let flagsInit = fastenerPrototype.flagsInit;

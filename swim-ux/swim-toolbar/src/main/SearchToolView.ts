@@ -118,7 +118,8 @@ export class SearchToolView extends ToolView {
   readonly stylesheet!: ViewRef<this, StyleView>;
 
   @StyleRule({
-    deriveInlet(): StyleSheet | null {
+    inherits: true,
+    get parent(): StyleSheet | null {
       const styleView = this.owner.stylesheet.view;
       return styleView !== null ? styleView.sheet : null;
     },
@@ -152,7 +153,8 @@ export class SearchToolView extends ToolView {
   readonly inputRule!: StyleRule<this>;
 
   @StyleRule({
-    deriveInlet(): StyleSheet | null {
+    inherits: true,
+    get parent(): StyleSheet | null {
       const styleView = this.owner.stylesheet.view;
       return styleView !== null ? styleView.sheet : null;
     },
@@ -172,7 +174,8 @@ export class SearchToolView extends ToolView {
   readonly inputFocusRule!: StyleRule<this>;
 
   @StyleRule({
-    deriveInlet(): StyleSheet | null {
+    inherits: true,
+    get parent(): StyleSheet | null {
       const styleView = this.owner.stylesheet.view;
       return styleView !== null ? styleView.sheet : null;
     },
@@ -184,7 +187,8 @@ export class SearchToolView extends ToolView {
   readonly inputPlaceholderRule!: StyleRule<this>;
 
   @StyleRule({
-    deriveInlet(): StyleSheet | null {
+    inherits: true,
+    get parent(): StyleSheet | null {
       const styleView = this.owner.stylesheet.view;
       return styleView !== null ? styleView.sheet : null;
     },

@@ -87,7 +87,8 @@ export class InputTokenView extends TokenView {
   readonly stylesheet!: ViewRef<this, StyleView>;
 
   @StyleRule({
-    deriveInlet(): StyleSheet | null {
+    inherits: true,
+    get parent(): StyleSheet | null {
       const styleView = this.owner.stylesheet.view;
       return styleView !== null ? styleView.sheet : null;
     },

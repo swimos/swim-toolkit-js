@@ -14,9 +14,7 @@
 
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
-import type {FastenerOwner} from "@swim/component";
-import type {AnimatorValue} from "@swim/component";
-import type {AnimatorValueInit} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
 import type {LengthUnits} from "@swim/math";
 import type {LengthBasis} from "@swim/math";
 import type {AnyLength} from "@swim/math";
@@ -34,14 +32,8 @@ import {Color} from "@swim/style";
 import type {AnyBoxShadow} from "@swim/style";
 import {BoxShadow} from "@swim/style";
 import type {ThemeAnimatorDescriptor} from "@swim/theme";
-import type {ThemeAnimatorClass} from "@swim/theme";
 import {ThemeAnimator} from "@swim/theme";
 import {StyleContext} from "./"; // forward import
-
-/** @public */
-export type StyleAnimatorDecorator<A extends StyleAnimator<any, any, any>> = {
-  <T>(target: unknown, context: ClassFieldDecoratorContext<T, A>): (this: T, value: A | undefined) => A;
-};
 
 /** @public */
 export interface StyleAnimatorDescriptor<T = unknown, U = T> extends ThemeAnimatorDescriptor<T, U> {
@@ -50,33 +42,10 @@ export interface StyleAnimatorDescriptor<T = unknown, U = T> extends ThemeAnimat
 }
 
 /** @public */
-export type StyleAnimatorTemplate<A extends StyleAnimator<any, any, any>> =
-  ThisType<A> &
-  StyleAnimatorDescriptor<AnimatorValue<A>, AnimatorValueInit<A>> &
-  Partial<Omit<A, keyof StyleAnimatorDescriptor>>;
-
-/** @public */
-export interface StyleAnimatorClass<A extends StyleAnimator<any, any, any> = StyleAnimator<any, any, any>> extends ThemeAnimatorClass<A> {
-  /** @override */
-  specialize(template: StyleAnimatorDescriptor<any, any>): StyleAnimatorClass<A>;
-
-  /** @override */
-  refine(animatorClass: StyleAnimatorClass<any>): void;
-
-  /** @override */
-  extend<A2 extends A>(className: string | symbol, template: StyleAnimatorTemplate<A2>): StyleAnimatorClass<A2>;
-  extend<A2 extends A>(className: string | symbol, template: StyleAnimatorTemplate<A2>): StyleAnimatorClass<A2>;
-
-  /** @override */
-  define<A2 extends A>(className: string | symbol, template: StyleAnimatorTemplate<A2>): StyleAnimatorClass<A2>;
-  define<A2 extends A>(className: string | symbol, template: StyleAnimatorTemplate<A2>): StyleAnimatorClass<A2>;
-
-  /** @override */
-  <A2 extends A>(template: StyleAnimatorTemplate<A2>): StyleAnimatorDecorator<A2>;
-}
-
-/** @public */
 export interface StyleAnimator<O = unknown, T = unknown, U = T> extends ThemeAnimator<O, T, U> {
+  /** @override */
+  get descriptorType(): Proto<StyleAnimatorDescriptor<T, U>>;
+
   readonly propertyNames: string | ReadonlyArray<string>; // prototype property
 
   get propertyValue(): T;
@@ -114,7 +83,7 @@ export interface StyleAnimator<O = unknown, T = unknown, U = T> extends ThemeAni
 
 /** @public */
 export const StyleAnimator = (function (_super: typeof ThemeAnimator) {
-  const StyleAnimator = _super.extend("StyleAnimator", {}) as StyleAnimatorClass;
+  const StyleAnimator = _super.extend("StyleAnimator", {}) as FastenerClass<StyleAnimator<any, any, any>>;
 
   Object.defineProperty(StyleAnimator.prototype, "propertyValue", {
     get: function <T>(this: StyleAnimator<unknown, T>): T {
@@ -266,14 +235,15 @@ export const StyleAnimator = (function (_super: typeof ThemeAnimator) {
 
   StyleAnimator.prototype.applyStyle = function <T>(this: StyleAnimator<unknown, T>, value: T, priority: string | undefined): void {
     const styleContext = this.owner;
-    if (StyleContext.is(styleContext)) {
-      const propertyNames = this.propertyNames;
-      if (typeof propertyNames === "string") {
-        styleContext.setStyle(propertyNames, value, priority);
-      } else {
-        for (let i = 0, n = propertyNames.length; i < n; i += 1) {
-          styleContext.setStyle(propertyNames[i]!, value, priority);
-        }
+    if (!StyleContext.is(styleContext)) {
+      return;
+    }
+    const propertyNames = this.propertyNames;
+    if (typeof propertyNames === "string") {
+      styleContext.setStyle(propertyNames, value, priority);
+    } else {
+      for (let i = 0, n = propertyNames.length; i < n; i += 1) {
+        styleContext.setStyle(propertyNames[i]!, value, priority);
       }
     }
   };
@@ -286,14 +256,14 @@ export const StyleAnimator = (function (_super: typeof ThemeAnimator) {
     throw new Error();
   };
 
-  StyleAnimator.construct = function <A extends StyleAnimator<any, any, any>>(animator: A | null, owner: FastenerOwner<A>): A {
+  StyleAnimator.construct = function <A extends StyleAnimator<any, any, any>>(animator: A | null, owner: A extends StyleAnimator<infer O, any, any> ? O : never): A {
     animator = _super.construct.call(this, animator, owner) as A;
     (animator as Mutable<typeof animator>).priority = animator.initPriority();
     return animator;
   };
 
-  StyleAnimator.specialize = function (template: StyleAnimatorDescriptor<any, any>): StyleAnimatorClass {
-    let superClass = template.extends as StyleAnimatorClass | null | undefined;
+  StyleAnimator.specialize = function (template: StyleAnimatorDescriptor<any, any>): FastenerClass<StyleAnimator<any, any, any>> {
+    let superClass = template.extends as FastenerClass<StyleAnimator<any, any, any>> | null | undefined;
     if (superClass === void 0 || superClass === null) {
       const valueType = template.valueType;
       if (valueType === String) {
@@ -328,7 +298,7 @@ export interface StringStyleAnimator<O = unknown, T extends string | undefined =
 export const StringStyleAnimator = (function (_super: typeof StyleAnimator) {
   const StringStyleAnimator = _super.extend("StringStyleAnimator", {
     valueType: String,
-  }) as StyleAnimatorClass<StringStyleAnimator<any, any, any>>;
+  }) as FastenerClass<StringStyleAnimator<any, any, any>>;
 
   StringStyleAnimator.prototype.equalValues = function (newValue: string | undefined, oldValue: string | undefined): boolean {
     return newValue === oldValue;
@@ -357,7 +327,7 @@ export interface NumberStyleAnimator<O = unknown, T extends number | undefined =
 export const NumberStyleAnimator = (function (_super: typeof StyleAnimator) {
   const NumberStyleAnimator = _super.extend("NumberStyleAnimator", {
     valueType: Number,
-  }) as StyleAnimatorClass<NumberStyleAnimator<any, any, any>>;
+  }) as FastenerClass<NumberStyleAnimator<any, any, any>>;
 
   NumberStyleAnimator.prototype.equalValues = function (newValue: number | undefined, oldValue: number | undefined): boolean {
     return newValue === oldValue;
@@ -445,7 +415,7 @@ export const LengthStyleAnimator = (function (_super: typeof StyleAnimator) {
   const LengthStyleAnimator = _super.extend("LengthStyleAnimator", {
     valueType: Length,
     value: null,
-  }) as StyleAnimatorClass<LengthStyleAnimator<any, any, any>>;
+  }) as FastenerClass<LengthStyleAnimator<any, any, any>>;
 
   Object.defineProperty(LengthStyleAnimator.prototype, "units", {
     get(this: LengthStyleAnimator): LengthUnits {
@@ -645,7 +615,7 @@ export const ColorStyleAnimator = (function (_super: typeof StyleAnimator) {
   const ColorStyleAnimator = _super.extend("ColorStyleAnimator", {
     valueType: Color,
     value: null,
-  }) as StyleAnimatorClass<ColorStyleAnimator<any, any, any>>;
+  }) as FastenerClass<ColorStyleAnimator<any, any, any>>;
 
   ColorStyleAnimator.prototype.equalValues = function (newValue: Color | null, oldValue: Color | null): boolean {
     if (newValue !== void 0 && newValue !== null) {
@@ -678,7 +648,7 @@ export interface FontFamilyStyleAnimator<O = unknown, T extends FontFamily | Rea
 export const FontFamilyStyleAnimator = (function (_super: typeof StyleAnimator) {
   const FontFamilyStyleAnimator = _super.extend("FontFamilyStyleAnimator", {
     valueType: Font,
-  }) as StyleAnimatorClass<FontFamilyStyleAnimator<any, any, any>>;
+  }) as FastenerClass<FontFamilyStyleAnimator<any, any, any>>;
 
   FontFamilyStyleAnimator.prototype.parse = function (value: string): FontFamily | ReadonlyArray<FontFamily> | undefined {
     return Font.parse(value).family;
@@ -700,7 +670,7 @@ export const BoxShadowStyleAnimator = (function (_super: typeof StyleAnimator) {
   const BoxShadowStyleAnimator = _super.extend("BoxShadowStyleAnimator", {
     valueType: BoxShadow,
     value: null,
-  }) as StyleAnimatorClass<BoxShadowStyleAnimator<any, any, any>>;
+  }) as FastenerClass<BoxShadowStyleAnimator<any, any, any>>;
 
   BoxShadowStyleAnimator.prototype.equalValues = function (newValue: BoxShadow | null, oldValue: BoxShadow | null): boolean {
     if (newValue !== void 0 && newValue !== null) {
@@ -730,7 +700,7 @@ export const TransformStyleAnimator = (function (_super: typeof StyleAnimator) {
   const TransformStyleAnimator = _super.extend("TransformStyleAnimator", {
     valueType: Transform,
     value: null,
-  }) as StyleAnimatorClass<StyleAnimator<any, any, any>>;
+  }) as FastenerClass<StyleAnimator<any, any, any>>;
 
   TransformStyleAnimator.prototype.equalValues = function (newValue: Transform | null, oldValue: Transform | null): boolean {
     if (newValue !== void 0 && newValue !== null) {

@@ -16,7 +16,7 @@ import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
 import {Arrays} from "@swim/util";
 import {Affinity} from "@swim/component";
-import type {FastenerOwner} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
 import {Fastener} from "@swim/component";
 import type {AnyConstraintExpression} from "@swim/constraint";
 import {ConstraintExpression} from "@swim/constraint";
@@ -29,20 +29,9 @@ import {Constraint} from "@swim/constraint";
 import type {ConstraintScope} from "@swim/constraint";
 import type {ConstraintContext} from "@swim/constraint";
 import type {AnyView} from "./View";
-import type {ViewFactory} from "./View";
 import type {View} from "./View";
 import type {ViewRelationDescriptor} from "./ViewRelation";
-import type {ViewRelationClass} from "./ViewRelation";
 import {ViewRelation} from "./ViewRelation";
-
-/** @public */
-export type ViewRefView<F extends ViewRef<any, any>> =
-  F extends {viewType?: ViewFactory<infer V>} ? V : never;
-
-/** @public */
-export type ViewRefDecorator<F extends ViewRef<any, any>> = {
-  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
-};
 
 /** @public */
 export interface ViewRefDescriptor<V extends View = View> extends ViewRelationDescriptor<V> {
@@ -51,35 +40,12 @@ export interface ViewRefDescriptor<V extends View = View> extends ViewRelationDe
 }
 
 /** @public */
-export type ViewRefTemplate<F extends ViewRef<any, any>> =
-  ThisType<F> &
-  ViewRefDescriptor<ViewRefView<F>> &
-  Partial<Omit<F, keyof ViewRefDescriptor>>;
-
-/** @public */
-export interface ViewRefClass<F extends ViewRef<any, any> = ViewRef<any, any>> extends ViewRelationClass<F> {
-  /** @override */
-  specialize(template: ViewRefDescriptor<any>): ViewRefClass<F>;
-
-  /** @override */
-  refine(fastenerClass: ViewRefClass<any>): void;
-
-  /** @override */
-  extend<F2 extends F>(className: string | symbol, template: ViewRefTemplate<F2>): ViewRefClass<F2>;
-  extend<F2 extends F>(className: string | symbol, template: ViewRefTemplate<F2>): ViewRefClass<F2>;
-
-  /** @override */
-  define<F2 extends F>(className: string | symbol, template: ViewRefTemplate<F2>): ViewRefClass<F2>;
-  define<F2 extends F>(className: string | symbol, template: ViewRefTemplate<F2>): ViewRefClass<F2>;
-
-  /** @override */
-  <F2 extends F>(template: ViewRefTemplate<F2>): ViewRefDecorator<F2>;
-}
-
-/** @public */
 export interface ViewRef<O = unknown, V extends View = View> extends ViewRelation<O, V>, ConstraintScope, ConstraintContext {
   (): V | null;
   (view: AnyView<V> | null, target?: View | null, key?: string): O;
+
+  /** @override */
+  get descriptorType(): Proto<ViewRefDescriptor<V>>;
 
   /** @override */
   get fastenerType(): Proto<ViewRef<any, any>>;
@@ -106,13 +72,13 @@ export interface ViewRef<O = unknown, V extends View = View> extends ViewRelatio
   didUnderive(inlet: ViewRef<unknown, V>): void;
 
   /** @override */
-  deriveInlet(): ViewRef<unknown, V> | null;
-
-  /** @override */
-  bindInlet(inlet: ViewRef<unknown, V>): void;
+  get parent(): ViewRef<unknown, V> | null;
 
   /** @override */
   readonly inlet: ViewRef<unknown, V> | null;
+
+  /** @override */
+  bindInlet(inlet: ViewRef<unknown, V>): void;
 
   /** @protected @override */
   willBindInlet(inlet: ViewRef<unknown, V>): void;
@@ -241,7 +207,7 @@ export interface ViewRef<O = unknown, V extends View = View> extends ViewRelatio
 
 /** @public */
 export const ViewRef = (function (_super: typeof ViewRelation) {
-  const ViewRef = _super.extend("ViewRef", {}) as ViewRefClass;
+  const ViewRef = _super.extend("ViewRef", {}) as FastenerClass<ViewRef<any, any>>;
 
   Object.defineProperty(ViewRef.prototype, "fastenerType", {
     value: ViewRef,
@@ -664,9 +630,9 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
     _super.prototype.onUnmount.call(this);
   };
 
-  ViewRef.construct = function <F extends ViewRef<any, any>>(fastener: F | null, owner: FastenerOwner<F>): F {
+  ViewRef.construct = function <F extends ViewRef<any, any>>(fastener: F | null, owner: F extends ViewRef<infer O, any> ? O : never): F {
     if (fastener === null) {
-      fastener = function (view?: AnyView<ViewRefView<F>> | null, target?: View | null, key?: string): ViewRefView<F> | null | FastenerOwner<F> {
+      fastener = function (view?: F extends ViewRef<any, infer V> ? AnyView<V> : never, target?: View | null, key?: string): F extends ViewRef<infer O, infer V> ? V | O | null : never {
         if (view === void 0) {
           return fastener!.view;
         } else {
@@ -684,7 +650,7 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
     return fastener;
   };
 
-  ViewRef.refine = function (fastenerClass: ViewRefClass<any>): void {
+  ViewRef.refine = function (fastenerClass: FastenerClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

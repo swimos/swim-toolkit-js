@@ -15,28 +15,13 @@
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
 import type {Observes} from "@swim/util";
-import type {FastenerOwner} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
 import type {AnyView} from "@swim/view";
 import type {ViewFactory} from "@swim/view";
 import {View} from "@swim/view";
-import type {ControllerFactory} from "./Controller";
 import type {Controller} from "./Controller";
 import type {ControllerRefDescriptor} from "./ControllerRef";
-import type {ControllerRefClass} from "./ControllerRef";
 import {ControllerRef} from "./ControllerRef";
-
-/** @public */
-export type ViewControllerRefView<F extends ViewControllerRef<any, any, any>> =
-  F extends {viewType?: ViewFactory<infer V>} ? V : never;
-
-/** @public */
-export type ViewControllerRefController<F extends ViewControllerRef<any, any, any>> =
-  F extends {controllerType?: ControllerFactory<infer C>} ? C : never;
-
-/** @public */
-export type ViewControllerRefDecorator<F extends ViewControllerRef<any, any, any>> = {
-  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
-};
 
 /** @public */
 export interface ViewControllerRefDescriptor<V extends View = View, C extends Controller = Controller> extends ControllerRefDescriptor<C> {
@@ -47,35 +32,9 @@ export interface ViewControllerRefDescriptor<V extends View = View, C extends Co
 }
 
 /** @public */
-export type ViewControllerRefTemplate<F extends ViewControllerRef<any, any, any>> =
-  ThisType<F> &
-  ViewControllerRefDescriptor<ViewControllerRefView<F>, ViewControllerRefController<F>> &
-  Partial<Omit<F, keyof ViewControllerRefDescriptor>>;
-
-/** @public */
-export interface ViewControllerRefClass<F extends ViewControllerRef<any, any, any> = ViewControllerRef<any, any, any>> extends ControllerRefClass<F> {
-  /** @override */
-  specialize(template: ViewControllerRefDescriptor<any, any>): ViewControllerRefClass<F>;
-
-  /** @override */
-  refine(fastenerClass: ViewControllerRefClass<any>): void;
-
-  /** @override */
-  extend<F2 extends F>(className: string | symbol, template: ViewControllerRefTemplate<F2>): ViewControllerRefClass<F2>;
-  extend<F2 extends F>(className: string | symbol, template: ViewControllerRefTemplate<F2>): ViewControllerRefClass<F2>;
-
-  /** @override */
-  define<F2 extends F>(className: string | symbol, template: ViewControllerRefTemplate<F2>): ViewControllerRefClass<F2>;
-  define<F2 extends F>(className: string | symbol, template: ViewControllerRefTemplate<F2>): ViewControllerRefClass<F2>;
-
-  /** @override */
-  <F2 extends F>(template: ViewControllerRefTemplate<F2>): ViewControllerRefDecorator<F2>;
-}
-
-/** @public */
 export interface ViewControllerRef<O = unknown, V extends View = View, C extends Controller = Controller> extends ControllerRef<O, C> {
   /** @override */
-  get fastenerType(): Proto<ViewControllerRef<any, any, any>>;
+  get descriptorType(): Proto<ViewControllerRefDescriptor<V, C>>;
 
   /** @internal */
   readonly viewType?: ViewFactory<V>; // optional prototype property
@@ -149,13 +108,7 @@ export interface ViewControllerRef<O = unknown, V extends View = View, C extends
 
 /** @public */
 export const ViewControllerRef = (function (_super: typeof ControllerRef) {
-  const ViewControllerRef = _super.extend("ViewControllerRef", {}) as ViewControllerRefClass;
-
-  Object.defineProperty(ViewControllerRef.prototype, "fastenerType", {
-    value: ViewControllerRef,
-    enumerable: true,
-    configurable: true,
-  });
+  const ViewControllerRef = _super.extend("ViewControllerRef", {}) as FastenerClass<ViewControllerRef<any, any, any>>;
 
   ViewControllerRef.prototype.getView = function <V extends View, C extends Controller>(this: ViewControllerRef<unknown, V, C>): V {
     const view = this.view;
@@ -422,13 +375,13 @@ export const ViewControllerRef = (function (_super: typeof ControllerRef) {
     return controller;
   };
 
-  ViewControllerRef.construct = function <F extends ViewControllerRef<any, any, any>>(fastener: F | null, owner: FastenerOwner<F>): F {
+  ViewControllerRef.construct = function <F extends ViewControllerRef<any, any, any>>(fastener: F | null, owner: F extends ViewControllerRef<infer O, any, any> ? O : never): F {
     fastener = _super.construct.call(this, fastener, owner) as F;
     (fastener as Mutable<typeof fastener>).view = null;
     return fastener;
   };
 
-  ViewControllerRef.refine = function (fastenerClass: ViewControllerRefClass<any>): void {
+  ViewControllerRef.refine = function (fastenerClass: FastenerClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

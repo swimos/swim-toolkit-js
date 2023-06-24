@@ -18,7 +18,7 @@ import type {Proto} from "@swim/util";
 import type {AnyTiming} from "@swim/util";
 import {Timing} from "@swim/util";
 import {FastenerContext} from "@swim/component";
-import type {FastenerOwner} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
 import {Fastener} from "@swim/component";
 import type {AnyConstraintExpression} from "@swim/constraint";
 import type {ConstraintVariable} from "@swim/constraint";
@@ -40,13 +40,7 @@ import {StyleAnimator} from "./StyleAnimator";
 import type {StyleMapInit} from "./StyleMap";
 import {StyleMap} from "./StyleMap";
 import type {CssRuleDescriptor} from "./CssRule";
-import type {CssRuleClass} from "./CssRule";
 import {CssRule} from "./CssRule";
-
-/** @public */
-export type StyleRuleDecorator<F extends StyleRule<any>> = {
-  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
-};
 
 /** @public */
 export interface StyleRuleDescriptor extends CssRuleDescriptor<CSSStyleRule> {
@@ -55,43 +49,15 @@ export interface StyleRuleDescriptor extends CssRuleDescriptor<CSSStyleRule> {
 }
 
 /** @public */
-export type StyleRuleTemplate<F extends StyleRule<any>> =
-  ThisType<F> &
-  StyleRuleDescriptor &
-  Partial<Omit<F, keyof StyleRuleDescriptor>>;
-
-/** @public */
-export interface StyleRuleClass<F extends StyleRule<any> = StyleRule<any>> extends CssRuleClass<F> {
-  /** @override */
-  specialize(template: StyleRuleDescriptor): StyleRuleClass<F>;
-
-  /** @override */
-  refine(fastenerClass: StyleRuleClass<any>): void;
-
-  /** @override */
-  extend<F2 extends F>(className: string | symbol, template: StyleRuleTemplate<F2>): StyleRuleClass<F2>;
-  extend<F2 extends F>(className: string | symbol, template: StyleRuleTemplate<F2>): StyleRuleClass<F2>;
-
-  /** @override */
-  define<F2 extends F>(className: string | symbol, template: StyleRuleTemplate<F2>): StyleRuleClass<F2>;
-  define<F2 extends F>(className: string | symbol, template: StyleRuleTemplate<F2>): StyleRuleClass<F2>;
-
-  /** @override */
-  <F2 extends F>(template: StyleRuleTemplate<F2>): StyleRuleDecorator<F2>;
-
-  /** @internal */
-  readonly initializerMap: {[name: string | symbol]: Function[]};
-  /** @internal */
-  readonly extraInitializers: Function[];
-}
-
-/** @public */
 export interface StyleRule<O = unknown> extends CssRule<O, CSSStyleRule>, FastenerContext, ConstraintScope, ThemeContext, StyleMap {
+  /** @override */
+  get descriptorType(): Proto<StyleRuleDescriptor>;
+
   /** @override */
   get fastenerType(): Proto<StyleRule<any>>;
 
   /** @override */
-  transformInletCss(inletCss: CSSStyleSheet | CSSRule): CSSStyleRule | null;
+  transformInletCss(inletCss: CSSStyleSheet | CSSRule | null): CSSStyleRule | null;
 
   /** @override */
   createRule(inletCss: CSSStyleSheet | CSSGroupingRule): CSSStyleRule | null;
@@ -195,7 +161,12 @@ export interface StyleRule<O = unknown> extends CssRule<O, CSSStyleRule>, Fasten
 
 /** @public */
 export const StyleRule = (function (_super: typeof CssRule) {
-  const StyleRule = _super.extend("StyleRule", {}) as StyleRuleClass;
+  const StyleRule = _super.extend("StyleRule", {}) as FastenerClass<StyleRule<any>> & {
+    /** @internal */
+    readonly initializerMap: {[name: string | symbol]: Function[]};
+    /** @internal */
+    readonly extraInitializers: Function[];
+  };
 
   Object.defineProperty(StyleRule.prototype, "fastenerType", {
     value: StyleRule,
@@ -203,7 +174,7 @@ export const StyleRule = (function (_super: typeof CssRule) {
     configurable: true,
   });
 
-  StyleRule.prototype.transformInletCss = function (this: StyleRule, inletCss: CSSStyleSheet | CSSRule): CSSStyleRule | null {
+  StyleRule.prototype.transformInletCss = function (this: StyleRule, inletCss: CSSStyleSheet | CSSRule | null): CSSStyleRule | null {
     if (inletCss instanceof CSSStyleRule) {
       return inletCss;
     } else if (inletCss instanceof CSSStyleSheet || inletCss instanceof CSSGroupingRule) {
@@ -235,71 +206,67 @@ export const StyleRule = (function (_super: typeof CssRule) {
 
   StyleRule.prototype.getStyle = function (this: StyleRule, propertyNames: string | ReadonlyArray<string>): CSSStyleValue | string | undefined {
     const css = this.css;
-    if (css !== null) {
-      if (typeof CSSStyleValue !== "undefined") { // CSS Typed OM support
-        const style = css.styleMap;
-        if (typeof propertyNames === "string") {
-          return style.get(propertyNames);
-        } else {
-          for (let i = 0, n = propertyNames.length; i < n; i += 1) {
-            const value = style.get(propertyNames[i]!);
-            if (value !== void 0) {
-              return value;
-            }
-          }
-          return "";
-        }
-      } else {
-        const style = css.style;
-        if (typeof propertyNames === "string") {
-          return style.getPropertyValue(propertyNames);
-        } else {
-          for (let i = 0, n = propertyNames.length; i < n; i += 1) {
-            const value = style.getPropertyValue(propertyNames[i]!);
-            if (value.length !== 0) {
-              return value;
-            }
-          }
-          return "";
+    if (css === null) {
+      return void 0;
+    }
+    if (typeof CSSStyleValue !== "undefined") { // CSS Typed OM support
+      const style = css.styleMap;
+      if (typeof propertyNames === "string") {
+        return style.get(propertyNames);
+      }
+      for (let i = 0, n = propertyNames.length; i < n; i += 1) {
+        const value = style.get(propertyNames[i]!);
+        if (value !== void 0) {
+          return value;
         }
       }
+      return "";
     }
-    return void 0;
+    const style = css.style;
+    if (typeof propertyNames === "string") {
+      return style.getPropertyValue(propertyNames);
+    }
+    for (let i = 0, n = propertyNames.length; i < n; i += 1) {
+      const value = style.getPropertyValue(propertyNames[i]!);
+      if (value.length !== 0) {
+        return value;
+      }
+    }
+    return "";
   };
 
   StyleRule.prototype.setStyle = function (this: StyleRule, propertyName: string, value: unknown, priority?: string): StyleRule {
     const css = this.css;
-    if (css !== null) {
-      this.willSetStyle(propertyName, value, priority);
-      if (typeof CSSStyleValue !== "undefined") { // CSS Typed OM support
-        if (value !== void 0 && value !== null) {
-          const cssValue = ToCssValue(value);
-          if (cssValue !== null) {
-            try {
-              css.styleMap.set(propertyName, cssValue);
-            } catch (e) {
-              // swallow
-            }
-          } else {
-            css.style.setProperty(propertyName, ToStyleString(value), priority);
-          }
-        } else {
+    if (css === null) {
+      return this;
+    }
+    this.willSetStyle(propertyName, value, priority);
+    if (typeof CSSStyleValue !== "undefined") { // CSS Typed OM support
+      if (value !== void 0 && value !== null) {
+        const cssValue = ToCssValue(value);
+        if (cssValue !== null) {
           try {
-            css.styleMap.delete(propertyName);
+            css.styleMap.set(propertyName, cssValue);
           } catch (e) {
             // swallow
           }
+        } else {
+          css.style.setProperty(propertyName, ToStyleString(value), priority);
         }
       } else {
-        if (value !== void 0 && value !== null) {
-          css.style.setProperty(propertyName, ToStyleString(value), priority);
-        } else {
-          css.style.removeProperty(propertyName);
+        try {
+          css.styleMap.delete(propertyName);
+        } catch (e) {
+          // swallow
         }
       }
-      this.onSetStyle(propertyName, value, priority);
-      this.didSetStyle(propertyName, value, priority);
+    } else if (value !== void 0 && value !== null) {
+      css.style.setProperty(propertyName, ToStyleString(value), priority);
+    } else {
+      css.style.removeProperty(propertyName);
     }
+    this.onSetStyle(propertyName, value, priority);
+    this.didSetStyle(propertyName, value, priority);
     return this;
   };
 
@@ -354,11 +321,10 @@ export const StyleRule = (function (_super: typeof CssRule) {
 
   StyleRule.prototype.getLook = function <T>(this: StyleRule, look: Look<T, unknown>, mood?: MoodVector<Feel> | null): T | undefined {
     const themeContext = this.owner;
-    if (ThemeContext.is(themeContext)) {
-      return themeContext.getLook(look, mood);
-    } else {
+    if (!ThemeContext.is(themeContext)) {
       return void 0;
     }
+    return themeContext.getLook(look, mood);
   };
 
   StyleRule.prototype.getLookOr = function <T, E>(this: StyleRule, look: Look<T, unknown>, mood: MoodVector<Feel> | null | E, elseValue?: E): T | E {
@@ -493,7 +459,7 @@ export const StyleRule = (function (_super: typeof CssRule) {
   (StyleRule as Mutable<typeof StyleRule>).extraInitializers = [];
   StyleMap.define(StyleRule.prototype, StyleRule.initializerMap, StyleRule.extraInitializers);
 
-  StyleRule.construct = function <F extends StyleRule<any>>(fastener: F | null, owner: FastenerOwner<F>): F {
+  StyleRule.construct = function <F extends StyleRule<any>>(fastener: F | null, owner: F extends StyleRule<infer O> ? O : never): F {
     fastener = _super.construct.call(this, fastener, owner) as F;
     (fastener as Mutable<typeof fastener>).decoherent = null;
     __runInitializers(fastener, StyleRule.extraInitializers);

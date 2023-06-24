@@ -50,7 +50,6 @@ export class ViewportService extends Service {
 
   @Property({
     valueType: LayoutViewport,
-    lazy: false,
     initValue(): LayoutViewport {
       return this.detect();
     },
@@ -102,7 +101,6 @@ export class ViewportService extends Service {
 
   @Property({
     valueType: VisualViewport,
-    lazy: false,
     initValue(): VisualViewport {
       return this.detect();
     },
@@ -166,7 +164,6 @@ export class ViewportService extends Service {
   @Property({
     valueType: ViewInsets,
     value: ViewInsets.zero,
-    lazy: false,
     update(): void {
       if (this.hasAffinity(Affinity.Intrinsic)) {
         const safeArea = this.detect();
@@ -210,7 +207,6 @@ export class ViewportService extends Service {
 
   @Property({
     valueType: String,
-    lazy: false,
     initValue(): ViewportOrientation {
       return this.detect();
     },
@@ -259,7 +255,6 @@ export class ViewportService extends Service {
 
   @Property({
     valueType: String,
-    lazy: false,
     initValue(): ViewportColorScheme {
       return this.detect();
     },
@@ -306,7 +301,6 @@ export class ViewportService extends Service {
 
   @Property({
     valueType: String,
-    lazy: false,
     initValue(): ViewIdiom {
       return this.detect();
     },

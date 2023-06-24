@@ -40,13 +40,13 @@ import type {AnyUri} from "@swim/uri";
 import {Uri} from "@swim/uri";
 import type {WarpDownlinkModel} from "@swim/client";
 import {WarpDownlink} from "@swim/client";
-import type {EventDownlinkTemplate} from "@swim/client";
+import type {EventDownlinkDescriptor} from "@swim/client";
 import {EventDownlink} from "@swim/client";
-import type {ValueDownlinkTemplate} from "@swim/client";
+import type {ValueDownlinkDescriptor} from "@swim/client";
 import {ValueDownlink} from "@swim/client";
-import type {ListDownlinkTemplate} from "@swim/client";
+import type {ListDownlinkDescriptor} from "@swim/client";
 import {ListDownlink} from "@swim/client";
-import type {MapDownlinkTemplate} from "@swim/client";
+import type {MapDownlinkDescriptor} from "@swim/client";
 import {MapDownlink} from "@swim/client";
 import {WarpRef} from "@swim/client";
 import {WarpClient} from "@swim/client";
@@ -868,7 +868,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   readonly laneUri!: Property<this, Uri | null, AnyUri | null>;
 
   /** @override */
-  downlink(template?: EventDownlinkTemplate<EventDownlink<this>>): EventDownlink<this> {
+  downlink(template?: ThisType<EventDownlink<this>> & EventDownlinkDescriptor & Partial<Omit<EventDownlink<this>, keyof EventDownlinkDescriptor>>): EventDownlink<this> {
     let downlinkClass = EventDownlink;
     if (template !== void 0) {
       downlinkClass = downlinkClass.define("downlink", template);
@@ -877,7 +877,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   }
 
   /** @override */
-  downlinkValue<V = Value, VU = V extends Value ? AnyValue & V : V>(template?: ValueDownlinkTemplate<ValueDownlink<this, V, VU>>): ValueDownlink<this, V, VU> {
+  downlinkValue<V = Value, VU = V extends Value ? AnyValue : V>(template?: ThisType<ValueDownlink<this, V, VU>> & ValueDownlinkDescriptor<V, VU> & Partial<Omit<ValueDownlink<this, V, VU>, keyof ValueDownlinkDescriptor<V, VU>>>): ValueDownlink<this, V, VU> {
     let downlinkClass = ValueDownlink;
     if (template !== void 0) {
       downlinkClass = downlinkClass.define("downlinkValue", template);
@@ -886,7 +886,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   }
 
   /** @override */
-  downlinkList<V = Value, VU = V extends Value ? AnyValue & V : V>(template?: ListDownlinkTemplate<ListDownlink<this, V, VU>>): ListDownlink<this, V, VU> {
+  downlinkList<V = Value, VU = V extends Value ? AnyValue : V>(template?: ThisType<ListDownlink<this, V, VU>> & ListDownlinkDescriptor<V, VU> & Partial<Omit<ListDownlink<this, V, VU>, keyof ListDownlinkDescriptor<V, VU>>>): ListDownlink<this, V, VU> {
     let downlinkClass = ListDownlink;
     if (template !== void 0) {
       downlinkClass = downlinkClass.define("downlinkList", template);
@@ -895,7 +895,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   }
 
   /** @override */
-  downlinkMap<K = Value, V = Value, KU = K extends Value ? AnyValue & K : K, VU = V extends Value ? AnyValue & V : V>(template?: MapDownlinkTemplate<MapDownlink<this, K, V, KU, VU>>): MapDownlink<this, K, V, KU, VU> {
+  downlinkMap<K = Value, V = Value, KU = K extends Value ? AnyValue : K, VU = V extends Value ? AnyValue : V>(template?: ThisType<MapDownlink<this, K, V, KU, VU>> & MapDownlinkDescriptor<K, V, KU, VU> & Partial<Omit<MapDownlink<this, K, V, KU, VU>, keyof MapDownlinkDescriptor<K, V, KU, VU>>>): MapDownlink<this, K, V, KU, VU> {
     let downlinkClass = MapDownlink;
     if (template !== void 0) {
       downlinkClass = downlinkClass.define("downlinkMap", template);

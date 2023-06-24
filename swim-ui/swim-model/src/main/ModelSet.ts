@@ -19,23 +19,12 @@ import type {Comparator} from "@swim/util";
 import type {Consumer} from "@swim/util";
 import {Affinity} from "@swim/component";
 import type {FastenerFlags} from "@swim/component";
-import type {FastenerOwner} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
 import {Fastener} from "@swim/component";
 import type {AnyModel} from "./Model";
-import type {ModelFactory} from "./Model";
 import type {Model} from "./Model";
 import type {ModelRelationDescriptor} from "./ModelRelation";
-import type {ModelRelationClass} from "./ModelRelation";
 import {ModelRelation} from "./ModelRelation";
-
-/** @public */
-export type ModelSetModel<F extends ModelSet<any, any>> =
-  F extends {modelType?: ModelFactory<infer M>} ? M : never;
-
-/** @public */
-export type ModelSetDecorator<F extends ModelSet<any, any>> = {
-  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
-};
 
 /** @public */
 export interface ModelSetDescriptor<M extends Model = Model> extends ModelRelationDescriptor<M> {
@@ -45,44 +34,11 @@ export interface ModelSetDescriptor<M extends Model = Model> extends ModelRelati
 }
 
 /** @public */
-export type ModelSetTemplate<F extends ModelSet<any, any>> =
-  ThisType<F> &
-  ModelSetDescriptor<ModelSetModel<F>> &
-  Partial<Omit<F, keyof ModelSetDescriptor>>;
-
-/** @public */
-export interface ModelSetClass<F extends ModelSet<any, any> = ModelSet<any, any>> extends ModelRelationClass<F> {
-  /** @override */
-  specialize(template: ModelSetDescriptor<any>): ModelSetClass<F>;
-
-  /** @override */
-  refine(fastenerClass: ModelSetClass<any>): void;
-
-  /** @override */
-  extend<F2 extends F>(className: string | symbol, template: ModelSetTemplate<F2>): ModelSetClass<F2>;
-  extend<F2 extends F>(className: string | symbol, template: ModelSetTemplate<F2>): ModelSetClass<F2>;
-
-  /** @override */
-  define<F2 extends F>(className: string | symbol, template: ModelSetTemplate<F2>): ModelSetClass<F2>;
-  define<F2 extends F>(className: string | symbol, template: ModelSetTemplate<F2>): ModelSetClass<F2>;
-
-  /** @override */
-  <F2 extends F>(template: ModelSetTemplate<F2>): ModelSetDecorator<F2>;
-
-  /** @internal */
-  readonly OrderedFlag: FastenerFlags;
-  /** @internal */
-  readonly SortedFlag: FastenerFlags;
-
-  /** @internal @override */
-  readonly FlagShift: number;
-  /** @internal @override */
-  readonly FlagMask: FastenerFlags;
-}
-
-/** @public */
 export interface ModelSet<O = unknown, M extends Model = Model> extends ModelRelation<O, M> {
   (model: AnyModel<M>): O;
+
+  /** @override */
+  get descriptorType(): Proto<ModelSetDescriptor<M>>;
 
   /** @override */
   get fastenerType(): Proto<ModelSet<any, any>>;
@@ -109,13 +65,13 @@ export interface ModelSet<O = unknown, M extends Model = Model> extends ModelRel
   didUnderive(inlet: ModelSet<unknown, M>): void;
 
   /** @override */
-  deriveInlet(): ModelSet<unknown, M> | null;
-
-  /** @override */
-  bindInlet(inlet: ModelSet<unknown, M>): void;
+  get parent(): ModelSet<unknown, M> | null;
 
   /** @override */
   readonly inlet: ModelSet<unknown, M> | null;
+
+  /** @override */
+  bindInlet(inlet: ModelSet<unknown, M>): void;
 
   /** @protected @override */
   willBindInlet(inlet: ModelSet<unknown, M>): void;
@@ -257,7 +213,17 @@ export interface ModelSet<O = unknown, M extends Model = Model> extends ModelRel
 
 /** @public */
 export const ModelSet = (function (_super: typeof ModelRelation) {
-  const ModelSet = _super.extend("ModelSet", {}) as ModelSetClass;
+  const ModelSet = _super.extend("ModelSet", {}) as FastenerClass<ModelSet<any, any>> & {
+    /** @internal */
+    readonly OrderedFlag: FastenerFlags;
+    /** @internal */
+    readonly SortedFlag: FastenerFlags;
+
+    /** @internal @override */
+    readonly FlagShift: number;
+    /** @internal @override */
+    readonly FlagMask: FastenerFlags;
+  };
 
   Object.defineProperty(ModelSet.prototype, "fastenerType", {
     value: ModelSet,
@@ -503,35 +469,39 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
   };
 
   ModelSet.prototype.bindModel = function <M extends Model>(this: ModelSet<unknown, M>, model: Model, target: Model | null): void {
-    if (this.binds) {
-      const newModel = this.detectModel(model);
-      if (newModel !== null && this.models[newModel.uid] === void 0) {
-        this.insertModelMap(newModel, target);
-        (this as Mutable<typeof this>).modelCount += 1;
-        this.willAttachModel(newModel, target);
-        this.onAttachModel(newModel, target);
-        this.initModel(newModel);
-        this.didAttachModel(newModel, target);
-        this.setCoherent(true);
-        this.decohereOutlets();
-      }
+    if (!this.binds) {
+      return;
     }
+    const newModel = this.detectModel(model);
+    if (newModel === null || this.models[newModel.uid] !== void 0) {
+      return;
+    }
+    this.insertModelMap(newModel, target);
+    (this as Mutable<typeof this>).modelCount += 1;
+    this.willAttachModel(newModel, target);
+    this.onAttachModel(newModel, target);
+    this.initModel(newModel);
+    this.didAttachModel(newModel, target);
+    this.setCoherent(true);
+    this.decohereOutlets();
   };
 
   ModelSet.prototype.unbindModel = function <M extends Model>(this: ModelSet<unknown, M>, model: Model): void {
-    if (this.binds) {
-      const oldModel = this.detectModel(model);
-      if (oldModel !== null && this.models[oldModel.uid] !== void 0) {
-        (this as Mutable<typeof this>).modelCount -= 1;
-        this.removeModelMap(oldModel);
-        this.willDetachModel(oldModel);
-        this.onDetachModel(oldModel);
-        this.deinitModel(oldModel);
-        this.didDetachModel(oldModel);
-        this.setCoherent(true);
-        this.decohereOutlets();
-      }
+    if (!this.binds) {
+      return;
     }
+    const oldModel = this.detectModel(model);
+    if (oldModel === null || this.models[oldModel.uid] === void 0) {
+      return;
+    }
+    (this as Mutable<typeof this>).modelCount -= 1;
+    this.removeModelMap(oldModel);
+    this.willDetachModel(oldModel);
+    this.onDetachModel(oldModel);
+    this.deinitModel(oldModel);
+    this.didDetachModel(oldModel);
+    this.setCoherent(true);
+    this.decohereOutlets();
   };
 
   ModelSet.prototype.detectModel = function <M extends Model>(this: ModelSet<unknown, M>, model: Model): M | null {
@@ -582,12 +552,14 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
   };
 
   ModelSet.prototype.recohere = function (this: ModelSet, t: number): void {
-    if ((this.flags & Fastener.DerivedFlag) !== 0) {
-      const inlet = this.inlet;
-      if (inlet !== null) {
-        this.setModels(inlet.models);
-      }
+    if ((this.flags & Fastener.DerivedFlag) === 0) {
+      return;
     }
+    const inlet = this.inlet;
+    if (inlet === null) {
+      return;
+    }
+    this.setModels(inlet.models);
   };
 
   ModelSet.prototype.modelKey = function <M extends Model>(this: ModelSet<unknown, M>, model: M): string | undefined {
@@ -705,9 +677,9 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
     return a.uid < b.uid ? -1 : a.uid > b.uid ? 1 : 0;
   };
 
-  ModelSet.construct = function <F extends ModelSet<any, any>>(fastener: F | null, owner: FastenerOwner<F>): F {
+  ModelSet.construct = function <F extends ModelSet<any, any>>(fastener: F | null, owner: F extends ModelSet<infer O, any> ? O : never): F {
     if (fastener === null) {
-      fastener = function (newModel: AnyModel<ModelSetModel<F>>): FastenerOwner<F> {
+      fastener = function (newModel: F extends ModelRelation<any, infer M> ? AnyModel<M> : never): F extends ModelSet<infer O, any> ? O : never {
         fastener!.addModel(newModel);
         return fastener!.owner;
       } as F;
@@ -725,7 +697,7 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
     return fastener;
   };
 
-  ModelSet.refine = function (fastenerClass: ModelSetClass<any>): void {
+  ModelSet.refine = function (fastenerClass: FastenerClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
     let flagsInit = fastenerPrototype.flagsInit;

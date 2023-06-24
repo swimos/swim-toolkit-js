@@ -13,27 +13,13 @@
 // limitations under the License.
 
 import type {Proto} from "@swim/util";
+import type {FastenerClass} from "@swim/component";
 import type {TraitFactory} from "@swim/model";
 import type {Trait} from "@swim/model";
 import type {TraitRef} from "@swim/model";
-import type {ControllerFactory} from "./Controller";
 import type {Controller} from "./Controller";
 import type {ControllerRefDescriptor} from "./ControllerRef";
-import type {ControllerRefClass} from "./ControllerRef";
 import {ControllerRef} from "./ControllerRef";
-
-/** @public */
-export type TraitControllerRefTrait<F extends TraitControllerRef<any, any, any>> =
-  F extends {traitType?: TraitFactory<infer T>} ? T : never;
-
-/** @public */
-export type TraitControllerRefController<F extends TraitControllerRef<any, any, any>> =
-  F extends {controllerType?: ControllerFactory<infer C>} ? C : never;
-
-/** @public */
-export type TraitControllerRefDecorator<F extends TraitControllerRef<any, any, any>> = {
-  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
-};
 
 /** @public */
 export interface TraitControllerRefDescriptor<T extends Trait = Trait, C extends Controller = Controller> extends ControllerRefDescriptor<C> {
@@ -43,35 +29,9 @@ export interface TraitControllerRefDescriptor<T extends Trait = Trait, C extends
 }
 
 /** @public */
-export type TraitControllerRefTemplate<F extends TraitControllerRef<any, any, any>> =
-  ThisType<F> &
-  TraitControllerRefDescriptor<TraitControllerRefTrait<F>, TraitControllerRefController<F>> &
-  Partial<Omit<F, keyof TraitControllerRefDescriptor>>;
-
-/** @public */
-export interface TraitControllerRefClass<F extends TraitControllerRef<any, any, any> = TraitControllerRef<any, any, any>> extends ControllerRefClass<F> {
-  /** @override */
-  specialize(template: TraitControllerRefDescriptor<any>): TraitControllerRefClass<F>;
-
-  /** @override */
-  refine(fastenerClass: TraitControllerRefClass<any>): void;
-
-  /** @override */
-  extend<F2 extends F>(className: string | symbol, template: TraitControllerRefTemplate<F2>): TraitControllerRefClass<F2>;
-  extend<F2 extends F>(className: string | symbol, template: TraitControllerRefTemplate<F2>): TraitControllerRefClass<F2>;
-
-  /** @override */
-  define<F2 extends F>(className: string | symbol, template: TraitControllerRefTemplate<F2>): TraitControllerRefClass<F2>;
-  define<F2 extends F>(className: string | symbol, template: TraitControllerRefTemplate<F2>): TraitControllerRefClass<F2>;
-
-  /** @override */
-  <F2 extends F>(template: TraitControllerRefTemplate<F2>): TraitControllerRefDecorator<F2>;
-}
-
-/** @public */
 export interface TraitControllerRef<O = unknown, T extends Trait = Trait, C extends Controller = Controller> extends ControllerRef<O, C> {
   /** @override */
-  get fastenerType(): Proto<TraitControllerRef<any, any, any>>;
+  get descriptorType(): Proto<TraitControllerRefDescriptor<T, C>>;
 
   /** @internal */
   getTraitRef(controller: C): TraitRef<unknown, T>;
@@ -131,13 +91,7 @@ export interface TraitControllerRef<O = unknown, T extends Trait = Trait, C exte
 
 /** @public */
 export const TraitControllerRef = (function (_super: typeof ControllerRef) {
-  const TraitControllerRef = _super.extend("TraitControllerRef", {}) as TraitControllerRefClass;
-
-  Object.defineProperty(TraitControllerRef.prototype, "fastenerType", {
-    value: TraitControllerRef,
-    enumerable: true,
-    configurable: true,
-  });
+  const TraitControllerRef = _super.extend("TraitControllerRef", {}) as FastenerClass<TraitControllerRef<any, any, any>>;
 
   TraitControllerRef.prototype.getTraitRef = function <T extends Trait, C extends Controller>(controller: C): TraitRef<unknown, T> {
     throw new Error("abstract");
@@ -290,7 +244,7 @@ export const TraitControllerRef = (function (_super: typeof ControllerRef) {
     return trait;
   };
 
-  TraitControllerRef.refine = function (fastenerClass: TraitControllerRefClass<any>): void {
+  TraitControllerRef.refine = function (fastenerClass: FastenerClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

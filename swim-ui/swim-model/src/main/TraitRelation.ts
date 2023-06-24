@@ -19,7 +19,6 @@ import type {Observes} from "@swim/util";
 import type {Consumer} from "@swim/util";
 import type {Consumable} from "@swim/util";
 import type {FastenerFlags} from "@swim/component";
-import type {FastenerOwner} from "@swim/component";
 import type {FastenerDescriptor} from "@swim/component";
 import type {FastenerClass} from "@swim/component";
 import {Fastener} from "@swim/component";
@@ -27,15 +26,6 @@ import {Model} from "./Model";
 import type {AnyTrait} from "./Trait";
 import type {TraitFactory} from "./Trait";
 import {Trait} from "./Trait";
-
-/** @public */
-export type TraitRelationTrait<F extends TraitRelation<any, any>> =
-  F extends {traitType?: TraitFactory<infer T>} ? T : never;
-
-/** @public */
-export type TraitRelationDecorator<F extends TraitRelation<any, any>> = {
-  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
-};
 
 /** @public */
 export interface TraitRelationDescriptor<T extends Trait = Trait> extends FastenerDescriptor {
@@ -47,41 +37,10 @@ export interface TraitRelationDescriptor<T extends Trait = Trait> extends Fasten
 }
 
 /** @public */
-export type TraitRelationTemplate<F extends TraitRelation<any, any>> =
-  ThisType<F> &
-  TraitRelationDescriptor<TraitRelationTrait<F>> &
-  Partial<Omit<F, keyof TraitRelationDescriptor>>;
-
-/** @public */
-export interface TraitRelationClass<F extends TraitRelation<any, any> = TraitRelation<any, any>> extends FastenerClass<F> {
-  /** @override */
-  specialize(template: TraitRelationDescriptor<any>): TraitRelationClass<F>;
-
-  /** @override */
-  refine(fastenerClass: TraitRelationClass<any>): void;
-
-  /** @override */
-  extend<F2 extends F>(className: string | symbol, template: TraitRelationTemplate<F2>): TraitRelationClass<F2>;
-  extend<F2 extends F>(className: string | symbol, template: TraitRelationTemplate<F2>): TraitRelationClass<F2>;
-
-  /** @override */
-  define<F2 extends F>(className: string | symbol, template: TraitRelationTemplate<F2>): TraitRelationClass<F2>;
-  define<F2 extends F>(className: string | symbol, template: TraitRelationTemplate<F2>): TraitRelationClass<F2>;
-
-  /** @override */
-  <F2 extends F>(template: TraitRelationTemplate<F2>): TraitRelationDecorator<F2>;
-
-  /** @internal */
-  readonly ConsumingFlag: FastenerFlags;
-
-  /** @internal @override */
-  readonly FlagShift: number;
-  /** @internal @override */
-  readonly FlagMask: FastenerFlags;
-}
-
-/** @public */
 export interface TraitRelation<O = unknown, T extends Trait = Trait> extends Fastener<O>, Consumable {
+  /** @override */
+  get descriptorType(): Proto<TraitRelationDescriptor<T>>;
+
   /** @override */
   get fastenerType(): Proto<TraitRelation<any, any>>;
 
@@ -113,13 +72,13 @@ export interface TraitRelation<O = unknown, T extends Trait = Trait> extends Fas
   didUnderive(inlet: TraitRelation<unknown, T>): void;
 
   /** @override */
-  deriveInlet(): TraitRelation<unknown, T> | null;
-
-  /** @override */
-  bindInlet(inlet: TraitRelation<unknown, T>): void;
+  get parent(): TraitRelation<unknown, T> | null;
 
   /** @override */
   readonly inlet: TraitRelation<unknown, T> | null;
+
+  /** @override */
+  bindInlet(inlet: TraitRelation<unknown, T>): void;
 
   /** @protected @override */
   willBindInlet(inlet: TraitRelation<unknown, T>): void;
@@ -264,9 +223,15 @@ export interface TraitRelation<O = unknown, T extends Trait = Trait> extends Fas
 
 /** @public */
 export const TraitRelation = (function (_super: typeof Fastener) {
-  const TraitRelation = _super.extend("TraitRelation", {
-    lazy: false,
-  }) as TraitRelationClass;
+  const TraitRelation = _super.extend("TraitRelation", {}) as FastenerClass<TraitRelation<any, any>> & {
+    /** @internal */
+    readonly ConsumingFlag: FastenerFlags;
+
+    /** @internal @override */
+    readonly FlagShift: number;
+    /** @internal @override */
+    readonly FlagMask: FastenerFlags;
+  };
 
   Object.defineProperty(TraitRelation.prototype, "fastenerType", {
     value: TraitRelation,
@@ -295,12 +260,14 @@ export const TraitRelation = (function (_super: typeof Fastener) {
 
   TraitRelation.prototype.detachOutlet = function <T extends Trait>(this: TraitRelation<unknown, T>, outlet: TraitRelation<unknown, T>): void {
     const outlets = this.outlets as TraitRelation<unknown, T>[] | null;
-    if (outlets !== null) {
-      const index = outlets.indexOf(outlet);
-      if (index >= 0) {
-        outlets.splice(index, 1);
-      }
+    if (outlets === null) {
+      return;
     }
+    const index = outlets.indexOf(outlet);
+    if (index < 0) {
+      return;
+    }
+    outlets.splice(index, 1);
   };
 
   TraitRelation.prototype.initTrait = function <T extends Trait>(this: TraitRelation<unknown, T>, trait: T): void {
@@ -418,14 +385,15 @@ export const TraitRelation = (function (_super: typeof Fastener) {
   TraitRelation.prototype.consume = function (this: TraitRelation, consumer: Consumer): void {
     const oldConsumers = this.consumers;
     const newConsumerrss = Arrays.inserted(consumer, oldConsumers);
-    if (oldConsumers !== newConsumerrss) {
-      this.willConsume(consumer);
-      (this as Mutable<typeof this>).consumers = newConsumerrss;
-      this.onConsume(consumer);
-      this.didConsume(consumer);
-      if (oldConsumers.length === 0 && (this.flags & TraitRelation.MountedFlag) !== 0) {
-        this.startConsuming();
-      }
+    if (oldConsumers === newConsumerrss) {
+      return;
+    }
+    this.willConsume(consumer);
+    (this as Mutable<typeof this>).consumers = newConsumerrss;
+    this.onConsume(consumer);
+    this.didConsume(consumer);
+    if (oldConsumers.length === 0 && (this.flags & TraitRelation.MountedFlag) !== 0) {
+      this.startConsuming();
     }
   };
 
@@ -444,14 +412,15 @@ export const TraitRelation = (function (_super: typeof Fastener) {
   TraitRelation.prototype.unconsume = function (this: TraitRelation, consumer: Consumer): void {
     const oldConsumers = this.consumers;
     const newConsumerrss = Arrays.removed(consumer, oldConsumers);
-    if (oldConsumers !== newConsumerrss) {
-      this.willUnconsume(consumer);
-      (this as Mutable<typeof this>).consumers = newConsumerrss;
-      this.onUnconsume(consumer);
-      this.didUnconsume(consumer);
-      if (newConsumerrss.length === 0) {
-        this.stopConsuming();
-      }
+    if (oldConsumers === newConsumerrss) {
+      return;
+    }
+    this.willUnconsume(consumer);
+    (this as Mutable<typeof this>).consumers = newConsumerrss;
+    this.onUnconsume(consumer);
+    this.didUnconsume(consumer);
+    if (newConsumerrss.length === 0) {
+      this.stopConsuming();
     }
   };
 
@@ -476,12 +445,13 @@ export const TraitRelation = (function (_super: typeof Fastener) {
   });
 
   TraitRelation.prototype.startConsuming = function (this: TraitRelation): void {
-    if ((this.flags & TraitRelation.ConsumingFlag) === 0) {
-      this.willStartConsuming();
-      this.setFlags(this.flags | TraitRelation.ConsumingFlag);
-      this.onStartConsuming();
-      this.didStartConsuming();
+    if ((this.flags & TraitRelation.ConsumingFlag) !== 0) {
+      return;
     }
+    this.willStartConsuming();
+    this.setFlags(this.flags | TraitRelation.ConsumingFlag);
+    this.onStartConsuming();
+    this.didStartConsuming();
   };
 
   TraitRelation.prototype.willStartConsuming = function (this: TraitRelation): void {
@@ -497,12 +467,13 @@ export const TraitRelation = (function (_super: typeof Fastener) {
   };
 
   TraitRelation.prototype.stopConsuming = function (this: TraitRelation): void {
-    if ((this.flags & TraitRelation.ConsumingFlag) !== 0) {
-      this.willStopConsuming();
-      this.setFlags(this.flags & ~TraitRelation.ConsumingFlag);
-      this.onStopConsuming();
-      this.didStopConsuming();
+    if ((this.flags & TraitRelation.ConsumingFlag) === 0) {
+      return;
     }
+    this.willStopConsuming();
+    this.setFlags(this.flags & ~TraitRelation.ConsumingFlag);
+    this.onStopConsuming();
+    this.didStopConsuming();
   };
 
   TraitRelation.prototype.willStopConsuming = function (this: TraitRelation): void {
@@ -529,7 +500,7 @@ export const TraitRelation = (function (_super: typeof Fastener) {
     this.stopConsuming();
   };
 
-  TraitRelation.construct = function <F extends TraitRelation<any, any>>(fastener: F | null, owner: FastenerOwner<F>): F {
+  TraitRelation.construct = function <F extends TraitRelation<any, any>>(fastener: F | null, owner: F extends TraitRelation<infer O, any> ? O : never): F {
     fastener = _super.construct.call(this, fastener, owner) as F;
     Object.defineProperty(fastener, "inlet", { // override getter
       value: null,

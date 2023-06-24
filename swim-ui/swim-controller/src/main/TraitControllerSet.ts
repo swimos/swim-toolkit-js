@@ -15,28 +15,13 @@
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
 import type {Consumer} from "@swim/util";
-import type {FastenerOwner} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
 import type {TraitFactory} from "@swim/model";
 import type {Trait} from "@swim/model";
 import type {TraitRef} from "@swim/model";
-import type {ControllerFactory} from "./Controller";
 import type {Controller} from "./Controller";
 import type {ControllerSetDescriptor} from "./ControllerSet";
-import type {ControllerSetClass} from "./ControllerSet";
 import {ControllerSet} from "./ControllerSet";
-
-/** @public */
-export type TraitControllerSetTrait<F extends TraitControllerSet<any, any, any>> =
-  F extends {traitType?: TraitFactory<infer T>} ? T : never;
-
-/** @public */
-export type TraitControllerSetController<F extends TraitControllerSet<any, any, any>> =
-  F extends {controllerType?: ControllerFactory<infer C>} ? C : never;
-
-/** @public */
-export type TraitControllerSetDecorator<F extends TraitControllerSet<any, any, any>> = {
-  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
-};
 
 /** @public */
 export interface TraitControllerSetDescriptor<T extends Trait = Trait, C extends Controller = Controller> extends ControllerSetDescriptor<C> {
@@ -45,33 +30,10 @@ export interface TraitControllerSetDescriptor<T extends Trait = Trait, C extends
 }
 
 /** @public */
-export type TraitControllerSetTemplate<F extends TraitControllerSet<any, any, any>> =
-  ThisType<F> &
-  TraitControllerSetDescriptor<TraitControllerSetTrait<F>, TraitControllerSetController<F>> &
-  Partial<Omit<F, keyof TraitControllerSetDescriptor>>;
-
-/** @public */
-export interface TraitControllerSetClass<F extends TraitControllerSet<any, any, any> = TraitControllerSet<any, any, any>> extends ControllerSetClass<F> {
-  /** @override */
-  specialize(template: TraitControllerSetDescriptor<any>): TraitControllerSetClass<F>;
-
-  /** @override */
-  refine(fastenerClass: TraitControllerSetClass<any>): void;
-
-  /** @override */
-  extend<F2 extends F>(className: string | symbol, template: TraitControllerSetTemplate<F2>): TraitControllerSetClass<F2>;
-  extend<F2 extends F>(className: string | symbol, template: TraitControllerSetTemplate<F2>): TraitControllerSetClass<F2>;
-
-  /** @override */
-  define<F2 extends F>(className: string | symbol, template: TraitControllerSetTemplate<F2>): TraitControllerSetClass<F2>;
-  define<F2 extends F>(className: string | symbol, template: TraitControllerSetTemplate<F2>): TraitControllerSetClass<F2>;
-
-  /** @override */
-  <F2 extends F>(template: TraitControllerSetTemplate<F2>): TraitControllerSetDecorator<F2>;
-}
-
-/** @public */
 export interface TraitControllerSet<O = unknown, T extends Trait = Trait, C extends Controller = Controller> extends ControllerSet<O, C> {
+  /** @override */
+  get descriptorType(): Proto<TraitControllerSetDescriptor<T, C>>;
+
   /** @internal */
   readonly traitControllers: {readonly [traitId: string]: C | undefined};
 
@@ -147,7 +109,7 @@ export interface TraitControllerSet<O = unknown, T extends Trait = Trait, C exte
 
 /** @public */
 export const TraitControllerSet = (function (_super: typeof ControllerSet) {
-  const TraitControllerSet = _super.extend("TraitControllerSet", {}) as TraitControllerSetClass;
+  const TraitControllerSet = _super.extend("TraitControllerSet", {}) as FastenerClass<TraitControllerSet<any, any, any>>;
 
   TraitControllerSet.prototype.getTraitRef = function <T extends Trait, C extends Controller>(controller: C): TraitRef<unknown, T> {
     throw new Error("missing implementation");
@@ -362,7 +324,7 @@ export const TraitControllerSet = (function (_super: typeof ControllerSet) {
     }
   };
 
-  TraitControllerSet.construct = function <F extends TraitControllerSet<any, any, any>>(fastener: F | null, owner: FastenerOwner<F>): F {
+  TraitControllerSet.construct = function <F extends TraitControllerSet<any, any, any>>(fastener: F | null, owner: F extends TraitControllerSet<infer O, any, any> ? O : never): F {
     fastener = _super.construct.call(this, fastener, owner) as F;
     (fastener as Mutable<typeof fastener>).traitControllers = {};
     return fastener;

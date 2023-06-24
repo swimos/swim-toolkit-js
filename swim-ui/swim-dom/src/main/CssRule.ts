@@ -13,15 +13,9 @@
 // limitations under the License.
 
 import type {Proto} from "@swim/util";
-import type {FastenerOwner} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
 import type {CssScopeDescriptor} from "./CssScope";
-import type {CssScopeClass} from "./CssScope";
 import {CssScope} from "./CssScope";
-
-/** @public */
-export type CssRuleDecorator<F extends CssRule<any>> = {
-  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
-};
 
 /** @public */
 export interface CssRuleDescriptor<S extends CSSRule = CSSRule> extends CssScopeDescriptor<S> {
@@ -31,38 +25,15 @@ export interface CssRuleDescriptor<S extends CSSRule = CSSRule> extends CssScope
 }
 
 /** @public */
-export type CssRuleTemplate<F extends CssRule<any>> =
-  ThisType<F> &
-  CssRuleDescriptor &
-  Partial<Omit<F, keyof CssRuleDescriptor>>;
-
-/** @public */
-export interface CssRuleClass<F extends CssRule<any> = CssRule<any>> extends CssScopeClass<F> {
-  /** @override */
-  specialize(template: CssRuleDescriptor<any>): CssRuleClass<F>;
-
-  /** @override */
-  refine(fastenerClass: CssRuleClass<any>): void;
-
-  /** @override */
-  extend<F2 extends F>(className: string | symbol, template: CssRuleTemplate<F2>): CssRuleClass<F2>;
-  extend<F2 extends F>(className: string | symbol, template: CssRuleTemplate<F2>): CssRuleClass<F2>;
-
-  /** @override */
-  define<F2 extends F>(className: string | symbol, template: CssRuleTemplate<F2>): CssRuleClass<F2>;
-  define<F2 extends F>(className: string | symbol, template: CssRuleTemplate<F2>): CssRuleClass<F2>;
-
-  /** @override */
-  <F2 extends F>(template: CssRuleTemplate<F2>): CssRuleDecorator<F2>;
-}
-
-/** @public */
 export interface CssRule<O = unknown, S extends CSSRule = CSSRule> extends CssScope<O, S> {
+  /** @override */
+  get descriptorType(): Proto<CssRuleDescriptor>;
+
   /** @override */
   get fastenerType(): Proto<CssRule<any>>;
 
   /** @override */
-  transformInletCss(inletCss: CSSStyleSheet | CSSRule): S | null;
+  transformInletCss(inletCss: CSSStyleSheet | CSSRule | null): S | null;
 
   createRule(inletCss: CSSStyleSheet | CSSGroupingRule): S | null;
 
@@ -73,7 +44,7 @@ export interface CssRule<O = unknown, S extends CSSRule = CSSRule> extends CssSc
 
 /** @public */
 export const CssRule = (function (_super: typeof CssScope) {
-  const CssRule = _super.extend("CssRule", {}) as CssRuleClass;
+  const CssRule = _super.extend("CssRule", {}) as FastenerClass<CssRule<any>>;
 
   Object.defineProperty(CssRule.prototype, "fastenerType", {
     value: CssRule,
@@ -81,7 +52,7 @@ export const CssRule = (function (_super: typeof CssScope) {
     configurable: true,
   });
 
-  CssRule.prototype.transformInletCss = function <S extends CSSRule>(this: CssRule<unknown, S>, inletCss: CSSStyleSheet | CSSRule): S | null {
+  CssRule.prototype.transformInletCss = function <S extends CSSRule>(this: CssRule<unknown, S>, inletCss: CSSStyleSheet | CSSRule | null): S | null {
     if (inletCss instanceof CSSStyleSheet || inletCss instanceof CSSGroupingRule) {
       return this.createRule(inletCss);
     }
@@ -107,7 +78,7 @@ export const CssRule = (function (_super: typeof CssScope) {
     configurable: true,
   });
 
-  CssRule.construct = function <F extends CssRule<any, any>>(fastener: F | null, owner: FastenerOwner<F>): F {
+  CssRule.construct = function <F extends CssRule<any, any>>(fastener: F | null, owner: F extends CssRule<infer O> ? O : never): F {
     fastener = _super.construct.call(this, fastener, owner) as F;
     return fastener;
   };

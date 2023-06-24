@@ -16,8 +16,6 @@
 
 mapboxgl.accessToken = "pk.eyJ1Ijoic3dpbWl0IiwiYSI6ImNqY2c3NXZkYzFoa2QycXQ1eXl1Mnd6M3EifQ.qpRE7xC08AyZfxJ56LoN7w";
 
-const bodyView = swim.HtmlView.fromNode(document.body);
-
 const ExampleMapboxController = (function () {
   const extraInitializers = [];
   const mapInitializers = [];
@@ -60,9 +58,8 @@ const ExampleMapboxController = (function () {
     createController(layerTrait) {
       if (layerTrait instanceof ExampleTileTrait) {
         return new ExampleTileController(swim.GeoTile.root());
-      } else {
-        return super.createController(layerTrait);
       }
+      return super.createController(layerTrait);
     },
   })], {kind: "field", name: "layers", static: false, private: false, access: {has: obj => "layers" in obj, get: obj => obj.layers, set: (obj, value) => { obj.layers = value; }}}, layersInitializers, extraInitializers);
   return ExampleMapboxController;
@@ -106,7 +103,7 @@ const ExampleTileTrait = (function () {
     constructor(geoTile) {
       super(geoTile);
       __runInitializers(this, extraInitializers);
-      this.vehiclesDownlinkInitializers = __runInitializers(this, vehiclesDownlinkInitializers, this.vehiclesDownlinkInitializers);
+      this.vehiclesDownlink = __runInitializers(this, vehiclesDownlinkInitializers, this.vehiclesDownlinkInitializers);
       const tileId = geoTile.x + "," + geoTile.y + "," + geoTile.z;
       this.nodeUri.setValue(swim.Uri.path(swim.UriPath.of("/", "map", "/", tileId)));
     }
@@ -123,7 +120,6 @@ const ExampleTileTrait = (function () {
     }
   }
   __esDecorate(null, null, [swim.MapDownlink({
-    lazy: false,
     consumed: true,
     laneUri: "vehicles",
     didUpdate(key, value) {
@@ -138,16 +134,16 @@ const layerTrait = new ExampleTileTrait(swim.GeoTile.root());
 layerModel.setTrait("layer", layerTrait);
 
 const mapModel = new swim.Model();
-mapModel.hostUri.setValue("warps://transit.swim.services");
-mapModel.mount();
 const mapTrait = new swim.MapTrait();
+mapTrait.hostUri.setValue("warps://transit.swim.services");
 mapModel.setTrait("map", mapTrait);
 mapModel.appendChild(layerModel, "layer");
+mapModel.mount();
 
 const mapController = new ExampleMapboxController();
 mapController.mount();
 mapController.map.setTrait(mapTrait);
-mapController.container.setView(bodyView);
+mapController.container.setView(swim.HtmlView.fromNode(document.body));
 
     </script>
   </body>

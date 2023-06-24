@@ -19,7 +19,6 @@ import type {Observes} from "@swim/util";
 import type {Consumer} from "@swim/util";
 import type {Consumable} from "@swim/util";
 import type {FastenerFlags} from "@swim/component";
-import type {FastenerOwner} from "@swim/component";
 import type {FastenerDescriptor} from "@swim/component";
 import type {FastenerClass} from "@swim/component";
 import {Fastener} from "@swim/component";
@@ -30,19 +29,6 @@ import {Trait} from "@swim/model";
 import type {AnyView} from "@swim/view";
 import type {ViewFactory} from "@swim/view";
 import {View} from "@swim/view";
-
-/** @public */
-export type TraitViewRefTrait<F extends TraitViewRef<any, any, any>> =
-  F extends {traitType?: TraitFactory<infer T>} ? T : never;
-
-/** @public */
-export type TraitViewRefView<F extends TraitViewRef<any, any, any>> =
-  F extends {viewType?: ViewFactory<infer V>} ? V : never;
-
-/** @public */
-export type TraitViewRefDecorator<F extends TraitViewRef<any, any, any>> = {
-  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
-};
 
 /** @public */
 export interface TraitViewRefDescriptor<T extends Trait = Trait, V extends View = View> extends FastenerDescriptor {
@@ -61,41 +47,10 @@ export interface TraitViewRefDescriptor<T extends Trait = Trait, V extends View 
 }
 
 /** @public */
-export type TraitViewRefTemplate<F extends TraitViewRef<any, any, any>> =
-  ThisType<F> &
-  TraitViewRefDescriptor<TraitViewRefTrait<F>, TraitViewRefView<F>> &
-  Partial<Omit<F, keyof TraitViewRefDescriptor>>;
-
-/** @public */
-export interface TraitViewRefClass<F extends TraitViewRef<any, any, any> = TraitViewRef<any, any, any>> extends FastenerClass<F> {
-  /** @override */
-  specialize(template: TraitViewRefDescriptor<any>): TraitViewRefClass<F>;
-
-  /** @override */
-  refine(fastenerClass: TraitViewRefClass<any>): void;
-
-  /** @override */
-  extend<F2 extends F>(className: string | symbol, template: TraitViewRefTemplate<F2>): TraitViewRefClass<F2>;
-  extend<F2 extends F>(className: string | symbol, template: TraitViewRefTemplate<F2>): TraitViewRefClass<F2>;
-
-  /** @override */
-  define<F2 extends F>(className: string | symbol, template: TraitViewRefTemplate<F2>): TraitViewRefClass<F2>;
-  define<F2 extends F>(className: string | symbol, template: TraitViewRefTemplate<F2>): TraitViewRefClass<F2>;
-
-  /** @override */
-  <F2 extends F>(template: TraitViewRefTemplate<F2>): TraitViewRefDecorator<F2>;
-
-  /** @internal */
-  readonly ConsumingFlag: FastenerFlags;
-
-  /** @internal @override */
-  readonly FlagShift: number;
-  /** @internal @override */
-  readonly FlagMask: FastenerFlags;
-}
-
-/** @public */
 export interface TraitViewRef<O = unknown, T extends Trait = Trait, V extends View = View> extends Fastener<O>, Consumable {
+  /** @override */
+  get descriptorType(): Proto<TraitViewRefDescriptor<T, V>>;
+
   /** @override */
   get fastenerType(): Proto<TraitViewRef<any, any, any>>;
 
@@ -318,9 +273,15 @@ export interface TraitViewRef<O = unknown, T extends Trait = Trait, V extends Vi
 
 /** @public */
 export const TraitViewRef = (function (_super: typeof Fastener) {
-  const TraitViewRef = _super.extend("TraitViewRef", {
-    lazy: false,
-  }) as TraitViewRefClass;
+  const TraitViewRef = _super.extend("TraitViewRef", {}) as FastenerClass<TraitViewRef<any, any, any>> & {
+    /** @internal */
+    readonly ConsumingFlag: FastenerFlags;
+
+    /** @internal @override */
+    readonly FlagShift: number;
+    /** @internal @override */
+    readonly FlagMask: FastenerFlags;
+  };
 
   Object.defineProperty(TraitViewRef.prototype, "fastenerType", {
     value: TraitViewRef,
@@ -560,29 +521,33 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
   };
 
   TraitViewRef.prototype.bindModel = function <T extends Trait>(this: TraitViewRef<unknown, T, View>, model: Model, targetModel: Model | null): void {
-    if (this.bindsTrait && this.trait === null) {
-      const newTrait = this.detectModel(model);
-      if (newTrait !== null) {
-        (this as Mutable<typeof this>).trait = newTrait;
-        this.willAttachTrait(newTrait, null);
-        this.onAttachTrait(newTrait, null);
-        this.initTrait(newTrait);
-        this.didAttachTrait(newTrait, null);
-      }
+    if (!this.bindsTrait || this.trait !== null) {
+      return;
     }
+    const newTrait = this.detectModel(model);
+    if (newTrait === null) {
+      return;
+    }
+    (this as Mutable<typeof this>).trait = newTrait;
+    this.willAttachTrait(newTrait, null);
+    this.onAttachTrait(newTrait, null);
+    this.initTrait(newTrait);
+    this.didAttachTrait(newTrait, null);
   };
 
   TraitViewRef.prototype.unbindModel = function <T extends Trait>(this: TraitViewRef<unknown, T, View>, model: Model): void {
-    if (this.bindsTrait) {
-      const oldTrait = this.detectModel(model);
-      if (oldTrait !== null && this.trait === oldTrait) {
-        (this as Mutable<typeof this>).trait = null;
-        this.willDetachTrait(oldTrait);
-        this.onDetachTrait(oldTrait);
-        this.deinitTrait(oldTrait);
-        this.didDetachTrait(oldTrait);
-      }
+    if (!this.bindsTrait) {
+      return;
     }
+    const oldTrait = this.detectModel(model);
+    if (oldTrait === null || this.trait !== oldTrait) {
+      return;
+    }
+    (this as Mutable<typeof this>).trait = null;
+    this.willDetachTrait(oldTrait);
+    this.onDetachTrait(oldTrait);
+    this.deinitTrait(oldTrait);
+    this.didDetachTrait(oldTrait);
   };
 
   TraitViewRef.prototype.detectModel = function <T extends Trait>(this: TraitViewRef<unknown, T, View>, model: Model): T | null {
@@ -936,14 +901,15 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
   TraitViewRef.prototype.consume = function (this: TraitViewRef, consumer: Consumer): void {
     const oldConsumers = this.consumers;
     const newConsumerrss = Arrays.inserted(consumer, oldConsumers);
-    if (oldConsumers !== newConsumerrss) {
-      this.willConsume(consumer);
-      (this as Mutable<typeof this>).consumers = newConsumerrss;
-      this.onConsume(consumer);
-      this.didConsume(consumer);
-      if (oldConsumers.length === 0 && (this.flags & TraitViewRef.MountedFlag) !== 0) {
-        this.startConsuming();
-      }
+    if (oldConsumers === newConsumerrss) {
+      return;
+    }
+    this.willConsume(consumer);
+    (this as Mutable<typeof this>).consumers = newConsumerrss;
+    this.onConsume(consumer);
+    this.didConsume(consumer);
+    if (oldConsumers.length === 0 && (this.flags & TraitViewRef.MountedFlag) !== 0) {
+      this.startConsuming();
     }
   };
 
@@ -962,14 +928,15 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
   TraitViewRef.prototype.unconsume = function (this: TraitViewRef, consumer: Consumer): void {
     const oldConsumers = this.consumers;
     const newConsumerrss = Arrays.removed(consumer, oldConsumers);
-    if (oldConsumers !== newConsumerrss) {
-      this.willUnconsume(consumer);
-      (this as Mutable<typeof this>).consumers = newConsumerrss;
-      this.onUnconsume(consumer);
-      this.didUnconsume(consumer);
-      if (newConsumerrss.length === 0) {
-        this.stopConsuming();
-      }
+    if (oldConsumers === newConsumerrss) {
+      return;
+    }
+    this.willUnconsume(consumer);
+    (this as Mutable<typeof this>).consumers = newConsumerrss;
+    this.onUnconsume(consumer);
+    this.didUnconsume(consumer);
+    if (newConsumerrss.length === 0) {
+      this.stopConsuming();
     }
   };
 
@@ -994,12 +961,13 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
   });
 
   TraitViewRef.prototype.startConsuming = function (this: TraitViewRef): void {
-    if ((this.flags & TraitViewRef.ConsumingFlag) === 0) {
-      this.willStartConsuming();
-      this.setFlags(this.flags | TraitViewRef.ConsumingFlag);
-      this.onStartConsuming();
-      this.didStartConsuming();
+    if ((this.flags & TraitViewRef.ConsumingFlag) !== 0) {
+      return;
     }
+    this.willStartConsuming();
+    this.setFlags(this.flags | TraitViewRef.ConsumingFlag);
+    this.onStartConsuming();
+    this.didStartConsuming();
   };
 
   TraitViewRef.prototype.willStartConsuming = function (this: TraitViewRef): void {
@@ -1018,12 +986,13 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
   };
 
   TraitViewRef.prototype.stopConsuming = function (this: TraitViewRef): void {
-    if ((this.flags & TraitViewRef.ConsumingFlag) !== 0) {
-      this.willStopConsuming();
-      this.setFlags(this.flags & ~TraitViewRef.ConsumingFlag);
-      this.onStopConsuming();
-      this.didStopConsuming();
+    if ((this.flags & TraitViewRef.ConsumingFlag) === 0) {
+      return;
     }
+    this.willStopConsuming();
+    this.setFlags(this.flags & ~TraitViewRef.ConsumingFlag);
+    this.onStopConsuming();
+    this.didStopConsuming();
   };
 
   TraitViewRef.prototype.willStopConsuming = function (this: TraitViewRef): void {
@@ -1053,7 +1022,7 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
     this.stopConsuming();
   };
 
-  TraitViewRef.construct = function <F extends TraitViewRef<any, any, any>>(fastener: F | null, owner: FastenerOwner<F>): F {
+  TraitViewRef.construct = function <F extends TraitViewRef<any, any, any>>(fastener: F | null, owner: F extends TraitViewRef<infer O, any, any> ? O : never): F {
     fastener = _super.construct.call(this, fastener, owner) as F;
     (fastener as Mutable<typeof fastener>).consumers = Arrays.empty;
     (fastener as Mutable<typeof fastener>).trait = null;
@@ -1061,7 +1030,7 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
     return fastener;
   };
 
-  TraitViewRef.refine = function (fastenerClass: TraitViewRefClass<any>): void {
+  TraitViewRef.refine = function (fastenerClass: FastenerClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

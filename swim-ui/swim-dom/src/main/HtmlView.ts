@@ -20,7 +20,6 @@ import type {Timing} from "@swim/util";
 import {Creatable} from "@swim/util";
 import type {Inits} from "@swim/util";
 import {Affinity} from "@swim/component";
-import type {AnyAnimatorValue} from "@swim/component";
 import {Transform} from "@swim/math";
 import {Look} from "@swim/theme";
 import {Mood} from "@swim/theme";
@@ -58,19 +57,9 @@ export interface HtmlViewInit extends ElementViewInit {
 }
 
 /** @public */
-export interface HtmlViewAttributesInit {
-  autocomplete?: AnyAnimatorValue<HtmlView["autocomplete"]>;
-  checked?: AnyAnimatorValue<HtmlView["checked"]>;
-  colspan?: AnyAnimatorValue<HtmlView["colspan"]>;
-  disabled?: AnyAnimatorValue<HtmlView["disabled"]>;
-  href?: AnyAnimatorValue<HtmlView["href"]>;
-  placeholder?: AnyAnimatorValue<HtmlView["placeholder"]>;
-  rowspan?: AnyAnimatorValue<HtmlView["rowspan"]>;
-  selected?: AnyAnimatorValue<HtmlView["selected"]>;
-  title?: AnyAnimatorValue<HtmlView["title"]>;
-  type?: AnyAnimatorValue<HtmlView["type"]>;
-  value?: AnyAnimatorValue<HtmlView["value"]>;
-}
+export type HtmlViewAttributesInit = {
+  [K in keyof HtmlView as HtmlView[K] extends AttributeAnimator<any, any, any> ? K : never]?: HtmlView[K] extends AttributeAnimator<any, infer T, infer U> ? T | U : never;
+};
 
 /** @public */
 export interface HtmlViewStyleInit extends StyleMapInit {

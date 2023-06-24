@@ -15,34 +15,15 @@
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
 import type {Consumer} from "@swim/util";
-import type {FastenerOwner} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
 import type {TraitFactory} from "@swim/model";
 import type {Trait} from "@swim/model";
 import type {ViewFactory} from "@swim/view";
 import type {View} from "@swim/view";
-import type {ControllerFactory} from "./Controller";
 import type {Controller} from "./Controller";
 import type {ControllerSetDescriptor} from "./ControllerSet";
-import type {ControllerSetClass} from "./ControllerSet";
 import {ControllerSet} from "./ControllerSet";
 import type {TraitViewRef} from "./TraitViewRef";
-
-/** @public */
-export type TraitViewControllerSetTrait<F extends TraitViewControllerSet<any, any, any, any>> =
-  F extends {traitType?: TraitFactory<infer T>} ? T : never;
-
-/** @public */
-export type TraitViewControllerSetView<F extends TraitViewControllerSet<any, any, any, any>> =
-  F extends {viewType?: ViewFactory<infer V>} ? V : never;
-
-/** @public */
-export type TraitViewControllerSetController<F extends TraitViewControllerSet<any, any, any, any>> =
-  F extends {controllerType?: ControllerFactory<infer C>} ? C : never;
-
-/** @public */
-export type TraitViewControllerSetDecorator<F extends TraitViewControllerSet<any, any, any, any>> = {
-  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
-};
 
 /** @public */
 export interface TraitViewControllerSetDescriptor<T extends Trait = Trait, V extends View = View, C extends Controller = Controller> extends ControllerSetDescriptor<C> {
@@ -52,33 +33,10 @@ export interface TraitViewControllerSetDescriptor<T extends Trait = Trait, V ext
 }
 
 /** @public */
-export type TraitViewControllerSetTemplate<F extends TraitViewControllerSet<any, any, any, any>> =
-  ThisType<F> &
-  TraitViewControllerSetDescriptor<TraitViewControllerSetTrait<F>, TraitViewControllerSetView<F>, TraitViewControllerSetController<F>> &
-  Partial<Omit<F, keyof TraitViewControllerSetDescriptor>>;
-
-/** @public */
-export interface TraitViewControllerSetClass<F extends TraitViewControllerSet<any, any, any, any> = TraitViewControllerSet<any, any, any, any>> extends ControllerSetClass<F> {
-  /** @override */
-  specialize(template: TraitViewControllerSetDescriptor<any>): TraitViewControllerSetClass<F>;
-
-  /** @override */
-  refine(fastenerClass: TraitViewControllerSetClass<any>): void;
-
-  /** @override */
-  extend<F2 extends F>(className: string | symbol, template: TraitViewControllerSetTemplate<F2>): TraitViewControllerSetClass<F2>;
-  extend<F2 extends F>(className: string | symbol, template: TraitViewControllerSetTemplate<F2>): TraitViewControllerSetClass<F2>;
-
-  /** @override */
-  define<F2 extends F>(className: string | symbol, template: TraitViewControllerSetTemplate<F2>): TraitViewControllerSetClass<F2>;
-  define<F2 extends F>(className: string | symbol, template: TraitViewControllerSetTemplate<F2>): TraitViewControllerSetClass<F2>;
-
-  /** @override */
-  <F2 extends F>(template: TraitViewControllerSetTemplate<F2>): TraitViewControllerSetDecorator<F2>;
-}
-
-/** @public */
 export interface TraitViewControllerSet<O = unknown, T extends Trait = Trait, V extends View = View, C extends Controller = Controller> extends ControllerSet<O, C> {
+  /** @override */
+  get descriptorType(): Proto<TraitViewControllerSetDescriptor<T, V, C>>;
+
   /** @internal */
   readonly traitControllers: {readonly [traitId: string]: C | undefined};
 
@@ -161,7 +119,7 @@ export interface TraitViewControllerSet<O = unknown, T extends Trait = Trait, V 
 
 /** @public */
 export const TraitViewControllerSet = (function (_super: typeof ControllerSet) {
-  const TraitViewControllerSet = _super.extend("TraitViewControllerSet", {}) as TraitViewControllerSetClass;
+  const TraitViewControllerSet = _super.extend("TraitViewControllerSet", {}) as FastenerClass<TraitViewControllerSet<any, any, any, any>>;
 
   TraitViewControllerSet.prototype.getTraitViewRef = function <T extends Trait, V extends View, C extends Controller>(controller: C): TraitViewRef<unknown, T, V> {
     throw new Error("missing implementation");
@@ -403,7 +361,7 @@ export const TraitViewControllerSet = (function (_super: typeof ControllerSet) {
     configurable: true,
   });
 
-  TraitViewControllerSet.construct = function <F extends TraitViewControllerSet<any, any, any, any>>(fastener: F | null, owner: FastenerOwner<F>): F {
+  TraitViewControllerSet.construct = function <F extends TraitViewControllerSet<any, any, any, any>>(fastener: F | null, owner: F extends TraitViewControllerSet<infer O, any, any, any> ? O : never): F {
     fastener = _super.construct.call(this, fastener, owner) as F;
     (fastener as Mutable<typeof fastener>).traitControllers = {};
     return fastener;

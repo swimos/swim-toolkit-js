@@ -90,7 +90,6 @@ export class DisplayerService extends Service {
 
   @Provider({
     serviceType: ViewportService,
-    lazy: false,
     observes: true,
     initService(viewportService: ViewportService): void {
       this.owner.roots.updateSafeArea(viewportService.safeArea.value);

@@ -76,7 +76,6 @@ export class StylerService extends Service {
   @Provider({
     serviceType: ViewportService,
     observes: true,
-    lazy: false,
     serviceDidSetViewportColorScheme(colorScheme: ViewportColorScheme): void {
       this.owner.theme.update();
     },

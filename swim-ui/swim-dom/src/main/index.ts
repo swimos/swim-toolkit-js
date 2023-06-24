@@ -14,10 +14,7 @@
 
 // Attribute
 
-export type {AttributeAnimatorDecorator} from "./AttributeAnimator";
 export type {AttributeAnimatorDescriptor} from "./AttributeAnimator";
-export type {AttributeAnimatorTemplate} from "./AttributeAnimator";
-export type {AttributeAnimatorClass} from "./AttributeAnimator";
 export {AttributeAnimator} from "./AttributeAnimator";
 export {StringAttributeAnimator} from "./AttributeAnimator";
 export {NumberAttributeAnimator} from "./AttributeAnimator";
@@ -28,10 +25,7 @@ export {TransformAttributeAnimator} from "./AttributeAnimator";
 
 // Style
 
-export type {StyleAnimatorDecorator} from "./StyleAnimator";
 export type {StyleAnimatorDescriptor} from "./StyleAnimator";
-export type {StyleAnimatorTemplate} from "./StyleAnimator";
-export type {StyleAnimatorClass} from "./StyleAnimator";
 export {StyleAnimator} from "./StyleAnimator";
 export {StringStyleAnimator} from "./StyleAnimator";
 export {NumberStyleAnimator} from "./StyleAnimator";
@@ -41,49 +35,31 @@ export {FontFamilyStyleAnimator} from "./StyleAnimator";
 export {BoxShadowStyleAnimator} from "./StyleAnimator";
 export {TransformStyleAnimator} from "./StyleAnimator";
 
-export type {StyleConstraintAnimatorDecorator} from "./StyleConstraintAnimator";
 export type {StyleConstraintAnimatorDescriptor} from "./StyleConstraintAnimator";
-export type {StyleConstraintAnimatorTemplate} from "./StyleConstraintAnimator";
-export type {StyleConstraintAnimatorClass} from "./StyleConstraintAnimator";
 export {StyleConstraintAnimator} from "./StyleConstraintAnimator";
 export {NumberStyleConstraintAnimator} from "./StyleConstraintAnimator";
 export {LengthStyleConstraintAnimator} from "./StyleConstraintAnimator";
 
-export * from "./Css";
+export * from "./css";
 
 export {StyleContext} from "./StyleContext";
 
 export type {StyleMapInit} from "./StyleMap";
 export {StyleMap} from "./StyleMap";
 
-export type {CssScopeDecorator} from "./CssScope";
 export type {CssScopeDescriptor} from "./CssScope";
-export type {CssScopeTemplate} from "./CssScope";
-export type {CssScopeClass} from "./CssScope";
 export {CssScope} from "./CssScope";
 
-export type {StyleSheetDecorator} from "./StyleSheet";
 export type {StyleSheetDescriptor} from "./StyleSheet";
-export type {StyleSheetTemplate} from "./StyleSheet";
-export type {StyleSheetClass} from "./StyleSheet";
 export {StyleSheet} from "./StyleSheet";
 
-export type {CssRuleDecorator} from "./CssRule";
 export type {CssRuleDescriptor} from "./CssRule";
-export type {CssRuleTemplate} from "./CssRule";
-export type {CssRuleClass} from "./CssRule";
 export {CssRule} from "./CssRule";
 
-export type {StyleRuleDecorator} from "./StyleRule";
 export type {StyleRuleDescriptor} from "./StyleRule";
-export type {StyleRuleTemplate} from "./StyleRule";
-export type {StyleRuleClass} from "./StyleRule";
 export {StyleRule} from "./StyleRule";
 
-export type {MediaRuleDecorator} from "./MediaRule";
 export type {MediaRuleDescriptor} from "./MediaRule";
-export type {MediaRuleTemplate} from "./MediaRule";
-export type {MediaRuleClass} from "./MediaRule";
 export {MediaRule} from "./MediaRule";
 
 // Node

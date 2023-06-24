@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {FastenerClass} from "@swim/component";
 import type {Animator} from "@swim/component";
 import type {AnyLength} from "@swim/math";
 import type {Length} from "@swim/math";
 import type {AnyColor} from "@swim/style";
 import type {Color} from "@swim/style";
-import type {ThemeAnimatorClass} from "@swim/theme";
 import {ThemeAnimator} from "@swim/theme";
 import type {ViewInit} from "@swim/view";
 import {View} from "@swim/view";
@@ -106,7 +106,7 @@ export const IconView = (function () {
 export const IconGraphicsAnimator = (function (_super: typeof ThemeAnimator) {
   const IconGraphicsAnimator = _super.extend("IconGraphicsAnimator", {
     valueType: Graphics,
-  }) as ThemeAnimatorClass<ThemeAnimator<any, any, any>>;
+  }) as FastenerClass<ThemeAnimator<any, any, any>>;
 
   IconGraphicsAnimator.prototype.transformState = function (this: ThemeAnimator<unknown, Graphics | null>, icon: Graphics | null): Graphics | null {
     const iconView = this.owner;

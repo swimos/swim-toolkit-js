@@ -94,7 +94,6 @@ export class BinderController extends SheetController {
   @Property({
     valueType: String,
     inherits: true,
-    lazy: false,
     didSetValue(folioStyle: FolioStyle | undefined): void {
       if (folioStyle === "stacked") {
         this.owner.tabStyle.setValue("bottom", Affinity.Intrinsic);

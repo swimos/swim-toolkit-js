@@ -135,7 +135,6 @@ export class ElementView extends NodeView implements StyleContext {
 
   @Provider({
     extends: true,
-    lazy: false,
   })
   override readonly styler!: Provider<this, StylerService> & NodeView["styler"];
 

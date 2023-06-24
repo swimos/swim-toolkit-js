@@ -15,24 +15,13 @@
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
 import {Affinity} from "@swim/component";
-import type {FastenerOwner} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
 import {Fastener} from "@swim/component";
 import type {Model} from "./Model";
 import type {AnyTrait} from "./Trait";
-import type {TraitFactory} from "./Trait";
 import type {Trait} from "./Trait";
 import type {TraitRelationDescriptor} from "./TraitRelation";
-import type {TraitRelationClass} from "./TraitRelation";
 import {TraitRelation} from "./TraitRelation";
-
-/** @public */
-export type TraitRefTrait<F extends TraitRef<any, any>> =
-  F extends {traitType?: TraitFactory<infer T>} ? T : never;
-
-/** @public */
-export type TraitRefDecorator<F extends TraitRef<any, any>> = {
-  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
-};
 
 /** @public */
 export interface TraitRefDescriptor<T extends Trait = Trait> extends TraitRelationDescriptor<T> {
@@ -41,35 +30,12 @@ export interface TraitRefDescriptor<T extends Trait = Trait> extends TraitRelati
 }
 
 /** @public */
-export type TraitRefTemplate<F extends TraitRef<any, any>> =
-  ThisType<F> &
-  TraitRefDescriptor<TraitRefTrait<F>> &
-  Partial<Omit<F, keyof TraitRefDescriptor>>;
-
-/** @public */
-export interface TraitRefClass<F extends TraitRef<any, any> = TraitRef<any, any>> extends TraitRelationClass<F> {
-  /** @override */
-  specialize(template: TraitRefDescriptor<any>): TraitRefClass<F>;
-
-  /** @override */
-  refine(fastenerClass: TraitRefClass<any>): void;
-
-  /** @override */
-  extend<F2 extends F>(className: string | symbol, template: TraitRefTemplate<F2>): TraitRefClass<F2>;
-  extend<F2 extends F>(className: string | symbol, template: TraitRefTemplate<F2>): TraitRefClass<F2>;
-
-  /** @override */
-  define<F2 extends F>(className: string | symbol, template: TraitRefTemplate<F2>): TraitRefClass<F2>;
-  define<F2 extends F>(className: string | symbol, template: TraitRefTemplate<F2>): TraitRefClass<F2>;
-
-  /** @override */
-  <F2 extends F>(template: TraitRefTemplate<F2>): TraitRefDecorator<F2>;
-}
-
-/** @public */
 export interface TraitRef<O = unknown, T extends Trait = Trait> extends TraitRelation<O, T> {
   (): T | null;
   (trait: AnyTrait<T> | null, target?: Trait | null, key?: string): O;
+
+  /** @override */
+  get descriptorType(): Proto<TraitRefDescriptor<T>>;
 
   /** @override */
   get fastenerType(): Proto<TraitRef<any, any>>;
@@ -96,13 +62,13 @@ export interface TraitRef<O = unknown, T extends Trait = Trait> extends TraitRel
   didUnderive(inlet: TraitRef<unknown, T>): void;
 
   /** @override */
-  deriveInlet(): TraitRef<unknown, T> | null;
-
-  /** @override */
-  bindInlet(inlet: TraitRef<unknown, T>): void;
+  get parent(): TraitRef<unknown, T> | null;
 
   /** @override */
   readonly inlet: TraitRef<unknown, T> | null;
+
+  /** @override */
+  bindInlet(inlet: TraitRef<unknown, T>): void;
 
   /** @protected @override */
   willBindInlet(inlet: TraitRef<unknown, T>): void;
@@ -190,7 +156,7 @@ export interface TraitRef<O = unknown, T extends Trait = Trait> extends TraitRel
 
 /** @public */
 export const TraitRef = (function (_super: typeof TraitRelation) {
-  const TraitRef = _super.extend("TraitRef", {}) as TraitRefClass;
+  const TraitRef = _super.extend("TraitRef", {}) as FastenerClass<TraitRef<any, any>>;
 
   Object.defineProperty(TraitRef.prototype, "fastenerType", {
     value: TraitRef,
@@ -406,33 +372,37 @@ export const TraitRef = (function (_super: typeof TraitRelation) {
   };
 
   TraitRef.prototype.bindModel = function <T extends Trait>(this: TraitRef<unknown, T>, model: Model, target: Model | null): void {
-    if (this.binds && this.trait === null) {
-      const newTrait = this.detectModel(model);
-      if (newTrait !== null) {
-        (this as Mutable<typeof this>).trait = newTrait;
-        this.willAttachTrait(newTrait, null);
-        this.onAttachTrait(newTrait, null);
-        this.initTrait(newTrait);
-        this.didAttachTrait(newTrait, null);
-        this.setCoherent(true);
-        this.decohereOutlets();
-      }
+    if (!this.binds || this.trait !== null) {
+      return;
     }
+    const newTrait = this.detectModel(model);
+    if (newTrait === null) {
+      return;
+    }
+    (this as Mutable<typeof this>).trait = newTrait;
+    this.willAttachTrait(newTrait, null);
+    this.onAttachTrait(newTrait, null);
+    this.initTrait(newTrait);
+    this.didAttachTrait(newTrait, null);
+    this.setCoherent(true);
+    this.decohereOutlets();
   };
 
   TraitRef.prototype.unbindModel = function <T extends Trait>(this: TraitRef<unknown, T>, model: Model): void {
-    if (this.binds) {
-      const oldTrait = this.detectModel(model);
-      if (oldTrait !== null && this.trait === oldTrait) {
-        (this as Mutable<typeof this>).trait = null;
-        this.willDetachTrait(oldTrait);
-        this.onDetachTrait(oldTrait);
-        this.deinitTrait(oldTrait);
-        this.didDetachTrait(oldTrait);
-        this.setCoherent(true);
-        this.decohereOutlets();
-      }
+    if (!this.binds) {
+      return;
     }
+    const oldTrait = this.detectModel(model);
+    if (oldTrait === null || this.trait !== oldTrait) {
+      return;
+    }
+    (this as Mutable<typeof this>).trait = null;
+    this.willDetachTrait(oldTrait);
+    this.onDetachTrait(oldTrait);
+    this.deinitTrait(oldTrait);
+    this.didDetachTrait(oldTrait);
+    this.setCoherent(true);
+    this.decohereOutlets();
   };
 
   TraitRef.prototype.detectModel = function <T extends Trait>(this: TraitRef<unknown, T>, model: Model): T | null {
@@ -522,9 +492,9 @@ export const TraitRef = (function (_super: typeof TraitRelation) {
     this.setTrait(inlet.trait);
   };
 
-  TraitRef.construct = function <F extends TraitRef<any, any>>(fastener: F | null, owner: FastenerOwner<F>): F {
+  TraitRef.construct = function <F extends TraitRef<any, any>>(fastener: F | null, owner: F extends TraitRef<infer O, any> ? O : never): F {
     if (fastener === null) {
-      fastener = function (trait?: AnyTrait<TraitRefTrait<F>> | null, target?: Trait | null, key?: string): TraitRefTrait<F> | null | FastenerOwner<F> {
+      fastener = function (trait?: F extends TraitRef<any, infer T> ? AnyTrait<T> | null : never, target?: Trait | null, key?: string): F extends TraitRef<infer O, infer T> ? T | O | null : never {
         if (trait === void 0) {
           return fastener!.trait;
         } else {
@@ -540,7 +510,7 @@ export const TraitRef = (function (_super: typeof TraitRelation) {
     return fastener;
   };
 
-  TraitRef.refine = function (fastenerClass: TraitRefClass<any>): void {
+  TraitRef.refine = function (fastenerClass: FastenerClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

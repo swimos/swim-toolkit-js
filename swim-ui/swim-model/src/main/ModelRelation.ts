@@ -19,7 +19,6 @@ import type {Observes} from "@swim/util";
 import type {Consumer} from "@swim/util";
 import type {Consumable} from "@swim/util";
 import type {FastenerFlags} from "@swim/component";
-import type {FastenerOwner} from "@swim/component";
 import type {FastenerDescriptor} from "@swim/component";
 import type {FastenerClass} from "@swim/component";
 import {Fastener} from "@swim/component";
@@ -27,15 +26,6 @@ import type {AnyModel} from "./Model";
 import type {ModelFactory} from "./Model";
 import {Model} from "./Model";
 import {Trait} from "./"; // forward import
-
-/** @public */
-export type ModelRelationModel<F extends ModelRelation<any, any>> =
-  F extends {modelType?: ModelFactory<infer M>} ? M : never;
-
-/** @public */
-export type ModelRelationDecorator<F extends ModelRelation<any, any>> = {
-  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
-};
 
 /** @public */
 export interface ModelRelationDescriptor<M extends Model = Model> extends FastenerDescriptor {
@@ -47,41 +37,10 @@ export interface ModelRelationDescriptor<M extends Model = Model> extends Fasten
 }
 
 /** @public */
-export type ModelRelationTemplate<F extends ModelRelation<any, any>> =
-  ThisType<F> &
-  ModelRelationDescriptor<ModelRelationModel<F>> &
-  Partial<Omit<F, keyof ModelRelationDescriptor>>;
-
-/** @public */
-export interface ModelRelationClass<F extends ModelRelation<any, any> = ModelRelation<any, any>> extends FastenerClass<F> {
-  /** @override */
-  specialize(template: ModelRelationDescriptor<any>): ModelRelationClass<F>;
-
-  /** @override */
-  refine(fastenerClass: ModelRelationClass<any>): void;
-
-  /** @override */
-  extend<F2 extends F>(className: string | symbol, template: ModelRelationTemplate<F2>): ModelRelationClass<F2>;
-  extend<F2 extends F>(className: string | symbol, template: ModelRelationTemplate<F2>): ModelRelationClass<F2>;
-
-  /** @override */
-  define<F2 extends F>(className: string | symbol, template: ModelRelationTemplate<F2>): ModelRelationClass<F2>;
-  define<F2 extends F>(className: string | symbol, template: ModelRelationTemplate<F2>): ModelRelationClass<F2>;
-
-  /** @override */
-  <F2 extends F>(template: ModelRelationTemplate<F2>): ModelRelationDecorator<F2>;
-
-  /** @internal */
-  readonly ConsumingFlag: FastenerFlags;
-
-  /** @internal @override */
-  readonly FlagShift: number;
-  /** @internal @override */
-  readonly FlagMask: FastenerFlags;
-}
-
-/** @public */
 export interface ModelRelation<O = unknown, M extends Model = Model> extends Fastener<O>, Consumable {
+  /** @override */
+  get descriptorType(): Proto<ModelRelationDescriptor<M>>;
+
   /** @override */
   get fastenerType(): Proto<ModelRelation<any, any>>;
 
@@ -113,13 +72,13 @@ export interface ModelRelation<O = unknown, M extends Model = Model> extends Fas
   didUnderive(inlet: ModelRelation<unknown, M>): void;
 
   /** @override */
-  deriveInlet(): ModelRelation<unknown, M> | null;
-
-  /** @override */
-  bindInlet(inlet: ModelRelation<unknown, M>): void;
+  get parent(): ModelRelation<unknown, M> | null;
 
   /** @override */
   readonly inlet: ModelRelation<unknown, M> | null;
+
+  /** @override */
+  bindInlet(inlet: ModelRelation<unknown, M>): void;
 
   /** @protected @override */
   willBindInlet(inlet: ModelRelation<unknown, M>): void;
@@ -256,9 +215,15 @@ export interface ModelRelation<O = unknown, M extends Model = Model> extends Fas
 
 /** @public */
 export const ModelRelation = (function (_super: typeof Fastener) {
-  const ModelRelation = _super.extend("ModelRelation", {
-    lazy: false,
-  }) as ModelRelationClass;
+  const ModelRelation = _super.extend("ModelRelation", {}) as FastenerClass<ModelRelation<any, any>> & {
+    /** @internal */
+    readonly ConsumingFlag: FastenerFlags;
+
+    /** @internal @override */
+    readonly FlagShift: number;
+    /** @internal @override */
+    readonly FlagMask: FastenerFlags;
+  };
 
   Object.defineProperty(ModelRelation.prototype, "fastenerType", {
     value: ModelRelation,
@@ -287,12 +252,14 @@ export const ModelRelation = (function (_super: typeof Fastener) {
 
   ModelRelation.prototype.detachOutlet = function <M extends Model>(this: ModelRelation<unknown, M>, outlet: ModelRelation<unknown, M>): void {
     const outlets = this.outlets as ModelRelation<unknown, M>[] | null;
-    if (outlets !== null) {
-      const index = outlets.indexOf(outlet);
-      if (index >= 0) {
-        outlets.splice(index, 1);
-      }
+    if (outlets === null) {
+      return;
     }
+    const index = outlets.indexOf(outlet);
+    if (index < 0) {
+      return;
+    }
+    outlets.splice(index, 1);
   };
 
   ModelRelation.prototype.initModel = function <M extends Model>(this: ModelRelation<unknown, M>, model: M): void {
@@ -398,14 +365,15 @@ export const ModelRelation = (function (_super: typeof Fastener) {
   ModelRelation.prototype.consume = function (this: ModelRelation, consumer: Consumer): void {
     const oldConsumers = this.consumers;
     const newConsumerrss = Arrays.inserted(consumer, oldConsumers);
-    if (oldConsumers !== newConsumerrss) {
-      this.willConsume(consumer);
-      (this as Mutable<typeof this>).consumers = newConsumerrss;
-      this.onConsume(consumer);
-      this.didConsume(consumer);
-      if (oldConsumers.length === 0 && (this.flags & ModelRelation.MountedFlag) !== 0) {
-        this.startConsuming();
-      }
+    if (oldConsumers === newConsumerrss) {
+      return;
+    }
+    this.willConsume(consumer);
+    (this as Mutable<typeof this>).consumers = newConsumerrss;
+    this.onConsume(consumer);
+    this.didConsume(consumer);
+    if (oldConsumers.length === 0 && (this.flags & ModelRelation.MountedFlag) !== 0) {
+      this.startConsuming();
     }
   };
 
@@ -424,14 +392,15 @@ export const ModelRelation = (function (_super: typeof Fastener) {
   ModelRelation.prototype.unconsume = function (this: ModelRelation, consumer: Consumer): void {
     const oldConsumers = this.consumers;
     const newConsumerrss = Arrays.removed(consumer, oldConsumers);
-    if (oldConsumers !== newConsumerrss) {
-      this.willUnconsume(consumer);
-      (this as Mutable<typeof this>).consumers = newConsumerrss;
-      this.onUnconsume(consumer);
-      this.didUnconsume(consumer);
-      if (newConsumerrss.length === 0) {
-        this.stopConsuming();
-      }
+    if (oldConsumers === newConsumerrss) {
+      return;
+    }
+    this.willUnconsume(consumer);
+    (this as Mutable<typeof this>).consumers = newConsumerrss;
+    this.onUnconsume(consumer);
+    this.didUnconsume(consumer);
+    if (newConsumerrss.length === 0) {
+      this.stopConsuming();
     }
   };
 
@@ -456,12 +425,13 @@ export const ModelRelation = (function (_super: typeof Fastener) {
   });
 
   ModelRelation.prototype.startConsuming = function (this: ModelRelation): void {
-    if ((this.flags & ModelRelation.ConsumingFlag) === 0) {
-      this.willStartConsuming();
-      this.setFlags(this.flags | ModelRelation.ConsumingFlag);
-      this.onStartConsuming();
-      this.didStartConsuming();
+    if ((this.flags & ModelRelation.ConsumingFlag) !== 0) {
+      return;
     }
+    this.willStartConsuming();
+    this.setFlags(this.flags | ModelRelation.ConsumingFlag);
+    this.onStartConsuming();
+    this.didStartConsuming();
   };
 
   ModelRelation.prototype.willStartConsuming = function (this: ModelRelation): void {
@@ -477,12 +447,13 @@ export const ModelRelation = (function (_super: typeof Fastener) {
   };
 
   ModelRelation.prototype.stopConsuming = function (this: ModelRelation): void {
-    if ((this.flags & ModelRelation.ConsumingFlag) !== 0) {
-      this.willStopConsuming();
-      this.setFlags(this.flags & ~ModelRelation.ConsumingFlag);
-      this.onStopConsuming();
-      this.didStopConsuming();
+    if ((this.flags & ModelRelation.ConsumingFlag) === 0) {
+      return;
     }
+    this.willStopConsuming();
+    this.setFlags(this.flags & ~ModelRelation.ConsumingFlag);
+    this.onStopConsuming();
+    this.didStopConsuming();
   };
 
   ModelRelation.prototype.willStopConsuming = function (this: ModelRelation): void {
@@ -509,7 +480,7 @@ export const ModelRelation = (function (_super: typeof Fastener) {
     this.stopConsuming();
   };
 
-  ModelRelation.construct = function <F extends ModelRelation<any, any>>(fastener: F | null, owner: FastenerOwner<F>): F {
+  ModelRelation.construct = function <F extends ModelRelation<any, any>>(fastener: F | null, owner: F extends ModelRelation<infer O, any> ? O : never): F {
     fastener = _super.construct.call(this, fastener, owner) as F;
     Object.defineProperty(fastener, "inlet", { // override getter
       value: null,

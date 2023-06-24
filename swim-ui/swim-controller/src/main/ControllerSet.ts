@@ -18,24 +18,13 @@ import {Objects} from "@swim/util";
 import type {Comparator} from "@swim/util";
 import type {Consumer} from "@swim/util";
 import {Affinity} from "@swim/component";
-import type {FastenerOwner} from "@swim/component";
 import type {FastenerFlags} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
 import {Fastener} from "@swim/component";
 import type {AnyController} from "./Controller";
-import type {ControllerFactory} from "./Controller";
 import type {Controller} from "./Controller";
 import type {ControllerRelationDescriptor} from "./ControllerRelation";
-import type {ControllerRelationClass} from "./ControllerRelation";
 import {ControllerRelation} from "./ControllerRelation";
-
-/** @public */
-export type ControllerSetController<F extends ControllerSet<any, any>> =
-  F extends {controllerType?: ControllerFactory<infer C>} ? C : never;
-
-/** @public */
-export type ControllerSetDecorator<F extends ControllerSet<any, any>> = {
-  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
-};
 
 /** @public */
 export interface ControllerSetDescriptor<C extends Controller = Controller> extends ControllerRelationDescriptor<C> {
@@ -45,44 +34,11 @@ export interface ControllerSetDescriptor<C extends Controller = Controller> exte
 }
 
 /** @public */
-export type ControllerSetTemplate<F extends ControllerSet<any, any>> =
-  ThisType<F> &
-  ControllerSetDescriptor<ControllerSetController<F>> &
-  Partial<Omit<F, keyof ControllerSetDescriptor>>;
-
-/** @public */
-export interface ControllerSetClass<F extends ControllerSet<any, any> = ControllerSet<any, any>> extends ControllerRelationClass<F> {
-  /** @override */
-  specialize(template: ControllerSetDescriptor<any>): ControllerSetClass<F>;
-
-  /** @override */
-  refine(fastenerClass: ControllerSetClass<any>): void;
-
-  /** @override */
-  extend<F2 extends F>(className: string | symbol, template: ControllerSetTemplate<F2>): ControllerSetClass<F2>;
-  extend<F2 extends F>(className: string | symbol, template: ControllerSetTemplate<F2>): ControllerSetClass<F2>;
-
-  /** @override */
-  define<F2 extends F>(className: string | symbol, template: ControllerSetTemplate<F2>): ControllerSetClass<F2>;
-  define<F2 extends F>(className: string | symbol, template: ControllerSetTemplate<F2>): ControllerSetClass<F2>;
-
-  /** @override */
-  <F2 extends F>(template: ControllerSetTemplate<F2>): ControllerSetDecorator<F2>;
-
-  /** @internal */
-  readonly OrderedFlag: FastenerFlags;
-  /** @internal */
-  readonly SortedFlag: FastenerFlags;
-
-  /** @internal @override */
-  readonly FlagShift: number;
-  /** @internal @override */
-  readonly FlagMask: FastenerFlags;
-}
-
-/** @public */
 export interface ControllerSet<O = unknown, C extends Controller = Controller> extends ControllerRelation<O, C> {
   (controller: AnyController<C>): O;
+
+  /** @override */
+  get descriptorType(): Proto<ControllerSetDescriptor<C>>;
 
   /** @override */
   get fastenerType(): Proto<ControllerSet<any, any>>;
@@ -109,13 +65,13 @@ export interface ControllerSet<O = unknown, C extends Controller = Controller> e
   didUnderive(inlet: ControllerSet<unknown, C>): void;
 
   /** @override */
-  deriveInlet(): ControllerSet<unknown, C> | null;
-
-  /** @override */
-  bindInlet(inlet: ControllerSet<unknown, C>): void;
+  get parent(): ControllerSet<unknown, C> | null;
 
   /** @override */
   readonly inlet: ControllerSet<unknown, C> | null;
+
+  /** @override */
+  bindInlet(inlet: ControllerSet<unknown, C>): void;
 
   /** @protected @override */
   willBindInlet(inlet: ControllerSet<unknown, C>): void;
@@ -257,7 +213,17 @@ export interface ControllerSet<O = unknown, C extends Controller = Controller> e
 
 /** @public */
 export const ControllerSet = (function (_super: typeof ControllerRelation) {
-  const ControllerSet = _super.extend("ControllerSet", {}) as ControllerSetClass;
+  const ControllerSet = _super.extend("ControllerSet", {}) as FastenerClass<ControllerSet<any, any>> & {
+    /** @internal */
+    readonly OrderedFlag: FastenerFlags;
+    /** @internal */
+    readonly SortedFlag: FastenerFlags;
+
+    /** @internal @override */
+    readonly FlagShift: number;
+    /** @internal @override */
+    readonly FlagMask: FastenerFlags;
+  };
 
   Object.defineProperty(ControllerSet.prototype, "fastenerType", {
     value: ControllerSet,
@@ -503,35 +469,39 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
   };
 
   ControllerSet.prototype.bindController = function <C extends Controller>(this: ControllerSet<unknown, C>, controller: Controller, target: Controller | null): void {
-    if (this.binds) {
-      const newController = this.detectController(controller);
-      if (newController !== null && this.controllers[newController.uid] === void 0) {
-        this.insertControllerMap(newController, target);
-        (this as Mutable<typeof this>).controllerCount += 1;
-        this.willAttachController(newController, target);
-        this.onAttachController(newController, target);
-        this.initController(newController);
-        this.didAttachController(newController, target);
-        this.setCoherent(true);
-        this.decohereOutlets();
-      }
+    if (!this.binds) {
+      return;
     }
+    const newController = this.detectController(controller);
+    if (newController === null || this.controllers[newController.uid] !== void 0) {
+      return;
+    }
+    this.insertControllerMap(newController, target);
+    (this as Mutable<typeof this>).controllerCount += 1;
+    this.willAttachController(newController, target);
+    this.onAttachController(newController, target);
+    this.initController(newController);
+    this.didAttachController(newController, target);
+    this.setCoherent(true);
+    this.decohereOutlets();
   };
 
   ControllerSet.prototype.unbindController = function <C extends Controller>(this: ControllerSet<unknown, C>, controller: Controller): void {
-    if (this.binds) {
-      const oldController = this.detectController(controller);
-      if (oldController !== null && this.controllers[oldController.uid] !== void 0) {
-        (this as Mutable<typeof this>).controllerCount -= 1;
-        this.removeControllerMap(oldController);
-        this.willDetachController(oldController);
-        this.onDetachController(oldController);
-        this.deinitController(oldController);
-        this.didDetachController(oldController);
-        this.setCoherent(true);
-        this.decohereOutlets();
-      }
+    if (!this.binds) {
+      return;
     }
+    const oldController = this.detectController(controller);
+    if (oldController === null || this.controllers[oldController.uid] === void 0) {
+      return;
+    }
+    (this as Mutable<typeof this>).controllerCount -= 1;
+    this.removeControllerMap(oldController);
+    this.willDetachController(oldController);
+    this.onDetachController(oldController);
+    this.deinitController(oldController);
+    this.didDetachController(oldController);
+    this.setCoherent(true);
+    this.decohereOutlets();
   };
 
   ControllerSet.prototype.detectController = function <C extends Controller>(this: ControllerSet<unknown, C>, controller: Controller): C | null {
@@ -582,12 +552,14 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
   };
 
   ControllerSet.prototype.recohere = function (this: ControllerSet, t: number): void {
-    if ((this.flags & Fastener.DerivedFlag) !== 0) {
-      const inlet = this.inlet;
-      if (inlet !== null) {
-        this.setControllers(inlet.controllers);
-      }
+    if ((this.flags & Fastener.DerivedFlag) === 0) {
+      return;
     }
+    const inlet = this.inlet;
+    if (inlet === null) {
+      return;
+    }
+    this.setControllers(inlet.controllers);
   };
 
   ControllerSet.prototype.controllerKey = function <C extends Controller>(this: ControllerSet<unknown, C>, controller: C): string | undefined {
@@ -705,9 +677,9 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     return a.uid < b.uid ? -1 : a.uid > b.uid ? 1 : 0;
   };
 
-  ControllerSet.construct = function <F extends ControllerSet<any, any>>(fastener: F | null, owner: FastenerOwner<F>): F {
+  ControllerSet.construct = function <F extends ControllerSet<any, any>>(fastener: F | null, owner: F extends ControllerSet<infer O, any> ? O : never): F {
     if (fastener === null) {
-      fastener = function (newController: AnyController<ControllerSetController<F>>): FastenerOwner<F> {
+      fastener = function (newController: F extends ControllerSet<any, infer C> ? AnyController<C> : never): F extends ControllerSet<infer O, any> ? O : never {
         fastener!.addController(newController);
         return fastener!.owner;
       } as F;
@@ -725,7 +697,7 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     return fastener;
   };
 
-  ControllerSet.refine = function (fastenerClass: ControllerSetClass<any>): void {
+  ControllerSet.refine = function (fastenerClass: FastenerClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
     let flagsInit = fastenerPrototype.flagsInit;

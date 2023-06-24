@@ -17,7 +17,6 @@ import type {Instance} from "@swim/util";
 import type {AnyTiming} from "@swim/util";
 import {Creatable} from "@swim/util";
 import type {Inits} from "@swim/util";
-import type {AnyAnimatorValue} from "@swim/component";
 import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
 import type {AnyTransform} from "@swim/math";
@@ -35,14 +34,14 @@ import type {AnyView} from "@swim/view";
 import {View} from "@swim/view";
 import {AttributeAnimator} from "./AttributeAnimator";
 import {StyleAnimator} from "./StyleAnimator";
-import type {AlignmentBaseline} from "./Css";
-import type {CssCursor} from "./Css";
-import type {FillRule} from "./Css";
-import type {StrokeLinecap} from "./Css";
-import type {StrokeLinejoin} from "./Css";
-import type {SvgPointerEvents} from "./Css";
-import type {TextAnchor} from "./Css";
-import type {TouchAction} from "./Css";
+import type {AlignmentBaseline} from "./css";
+import type {CssCursor} from "./css";
+import type {FillRule} from "./css";
+import type {StrokeLinecap} from "./css";
+import type {StrokeLinejoin} from "./css";
+import type {SvgPointerEvents} from "./css";
+import type {TextAnchor} from "./css";
+import type {TouchAction} from "./css";
 import type {ViewNodeType} from "./NodeView";
 import type {AnyElementView} from "./ElementView";
 import type {ElementViewInit} from "./ElementView";
@@ -67,69 +66,14 @@ export interface SvgViewInit extends ElementViewInit {
 }
 
 /** @public */
-export interface SvgViewAttributesInit {
-  alignmentBaseline?: AnyAnimatorValue<SvgView["alignmentBaseline"]>;
-  clipPath?: AnyAnimatorValue<SvgView["clipPath"]>;
-  cursor?: AnyAnimatorValue<SvgView["cursor"]>;
-  cx?: AnyAnimatorValue<SvgView["cx"]>;
-  cy?: AnyAnimatorValue<SvgView["cy"]>;
-  d?: AnyAnimatorValue<SvgView["d"]>;
-  dx?: AnyAnimatorValue<SvgView["dx"]>;
-  dy?: AnyAnimatorValue<SvgView["dy"]>;
-  edgeMode?: AnyAnimatorValue<SvgView["edgeMode"]>;
-  fill?: AnyAnimatorValue<SvgView["fill"]>;
-  fillOpacity?: AnyAnimatorValue<SvgView["fillOpacity"]>;
-  fillRule?: AnyAnimatorValue<SvgView["fillRule"]>;
-  floodColor?: AnyAnimatorValue<SvgView["floodColor"]>;
-  floodOpacity?: AnyAnimatorValue<SvgView["floodOpacity"]>;
-  height?: AnyAnimatorValue<SvgView["height"]>;
-  in?: AnyAnimatorValue<SvgView["in"]>;
-  in2?: AnyAnimatorValue<SvgView["in2"]>;
-  lengthAdjust?: AnyAnimatorValue<SvgView["lengthAdjust"]>;
-  mode?: AnyAnimatorValue<SvgView["mode"]>;
-  opacity?: AnyAnimatorValue<SvgView["opacity"]>;
-  pointerEvents?: AnyAnimatorValue<SvgView["pointerEvents"]>;
-  points?: AnyAnimatorValue<SvgView["points"]>;
-  preserveAspectRatio?: AnyAnimatorValue<SvgView["preserveAspectRatio"]>;
-  r?: AnyAnimatorValue<SvgView["r"]>;
-  result?: AnyAnimatorValue<SvgView["result"]>;
-  stdDeviation?: AnyAnimatorValue<SvgView["stdDeviation"]>;
-  stroke?: AnyAnimatorValue<SvgView["stroke"]>;
-  strokeDasharray?: AnyAnimatorValue<SvgView["strokeDasharray"]>;
-  strokeDashoffset?: AnyAnimatorValue<SvgView["strokeDashoffset"]>;
-  strokeLinecap?: AnyAnimatorValue<SvgView["strokeLinecap"]>;
-  strokeLinejoin?: AnyAnimatorValue<SvgView["strokeLinejoin"]>;
-  strokeMiterlimit?: AnyAnimatorValue<SvgView["strokeMiterlimit"]>;
-  strokeOpacity?: AnyAnimatorValue<SvgView["strokeOpacity"]>;
-  strokeWidth?: AnyAnimatorValue<SvgView["strokeWidth"]>;
-  textAnchor?: AnyAnimatorValue<SvgView["textAnchor"]>;
-  textLength?: AnyAnimatorValue<SvgView["textLength"]>;
-  transform?: AnyAnimatorValue<SvgView["transform"]>;
-  type?: AnyAnimatorValue<SvgView["type"]>;
-  values?: AnyAnimatorValue<SvgView["values"]>;
-  viewBox?: AnyAnimatorValue<SvgView["viewBox"]>;
-  width?: AnyAnimatorValue<SvgView["width"]>;
-  x?: AnyAnimatorValue<SvgView["x"]>;
-  x1?: AnyAnimatorValue<SvgView["x1"]>;
-  x2?: AnyAnimatorValue<SvgView["x2"]>;
-  y?: AnyAnimatorValue<SvgView["y"]>;
-  y1?: AnyAnimatorValue<SvgView["y1"]>;
-  y2?: AnyAnimatorValue<SvgView["y2"]>;
-}
+export type SvgViewAttributesInit = {
+  [K in keyof SvgView as SvgView[K] extends AttributeAnimator<any, any, any> ? K : never]?: SvgView[K] extends AttributeAnimator<any, infer T, infer U> ? T | U : never;
+};
 
 /** @public */
-export interface SvgViewStyleInit {
-  cssTransform?: AnyAnimatorValue<SvgView["cssTransform"]>;
-  filter?: AnyAnimatorValue<SvgView["filter"]>;
-  fontFamily?: AnyAnimatorValue<SvgView["fontFamily"]>;
-  fontSize?: AnyAnimatorValue<SvgView["fontSize"]>;
-  fontStretch?: AnyAnimatorValue<SvgView["fontStretch"]>;
-  fontStyle?: AnyAnimatorValue<SvgView["fontStyle"]>;
-  fontVariant?: AnyAnimatorValue<SvgView["fontVariant"]>;
-  fontWeight?: AnyAnimatorValue<SvgView["fontWeight"]>;
-  lineHeight?: AnyAnimatorValue<SvgView["lineHeight"]>;
-  touchAction?: AnyAnimatorValue<SvgView["touchAction"]>;
-}
+export type SvgViewStyleInit = {
+  [K in keyof SvgView as SvgView[K] extends StyleAnimator<any, any, any> ? K : never]?: SvgView[K] extends StyleAnimator<any, infer T, infer U> ? T | U : never;
+};
 
 /** @public */
 export interface SvgViewTagMap {

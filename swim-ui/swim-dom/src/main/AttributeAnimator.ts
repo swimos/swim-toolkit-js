@@ -13,8 +13,7 @@
 // limitations under the License.
 
 import type {Proto} from "@swim/util";
-import type {AnimatorValue} from "@swim/component";
-import type {AnimatorValueInit} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
 import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
 import type {AnyTransform} from "@swim/math";
@@ -22,14 +21,8 @@ import {Transform} from "@swim/math";
 import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import type {ThemeAnimatorDescriptor} from "@swim/theme";
-import type {ThemeAnimatorClass} from "@swim/theme";
 import {ThemeAnimator} from "@swim/theme";
 import {ElementView} from "./"; // forward import
-
-/** @public */
-export type AttributeAnimatorDecorator<A extends AttributeAnimator<any, any, any>> = {
-  <T>(target: unknown, context: ClassFieldDecoratorContext<T, A>): (this: T, value: A | undefined) => A;
-};
 
 /** @public */
 export interface AttributeAnimatorDescriptor<T = unknown, U = T> extends ThemeAnimatorDescriptor<T, U> {
@@ -38,33 +31,10 @@ export interface AttributeAnimatorDescriptor<T = unknown, U = T> extends ThemeAn
 }
 
 /** @public */
-export type AttributeAnimatorTemplate<A extends AttributeAnimator<any, any, any>> =
-  ThisType<A> &
-  AttributeAnimatorDescriptor<AnimatorValue<A>, AnimatorValueInit<A>> &
-  Partial<Omit<A, keyof AttributeAnimatorDescriptor>>;
-
-/** @public */
-export interface AttributeAnimatorClass<A extends AttributeAnimator<any, any, any> = AttributeAnimator<any, any, any>> extends ThemeAnimatorClass<A> {
-  /** @override */
-  specialize(template: AttributeAnimatorDescriptor<any, any>): AttributeAnimatorClass<A>;
-
-  /** @override */
-  refine(animatorClass: AttributeAnimatorClass<any>): void;
-
-  /** @override */
-  extend<A2 extends A>(className: string | symbol, template: AttributeAnimatorTemplate<A2>): AttributeAnimatorClass<A2>;
-  extend<A2 extends A>(className: string | symbol, template: AttributeAnimatorTemplate<A2>): AttributeAnimatorClass<A2>;
-
-  /** @override */
-  define<A2 extends A>(className: string | symbol, template: AttributeAnimatorTemplate<A2>): AttributeAnimatorClass<A2>;
-  define<A2 extends A>(className: string | symbol, template: AttributeAnimatorTemplate<A2>): AttributeAnimatorClass<A2>;
-
-  /** @override */
-  <A2 extends A>(template: AttributeAnimatorTemplate<A2>): AttributeAnimatorDecorator<A2>;
-}
-
-/** @public */
 export interface AttributeAnimator<O = unknown, T = unknown, U = T> extends ThemeAnimator<O, T, U> {
+  /** @override */
+  get descriptorType(): Proto<AttributeAnimatorDescriptor<T, U>>;
+
   readonly attributeName: string; // prototype property
 
   get attributeValue(): T;
@@ -79,7 +49,7 @@ export interface AttributeAnimator<O = unknown, T = unknown, U = T> extends Them
 
 /** @public */
 export const AttributeAnimator = (function (_super: typeof ThemeAnimator) {
-  const AttributeAnimator = _super.extend("AttributeAnimator", {}) as AttributeAnimatorClass;
+  const AttributeAnimator = _super.extend("AttributeAnimator", {}) as FastenerClass<AttributeAnimator<any, any, any>>;
 
   Object.defineProperty(AttributeAnimator.prototype, "attributeValue", {
     get: function <T>(this: AttributeAnimator<unknown, T>): T {
@@ -125,8 +95,8 @@ export const AttributeAnimator = (function (_super: typeof ThemeAnimator) {
     throw new Error();
   };
 
-  AttributeAnimator.specialize = function (template: AttributeAnimatorDescriptor<any, any>): AttributeAnimatorClass {
-    let superClass = template.extends as AttributeAnimatorClass | null | undefined;
+  AttributeAnimator.specialize = function (template: AttributeAnimatorDescriptor<any, any>): FastenerClass<AttributeAnimator<any, any, any>> {
+    let superClass = template.extends as FastenerClass<AttributeAnimator<any, any, any>> | null | undefined;
     if (superClass === void 0 || superClass === null) {
       const valueType = template.valueType;
       if (valueType === String) {
@@ -159,7 +129,7 @@ export interface StringAttributeAnimator<O = unknown, T extends string | undefin
 export const StringAttributeAnimator = (function (_super: typeof AttributeAnimator) {
   const StringAttributeAnimator = _super.extend("StringAttributeAnimator", {
     valueType: String,
-  }) as AttributeAnimatorClass<StringAttributeAnimator<any, any, any>>;
+  }) as FastenerClass<StringAttributeAnimator<any, any, any>>;
 
   StringAttributeAnimator.prototype.equalValues = function (newValue: string | undefined, oldValue: string | undefined): boolean {
     return newValue === oldValue;
@@ -184,7 +154,7 @@ export interface NumberAttributeAnimator<O = unknown, T extends number | undefin
 export const NumberAttributeAnimator = (function (_super: typeof AttributeAnimator) {
   const NumberAttributeAnimator = _super.extend("NumberAttributeAnimator", {
     valueType: Number,
-  }) as AttributeAnimatorClass<NumberAttributeAnimator<any, any, any>>;
+  }) as FastenerClass<NumberAttributeAnimator<any, any, any>>;
 
   NumberAttributeAnimator.prototype.equalValues = function (newValue: number | undefined, oldValue: number | undefined): boolean {
     return newValue === oldValue;
@@ -215,7 +185,7 @@ export interface BooleanAttributeAnimator<O = unknown, T extends boolean | undef
 export const BooleanAttributeAnimator = (function (_super: typeof AttributeAnimator) {
   const BooleanAttributeAnimator = _super.extend("BooleanAttributeAnimator", {
     valueType: Boolean,
-  }) as AttributeAnimatorClass<BooleanAttributeAnimator<any, any, any>>;
+  }) as FastenerClass<BooleanAttributeAnimator<any, any, any>>;
 
   BooleanAttributeAnimator.prototype.equalValues = function (newValue: boolean | undefined, oldValue: boolean | undefined): boolean {
     return newValue === oldValue;
@@ -241,7 +211,7 @@ export const LengthAttributeAnimator = (function (_super: typeof AttributeAnimat
   const LengthAttributeAnimator = _super.extend("LengthAttributeAnimator", {
     valueType: Length,
     value: null,
-  }) as AttributeAnimatorClass<LengthAttributeAnimator<any, any, any>>;
+  }) as FastenerClass<LengthAttributeAnimator<any, any, any>>;
 
   LengthAttributeAnimator.prototype.equalValues = function (newValue: Length | null, oldValue: Length | null): boolean {
     if (newValue !== void 0 && newValue !== null) {
@@ -275,7 +245,7 @@ export const ColorAttributeAnimator = (function (_super: typeof AttributeAnimato
   const ColorAttributeAnimator = _super.extend("ColorAttributeAnimator", {
     valueType: Color,
     value: null,
-  }) as AttributeAnimatorClass<ColorAttributeAnimator<any, any, any>>;
+  }) as FastenerClass<ColorAttributeAnimator<any, any, any>>;
 
   ColorAttributeAnimator.prototype.equalValues = function (newValue: Color | null, oldValue: Color | null): boolean {
     if (newValue !== void 0 && newValue !== null) {
@@ -309,7 +279,7 @@ export const TransformAttributeAnimator = (function (_super: typeof AttributeAni
   const TransformAttributeAnimator = _super.extend("TransformAttributeAnimator", {
     valueType: Transform,
     value: null,
-  }) as AttributeAnimatorClass<TransformAttributeAnimator<any, any, any>>;
+  }) as FastenerClass<TransformAttributeAnimator<any, any, any>>;
 
   TransformAttributeAnimator.prototype.equalValues = function (newValue: Transform | null, oldValue: Transform | null): boolean {
     if (newValue !== void 0 && newValue !== null) {

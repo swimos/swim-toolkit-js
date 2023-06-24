@@ -15,28 +15,13 @@
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
 import type {Observes} from "@swim/util";
-import type {FastenerOwner} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
 import type {AnyView} from "@swim/view";
 import type {ViewFactory} from "@swim/view";
 import {View} from "@swim/view";
-import type {ControllerFactory} from "./Controller";
 import type {Controller} from "./Controller";
 import type {ControllerSetDescriptor} from "./ControllerSet";
-import type {ControllerSetClass} from "./ControllerSet";
 import {ControllerSet} from "./ControllerSet";
-
-/** @public */
-export type ViewControllerSetView<F extends ViewControllerSet<any, any, any>> =
-  F extends {viewType?: ViewFactory<infer V>} ? V : never;
-
-/** @public */
-export type ViewControllerSetController<F extends ViewControllerSet<any, any, any>> =
-  F extends {controllerType?: ControllerFactory<infer C>} ? C : never;
-
-/** @public */
-export type ViewControllerSetDecorator<F extends ViewControllerSet<any, any, any>> = {
-  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
-};
 
 /** @public */
 export interface ViewControllerSetDescriptor<V extends View = View, C extends Controller = Controller> extends ControllerSetDescriptor<C> {
@@ -47,35 +32,9 @@ export interface ViewControllerSetDescriptor<V extends View = View, C extends Co
 }
 
 /** @public */
-export type ViewControllerSetTemplate<F extends ViewControllerSet<any, any, any>> =
-  ThisType<F> &
-  ViewControllerSetDescriptor<ViewControllerSetView<F>, ViewControllerSetController<F>> &
-  Partial<Omit<F, keyof ViewControllerSetDescriptor>>;
-
-/** @public */
-export interface ViewControllerSetClass<F extends ViewControllerSet<any, any, any> = ViewControllerSet<any, any, any>> extends ControllerSetClass<F> {
-  /** @override */
-  specialize(template: ViewControllerSetDescriptor<any, any>): ViewControllerSetClass<F>;
-
-  /** @override */
-  refine(fastenerClass: ViewControllerSetClass<any>): void;
-
-  /** @override */
-  extend<F2 extends F>(className: string | symbol, template: ViewControllerSetTemplate<F2>): ViewControllerSetClass<F2>;
-  extend<F2 extends F>(className: string | symbol, template: ViewControllerSetTemplate<F2>): ViewControllerSetClass<F2>;
-
-  /** @override */
-  define<F2 extends F>(className: string | symbol, template: ViewControllerSetTemplate<F2>): ViewControllerSetClass<F2>;
-  define<F2 extends F>(className: string | symbol, template: ViewControllerSetTemplate<F2>): ViewControllerSetClass<F2>;
-
-  /** @override */
-  <F2 extends F>(template: ViewControllerSetTemplate<F2>): ViewControllerSetDecorator<F2>;
-}
-
-/** @public */
 export interface ViewControllerSet<O = unknown, V extends View = View, C extends Controller = Controller> extends ControllerSet<O, C> {
   /** @override */
-  get fastenerType(): Proto<ViewControllerSet<any, any, any>>;
+  get descriptorType(): Proto<ViewControllerSetDescriptor<V, C>>;
 
   /** @internal */
   readonly viewType?: ViewFactory<V>; // optional prototype property
@@ -188,13 +147,7 @@ export interface ViewControllerSet<O = unknown, V extends View = View, C extends
 
 /** @public */
 export const ViewControllerSet = (function (_super: typeof ControllerSet) {
-  const ViewControllerSet = _super.extend("ViewControllerSet", {}) as ViewControllerSetClass;
-
-  Object.defineProperty(ViewControllerSet.prototype, "fastenerType", {
-    value: ViewControllerSet,
-    enumerable: true,
-    configurable: true,
-  });
+  const ViewControllerSet = _super.extend("ViewControllerSet", {}) as FastenerClass<ViewControllerSet<any, any, any>>;
 
   ViewControllerSet.prototype.getViewController = function <V extends View, C extends Controller>(this: ViewControllerSet<unknown, V, C>, view: V): C | null {
     const controller = this.viewControllers[view.uid];
@@ -489,7 +442,7 @@ export const ViewControllerSet = (function (_super: typeof ControllerSet) {
     return a.uid < b.uid ? -1 : a.uid > b.uid ? 1 : 0;
   };
 
-  ViewControllerSet.construct = function <F extends ViewControllerSet<any, any, any>>(fastener: F | null, owner: FastenerOwner<F>): F {
+  ViewControllerSet.construct = function <F extends ViewControllerSet<any, any, any>>(fastener: F | null, owner: F extends ViewControllerSet<infer O, any, any> ? O : never): F {
     fastener = _super.construct.call(this, fastener, owner) as F;
     (fastener as Mutable<typeof fastener>).viewControllers = {};
     (fastener as Mutable<typeof fastener>).views = {};
@@ -497,7 +450,7 @@ export const ViewControllerSet = (function (_super: typeof ControllerSet) {
     return fastener;
   };
 
-  ViewControllerSet.refine = function (fastenerClass: ViewControllerSetClass<any>): void {
+  ViewControllerSet.refine = function (fastenerClass: FastenerClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

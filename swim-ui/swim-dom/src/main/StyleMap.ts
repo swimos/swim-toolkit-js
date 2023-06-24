@@ -16,7 +16,8 @@ import {__esDecorate} from "tslib";
 import {Values} from "@swim/util";
 import {Equals} from "@swim/util";
 import type {AnyTiming} from "@swim/util";
-import type {AnyAnimatorValue} from "@swim/component";
+import type {FastenerDecorator} from "@swim/component";
+import {Property} from "@swim/component";
 import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
 import type {AnyTransform} from "@swim/math";
@@ -34,139 +35,41 @@ import type {AnyLinearGradient} from "@swim/style";
 import {LinearGradient} from "@swim/style";
 import type {AnyBoxShadow} from "@swim/style";
 import {BoxShadow} from "@swim/style";
-import type {StyleAnimatorDecorator} from "./StyleAnimator";
 import {StyleAnimator} from "./StyleAnimator";
 import {LengthStyleAnimator} from "./StyleAnimator";
 import {LengthStyleConstraintAnimator} from "./StyleConstraintAnimator";
-import type {AlignContent} from "./Css";
-import type {AlignItems} from "./Css";
-import type {AlignSelf} from "./Css";
-import type {Appearance} from "./Css";
-import type {BackgroundClip} from "./Css";
-import type {BorderCollapse} from "./Css";
-import type {BorderStyle} from "./Css";
-import type {BoxSizing} from "./Css";
-import type {CssCursor} from "./Css";
-import type {CssDisplay} from "./Css";
-import type {FlexBasis} from "./Css";
-import type {FlexDirection} from "./Css";
-import type {FlexWrap} from "./Css";
-import type {JustifyContent} from "./Css";
-import type {Overflow} from "./Css";
-import type {OverscrollBehavior} from "./Css";
-import type {PointerEvents} from "./Css";
-import type {Position} from "./Css";
-import type {TextAlign} from "./Css";
-import type {TextDecorationStyle} from "./Css";
-import type {TextTransform} from "./Css";
-import type {TouchAction} from "./Css";
-import type {UserSelect} from "./Css";
-import type {VerticalAlign} from "./Css";
-import type {Visibility} from "./Css";
-import type {WhiteSpace} from "./Css";
+import type {AlignContent} from "./css";
+import type {AlignItems} from "./css";
+import type {AlignSelf} from "./css";
+import type {Appearance} from "./css";
+import type {BackgroundClip} from "./css";
+import type {BorderCollapse} from "./css";
+import type {BorderStyle} from "./css";
+import type {BoxSizing} from "./css";
+import type {CssCursor} from "./css";
+import type {CssDisplay} from "./css";
+import type {FlexBasis} from "./css";
+import type {FlexDirection} from "./css";
+import type {FlexWrap} from "./css";
+import type {JustifyContent} from "./css";
+import type {Overflow} from "./css";
+import type {OverscrollBehavior} from "./css";
+import type {PointerEvents} from "./css";
+import type {Position} from "./css";
+import type {TextAlign} from "./css";
+import type {TextDecorationStyle} from "./css";
+import type {TextTransform} from "./css";
+import type {TouchAction} from "./css";
+import type {UserSelect} from "./css";
+import type {VerticalAlign} from "./css";
+import type {Visibility} from "./css";
+import type {WhiteSpace} from "./css";
 import type {StyleContext} from "./StyleContext";
 
 /** @public */
-export interface StyleMapInit {
-  alignContent?: AnyAnimatorValue<StyleMap["alignContent"]>;
-  alignItems?: AnyAnimatorValue<StyleMap["alignItems"]>;
-  alignSelf?: AnyAnimatorValue<StyleMap["alignSelf"]>;
-  appearance?: AnyAnimatorValue<StyleMap["appearance"]>;
-  backdropFilter?: AnyAnimatorValue<StyleMap["backdropFilter"]>;
-  backgroundClip?: AnyAnimatorValue<StyleMap["backgroundClip"]>;
-  backgroundColor?: AnyAnimatorValue<StyleMap["backgroundColor"]>;
-  backgroundImage?: AnyAnimatorValue<StyleMap["backgroundImage"]>;
-  borderCollapse?: AnyAnimatorValue<StyleMap["borderCollapse"]>;
-  borderColor?: [AnyColor | null, AnyColor | null, AnyColor | null, AnyColor | null] | AnyColor | null;
-  borderTopColor?: AnyAnimatorValue<StyleMap["borderTopColor"]>;
-  borderRightColor?: AnyAnimatorValue<StyleMap["borderRightColor"]>;
-  borderBottomColor?: AnyAnimatorValue<StyleMap["borderBottomColor"]>;
-  borderLeftColor?: AnyAnimatorValue<StyleMap["borderLeftColor"]>;
-  borderRadius?: [AnyLength | null, AnyLength | null, AnyLength | null, AnyLength | null] | AnyLength | null;
-  borderTopLeftRadius?: AnyAnimatorValue<StyleMap["borderTopLeftRadius"]>;
-  borderTopRightRadius?: AnyAnimatorValue<StyleMap["borderTopRightRadius"]>;
-  borderBottomRightRadius?: AnyAnimatorValue<StyleMap["borderBottomRightRadius"]>;
-  borderBottomLeftRadius?: AnyAnimatorValue<StyleMap["borderBottomLeftRadius"]>;
-  borderSpacing?: AnyAnimatorValue<StyleMap["borderSpacing"]>;
-  borderStyle?: [BorderStyle | undefined, BorderStyle | undefined, BorderStyle | undefined, BorderStyle | undefined] | BorderStyle | undefined;
-  borderTopStyle?: AnyAnimatorValue<StyleMap["borderTopStyle"]>;
-  borderRightStyle?: AnyAnimatorValue<StyleMap["borderRightStyle"]>;
-  borderBottomStyle?: AnyAnimatorValue<StyleMap["borderBottomStyle"]>;
-  borderLeftStyle?: AnyAnimatorValue<StyleMap["borderLeftStyle"]>;
-  borderWidth?: [AnyLength | null, AnyLength | null, AnyLength | null, AnyLength | null] | AnyLength | null;
-  borderTopWidth?: AnyAnimatorValue<StyleMap["borderTopWidth"]>;
-  borderRightWidth?: AnyAnimatorValue<StyleMap["borderRightWidth"]>;
-  borderBottomWidth?: AnyAnimatorValue<StyleMap["borderBottomWidth"]>;
-  borderLeftWidth?: AnyAnimatorValue<StyleMap["borderLeftWidth"]>;
-  bottom?: AnyAnimatorValue<StyleMap["bottom"]>;
-  boxShadow?: AnyAnimatorValue<StyleMap["boxShadow"]>;
-  boxSizing?: AnyAnimatorValue<StyleMap["boxSizing"]>;
-  color?: AnyAnimatorValue<StyleMap["color"]>;
-  cursor?: AnyAnimatorValue<StyleMap["cursor"]>;
-  display?: AnyAnimatorValue<StyleMap["display"]>;
-  filter?: AnyAnimatorValue<StyleMap["filter"]>;
-  flexBasis?: AnyAnimatorValue<StyleMap["flexBasis"]>;
-  flexDirection?: AnyAnimatorValue<StyleMap["flexDirection"]>;
-  flexGrow?: AnyAnimatorValue<StyleMap["flexGrow"]>;
-  flexShrink?: AnyAnimatorValue<StyleMap["flexShrink"]>;
-  flexWrap?: AnyAnimatorValue<StyleMap["flexWrap"]>;
-  font?: AnyFont;
-  fontFamily?: AnyAnimatorValue<StyleMap["fontFamily"]>;
-  fontSize?: AnyAnimatorValue<StyleMap["fontSize"]>;
-  fontStretch?: AnyAnimatorValue<StyleMap["fontStretch"]>;
-  fontStyle?: AnyAnimatorValue<StyleMap["fontStyle"]>;
-  fontVariant?: AnyAnimatorValue<StyleMap["fontVariant"]>;
-  fontWeight?: AnyAnimatorValue<StyleMap["fontWeight"]>;
-  height?: AnyAnimatorValue<StyleMap["height"]>;
-  justifyContent?: AnyAnimatorValue<StyleMap["justifyContent"]>;
-  left?: AnyAnimatorValue<StyleMap["left"]>;
-  lineHeight?: AnyAnimatorValue<StyleMap["lineHeight"]>;
-  margin?: [AnyLength | null, AnyLength | null, AnyLength | null, AnyLength | null] | AnyLength;
-  marginTop?: AnyAnimatorValue<StyleMap["marginTop"]>;
-  marginRight?: AnyAnimatorValue<StyleMap["marginRight"]>;
-  marginBottom?: AnyAnimatorValue<StyleMap["marginBottom"]>;
-  marginLeft?: AnyAnimatorValue<StyleMap["marginLeft"]>;
-  maxHeight?: AnyAnimatorValue<StyleMap["maxHeight"]>;
-  maxWidth?: AnyAnimatorValue<StyleMap["maxWidth"]>;
-  minHeight?: AnyAnimatorValue<StyleMap["minHeight"]>;
-  minWidth?: AnyAnimatorValue<StyleMap["minWidth"]>;
-  opacity?: AnyAnimatorValue<StyleMap["opacity"]>;
-  order?: AnyAnimatorValue<StyleMap["order"]>;
-  outlineColor?: AnyAnimatorValue<StyleMap["outlineColor"]>;
-  outlineOffset?: AnyAnimatorValue<StyleMap["outlineOffset"]>;
-  outlineStyle?: AnyAnimatorValue<StyleMap["outlineStyle"]>;
-  outlineWidth?: AnyAnimatorValue<StyleMap["outlineWidth"]>;
-  overflow?: [Overflow | undefined, Overflow | undefined] | Overflow | undefined;
-  overflowX?: AnyAnimatorValue<StyleMap["overflowX"]>;
-  overflowY?: AnyAnimatorValue<StyleMap["overflowY"]>;
-  overflowScrolling?: AnyAnimatorValue<StyleMap["overflowScrolling"]>;
-  overscrollBehavior?: [OverscrollBehavior | undefined, OverscrollBehavior | undefined] | OverscrollBehavior | undefined;
-  overscrollBehaviorX?: AnyAnimatorValue<StyleMap["overscrollBehaviorX"]>;
-  overscrollBehaviorY?: AnyAnimatorValue<StyleMap["overscrollBehaviorY"]>;
-  padding?: [AnyLength | null, AnyLength | null, AnyLength | null, AnyLength | null] | AnyLength | null;
-  paddingTop?: AnyAnimatorValue<StyleMap["paddingTop"]>;
-  paddingRight?: AnyAnimatorValue<StyleMap["paddingRight"]>;
-  paddingBottom?: AnyAnimatorValue<StyleMap["paddingBottom"]>;
-  paddingLeft?: AnyAnimatorValue<StyleMap["paddingLeft"]>;
-  pointerEvents?: AnyAnimatorValue<StyleMap["pointerEvents"]>;
-  position?: AnyAnimatorValue<StyleMap["position"]>;
-  right?: AnyAnimatorValue<StyleMap["right"]>;
-  textAlign?: AnyAnimatorValue<StyleMap["textAlign"]>;
-  textDecorationColor?: AnyAnimatorValue<StyleMap["textDecorationColor"]>;
-  textDecorationLine?: AnyAnimatorValue<StyleMap["textDecorationLine"]>;
-  textDecorationStyle?: AnyAnimatorValue<StyleMap["textDecorationStyle"]>;
-  textOverflow?: AnyAnimatorValue<StyleMap["textOverflow"]>;
-  textTransform?: AnyAnimatorValue<StyleMap["textTransform"]>;
-  top?: AnyAnimatorValue<StyleMap["top"]>;
-  touchAction?: AnyAnimatorValue<StyleMap["touchAction"]>;
-  transform?: AnyAnimatorValue<StyleMap["transform"]>;
-  userSelect?: AnyAnimatorValue<StyleMap["userSelect"]>;
-  verticalAlign?: AnyAnimatorValue<StyleMap["verticalAlign"]>;
-  visibility?: AnyAnimatorValue<StyleMap["visibility"]>;
-  whiteSpace?: AnyAnimatorValue<StyleMap["whiteSpace"]>;
-  width?: AnyAnimatorValue<StyleMap["width"]>;
-  zIndex?: AnyAnimatorValue<StyleMap["zIndex"]>;
-}
+export type StyleMapInit = {
+  [K in keyof StyleMap as StyleMap[K] extends Property<any, any, any> ? K : never]?: StyleMap[K] extends Property<any, infer T, infer U> ? T | U : never;
+};
 
 /** @public */
 export interface StyleMap extends StyleContext {
@@ -383,7 +286,7 @@ export const StyleMap = (function () {
     init(map: StyleMap, init: StyleMapInit): void;
 
     /** @internal */
-    decorate<K extends keyof StyleMap>(name: K, decorators: StyleMap[K] extends StyleAnimator<any, any, any> ? StyleAnimatorDecorator<StyleMap[K]>[] : never,
+    decorate<K extends keyof StyleMap>(name: K, decorators: StyleMap[K] extends StyleAnimator<any, any, any> ? FastenerDecorator<StyleMap[K]>[] : never,
                                        initializerMap: {[name: string | symbol]: Function[]}, extraInitializers: Function[]): void;
 
     /** @internal */
@@ -397,303 +300,15 @@ export const StyleMap = (function () {
   };
 
   StyleMap.init = function (map: StyleMap, init: StyleMapInit): void {
-    if (init.alignContent !== void 0) {
-      map.alignContent(init.alignContent);
-    }
-    if (init.alignItems !== void 0) {
-      map.alignItems(init.alignItems);
-    }
-    if (init.alignSelf !== void 0) {
-      map.alignSelf(init.alignSelf);
-    }
-    if (init.appearance !== void 0) {
-      map.appearance(init.appearance);
-    }
-    if (init.backdropFilter !== void 0) {
-      map.backdropFilter(init.backdropFilter);
-    }
-    if (init.backgroundClip !== void 0) {
-      map.backgroundClip(init.backgroundClip);
-    }
-    if (init.backgroundColor !== void 0) {
-      map.backgroundColor(init.backgroundColor);
-    }
-    if (init.backgroundImage !== void 0) {
-      map.backgroundImage(init.backgroundImage);
-    }
-    if (init.borderCollapse !== void 0) {
-      map.borderCollapse(init.borderCollapse);
-    }
-    if (init.borderColor !== void 0) {
-      map.borderColor(init.borderColor);
-    }
-    if (init.borderTopColor !== void 0) {
-      map.borderTopColor(init.borderTopColor);
-    }
-    if (init.borderRightColor !== void 0) {
-      map.borderRightColor(init.borderRightColor);
-    }
-    if (init.borderBottomColor !== void 0) {
-      map.borderBottomColor(init.borderBottomColor);
-    }
-    if (init.borderLeftColor !== void 0) {
-      map.borderLeftColor(init.borderLeftColor);
-    }
-    if (init.borderRadius !== void 0) {
-      map.borderRadius(init.borderRadius);
-    }
-    if (init.borderTopLeftRadius !== void 0) {
-      map.borderTopLeftRadius(init.borderTopLeftRadius);
-    }
-    if (init.borderTopRightRadius !== void 0) {
-      map.borderTopRightRadius(init.borderTopRightRadius);
-    }
-    if (init.borderBottomRightRadius !== void 0) {
-      map.borderBottomRightRadius(init.borderBottomRightRadius);
-    }
-    if (init.borderBottomLeftRadius !== void 0) {
-      map.borderBottomLeftRadius(init.borderBottomLeftRadius);
-    }
-    if (init.borderSpacing !== void 0) {
-      map.borderSpacing(init.borderSpacing);
-    }
-    if (init.borderStyle !== void 0) {
-      map.borderStyle(init.borderStyle);
-    }
-    if (init.borderTopStyle !== void 0) {
-      map.borderTopStyle(init.borderTopStyle);
-    }
-    if (init.borderRightStyle !== void 0) {
-      map.borderRightStyle(init.borderRightStyle);
-    }
-    if (init.borderBottomStyle !== void 0) {
-      map.borderBottomStyle(init.borderBottomStyle);
-    }
-    if (init.borderLeftStyle !== void 0) {
-      map.borderLeftStyle(init.borderLeftStyle);
-    }
-    if (init.borderWidth !== void 0) {
-      map.borderWidth(init.borderWidth);
-    }
-    if (init.borderTopWidth !== void 0) {
-      map.borderTopWidth(init.borderTopWidth);
-    }
-    if (init.borderRightWidth !== void 0) {
-      map.borderRightWidth(init.borderRightWidth);
-    }
-    if (init.borderBottomWidth !== void 0) {
-      map.borderBottomWidth(init.borderBottomWidth);
-    }
-    if (init.borderLeftWidth !== void 0) {
-      map.borderLeftWidth(init.borderLeftWidth);
-    }
-    if (init.bottom !== void 0) {
-      map.bottom(init.bottom);
-    }
-    if (init.boxShadow !== void 0) {
-      map.boxShadow(init.boxShadow);
-    }
-    if (init.boxSizing !== void 0) {
-      map.boxSizing(init.boxSizing);
-    }
-    if (init.color !== void 0) {
-      map.color(init.color);
-    }
-    if (init.cursor !== void 0) {
-      map.cursor(init.cursor);
-    }
-    if (init.display !== void 0) {
-      map.display(init.display);
-    }
-    if (init.filter !== void 0) {
-      map.filter(init.filter);
-    }
-    if (init.flexBasis !== void 0) {
-      map.flexBasis(init.flexBasis);
-    }
-    if (init.flexDirection !== void 0) {
-      map.flexDirection(init.flexDirection);
-    }
-    if (init.flexGrow !== void 0) {
-      map.flexGrow(init.flexGrow);
-    }
-    if (init.flexShrink !== void 0) {
-      map.flexShrink(init.flexShrink);
-    }
-    if (init.flexWrap !== void 0) {
-      map.flexWrap(init.flexWrap);
-    }
-    if (init.font !== void 0) {
-      map.font(init.font);
-    }
-    if (init.fontFamily !== void 0) {
-      map.fontFamily(init.fontFamily);
-    }
-    if (init.fontSize !== void 0) {
-      map.fontSize(init.fontSize);
-    }
-    if (init.fontStretch !== void 0) {
-      map.fontStretch(init.fontStretch);
-    }
-    if (init.fontStyle !== void 0) {
-      map.fontStyle(init.fontStyle);
-    }
-    if (init.fontVariant !== void 0) {
-      map.fontVariant(init.fontVariant);
-    }
-    if (init.fontWeight !== void 0) {
-      map.fontWeight(init.fontWeight);
-    }
-    if (init.height !== void 0) {
-      map.height(init.height);
-    }
-    if (init.justifyContent !== void 0) {
-      map.justifyContent(init.justifyContent);
-    }
-    if (init.left !== void 0) {
-      map.left(init.left);
-    }
-    if (init.lineHeight !== void 0) {
-      map.lineHeight(init.lineHeight);
-    }
-    if (init.margin !== void 0) {
-      map.margin(init.margin);
-    }
-    if (init.marginTop !== void 0) {
-      map.marginTop(init.marginTop);
-    }
-    if (init.marginRight !== void 0) {
-      map.marginRight(init.marginRight);
-    }
-    if (init.marginBottom !== void 0) {
-      map.marginBottom(init.marginBottom);
-    }
-    if (init.marginLeft !== void 0) {
-      map.marginLeft(init.marginLeft);
-    }
-    if (init.maxHeight !== void 0) {
-      map.maxHeight(init.maxHeight);
-    }
-    if (init.maxWidth !== void 0) {
-      map.maxWidth(init.maxWidth);
-    }
-    if (init.minHeight !== void 0) {
-      map.minHeight(init.minHeight);
-    }
-    if (init.minWidth !== void 0) {
-      map.minWidth(init.minWidth);
-    }
-    if (init.opacity !== void 0) {
-      map.opacity(init.opacity);
-    }
-    if (init.order !== void 0) {
-      map.order(init.order);
-    }
-    if (init.outlineColor !== void 0) {
-      map.outlineColor(init.outlineColor);
-    }
-    if (init.outlineOffset !== void 0) {
-      map.outlineOffset(init.outlineOffset);
-    }
-    if (init.outlineStyle !== void 0) {
-      map.outlineStyle(init.outlineStyle);
-    }
-    if (init.outlineWidth !== void 0) {
-      map.outlineWidth(init.outlineWidth);
-    }
-    if (init.overflow !== void 0) {
-      map.overflow(init.overflow);
-    }
-    if (init.overflowX !== void 0) {
-      map.overflowX(init.overflowX);
-    }
-    if (init.overflowY !== void 0) {
-      map.overflowY(init.overflowY);
-    }
-    if (init.overflowScrolling !== void 0) {
-      map.overflowScrolling(init.overflowScrolling);
-    }
-    if (init.overscrollBehavior !== void 0) {
-      map.overscrollBehavior(init.overscrollBehavior);
-    }
-    if (init.overscrollBehaviorX !== void 0) {
-      map.overscrollBehaviorX(init.overscrollBehaviorX);
-    }
-    if (init.overscrollBehaviorY !== void 0) {
-      map.overscrollBehaviorY(init.overscrollBehaviorY);
-    }
-    if (init.padding !== void 0) {
-      map.padding(init.padding);
-    }
-    if (init.paddingTop !== void 0) {
-      map.paddingTop(init.paddingTop);
-    }
-    if (init.paddingRight !== void 0) {
-      map.paddingRight(init.paddingRight);
-    }
-    if (init.paddingBottom !== void 0) {
-      map.paddingBottom(init.paddingBottom);
-    }
-    if (init.paddingLeft !== void 0) {
-      map.paddingLeft(init.paddingLeft);
-    }
-    if (init.pointerEvents !== void 0) {
-      map.pointerEvents(init.pointerEvents);
-    }
-    if (init.position !== void 0) {
-      map.position(init.position);
-    }
-    if (init.right !== void 0) {
-      map.right(init.right);
-    }
-    if (init.textAlign !== void 0) {
-      map.textAlign(init.textAlign);
-    }
-    if (init.textDecorationColor !== void 0) {
-      map.textDecorationColor(init.textDecorationColor);
-    }
-    if (init.textDecorationLine !== void 0) {
-      map.textDecorationLine(init.textDecorationLine);
-    }
-    if (init.textDecorationStyle !== void 0) {
-      map.textDecorationStyle(init.textDecorationStyle);
-    }
-    if (init.textOverflow !== void 0) {
-      map.textOverflow(init.textOverflow);
-    }
-    if (init.textTransform !== void 0) {
-      map.textTransform(init.textTransform);
-    }
-    if (init.top !== void 0) {
-      map.top(init.top);
-    }
-    if (init.touchAction !== void 0) {
-      map.touchAction(init.touchAction);
-    }
-    if (init.transform !== void 0) {
-      map.transform(init.transform);
-    }
-    if (init.userSelect !== void 0) {
-      map.userSelect(init.userSelect);
-    }
-    if (init.verticalAlign !== void 0) {
-      map.verticalAlign(init.verticalAlign);
-    }
-    if (init.visibility !== void 0) {
-      map.visibility(init.visibility);
-    }
-    if (init.whiteSpace !== void 0) {
-      map.whiteSpace(init.whiteSpace);
-    }
-    if (init.width !== void 0) {
-      map.width(init.width);
-    }
-    if (init.zIndex !== void 0) {
-      map.zIndex(init.zIndex);
+    for (const key in init) {
+      const property = map[key as keyof StyleMap];
+      if (property instanceof Property) {
+        property(init[key as keyof StyleMapInit] as any);
+      }
     }
   };
 
-  StyleMap.decorate = function <K extends keyof StyleMap>(name: K, decorators: StyleMap[K] extends StyleAnimator<any, any, any> ? StyleAnimatorDecorator<StyleMap[K]>[] : never,
+  StyleMap.decorate = function <K extends keyof StyleMap>(name: K, decorators: StyleMap[K] extends StyleAnimator<any, any, any> ? FastenerDecorator<StyleMap[K]>[] : never,
                                                           initializerMap: {[name: string | symbol]: Function[]}, extraInitializers: Function[]): void {
     __esDecorate(null, null, decorators as Function[], {
       kind: "field",

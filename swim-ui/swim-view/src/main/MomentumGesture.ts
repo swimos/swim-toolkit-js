@@ -14,14 +14,12 @@
 
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
-import type {FastenerOwner} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
 import {View} from "./View";
 import type {GestureInputType} from "./Gesture";
 import {GestureInput} from "./Gesture";
-import type {GestureView} from "./Gesture";
 import {PositionGestureInput} from "./PositionGesture";
 import type {PositionGestureDescriptor} from "./PositionGesture";
-import type {PositionGestureClass} from "./PositionGesture";
 import {PositionGesture} from "./PositionGesture";
 
 /** @public */
@@ -91,43 +89,40 @@ export class MomentumGestureInput extends PositionGestureInput {
   /** @internal */
   integrateVelocity(t: number): void {
     const dt = t - this.t;
-    if (dt !== 0) {
-      let vx = this.vx + this.ax * dt;
-      let x: number;
-      if (vx < 0 === this.vx < 0) {
-        x = this.x + this.vx * dt + 0.5 * (this.ax * dt * dt);
-      } else {
-        x = this.x - (this.vx * this.vx) / (2 * this.ax);
-        vx = 0;
-        this.ax = 0;
-      }
-
-      let vy = this.vy + this.ay * dt;
-      let y: number;
-      if (vy < 0 === this.vy < 0) {
-        y = this.y + this.vy * dt + 0.5 * (this.ay * dt * dt);
-      } else {
-        y = this.y - (this.vy * this.vy) / (2 * this.ay);
-        vy = 0;
-        this.ay = 0;
-      }
-
-      this.dx = x - this.x;
-      this.dy = y - this.y;
-      this.dt = dt;
-      this.x = x;
-      this.y = y;
-      this.t = t;
-      this.vx = vx;
-      this.vy = vy;
+    if (dt === 0) {
+      return;
     }
+
+    let vx = this.vx + this.ax * dt;
+    let x: number;
+    if (vx < 0 === this.vx < 0) {
+      x = this.x + this.vx * dt + 0.5 * (this.ax * dt * dt);
+    } else {
+      x = this.x - (this.vx * this.vx) / (2 * this.ax);
+      vx = 0;
+      this.ax = 0;
+    }
+
+    let vy = this.vy + this.ay * dt;
+    let y: number;
+    if (vy < 0 === this.vy < 0) {
+      y = this.y + this.vy * dt + 0.5 * (this.ay * dt * dt);
+    } else {
+      y = this.y - (this.vy * this.vy) / (2 * this.ay);
+      vy = 0;
+      this.ay = 0;
+    }
+
+    this.dx = x - this.x;
+    this.dy = y - this.y;
+    this.dt = dt;
+    this.x = x;
+    this.y = y;
+    this.t = t;
+    this.vx = vx;
+    this.vy = vy;
   }
 }
-
-/** @public */
-export type MomentumGestureDecorator<G extends MomentumGesture<any, any>> = {
-  <T>(target: unknown, context: ClassFieldDecoratorContext<T, G>): (this: T, value: G | undefined) => G;
-};
 
 /** @public */
 export interface MomentumGestureDescriptor<V extends View = View> extends PositionGestureDescriptor<V> {
@@ -138,40 +133,10 @@ export interface MomentumGestureDescriptor<V extends View = View> extends Positi
 }
 
 /** @public */
-export type MomentumGestureTemplate<G extends MomentumGesture<any, any>> =
-  ThisType<G> &
-  MomentumGestureDescriptor<GestureView<G>> &
-  Partial<Omit<G, keyof MomentumGestureDescriptor>>;
-
-/** @public */
-export interface MomentumGestureClass<G extends MomentumGesture<any, any> = MomentumGesture<any, any>> extends PositionGestureClass<G> {
-  /** @override */
-  specialize(template: MomentumGestureDescriptor<any>): MomentumGestureClass<G>;
-
-  /** @override */
-  refine(gestureClass: MomentumGestureClass<any>): void;
-
-  /** @override */
-  extend<G2 extends G>(className: string | symbol, template: MomentumGestureTemplate<G2>): MomentumGestureClass<G2>;
-  extend<G2 extends G>(className: string | symbol, template: MomentumGestureTemplate<G2>): MomentumGestureClass<G2>;
-
-  /** @override */
-  define<G2 extends G>(className: string | symbol, template: MomentumGestureTemplate<G2>): MomentumGestureClass<G2>;
-  define<G2 extends G>(className: string | symbol, template: MomentumGestureTemplate<G2>): MomentumGestureClass<G2>;
-
-  /** @override */
-  <G2 extends G>(template: MomentumGestureTemplate<G2>): MomentumGestureDecorator<G2>;
-
-  /** @internal */
-  readonly Hysteresis: number;
-  /** @internal */
-  readonly Acceleration: number;
-  /** @internal */
-  readonly VelocityMax: number;
-}
-
-/** @public */
 export interface MomentumGesture<O = unknown, V extends View = View> extends PositionGesture<O, V> {
+  /** @override */
+  get descriptorType(): Proto<MomentumGestureDescriptor<V>>;
+
   /** @internal @override */
   readonly inputs: {readonly [inputId: string]: MomentumGestureInput | undefined};
 
@@ -350,7 +315,14 @@ export interface MomentumGesture<O = unknown, V extends View = View> extends Pos
 export const MomentumGesture = (function (_super: typeof PositionGesture) {
   const MomentumGesture = _super.extend("MomentumGesture", {
     observes: true,
-  }) as MomentumGestureClass;
+  }) as FastenerClass<MomentumGesture<any, any>> & {
+    /** @internal */
+    readonly Hysteresis: number;
+    /** @internal */
+    readonly Acceleration: number;
+    /** @internal */
+    readonly VelocityMax: number;
+  };
 
   MomentumGesture.prototype.createInput = function (this: MomentumGesture, inputId: string, inputType: GestureInputType, isPrimary: boolean,
                                                     x: number, y: number, t: number): MomentumGestureInput {
@@ -555,28 +527,31 @@ export const MomentumGesture = (function (_super: typeof PositionGesture) {
   };
 
   MomentumGesture.prototype.beginCoast = function (this: MomentumGesture, input: MomentumGestureInput, event: Event | null): void {
-    if (!input.coasting && (input.vx !== 0 || input.vy !== 0)) {
-      const angle = Math.atan2(Math.abs(input.vy), Math.abs(input.vx));
-      const a = this.acceleration;
-      const ax = (input.vx < 0 ? a : input.vx > 0 ? -a : 0) * Math.cos(angle);
-      const ay = (input.vy < 0 ? a : input.vy > 0 ? -a : 0) * Math.sin(angle);
-      if (ax !== 0 || ay !== 0) {
-        input.ax = ax;
-        input.ay = ay;
-        let allowCoast = this.willBeginCoast(input, event);
-        if (allowCoast === void 0) {
-          allowCoast = true;
-        }
-        if (allowCoast) {
-          input.coasting = true;
-          (this as Mutable<typeof this>).coastCount += 1;
-          this.onBeginCoast(input, event);
-          this.didBeginCoast(input, event);
-          if (this.coastCount === 1) {
-            this.startCoasting();
-          }
-        }
-      }
+    if (input.coasting || (input.vx === 0 && input.vy === 0)) {
+      return;
+    }
+    const angle = Math.atan2(Math.abs(input.vy), Math.abs(input.vx));
+    const a = this.acceleration;
+    const ax = (input.vx < 0 ? a : input.vx > 0 ? -a : 0) * Math.cos(angle);
+    const ay = (input.vy < 0 ? a : input.vy > 0 ? -a : 0) * Math.sin(angle);
+    if (ax === 0 && ay === 0) {
+      return;
+    }
+    input.ax = ax;
+    input.ay = ay;
+    let allowCoast = this.willBeginCoast(input, event);
+    if (allowCoast === void 0) {
+      allowCoast = true;
+    }
+    if (!allowCoast) {
+      return;
+    }
+    input.coasting = true;
+    (this as Mutable<typeof this>).coastCount += 1;
+    this.onBeginCoast(input, event);
+    this.didBeginCoast(input, event);
+    if (this.coastCount === 1) {
+      this.startCoasting();
     }
   };
 
@@ -598,17 +573,18 @@ export const MomentumGesture = (function (_super: typeof PositionGesture) {
   };
 
   MomentumGesture.prototype.endCoast = function (this: MomentumGesture, input: MomentumGestureInput, event: Event | null): void {
-    if (input.coasting) {
-      this.willEndCoast(input, event);
-      input.coasting = false;
-      (this as Mutable<typeof this>).coastCount -= 1;
-      this.onEndCoast(input, event);
-      this.didEndCoast(input, event);
-      if (this.coastCount === 0) {
-        this.stopCoasting();
-      }
-      this.clearInput(input);
+    if (!input.coasting) {
+      return;
     }
+    this.willEndCoast(input, event);
+    input.coasting = false;
+    (this as Mutable<typeof this>).coastCount -= 1;
+    this.onEndCoast(input, event);
+    this.didEndCoast(input, event);
+    if (this.coastCount === 0) {
+      this.stopCoasting();
+    }
+    this.clearInput(input);
   };
 
   MomentumGesture.prototype.willEndCoast = function (this: MomentumGesture, input: MomentumGestureInput, event: Event | null): void {
@@ -624,21 +600,22 @@ export const MomentumGesture = (function (_super: typeof PositionGesture) {
   };
 
   MomentumGesture.prototype.doCoast = function (this: MomentumGesture, t: number): void {
-    if (this.coastCount !== 0) {
-      this.willCoast();
-      this.integrate(t);
-      this.onCoast();
-      const inputs = this.inputs;
-      for (const inputId in inputs) {
-        const input = inputs[inputId]!;
-        if (input.coasting && input.ax === 0 && input.ay === 0) {
-          this.endCoast(input, null);
-        }
+    if (this.coastCount === 0) {
+      return;
+    }
+    this.willCoast();
+    this.integrate(t);
+    this.onCoast();
+    const inputs = this.inputs;
+    for (const inputId in inputs) {
+      const input = inputs[inputId]!;
+      if (input.coasting && input.ax === 0 && input.ay === 0) {
+        this.endCoast(input, null);
       }
-      this.didCoast();
-      if (this.coastCount !== 0 && this.view !== null) {
-        this.view.requireUpdate(View.NeedsAnimate);
-      }
+    }
+    this.didCoast();
+    if (this.coastCount !== 0 && this.view !== null) {
+      this.view.requireUpdate(View.NeedsAnimate);
     }
   };
 
@@ -664,7 +641,7 @@ export const MomentumGesture = (function (_super: typeof PositionGesture) {
     }
   };
 
-  MomentumGesture.construct = function <G extends MomentumGesture<any, any>>(gesture: G | null, owner: FastenerOwner<G>): G {
+  MomentumGesture.construct = function <G extends MomentumGesture<any, any>>(gesture: G | null, owner: G extends MomentumGesture<infer O, any> ? O : never): G {
     gesture = _super.construct.call(this, gesture, owner) as G;
     (gesture as Mutable<typeof gesture>).coastCount = 0;
     gesture.hysteresis = gesture.initHysteresis();
@@ -673,8 +650,8 @@ export const MomentumGesture = (function (_super: typeof PositionGesture) {
     return gesture;
   };
 
-  MomentumGesture.specialize = function (template: MomentumGestureDescriptor<any>): MomentumGestureClass {
-    let superClass = template.extends as MomentumGestureClass | null | undefined;
+  MomentumGesture.specialize = function (template: MomentumGestureDescriptor<any>): FastenerClass<MomentumGesture<any, any>> {
+    let superClass = template.extends as FastenerClass<MomentumGesture<any, any>> | null | undefined;
     if (superClass === void 0 || superClass === null) {
       const method = template.method;
       if (method === "pointer") {
@@ -742,7 +719,7 @@ export interface PointerMomentumGesture<O = unknown, V extends View = View> exte
 
 /** @internal */
 export const PointerMomentumGesture = (function (_super: typeof MomentumGesture) {
-  const PointerMomentumGesture = _super.extend("PointerMomentumGesture", {}) as MomentumGestureClass<PointerMomentumGesture<any, any>>;
+  const PointerMomentumGesture = _super.extend("PointerMomentumGesture", {}) as FastenerClass<PointerMomentumGesture<any, any>>;
 
   PointerMomentumGesture.prototype.attachHoverEvents = function (this: PointerMomentumGesture, view: View): void {
     view.addEventListener("pointerenter", this.onPointerEnter as EventListener);
@@ -864,7 +841,7 @@ export const PointerMomentumGesture = (function (_super: typeof MomentumGesture)
     }
   };
 
-  PointerMomentumGesture.construct = function <G extends PointerMomentumGesture<any, any>>(gesture: G | null, owner: FastenerOwner<G>): G {
+  PointerMomentumGesture.construct = function <G extends PointerMomentumGesture<any, any>>(gesture: G | null, owner: G extends MomentumGesture<infer O, any> ? O : never): G {
     gesture = _super.construct.call(this, gesture, owner) as G;
     gesture.onPointerEnter = gesture.onPointerEnter.bind(gesture);
     gesture.onPointerLeave = gesture.onPointerLeave.bind(gesture);
@@ -911,7 +888,7 @@ export interface TouchMomentumGesture<O = unknown, V extends View = View> extend
 
 /** @internal */
 export const TouchMomentumGesture = (function (_super: typeof MomentumGesture) {
-  const TouchMomentumGesture = _super.extend("TouchMomentumGesture", {}) as MomentumGestureClass<TouchMomentumGesture<any, any>>;
+  const TouchMomentumGesture = _super.extend("TouchMomentumGesture", {}) as FastenerClass<TouchMomentumGesture<any, any>>;
 
   TouchMomentumGesture.prototype.attachHoverEvents = function (this: TouchMomentumGesture, view: View): void {
     view.addEventListener("touchstart", this.onTouchStart as EventListener);
@@ -1001,7 +978,7 @@ export const TouchMomentumGesture = (function (_super: typeof MomentumGesture) {
     }
   };
 
-  TouchMomentumGesture.construct = function <G extends TouchMomentumGesture<any, any>>(gesture: G | null, owner: FastenerOwner<G>): G {
+  TouchMomentumGesture.construct = function <G extends TouchMomentumGesture<any, any>>(gesture: G | null, owner: G extends MomentumGesture<infer O, any> ? O : never): G {
     gesture = _super.construct.call(this, gesture, owner) as G;
     gesture.onTouchStart = gesture.onTouchStart.bind(gesture);
     gesture.onTouchMove = gesture.onTouchMove.bind(gesture);
@@ -1051,7 +1028,7 @@ export interface MouseMomentumGesture<O = unknown, V extends View = View> extend
 
 /** @internal */
 export const MouseMomentumGesture = (function (_super: typeof MomentumGesture) {
-  const MouseMomentumGesture = _super.extend("MouseMomentumGesture", {}) as MomentumGestureClass<MouseMomentumGesture<any, any>>;
+  const MouseMomentumGesture = _super.extend("MouseMomentumGesture", {}) as FastenerClass<MouseMomentumGesture<any, any>>;
 
   MouseMomentumGesture.prototype.attachHoverEvents = function (this: MouseMomentumGesture, view: View): void {
     view.addEventListener("mouseenter", this.onMouseEnter as EventListener);
@@ -1151,7 +1128,7 @@ export const MouseMomentumGesture = (function (_super: typeof MomentumGesture) {
     }
   };
 
-  MouseMomentumGesture.construct = function <G extends MouseMomentumGesture<any, any>>(gesture: G | null, owner: FastenerOwner<G>): G {
+  MouseMomentumGesture.construct = function <G extends MouseMomentumGesture<any, any>>(gesture: G | null, owner: G extends MomentumGesture<infer O, any> ? O : never): G {
     gesture = _super.construct.call(this, gesture, owner) as G;
     gesture.onMouseEnter = gesture.onMouseEnter.bind(gesture);
     gesture.onMouseLeave = gesture.onMouseLeave.bind(gesture);

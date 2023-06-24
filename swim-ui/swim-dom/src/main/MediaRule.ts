@@ -13,15 +13,9 @@
 // limitations under the License.
 
 import type {Proto} from "@swim/util";
-import type {FastenerOwner} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
 import type {CssRuleDescriptor} from "./CssRule";
-import type {CssRuleClass} from "./CssRule";
 import {CssRule} from "./CssRule";
-
-/** @public */
-export type MediaRuleDecorator<F extends MediaRule<any>> = {
-  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
-};
 
 /** @public */
 export interface MediaRuleDescriptor extends CssRuleDescriptor<CSSMediaRule> {
@@ -29,38 +23,15 @@ export interface MediaRuleDescriptor extends CssRuleDescriptor<CSSMediaRule> {
 }
 
 /** @public */
-export type MediaRuleTemplate<F extends MediaRule<any>> =
-  ThisType<F> &
-  MediaRuleDescriptor &
-  Partial<Omit<F, keyof MediaRuleDescriptor>>;
-
-/** @public */
-export interface MediaRuleClass<F extends MediaRule<any> = MediaRule<any>> extends CssRuleClass<F> {
-  /** @override */
-  specialize(template: MediaRuleDescriptor): MediaRuleClass<F>;
-
-  /** @override */
-  refine(fastenerClass: MediaRuleClass<any>): void;
-
-  /** @override */
-  extend<F2 extends F>(className: string | symbol, template: MediaRuleTemplate<F2>): MediaRuleClass<F2>;
-  extend<F2 extends F>(className: string | symbol, template: MediaRuleTemplate<F2>): MediaRuleClass<F2>;
-
-  /** @override */
-  define<F2 extends F>(className: string | symbol, template: MediaRuleTemplate<F2>): MediaRuleClass<F2>;
-  define<F2 extends F>(className: string | symbol, template: MediaRuleTemplate<F2>): MediaRuleClass<F2>;
-
-  /** @override */
-  <F2 extends F>(template: MediaRuleTemplate<F2>): MediaRuleDecorator<F2>;
-}
-
-/** @public */
 export interface MediaRule<O = unknown> extends CssRule<O, CSSMediaRule> {
+  /** @override */
+  get descriptorType(): Proto<MediaRuleDescriptor>;
+
   /** @override */
   get fastenerType(): Proto<MediaRule<any>>;
 
   /** @override */
-  transformInletCss(inletCss: CSSStyleSheet | CSSRule): CSSMediaRule | null;
+  transformInletCss(inletCss: CSSStyleSheet | CSSRule | null): CSSMediaRule | null;
 
   /** @override */
   createRule(inletCss: CSSStyleSheet | CSSGroupingRule): CSSMediaRule | null;
@@ -70,7 +41,7 @@ export interface MediaRule<O = unknown> extends CssRule<O, CSSMediaRule> {
 
 /** @public */
 export const MediaRule = (function (_super: typeof CssRule) {
-  const MediaRule = _super.extend("MediaRule", {}) as MediaRuleClass;
+  const MediaRule = _super.extend("MediaRule", {}) as FastenerClass<MediaRule<any>>;
 
   Object.defineProperty(MediaRule.prototype, "fastenerType", {
     value: MediaRule,
@@ -78,7 +49,7 @@ export const MediaRule = (function (_super: typeof CssRule) {
     configurable: true,
   });
 
-  MediaRule.prototype.transformInletCss = function (this: MediaRule, inletCss: CSSStyleSheet | CSSRule): CSSMediaRule | null {
+  MediaRule.prototype.transformInletCss = function (this: MediaRule, inletCss: CSSStyleSheet | CSSRule | null): CSSMediaRule | null {
     if (inletCss instanceof CSSMediaRule) {
       return inletCss;
     } else if (inletCss instanceof CSSStyleSheet || inletCss instanceof CSSGroupingRule) {
@@ -102,7 +73,7 @@ export const MediaRule = (function (_super: typeof CssRule) {
     configurable: true,
   });
 
-  MediaRule.construct = function <F extends MediaRule<any>>(fastener: F | null, owner: FastenerOwner<F>): F {
+  MediaRule.construct = function <F extends MediaRule<any>>(fastener: F | null, owner: F extends MediaRule<infer O> ? O : never): F {
     fastener = _super.construct.call(this, fastener, owner) as F;
     return fastener;
   };

@@ -13,34 +13,16 @@
 // limitations under the License.
 
 import type {Proto} from "@swim/util";
+import type {FastenerClass} from "@swim/component";
 import type {TraitFactory} from "@swim/model";
 import type {Trait} from "@swim/model";
 import type {AnyView} from "@swim/view";
 import type {ViewFactory} from "@swim/view";
 import type {View} from "@swim/view";
-import type {ControllerFactory} from "./Controller";
 import type {Controller} from "./Controller";
 import type {ControllerRefDescriptor} from "./ControllerRef";
-import type {ControllerRefClass} from "./ControllerRef";
 import {ControllerRef} from "./ControllerRef";
 import type {TraitViewRef} from "./TraitViewRef";
-
-/** @public */
-export type TraitViewControllerRefTrait<F extends TraitViewControllerRef<any, any, any, any>> =
-  F extends {traitType?: TraitFactory<infer T>} ? T : never;
-
-/** @public */
-export type TraitViewControllerRefView<F extends TraitViewControllerRef<any, any, any, any>> =
-  F extends {viewType?: ViewFactory<infer V>} ? V : never;
-
-/** @public */
-export type TraitViewControllerRefController<F extends TraitViewControllerRef<any, any, any, any>> =
-  F extends {controllerType?: ControllerFactory<infer C>} ? C : never;
-
-/** @public */
-export type TraitViewControllerRefDecorator<F extends TraitViewControllerRef<any, any, any, any>> = {
-  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
-};
 
 /** @public */
 export interface TraitViewControllerRefDescriptor<T extends Trait = Trait, V extends View = View, C extends Controller = Controller> extends ControllerRefDescriptor<C> {
@@ -52,35 +34,9 @@ export interface TraitViewControllerRefDescriptor<T extends Trait = Trait, V ext
 }
 
 /** @public */
-export type TraitViewControllerRefTemplate<F extends TraitViewControllerRef<any, any, any, any>> =
-  ThisType<F> &
-  TraitViewControllerRefDescriptor<TraitViewControllerRefTrait<F>, TraitViewControllerRefView<F>, TraitViewControllerRefController<F>> &
-  Partial<Omit<F, keyof TraitViewControllerRefDescriptor>>;
-
-/** @public */
-export interface TraitViewControllerRefClass<F extends TraitViewControllerRef<any, any, any, any> = TraitViewControllerRef<any, any, any, any>> extends ControllerRefClass<F> {
-  /** @override */
-  specialize(template: TraitViewControllerRefDescriptor<any>): TraitViewControllerRefClass<F>;
-
-  /** @override */
-  refine(fastenerClass: TraitViewControllerRefClass<any>): void;
-
-  /** @override */
-  extend<F2 extends F>(className: string | symbol, template: TraitViewControllerRefTemplate<F2>): TraitViewControllerRefClass<F2>;
-  extend<F2 extends F>(className: string | symbol, template: TraitViewControllerRefTemplate<F2>): TraitViewControllerRefClass<F2>;
-
-  /** @override */
-  define<F2 extends F>(className: string | symbol, template: TraitViewControllerRefTemplate<F2>): TraitViewControllerRefClass<F2>;
-  define<F2 extends F>(className: string | symbol, template: TraitViewControllerRefTemplate<F2>): TraitViewControllerRefClass<F2>;
-
-  /** @override */
-  <F2 extends F>(template: TraitViewControllerRefTemplate<F2>): TraitViewControllerRefDecorator<F2>;
-}
-
-/** @public */
 export interface TraitViewControllerRef<O = unknown, T extends Trait = Trait, V extends View = View, C extends Controller = Controller> extends ControllerRef<O, C> {
   /** @override */
-  get fastenerType(): Proto<TraitViewControllerRef<any, any, any, any>>;
+  get descriptorType(): Proto<TraitViewControllerRefDescriptor<T, V, C>>;
 
   /** @internal */
   getTraitViewRef(controller: C): TraitViewRef<unknown, T, V>;
@@ -133,13 +89,7 @@ export interface TraitViewControllerRef<O = unknown, T extends Trait = Trait, V 
 
 /** @public */
 export const TraitViewControllerRef = (function (_super: typeof ControllerRef) {
-  const TraitViewControllerRef = _super.extend("TraitViewControllerRef", {}) as TraitViewControllerRefClass;
-
-  Object.defineProperty(TraitViewControllerRef.prototype, "fastenerType", {
-    value: TraitViewControllerRef,
-    enumerable: true,
-    configurable: true,
-  });
+  const TraitViewControllerRef = _super.extend("TraitViewControllerRef", {}) as FastenerClass<TraitViewControllerRef<any, any, any, any>>;
 
   TraitViewControllerRef.prototype.getTraitViewRef = function <T extends Trait, V extends View, C extends Controller>(controller: C): TraitViewRef<unknown, T, V> {
     throw new Error("abstract");
@@ -331,7 +281,7 @@ export const TraitViewControllerRef = (function (_super: typeof ControllerRef) {
     configurable: true,
   });
 
-  TraitViewControllerRef.refine = function (fastenerClass: TraitViewControllerRefClass): void {
+  TraitViewControllerRef.refine = function (fastenerClass: FastenerClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

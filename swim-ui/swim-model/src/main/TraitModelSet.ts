@@ -17,28 +17,13 @@ import type {Class} from "@swim/util";
 import type {Proto} from "@swim/util";
 import type {Observes} from "@swim/util";
 import type {Consumer} from "@swim/util";
-import type {FastenerOwner} from "@swim/component";
-import type {ModelFactory} from "./Model";
+import type {FastenerClass} from "@swim/component";
 import type {Model} from "./Model";
 import type {ModelSetDescriptor} from "./ModelSet";
-import type {ModelSetClass} from "./ModelSet";
 import {ModelSet} from "./ModelSet";
 import type {AnyTrait} from "./Trait";
 import type {TraitFactory} from "./Trait";
 import {Trait} from "./Trait";
-
-/** @public */
-export type TraitModelSetTrait<F extends TraitModelSet<any, any, any>> =
-  F extends {traitType?: TraitFactory<infer T>} ? T : never;
-
-/** @public */
-export type TraitModelSetModel<F extends TraitModelSet<any, any, any>> =
-  F extends {modelType?: ModelFactory<infer M>} ? M : never;
-
-/** @public */
-export type TraitModelSetDecorator<F extends TraitModelSet<any, any, any>> = {
-  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
-};
 
 /** @public */
 export interface TraitModelSetDescriptor<T extends Trait = Trait, M extends Model = Model> extends ModelSetDescriptor<M> {
@@ -49,35 +34,9 @@ export interface TraitModelSetDescriptor<T extends Trait = Trait, M extends Mode
 }
 
 /** @public */
-export type TraitModelSetTemplate<F extends TraitModelSet<any, any, any>> =
-  ThisType<F> &
-  TraitModelSetDescriptor<TraitModelSetTrait<F>, TraitModelSetModel<F>> &
-  Partial<Omit<F, keyof TraitModelSetDescriptor>>;
-
-/** @public */
-export interface TraitModelSetClass<F extends TraitModelSet<any, any, any> = TraitModelSet<any, any, any>> extends ModelSetClass<F> {
-  /** @override */
-  specialize(template: TraitModelSetDescriptor<any, any>): TraitModelSetClass<F>;
-
-  /** @override */
-  refine(fastenerClass: TraitModelSetClass<any>): void;
-
-  /** @override */
-  extend<F2 extends F>(className: string | symbol, template: TraitModelSetTemplate<F2>): TraitModelSetClass<F2>;
-  extend<F2 extends F>(className: string | symbol, template: TraitModelSetTemplate<F2>): TraitModelSetClass<F2>;
-
-  /** @override */
-  define<F2 extends F>(className: string | symbol, template: TraitModelSetTemplate<F2>): TraitModelSetClass<F2>;
-  define<F2 extends F>(className: string | symbol, template: TraitModelSetTemplate<F2>): TraitModelSetClass<F2>;
-
-  /** @override */
-  <F2 extends F>(template: TraitModelSetTemplate<F2>): TraitModelSetDecorator<F2>;
-}
-
-/** @public */
 export interface TraitModelSet<O = unknown, T extends Trait = Trait, M extends Model = Model> extends ModelSet<O, M> {
   /** @override */
-  get fastenerType(): Proto<TraitModelSet<any, any, any>>;
+  get descriptorType(): Proto<TraitModelSetDescriptor<T, M>>;
 
   /** @internal */
   readonly traitType?: TraitFactory<T>; // optional prototype property
@@ -183,13 +142,7 @@ export interface TraitModelSet<O = unknown, T extends Trait = Trait, M extends M
 
 /** @public */
 export const TraitModelSet = (function (_super: typeof ModelSet) {
-  const TraitModelSet = _super.extend("TraitModelSet", {}) as TraitModelSetClass;
-
-  Object.defineProperty(TraitModelSet.prototype, "fastenerType", {
-    value: TraitModelSet,
-    enumerable: true,
-    configurable: true,
-  });
+  const TraitModelSet = _super.extend("TraitModelSet", {}) as FastenerClass<TraitModelSet<any, any, any>>;
 
   TraitModelSet.prototype.hasTrait = function (this: TraitModelSet, trait: Trait): boolean {
     return this.traits[trait.uid] !== void 0;
@@ -483,14 +436,14 @@ export const TraitModelSet = (function (_super: typeof ModelSet) {
     return a.uid < b.uid ? -1 : a.uid > b.uid ? 1 : 0;
   };
 
-  TraitModelSet.construct = function <F extends TraitModelSet<any, any, any>>(fastener: F | null, owner: FastenerOwner<F>): F {
+  TraitModelSet.construct = function <F extends TraitModelSet<any, any, any>>(fastener: F | null, owner: F extends TraitModelSet<infer O, any, any> ? O : never): F {
     fastener = _super.construct.call(this, fastener, owner) as F;
     (fastener as Mutable<typeof fastener>).traits = {};
     (fastener as Mutable<typeof fastener>).traitCount = 0;
     return fastener;
   };
 
-  TraitModelSet.refine = function (fastenerClass: TraitModelSetClass<any>): void {
+  TraitModelSet.refine = function (fastenerClass: FastenerClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

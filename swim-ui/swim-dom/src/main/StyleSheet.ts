@@ -13,15 +13,9 @@
 // limitations under the License.
 
 import type {Proto} from "@swim/util";
-import type {FastenerOwner} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
 import type {CssScopeDescriptor} from "./CssScope";
-import type {CssScopeClass} from "./CssScope";
 import {CssScope} from "./CssScope";
-
-/** @public */
-export type StyleSheetDecorator<F extends StyleSheet<any>> = {
-  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
-};
 
 /** @public */
 export interface StyleSheetDescriptor extends CssScopeDescriptor<CSSStyleSheet> {
@@ -29,43 +23,20 @@ export interface StyleSheetDescriptor extends CssScopeDescriptor<CSSStyleSheet> 
 }
 
 /** @public */
-export type StyleSheetTemplate<F extends StyleSheet<any>> =
-  ThisType<F> &
-  StyleSheetDescriptor &
-  Partial<Omit<F, keyof StyleSheetDescriptor>>;
-
-/** @public */
-export interface StyleSheetClass<F extends StyleSheet<any> = StyleSheet<any>> extends CssScopeClass<F> {
-  /** @override */
-  specialize(template: StyleSheetDescriptor): StyleSheetClass<F>;
-
-  /** @override */
-  refine(fastenerClass: StyleSheetClass<any>): void;
-
-  /** @override */
-  extend<F2 extends F>(className: string | symbol, template: StyleSheetTemplate<F2>): StyleSheetClass<F2>;
-  extend<F2 extends F>(className: string | symbol, template: StyleSheetTemplate<F2>): StyleSheetClass<F2>;
-
-  /** @override */
-  define<F2 extends F>(className: string | symbol, template: StyleSheetTemplate<F2>): StyleSheetClass<F2>;
-  define<F2 extends F>(className: string | symbol, template: StyleSheetTemplate<F2>): StyleSheetClass<F2>;
-
-  /** @override */
-  <F2 extends F>(template: StyleSheetTemplate<F2>): StyleSheetDecorator<F2>;
-}
-
-/** @public */
 export interface StyleSheet<O = unknown> extends CssScope<O, CSSStyleSheet> {
+  /** @override */
+  get descriptorType(): Proto<StyleSheetDescriptor>;
+
   /** @override */
   get fastenerType(): Proto<StyleSheet<any>>;
 
   /** @override */
-  transformInletCss(inletCss: CSSStyleSheet | CSSRule): CSSStyleSheet | null;
+  transformInletCss(inletCss: CSSStyleSheet | CSSRule | null): CSSStyleSheet | null;
 }
 
 /** @public */
 export const StyleSheet = (function (_super: typeof CssScope) {
-  const StyleSheet = _super.extend("StyleSheet", {}) as StyleSheetClass;
+  const StyleSheet = _super.extend("StyleSheet", {}) as FastenerClass<StyleSheet<any>>;
 
   Object.defineProperty(StyleSheet.prototype, "fastenerType", {
     value: StyleSheet,
@@ -73,14 +44,14 @@ export const StyleSheet = (function (_super: typeof CssScope) {
     configurable: true,
   });
 
-  StyleSheet.prototype.transformInletCss = function (this: StyleSheet, inletCss: CSSStyleSheet | CSSRule): CSSStyleSheet | null {
+  StyleSheet.prototype.transformInletCss = function (this: StyleSheet, inletCss: CSSStyleSheet | CSSRule | null): CSSStyleSheet | null {
     if (inletCss instanceof CSSStyleSheet) {
       return inletCss;
     }
     return null;
   };
 
-  StyleSheet.construct = function <F extends StyleSheet<any>>(fastener: F | null, owner: FastenerOwner<F>): F {
+  StyleSheet.construct = function <F extends StyleSheet<any>>(fastener: F | null, owner: F extends StyleSheet<infer O> ? O : never): F {
     fastener = _super.construct.call(this, fastener, owner) as F;
     return fastener;
   };

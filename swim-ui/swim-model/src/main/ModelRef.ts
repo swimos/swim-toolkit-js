@@ -15,23 +15,12 @@
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
 import {Affinity} from "@swim/component";
-import type {FastenerOwner} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
 import {Fastener} from "@swim/component";
 import type {AnyModel} from "./Model";
-import type {ModelFactory} from "./Model";
 import type {Model} from "./Model";
 import type {ModelRelationDescriptor} from "./ModelRelation";
-import type {ModelRelationClass} from "./ModelRelation";
 import {ModelRelation} from "./ModelRelation";
-
-/** @public */
-export type ModelRefModel<F extends ModelRef<any, any>> =
-  F extends {modelType?: ModelFactory<infer M>} ? M : never;
-
-/** @public */
-export type ModelRefDecorator<F extends ModelRef<any, any>> = {
-  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
-};
 
 /** @public */
 export interface ModelRefDescriptor<M extends Model = Model> extends ModelRelationDescriptor<M> {
@@ -40,35 +29,12 @@ export interface ModelRefDescriptor<M extends Model = Model> extends ModelRelati
 }
 
 /** @public */
-export type ModelRefTemplate<F extends ModelRef<any, any>> =
-  ThisType<F> &
-  ModelRefDescriptor<ModelRefModel<F>> &
-  Partial<Omit<F, keyof ModelRefDescriptor>>;
-
-/** @public */
-export interface ModelRefClass<F extends ModelRef<any, any> = ModelRef<any, any>> extends ModelRelationClass<F> {
-  /** @override */
-  specialize(template: ModelRefDescriptor<any>): ModelRefClass<F>;
-
-  /** @override */
-  refine(fastenerClass: ModelRefClass<any>): void;
-
-  /** @override */
-  extend<F2 extends F>(className: string | symbol, template: ModelRefTemplate<F2>): ModelRefClass<F2>;
-  extend<F2 extends F>(className: string | symbol, template: ModelRefTemplate<F2>): ModelRefClass<F2>;
-
-  /** @override */
-  define<F2 extends F>(className: string | symbol, template: ModelRefTemplate<F2>): ModelRefClass<F2>;
-  define<F2 extends F>(className: string | symbol, template: ModelRefTemplate<F2>): ModelRefClass<F2>;
-
-  /** @override */
-  <F2 extends F>(template: ModelRefTemplate<F2>): ModelRefDecorator<F2>;
-}
-
-/** @public */
 export interface ModelRef<O = unknown, M extends Model = Model> extends ModelRelation<O, M> {
   (): M | null;
   (model: AnyModel<M> | null, target?: Model | null, key?: string): O;
+
+  /** @override */
+  get descriptorType(): Proto<ModelRefDescriptor<M>>;
 
   /** @override */
   get fastenerType(): Proto<ModelRef<any, any>>;
@@ -95,13 +61,13 @@ export interface ModelRef<O = unknown, M extends Model = Model> extends ModelRel
   didUnderive(inlet: ModelRef<unknown, M>): void;
 
   /** @override */
-  deriveInlet(): ModelRef<unknown, M> | null;
-
-  /** @override */
-  bindInlet(inlet: ModelRef<unknown, M>): void;
+  get parent(): ModelRef<unknown, M> | null;
 
   /** @override */
   readonly inlet: ModelRef<unknown, M> | null;
+
+  /** @override */
+  bindInlet(inlet: ModelRef<unknown, M>): void;
 
   /** @protected @override */
   willBindInlet(inlet: ModelRef<unknown, M>): void;
@@ -180,7 +146,7 @@ export interface ModelRef<O = unknown, M extends Model = Model> extends ModelRel
 
 /** @public */
 export const ModelRef = (function (_super: typeof ModelRelation) {
-  const ModelRef = _super.extend("ModelRef", {}) as ModelRefClass;
+  const ModelRef = _super.extend("ModelRef", {}) as FastenerClass<ModelRef<any, any>>;
 
   Object.defineProperty(ModelRef.prototype, "fastenerType", {
     value: ModelRef,
@@ -477,9 +443,9 @@ export const ModelRef = (function (_super: typeof ModelRelation) {
     this.setModel(inlet.model);
   };
 
-  ModelRef.construct = function <F extends ModelRef<any, any>>(fastener: F | null, owner: FastenerOwner<F>): F {
+  ModelRef.construct = function <F extends ModelRef<any, any>>(fastener: F | null, owner: F extends ModelRef<infer O, any> ? O : never): F {
     if (fastener === null) {
-      fastener = function (model?: AnyModel<ModelRefModel<F>> | null, target?: Model | null, key?: string): ModelRefModel<F> | null | FastenerOwner<F> {
+      fastener = function (model?: F extends ModelRef<any, infer M> ? AnyModel<M> | null : never, target?: Model | null, key?: string): F extends ModelRef<infer O, infer M> ? M | O | null : never {
         if (model === void 0) {
           return fastener!.model;
         } else {
@@ -495,7 +461,7 @@ export const ModelRef = (function (_super: typeof ModelRelation) {
     return fastener;
   };
 
-  ModelRef.refine = function (fastenerClass: ModelRefClass<any>): void {
+  ModelRef.refine = function (fastenerClass: FastenerClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

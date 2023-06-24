@@ -12,20 +12,69 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "./look";
+// Look
 
-export * from "./feel";
+export type {AnyLookVector} from "./LookVector";
+export type {LookVectorArray} from "./LookVector";
+export type {LookVectorUpdates} from "./LookVector";
+export {LookVector} from "./LookVector";
 
-export * from "./mood";
+// Feel
 
-export * from "./theme";
+export type {AnyFeelVector} from "./FeelVector";
+export type {FeelVectorArray} from "./FeelVector";
+export type {FeelVectorUpdates} from "./FeelVector";
+export {FeelVector} from "./FeelVector";
+export {FeelVectorInterpolator} from "./FeelVector";
 
-export * from "./animator";
+// Mood
 
-export * from "./looks";
+export type {AnyMoodVector} from "./MoodVector";
+export type {MoodVectorArray} from "./MoodVector";
+export type {MoodVectorUpdates} from "./MoodVector";
+export {MoodVector} from "./MoodVector";
 
-export * from "./feels";
+export {MoodMatrix} from "./MoodMatrix";
 
-export * from "./moods";
+// Theme
 
-export * from "./themes";
+export {ThemeMatrix} from "./ThemeMatrix";
+
+export {ThemeContext} from "./ThemeContext";
+
+export type {ThemeAnimatorDescriptor} from "./ThemeAnimator";
+export {ThemeAnimator} from "./ThemeAnimator";
+
+export type {ThemeConstraintAnimatorDescriptor} from "./ThemeConstraintAnimator";
+export {ThemeConstraintAnimator} from "./ThemeConstraintAnimator";
+
+// Builtin
+
+export {Look} from "./Look";
+export type {AnyNumberOrLook} from "./Look";
+export type {NumberOrLook} from "./Look";
+export {NumberLook} from "./Look";
+export type {AnyLengthOrLook} from "./Look";
+export type {LengthOrLook} from "./Look";
+export {LengthLook} from "./Look";
+export type {AnyColorOrLook} from "./Look";
+export type {ColorOrLook} from "./Look";
+export {ColorLook} from "./Look";
+export type {AnyFontOrLook} from "./Look";
+export type {FontOrLook} from "./Look";
+export {FontLook} from "./Look";
+export type {AnyShadowOrLook} from "./Look";
+export type {ShadowOrLook} from "./Look";
+export {ShadowLook} from "./Look";
+export type {AnyTimingOrLook} from "./Look";
+export type {TimingOrLook} from "./Look";
+export {TimingLook} from "./Look";
+
+export {Feel} from "./Feel";
+export {InterpolatedFeel} from "./Feel";
+export {BrightnessFeel} from "./Feel";
+export {OpacityFeel} from "./Feel";
+
+export {Mood} from "./Mood";
+
+export {Theme} from "./Theme";

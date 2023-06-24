@@ -20,7 +20,7 @@ import type {AnyDateTime} from "@swim/time";
 import {DateTime} from "@swim/time";
 import {TimeDomain} from "@swim/time";
 import {Affinity} from "@swim/component";
-import type {AnimatorClass} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
 import {Animator} from "@swim/component";
 import type {View} from "@swim/view";
 import {ScaledView} from "./"; // forward import
@@ -55,7 +55,7 @@ export interface ContinuousScaleAnimator<O extends View = View, X = unknown, Y =
 export const ContinuousScaleAnimator = (function (_super: typeof Animator) {
   const ContinuousScaleAnimator = _super.extend("ContinuousScaleAnimator", {
     valueType: ContinuousScale,
-  }) as AnimatorClass<ContinuousScaleAnimator<any, any, any, any, any>>;
+  }) as FastenerClass<ContinuousScaleAnimator<any, any, any, any, any>>;
 
   ContinuousScaleAnimator.prototype.setScale = function <X, Y>(this: ContinuousScaleAnimator<View, X, Y>, xMin?: Domain<X> | X | string, xMax?: Range<Y> | X,
                                                                yMin?: Y | AnyTiming | boolean | null, yMax?: Y, timing?: AnyTiming | boolean | null): void {
@@ -73,7 +73,9 @@ export const ContinuousScaleAnimator = (function (_super: typeof Animator) {
     }
     const oldState = this.state;
     let newState: ContinuousScale<X, Y>;
-    if (oldState !== void 0 && oldState !== null) {
+    if (oldState === void 0 || oldState === null) {
+      newState = ScaledView.createScale(xMin as X, xMax as X, yMin as Y, yMax as Y);
+    } else {
       newState = oldState.withDomain(xMin as X, xMax as X);
       if (yMin !== void 0 && yMax !== void 0) {
         newState = newState.overRange(yMin as Y, yMax);
@@ -84,8 +86,6 @@ export const ContinuousScaleAnimator = (function (_super: typeof Animator) {
         this.setValue(newValue, Affinity.Extrinsic);
         timing = true;
       }
-    } else {
-      newState = ScaledView.createScale(xMin as X, xMax as X, yMin as Y, yMax as Y);
     }
     this.setState(newState, timing, Affinity.Extrinsic);
   };
@@ -101,7 +101,9 @@ export const ContinuousScaleAnimator = (function (_super: typeof Animator) {
     }
     const oldState = this.state;
     let newState: ContinuousScale<X, Y>;
-    if (oldState !== void 0 && oldState !== null) {
+    if (oldState === void 0 || oldState === null) {
+      newState = ScaledView.createScale(xMin as X, xMax as X, 0 as unknown as Y, 1 as unknown as Y);
+    } else {
       newState = oldState.withDomain(xMin as X, xMax as X);
       if ((timing === void 0 || timing === null || timing === false) && (this.flags & Animator.TweeningFlag) !== 0) {
         const oldValue = this.getValue();
@@ -109,29 +111,28 @@ export const ContinuousScaleAnimator = (function (_super: typeof Animator) {
         this.setValue(newValue, Affinity.Extrinsic);
         timing = true;
       }
-    } else {
-      newState = ScaledView.createScale(xMin as X, xMax as X, 0 as unknown as Y, 1 as unknown as Y);
     }
     this.setState(newState, timing, Affinity.Extrinsic);
   };
 
   ContinuousScaleAnimator.prototype.setRange = function <X, Y>(this: ContinuousScaleAnimator<View, X, Y>, yMin?: Range<Y> | Y, yMax?: Y | AnyTiming | boolean | null, timing?: AnyTiming | boolean | null): void {
     const oldState = this.state;
-    if (oldState !== void 0 && oldState !== null) {
-      if (yMin instanceof Range) {
-        timing = yMax as AnyTiming | boolean | null;
-        yMax = (yMin as Range<Y>)[1];
-        yMin = (yMin as Range<Y>)[0];
-      }
-      const newState = oldState.overRange(yMin as Y, yMax as Y);
-      if ((timing === void 0 || timing === null || timing === false) && (this.flags & Animator.TweeningFlag) !== 0) {
-        const oldValue = this.getValue();
-        const newValue = oldValue.overRange(yMin as Y, yMax as Y);
-        this.setValue(newValue, Affinity.Extrinsic);
-        timing = true;
-      }
-      this.setState(newState, timing, Affinity.Extrinsic);
+    if (oldState === void 0 || oldState === null) {
+      return;
     }
+    if (yMin instanceof Range) {
+      timing = yMax as AnyTiming | boolean | null;
+      yMax = (yMin as Range<Y>)[1];
+      yMin = (yMin as Range<Y>)[0];
+    }
+    const newState = oldState.overRange(yMin as Y, yMax as Y);
+    if ((timing === void 0 || timing === null || timing === false) && (this.flags & Animator.TweeningFlag) !== 0) {
+      const oldValue = this.getValue();
+      const newValue = oldValue.overRange(yMin as Y, yMax as Y);
+      this.setValue(newValue, Affinity.Extrinsic);
+      timing = true;
+    }
+    this.setState(newState, timing, Affinity.Extrinsic);
   };
 
   ContinuousScaleAnimator.prototype.setBaseScale = function <X, Y>(this: ContinuousScaleAnimator<View, X, Y>, xMin?: Domain<X> | X | string, xMax?: Range<Y> | X,

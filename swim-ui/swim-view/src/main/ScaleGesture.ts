@@ -17,15 +17,13 @@ import type {Proto} from "@swim/util";
 import type {AnyTiming} from "@swim/util";
 import type {ContinuousScale} from "@swim/util";
 import type {FastenerFlags} from "@swim/component";
-import type {FastenerOwner} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
 import type {R2Box} from "@swim/math";
 import {View} from "./View";
 import type {GestureInputType} from "./Gesture";
 import {GestureInput} from "./Gesture";
-import type {GestureView} from "./Gesture";
 import {MomentumGestureInput} from "./MomentumGesture";
 import type {MomentumGestureDescriptor} from "./MomentumGesture";
-import type {MomentumGestureClass} from "./MomentumGesture";
 import {MomentumGesture} from "./MomentumGesture";
 
 /** @public */
@@ -54,11 +52,6 @@ export type ScaleGestureY<R extends ScaleGesture<any, any, any, any>> =
   R extends ScaleGesture<any, any, any, infer Y> ? Y : never;
 
 /** @public */
-export type ScaleGestureDecorator<G extends ScaleGesture<any, any, any, any>> = {
-  <T>(target: unknown, context: ClassFieldDecoratorContext<T, G>): (this: T, value: G | undefined) => G;
-};
-
-/** @public */
 export interface ScaleGestureDescriptor<V extends View = View, X = unknown, Y = unknown> extends MomentumGestureDescriptor<V> {
   extends?: Proto<ScaleGesture<any, any, any, any>> | boolean | null;
   distanceMin?: number;
@@ -67,48 +60,10 @@ export interface ScaleGestureDescriptor<V extends View = View, X = unknown, Y = 
 }
 
 /** @public */
-export type ScaleGestureTemplate<G extends ScaleGesture<any, any, any, any>> =
-  ThisType<G> &
-  ScaleGestureDescriptor<GestureView<G>, ScaleGestureX<G>, ScaleGestureY<G>> &
-  Partial<Omit<G, keyof ScaleGestureDescriptor>>;
-
-/** @public */
-export interface ScaleGestureClass<G extends ScaleGesture<any, any, any, any> = ScaleGesture<any, any, any, any>> extends MomentumGestureClass<G> {
-  /** @override */
-  specialize(template: ScaleGestureDescriptor<any>): ScaleGestureClass<G>;
-
-  /** @override */
-  refine(gestureClass: ScaleGestureClass<any>): void;
-
-  /** @override */
-  extend<G2 extends G>(className: string | symbol, template: ScaleGestureTemplate<G2>): ScaleGestureClass<G2>;
-  extend<G2 extends G>(className: string | symbol, template: ScaleGestureTemplate<G2>): ScaleGestureClass<G2>;
-
-  /** @override */
-  define<G2 extends G>(className: string | symbol, template: ScaleGestureTemplate<G2>): ScaleGestureClass<G2>;
-  define<G2 extends G>(className: string | symbol, template: ScaleGestureTemplate<G2>): ScaleGestureClass<G2>;
-
-  /** @override */
-  <G2 extends G>(template: ScaleGestureTemplate<G2>): ScaleGestureDecorator<G2>;
-
-  /** @internal */
-  readonly DistanceMin: number;
-
-  /** @internal */
-  readonly PreserveAspectRatioFlag: FastenerFlags;
-  /** @internal */
-  readonly WheelFlag: FastenerFlags;
-  /** @internal */
-  readonly NeedsRescale: FastenerFlags;
-
-  /** @internal @override */
-  readonly FlagShift: number;
-  /** @internal @override */
-  readonly FlagMask: FastenerFlags;
-}
-
-/** @public */
 export interface ScaleGesture<O = unknown, V extends View = View, X = unknown, Y = unknown> extends MomentumGesture<O, V> {
+  /** @override */
+  get descriptorType(): Proto<ScaleGestureDescriptor<V, X, Y>>;
+
   /** @internal @override */
   readonly inputs: {readonly [inputId: string]: ScaleGestureInput<X, Y> | undefined};
 
@@ -265,7 +220,22 @@ export interface ScaleGesture<O = unknown, V extends View = View, X = unknown, Y
 
 /** @public */
 export const ScaleGesture = (function (_super: typeof MomentumGesture) {
-  const ScaleGesture = _super.extend("ScaleGesture", {} as ScaleGestureDescriptor) as ScaleGestureClass;
+  const ScaleGesture = _super.extend("ScaleGesture", {}) as FastenerClass<ScaleGesture<any, any, any, any>> & {
+    /** @internal */
+    readonly DistanceMin: number;
+
+    /** @internal */
+    readonly PreserveAspectRatioFlag: FastenerFlags;
+    /** @internal */
+    readonly WheelFlag: FastenerFlags;
+    /** @internal */
+    readonly NeedsRescale: FastenerFlags;
+
+    /** @internal @override */
+    readonly FlagShift: number;
+    /** @internal @override */
+    readonly FlagMask: FastenerFlags;
+  };
 
   ScaleGesture.prototype.createInput = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>, inputId: string, inputType: GestureInputType, isPrimary: boolean,
                                                        x: number, y: number, t: number): ScaleGestureInput<X, Y> {
@@ -657,51 +627,54 @@ export const ScaleGesture = (function (_super: typeof MomentumGesture) {
       this.setYScale(newYScale);
     }
 
-    if (newXScale !== null || newYScale !== null) {
-      if (newXScale !== null) {
-        input0.x0 = input0.x;
-        input0.dx = 0;
-        input0.vx = rvx0;
-        input0.ax = rax0;
-        input0.xCoord = this.unscaleX(input0.x0, newXScale, bounds);
+    if (newXScale === null && newYScale === null) {
+      return;
+    }
+    if (newXScale !== null) {
+      input0.x0 = input0.x;
+      input0.dx = 0;
+      input0.vx = rvx0;
+      input0.ax = rax0;
+      input0.xCoord = this.unscaleX(input0.x0, newXScale, bounds);
 
-        input1.x0 = input1.x;
-        input1.dx = 0;
-        input1.vx = rvx1;
-        input1.ax = rax1;
-        input1.xCoord = this.unscaleX(input1.x0, newXScale, bounds);
+      input1.x0 = input1.x;
+      input1.dx = 0;
+      input1.vx = rvx1;
+      input1.ax = rax1;
+      input1.xCoord = this.unscaleX(input1.x0, newXScale, bounds);
+    }
+    if (newYScale !== null) {
+      input0.y0 = input0.y;
+      input0.dy = 0;
+      input0.vy = rvy0;
+      input0.ay = ray0;
+      input0.yCoord = this.unscaleY(input0.y0, newYScale, bounds);
+
+      input1.y0 = input1.y;
+      input1.dy = 0;
+      input1.vy = rvy1;
+      input1.ay = ray1;
+      input1.yCoord = this.unscaleY(input1.y0, newYScale, bounds);
+    }
+
+    if (this.inputCount <= 2) {
+      return;
+    }
+    const inputs = this.inputs;
+    for (const inputId in inputs) {
+      const input = inputs[inputId]!;
+      if (input === input0 || input === input1) {
+        continue;
+      }
+      if (newXScale !== null) {
+        input.x0 = input.x;
+        input.dx = 0;
+        input.xCoord = this.unscaleX(input.x0, newXScale, bounds);
       }
       if (newYScale !== null) {
-        input0.y0 = input0.y;
-        input0.dy = 0;
-        input0.vy = rvy0;
-        input0.ay = ray0;
-        input0.yCoord = this.unscaleY(input0.y0, newYScale, bounds);
-
-        input1.y0 = input1.y;
-        input1.dy = 0;
-        input1.vy = rvy1;
-        input1.ay = ray1;
-        input1.yCoord = this.unscaleY(input1.y0, newYScale, bounds);
-      }
-
-      if (this.inputCount > 2) {
-        const inputs = this.inputs;
-        for (const inputId in inputs) {
-          const input = inputs[inputId]!;
-          if (input !== input0 && input !== input1) {
-            if (newXScale !== null) {
-              input.x0 = input.x;
-              input.dx = 0;
-              input.xCoord = this.unscaleX(input.x0, newXScale, bounds);
-            }
-            if (newYScale !== null) {
-              input.y0 = input.y;
-              input.dy = 0;
-              input.yCoord = this.unscaleY(input.y0, newYScale, bounds);
-            }
-          }
-        }
+        input.y0 = input.y;
+        input.dy = 0;
+        input.yCoord = this.unscaleY(input.y0, newYScale, bounds);
       }
     }
   };
@@ -773,20 +746,21 @@ export const ScaleGesture = (function (_super: typeof MomentumGesture) {
       }
     }
 
-    if ((newXScale !== null || newYScale !== null) && this.preserveAspectRatio) {
-      const inputs = this.inputs;
-      for (const inputId in inputs) {
-        const input = inputs[inputId]!;
-        if (newXScale !== null) {
-          input.x0 = input.x;
-          input.dx = 0;
-          input.xCoord = this.unscaleX(input.x0, newXScale, bounds);
-        }
-        if (newYScale !== null) {
-          input.y0 = input.y;
-          input.dy = 0;
-          input.yCoord = this.unscaleY(input.y0, newYScale, bounds);
-        }
+    if ((newXScale === null && newYScale === null) || !this.preserveAspectRatio) {
+      return;
+    }
+    const inputs = this.inputs;
+    for (const inputId in inputs) {
+      const input = inputs[inputId]!;
+      if (newXScale !== null) {
+        input.x0 = input.x;
+        input.dx = 0;
+        input.xCoord = this.unscaleX(input.x0, newXScale, bounds);
+      }
+      if (newYScale !== null) {
+        input.y0 = input.y;
+        input.dy = 0;
+        input.yCoord = this.unscaleY(input.y0, newYScale, bounds);
       }
     }
   };
@@ -818,11 +792,12 @@ export const ScaleGesture = (function (_super: typeof MomentumGesture) {
         }
       }
     }
-    if (!disableX) {
-      const newXScale = oldXScale.solveDomain(x0, sx0, x1, sx1);
-      if (!newXScale.equals(oldXScale)) {
-        this.setXScale(newXScale);
-      }
+    if (disableX) {
+      return;
+    }
+    const newXScale = oldXScale.solveDomain(x0, sx0, x1, sx1);
+    if (!newXScale.equals(oldXScale)) {
+      this.setXScale(newXScale);
     }
   };
 
@@ -853,11 +828,12 @@ export const ScaleGesture = (function (_super: typeof MomentumGesture) {
         }
       }
     }
-    if (!disableY) {
-      const newYScale = oldYScale.solveDomain(y0, sy0, y1, sy1);
-      if (!newYScale.equals(oldYScale)) {
-        this.setYScale(newYScale);
-      }
+    if (disableY) {
+      return;
+    }
+    const newYScale = oldYScale.solveDomain(y0, sy0, y1, sy1);
+    if (!newYScale.equals(oldYScale)) {
+      this.setYScale(newYScale);
     }
   };
 
@@ -866,24 +842,25 @@ export const ScaleGesture = (function (_super: typeof MomentumGesture) {
     const inputs = this.inputs;
     for (const inputId in inputs) {
       const input = inputs[inputId]!;
-      if (input.coasting) {
-        if (input1 === void 0) {
-          input1 = input;
-        } else if (input.t0 < input1.t0) {
-          input1 = input;
-        }
+      if (!input.coasting) {
+        continue;
+      } else if (input1 === void 0) {
+        input1 = input;
+      } else if (input.t0 < input1.t0) {
+        input1 = input;
       }
     }
-    if (input1 !== void 0) {
-      const xScale = this.getXScale();
-      const yScale = this.getYScale();
-      if (xScale !== null && yScale !== null) {
-        this.distributeXYMomentum(input0, input1);
-      } else if (xScale !== null) {
-        this.distributeXMomentum(input0, input1);
-      } else if (yScale !== null) {
-        this.distributeYMomentum(input0, input1);
-      }
+    if (input1 === void 0) {
+      return;
+    }
+    const xScale = this.getXScale();
+    const yScale = this.getYScale();
+    if (xScale !== null && yScale !== null) {
+      this.distributeXYMomentum(input0, input1);
+    } else if (xScale !== null) {
+      this.distributeXMomentum(input0, input1);
+    } else if (yScale !== null) {
+      this.distributeYMomentum(input0, input1);
     }
   };
 
@@ -1100,7 +1077,7 @@ export const ScaleGesture = (function (_super: typeof MomentumGesture) {
     configurable: true,
   });
 
-  ScaleGesture.construct = function <G extends ScaleGesture<any, any, any, any>>(gesture: G | null, owner: FastenerOwner<G>): G {
+  ScaleGesture.construct = function <G extends ScaleGesture<any, any, any, any>>(gesture: G | null, owner: G extends ScaleGesture<infer O, any, any, any> ? O : never): G {
     gesture = _super.construct.call(this, gesture, owner) as G;
     const flagsInit = gesture.flagsInit;
     if (flagsInit !== void 0) {
@@ -1111,8 +1088,8 @@ export const ScaleGesture = (function (_super: typeof MomentumGesture) {
     return gesture;
   };
 
-  ScaleGesture.specialize = function (template: ScaleGestureDescriptor<any>): ScaleGestureClass {
-    let superClass = template.extends as ScaleGestureClass | null | undefined;
+  ScaleGesture.specialize = function (template: ScaleGestureDescriptor<any>): FastenerClass<ScaleGesture<any, any, any, any>> {
+    let superClass = template.extends as FastenerClass<ScaleGesture<any, any, any, any>> | null | undefined;
     if (superClass === void 0 || superClass === null) {
       const method = template.method;
       if (method === "pointer") {
@@ -1132,7 +1109,7 @@ export const ScaleGesture = (function (_super: typeof MomentumGesture) {
     return superClass;
   };
 
-  ScaleGesture.refine = function (gestureClass: ScaleGestureClass<any>): void {
+  ScaleGesture.refine = function (gestureClass: FastenerClass<any>): void {
     _super.refine.call(this, gestureClass);
     const fastenerPrototype = gestureClass.prototype;
     let flagsInit = fastenerPrototype.flagsInit;
@@ -1227,7 +1204,7 @@ export interface PointerScaleGesture<O = unknown, V extends View = View, X = unk
 export const PointerScaleGesture = (function (_super: typeof ScaleGesture) {
   const PointerScaleGesture = _super.extend("PointerScaleGesture", {
     wheel: true,
-  }) as ScaleGestureClass<PointerScaleGesture<any, any, any, any>>;
+  }) as FastenerClass<PointerScaleGesture<any, any, any, any>>;
 
   PointerScaleGesture.prototype.attachHoverEvents = function (this: PointerScaleGesture, view: View): void {
     view.addEventListener("pointerenter", this.onPointerEnter as EventListener);
@@ -1362,7 +1339,7 @@ export const PointerScaleGesture = (function (_super: typeof ScaleGesture) {
     }
   };
 
-  PointerScaleGesture.construct = function <G extends PointerScaleGesture<any, any, any, any>>(gesture: G | null, owner: FastenerOwner<G>): G {
+  PointerScaleGesture.construct = function <G extends PointerScaleGesture<any, any, any, any>>(gesture: G | null, owner: G extends ScaleGesture<infer O, any, any, any> ? O : never): G {
     gesture = _super.construct.call(this, gesture, owner) as G;
     gesture.onPointerEnter = gesture.onPointerEnter.bind(gesture);
     gesture.onPointerLeave = gesture.onPointerLeave.bind(gesture);
@@ -1410,7 +1387,7 @@ export interface TouchScaleGesture<O = unknown, V extends View = View, X = unkno
 
 /** @internal */
 export const TouchScaleGesture = (function (_super: typeof ScaleGesture) {
-  const TouchScaleGesture = _super.extend("TouchScaleGesture", {}) as ScaleGestureClass<TouchScaleGesture<any, any, any, any>>;
+  const TouchScaleGesture = _super.extend("TouchScaleGesture", {}) as FastenerClass<TouchScaleGesture<any, any, any, any>>;
 
   TouchScaleGesture.prototype.attachHoverEvents = function (this: TouchScaleGesture, view: View): void {
     view.addEventListener("touchstart", this.onTouchStart as EventListener);
@@ -1501,7 +1478,7 @@ export const TouchScaleGesture = (function (_super: typeof ScaleGesture) {
     }
   };
 
-  TouchScaleGesture.construct = function <G extends TouchScaleGesture<any, any, any, any>>(gesture: G | null, owner: FastenerOwner<G>): G {
+  TouchScaleGesture.construct = function <G extends TouchScaleGesture<any, any, any, any>>(gesture: G | null, owner: G extends ScaleGesture<infer O, any, any, any> ? O : never): G {
     gesture = _super.construct.call(this, gesture, owner) as G;
     gesture.onTouchStart = gesture.onTouchStart.bind(gesture);
     gesture.onTouchMove = gesture.onTouchMove.bind(gesture);
@@ -1556,7 +1533,7 @@ export interface MouseScaleGesture<O = unknown, V extends View = View, X = unkno
 export const MouseScaleGesture = (function (_super: typeof ScaleGesture) {
   const MouseScaleGesture = _super.extend("MouseScaleGesture", {
     wheel: true,
-  }) as ScaleGestureClass<MouseScaleGesture<any, any, any, any>>;
+  }) as FastenerClass<MouseScaleGesture<any, any, any, any>>;
 
   MouseScaleGesture.prototype.attachHoverEvents = function (this: MouseScaleGesture, view: View): void {
     view.addEventListener("mouseenter", this.onMouseEnter as EventListener);
@@ -1671,7 +1648,7 @@ export const MouseScaleGesture = (function (_super: typeof ScaleGesture) {
     }
   };
 
-  MouseScaleGesture.construct = function <G extends MouseScaleGesture<any, any, any, any>>(gesture: G | null, owner: FastenerOwner<G>): G {
+  MouseScaleGesture.construct = function <G extends MouseScaleGesture<any, any, any, any>>(gesture: G | null, owner: G extends ScaleGesture<infer O, any, any, any> ? O : never): G {
     gesture = _super.construct.call(this, gesture, owner) as G;
     gesture.onMouseEnter = gesture.onMouseEnter.bind(gesture);
     gesture.onMouseLeave = gesture.onMouseLeave.bind(gesture);

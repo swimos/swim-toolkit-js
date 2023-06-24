@@ -15,22 +15,12 @@
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
 import type {Observes} from "@swim/util";
-import type {FastenerOwner} from "@swim/component";
 import type {FastenerDescriptor} from "@swim/component";
 import type {FastenerClass} from "@swim/component";
 import {Fastener} from "@swim/component";
 import type {AnyView} from "./View";
 import type {ViewFactory} from "./View";
 import {View} from "./View";
-
-/** @public */
-export type ViewRelationView<F extends ViewRelation<any, any>> =
-  F extends {viewType?: ViewFactory<infer V>} ? V : never;
-
-/** @public */
-export type ViewRelationDecorator<F extends ViewRelation<any, any>> = {
-  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
-};
 
 /** @public */
 export interface ViewRelationDescriptor<V extends View = View> extends FastenerDescriptor {
@@ -41,33 +31,10 @@ export interface ViewRelationDescriptor<V extends View = View> extends FastenerD
 }
 
 /** @public */
-export type ViewRelationTemplate<F extends ViewRelation<any, any>> =
-  ThisType<F> &
-  ViewRelationDescriptor<ViewRelationView<F>> &
-  Partial<Omit<F, keyof ViewRelationDescriptor>>;
-
-/** @public */
-export interface ViewRelationClass<F extends ViewRelation<any, any> = ViewRelation<any, any>> extends FastenerClass<F> {
-  /** @override */
-  specialize(template: ViewRelationDescriptor<any>): ViewRelationClass<F>;
-
-  /** @override */
-  refine(fastenerClass: ViewRelationClass<any>): void;
-
-  /** @override */
-  extend<F2 extends F>(className: string | symbol, template: ViewRelationTemplate<F2>): ViewRelationClass<F2>;
-  extend<F2 extends F>(className: string | symbol, template: ViewRelationTemplate<F2>): ViewRelationClass<F2>;
-
-  /** @override */
-  define<F2 extends F>(className: string | symbol, template: ViewRelationTemplate<F2>): ViewRelationClass<F2>;
-  define<F2 extends F>(className: string | symbol, template: ViewRelationTemplate<F2>): ViewRelationClass<F2>;
-
-  /** @override */
-  <F2 extends F>(template: ViewRelationTemplate<F2>): ViewRelationDecorator<F2>;
-}
-
-/** @public */
 export interface ViewRelation<O = unknown, V extends View = View> extends Fastener<O> {
+  /** @override */
+  get descriptorType(): Proto<ViewRelationDescriptor<V>>;
+
   /** @override */
   get fastenerType(): Proto<ViewRelation<any, any>>;
 
@@ -96,13 +63,13 @@ export interface ViewRelation<O = unknown, V extends View = View> extends Fasten
   didUnderive(inlet: ViewRelation<unknown, V>): void;
 
   /** @override */
-  deriveInlet(): ViewRelation<unknown, V> | null;
-
-  /** @override */
-  bindInlet(inlet: ViewRelation<unknown, V>): void;
+  get parent(): ViewRelation<unknown, V> | null;
 
   /** @override */
   readonly inlet: ViewRelation<unknown, V> | null;
+
+  /** @override */
+  bindInlet(inlet: ViewRelation<unknown, V>): void;
 
   /** @protected @override */
   willBindInlet(inlet: ViewRelation<unknown, V>): void;
@@ -180,9 +147,7 @@ export interface ViewRelation<O = unknown, V extends View = View> extends Fasten
 
 /** @public */
 export const ViewRelation = (function (_super: typeof Fastener) {
-  const ViewRelation = _super.extend("ViewRelation", {
-    lazy: false,
-  }) as ViewRelationClass;
+  const ViewRelation = _super.extend("ViewRelation", {}) as FastenerClass<ViewRelation<any, any>>;
 
   Object.defineProperty(ViewRelation.prototype, "fastenerType", {
     value: ViewRelation,
@@ -211,12 +176,14 @@ export const ViewRelation = (function (_super: typeof Fastener) {
 
   ViewRelation.prototype.detachOutlet = function <V extends View>(this: ViewRelation<unknown, V>, outlet: ViewRelation<unknown, V>): void {
     const outlets = this.outlets as ViewRelation<unknown, V>[] | null;
-    if (outlets !== null) {
-      const index = outlets.indexOf(outlet);
-      if (index >= 0) {
-        outlets.splice(index, 1);
-      }
+    if (outlets === null) {
+      return;
     }
+    const index = outlets.indexOf(outlet);
+    if (index < 0) {
+      return;
+    }
+    outlets.splice(index, 1);
   };
 
   ViewRelation.prototype.initView = function <V extends View>(this: ViewRelation<unknown, V>, view: V): void {
@@ -307,7 +274,7 @@ export const ViewRelation = (function (_super: typeof Fastener) {
     }
   };
 
-  ViewRelation.construct = function <F extends ViewRelation<any, any>>(fastener: F | null, owner: FastenerOwner<F>): F {
+  ViewRelation.construct = function <F extends ViewRelation<any, any>>(fastener: F | null, owner: F extends ViewRelation<infer O, any> ? O : never): F {
     fastener = _super.construct.call(this, fastener, owner) as F;
     Object.defineProperty(fastener, "inlet", { // override getter
       value: null,

@@ -18,23 +18,12 @@ import {Objects} from "@swim/util";
 import type {Comparator} from "@swim/util";
 import {Affinity} from "@swim/component";
 import type {FastenerFlags} from "@swim/component";
-import type {FastenerOwner} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
 import {Fastener} from "@swim/component";
 import type {AnyView} from "./View";
-import type {ViewFactory} from "./View";
 import type {View} from "./View";
 import type {ViewRelationDescriptor} from "./ViewRelation";
-import type {ViewRelationClass} from "./ViewRelation";
 import {ViewRelation} from "./ViewRelation";
-
-/** @public */
-export type ViewSetView<F extends ViewSet<any, any>> =
-  F extends {viewType?: ViewFactory<infer V>} ? V : never;
-
-/** @public */
-export type ViewSetDecorator<F extends ViewSet<any, any>> = {
-  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
-};
 
 /** @public */
 export interface ViewSetDescriptor<V extends View = View> extends ViewRelationDescriptor<V> {
@@ -44,44 +33,11 @@ export interface ViewSetDescriptor<V extends View = View> extends ViewRelationDe
 }
 
 /** @public */
-export type ViewSetTemplate<F extends ViewSet<any, any>> =
-  ThisType<F> &
-  ViewSetDescriptor<ViewSetView<F>> &
-  Partial<Omit<F, keyof ViewSetDescriptor>>;
-
-/** @public */
-export interface ViewSetClass<F extends ViewSet<any, any> = ViewSet<any, any>> extends ViewRelationClass<F> {
-  /** @override */
-  specialize(template: ViewSetDescriptor<any>): ViewSetClass<F>;
-
-  /** @override */
-  refine(fastenerClass: ViewSetClass<any>): void;
-
-  /** @override */
-  extend<F2 extends F>(className: string | symbol, template: ViewSetTemplate<F2>): ViewSetClass<F2>;
-  extend<F2 extends F>(className: string | symbol, template: ViewSetTemplate<F2>): ViewSetClass<F2>;
-
-  /** @override */
-  define<F2 extends F>(className: string | symbol, template: ViewSetTemplate<F2>): ViewSetClass<F2>;
-  define<F2 extends F>(className: string | symbol, template: ViewSetTemplate<F2>): ViewSetClass<F2>;
-
-  /** @override */
-  <F2 extends F>(template: ViewSetTemplate<F2>): ViewSetDecorator<F2>;
-
-  /** @internal */
-  readonly OrderedFlag: FastenerFlags;
-  /** @internal */
-  readonly SortedFlag: FastenerFlags;
-
-  /** @internal @override */
-  readonly FlagShift: number;
-  /** @internal @override */
-  readonly FlagMask: FastenerFlags;
-}
-
-/** @public */
 export interface ViewSet<O = unknown, V extends View = View> extends ViewRelation<O, V> {
   (view: AnyView<V>): O;
+
+  /** @override */
+  get descriptorType(): Proto<ViewSetDescriptor<V>>;
 
   /** @override */
   get fastenerType(): Proto<ViewSet<any, any>>;
@@ -108,13 +64,13 @@ export interface ViewSet<O = unknown, V extends View = View> extends ViewRelatio
   didUnderive(inlet: ViewSet<unknown, V>): void;
 
   /** @override */
-  deriveInlet(): ViewSet<unknown, V> | null;
-
-  /** @override */
-  bindInlet(inlet: ViewSet<unknown, V>): void;
+  get parent(): ViewSet<unknown, V> | null;
 
   /** @override */
   readonly inlet: ViewSet<unknown, V> | null;
+
+  /** @override */
+  bindInlet(inlet: ViewSet<unknown, V>): void;
 
   /** @protected @override */
   willBindInlet(inlet: ViewSet<unknown, V>): void;
@@ -246,7 +202,17 @@ export interface ViewSet<O = unknown, V extends View = View> extends ViewRelatio
 
 /** @public */
 export const ViewSet = (function (_super: typeof ViewRelation) {
-  const ViewSet = _super.extend("ViewSet", {}) as ViewSetClass;
+  const ViewSet = _super.extend("ViewSet", {}) as FastenerClass<ViewSet<any, any>> & {
+    /** @internal */
+    readonly OrderedFlag: FastenerFlags;
+    /** @internal */
+    readonly SortedFlag: FastenerFlags;
+
+    /** @internal @override */
+    readonly FlagShift: number;
+    /** @internal @override */
+    readonly FlagMask: FastenerFlags;
+  };
 
   Object.defineProperty(ViewSet.prototype, "fastenerType", {
     value: ViewSet,
@@ -492,35 +458,39 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
   };
 
   ViewSet.prototype.bindView = function <V extends View>(this: ViewSet<unknown, V>, view: View, target: View | null): void {
-    if (this.binds) {
-      const newView = this.detectView(view);
-      if (newView !== null && this.views[newView.uid] === void 0) {
-        this.insertViewMap(newView, target);
-        (this as Mutable<typeof this>).viewCount += 1;
-        this.willAttachView(newView, target);
-        this.onAttachView(newView, target);
-        this.initView(newView);
-        this.didAttachView(newView, target);
-        this.setCoherent(true);
-        this.decohereOutlets();
-      }
+    if (!this.binds) {
+      return;
     }
+    const newView = this.detectView(view);
+    if (newView === null || this.views[newView.uid] !== void 0) {
+      return;
+    }
+    this.insertViewMap(newView, target);
+    (this as Mutable<typeof this>).viewCount += 1;
+    this.willAttachView(newView, target);
+    this.onAttachView(newView, target);
+    this.initView(newView);
+    this.didAttachView(newView, target);
+    this.setCoherent(true);
+    this.decohereOutlets();
   };
 
   ViewSet.prototype.unbindView = function <V extends View>(this: ViewSet<unknown, V>, view: View): void {
-    if (this.binds) {
-      const oldView = this.detectView(view);
-      if (oldView !== null && this.views[oldView.uid] !== void 0) {
-        (this as Mutable<typeof this>).viewCount -= 1;
-        this.removeViewMap(oldView);
-        this.willDetachView(oldView);
-        this.onDetachView(oldView);
-        this.deinitView(oldView);
-        this.didDetachView(oldView);
-        this.setCoherent(true);
-        this.decohereOutlets();
-      }
+    if (!this.binds) {
+      return;
     }
+    const oldView = this.detectView(view);
+    if (oldView === null || this.views[oldView.uid] === void 0) {
+      return;
+    }
+    (this as Mutable<typeof this>).viewCount -= 1;
+    this.removeViewMap(oldView);
+    this.willDetachView(oldView);
+    this.onDetachView(oldView);
+    this.deinitView(oldView);
+    this.didDetachView(oldView);
+    this.setCoherent(true);
+    this.decohereOutlets();
   };
 
   ViewSet.prototype.detectView = function <V extends View>(this: ViewSet<unknown, V>, view: View): V | null {
@@ -547,12 +517,14 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
   };
 
   ViewSet.prototype.recohere = function (this: ViewSet, t: number): void {
-    if ((this.flags & Fastener.DerivedFlag) !== 0) {
-      const inlet = this.inlet;
-      if (inlet !== null) {
-        this.setViews(inlet.views);
-      }
+    if ((this.flags & Fastener.DerivedFlag) === 0) {
+      return;
     }
+    const inlet = this.inlet;
+    if (inlet === null) {
+      return;
+    }
+    this.setViews(inlet.views);
   };
 
   ViewSet.prototype.viewKey = function <V extends View>(this: ViewSet<unknown, V>, view: V): string | undefined {
@@ -670,9 +642,9 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     return a.uid < b.uid ? -1 : a.uid > b.uid ? 1 : 0;
   };
 
-  ViewSet.construct = function <F extends ViewSet<any, any>>(fastener: F | null, owner: FastenerOwner<F>): F {
+  ViewSet.construct = function <F extends ViewSet<any, any>>(fastener: F | null, owner: F extends ViewSet<infer O, any> ? O : never): F {
     if (fastener === null) {
-      fastener = function (newView: AnyView<ViewSetView<F>>): FastenerOwner<F> {
+      fastener = function (newView: F extends ViewSet<any, infer V> ? AnyView<V> : never): F extends ViewSet<infer O, any> ? O : never {
         fastener!.addView(newView);
         return fastener!.owner;
       } as F;
@@ -690,7 +662,7 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     return fastener;
   };
 
-  ViewSet.refine = function (fastenerClass: ViewSetClass<any>): void {
+  ViewSet.refine = function (fastenerClass: FastenerClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
     let flagsInit = fastenerPrototype.flagsInit;

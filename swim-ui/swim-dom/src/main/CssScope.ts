@@ -16,7 +16,6 @@ import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
 import type {AnyTiming} from "@swim/util";
 import {Affinity} from "@swim/component";
-import type {FastenerOwner} from "@swim/component";
 import type {FastenerDescriptor} from "@swim/component";
 import type {FastenerClass} from "@swim/component";
 import {Fastener} from "@swim/component";
@@ -24,43 +23,15 @@ import type {MoodVector} from "@swim/theme";
 import type {ThemeMatrix} from "@swim/theme";
 
 /** @public */
-export type CssScopeDecorator<F extends CssScope<any, any>> = {
-  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
-};
-
-/** @public */
 export interface CssScopeDescriptor<S extends CSSStyleSheet | CSSRule = CSSStyleSheet | CSSRule> extends FastenerDescriptor {
   extends?: Proto<CssScope<any, any>> | boolean | null;
 }
 
 /** @public */
-export type CssScopeTemplate<F extends CssScope<any, any>> =
-  ThisType<F> &
-  CssScopeDescriptor &
-  Partial<Omit<F, keyof CssScopeDescriptor>>;
-
-/** @public */
-export interface CssScopeClass<F extends CssScope<any, any> = CssScope<any, any>> extends FastenerClass<F> {
-  /** @override */
-  specialize(template: CssScopeDescriptor<any>): CssScopeClass<F>;
-
-  /** @override */
-  refine(fastenerClass: CssScopeClass<any>): void;
-
-  /** @override */
-  extend<F2 extends F>(className: string | symbol, template: CssScopeTemplate<F2>): CssScopeClass<F2>;
-  extend<F2 extends F>(className: string | symbol, template: CssScopeTemplate<F2>): CssScopeClass<F2>;
-
-  /** @override */
-  define<F2 extends F>(className: string | symbol, template: CssScopeTemplate<F2>): CssScopeClass<F2>;
-  define<F2 extends F>(className: string | symbol, template: CssScopeTemplate<F2>): CssScopeClass<F2>;
-
-  /** @override */
-  <F2 extends F>(template: CssScopeTemplate<F2>): CssScopeDecorator<F2>;
-}
-
-/** @public */
 export interface CssScope<O = unknown, S extends CSSStyleSheet | CSSRule = CSSStyleSheet | CSSRule> extends Fastener<O> {
+  /** @override */
+  get descriptorType(): Proto<CssScopeDescriptor<S>>;
+
   /** @override */
   get fastenerType(): Proto<CssScope<any>>;
 
@@ -86,13 +57,13 @@ export interface CssScope<O = unknown, S extends CSSStyleSheet | CSSRule = CSSSt
   didUnderive(inlet: CssScope): void;
 
   /** @override */
-  deriveInlet(): CssScope | null;
-
-  /** @override */
-  bindInlet(inlet: CssScope): void;
+  get parent(): CssScope | null;
 
   /** @override */
   readonly inlet: CssScope | null;
+
+  /** @override */
+  bindInlet(inlet: CssScope): void;
 
   /** @protected @override */
   willBindInlet(inlet: CssScope): void;
@@ -127,7 +98,7 @@ export interface CssScope<O = unknown, S extends CSSStyleSheet | CSSRule = CSSSt
 
   getInletCss(): CSSStyleSheet | CSSRule;
 
-  transformInletCss(inletCss: CSSStyleSheet | CSSRule): S | null;
+  transformInletCss(inletCss: CSSStyleSheet | CSSRule | null): S | null;
 
   readonly css: S | null;
 
@@ -177,7 +148,7 @@ export interface CssScope<O = unknown, S extends CSSStyleSheet | CSSRule = CSSSt
 
 /** @public */
 export const CssScope = (function (_super: typeof Fastener) {
-  const CssScope = _super.extend("CssScope", {}) as CssScopeClass;
+  const CssScope = _super.extend("CssScope", {}) as FastenerClass<CssScope<any, any>>;
 
   Object.defineProperty(CssScope.prototype, "fastenerType", {
     value: CssScope,
@@ -186,13 +157,8 @@ export const CssScope = (function (_super: typeof Fastener) {
   });
 
   CssScope.prototype.onDerive = function <S extends CSSStyleSheet | CSSRule>(this: CssScope<unknown, S>, inlet: CssScope): void {
-    const inletCss = inlet.getOutletCss(this);
-    const css = inletCss !== null ? this.transformInletCss(inletCss) : null;
-    if (css !== null) {
-      this.attachCss(css);
-    } else {
-      this.detachCss();
-    }
+    const inletCss = this.transformInletCss(inlet.getOutletCss(this));
+    this.setCss(inletCss);
   };
 
   CssScope.prototype.onBindInlet = function <S extends CSSStyleSheet | CSSRule>(this: CssScope<unknown, S>, inlet: CssScope): void {
@@ -216,12 +182,14 @@ export const CssScope = (function (_super: typeof Fastener) {
 
   CssScope.prototype.detachOutlet = function <S extends CSSStyleSheet | CSSRule>(this: CssScope<unknown, S>, outlet: CssScope): void {
     const outlets = this.outlets as CssScope[] | null;
-    if (outlets !== null) {
-      const index = outlets.indexOf(outlet);
-      if (index >= 0) {
-        outlets.splice(index, 1);
-      }
+    if (outlets === null) {
+      return;
     }
+    const index = outlets.indexOf(outlet);
+    if (index < 0) {
+      return;
+    }
+    outlets.splice(index, 1);
   };
 
   CssScope.prototype.getOutletCss = function <S extends CSSStyleSheet | CSSRule>(this: CssScope<unknown, S>, outlet: CssScope): CSSStyleSheet | CSSRule | null {
@@ -251,7 +219,7 @@ export const CssScope = (function (_super: typeof Fastener) {
     return inletCss;
   };
 
-  CssScope.prototype.transformInletCss = function <S extends CSSStyleSheet | CSSRule>(this: CssScope<unknown, S>, inletCss: CSSStyleSheet | CSSRule): S | null {
+  CssScope.prototype.transformInletCss = function <S extends CSSStyleSheet | CSSRule>(this: CssScope<unknown, S>, inletCss: CSSStyleSheet | CSSRule | null): S | null {
     return null;
   };
 
@@ -271,45 +239,48 @@ export const CssScope = (function (_super: typeof Fastener) {
 
   CssScope.prototype.setCss = function <S extends CSSStyleSheet | CSSRule>(this: CssScope<unknown, S>, newCss: S  | null): S | null {
     const oldCss = this.css;
-    if (oldCss !== newCss) {
-      if (oldCss !== null) {
-        (this as Mutable<typeof this>).css = null;
-        this.willDetachCss(oldCss);
-        this.onDetachCss(oldCss);
-        this.deinitCss(oldCss);
-        this.didDetachCss(oldCss);
-      }
-      if (newCss !== null) {
-        (this as Mutable<typeof this>).css = newCss;
-        this.willAttachCss(newCss);
-        this.onAttachCss(newCss);
-        this.initCss(newCss);
-        this.didAttachCss(newCss);
-      }
+    if (oldCss === newCss) {
       this.setCoherent(true);
-      this.decohereOutlets();
+      return oldCss;
     }
-    return oldCss;
-  };
-
-  CssScope.prototype.attachCss = function <S extends CSSStyleSheet | CSSRule>(this: CssScope<unknown, S>, newCss: S): S {
-    const oldCss = this.css;
-    if (oldCss !== newCss) {
-      if (oldCss !== null) {
-        (this as Mutable<typeof this>).css = null;
-        this.willDetachCss(oldCss);
-        this.onDetachCss(oldCss);
-        this.deinitCss(oldCss);
-        this.didDetachCss(oldCss);
-      }
+    if (oldCss !== null) {
+      (this as Mutable<typeof this>).css = null;
+      this.willDetachCss(oldCss);
+      this.onDetachCss(oldCss);
+      this.deinitCss(oldCss);
+      this.didDetachCss(oldCss);
+    }
+    if (newCss !== null) {
       (this as Mutable<typeof this>).css = newCss;
       this.willAttachCss(newCss);
       this.onAttachCss(newCss);
       this.initCss(newCss);
       this.didAttachCss(newCss);
-      this.setCoherent(true);
-      this.decohereOutlets();
     }
+    this.setCoherent(true);
+    this.decohereOutlets();
+    return oldCss;
+  };
+
+  CssScope.prototype.attachCss = function <S extends CSSStyleSheet | CSSRule>(this: CssScope<unknown, S>, newCss: S): S {
+    const oldCss = this.css;
+    if (oldCss === newCss) {
+      return newCss;
+    }
+    if (oldCss !== null) {
+      (this as Mutable<typeof this>).css = null;
+      this.willDetachCss(oldCss);
+      this.onDetachCss(oldCss);
+      this.deinitCss(oldCss);
+      this.didDetachCss(oldCss);
+    }
+    (this as Mutable<typeof this>).css = newCss;
+    this.willAttachCss(newCss);
+    this.onAttachCss(newCss);
+    this.initCss(newCss);
+    this.didAttachCss(newCss);
+    this.setCoherent(true);
+    this.decohereOutlets();
     return newCss;
   };
 
@@ -331,15 +302,16 @@ export const CssScope = (function (_super: typeof Fastener) {
 
   CssScope.prototype.detachCss = function <S extends CSSStyleSheet | CSSRule>(this: CssScope<unknown, S>): S | null {
     const oldCss = this.css;
-    if (oldCss !== null) {
-      (this as Mutable<typeof this>).css = null;
-      this.willDetachCss(oldCss);
-      this.onDetachCss(oldCss);
-      this.deinitCss(oldCss);
-      this.didDetachCss(oldCss);
-      this.setCoherent(true);
-      this.decohereOutlets();
+    if (oldCss === null) {
+      return oldCss;
     }
+    (this as Mutable<typeof this>).css = null;
+    this.willDetachCss(oldCss);
+    this.onDetachCss(oldCss);
+    this.deinitCss(oldCss);
+    this.didDetachCss(oldCss);
+    this.setCoherent(true);
+    this.decohereOutlets();
     return oldCss;
   };
 
@@ -386,18 +358,24 @@ export const CssScope = (function (_super: typeof Fastener) {
   };
 
   CssScope.prototype.recohere = function <S extends CSSStyleSheet | CSSRule>(this: CssScope<unknown, S>, t: number): void {
-    if ((this.flags & Fastener.DerivedFlag) !== 0) {
-      const inlet = this.inlet;
-      if (inlet !== null) {
-        const inletCss = inlet.getOutletCss(this);
-        if ((inletCss !== null) !== (this.css !== null)) {
-          this.setCss(inletCss !== null ? this.transformInletCss(inletCss) : null);
-        }
-      }
+    if ((this.flags & Fastener.DerivedFlag) === 0) {
+      return;
+    }
+    const inlet = this.inlet;
+    if (inlet === null) {
+      return;
+    }
+    const inletCss = inlet.getOutletCss(this);
+    if (inletCss !== null && this.css === null) {
+      this.setCss(this.transformInletCss(inletCss));
+    } else if (inletCss === null && this.css !== null) {
+      this.setCss(null);
+    } else {
+      this.setCoherent(true);
     }
   };
 
-  CssScope.construct = function <F extends CssScope<any, any>>(fastener: F | null, owner: FastenerOwner<F>): F {
+  CssScope.construct = function <F extends CssScope<any, any>>(fastener: F | null, owner: F extends CssScope<infer O, any> ? O : never): F {
     fastener = _super.construct.call(this, fastener, owner) as F;
     Object.defineProperty(fastener, "inlet", { // override getter
       value: null,

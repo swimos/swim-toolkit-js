@@ -15,23 +15,12 @@
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
 import {Affinity} from "@swim/component";
-import type {FastenerOwner} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
 import {Fastener} from "@swim/component";
 import type {AnyController} from "./Controller";
-import type {ControllerFactory} from "./Controller";
 import type {Controller} from "./Controller";
 import type {ControllerRelationDescriptor} from "./ControllerRelation";
-import type {ControllerRelationClass} from "./ControllerRelation";
 import {ControllerRelation} from "./ControllerRelation";
-
-/** @public */
-export type ControllerRefController<F extends ControllerRef<any, any>> =
-  F extends {controllerType?: ControllerFactory<infer C>} ? C : never;
-
-/** @public */
-export type ControllerRefDecorator<F extends ControllerRef<any, any>> = {
-  <T>(target: unknown, context: ClassFieldDecoratorContext<T, F>): (this: T, value: F | undefined) => F;
-};
 
 /** @public */
 export interface ControllerRefDescriptor<C extends Controller = Controller> extends ControllerRelationDescriptor<C> {
@@ -40,35 +29,12 @@ export interface ControllerRefDescriptor<C extends Controller = Controller> exte
 }
 
 /** @public */
-export type ControllerRefTemplate<F extends ControllerRef<any, any>> =
-  ThisType<F> &
-  ControllerRefDescriptor<ControllerRefController<F>> &
-  Partial<Omit<F, keyof ControllerRefDescriptor>>;
-
-/** @public */
-export interface ControllerRefClass<F extends ControllerRef<any, any> = ControllerRef<any, any>> extends ControllerRelationClass<F> {
-  /** @override */
-  specialize(template: ControllerRefDescriptor<any>): ControllerRefClass<F>;
-
-  /** @override */
-  refine(fastenerClass: ControllerRefClass<any>): void;
-
-  /** @override */
-  extend<F2 extends F>(className: string | symbol, template: ControllerRefTemplate<F2>): ControllerRefClass<F2>;
-  extend<F2 extends F>(className: string | symbol, template: ControllerRefTemplate<F2>): ControllerRefClass<F2>;
-
-  /** @override */
-  define<F2 extends F>(className: string | symbol, template: ControllerRefTemplate<F2>): ControllerRefClass<F2>;
-  define<F2 extends F>(className: string | symbol, template: ControllerRefTemplate<F2>): ControllerRefClass<F2>;
-
-  /** @override */
-  <F2 extends F>(template: ControllerRefTemplate<F2>): ControllerRefDecorator<F2>;
-}
-
-/** @public */
 export interface ControllerRef<O = unknown, C extends Controller = Controller> extends ControllerRelation<O, C> {
   (): C | null;
   (controller: AnyController<C> | null, target?: Controller | null, key?: string): O;
+
+  /** @override */
+  get descriptorType(): Proto<ControllerRefDescriptor<C>>;
 
   /** @override */
   get fastenerType(): Proto<ControllerRef<any, any>>;
@@ -95,13 +61,13 @@ export interface ControllerRef<O = unknown, C extends Controller = Controller> e
   didUnderive(inlet: ControllerRef<unknown, C>): void;
 
   /** @override */
-  deriveInlet(): ControllerRef<unknown, C> | null;
-
-  /** @override */
-  bindInlet(inlet: ControllerRef<unknown, C>): void;
+  get parent(): ControllerRef<unknown, C> | null;
 
   /** @override */
   readonly inlet: ControllerRef<unknown, C> | null;
+
+  /** @override */
+  bindInlet(inlet: ControllerRef<unknown, C>): void;
 
   /** @protected @override */
   willBindInlet(inlet: ControllerRef<unknown, C>): void;
@@ -180,7 +146,7 @@ export interface ControllerRef<O = unknown, C extends Controller = Controller> e
 
 /** @public */
 export const ControllerRef = (function (_super: typeof ControllerRelation) {
-  const ControllerRef = _super.extend("ControllerRef", {}) as ControllerRefClass;
+  const ControllerRef = _super.extend("ControllerRef", {}) as FastenerClass<ControllerRef<any, any>>;
 
   Object.defineProperty(ControllerRef.prototype, "fastenerType", {
     value: ControllerRef,
@@ -477,9 +443,9 @@ export const ControllerRef = (function (_super: typeof ControllerRelation) {
     this.setController(inlet.controller);
   };
 
-  ControllerRef.construct = function <F extends ControllerRef<any, any>>(fastener: F | null, owner: FastenerOwner<F>): F {
+  ControllerRef.construct = function <F extends ControllerRef<any, any>>(fastener: F | null, owner: F extends ControllerRef<infer O, any> ? O : never): F {
     if (fastener === null) {
-      fastener = function (controller?: AnyController<ControllerRefController<F>> | null, target?: Controller | null, key?: string): ControllerRefController<F> | null | FastenerOwner<F> {
+      fastener = function (controller?: F extends ControllerRef<any, infer C> ? AnyController<C> | null : never, target?: Controller | null, key?: string): F extends ControllerRef<infer O, infer C> ? C | O | null : never {
         if (controller === void 0) {
           return fastener!.controller;
         } else {
@@ -495,7 +461,7 @@ export const ControllerRef = (function (_super: typeof ControllerRelation) {
     return fastener;
   };
 
-  ControllerRef.refine = function (fastenerClass: ControllerRefClass<any>): void {
+  ControllerRef.refine = function (fastenerClass: FastenerClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 
