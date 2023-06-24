@@ -49,51 +49,51 @@ export class GeoLineController extends GeoPathController {
 
   protected setGeoPath(geoPath: GeoPath | null, timing?: AnyTiming | boolean): void {
     const geoView = this.geo.view;
-    if (geoView !== null) {
-      if (timing === void 0 || timing === true) {
-        timing = this.geoTiming.value;
-        if (timing === true) {
-          timing = geoView.getLook(Look.timing, Mood.ambient);
-        }
-      } else {
-        timing = Timing.fromAny(timing);
+    if (geoView === null) {
+      return;
+    } else if (timing === void 0 || timing === true) {
+      timing = this.geoTiming.value;
+      if (timing === true) {
+        timing = geoView.getLook(Look.timing, Mood.ambient);
       }
-      geoView.geoPath.setState(geoPath, timing, Affinity.Intrinsic);
+    } else {
+      timing = Timing.fromAny(timing);
     }
+    geoView.geoPath.setState(geoPath, timing, Affinity.Intrinsic);
   }
 
   protected setStroke(stroke: ColorOrLook | null, timing?: AnyTiming | boolean): void {
     const geoView = this.geo.view;
-    if (geoView !== null) {
-      if (timing === void 0 || timing === true) {
-        timing = this.geoTiming.value;
-        if (timing === true) {
-          timing = geoView.getLook(Look.timing, Mood.ambient);
-        }
-      } else {
-        timing = Timing.fromAny(timing);
+    if (geoView === null) {
+      return;
+    } else if (timing === void 0 || timing === true) {
+      timing = this.geoTiming.value;
+      if (timing === true) {
+        timing = geoView.getLook(Look.timing, Mood.ambient);
       }
-      if (stroke instanceof Look) {
-        geoView.stroke.setLook(stroke, timing, Affinity.Intrinsic);
-      } else {
-        geoView.stroke.setState(stroke, timing, Affinity.Intrinsic);
-      }
+    } else {
+      timing = Timing.fromAny(timing);
+    }
+    if (stroke instanceof Look) {
+      geoView.stroke.setLook(stroke, timing, Affinity.Intrinsic);
+    } else {
+      geoView.stroke.setState(stroke, timing, Affinity.Intrinsic);
     }
   }
 
   protected setStrokeWidth(strokeWidth: Length | null, timing?: AnyTiming | boolean): void {
     const geoView = this.geo.view;
-    if (geoView !== null) {
-      if (timing === void 0 || timing === true) {
-        timing = this.geoTiming.value;
-        if (timing === true) {
-          timing = geoView.getLook(Look.timing, Mood.ambient);
-        }
-      } else {
-        timing = Timing.fromAny(timing);
+    if (geoView === null) {
+      return;
+    } else if (timing === void 0 || timing === true) {
+      timing = this.geoTiming.value;
+      if (timing === true) {
+        timing = geoView.getLook(Look.timing, Mood.ambient);
       }
-      geoView.strokeWidth.setState(strokeWidth, timing, Affinity.Intrinsic);
+    } else {
+      timing = Timing.fromAny(timing);
     }
+    geoView.strokeWidth.setState(strokeWidth, timing, Affinity.Intrinsic);
   }
 
   @TraitViewRef({
@@ -104,16 +104,17 @@ export class GeoLineController extends GeoPathController {
     },
     didAttachTrait(geoTrait: GeoLineTrait): void {
       const geoView = this.view;
-      if (geoView !== null) {
-        this.owner.setGeoPath(geoTrait.geoPath.value);
-        const stroke = geoTrait.stroke.value;
-        if (stroke !== null) {
-          this.owner.setStroke(stroke);
-        }
-        const strokeWidth = geoTrait.strokeWidth.value;
-        if (strokeWidth !== null) {
-          this.owner.setStrokeWidth(strokeWidth);
-        }
+      if (geoView === null) {
+        return;
+      }
+      this.owner.setGeoPath(geoTrait.geoPath.value);
+      const stroke = geoTrait.stroke.value;
+      if (stroke !== null) {
+        this.owner.setStroke(stroke);
+      }
+      const strokeWidth = geoTrait.strokeWidth.value;
+      if (strokeWidth !== null) {
+        this.owner.setStrokeWidth(strokeWidth);
       }
     },
     didDetachTrait(geoTrait: GeoLineTrait): void {
@@ -135,16 +136,17 @@ export class GeoLineController extends GeoPathController {
     },
     didAttachView(geoView: GeoLineView): void {
       const geoTrait = this.trait;
-      if (geoTrait !== null) {
-        this.owner.setGeoPath(geoTrait.geoPath.value);
-        const stroke = geoTrait.stroke.value;
-        if (stroke !== null) {
-          this.owner.setStroke(stroke);
-        }
-        const strokeWidth = geoTrait.strokeWidth.value;
-        if (strokeWidth !== null) {
-          this.owner.setStrokeWidth(strokeWidth);
-        }
+      if (geoTrait === null) {
+        return;
+      }
+      this.owner.setGeoPath(geoTrait.geoPath.value);
+      const stroke = geoTrait.stroke.value;
+      if (stroke !== null) {
+        this.owner.setStroke(stroke);
+      }
+      const strokeWidth = geoTrait.strokeWidth.value;
+      if (strokeWidth !== null) {
+        this.owner.setStrokeWidth(strokeWidth);
       }
     },
     didDetachView(geoView: GeoLineView): void {

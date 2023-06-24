@@ -181,13 +181,14 @@ export class GeoRasterView extends GeoView {
   }
 
   protected projectGeoAnchor(geoAnchor: GeoPoint | null): void {
-    if (this.mounted) {
-      const viewAnchor = geoAnchor !== null && geoAnchor.isDefined()
-                       ? this.geoViewport.value.project(geoAnchor)
-                       : null;
-      this.viewAnchor.setInterpolatedValue(this.viewAnchor.value, viewAnchor);
-      this.projectRaster();
+    if (!this.mounted) {
+      return;
     }
+    const viewAnchor = geoAnchor !== null && geoAnchor.isDefined()
+                     ? this.geoViewport.value.project(geoAnchor)
+                     : null;
+    this.viewAnchor.setInterpolatedValue(this.viewAnchor.value, viewAnchor);
+    this.projectRaster();
   }
 
   protected projectRaster(): void {
@@ -201,24 +202,24 @@ export class GeoRasterView extends GeoView {
     } else {
       viewAnchor = this.viewAnchor.value;
     }
-    if (viewAnchor !== null) {
-      const viewFrame = this.viewFrame;
-      const viewWidth = viewFrame.width;
-      const viewHeight = viewFrame.height;
-      const viewSize = Math.min(viewWidth, viewHeight);
-      let width: Length | number | null = this.width.value;
-      width = width instanceof Length ? width.pxValue(viewSize) : viewWidth;
-      let height: Length | number | null = this.height.value;
-      height = height instanceof Length ? height.pxValue(viewSize) : viewHeight;
-      const x = viewAnchor.x - width * this.xAlign.getValue();
-      const y = viewAnchor.y - height * this.yAlign.getValue();
-      const rasterFrame = new R2Box(x, y, x + width, y + height);
-      this.setRasterFrame(rasterFrame);
-      this.setViewFrame(rasterFrame);
-      this.setCulled(!viewFrame.intersects(rasterFrame));
-    } else {
+    if (viewAnchor === null) {
       this.setCulled(!this.viewFrame.intersects(this.rasterFrame));
+      return;
     }
+    const viewFrame = this.viewFrame;
+    const viewWidth = viewFrame.width;
+    const viewHeight = viewFrame.height;
+    const viewSize = Math.min(viewWidth, viewHeight);
+    let width: Length | number | null = this.width.value;
+    width = width instanceof Length ? width.pxValue(viewSize) : viewWidth;
+    let height: Length | number | null = this.height.value;
+    height = height instanceof Length ? height.pxValue(viewSize) : viewHeight;
+    const x = viewAnchor.x - width * this.xAlign.getValue();
+    const y = viewAnchor.y - height * this.yAlign.getValue();
+    const rasterFrame = new R2Box(x, y, x + width, y + height);
+    this.setRasterFrame(rasterFrame);
+    this.setViewFrame(rasterFrame);
+    this.setCulled(!viewFrame.intersects(rasterFrame));
   }
 
   protected override needsDisplay(displayFlags: ViewFlags): ViewFlags {
@@ -310,21 +311,23 @@ export class GeoRasterView extends GeoView {
 
   protected compositeImage(): void {
     const compositor = this.compositor.value;
-    if (compositor instanceof CanvasRenderer) {
-      const context = compositor.context;
-      const rasterFrame = this.rasterFrame;
-      const canvas = this.canvas;
-      if (rasterFrame.isDefined() && rasterFrame.width !== 0 && rasterFrame.height !== 0 &&
-          canvas.width !== 0 && canvas.height !== 0) {
-        const globalAlpha = context.globalAlpha;
-        const globalCompositeOperation = context.globalCompositeOperation;
-        context.globalAlpha = this.opacity.getValue();
-        context.globalCompositeOperation = this.compositeOperation.getValue();
-        context.drawImage(canvas, rasterFrame.x, rasterFrame.y, rasterFrame.width, rasterFrame.height);
-        context.globalAlpha = globalAlpha;
-        context.globalCompositeOperation = globalCompositeOperation;
-      }
+    if (!(compositor instanceof CanvasRenderer)) {
+      return;
     }
+    const rasterFrame = this.rasterFrame;
+    const canvas = this.canvas;
+    if (!rasterFrame.isDefined() || rasterFrame.width === 0 || rasterFrame.height === 0
+        || canvas.width === 0 || canvas.height === 0) {
+      return;
+    }
+    const context = compositor.context;
+    const globalAlpha = context.globalAlpha;
+    const globalCompositeOperation = context.globalCompositeOperation;
+    context.globalAlpha = this.opacity.getValue();
+    context.globalCompositeOperation = this.compositeOperation.getValue();
+    context.drawImage(canvas, rasterFrame.x, rasterFrame.y, rasterFrame.width, rasterFrame.height);
+    context.globalAlpha = globalAlpha;
+    context.globalCompositeOperation = globalCompositeOperation;
   }
 
   ripple(options?: GeoRippleOptions): GeoRippleView | null {

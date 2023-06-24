@@ -53,24 +53,23 @@ export const GeoPerspective = (function () {
   GeoPerspective.fromAny = function (value: AnyGeoPerspective): GeoPerspective {
     if (value === void 0 || value === null) {
       return value;
-    } else {
-      let geoFrame: GeoBox | null;
-      if (value.geoFrame !== void 0 && value.geoFrame !== null) {
-        geoFrame = GeoBox.fromAny(value.geoFrame);
-      } else {
-        geoFrame = null;
-      }
-      let geoCenter: GeoPoint | null;
-      if (value.geoCenter !== void 0 && value.geoCenter !== null) {
-        geoCenter = GeoPoint.fromAny(value.geoCenter);
-      } else {
-        geoCenter = null;
-      }
-      const zoom = value.zoom;
-      const heading = value.heading;
-      const tilt = value.tilt;
-      return {geoFrame, geoCenter, zoom, heading, tilt};
     }
+    let geoFrame: GeoBox | null;
+    if (value.geoFrame !== void 0 && value.geoFrame !== null) {
+      geoFrame = GeoBox.fromAny(value.geoFrame);
+    } else {
+      geoFrame = null;
+    }
+    let geoCenter: GeoPoint | null;
+    if (value.geoCenter !== void 0 && value.geoCenter !== null) {
+      geoCenter = GeoPoint.fromAny(value.geoCenter);
+    } else {
+      geoCenter = null;
+    }
+    const zoom = value.zoom;
+    const heading = value.heading;
+    const tilt = value.tilt;
+    return {geoFrame, geoCenter, zoom, heading, tilt};
   };
 
   GeoPerspective.is = function (object: unknown): object is GeoPerspective {

@@ -82,13 +82,12 @@ export class GeoTileTrait extends GeoLayerTrait {
 
   protected createTileModel(geoTile: GeoTile): Model | null {
     const tileTrait = this.createTileTrait(geoTile);
-    if (tileTrait !== null) {
-      const tileModel = new Model();
-      tileModel.setTrait("tile", tileTrait);
-      return tileModel;
-    } else {
+    if (tileTrait === null) {
       return null;
     }
+    const tileModel = new Model();
+    tileModel.setTrait("tile", tileTrait);
+    return tileModel;
   }
 
   protected initTiles(): void {

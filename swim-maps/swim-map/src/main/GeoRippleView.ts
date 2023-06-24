@@ -136,23 +136,25 @@ export class GeoRippleView extends GeoView implements StrokeView {
   }
 
   protected projectGeoCenter(geoCenter: GeoPoint | null): void {
-    if (this.mounted) {
-      const viewCenter = geoCenter !== null && geoCenter.isDefined()
-                       ? this.geoViewport.value.project(geoCenter)
-                       : null;
-      this.viewCenter.setInterpolatedValue(this.viewCenter.value, viewCenter);
-      this.projectRipple();
+    if (!this.mounted) {
+      return;
     }
+    const viewCenter = geoCenter !== null && geoCenter.isDefined()
+                     ? this.geoViewport.value.project(geoCenter)
+                     : null;
+    this.viewCenter.setInterpolatedValue(this.viewCenter.value, viewCenter);
+    this.projectRipple();
   }
 
   protected projectRipple(): void {
-    if (this.viewCenter.hasAffinity(Affinity.Intrinsic)) {
-      const geoCenter = this.geoCenter.value;
-      const viewCenter = geoCenter !== null && geoCenter.isDefined()
-                       ? this.geoViewport.value.project(geoCenter)
-                       : null;
-      this.viewCenter.setValue(viewCenter, Affinity.Intrinsic);
+    if (!this.viewCenter.hasAffinity(Affinity.Intrinsic)) {
+      return;
     }
+    const geoCenter = this.geoCenter.value;
+    const viewCenter = geoCenter !== null && geoCenter.isDefined()
+                     ? this.geoViewport.value.project(geoCenter)
+                     : null;
+    this.viewCenter.setValue(viewCenter, Affinity.Intrinsic);
   }
 
   protected override onRender(): void {
@@ -165,30 +167,33 @@ export class GeoRippleView extends GeoView implements StrokeView {
 
   protected renderRipple(context: PaintingContext, frame: R2Box): void {
     const viewCenter = this.viewCenter.value;
-    if (viewCenter !== null && viewCenter.isDefined()) {
-      const size = Math.min(frame.width, frame.height);
-      const radius = this.radius.getValue().pxValue(size);
-      const stroke = this.stroke.value;
-      if (stroke !== null) {
-        // save
-        const contextLineWidth = context.lineWidth;
-        const contextStrokeStyle = context.strokeStyle;
-
-        context.beginPath();
-        context.arc(viewCenter.x, viewCenter.y, radius, 0, 2 * Math.PI);
-
-        const strokeWidth = this.strokeWidth.value;
-        if (strokeWidth !== null) {
-          context.lineWidth = strokeWidth.pxValue(size);
-        }
-        context.strokeStyle = stroke.toString();
-        context.stroke();
-
-        // restore
-        context.lineWidth = contextLineWidth;
-        context.strokeStyle = contextStrokeStyle;
-      }
+    if (viewCenter === null || !viewCenter.isDefined()) {
+      return;
     }
+    const size = Math.min(frame.width, frame.height);
+    const radius = this.radius.getValue().pxValue(size);
+    const stroke = this.stroke.value;
+    if (stroke === null) {
+      return;
+    }
+
+    // save
+    const contextLineWidth = context.lineWidth;
+    const contextStrokeStyle = context.strokeStyle;
+
+    context.beginPath();
+    context.arc(viewCenter.x, viewCenter.y, radius, 0, 2 * Math.PI);
+
+    const strokeWidth = this.strokeWidth.value;
+    if (strokeWidth !== null) {
+      context.lineWidth = strokeWidth.pxValue(size);
+    }
+    context.strokeStyle = stroke.toString();
+    context.stroke();
+
+    // restore
+    context.lineWidth = contextLineWidth;
+    context.strokeStyle = contextStrokeStyle;
   }
 
   protected override renderGeoBounds(outlineColor: Color, outlineWidth: number): void {
@@ -207,11 +212,10 @@ export class GeoRippleView extends GeoView implements StrokeView {
 
   override deriveViewBounds(): R2Box {
     const viewCenter = this.viewCenter.value;
-    if (viewCenter !== null && viewCenter.isDefined()) {
-      return viewCenter.bounds;
-    } else {
+    if (viewCenter === null || !viewCenter.isDefined()) {
       return R2Box.undefined();
     }
+    return viewCenter.bounds;
   }
 
   ripple(options?: GeoRippleOptions): this {
@@ -276,19 +280,18 @@ export class GeoRippleView extends GeoView implements StrokeView {
   }
 
   static ripple(sourceView: GeoView, options?: GeoRippleOptions): GeoRippleView | null {
-    if (!document.hidden && !sourceView.hidden && !sourceView.culled &&
-        sourceView.geoBounds.intersects(sourceView.geoViewport.value.geoFrame)) {
-      const rippleView = GeoRippleView.create();
-      rippleView.source.setView(sourceView);
-      let containerView = sourceView.getRoot(GeoView);
-      if (containerView === null) {
-        containerView = sourceView;
-      }
-      containerView.appendChild(rippleView);
-      rippleView.ripple(options);
-      return rippleView;
-    } else {
+    if (document.hidden || sourceView.hidden || sourceView.culled ||
+        !sourceView.geoBounds.intersects(sourceView.geoViewport.value.geoFrame)) {
       return null;
     }
+    const rippleView = GeoRippleView.create();
+    rippleView.source.setView(sourceView);
+    let containerView = sourceView.getRoot(GeoView);
+    if (containerView === null) {
+      containerView = sourceView;
+    }
+    containerView.appendChild(rippleView);
+    rippleView.ripple(options);
+    return rippleView;
   }
 }

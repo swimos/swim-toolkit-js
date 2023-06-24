@@ -90,21 +90,19 @@ export class GeoAreaView extends GeoPathView implements FillView, StrokeView {
   readonly clipViewport!: Property<this, boolean>;
 
   override cullGeoFrame(geoFrame: GeoBox = this.geoFrame): void {
-    let culled: boolean;
-    if (geoFrame.intersects(this.geoBounds)) {
-      const viewFrame = this.viewFrame;
-      const bounds = this.viewBounds;
-      // check if 9x9 view frame fully contains view bounds
-      const contained = !this.clipViewport.value
-                     || viewFrame.xMin - 4 * viewFrame.width <= bounds.xMin
-                     && bounds.xMax <= viewFrame.xMax + 4 * viewFrame.width
-                     && viewFrame.yMin - 4 * viewFrame.height <= bounds.yMin
-                     && bounds.yMax <= viewFrame.yMax + 4 * viewFrame.height;
-      culled = !contained || !viewFrame.intersects(bounds);
-    } else {
-      culled = true;
+    if (!geoFrame.intersects(this.geoBounds)) {
+      this.setCulled(true);
+      return;
     }
-    this.setCulled(culled);
+    const viewFrame = this.viewFrame;
+    const bounds = this.viewBounds;
+    // check if 9x9 view frame fully contains view bounds
+    const contained = !this.clipViewport.value
+                   || viewFrame.xMin - 4 * viewFrame.width <= bounds.xMin
+                   && bounds.xMax <= viewFrame.xMax + 4 * viewFrame.width
+                   && viewFrame.yMin - 4 * viewFrame.height <= bounds.yMin
+                   && bounds.yMax <= viewFrame.yMax + 4 * viewFrame.height;
+    this.setCulled(!contained || !viewFrame.intersects(bounds));
   }
 
   protected override onRender(): void {
@@ -117,33 +115,35 @@ export class GeoAreaView extends GeoPathView implements FillView, StrokeView {
 
   protected renderArea(context: PaintingContext, frame: R2Box): void {
     const viewPath = this.viewPath.value;
-    if (viewPath !== null && viewPath.isDefined()) {
-      // save
-      const contextFillStyle = context.fillStyle;
-      const contextLineWidth = context.lineWidth;
-      const contextStrokeStyle = context.strokeStyle;
-
-      context.beginPath();
-      viewPath.draw(context);
-      const fill = this.fill.value;
-      if (fill !== null) {
-        context.fillStyle = fill.toString();
-        context.fill();
-      }
-      const stroke = this.stroke.value;
-      const strokeWidth = this.strokeWidth.value;
-      if (stroke !== null && strokeWidth !== null) {
-        const size = Math.min(frame.width, frame.height);
-        context.lineWidth = strokeWidth.pxValue(size);
-        context.strokeStyle = stroke.toString();
-        context.stroke();
-      }
-
-      // restore
-      context.fillStyle = contextFillStyle;
-      context.lineWidth = contextLineWidth;
-      context.strokeStyle = contextStrokeStyle;
+    if (viewPath === null || !viewPath.isDefined()) {
+      return;
     }
+
+    // save
+    const contextFillStyle = context.fillStyle;
+    const contextLineWidth = context.lineWidth;
+    const contextStrokeStyle = context.strokeStyle;
+
+    context.beginPath();
+    viewPath.draw(context);
+    const fill = this.fill.value;
+    if (fill !== null) {
+      context.fillStyle = fill.toString();
+      context.fill();
+    }
+    const stroke = this.stroke.value;
+    const strokeWidth = this.strokeWidth.value;
+    if (stroke !== null && strokeWidth !== null) {
+      const size = Math.min(frame.width, frame.height);
+      context.lineWidth = strokeWidth.pxValue(size);
+      context.strokeStyle = stroke.toString();
+      context.stroke();
+    }
+
+    // restore
+    context.fillStyle = contextFillStyle;
+    context.lineWidth = contextLineWidth;
+    context.strokeStyle = contextStrokeStyle;
   }
 
   protected override hitTest(x: number, y: number): GraphicsView | null {
@@ -157,32 +157,30 @@ export class GeoAreaView extends GeoPathView implements FillView, StrokeView {
 
   protected hitTestArea(x: number, y: number, context: CanvasContext, frame: R2Box): GraphicsView | null {
     const viewPath = this.viewPath.value;
-    if (viewPath !== null && viewPath.isDefined()) {
-      context.beginPath();
-      viewPath.draw(context);
-      if (this.fill.value !== null && context.isPointInPath(x, y)) {
-        return this;
-      }
-      if (this.stroke.value !== null) {
-        const strokeWidth = this.strokeWidth.value;
-        if (strokeWidth !== null) {
-          // save
-          const contextLineWidth = context.lineWidth;
-
-          const size = Math.min(frame.width, frame.height);
-          context.lineWidth = strokeWidth.pxValue(size);
-          const pointInStroke = context.isPointInStroke(x, y);
-
-          // restore
-          context.lineWidth = contextLineWidth;
-
-          if (pointInStroke) {
-            return this;
-          }
-        }
-      }
+    if (viewPath === null || !viewPath.isDefined()) {
+      return null;
     }
-    return null;
+    context.beginPath();
+    viewPath.draw(context);
+    if (this.fill.value !== null && context.isPointInPath(x, y)) {
+      return this;
+    }
+    let strokeWidth: Length | null;
+    if (this.stroke.value === null || (strokeWidth = this.strokeWidth.value) === null) {
+      return null;
+    }
+
+    // save
+    const contextLineWidth = context.lineWidth;
+
+    const size = Math.min(frame.width, frame.height);
+    context.lineWidth = strokeWidth.pxValue(size);
+    const pointInStroke = context.isPointInStroke(x, y);
+
+    // restore
+    context.lineWidth = contextLineWidth;
+
+    return pointInStroke ? this : null;
   }
 
   override init(init: GeoAreaViewInit): void {

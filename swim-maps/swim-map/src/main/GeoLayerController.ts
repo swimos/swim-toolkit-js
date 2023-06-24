@@ -176,9 +176,8 @@ export class GeoLayerController extends GeoController {
     createController(featureTrait?: GeoTrait): GeoController {
       if (featureTrait !== void 0) {
         return featureTrait.createGeoController();
-      } else {
-        return super.createController();
       }
+      return super.createController();
     },
   })
   readonly features!: TraitViewControllerSet<this, GeoTrait, GeoView, GeoController> & Observes<GeoController> & {

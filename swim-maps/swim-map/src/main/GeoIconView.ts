@@ -134,14 +134,13 @@ export class GeoIconView extends GeoView implements IconView {
     value: null,
     updateFlags: View.NeedsRender | View.NeedsRasterize | View.NeedsComposite,
     didSetState(iconColor: Color | null): void {
-      if (iconColor !== null) {
-        const oldGraphics = this.owner.graphics.value;
-        if (oldGraphics instanceof FilledIcon) {
-          const newGraphics = oldGraphics.withFillColor(iconColor);
-          const timing = this.timing !== null ? this.timing : false;
-          this.owner.graphics.setState(newGraphics, timing, Affinity.Reflexive);
-        }
+      const oldGraphics = this.owner.graphics.value;
+      if (!(oldGraphics instanceof FilledIcon)) {
+        return;
       }
+      const newGraphics = oldGraphics.withFillColor(iconColor);
+      const timing = this.timing !== null ? this.timing : false;
+      this.owner.graphics.setState(newGraphics, timing, Affinity.Reflexive);
     },
   })
   readonly iconColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
@@ -159,13 +158,15 @@ export class GeoIconView extends GeoView implements IconView {
 
   protected override onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
-    if (!this.graphics.derived) {
-      const oldGraphics = this.graphics.value;
-      if (oldGraphics instanceof Icon) {
-        const newGraphics = oldGraphics.withTheme(theme, mood);
-        this.graphics.setState(newGraphics, oldGraphics.isThemed() ? timing : false, Affinity.Reflexive);
-      }
+    if (this.graphics.derived) {
+      return;
     }
+    const oldGraphics = this.graphics.value;
+    if (!(oldGraphics instanceof Icon)) {
+      return;
+    }
+    const newGraphics = oldGraphics.withTheme(theme, mood);
+    this.graphics.setState(newGraphics, oldGraphics.isThemed() ? timing : false, Affinity.Reflexive);
   }
 
   protected override onProject(): void {
@@ -174,13 +175,14 @@ export class GeoIconView extends GeoView implements IconView {
   }
 
   protected projectGeoCenter(geoCenter: GeoPoint | null): void {
-    if (this.mounted) {
-      const viewCenter = geoCenter !== null && geoCenter.isDefined()
-                       ? this.geoViewport.value.project(geoCenter)
-                       : null;
-      this.viewCenter.setInterpolatedValue(this.viewCenter.value, viewCenter);
-      this.projectIcon();
+    if (!this.mounted) {
+      return;
     }
+    const viewCenter = geoCenter !== null && geoCenter.isDefined()
+                     ? this.geoViewport.value.project(geoCenter)
+                     : null;
+    this.viewCenter.setInterpolatedValue(this.viewCenter.value, viewCenter);
+    this.projectIcon();
   }
 
   protected projectIcon(): void {
@@ -267,41 +269,38 @@ export class GeoIconView extends GeoView implements IconView {
 
   override deriveViewBounds(viewFrame?: R2Box): R2Box {
     const viewCenter = this.viewCenter.value;
-    if (viewCenter !== null && viewCenter.isDefined()) {
-      if (viewFrame === void 0) {
-        viewFrame = this.viewFrame;
-      }
-      const viewSize = Math.min(viewFrame.width, viewFrame.height);
-      let iconWidth: Length | number | null = this.iconWidth.value;
-      iconWidth = iconWidth instanceof Length ? iconWidth.pxValue(viewSize) : viewSize;
-      let iconHeight: Length | number | null = this.iconHeight.value;
-      iconHeight = iconHeight instanceof Length ? iconHeight.pxValue(viewSize) : viewSize;
-      const x = viewCenter.x - iconWidth * this.xAlign.value;
-      const y = viewCenter.y - iconHeight * this.yAlign.value;
-      return new R2Box(x, y, x + iconWidth, y + iconHeight);
-    } else {
+    if (viewCenter === null || !viewCenter.isDefined()) {
       return R2Box.undefined();
+    } else if (viewFrame === void 0) {
+      viewFrame = this.viewFrame;
     }
+    const viewSize = Math.min(viewFrame.width, viewFrame.height);
+    let iconWidth: Length | number | null = this.iconWidth.value;
+    iconWidth = iconWidth instanceof Length ? iconWidth.pxValue(viewSize) : viewSize;
+    let iconHeight: Length | number | null = this.iconHeight.value;
+    iconHeight = iconHeight instanceof Length ? iconHeight.pxValue(viewSize) : viewSize;
+    const x = viewCenter.x - iconWidth * this.xAlign.value;
+    const y = viewCenter.y - iconHeight * this.yAlign.value;
+    return new R2Box(x, y, x + iconWidth, y + iconHeight);
   }
 
   override get popoverFrame(): R2Box {
     const viewCenter = this.viewCenter.value;
-    if (viewCenter !== null && viewCenter.isDefined()) {
-      const viewFrame = this.viewFrame;
-      const viewSize = Math.min(viewFrame.width, viewFrame.height);
-      const inversePageTransform = this.pageTransform.inverse();
-      const px = inversePageTransform.transformX(viewCenter.x, viewCenter.y);
-      const py = inversePageTransform.transformY(viewCenter.x, viewCenter.y);
-      let iconWidth: Length | number | null = this.iconWidth.value;
-      iconWidth = iconWidth instanceof Length ? iconWidth.pxValue(viewSize) : viewSize;
-      let iconHeight: Length | number | null = this.iconHeight.value;
-      iconHeight = iconHeight instanceof Length ? iconHeight.pxValue(viewSize) : viewSize;
-      const x = px - iconWidth * this.xAlign.getValue();
-      const y = py - iconHeight * this.yAlign.getValue();
-      return new R2Box(x, y, x + iconWidth, y + iconHeight);
-    } else {
+    if (viewCenter === null || !viewCenter.isDefined()) {
       return this.pageBounds;
     }
+    const viewFrame = this.viewFrame;
+    const viewSize = Math.min(viewFrame.width, viewFrame.height);
+    const inversePageTransform = this.pageTransform.inverse();
+    const px = inversePageTransform.transformX(viewCenter.x, viewCenter.y);
+    const py = inversePageTransform.transformY(viewCenter.x, viewCenter.y);
+    let iconWidth: Length | number | null = this.iconWidth.value;
+    iconWidth = iconWidth instanceof Length ? iconWidth.pxValue(viewSize) : viewSize;
+    let iconHeight: Length | number | null = this.iconHeight.value;
+    iconHeight = iconHeight instanceof Length ? iconHeight.pxValue(viewSize) : viewSize;
+    const x = px - iconWidth * this.xAlign.getValue();
+    const y = py - iconHeight * this.yAlign.getValue();
+    return new R2Box(x, y, x + iconWidth, y + iconHeight);
   }
 
   protected override hitTest(x: number, y: number): GraphicsView | null {
@@ -318,13 +317,14 @@ export class GeoIconView extends GeoView implements IconView {
       return this;
     }
     //const graphics = this.graphics.value;
-    //if (graphics !== null) {
-    //  const context = renderer.context;
-    //  context.beginPath();
-    //  graphics.render(renderer, frame);
-    //  if (context.isPointInPath(x * renderer.pixelRatio, y * renderer.pixelRatio)) {
-    //    return this;
-    //  }
+    //if (graphics === null) {
+    //  return null;
+    //}
+    //const context = renderer.context;
+    //context.beginPath();
+    //graphics.render(renderer, frame);
+    //if (context.isPointInPath(x * renderer.pixelRatio, y * renderer.pixelRatio)) {
+    //  return this;
     //}
     return null;
   }

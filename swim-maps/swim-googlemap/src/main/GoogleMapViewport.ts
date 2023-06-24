@@ -48,42 +48,44 @@ export class GoogleMapViewport implements GeoViewport, Equals {
   project(lng: number, lat: number): R2Point;
   project(lng: AnyGeoPoint | number, lat?: number): R2Point {
     const projection = this.projection;
-    if (projection !== null) {
-      let geoPoint: google.maps.LatLng;
-      if (typeof lng === "number") {
-        geoPoint = new google.maps.LatLng(lat!, lng);
-      } else if (Array.isArray(lng)) {
-        geoPoint = new google.maps.LatLng(lng[1], lng[0]);
-      } else {
-        geoPoint = new google.maps.LatLng(lng.lat, lng.lng);
-      }
-      const point = projection.fromLatLngToContainerPixel(geoPoint);
-      if (point !== null) {
-        return new R2Point(point.x, point.y);
-      }
+    if (projection === null) {
+      return R2Point.undefined();
     }
-    return R2Point.undefined();
+    let geoPoint: google.maps.LatLng;
+    if (typeof lng === "number") {
+      geoPoint = new google.maps.LatLng(lat!, lng);
+    } else if (Array.isArray(lng)) {
+      geoPoint = new google.maps.LatLng(lng[1], lng[0]);
+    } else {
+      geoPoint = new google.maps.LatLng(lng.lat, lng.lng);
+    }
+    const point = projection.fromLatLngToContainerPixel(geoPoint);
+    if (point === null) {
+      return R2Point.undefined();
+    }
+    return new R2Point(point.x, point.y);
   }
 
   unproject(viewPoint: AnyR2Point): GeoPoint;
   unproject(x: number, y: number): GeoPoint;
   unproject(x: AnyR2Point | number, y?: number): GeoPoint {
     const projection = this.projection;
-    if (projection !== null) {
-      let viewPoint: google.maps.Point;
-      if (typeof x === "number") {
-        viewPoint = new google.maps.Point(x, y!);
-      } else if (Array.isArray(x)) {
-        viewPoint = new google.maps.Point(x[0], x[1]);
-      } else {
-        viewPoint = new google.maps.Point(x.x, x.y);
-      }
-      const point = projection.fromContainerPixelToLatLng(viewPoint);
-      if (point !== null) {
-        return new GeoPoint(point.lng(), point.lat());
-      }
+    if (projection === null) {
+      return GeoPoint.undefined();
     }
-    return GeoPoint.undefined();
+    let viewPoint: google.maps.Point;
+    if (typeof x === "number") {
+      viewPoint = new google.maps.Point(x, y!);
+    } else if (Array.isArray(x)) {
+      viewPoint = new google.maps.Point(x[0], x[1]);
+    } else {
+      viewPoint = new google.maps.Point(x.x, x.y);
+    }
+    const point = projection.fromContainerPixelToLatLng(viewPoint);
+    if (point === null) {
+      return GeoPoint.undefined();
+    }
+    return new GeoPoint(point.lng(), point.lat());
   }
 
   equals(that: unknown): boolean {

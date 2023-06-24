@@ -43,12 +43,13 @@ export class GeoLayerTrait extends GeoTrait {
 
   setGeoBounds(newGeoBounds: GeoBox): void {
     const oldGeoBounds = this.geoBounds;
-    if (!newGeoBounds.equals(oldGeoBounds)) {
-      this.willSetGeoBounds(newGeoBounds, oldGeoBounds);
-      (this as Mutable<this>).geoBounds = newGeoBounds;
-      this.onSetGeoBounds(newGeoBounds, oldGeoBounds);
-      this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
+    if (newGeoBounds.equals(oldGeoBounds)) {
+      return;
     }
+    this.willSetGeoBounds(newGeoBounds, oldGeoBounds);
+    (this as Mutable<this>).geoBounds = newGeoBounds;
+    this.onSetGeoBounds(newGeoBounds, oldGeoBounds);
+    this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
   }
 
   protected willSetGeoBounds(newGeoBounds: GeoBox, oldGeoBounds: GeoBox): void {

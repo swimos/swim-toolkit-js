@@ -82,11 +82,12 @@ export class MapController extends Controller {
   }
 
   protected setGeoPerspective(geoPerspective: GeoPerspective | null): void {
-    if (geoPerspective !== null) {
-      const mapView = this.map.view;
-      if (mapView !== null) {
-        mapView.moveTo(geoPerspective);
-      }
+    if (geoPerspective === null) {
+      return;
+    }
+    const mapView = this.map.view;
+    if (mapView !== null) {
+      mapView.moveTo(geoPerspective);
     }
   }
 
@@ -275,9 +276,8 @@ export class MapController extends Controller {
     createController(layerTrait?: GeoTrait): GeoController {
       if (layerTrait !== void 0) {
         return layerTrait.createGeoController();
-      } else {
-        return super.createController();
       }
+      return super.createController();
     },
   })
   readonly layers!: TraitViewControllerSet<this, GeoTrait, GeoView, GeoController> & Observes<GeoController> & {

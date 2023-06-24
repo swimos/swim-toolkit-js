@@ -101,9 +101,10 @@ export class GoogleMapView extends MapView {
       this.owner.requireUpdate(View.NeedsProject, immediate);
     },
     update(): void {
-      if (this.hasAffinity(Affinity.Intrinsic)) {
-        this.setValue(GoogleMapViewport.create(this.owner.map, this.owner.mapOverlay.getProjection()), Affinity.Intrinsic);
+      if (!this.hasAffinity(Affinity.Intrinsic)) {
+        return;
       }
+      this.setValue(GoogleMapViewport.create(this.owner.map, this.owner.mapOverlay.getProjection()), Affinity.Intrinsic);
     },
   })
   override readonly geoViewport!: Property<this, GeoViewport> & MapView["geoViewport"] & {
@@ -174,13 +175,14 @@ export class GoogleMapView extends MapView {
       super.willDetachView(containerView);
       const canvasView = this.owner.canvas.view;
       const mapPanes = this.owner.mapOverlay.getPanes();
-      if (mapPanes !== void 0 && mapPanes !== null) {
-        const overlayMouseTargetView = (mapPanes.overlayMouseTarget as ViewHtml).view!;
-        const overlayContainerView = overlayMouseTargetView.parent as HtmlView;
-        const canvasContainerView = overlayContainerView.parent as HtmlView;
-        if (canvasView !== null && canvasView.parent === canvasContainerView) {
-          canvasContainerView.removeChild(containerView);
-        }
+      if (mapPanes === void 0 || mapPanes === null) {
+        return;
+      }
+      const overlayMouseTargetView = (mapPanes.overlayMouseTarget as ViewHtml).view!;
+      const overlayContainerView = overlayMouseTargetView.parent as HtmlView;
+      const canvasContainerView = overlayContainerView.parent as HtmlView;
+      if (canvasView !== null && canvasView.parent === canvasContainerView) {
+        canvasContainerView.removeChild(containerView);
       }
     },
     materializeView(containerView: HtmlView): void {

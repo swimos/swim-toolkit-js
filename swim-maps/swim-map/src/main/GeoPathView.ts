@@ -114,13 +114,12 @@ export class GeoPathView extends GeoView {
   override get popoverFrame(): R2Box {
     const inversePageTransform = this.pageTransform.inverse();
     const viewCentroid = this.viewCentroid.value;
-    if (viewCentroid !== null && viewCentroid.isDefined()) {
-      const px = inversePageTransform.transformX(viewCentroid.x, viewCentroid.y);
-      const py = inversePageTransform.transformY(viewCentroid.x, viewCentroid.y);
-      return new R2Box(px, py, px, py);
-    } else {
+    if (viewCentroid === null || !viewCentroid.isDefined()) {
       return this.viewBounds.transform(inversePageTransform);
     }
+    const px = inversePageTransform.transformX(viewCentroid.x, viewCentroid.y);
+    const py = inversePageTransform.transformY(viewCentroid.x, viewCentroid.y);
+    return new R2Box(px, py, px, py);
   }
 
   override readonly viewBounds!: R2Box;

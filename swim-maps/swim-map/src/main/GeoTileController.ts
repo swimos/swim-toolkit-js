@@ -223,9 +223,8 @@ export class GeoTileController extends GeoLayerController {
     createController(tileTrait?: GeoTileTrait): GeoTileController {
       if (tileTrait !== void 0) {
         return this.owner.createTileController(tileTrait.geoTile);
-      } else {
-        return super.createController();
       }
+      return super.createController();
     },
   })
   readonly tiles!: TraitViewControllerSet<this, GeoTileTrait, GeoView, GeoTileController> & Observes<GeoTileController> & {

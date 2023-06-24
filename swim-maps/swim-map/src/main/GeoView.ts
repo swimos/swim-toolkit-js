@@ -90,29 +90,31 @@ export class GeoView extends GraphicsView {
 
   protected renderGeoOutline(geoBox: GeoBox, geoProjection: GeoProjection, context: PaintingContext,
                              outlineColor: Color, outlineWidth: number): void {
-    if (geoBox.isDefined()) {
-      // save
-      const contextLineWidth = context.lineWidth;
-      const contextStrokeStyle = context.strokeStyle;
-
-      const southWest = geoProjection.project(geoBox.southWest.normalized());
-      const northWest = geoProjection.project(geoBox.northWest.normalized());
-      const northEast = geoProjection.project(geoBox.northEast.normalized());
-      const southEast = geoProjection.project(geoBox.southEast.normalized());
-      context.beginPath();
-      context.moveTo(southWest.x, southWest.y);
-      context.lineTo(northWest.x, northWest.y);
-      context.lineTo(northEast.x, northEast.y);
-      context.lineTo(southEast.x, southEast.y);
-      context.closePath();
-      context.lineWidth = outlineWidth;
-      context.strokeStyle = outlineColor.toString();
-      context.stroke();
-
-      // restore
-      context.lineWidth = contextLineWidth;
-      context.strokeStyle = contextStrokeStyle;
+    if (!geoBox.isDefined()) {
+      return;
     }
+
+    // save
+    const contextLineWidth = context.lineWidth;
+    const contextStrokeStyle = context.strokeStyle;
+
+    const southWest = geoProjection.project(geoBox.southWest.normalized());
+    const northWest = geoProjection.project(geoBox.northWest.normalized());
+    const northEast = geoProjection.project(geoBox.northEast.normalized());
+    const southEast = geoProjection.project(geoBox.southEast.normalized());
+    context.beginPath();
+    context.moveTo(southWest.x, southWest.y);
+    context.lineTo(northWest.x, northWest.y);
+    context.lineTo(northEast.x, northEast.y);
+    context.lineTo(southEast.x, southEast.y);
+    context.closePath();
+    context.lineWidth = outlineWidth;
+    context.strokeStyle = outlineColor.toString();
+    context.stroke();
+
+    // restore
+    context.lineWidth = contextLineWidth;
+    context.strokeStyle = contextStrokeStyle;
   }
 
   protected override onHide(): void {
@@ -166,12 +168,13 @@ export class GeoView extends GraphicsView {
 
   protected setGeoBounds(newGeoBounds: GeoBox): void {
     const oldGeoBounds = this.geoBounds;
-    if (!oldGeoBounds.equals(newGeoBounds)) {
-      this.willSetGeoBounds(newGeoBounds, oldGeoBounds);
-      (this as Mutable<this>).geoBounds = newGeoBounds;
-      this.onSetGeoBounds(newGeoBounds, oldGeoBounds);
-      this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
+    if (oldGeoBounds.equals(newGeoBounds)) {
+      return;
     }
+    this.willSetGeoBounds(newGeoBounds, oldGeoBounds);
+    (this as Mutable<this>).geoBounds = newGeoBounds;
+    this.onSetGeoBounds(newGeoBounds, oldGeoBounds);
+    this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
   }
 
   willSetGeoBounds(newGeoBounds: GeoBox, oldGeoBounds: GeoBox): void {
@@ -179,11 +182,12 @@ export class GeoView extends GraphicsView {
   }
 
   protected onSetGeoBounds(newGeoBounds: GeoBox, oldGeoBounds: GeoBox): void {
-    if (!this.unbounded) {
-      const parent = this.parent;
-      if (parent instanceof GeoView) {
-        parent.onSetChildGeoBounds(this, newGeoBounds, oldGeoBounds);
-      }
+    if (this.unbounded) {
+      return;
+    }
+    const parent = this.parent;
+    if (parent instanceof GeoView) {
+      parent.onSetChildGeoBounds(this, newGeoBounds, oldGeoBounds);
     }
   }
 

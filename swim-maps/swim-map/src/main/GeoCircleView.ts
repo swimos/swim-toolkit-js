@@ -117,13 +117,14 @@ export class GeoCircleView extends GeoView implements FillView, StrokeView {
   }
 
   protected projectGeoCenter(geoCenter: GeoPoint | null): void {
-    if (this.mounted) {
-      const viewCenter = geoCenter !== null && geoCenter.isDefined()
-                       ? this.geoViewport.value.project(geoCenter)
-                       : null;
-      this.viewCenter.setInterpolatedValue(this.viewCenter.value, viewCenter);
-      this.projectCircle();
+    if (!this.mounted) {
+      return;
     }
+    const viewCenter = geoCenter !== null && geoCenter.isDefined()
+                     ? this.geoViewport.value.project(geoCenter)
+                     : null;
+    this.viewCenter.setInterpolatedValue(this.viewCenter.value, viewCenter);
+    this.projectCircle();
   }
 
   protected projectCircle(): void {
@@ -158,39 +159,41 @@ export class GeoCircleView extends GeoView implements FillView, StrokeView {
 
   protected renderCircle(context: PaintingContext, frame: R2Box): void {
     const viewCenter = this.viewCenter.value;
-    if (viewCenter !== null && viewCenter.isDefined()) {
-      // save
-      const contextFillStyle = context.fillStyle;
-      const contextLineWidth = context.lineWidth;
-      const contextStrokeStyle = context.strokeStyle;
-
-      const size = Math.min(frame.width, frame.height);
-      const radius = this.radius.getValue().pxValue(size);
-
-      context.beginPath();
-      context.arc(viewCenter.x, viewCenter.y, radius, 0, 2 * Math.PI);
-
-      const fill = this.fill.value;
-      if (fill !== null) {
-        context.fillStyle = fill.toString();
-        context.fill();
-      }
-
-      const stroke = this.stroke.value;
-      if (stroke !== null) {
-        const strokeWidth = this.strokeWidth.value;
-        if (strokeWidth !== null) {
-          context.lineWidth = strokeWidth.pxValue(size);
-        }
-        context.strokeStyle = stroke.toString();
-        context.stroke();
-      }
-
-      // restore
-      context.fillStyle = contextFillStyle;
-      context.lineWidth = contextLineWidth;
-      context.strokeStyle = contextStrokeStyle;
+    if (viewCenter === null || !viewCenter.isDefined()) {
+      return;
     }
+
+    // save
+    const contextFillStyle = context.fillStyle;
+    const contextLineWidth = context.lineWidth;
+    const contextStrokeStyle = context.strokeStyle;
+
+    const size = Math.min(frame.width, frame.height);
+    const radius = this.radius.getValue().pxValue(size);
+
+    context.beginPath();
+    context.arc(viewCenter.x, viewCenter.y, radius, 0, 2 * Math.PI);
+
+    const fill = this.fill.value;
+    if (fill !== null) {
+      context.fillStyle = fill.toString();
+      context.fill();
+    }
+
+    const stroke = this.stroke.value;
+    if (stroke !== null) {
+      const strokeWidth = this.strokeWidth.value;
+      if (strokeWidth !== null) {
+        context.lineWidth = strokeWidth.pxValue(size);
+      }
+      context.strokeStyle = stroke.toString();
+      context.stroke();
+    }
+
+    // restore
+    context.fillStyle = contextFillStyle;
+    context.lineWidth = contextLineWidth;
+    context.strokeStyle = contextStrokeStyle;
   }
 
   protected override renderGeoBounds(outlineColor: Color, outlineWidth: number): void {
@@ -205,44 +208,41 @@ export class GeoCircleView extends GeoView implements FillView, StrokeView {
 
   override deriveViewBounds(): R2Box {
     const viewCenter = this.viewCenter.value;
-    if (viewCenter !== null && viewCenter.isDefined()) {
-      const viewFrame = this.viewFrame;
-      const size = Math.min(viewFrame.width, viewFrame.height);
-      const radius = this.radius.getValue().pxValue(size);
-      return new R2Box(viewCenter.x - radius, viewCenter.y - radius,
-                       viewCenter.x + radius, viewCenter.y + radius);
-    } else {
+    if (viewCenter === null || !viewCenter.isDefined()) {
       return R2Box.undefined();
     }
+    const viewFrame = this.viewFrame;
+    const size = Math.min(viewFrame.width, viewFrame.height);
+    const radius = this.radius.getValue().pxValue(size);
+    return new R2Box(viewCenter.x - radius, viewCenter.y - radius,
+                     viewCenter.x + radius, viewCenter.y + radius);
   }
 
   override get popoverFrame(): R2Box {
     const viewCenter = this.viewCenter.value;
-    if (viewCenter !== null && viewCenter.isDefined()) {
-      const viewFrame = this.viewFrame;
-      const size = Math.min(viewFrame.width, viewFrame.height);
-      const inversePageTransform = this.pageTransform.inverse();
-      const px = inversePageTransform.transformX(viewCenter.x, viewCenter.y);
-      const py = inversePageTransform.transformY(viewCenter.x, viewCenter.y);
-      const radius = this.radius.getValue().pxValue(size);
-      return new R2Box(px - radius, py - radius, px + radius, py + radius);
-    } else {
+    if (viewCenter === null || !viewCenter.isDefined()) {
       return this.pageBounds;
     }
+    const viewFrame = this.viewFrame;
+    const size = Math.min(viewFrame.width, viewFrame.height);
+    const inversePageTransform = this.pageTransform.inverse();
+    const px = inversePageTransform.transformX(viewCenter.x, viewCenter.y);
+    const py = inversePageTransform.transformY(viewCenter.x, viewCenter.y);
+    const radius = this.radius.getValue().pxValue(size);
+    return new R2Box(px - radius, py - radius, px + radius, py + radius);
   }
 
   override get hitBounds(): R2Box {
     const viewCenter = this.viewCenter.value;
-    if (viewCenter !== null && viewCenter.isDefined()) {
-      const viewFrame = this.viewFrame;
-      const size = Math.min(viewFrame.width, viewFrame.height);
-      const radius = this.radius.getValue().pxValue(size);
-      const hitRadius = Math.max(this.hitRadius.getValueOr(radius), radius);
-      return new R2Box(viewCenter.x - hitRadius, viewCenter.y - hitRadius,
-                       viewCenter.x + hitRadius, viewCenter.y + hitRadius);
-    } else {
+    if (viewCenter === null || !viewCenter.isDefined()) {
       return this.viewBounds;
     }
+    const viewFrame = this.viewFrame;
+    const size = Math.min(viewFrame.width, viewFrame.height);
+    const radius = this.radius.getValue().pxValue(size);
+    const hitRadius = Math.max(this.hitRadius.getValueOr(radius), radius);
+    return new R2Box(viewCenter.x - hitRadius, viewCenter.y - hitRadius,
+                     viewCenter.x + hitRadius, viewCenter.y + hitRadius);
   }
 
   protected override hitTest(x: number, y: number): GraphicsView | null {
@@ -256,39 +256,39 @@ export class GeoCircleView extends GeoView implements FillView, StrokeView {
   protected hitTestCircle(x: number, y: number, context: CanvasContext,
                           frame: R2Box, transform: Transform): GraphicsView | null {
     const viewCenter = this.viewCenter.value;
-    if (viewCenter !== null && viewCenter.isDefined()) {
-      const size = Math.min(frame.width, frame.height);
-      const radius = this.radius.getValue().pxValue(size);
+    if (viewCenter === null || !viewCenter.isDefined()) {
+      return null;
+    }
+    const size = Math.min(frame.width, frame.height);
+    const radius = this.radius.getValue().pxValue(size);
 
-      if (this.fill.value !== null) {
-        const hitRadius = Math.max(this.hitRadius.getValueOr(radius), radius);
-        const dx = viewCenter.x - x;
-        const dy = viewCenter.y - y;
-        if (dx * dx + dy * dy < hitRadius * hitRadius) {
-          return this;
-        }
-      }
-
-      const strokeWidth = this.strokeWidth.value;
-      if (this.stroke.value !== null && strokeWidth !== null) {
-        // save
-        const contextLineWidth = context.lineWidth;
-
-        const p = transform.transform(x, y);
-        context.beginPath();
-        context.arc(viewCenter.x, viewCenter.y, radius, 0, 2 * Math.PI);
-        context.lineWidth = strokeWidth.pxValue(size);
-        const pointInStroke = context.isPointInStroke(p.x, p.y);
-
-        // restore
-        context.lineWidth = contextLineWidth;
-
-        if (pointInStroke) {
-          return this;
-        }
+    if (this.fill.value !== null) {
+      const hitRadius = Math.max(this.hitRadius.getValueOr(radius), radius);
+      const dx = viewCenter.x - x;
+      const dy = viewCenter.y - y;
+      if (dx * dx + dy * dy < hitRadius * hitRadius) {
+        return this;
       }
     }
-    return null;
+
+    let strokeWidth: Length | null;
+    if (this.stroke.value === null || (strokeWidth = this.strokeWidth.value) === null) {
+      return null;
+    }
+
+    // save
+    const contextLineWidth = context.lineWidth;
+
+    const p = transform.transform(x, y);
+    context.beginPath();
+    context.arc(viewCenter.x, viewCenter.y, radius, 0, 2 * Math.PI);
+    context.lineWidth = strokeWidth.pxValue(size);
+    const pointInStroke = context.isPointInStroke(p.x, p.y);
+
+    // restore
+    context.lineWidth = contextLineWidth;
+
+    return pointInStroke ? this : null;
   }
 
   ripple(options?: GeoRippleOptions): GeoRippleView | null {

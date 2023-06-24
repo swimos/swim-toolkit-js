@@ -92,36 +92,23 @@ export class GeoPlotView extends GeoView implements StrokeView {
         child = child.nextSibling;
       }
       return points;
-    } else {
-      const oldGeoBounds = this.geoBounds;
-      let lngMin = Infinity;
-      let latMin = Infinity;
-      let lngMax = -Infinity;
-      let latMax = -Infinity;
-      let lngMid = 0;
-      let latMid = 0;
-      let invalid = false;
-      let i = 0;
-      child = this.firstChild;
-      while (child !== null && i < points.length) {
-        if (child instanceof GeoPointView) {
-          const point = points[i]!;
-          child.setState(point);
-          const {lng, lat} = child.geoPoint.getValue();
-          lngMid += lng;
-          latMid += lat;
-          lngMin = Math.min(lngMin, lng);
-          latMin = Math.min(latMin, lat);
-          lngMax = Math.max(lng, lngMax);
-          latMax = Math.max(lat, latMax);
-          invalid = invalid || !isFinite(lng) || !isFinite(lat);
-          i += 1;
-        }
-      }
-      while (i < points.length) {
-        const point = GeoPointView.fromAny(points[i]!);
-        this.appendChild(point);
-        const {lng, lat} = point.geoPoint.getValue();
+    }
+
+    const oldGeoBounds = this.geoBounds;
+    let lngMin = Infinity;
+    let latMin = Infinity;
+    let lngMax = -Infinity;
+    let latMax = -Infinity;
+    let lngMid = 0;
+    let latMid = 0;
+    let invalid = false;
+    let i = 0;
+    child = this.firstChild;
+    while (child !== null && i < points.length) {
+      if (child instanceof GeoPointView) {
+        const point = points[i]!;
+        child.setState(point);
+        const {lng, lat} = child.geoPoint.getValue();
         lngMid += lng;
         latMid += lat;
         lngMin = Math.min(lngMin, lng);
@@ -131,30 +118,43 @@ export class GeoPlotView extends GeoView implements StrokeView {
         invalid = invalid || !isFinite(lng) || !isFinite(lat);
         i += 1;
       }
-      while (child !== null) {
-        const next = child.nextSibling;
-        if (child instanceof GeoPointView) {
-          this.removeChild(child);
-        }
-        child = next;
-      }
-      if (!invalid && i !== 0) {
-        lngMid /= i;
-        latMid /= i;
-        this.geoCentroid.setValue(new GeoPoint(lngMid, latMid), Affinity.Intrinsic);
-        (this as Mutable<this>).geoBounds = new GeoBox(lngMin, latMin, lngMax, latMax);
-      } else {
-        this.geoCentroid.setValue(GeoPoint.origin(), Affinity.Intrinsic);
-        (this as Mutable<this>).geoBounds = GeoBox.undefined();
-      }
-      const newGeoBounds = this.geoBounds;
-      if (!oldGeoBounds.equals(newGeoBounds)) {
-        this.willSetGeoBounds(newGeoBounds, oldGeoBounds);
-        this.onSetGeoBounds(newGeoBounds, oldGeoBounds);
-        this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
-      }
-      return this;
     }
+    while (i < points.length) {
+      const point = GeoPointView.fromAny(points[i]!);
+      this.appendChild(point);
+      const {lng, lat} = point.geoPoint.getValue();
+      lngMid += lng;
+      latMid += lat;
+      lngMin = Math.min(lngMin, lng);
+      latMin = Math.min(latMin, lat);
+      lngMax = Math.max(lng, lngMax);
+      latMax = Math.max(lat, latMax);
+      invalid = invalid || !isFinite(lng) || !isFinite(lat);
+      i += 1;
+    }
+    while (child !== null) {
+      const next = child.nextSibling;
+      if (child instanceof GeoPointView) {
+        this.removeChild(child);
+      }
+      child = next;
+    }
+    if (invalid || i === 0) {
+      this.geoCentroid.setValue(GeoPoint.origin(), Affinity.Intrinsic);
+      (this as Mutable<this>).geoBounds = GeoBox.undefined();
+    } else {
+      lngMid /= i;
+      latMid /= i;
+      this.geoCentroid.setValue(new GeoPoint(lngMid, latMid), Affinity.Intrinsic);
+      (this as Mutable<this>).geoBounds = new GeoBox(lngMin, latMin, lngMax, latMax);
+    }
+    const newGeoBounds = this.geoBounds;
+    if (!oldGeoBounds.equals(newGeoBounds)) {
+      this.willSetGeoBounds(newGeoBounds, oldGeoBounds);
+      this.onSetGeoBounds(newGeoBounds, oldGeoBounds);
+      this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
+    }
+    return this;
   }
 
   appendPoint(point: AnyGeoPointView, key?: string): GeoPointView {
@@ -247,7 +247,13 @@ export class GeoPlotView extends GeoView implements StrokeView {
       }
       child = child.nextSibling;
     }
-    if (!invalid && pointCount !== 0) {
+    if (invalid || pointCount === 0) {
+      this.geoCentroid.setValue(GeoPoint.origin(), Affinity.Intrinsic);
+      (this as Mutable<this>).geoBounds = GeoBox.undefined();
+      this.viewCentroid.setValue(R2Point.origin(), Affinity.Intrinsic);
+      (this as Mutable<this>).viewBounds = R2Box.undefined();
+      this.setCulled(true);
+    } else {
       lngMid /= pointCount;
       latMid /= pointCount;
       this.geoCentroid.setValue(new GeoPoint(lngMid, latMid), Affinity.Intrinsic);
@@ -257,12 +263,6 @@ export class GeoPlotView extends GeoView implements StrokeView {
       this.viewCentroid.setValue(new R2Point(xMid, yMid), Affinity.Intrinsic);
       (this as Mutable<this>).viewBounds = new R2Box(xMin, yMin, xMax, yMax);
       this.cullGeoFrame(this.geoViewport.value.geoFrame);
-    } else {
-      this.geoCentroid.setValue(GeoPoint.origin(), Affinity.Intrinsic);
-      (this as Mutable<this>).geoBounds = GeoBox.undefined();
-      this.viewCentroid.setValue(R2Point.origin(), Affinity.Intrinsic);
-      (this as Mutable<this>).viewBounds = R2Box.undefined();
-      this.setCulled(true);
     }
     (this as Mutable<this>).gradientStops = gradientStops;
     const newGeoBounds = this.geoBounds;
@@ -288,40 +288,42 @@ export class GeoPlotView extends GeoView implements StrokeView {
 
   protected renderPlotStroke(context: PaintingContext, frame: R2Box): void {
     const stroke = this.stroke.value;
-    if (stroke !== null) {
-      let pointCount = 0;
-
-      context.beginPath();
-      let child = this.firstChild;
-      while (child !== null) {
-        if (child instanceof GeoPointView) {
-          const {x, y} = child.viewPoint.getValue();
-          if (pointCount === 0) {
-            context.moveTo(x, y);
-          } else {
-            context.lineTo(x, y);
-          }
-          pointCount += 1;
-        }
-        child = child.nextSibling;
-      }
-
-      if (pointCount !== 0) {
-        // save
-        const contextLineWidth = context.lineWidth;
-        const contextStrokeStyle = context.strokeStyle;
-
-        const size = Math.min(frame.width, frame.height);
-        const strokeWidth = this.strokeWidth.getValue().pxValue(size);
-        context.lineWidth = strokeWidth;
-        context.strokeStyle = stroke.toString();
-        context.stroke();
-
-        // restore
-        context.lineWidth = contextLineWidth;
-        context.strokeStyle = contextStrokeStyle;
-      }
+    if (stroke === null) {
+      return;
     }
+
+    let pointCount = 0;
+    context.beginPath();
+    let child = this.firstChild;
+    while (child !== null) {
+      if (child instanceof GeoPointView) {
+        const {x, y} = child.viewPoint.getValue();
+        if (pointCount === 0) {
+          context.moveTo(x, y);
+        } else {
+          context.lineTo(x, y);
+        }
+        pointCount += 1;
+      }
+      child = child.nextSibling;
+    }
+    if (pointCount === 0) {
+      return;
+    }
+
+    // save
+    const contextLineWidth = context.lineWidth;
+    const contextStrokeStyle = context.strokeStyle;
+
+    const size = Math.min(frame.width, frame.height);
+    const strokeWidth = this.strokeWidth.getValue().pxValue(size);
+    context.lineWidth = strokeWidth;
+    context.strokeStyle = stroke.toString();
+    context.stroke();
+
+    // restore
+    context.lineWidth = contextLineWidth;
+    context.strokeStyle = contextStrokeStyle;
   }
 
   protected renderPlotGradient(context: CanvasContext, frame: R2Box): void {
@@ -415,29 +417,26 @@ export class GeoPlotView extends GeoView implements StrokeView {
       }
       child = child.nextSibling;
     }
-
-    if (pointCount !== 0) {
-      // save
-      const contextLineWidth = context.lineWidth;
-
-      let hitWidth = this.hitWidth.getValueOr(0);
-      const strokeWidth = this.strokeWidth.value;
-      if (strokeWidth !== null) {
-        const size = Math.min(frame.width, frame.height);
-        hitWidth = Math.max(hitWidth, strokeWidth.pxValue(size));
-      }
-      context.lineWidth = hitWidth;
-      const pointInStroke = context.isPointInStroke(x, y);
-
-      // restore
-      context.lineWidth = contextLineWidth;
-
-      if (pointInStroke) {
-        return this;
-      }
+    if (pointCount === 0) {
+      return null;
     }
 
-    return null;
+    // save
+    const contextLineWidth = context.lineWidth;
+
+    let hitWidth = this.hitWidth.getValueOr(0);
+    const strokeWidth = this.strokeWidth.value;
+    if (strokeWidth !== null) {
+      const size = Math.min(frame.width, frame.height);
+      hitWidth = Math.max(hitWidth, strokeWidth.pxValue(size));
+    }
+    context.lineWidth = hitWidth;
+    const pointInStroke = context.isPointInStroke(x, y);
+
+    // restore
+    context.lineWidth = contextLineWidth;
+
+    return pointInStroke ? this : null;
   }
 
   ripple(options?: GeoRippleOptions): GeoRippleView | null {

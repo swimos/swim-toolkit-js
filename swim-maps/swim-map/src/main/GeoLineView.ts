@@ -83,27 +83,30 @@ export class GeoLineView extends GeoPathView implements StrokeView {
 
   protected renderLine(context: PaintingContext, frame: R2Box): void {
     const viewPath = this.viewPath.value;
-    if (viewPath !== null && viewPath.isDefined()) {
-      const stroke = this.stroke.value;
-      const strokeWidth = this.strokeWidth.value;
-      if (stroke !== null && strokeWidth !== null) {
-        // save
-        const contextLineWidth = context.lineWidth;
-        const contextStrokeStyle = context.strokeStyle;
-
-        context.beginPath();
-        viewPath.draw(context);
-
-        const size = Math.min(frame.width, frame.height);
-        context.lineWidth = strokeWidth.pxValue(size);
-        context.strokeStyle = stroke.toString();
-        context.stroke();
-
-        // restore
-        context.lineWidth = contextLineWidth;
-        context.strokeStyle = contextStrokeStyle;
-      }
+    if (viewPath === null || !viewPath.isDefined()) {
+      return;
     }
+    const stroke = this.stroke.value;
+    const strokeWidth = this.strokeWidth.value;
+    if (stroke === null || strokeWidth === null) {
+      return;
+    }
+
+    // save
+    const contextLineWidth = context.lineWidth;
+    const contextStrokeStyle = context.strokeStyle;
+
+    context.beginPath();
+    viewPath.draw(context);
+
+    const size = Math.min(frame.width, frame.height);
+    context.lineWidth = strokeWidth.pxValue(size);
+    context.strokeStyle = stroke.toString();
+    context.stroke();
+
+    // restore
+    context.lineWidth = contextLineWidth;
+    context.strokeStyle = contextStrokeStyle;
   }
 
   protected override hitTest(x: number, y: number): GraphicsView | null {
@@ -117,32 +120,29 @@ export class GeoLineView extends GeoPathView implements StrokeView {
 
   protected hitTestLine(x: number, y: number, context: CanvasContext, frame: R2Box): GraphicsView | null {
     const viewPath = this.viewPath.value;
-    if (viewPath !== null && viewPath.isDefined()) {
-      if (this.stroke.value !== null) {
-        // save
-        const contextLineWidth = context.lineWidth;
-
-        context.beginPath();
-        viewPath.draw(context);
-
-        let hitWidth = this.hitWidth.getValueOr(0);
-        const strokeWidth = this.strokeWidth.value;
-        if (strokeWidth !== null) {
-          const size = Math.min(frame.width, frame.height);
-          hitWidth = Math.max(hitWidth, strokeWidth.pxValue(size));
-        }
-        context.lineWidth = hitWidth;
-        const pointInStroke = context.isPointInStroke(x, y);
-
-        // restore
-        context.lineWidth = contextLineWidth;
-
-        if (pointInStroke) {
-          return this;
-        }
-      }
+    if (viewPath === null || !viewPath.isDefined() || this.stroke.value === null) {
+      return null;
     }
-    return null;
+
+    // save
+    const contextLineWidth = context.lineWidth;
+
+    context.beginPath();
+    viewPath.draw(context);
+
+    let hitWidth = this.hitWidth.getValueOr(0);
+    const strokeWidth = this.strokeWidth.value;
+    if (strokeWidth !== null) {
+      const size = Math.min(frame.width, frame.height);
+      hitWidth = Math.max(hitWidth, strokeWidth.pxValue(size));
+    }
+    context.lineWidth = hitWidth;
+    const pointInStroke = context.isPointInStroke(x, y);
+
+    // restore
+    context.lineWidth = contextLineWidth;
+
+    return pointInStroke ? this : null;
   }
 
   override init(init: GeoLineViewInit): void {

@@ -211,29 +211,19 @@ export class MapboxView extends MapView {
   })
   override readonly container!: ViewRef<this, HtmlView> & MapView["container"];
 
-  @ViewRef({
-    viewType: HtmlView,
-  })
+  @ViewRef({viewType: HtmlView})
   readonly controlContainer!: ViewRef<this, HtmlView>;
 
-  @ViewRef({
-    viewType: HtmlView,
-  })
+  @ViewRef({viewType: HtmlView})
   readonly topLeftControls!: ViewRef<this, HtmlView>;
 
-  @ViewRef({
-    viewType: HtmlView,
-  })
+  @ViewRef({viewType: HtmlView})
   readonly topRightControls!: ViewRef<this, HtmlView>;
 
-  @ViewRef({
-    viewType: HtmlView,
-  })
+  @ViewRef({viewType: HtmlView})
   readonly bottomLeftControls!: ViewRef<this, HtmlView>;
 
-  @ViewRef({
-    viewType: HtmlView,
-  })
+  @ViewRef({viewType: HtmlView})
   readonly bottomRightControls!: ViewRef<this, HtmlView>;
 
   protected override onResize(): void {
@@ -248,32 +238,33 @@ export class MapboxView extends MapView {
 
   protected layoutControls(): void {
     const containerView = this.container.view;
-    if (containerView !== null) {
-      const edgeInsets = containerView.edgeInsets.value;
-      const top = Math.max(containerView.paddingTop.pxState(), edgeInsets.insetTop);
-      const right = Math.max(containerView.paddingRight.pxState(), edgeInsets.insetRight);
-      const bottom = Math.max(containerView.paddingBottom.pxState(), edgeInsets.insetBottom);
-      const left = Math.max(containerView.paddingLeft.pxState(), edgeInsets.insetLeft);
-      const topLeftControlsView = this.topLeftControls.view;
-      if (topLeftControlsView !== null) {
-        topLeftControlsView.top.setState(top, Affinity.Intrinsic);
-        topLeftControlsView.left.setState(left, Affinity.Intrinsic);
-      }
-      const topRightControlsView = this.topRightControls.view;
-      if (topRightControlsView !== null) {
-        topRightControlsView.top.setState(top, Affinity.Intrinsic);
-        topRightControlsView.right.setState(right, Affinity.Intrinsic);
-      }
-      const bottomLeftControlsView = this.bottomLeftControls.view;
-      if (bottomLeftControlsView !== null) {
-        bottomLeftControlsView.bottom.setState(bottom, Affinity.Intrinsic);
-        bottomLeftControlsView.left.setState(left, Affinity.Intrinsic);
-      }
-      const bottomRightControlsView = this.bottomRightControls.view;
-      if (bottomRightControlsView !== null) {
-        bottomRightControlsView.bottom.setState(bottom, Affinity.Intrinsic);
-        bottomRightControlsView.right.setState(right, Affinity.Intrinsic);
-      }
+    if (containerView === null) {
+      return;
+    }
+    const edgeInsets = containerView.edgeInsets.value;
+    const top = Math.max(containerView.paddingTop.pxState(), edgeInsets.insetTop);
+    const right = Math.max(containerView.paddingRight.pxState(), edgeInsets.insetRight);
+    const bottom = Math.max(containerView.paddingBottom.pxState(), edgeInsets.insetBottom);
+    const left = Math.max(containerView.paddingLeft.pxState(), edgeInsets.insetLeft);
+    const topLeftControlsView = this.topLeftControls.view;
+    if (topLeftControlsView !== null) {
+      topLeftControlsView.top.setState(top, Affinity.Intrinsic);
+      topLeftControlsView.left.setState(left, Affinity.Intrinsic);
+    }
+    const topRightControlsView = this.topRightControls.view;
+    if (topRightControlsView !== null) {
+      topRightControlsView.top.setState(top, Affinity.Intrinsic);
+      topRightControlsView.right.setState(right, Affinity.Intrinsic);
+    }
+    const bottomLeftControlsView = this.bottomLeftControls.view;
+    if (bottomLeftControlsView !== null) {
+      bottomLeftControlsView.bottom.setState(bottom, Affinity.Intrinsic);
+      bottomLeftControlsView.left.setState(left, Affinity.Intrinsic);
+    }
+    const bottomRightControlsView = this.bottomRightControls.view;
+    if (bottomRightControlsView !== null) {
+      bottomRightControlsView.bottom.setState(bottom, Affinity.Intrinsic);
+      bottomRightControlsView.right.setState(right, Affinity.Intrinsic);
     }
   }
 
@@ -298,16 +289,18 @@ export class MapboxView extends MapView {
       }
     },
     update(): void {
-      if (this.hasAffinity(Affinity.Intrinsic)) {
-        const viewportService = this.owner.viewport.service;
-        if (viewportService !== null) {
-          const colorScheme = viewportService.colorScheme.value;
-          if (colorScheme === "dark") {
-            this.setValue(this.dark, Affinity.Intrinsic);
-          } else {
-            this.setValue(this.light, Affinity.Intrinsic);
-          }
-        }
+      if (!this.hasAffinity(Affinity.Intrinsic)) {
+        return;
+      }
+      const viewportService = this.owner.viewport.service;
+      if (viewportService === null) {
+        return;
+      }
+      const colorScheme = viewportService.colorScheme.value;
+      if (colorScheme === "dark") {
+        this.setValue(this.dark, Affinity.Intrinsic);
+      } else {
+        this.setValue(this.light, Affinity.Intrinsic);
       }
     },
   })

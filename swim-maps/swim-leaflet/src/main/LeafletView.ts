@@ -72,9 +72,10 @@ export class LeafletView extends MapView {
       this.owner.requireUpdate(View.NeedsProject, immediate);
     },
     update(): void {
-      if (this.hasAffinity(Affinity.Intrinsic)) {
-        this.setValue(LeafletViewport.create(this.owner.map), Affinity.Intrinsic);
+      if (!this.hasAffinity(Affinity.Intrinsic)) {
+        return;
       }
+      this.setValue(LeafletViewport.create(this.owner.map), Affinity.Intrinsic);
     },
   })
   override readonly geoViewport!: Property<this, GeoViewport> & MapView["geoViewport"] & {

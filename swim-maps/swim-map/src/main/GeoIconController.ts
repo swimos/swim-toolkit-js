@@ -49,54 +49,54 @@ export class GeoIconController extends GeoController {
 
   protected setGeoCenter(geoCenter: GeoPoint | null, geoTrait: GeoIconTrait, timing?: AnyTiming | boolean): void {
     const geoView = this.geo.view;
-    if (geoView !== null) {
-      if (timing === void 0 || timing === true) {
-        timing = this.geoTiming.value;
-        if (timing === true) {
-          timing = geoView.getLook(Look.timing, Mood.ambient);
-        }
-      } else {
-        timing = Timing.fromAny(timing);
+    if (geoView === null) {
+      return;
+    } else if (timing === void 0 || timing === true) {
+      timing = this.geoTiming.value;
+      if (timing === true) {
+        timing = geoView.getLook(Look.timing, Mood.ambient);
       }
-      geoView.geoCenter.setState(geoCenter, timing, Affinity.Intrinsic);
+    } else {
+      timing = Timing.fromAny(timing);
     }
+    geoView.geoCenter.setState(geoCenter, timing, Affinity.Intrinsic);
   }
 
   protected setIconLayout(iconLayout: IconLayout | null, geoTrait: GeoIconTrait, timing?: AnyTiming | boolean): void {
     const geoView = this.geo.view;
-    if (geoView !== null && iconLayout !== null) {
-      if (timing === void 0 || timing === true) {
-        timing = this.geoTiming.value;
-        if (timing === true) {
-          timing = geoView.getLook(Look.timing, Mood.ambient);
-        }
-      } else {
-        timing = Timing.fromAny(timing);
+    if (geoView === null || iconLayout === null) {
+      return;
+    } else if (timing === void 0 || timing === true) {
+      timing = this.geoTiming.value;
+      if (timing === true) {
+        timing = geoView.getLook(Look.timing, Mood.ambient);
       }
-      geoView.iconWidth.setState(iconLayout.iconWidth, timing, Affinity.Intrinsic);
-      geoView.iconHeight.setState(iconLayout.iconHeight, timing, Affinity.Intrinsic);
-      if (iconLayout.xAlign !== void 0) {
-        geoView.xAlign.setState(iconLayout.xAlign, timing, Affinity.Intrinsic);
-      }
-      if (iconLayout.yAlign !== void 0) {
-        geoView.yAlign.setState(iconLayout.yAlign, timing, Affinity.Intrinsic);
-      }
+    } else {
+      timing = Timing.fromAny(timing);
+    }
+    geoView.iconWidth.setState(iconLayout.iconWidth, timing, Affinity.Intrinsic);
+    geoView.iconHeight.setState(iconLayout.iconHeight, timing, Affinity.Intrinsic);
+    if (iconLayout.xAlign !== void 0) {
+      geoView.xAlign.setState(iconLayout.xAlign, timing, Affinity.Intrinsic);
+    }
+    if (iconLayout.yAlign !== void 0) {
+      geoView.yAlign.setState(iconLayout.yAlign, timing, Affinity.Intrinsic);
     }
   }
 
   protected setGraphics(graphics: Graphics | null, geoTrait: GeoIconTrait, timing?: AnyTiming | boolean): void {
     const geoView = this.geo.view;
-    if (geoView !== null) {
-      if (timing === void 0 || timing === true) {
-        timing = this.geoTiming.value;
-        if (timing === true) {
-          timing = geoView.getLook(Look.timing, Mood.ambient);
-        }
-      } else {
-        timing = Timing.fromAny(timing);
+    if (geoView === null) {
+      return;
+    } else if (timing === void 0 || timing === true) {
+      timing = this.geoTiming.value;
+      if (timing === true) {
+        timing = geoView.getLook(Look.timing, Mood.ambient);
       }
-      geoView.graphics.setState(graphics, timing, Affinity.Intrinsic);
+    } else {
+      timing = Timing.fromAny(timing);
     }
+    geoView.graphics.setState(graphics, timing, Affinity.Intrinsic);
   }
 
   @TraitViewRef({
@@ -107,11 +107,12 @@ export class GeoIconController extends GeoController {
     },
     didAttachTrait(geoTrait: GeoIconTrait): void {
       const geoView = this.view;
-      if (geoView !== null) {
-        this.owner.setGeoCenter(geoTrait.geoCenter.value, geoTrait);
-        this.owner.setIconLayout(geoTrait.iconLayout.value, geoTrait);
-        this.owner.setGraphics(geoTrait.graphics.value, geoTrait);
+      if (geoView === null) {
+        return;
       }
+      this.owner.setGeoCenter(geoTrait.geoCenter.value, geoTrait);
+      this.owner.setIconLayout(geoTrait.iconLayout.value, geoTrait);
+      this.owner.setGraphics(geoTrait.graphics.value, geoTrait);
     },
     didDetachTrait(geoTrait: GeoIconTrait): void {
       this.owner.callObservers("controllerDidDetachGeoTrait", geoTrait, this.owner);
@@ -132,11 +133,12 @@ export class GeoIconController extends GeoController {
     },
     didAttachView(geoView: GeoIconView): void {
       const geoTrait = this.trait;
-      if (geoTrait !== null) {
-        this.owner.setGeoCenter(geoTrait.geoCenter.value, geoTrait);
-        this.owner.setIconLayout(geoTrait.iconLayout.value, geoTrait);
-        this.owner.setGraphics(geoTrait.graphics.value, geoTrait);
+      if (geoTrait === null) {
+        return;
       }
+      this.owner.setGeoCenter(geoTrait.geoCenter.value, geoTrait);
+      this.owner.setIconLayout(geoTrait.iconLayout.value, geoTrait);
+      this.owner.setGraphics(geoTrait.graphics.value, geoTrait);
     },
     didDetachView(geoView: GeoIconView): void {
       this.owner.callObservers("controllerDidDetachGeoView", geoView, this.owner);

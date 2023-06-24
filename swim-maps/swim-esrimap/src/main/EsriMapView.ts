@@ -66,9 +66,10 @@ export class EsriMapView extends EsriView {
       this.owner.requireUpdate(View.NeedsProject, immediate);
     },
     update(): void {
-      if (this.hasAffinity(Affinity.Intrinsic)) {
-        this.setValue(EsriMapViewport.create(this.owner.map), Affinity.Intrinsic);
+      if (!this.hasAffinity(Affinity.Intrinsic)) {
+        return;
       }
+      this.setValue(EsriMapViewport.create(this.owner.map), Affinity.Intrinsic);
     },
   })
   override readonly geoViewport!: Property<this, GeoViewport> & EsriView["geoViewport"] & {
