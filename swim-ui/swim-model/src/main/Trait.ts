@@ -1416,6 +1416,14 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     return null;
   }
 
+  /** @override */
+  attachFastener(fastener: Fastener): void {
+    if (this.mounted) {
+      fastener.mount();
+    }
+    this.bindFastener(fastener);
+  }
+
   /** @internal */
   protected mountFasteners(): void {
     const fastenerNames = FastenerContext.getFastenerNames(this);

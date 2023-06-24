@@ -99,7 +99,9 @@ export class PopoverView extends HtmlView implements ModalView {
       this.owner.place();
     },
   })
-  override readonly backgroundColor!: StyleAnimator<this, Color | null, AnyColor | null>;
+  override get backgroundColor(): StyleAnimator<this, Color | null, AnyColor | null> {
+    return StyleAnimator.dummy();
+  }
 
   @ThemeAnimator({valueType: Length, value: Length.zero()})
   readonly placementGap!: ThemeAnimator<this, Length, AnyLength>;

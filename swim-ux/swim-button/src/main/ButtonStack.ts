@@ -81,7 +81,9 @@ export class ButtonStack extends HtmlView implements ModalView {
       }
     },
   })
-  override readonly opacity!: StyleAnimator<this, number | undefined>;
+  override get opacity(): StyleAnimator<this, number | undefined> {
+    return StyleAnimator.dummy();
+  }
 
   get closeIcon(): Graphics {
     return ButtonStack.closeIcon;

@@ -19,14 +19,14 @@ mapboxgl.accessToken = "pk.eyJ1Ijoic3dpbWl0IiwiYSI6ImNqY2c3NXZkYzFoa2QycXQ1eXl1M
 const bodyView = swim.HtmlView.fromNode(document.body);
 
 const ExampleMapboxController = (function () {
-  const extraInitializers = [];
+  const instanceInitializers = [];
   const mapInitializers = [];
   const canvasInitializers = [];
   const layersInitializers = [];
   class ExampleMapboxController extends swim.MapController {
     constructor() {
       super();
-      __runInitializers(this, extraInitializers);
+      __runInitializers(this, instanceInitializers);
       this.map = __runInitializers(this, mapInitializers, this.map);
       this.canvas = __runInitializers(this, canvasInitializers, this.canvas);
       this.layers = __runInitializers(this, layersInitializers, this.layers);
@@ -47,14 +47,14 @@ const ExampleMapboxController = (function () {
       super.initView(mapView);
       mapView.modifyMood(swim.Feel.default, [[swim.Feel.primary, 1]]);
     },
-  })], {kind: "field", name: "map", static: false, private: false, access: {has: obj => "map" in obj, get: obj => obj.map, set: (obj, value) => { obj.map = value; }}}, mapInitializers, extraInitializers);
+  })], {kind: "field", name: "map", static: false, private: false, access: {has: obj => "map" in obj, get: obj => obj.map, set: (obj, value) => { obj.map = value; }}}, mapInitializers, instanceInitializers);
   __esDecorate(null, null, [swim.ViewRef({
     extends: true,
     initView(canvasView) {
       super.initView(canvasView);
       canvasView.pointerEventsEnabled(true).touchAction("manipulation");
     },
-  })], {kind: "field", name: "canvas", static: false, private: false, access: {has: obj => "canvas" in obj, get: obj => obj.canvas, set: (obj, value) => { obj.canvas = value; }}}, canvasInitializers, extraInitializers);
+  })], {kind: "field", name: "canvas", static: false, private: false, access: {has: obj => "canvas" in obj, get: obj => obj.canvas, set: (obj, value) => { obj.canvas = value; }}}, canvasInitializers, instanceInitializers);
   __esDecorate(null, null, [swim.TraitViewControllerSet({
     extends: true,
     createController(layerTrait) {
@@ -64,7 +64,7 @@ const ExampleMapboxController = (function () {
         return super.createController(layerTrait);
       }
     },
-  })], {kind: "field", name: "layers", static: false, private: false, access: {has: obj => "layers" in obj, get: obj => obj.layers, set: (obj, value) => { obj.layers = value; }}}, layersInitializers, extraInitializers);
+  })], {kind: "field", name: "layers", static: false, private: false, access: {has: obj => "layers" in obj, get: obj => obj.layers, set: (obj, value) => { obj.layers = value; }}}, layersInitializers, instanceInitializers);
   return ExampleMapboxController;
 })();
 

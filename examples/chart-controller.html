@@ -28,13 +28,13 @@ const canvasView = swim.CanvasView.create()
     .touchAction("manipulation");
 
 const ExampleChartController = (function () {
-  const extraInitializers = [];
+  const instanceInitializers = [];
   const chartInitializers = [];
   const plotsInitializers = [];
   class ExampleChartController extends swim.ChartController {
     constructor() {
       super();
-      __runInitializers(this, extraInitializers);
+      __runInitializers(this, instanceInitializers);
       this.chart = __runInitializers(this, chartInitializers, this.chart);
       this.plots = __runInitializers(this, plotsInitializers, this.plots);
     }
@@ -54,7 +54,7 @@ const ExampleChartController = (function () {
                .yScaleGestures(true)
                .font("12px sans-serif");
     },
-  })], {kind: "field", name: "chart", static: false, private: false, access: {has: obj => "chart" in obj, get: obj => obj.chart, set: (obj, value) => { obj.chart = value; }}}, chartInitializers, extraInitializers);
+  })], {kind: "field", name: "chart", static: false, private: false, access: {has: obj => "chart" in obj, get: obj => obj.chart, set: (obj, value) => { obj.chart = value; }}}, chartInitializers, instanceInitializers);
   __esDecorate(null, null, [swim.TraitViewControllerSet({
     extends: true,
     attachPlotView(plotView, plotController) {
@@ -67,7 +67,7 @@ const ExampleChartController = (function () {
         plotView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, void 0]], true);
       });
     },
-  })], {kind: "field", name: "plots", static: false, private: false, access: {has: obj => "plots" in obj, get: obj => obj.plots, set: (obj, value) => { obj.plots = value; }}}, plotsInitializers, extraInitializers);
+  })], {kind: "field", name: "plots", static: false, private: false, access: {has: obj => "plots" in obj, get: obj => obj.plots, set: (obj, value) => { obj.plots = value; }}}, plotsInitializers, instanceInitializers);
   return ExampleChartController;
 })();
 

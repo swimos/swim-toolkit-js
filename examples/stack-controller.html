@@ -40,13 +40,13 @@ if (navigator.standalone) {
 const bodyView = swim.HtmlView.fromNode(document.body);
 
 const ExampleStackController = (function () {
-  const extraInitializers = [];
+  const instanceInitializers = [];
   const navBarInitializers = [];
   const sheetsInitializers = [];
   class ExampleStackController extends swim.StackController {
     constructor() {
       super();
-      __runInitializers(this, extraInitializers);
+      __runInitializers(this, instanceInitializers);
       this.navBar = __runInitializers(this, navBarInitializers, this.navBar);
       this.sheets = __runInitializers(this, sheetsInitializers, this.sheets);
     }
@@ -70,7 +70,7 @@ const ExampleStackController = (function () {
     controllerDidCancelSearch(inputView, navBarController) {
       this.owner.front.controller.searching.setValue(false);
     },
-  })], {kind: "field", name: "navBar", static: false, private: false, access: {has: obj => "navBar" in obj, get: obj => obj.navBar, set: (obj, value) => { obj.navBar = value; }}}, navBarInitializers, extraInitializers);
+  })], {kind: "field", name: "navBar", static: false, private: false, access: {has: obj => "navBar" in obj, get: obj => obj.navBar, set: (obj, value) => { obj.navBar = value; }}}, navBarInitializers, instanceInitializers);
   __esDecorate(null, null, [swim.TraitViewControllerSet({
     extends: true,
     attachSheetView(sheetView, sheetController) {
@@ -82,7 +82,7 @@ const ExampleStackController = (function () {
         headerView.cursor("pointer").userSelect("none");
       }
     },
-  })], {kind: "field", name: "sheets", static: false, private: false, access: {has: obj => "sheets" in obj, get: obj => obj.sheets, set: (obj, value) => { obj.appBar = value; }}}, sheetsInitializers, extraInitializers);
+  })], {kind: "field", name: "sheets", static: false, private: false, access: {has: obj => "sheets" in obj, get: obj => obj.sheets, set: (obj, value) => { obj.appBar = value; }}}, sheetsInitializers, instanceInitializers);
   return ExampleStackController;
 })();
 

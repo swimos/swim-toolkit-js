@@ -60,7 +60,9 @@ export class ButtonGlow extends HtmlView {
       this.owner.didGlow();
     },
   })
-  override readonly left!: LengthStyleConstraintAnimator<this, Length | null, AnyLength | null>;
+  override get left(): LengthStyleConstraintAnimator<this, Length | null, AnyLength | null> {
+    return LengthStyleConstraintAnimator.dummy();
+  }
 
   @StyleAnimator({
     extends: true,
@@ -72,7 +74,9 @@ export class ButtonGlow extends HtmlView {
       }
     },
   })
-  override readonly opacity!: StyleAnimator<this, number | undefined>;
+  override get opacity(): StyleAnimator<this, number | undefined> {
+    return StyleAnimator.dummy();
+  }
 
   protected override didMount(): void {
     if (this.backgroundColor.hasAffinity(Affinity.Intrinsic)) {

@@ -131,6 +131,9 @@ export interface StyleRule<O = unknown> extends CssRule<O, CSSStyleRule>, Fasten
   /** @override */
   getParentFastener<F extends Fastener<any>>(fastenerName: string, fastenerType: Proto<F>, contextType?: Proto<unknown>): F | null;
 
+  /** @override */
+  attachFastener(fastener: Fastener): void;
+
   /** @internal @protected */
   mountFasteners(): void;
 
@@ -163,9 +166,9 @@ export interface StyleRule<O = unknown> extends CssRule<O, CSSStyleRule>, Fasten
 export const StyleRule = (function (_super: typeof CssRule) {
   const StyleRule = _super.extend("StyleRule", {}) as FastenerClass<StyleRule<any>> & {
     /** @internal */
-    readonly initializerMap: {[name: string | symbol]: Function[]};
+    readonly fieldInitializers: {[name: string | symbol]: Function[]};
     /** @internal */
-    readonly extraInitializers: Function[];
+    readonly instanceInitializers: Function[];
   };
 
   Object.defineProperty(StyleRule.prototype, "fastenerType", {
@@ -372,6 +375,12 @@ export const StyleRule = (function (_super: typeof CssRule) {
     return null;
   };
 
+  StyleRule.prototype.attachFastener = function (this: StyleRule, fastener: Fastener): void {
+    if (this.mounted) {
+      fastener.mount();
+    }
+  };
+
   StyleRule.prototype.mountFasteners = function (this: StyleRule): void {
     const fastenerNames = FastenerContext.getFastenerNames(this);
     for (let i = 0; i < fastenerNames.length; i += 1) {
@@ -455,16 +464,16 @@ export const StyleRule = (function (_super: typeof CssRule) {
     _super.prototype.onUnmount.call(this);
   };
 
-  (StyleRule as Mutable<typeof StyleRule>).initializerMap = {};
-  (StyleRule as Mutable<typeof StyleRule>).extraInitializers = [];
-  StyleMap.define(StyleRule.prototype, StyleRule.initializerMap, StyleRule.extraInitializers);
+  (StyleRule as Mutable<typeof StyleRule>).fieldInitializers = {};
+  (StyleRule as Mutable<typeof StyleRule>).instanceInitializers = [];
+  StyleMap.define(StyleRule, StyleRule.fieldInitializers, StyleRule.instanceInitializers);
 
   StyleRule.construct = function <F extends StyleRule<any>>(fastener: F | null, owner: F extends StyleRule<infer O> ? O : never): F {
     fastener = _super.construct.call(this, fastener, owner) as F;
     (fastener as Mutable<typeof fastener>).decoherent = null;
-    __runInitializers(fastener, StyleRule.extraInitializers);
-    for (const key in StyleRule.initializerMap) {
-      (fastener as any)[key] = __runInitializers(fastener, StyleRule.initializerMap[key]!, void 0);
+    __runInitializers(fastener, StyleRule.instanceInitializers);
+    for (const key in StyleRule.fieldInitializers) {
+      (fastener as any)[key] = __runInitializers(fastener, StyleRule.fieldInitializers[key]!, void 0);
     }
     if (fastener.style !== void 0) {
       StyleMap.init(fastener, fastener.style);

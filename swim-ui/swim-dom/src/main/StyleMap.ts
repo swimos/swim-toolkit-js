@@ -13,10 +13,12 @@
 // limitations under the License.
 
 import {__esDecorate} from "tslib";
+import type {Proto} from "@swim/util";
 import {Values} from "@swim/util";
 import {Equals} from "@swim/util";
 import type {AnyTiming} from "@swim/util";
 import type {FastenerDecorator} from "@swim/component";
+import {Fastener} from "@swim/component";
 import {Property} from "@swim/component";
 import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
@@ -38,32 +40,32 @@ import {BoxShadow} from "@swim/style";
 import {StyleAnimator} from "./StyleAnimator";
 import {LengthStyleAnimator} from "./StyleAnimator";
 import {LengthStyleConstraintAnimator} from "./StyleConstraintAnimator";
-import type {AlignContent} from "./css";
-import type {AlignItems} from "./css";
-import type {AlignSelf} from "./css";
-import type {Appearance} from "./css";
-import type {BackgroundClip} from "./css";
-import type {BorderCollapse} from "./css";
-import type {BorderStyle} from "./css";
-import type {BoxSizing} from "./css";
-import type {CssCursor} from "./css";
-import type {CssDisplay} from "./css";
-import type {FlexBasis} from "./css";
-import type {FlexDirection} from "./css";
-import type {FlexWrap} from "./css";
-import type {JustifyContent} from "./css";
-import type {Overflow} from "./css";
-import type {OverscrollBehavior} from "./css";
-import type {PointerEvents} from "./css";
-import type {Position} from "./css";
-import type {TextAlign} from "./css";
-import type {TextDecorationStyle} from "./css";
-import type {TextTransform} from "./css";
-import type {TouchAction} from "./css";
-import type {UserSelect} from "./css";
-import type {VerticalAlign} from "./css";
-import type {Visibility} from "./css";
-import type {WhiteSpace} from "./css";
+import type {AlignContent} from "./csstypes";
+import type {AlignItems} from "./csstypes";
+import type {AlignSelf} from "./csstypes";
+import type {Appearance} from "./csstypes";
+import type {BackgroundClip} from "./csstypes";
+import type {BorderCollapse} from "./csstypes";
+import type {BorderStyle} from "./csstypes";
+import type {BoxSizing} from "./csstypes";
+import type {CssCursor} from "./csstypes";
+import type {CssDisplay} from "./csstypes";
+import type {FlexBasis} from "./csstypes";
+import type {FlexDirection} from "./csstypes";
+import type {FlexWrap} from "./csstypes";
+import type {JustifyContent} from "./csstypes";
+import type {Overflow} from "./csstypes";
+import type {OverscrollBehavior} from "./csstypes";
+import type {PointerEvents} from "./csstypes";
+import type {Position} from "./csstypes";
+import type {TextAlign} from "./csstypes";
+import type {TextDecorationStyle} from "./csstypes";
+import type {TextTransform} from "./csstypes";
+import type {TouchAction} from "./csstypes";
+import type {UserSelect} from "./csstypes";
+import type {VerticalAlign} from "./csstypes";
+import type {Visibility} from "./csstypes";
+import type {WhiteSpace} from "./csstypes";
 import type {StyleContext} from "./StyleContext";
 
 /** @public */
@@ -286,11 +288,15 @@ export const StyleMap = (function () {
     init(map: StyleMap, init: StyleMapInit): void;
 
     /** @internal */
-    decorate<K extends keyof StyleMap>(name: K, decorators: StyleMap[K] extends StyleAnimator<any, any, any> ? FastenerDecorator<StyleMap[K]>[] : never,
-                                       initializerMap: {[name: string | symbol]: Function[]}, extraInitializers: Function[]): void;
+    defineField<K extends keyof StyleMap>(constructor: Proto<StyleMap>, name: K, decorators: StyleMap[K] extends StyleAnimator<any, any, any> ? FastenerDecorator<StyleMap[K]>[] : never,
+                                          fieldInitializers: {[name: string | symbol]: Function[]}, instanceInitializers: Function[]): void;
 
     /** @internal */
-    define(prototype: StyleMap, initializerMap: {[name: string | symbol]: Function[]}, extraInitializers: Function[]): void;
+    defineGetter<K extends keyof StyleMap>(constructor: Proto<StyleMap>, name: K, decorators: StyleMap[K] extends StyleAnimator<any, any, any> ? FastenerDecorator<StyleMap[K]>[] : never,
+                                           fieldInitializers: {[name: string | symbol]: Function[]}, instanceInitializers: Function[]): void;
+
+    /** @internal */
+    define(constructor: Proto<StyleMap>, fieldInitializers: {[name: string | symbol]: Function[]}, instanceInitializers: Function[]): void;
 
     /** @internal */
     pctWidthUnit(node: Node | undefined): number;
@@ -308,8 +314,8 @@ export const StyleMap = (function () {
     }
   };
 
-  StyleMap.decorate = function <K extends keyof StyleMap>(name: K, decorators: StyleMap[K] extends StyleAnimator<any, any, any> ? FastenerDecorator<StyleMap[K]>[] : never,
-                                                          initializerMap: {[name: string | symbol]: Function[]}, extraInitializers: Function[]): void {
+  StyleMap.defineField = function <K extends keyof StyleMap>(constructor: Proto<StyleMap>, name: K, decorators: StyleMap[K] extends StyleAnimator<any, any, any> ? FastenerDecorator<StyleMap[K]>[] : never,
+                                                             fieldInitializers: {[name: string | symbol]: Function[]}, instanceInitializers: Function[]): void {
     __esDecorate(null, null, decorators as Function[], {
       kind: "field",
       name,
@@ -326,47 +332,73 @@ export const StyleMap = (function () {
           obj[name] = value;
         },
       },
-    }, initializerMap[name] = [], extraInitializers);
+    }, fieldInitializers[name] = [], instanceInitializers);
   };
 
-  StyleMap.define = function (prototype: StyleMap, initializerMap: {[name: string | symbol]: Function[]}, extraInitializers: Function[]): void {
-    StyleMap.decorate("alignContent", [StyleAnimator({
+  StyleMap.defineGetter = function <K extends keyof StyleMap>(constructor: Proto<StyleMap>, name: K, decorators: StyleMap[K] extends StyleAnimator<any, any, any> ? FastenerDecorator<StyleMap[K]>[] : never,
+                                                              fieldInitializers: {[name: string | symbol]: Function[]}, instanceInitializers: Function[]): void {
+    Object.defineProperty(constructor.prototype, name, {
+      get: Fastener.dummy,
+      enumerable: true,
+      configurable: true,
+    });
+    __esDecorate(constructor, null, decorators as Function[], {
+      kind: "getter",
+      name,
+      static: false,
+      private: false,
+      access: {
+        has(obj: StyleMap): boolean {
+          return name in obj;
+        },
+        get(obj: StyleMap): StyleMap[K] {
+          return obj[name];
+        },
+        set(obj: StyleMap, value: StyleMap[K]): void {
+          obj[name] = value;
+        },
+      },
+    }, null, instanceInitializers);
+  };
+
+  StyleMap.define = function (constructor: Proto<StyleMap>, fieldInitializers: {[name: string | symbol]: Function[]}, instanceInitializers: Function[]): void {
+    StyleMap.defineGetter(constructor, "alignContent", [StyleAnimator({
       propertyNames: "align-content",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("alignItems", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "alignItems", [StyleAnimator({
       propertyNames: "align-items",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("alignSelf", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "alignSelf", [StyleAnimator({
       propertyNames: "align-self",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("appearance", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "appearance", [StyleAnimator({
       propertyNames: ["appearance", "-webkit-appearance"],
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("backdropFilter", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "backdropFilter", [StyleAnimator({
       propertyNames: ["backdrop-filter", "-webkit-backdrop-filter"],
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("backgroundClip", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "backgroundClip", [StyleAnimator({
       propertyNames: ["background-clip", "-webkit-background-clip"],
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("backgroundColor", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "backgroundColor", [StyleAnimator({
       propertyNames: "background-color",
       valueType: Color,
       value: null,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("backgroundImage", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "backgroundImage", [StyleAnimator({
       propertyNames: "background-image",
       value: null,
       parse(value: string): LinearGradient | string | null {
@@ -387,512 +419,512 @@ export const StyleMap = (function () {
           return LinearGradient.fromAny(value);
         }
       },
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("borderCollapse", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "borderCollapse", [StyleAnimator({
       propertyNames: "border-collapse",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    prototype.borderColor = borderColor;
+    constructor.prototype.borderColor = borderColor;
 
-    StyleMap.decorate("borderTopColor", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "borderTopColor", [StyleAnimator({
       propertyNames: "border-top-color",
       valueType: Color,
       value: null,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("borderRightColor", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "borderRightColor", [StyleAnimator({
       propertyNames: "border-right-color",
       valueType: Color,
       value: null,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("borderBottomColor", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "borderBottomColor", [StyleAnimator({
       propertyNames: "border-bottom-color",
       valueType: Color,
       value: null,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("borderLeftColor", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "borderLeftColor", [StyleAnimator({
       propertyNames: "border-left-color",
       valueType: Color,
       value: null,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    prototype.borderRadius = borderRadius;
+    constructor.prototype.borderRadius = borderRadius;
 
-    StyleMap.decorate("borderTopLeftRadius", [LengthStyleAnimator({
+    StyleMap.defineGetter(constructor, "borderTopLeftRadius", [LengthStyleAnimator({
       propertyNames: "border-top-left-radius",
       valueType: Length,
       value: null,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("borderTopRightRadius", [LengthStyleAnimator({
+    StyleMap.defineGetter(constructor, "borderTopRightRadius", [LengthStyleAnimator({
       propertyNames: "border-top-right-radius",
       valueType: Length,
       value: null,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("borderBottomRightRadius", [LengthStyleAnimator({
+    StyleMap.defineGetter(constructor, "borderBottomRightRadius", [LengthStyleAnimator({
       propertyNames: "border-bottom-right-radius",
       valueType: Length,
       value: null,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("borderBottomLeftRadius", [LengthStyleAnimator({
+    StyleMap.defineGetter(constructor, "borderBottomLeftRadius", [LengthStyleAnimator({
       propertyNames: "border-bottom-left-radius",
       valueType: Length,
       value: null,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("borderSpacing", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "borderSpacing", [StyleAnimator({
       propertyNames: "border-spacing",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    prototype.borderStyle = borderStyle;
+    constructor.prototype.borderStyle = borderStyle;
 
-    StyleMap.decorate("borderTopStyle", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "borderTopStyle", [StyleAnimator({
       propertyNames: "border-top-style",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("borderRightStyle", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "borderRightStyle", [StyleAnimator({
       propertyNames: "border-right-style",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("borderBottomStyle", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "borderBottomStyle", [StyleAnimator({
       propertyNames: "border-bottom-style",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("borderLeftStyle", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "borderLeftStyle", [StyleAnimator({
       propertyNames: "border-left-style",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    prototype.borderWidth = borderWidth;
+    constructor.prototype.borderWidth = borderWidth;
 
-    StyleMap.decorate("borderTopWidth", [LengthStyleAnimator({
+    StyleMap.defineGetter(constructor, "borderTopWidth", [LengthStyleAnimator({
       propertyNames: "border-top-width",
       valueType: Length,
       value: null,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("borderRightWidth", [LengthStyleAnimator({
+    StyleMap.defineGetter(constructor, "borderRightWidth", [LengthStyleAnimator({
       propertyNames: "border-right-width",
       valueType: Length,
       value: null,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("borderBottomWidth", [LengthStyleAnimator({
+    StyleMap.defineGetter(constructor, "borderBottomWidth", [LengthStyleAnimator({
       propertyNames: "border-bottom-width",
       valueType: Length,
       value: null,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("borderLeftWidth", [LengthStyleAnimator({
+    StyleMap.defineGetter(constructor, "borderLeftWidth", [LengthStyleAnimator({
       propertyNames: "border-left-width",
       valueType: Length,
       value: null,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("bottom", [LengthStyleConstraintAnimator({
+    StyleMap.defineGetter(constructor, "bottom", [LengthStyleConstraintAnimator({
       propertyNames: "bottom",
       valueType: Length,
       value: null,
       get pctUnit(): number {
         return StyleMap.pctHeightUnit(this.owner.node);
       },
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("boxShadow", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "boxShadow", [StyleAnimator({
       propertyNames: "box-shadow",
       valueType: BoxShadow,
       value: null,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("boxSizing", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "boxSizing", [StyleAnimator({
       propertyNames: "box-sizing",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("color", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "color", [StyleAnimator({
       propertyNames: "color",
       valueType: Color,
       value: null,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("cursor", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "cursor", [StyleAnimator({
       propertyNames: "cursor",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("display", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "display", [StyleAnimator({
       propertyNames: "display",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("filter", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "filter", [StyleAnimator({
       propertyNames: "filter",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("flexBasis", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "flexBasis", [StyleAnimator({
       propertyNames: "flex-basis",
       valueType: Length,
       value: null,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("flexDirection", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "flexDirection", [StyleAnimator({
       propertyNames: "flex-direction",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("flexGrow", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "flexGrow", [StyleAnimator({
       propertyNames: "flex-grow",
       valueType: Number,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("flexShrink", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "flexShrink", [StyleAnimator({
       propertyNames: "flex-shrink",
       valueType: Number,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("flexWrap", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "flexWrap", [StyleAnimator({
       propertyNames: "flex-wrap",
       valueType: Number,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    prototype.font = font;
+    constructor.prototype.font = font;
 
-    StyleMap.decorate("fontFamily", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "fontFamily", [StyleAnimator({
       propertyNames: "font-family",
       valueType: FontFamily,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("fontSize", [LengthStyleAnimator({
+    StyleMap.defineGetter(constructor, "fontSize", [LengthStyleAnimator({
       propertyNames: "font-size",
       valueType: Length,
       value: null,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("fontStretch", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "fontStretch", [StyleAnimator({
       propertyNames: "font-stretch",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("fontStyle", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "fontStyle", [StyleAnimator({
       propertyNames: "font-style",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("fontVariant", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "fontVariant", [StyleAnimator({
       propertyNames: "font-variant",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("fontWeight", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "fontWeight", [StyleAnimator({
       propertyNames: "font-weight",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("height", [LengthStyleConstraintAnimator({
+    StyleMap.defineGetter(constructor, "height", [LengthStyleConstraintAnimator({
       propertyNames: "height",
       valueType: Length,
       value: null,
       get pctUnit(): number {
         return StyleMap.pctHeightUnit(this.owner.node);
       },
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("justifyContent", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "justifyContent", [StyleAnimator({
       propertyNames: "justify-content",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("left", [LengthStyleConstraintAnimator({
+    StyleMap.defineGetter(constructor, "left", [LengthStyleConstraintAnimator({
       propertyNames: "left",
       valueType: Length,
       value: null,
       get pctUnit(): number {
         return StyleMap.pctWidthUnit(this.owner.node);
       },
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("lineHeight", [LengthStyleAnimator({
+    StyleMap.defineGetter(constructor, "lineHeight", [LengthStyleAnimator({
       propertyNames: "line-height",
       valueType: Length,
       value: null,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    prototype.margin = margin;
+    constructor.prototype.margin = margin;
 
-    StyleMap.decorate("marginTop", [LengthStyleConstraintAnimator({
+    StyleMap.defineGetter(constructor, "marginTop", [LengthStyleConstraintAnimator({
       propertyNames: "margin-top",
       valueType: Length,
       value: null,
       get pctUnit(): number {
         return StyleMap.pctWidthUnit(this.owner.node);
       },
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("marginRight", [LengthStyleConstraintAnimator({
+    StyleMap.defineGetter(constructor, "marginRight", [LengthStyleConstraintAnimator({
       propertyNames: "margin-right",
       valueType: Length,
       value: null,
       get pctUnit(): number {
         return StyleMap.pctWidthUnit(this.owner.node);
       },
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("marginBottom", [LengthStyleConstraintAnimator({
+    StyleMap.defineGetter(constructor, "marginBottom", [LengthStyleConstraintAnimator({
       propertyNames: "margin-bottom",
       valueType: Length,
       value: null,
       get pctUnit(): number {
         return StyleMap.pctWidthUnit(this.owner.node);
       },
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("marginLeft", [LengthStyleConstraintAnimator({
+    StyleMap.defineGetter(constructor, "marginLeft", [LengthStyleConstraintAnimator({
       propertyNames: "margin-left",
       valueType: Length,
       value: null,
       get pctUnit(): number {
         return StyleMap.pctWidthUnit(this.owner.node);
       },
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("maxHeight", [LengthStyleAnimator({
+    StyleMap.defineGetter(constructor, "maxHeight", [LengthStyleAnimator({
       propertyNames: "max-height",
       valueType: Length,
       value: null,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("maxWidth", [LengthStyleAnimator({
+    StyleMap.defineGetter(constructor, "maxWidth", [LengthStyleAnimator({
       propertyNames: "max-width",
       valueType: Length,
       value: null,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("minHeight", [LengthStyleAnimator({
+    StyleMap.defineGetter(constructor, "minHeight", [LengthStyleAnimator({
       propertyNames: "min-height",
       valueType: Length,
       value: null,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("minWidth", [LengthStyleAnimator({
+    StyleMap.defineGetter(constructor, "minWidth", [LengthStyleAnimator({
       propertyNames: "min-width",
       valueType: Length,
       value: null,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("opacity", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "opacity", [StyleAnimator({
       propertyNames: "opacity",
       valueType: Number,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("order", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "order", [StyleAnimator({
       propertyNames: "order",
       valueType: Number,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("outlineColor", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "outlineColor", [StyleAnimator({
       propertyNames: "outline-color",
       valueType: Color,
       value: null,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("outlineOffset", [LengthStyleAnimator({
+    StyleMap.defineGetter(constructor, "outlineOffset", [LengthStyleAnimator({
       propertyNames: "outline-offset",
       valueType: Length,
       value: null,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("outlineStyle", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "outlineStyle", [StyleAnimator({
       propertyNames: "outline-style",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("outlineWidth", [LengthStyleAnimator({
+    StyleMap.defineGetter(constructor, "outlineWidth", [LengthStyleAnimator({
       propertyNames: "outline-width",
       valueType: Length,
       value: null,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    prototype.overflow = overflow;
+    constructor.prototype.overflow = overflow;
 
-    StyleMap.decorate("overflowX", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "overflowX", [StyleAnimator({
       propertyNames: "overflow-x",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("overflowY", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "overflowY", [StyleAnimator({
       propertyNames: "overflow-y",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("overflowScrolling", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "overflowScrolling", [StyleAnimator({
       propertyNames: "-webkit-overflow-scrolling",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    prototype.overscrollBehavior = overscrollBehavior;
+    constructor.prototype.overscrollBehavior = overscrollBehavior;
 
-    StyleMap.decorate("overscrollBehaviorX", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "overscrollBehaviorX", [StyleAnimator({
       propertyNames: "overscroll-behavior-x",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("overscrollBehaviorY", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "overscrollBehaviorY", [StyleAnimator({
       propertyNames: "overscroll-behavior-y",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    prototype.padding = padding;
+    constructor.prototype.padding = padding;
 
-    StyleMap.decorate("paddingTop", [LengthStyleConstraintAnimator({
+    StyleMap.defineGetter(constructor, "paddingTop", [LengthStyleConstraintAnimator({
       propertyNames: "padding-top",
       valueType: Length,
       value: null,
       get pctUnit(): number {
         return StyleMap.pctWidthUnit(this.owner.node);
       },
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("paddingRight", [LengthStyleConstraintAnimator({
+    StyleMap.defineGetter(constructor, "paddingRight", [LengthStyleConstraintAnimator({
       propertyNames: "padding-right",
       valueType: Length,
       value: null,
       get pctUnit(): number {
         return StyleMap.pctWidthUnit(this.owner.node);
       },
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("paddingBottom", [LengthStyleConstraintAnimator({
+    StyleMap.defineGetter(constructor, "paddingBottom", [LengthStyleConstraintAnimator({
       propertyNames: "padding-bottom",
       valueType: Length,
       value: null,
       get pctUnit(): number {
         return StyleMap.pctWidthUnit(this.owner.node);
       },
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("paddingLeft", [LengthStyleConstraintAnimator({
+    StyleMap.defineGetter(constructor, "paddingLeft", [LengthStyleConstraintAnimator({
       propertyNames: "padding-left",
       valueType: Length,
       value: null,
       get pctUnit(): number {
         return StyleMap.pctWidthUnit(this.owner.node);
       },
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("pointerEvents", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "pointerEvents", [StyleAnimator({
       propertyNames: "pointer-events",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("position", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "position", [StyleAnimator({
       propertyNames: "position",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("right", [LengthStyleConstraintAnimator({
+    StyleMap.defineGetter(constructor, "right", [LengthStyleConstraintAnimator({
       propertyNames: "right",
       valueType: Length,
       value: null,
       get pctUnit(): number {
         return StyleMap.pctWidthUnit(this.owner.node);
       },
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("textAlign", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "textAlign", [StyleAnimator({
       propertyNames: "text-align",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("textDecorationColor", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "textDecorationColor", [StyleAnimator({
       propertyNames: "text-decoration-color",
       valueType: Color,
       value: null,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("textDecorationLine", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "textDecorationLine", [StyleAnimator({
       propertyNames: "text-decoration-line",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("textDecorationStyle", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "textDecorationStyle", [StyleAnimator({
       propertyNames: "text-decoration-style",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("textOverflow", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "textOverflow", [StyleAnimator({
       propertyNames: "text-overflow",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("textTransform", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "textTransform", [StyleAnimator({
       propertyNames: "text-transform",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("top", [LengthStyleConstraintAnimator({
+    StyleMap.defineGetter(constructor, "top", [LengthStyleConstraintAnimator({
       propertyNames: "top",
       valueType: Length,
       value: null,
       get pctUnit(): number {
         return StyleMap.pctHeightUnit(this.owner.node);
       },
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("touchAction", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "touchAction", [StyleAnimator({
       propertyNames: "touch-action",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("transform", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "transform", [StyleAnimator({
       propertyNames: "transform",
       valueType: Transform,
       value: null,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("userSelect", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "userSelect", [StyleAnimator({
       propertyNames: ["user-select", "-webkit-user-select", "-moz-user-select", "-ms-user-select"],
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("verticalAlign", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "verticalAlign", [StyleAnimator({
       propertyNames: "vertical-align",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("visibility", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "visibility", [StyleAnimator({
       propertyNames: "visibility",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("whiteSpace", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "whiteSpace", [StyleAnimator({
       propertyNames: "white-space",
       valueType: String,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("width", [LengthStyleConstraintAnimator({
+    StyleMap.defineGetter(constructor, "width", [LengthStyleConstraintAnimator({
       propertyNames: "width",
       valueType: Length,
       value: null,
       get pctUnit(): number {
         return StyleMap.pctWidthUnit(this.owner.node);
       },
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
 
-    StyleMap.decorate("zIndex", [StyleAnimator({
+    StyleMap.defineGetter(constructor, "zIndex", [StyleAnimator({
       propertyNames: "z-index",
       valueType: Number,
-    })], initializerMap, extraInitializers);
+    })], fieldInitializers, instanceInitializers);
   };
 
   function borderColor(this: StyleMap): [Color | null, Color | null, Color | null, Color | null] | Color | null;

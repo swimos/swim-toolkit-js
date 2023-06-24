@@ -203,9 +203,9 @@ export interface HtmlViewObserver<V extends HtmlView = HtmlView> extends Element
 export class HtmlView extends ElementView {
   constructor(node: HTMLElement) {
     super(node);
-    __runInitializers(this, HtmlView.extraInitializers);
-    for (const key in HtmlView.initializerMap) {
-      (this as any)[key] = __runInitializers(this, HtmlView.initializerMap[key]!, void 0);
+    __runInitializers(this, HtmlView.instanceInitializers);
+    for (const key in HtmlView.fieldInitializers) {
+      (this as any)[key] = __runInitializers(this, HtmlView.fieldInitializers[key]!, void 0);
     }
   }
 
@@ -526,9 +526,9 @@ export class HtmlView extends ElementView {
   }
 
   /** @internal */
-  static readonly initializerMap: {[name: string | symbol]: Function[]} = {};
+  static readonly fieldInitializers: {[name: string | symbol]: Function[]} = {};
   /** @internal */
-  static readonly extraInitializers: Function[] = [];
+  static readonly instanceInitializers: Function[] = [];
 }
 /** @public */
 export interface HtmlView extends StyleMap {
@@ -536,7 +536,7 @@ export interface HtmlView extends StyleMap {
   requireUpdate(updateFlags: ViewFlags, immediate?: boolean): void;
 }
 
-StyleMap.define(HtmlView.prototype, HtmlView.initializerMap, HtmlView.extraInitializers);
+StyleMap.define(HtmlView, HtmlView.fieldInitializers, HtmlView.instanceInitializers);
 
 /** @internal */
 export class HtmlViewTagFactory<V extends HtmlView> implements HtmlViewFactory<V> {

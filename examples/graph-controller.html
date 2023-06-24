@@ -28,13 +28,13 @@ const canvasView = swim.CanvasView.create()
     .touchAction("manipulation");
 
 const ExampleGraphController = (function () {
-  const extraInitializers = [];
+  const instanceInitializers = [];
   const graphInitializers = [];
   const plotsInitializers = [];
   class ExampleGraphController extends swim.GraphController {
     constructor() {
       super();
-      __runInitializers(this, extraInitializers);
+      __runInitializers(this, instanceInitializers);
       this.graph = __runInitializers(this, graphInitializers, this.graph);
       this.plots = __runInitializers(this, plotsInitializers, this.plots);
     }
@@ -54,7 +54,7 @@ const ExampleGraphController = (function () {
                .xScaleGestures(true)
                .yScaleGestures(true);
     },
-  })], {kind: "field", name: "graph", static: false, private: false, access: {has: obj => "graph" in obj, get: obj => obj.graph, set: (obj, value) => { obj.graph = value; }}}, graphInitializers, extraInitializers);
+  })], {kind: "field", name: "graph", static: false, private: false, access: {has: obj => "graph" in obj, get: obj => obj.graph, set: (obj, value) => { obj.graph = value; }}}, graphInitializers, instanceInitializers);
   __esDecorate(null, null, [swim.TraitViewControllerSet({
     extends: true,
     attachPlotView(plotView, plotController) {
@@ -67,7 +67,7 @@ const ExampleGraphController = (function () {
         plotView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, void 0]], true);
       });
     },
-  })], {kind: "field", name: "plots", static: false, private: false, access: {has: obj => "plots" in obj, get: obj => obj.plots, set: (obj, value) => { obj.plots = value; }}}, plotsInitializers, extraInitializers);
+  })], {kind: "field", name: "plots", static: false, private: false, access: {has: obj => "plots" in obj, get: obj => obj.plots, set: (obj, value) => { obj.plots = value; }}}, plotsInitializers, instanceInitializers);
 
   return ExampleGraphController;
 })();

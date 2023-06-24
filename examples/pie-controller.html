@@ -27,13 +27,13 @@ const canvasView = containerView.appendChild(swim.CanvasView)
     .touchAction("manipulation");
 
 const ExamplePieController = (function () {
-  const extraInitializers = [];
+  const instanceInitializers = [];
   const pieInitializers = [];
   const slicesInitializers = [];
   class ExamplePieController extends swim.PieController {
     constructor() {
       super();
-      __runInitializers(this, extraInitializers);
+      __runInitializers(this, instanceInitializers);
       this.pie = __runInitializers(this, pieInitializers, this.pie);
       this.slices = __runInitializers(this, slicesInitializers, this.slices);
     }
@@ -44,7 +44,7 @@ const ExamplePieController = (function () {
       super.initView(pieView);
       pieView.font("14px sans-serif");
     },
-  })], {kind: "field", name: "pie", static: false, private: false, access: {has: obj => "pie" in obj, get: obj => obj.pie, set: (obj, value) => { obj.pie = value; }}}, pieInitializers, extraInitializers);
+  })], {kind: "field", name: "pie", static: false, private: false, access: {has: obj => "pie" in obj, get: obj => obj.pie, set: (obj, value) => { obj.pie = value; }}}, pieInitializers, instanceInitializers);
   __esDecorate(null, null, [swim.TraitViewControllerSet({
     extends: true,
     attachSliceView(sliceView, sliceController) {
@@ -65,7 +65,7 @@ const ExamplePieController = (function () {
       super.attachSliceLabelView(labelView, sliceController);
       labelView.textColor.setLook(swim.Look.backgroundColor);
     },
-  })], {kind: "field", name: "slices", static: false, private: false, access: {has: obj => "slices" in obj, get: obj => obj.slices, set: (obj, value) => { obj.slices = value; }}}, slicesInitializers, extraInitializers);
+  })], {kind: "field", name: "slices", static: false, private: false, access: {has: obj => "slices" in obj, get: obj => obj.slices, set: (obj, value) => { obj.slices = value; }}}, slicesInitializers, instanceInitializers);
 
   return ExamplePieController;
 })();

@@ -63,7 +63,7 @@ export class CellController extends Controller {
       this.owner.callObservers("controllerWillAttachCellView", cellView, this.owner);
     },
     deinitView(cellView: CellView): void {
-      cellView.hyperlink.unbindInlet();
+      cellView.hyperlink.unbindInlet(this.owner.hyperlink);
     },
     didDetachView(cellView: CellView): void {
       this.owner.callObservers("controllerDidDetachCellView", cellView, this.owner);

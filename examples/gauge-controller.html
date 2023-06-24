@@ -27,13 +27,13 @@ const canvasView = containerView.appendChild(swim.CanvasView)
     .touchAction("manipulation");
 
 const ExampleGaugeController = (function () {
-  const extraInitializers = [];
+  const instanceInitializers = [];
   const gaugeInitializers = [];
   const dialsInitializers = [];
   class ExampleGaugeController extends swim.GaugeController {
     constructor() {
       super();
-      __runInitializers(this, extraInitializers);
+      __runInitializers(this, instanceInitializers);
       this.gauge = __runInitializers(this, gaugeInitializers, this.gauge);
       this.dials = __runInitializers(this, dialsInitializers, this.dials);
     }
@@ -49,7 +49,7 @@ const ExampleGaugeController = (function () {
                .tickAlign(1)
                .font("14px sans-serif");
     },
-  })], {kind: "field", name: "gauge", static: false, private: false, access: {has: obj => "gauge" in obj, get: obj => obj.gauge, set: (obj, value) => { obj.gauge = value; }}}, gaugeInitializers, extraInitializers);
+  })], {kind: "field", name: "gauge", static: false, private: false, access: {has: obj => "gauge" in obj, get: obj => obj.gauge, set: (obj, value) => { obj.gauge = value; }}}, gaugeInitializers, instanceInitializers);
   __esDecorate(null, null, [swim.TraitViewControllerSet({
     extends: true,
     attachDialView(dialView, dialController) {
@@ -66,7 +66,7 @@ const ExampleGaugeController = (function () {
       const label = Math.round(100 * dialValue).toString();
       dialController.dial.trait.label.setValue(label);
     },
-  })], {kind: "field", name: "dials", static: false, private: false, access: {has: obj => "dials" in obj, get: obj => obj.dials, set: (obj, value) => { obj.dials = value; }}}, dialsInitializers, extraInitializers);
+  })], {kind: "field", name: "dials", static: false, private: false, access: {has: obj => "dials" in obj, get: obj => obj.dials, set: (obj, value) => { obj.dials = value; }}}, dialsInitializers, instanceInitializers);
   return ExampleGaugeController;
 })();
 

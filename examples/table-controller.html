@@ -28,12 +28,12 @@ const containerView = bodyView.appendChild("div")
   .userSelect("none");
 
 const ExampleTableController = (function () {
-  const extraInitializers = [];
+  const instanceInitializers = [];
   const rowInitializers = [];
   class ExampleTableController extends swim.TableController {
     constructor() {
       super();
-      __runInitializers(this, extraInitializers);
+      __runInitializers(this, instanceInitializers);
       this.rows = __runInitializers(this, rowInitializers, this.rows);
     }
   }
@@ -54,7 +54,7 @@ const ExampleTableController = (function () {
         cellView.color("#989898");
       }
     },
-  })], {kind: "field", name: "rows", static: false, private: false, access: {has: obj => "rows" in obj, get: obj => obj.rows, set: (obj, value) => { obj.appBar = value; }}}, rowInitializers, extraInitializers);
+  })], {kind: "field", name: "rows", static: false, private: false, access: {has: obj => "rows" in obj, get: obj => obj.rows, set: (obj, value) => { obj.appBar = value; }}}, rowInitializers, instanceInitializers);
   return ExampleTableController;
 })();
 

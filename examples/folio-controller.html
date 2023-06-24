@@ -40,13 +40,13 @@ if (navigator.standalone) {
 const bodyView = swim.HtmlView.fromNode(document.body);
 
 const ExampleFolioController = (function () {
-  const extraInitializers = [];
+  const instanceInitializers = [];
   const appBarInitializers = [];
   const navBarInitializers = [];
   class ExampleFolioController extends swim.FolioController {
     constructor() {
       super();
-      __runInitializers(this, extraInitializers);
+      __runInitializers(this, instanceInitializers);
       this.appBar = __runInitializers(this, appBarInitializers, this.appBar);
       this.navBar = __runInitializers(this, navBarInitializers, this.navBar);
     }
@@ -57,14 +57,14 @@ const ExampleFolioController = (function () {
       appBarView.barHeight(48);
       super.attachAppBarView(appBarView, appBarController);
     },
-  })], {kind: "field", name: "appBar", static: false, private: false, access: {has: obj => "appBar" in obj, get: obj => obj.appBar, set: (obj, value) => { obj.appBar = value; }}}, appBarInitializers, extraInitializers);
+  })], {kind: "field", name: "appBar", static: false, private: false, access: {has: obj => "appBar" in obj, get: obj => obj.appBar, set: (obj, value) => { obj.appBar = value; }}}, appBarInitializers, instanceInitializers);
   __esDecorate(null, null, [swim.TraitViewControllerRef({
     extends: true,
     attachNavBarView(navBarView, navBarController) {
       navBarView.barHeight(48);
       super.attachNavBarView(navBarView, navBarController);
     },
-  })], {kind: "field", name: "navBar", static: false, private: false, access: {has: obj => "navBar" in obj, get: obj => obj.navBar, set: (obj, value) => { obj.navBar = value; }}}, navBarInitializers, extraInitializers);
+  })], {kind: "field", name: "navBar", static: false, private: false, access: {has: obj => "navBar" in obj, get: obj => obj.navBar, set: (obj, value) => { obj.navBar = value; }}}, navBarInitializers, instanceInitializers);
   return ExampleFolioController;
 })();
 

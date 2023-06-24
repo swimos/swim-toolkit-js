@@ -40,7 +40,7 @@ export {StyleConstraintAnimator} from "./StyleConstraintAnimator";
 export {NumberStyleConstraintAnimator} from "./StyleConstraintAnimator";
 export {LengthStyleConstraintAnimator} from "./StyleConstraintAnimator";
 
-export * from "./css";
+export * from "./csstypes";
 
 export {StyleContext} from "./StyleContext";
 

@@ -133,7 +133,7 @@ export class LeafController extends Controller {
       leafView.hyperlink.bindInlet(this.owner.hyperlink);
     },
     didDetachView(leafView: LeafView): void {
-      leafView.hyperlink.unbindInlet();
+      leafView.hyperlink.unbindInlet(this.owner.hyperlink);
       this.owner.callObservers("controllerDidDetachLeafView", leafView, this.owner);
     },
     viewWillHighlight(leafView: LeafView): void {

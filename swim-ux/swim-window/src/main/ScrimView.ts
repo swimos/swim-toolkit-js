@@ -75,7 +75,9 @@ export class ScrimView extends HtmlView {
       }
     },
   })
-  override readonly backgroundColor!: StyleAnimator<this, Color | null, AnyColor | null>;
+  override get backgroundColor(): StyleAnimator<this, Color | null, AnyColor | null> {
+    return StyleAnimator.dummy();
+  }
 
   isShown(): boolean {
     switch (this.displayState) {
