@@ -100,12 +100,11 @@ export class GeoIconController extends GeoController {
   }
 
   @TraitViewRef({
+    extends: true,
     traitType: GeoIconTrait,
     observesTrait: true,
-    willAttachTrait(geoTrait: GeoIconTrait): void {
-      this.owner.callObservers("controllerWillAttachGeoTrait", geoTrait, this.owner);
-    },
-    didAttachTrait(geoTrait: GeoIconTrait): void {
+    initTrait(geoTrait: GeoIconTrait): void {
+      super.initTrait(geoTrait);
       const geoView = this.view;
       if (geoView === null) {
         return;
@@ -113,9 +112,6 @@ export class GeoIconController extends GeoController {
       this.owner.setGeoCenter(geoTrait.geoCenter.value, geoTrait);
       this.owner.setIconLayout(geoTrait.iconLayout.value, geoTrait);
       this.owner.setGraphics(geoTrait.graphics.value, geoTrait);
-    },
-    didDetachTrait(geoTrait: GeoIconTrait): void {
-      this.owner.callObservers("controllerDidDetachGeoTrait", geoTrait, this.owner);
     },
     traitDidSetGeoCenter(geoCenter: GeoPoint | null, geoTrait: GeoIconTrait): void {
       this.owner.setGeoCenter(geoCenter, geoTrait);
@@ -128,10 +124,8 @@ export class GeoIconController extends GeoController {
     },
     viewType: GeoIconView,
     observesView: true,
-    willAttachView(geoView: GeoIconView): void {
-      this.owner.callObservers("controllerWillAttachGeoView", geoView, this.owner);
-    },
-    didAttachView(geoView: GeoIconView): void {
+    initView(geoView: GeoIconView): void {
+      super.initView(geoView);
       const geoTrait = this.trait;
       if (geoTrait === null) {
         return;
@@ -140,9 +134,6 @@ export class GeoIconController extends GeoController {
       this.owner.setIconLayout(geoTrait.iconLayout.value, geoTrait);
       this.owner.setGraphics(geoTrait.graphics.value, geoTrait);
     },
-    didDetachView(geoView: GeoIconView): void {
-      this.owner.callObservers("controllerDidDetachGeoView", geoView, this.owner);
-    },
     viewDidSetGeoCenter(geoCenter: GeoPoint | null): void {
       this.owner.callObservers("controllerDidSetGeoCenter", geoCenter, this.owner);
     },
@@ -150,5 +141,5 @@ export class GeoIconController extends GeoController {
       this.owner.callObservers("controllerDidSetGraphics", graphics, this.owner);
     },
   })
-  override readonly geo!: TraitViewRef<this, GeoIconTrait, GeoIconView> & Observes<GeoIconTrait> & Observes<GeoIconView>;
+  override readonly geo!: TraitViewRef<this, GeoIconTrait, GeoIconView> & GeoController["geo"] & Observes<GeoIconTrait> & Observes<GeoIconView>;
 }

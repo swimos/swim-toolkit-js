@@ -14,9 +14,9 @@
 
 import type {Class} from "@swim/util";
 import type {GeoPath} from "@swim/geo";
-import type {TraitViewRef} from "@swim/controller";
-import type {GeoPathView} from "./GeoPathView";
-import type {GeoPathTrait} from "./GeoPathTrait";
+import {TraitViewRef} from "@swim/controller";
+import {GeoPathView} from "./GeoPathView";
+import {GeoPathTrait} from "./GeoPathTrait";
 import type {GeoControllerObserver} from "./GeoController";
 import {GeoController} from "./GeoController";
 
@@ -37,5 +37,10 @@ export interface GeoPathControllerObserver<C extends GeoPathController = GeoPath
 export abstract class GeoPathController extends GeoController {
   declare readonly observerType?: Class<GeoPathControllerObserver>;
 
-  abstract override readonly geo: TraitViewRef<this, GeoPathTrait, GeoPathView>;
+  @TraitViewRef({
+    extends: true,
+    traitType: GeoPathTrait,
+    viewType: GeoPathView,
+  })
+  override readonly geo!: TraitViewRef<this, GeoPathTrait, GeoPathView> & GeoController["geo"];
 }

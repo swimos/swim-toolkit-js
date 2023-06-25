@@ -84,8 +84,12 @@ export class GeoTreeView extends GeoView {
   }
 
   protected override processChildren(processFlags: ViewFlags, processChild: (this: this, child: View, processFlags: ViewFlags) => void): void {
-    const geoFrame = this.geoViewport.value.geoFrame;
-    const stem = this.getStem(this.geoViewport.value.geoFrame);
+    const geoViewport = this.geoViewport.value;
+    if (geoViewport === null) {
+      return;
+    }
+    const geoFrame = geoViewport.geoFrame;
+    const stem = this.getStem(geoFrame);
     this.processTree(stem, geoFrame, processFlags, processChild);
   }
 
@@ -126,9 +130,13 @@ export class GeoTreeView extends GeoView {
   }
 
   protected renderGeoTree(outlineColor: Color): void {
+    const geoViewport = this.geoViewport.value;
+    if (geoViewport === null) {
+      return;
+    }
     const renderer = this.renderer.value;
     if (renderer instanceof PaintingRenderer && !this.hidden && !this.culled) {
-      this.renderGeoTreeOutline(this.root, this.geoViewport.value, renderer.context, outlineColor);
+      this.renderGeoTreeOutline(this.root, geoViewport, renderer.context, outlineColor);
     }
   }
 
@@ -150,12 +158,16 @@ export class GeoTreeView extends GeoView {
     if (tree.depth >= minDepth) {
       const u = (tree.depth - minDepth) / (tree.maxDepth - minDepth);
       const outlineWidth = 4 * (1 - u) + 0.5 * u;
-      this.renderGeoOutline(tree.geoFrame, geoProjection, context, outlineColor, outlineWidth);
+      this.renderGeoOutline(tree.geoFrame, context, outlineColor, outlineWidth);
     }
   }
 
   protected override displayChildren(displayFlags: ViewFlags, displayChild: (this: this, child: View, displayFlags: ViewFlags) => void): void {
-    const geoFrame = this.geoViewport.value.geoFrame;
+    const geoViewport = this.geoViewport.value;
+    if (geoViewport === null) {
+      return;
+    }
+    const geoFrame = geoViewport.geoFrame;
     const stem = this.getStem(geoFrame);
     this.displayTree(stem, geoFrame, displayFlags, displayChild);
   }
@@ -195,6 +207,9 @@ export class GeoTreeView extends GeoView {
 
   protected override hitTest(x: number, y: number): GraphicsView | null {
     const geoViewport = this.geoViewport.value;
+    if (geoViewport === null) {
+      return null;
+    }
     const geoPoint = geoViewport.unproject(x, y);
     const stem = this.getStem(geoViewport.geoFrame);
     return this.hitTestTree(stem, x, y, geoPoint);

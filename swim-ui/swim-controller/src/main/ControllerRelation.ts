@@ -365,7 +365,7 @@ export const ControllerRelation = (function (_super: typeof Fastener) {
     (this as Mutable<typeof this>).consumers = newConsumerrss;
     this.onConsume(consumer);
     this.didConsume(consumer);
-    if (oldConsumers.length === 0 && (this.flags & ControllerRelation.MountedFlag) !== 0) {
+    if (oldConsumers.length === 0 && this.mounted) {
       this.startConsuming();
     }
   };

@@ -15,9 +15,8 @@
 import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
 import {GeoBox} from "@swim/geo";
-import type {Model} from "@swim/model";
-import type {Trait} from "@swim/model";
-import {TraitSet} from "@swim/model";
+import {Model} from "@swim/model";
+import {TraitModelSet} from "@swim/model";
 import type {GeoTraitObserver} from "./GeoTrait";
 import {GeoTrait} from "./GeoTrait";
 import type {GeoController} from "./GeoController";
@@ -64,8 +63,10 @@ export class GeoLayerTrait extends GeoTrait {
     this.callObservers("traitDidSetGeoBounds", newGeoBounds, oldGeoBounds, this);
   }
 
-  @TraitSet({
+  @TraitModelSet({
     traitType: GeoTrait,
+    traitKey: "feature",
+    modelType: Model,
     binds: true,
     willAttachTrait(featureTrait: GeoTrait): void {
       this.owner.callObservers("traitWillAttachFeature", featureTrait, this.owner);
@@ -83,14 +84,8 @@ export class GeoLayerTrait extends GeoTrait {
     didDetachTrait(featureTrait: GeoTrait): void {
       this.owner.callObservers("traitDidDetachFeature", featureTrait, this.owner);
     },
-    detectModel(model: Model): GeoTrait | null {
-      return model.getTrait(GeoTrait);
-    },
-    detectTrait(trait: Trait): GeoTrait | null {
-      return null;
-    },
   })
-  readonly features!: TraitSet<this, GeoTrait>;
+  readonly features!: TraitModelSet<this, GeoTrait, Model>;
 
   protected override onStartConsuming(): void {
     super.onStartConsuming();

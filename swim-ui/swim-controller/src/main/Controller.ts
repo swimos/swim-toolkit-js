@@ -425,16 +425,17 @@ export class Controller extends Component<Controller> implements Initable<Contro
     if ((updateFlags & Controller.ExecuteMask) !== 0) {
       deltaUpdateFlags |= Controller.NeedsExecute;
     }
-    if (deltaUpdateFlags !== 0 || immediate) {
-      this.setFlags(this.flags | deltaUpdateFlags);
-      const parent = this.parent;
-      if (parent !== null) {
-        parent.requestUpdate(target, updateFlags, immediate);
-      } else if (this.mounted) {
-        const updaterService = this.updater.service;
-        if (updaterService !== null) {
-          updaterService.requestUpdate(target, updateFlags, immediate);
-        }
+    if (deltaUpdateFlags === 0 && !immediate) {
+      return;
+    }
+    this.setFlags(this.flags | deltaUpdateFlags);
+    const parent = this.parent;
+    if (parent !== null) {
+      parent.requestUpdate(target, updateFlags, immediate);
+    } else if (this.mounted) {
+      const updaterService = this.updater.service;
+      if (updaterService !== null) {
+        updaterService.requestUpdate(target, updateFlags, immediate);
       }
     }
   }
@@ -809,14 +810,15 @@ export class Controller extends Component<Controller> implements Initable<Contro
   consume(consumer: Consumer): void {
     const oldConsumers = this.consumers;
     const newConsumers = Arrays.inserted(consumer, oldConsumers);
-    if (oldConsumers !== newConsumers) {
-      this.willConsume(consumer);
-      (this as Mutable<this>).consumers = newConsumers;
-      this.onConsume(consumer);
-      this.didConsume(consumer);
-      if (oldConsumers.length === 0 && this.mounted) {
-        this.startConsuming();
-      }
+    if (oldConsumers === newConsumers) {
+      return;
+    }
+    this.willConsume(consumer);
+    (this as Mutable<this>).consumers = newConsumers;
+    this.onConsume(consumer);
+    this.didConsume(consumer);
+    if (oldConsumers.length === 0 && this.mounted) {
+      this.startConsuming();
     }
   }
 
@@ -836,14 +838,15 @@ export class Controller extends Component<Controller> implements Initable<Contro
   unconsume(consumer: Consumer): void {
     const oldConsumers = this.consumers;
     const newConsumers = Arrays.removed(consumer, oldConsumers);
-    if (oldConsumers !== newConsumers) {
-      this.willUnconsume(consumer);
-      (this as Mutable<this>).consumers = newConsumers;
-      this.onUnconsume(consumer);
-      this.didUnconsume(consumer);
-      if (newConsumers.length === 0) {
-        this.stopConsuming();
-      }
+    if (oldConsumers === newConsumers) {
+      return;
+    }
+    this.willUnconsume(consumer);
+    (this as Mutable<this>).consumers = newConsumers;
+    this.onUnconsume(consumer);
+    this.didUnconsume(consumer);
+    if (newConsumers.length === 0) {
+      this.stopConsuming();
     }
   }
 
@@ -868,12 +871,13 @@ export class Controller extends Component<Controller> implements Initable<Contro
   }
 
   protected startConsuming(): void {
-    if ((this.flags & Controller.ConsumingFlag) === 0) {
-      this.willStartConsuming();
-      this.setFlags(this.flags | Controller.ConsumingFlag);
-      this.onStartConsuming();
-      this.didStartConsuming();
+    if ((this.flags & Controller.ConsumingFlag) !== 0) {
+      return;
     }
+    this.willStartConsuming();
+    this.setFlags(this.flags | Controller.ConsumingFlag);
+    this.onStartConsuming();
+    this.didStartConsuming();
   }
 
   protected willStartConsuming(): void {
@@ -906,12 +910,13 @@ export class Controller extends Component<Controller> implements Initable<Contro
   }
 
   protected stopConsuming(): void {
-    if ((this.flags & Controller.ConsumingFlag) !== 0) {
-      this.willStopConsuming();
-      this.setFlags(this.flags & ~Controller.ConsumingFlag);
-      this.onStopConsuming();
-      this.didStopConsuming();
+    if ((this.flags & Controller.ConsumingFlag) === 0) {
+      return;
     }
+    this.willStopConsuming();
+    this.setFlags(this.flags & ~Controller.ConsumingFlag);
+    this.onStopConsuming();
+    this.didStopConsuming();
   }
 
   protected willStopConsuming(): void {

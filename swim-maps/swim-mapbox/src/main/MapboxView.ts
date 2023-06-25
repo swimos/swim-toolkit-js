@@ -38,9 +38,9 @@ import {MapboxViewport} from "./MapboxViewport";
 
 /** @public */
 export interface MapboxViewObserver<V extends MapboxView = MapboxView> extends MapViewObserver<V> {
-  viewWillSetGeoViewport?(newGeoViewport: MapboxViewport, oldGeoViewport: MapboxViewport, view: V): void;
+  viewWillSetGeoViewport?(newGeoViewport: MapboxViewport | null, oldGeoViewport: MapboxViewport | null, view: V): void;
 
-  viewDidSetGeoViewport?(newGeoViewport: MapboxViewport, oldGeoViewport: MapboxViewport, view: V): void;
+  viewDidSetGeoViewport?(newGeoViewport: MapboxViewport | null, oldGeoViewport: MapboxViewport | null, view: V): void;
 
   viewWillMoveMap?(view: V): void;
 
@@ -77,11 +77,8 @@ export class MapboxView extends MapView {
 
   @Property({
     extends: true,
-    willSetValue(newGeoViewport: GeoViewport, oldGeoViewport: GeoViewport): void {
-      this.owner.callObservers("viewWillSetGeoViewport", newGeoViewport, oldGeoViewport, this.owner);
-    },
-    didSetValue(newGeoViewport: GeoViewport, oldGeoViewport: GeoViewport): void {
-      this.owner.callObservers("viewDidSetGeoViewport", newGeoViewport, oldGeoViewport, this.owner);
+    didSetValue(newGeoViewport: GeoViewport | null, oldGeoViewport: GeoViewport | null): void {
+      super.didSetValue(newGeoViewport, oldGeoViewport);
       const immediate = !this.owner.hidden && !this.owner.culled;
       this.owner.requireUpdate(View.NeedsProject, immediate);
     },
@@ -91,7 +88,7 @@ export class MapboxView extends MapView {
       }
     },
   })
-  override readonly geoViewport!: Property<this, GeoViewport> & MapView["geoViewport"] & {
+  override readonly geoViewport!: Property<this, GeoViewport | null> & MapView["geoViewport"] & {
     /** @internal */
     update(): void;
   };
@@ -109,8 +106,11 @@ export class MapboxView extends MapView {
   }
 
   override moveTo(geoPerspective: AnyGeoPerspective, timing?: AnyTiming | boolean): void {
-    const options: mapboxgl.FlyToOptions = {};
     const geoViewport = this.geoViewport.value;
+    if (geoViewport === null) {
+      return;
+    }
+    const options: mapboxgl.FlyToOptions = {};
     let geoCenter = geoPerspective.geoCenter;
     if (geoCenter !== void 0 && geoCenter !== null) {
       geoCenter = GeoPoint.fromAny(geoCenter);

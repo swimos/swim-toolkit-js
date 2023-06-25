@@ -60,9 +60,8 @@ const ExampleMapboxController = (function () {
     createController(layerTrait) {
       if (layerTrait instanceof swim.GeoLayerTrait) {
         return new ExampleLayerController();
-      } else {
-        return super.createController(layerTrait);
       }
+      return super.createController(layerTrait);
     },
   })], {kind: "field", name: "layers", static: false, private: false, access: {has: obj => "layers" in obj, get: obj => obj.layers, set: (obj, value) => { obj.layers = value; }}}, layersInitializers, instanceInitializers);
   return ExampleMapboxController;

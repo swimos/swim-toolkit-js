@@ -92,11 +92,8 @@ export class GoogleMapView extends MapView {
 
   @Property({
     extends: true,
-    willSetValue(newGeoViewport: GeoViewport, oldGeoViewport: GeoViewport): void {
-      this.owner.callObservers("viewWillSetGeoViewport", newGeoViewport, oldGeoViewport, this.owner);
-    },
-    didSetValue(newGeoViewport: GeoViewport, oldGeoViewport: GeoViewport): void {
-      this.owner.callObservers("viewDidSetGeoViewport", newGeoViewport, oldGeoViewport, this.owner);
+    didSetValue(newGeoViewport: GeoViewport | null, oldGeoViewport: GeoViewport | null): void {
+      super.didSetValue(newGeoViewport, oldGeoViewport);
       const immediate = !this.owner.hidden && !this.owner.culled;
       this.owner.requireUpdate(View.NeedsProject, immediate);
     },
@@ -107,7 +104,7 @@ export class GoogleMapView extends MapView {
       this.setValue(GoogleMapViewport.create(this.owner.map, this.owner.mapOverlay.getProjection()), Affinity.Intrinsic);
     },
   })
-  override readonly geoViewport!: Property<this, GeoViewport> & MapView["geoViewport"] & {
+  override readonly geoViewport!: Property<this, GeoViewport | null> & MapView["geoViewport"] & {
     /** @internal */
     update(): void;
   };
@@ -127,6 +124,9 @@ export class GoogleMapView extends MapView {
 
   override moveTo(geoPerspective: AnyGeoPerspective, timing?: AnyTiming | boolean): void {
     const geoViewport = this.geoViewport.value;
+    if (geoViewport === null) {
+      return;
+    }
     let geoCenter = geoPerspective.geoCenter;
     if (geoCenter !== void 0 && geoCenter !== null) {
       geoCenter = GeoPoint.fromAny(geoCenter);

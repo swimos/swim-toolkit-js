@@ -1024,26 +1024,28 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   }
 
   requestUpdate(target: View, updateFlags: ViewFlags, immediate: boolean): void {
-    if ((this.flags & View.CulledMask) !== View.CulledFlag) { // if not culled root
-      updateFlags = this.needsUpdate(updateFlags, immediate);
-      let deltaUpdateFlags = this.flags & ~updateFlags & View.UpdateMask;
-      if ((updateFlags & View.ProcessMask) !== 0) {
-        deltaUpdateFlags |= View.NeedsProcess;
-      }
-      if ((updateFlags & View.DisplayMask) !== 0) {
-        deltaUpdateFlags |= View.NeedsDisplay;
-      }
-      if (deltaUpdateFlags !== 0 || immediate) {
-        this.setFlags(this.flags | deltaUpdateFlags);
-        const parent = this.parent;
-        if (parent !== null) {
-          parent.requestUpdate(target, updateFlags, immediate);
-        } else if (this.mounted) {
-          const updaterService = this.updater.service;
-          if (updaterService !== null) {
-            updaterService.requestUpdate(target, updateFlags, immediate);
-          }
-        }
+    if ((this.flags & View.CulledMask) === View.CulledFlag) {
+      return; // culled root
+    }
+    updateFlags = this.needsUpdate(updateFlags, immediate);
+    let deltaUpdateFlags = this.flags & ~updateFlags & View.UpdateMask;
+    if ((updateFlags & View.ProcessMask) !== 0) {
+      deltaUpdateFlags |= View.NeedsProcess;
+    }
+    if ((updateFlags & View.DisplayMask) !== 0) {
+      deltaUpdateFlags |= View.NeedsDisplay;
+    }
+    if (deltaUpdateFlags === 0 && !immediate) {
+      return;
+    }
+    this.setFlags(this.flags | deltaUpdateFlags);
+    const parent = this.parent;
+    if (parent !== null) {
+      parent.requestUpdate(target, updateFlags, immediate);
+    } else if (this.mounted) {
+      const updaterService = this.updater.service;
+      if (updaterService !== null) {
+        updaterService.requestUpdate(target, updateFlags, immediate);
       }
     }
   }

@@ -16,7 +16,6 @@ import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
 import {Property} from "@swim/component";
 import {GeoBox} from "@swim/geo";
-import type {GeoProjection} from "@swim/geo";
 import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
@@ -84,13 +83,14 @@ export class GeoView extends GraphicsView {
   protected renderGeoBounds(outlineColor: Color, outlineWidth: number): void {
     const renderer = this.renderer.value;
     if (renderer instanceof PaintingRenderer && !this.hidden && !this.culled && !this.unbounded) {
-      this.renderGeoOutline(this.geoBounds, this.geoViewport.value, renderer.context, outlineColor, outlineWidth);
+      this.renderGeoOutline(this.geoBounds, renderer.context, outlineColor, outlineWidth);
     }
   }
 
-  protected renderGeoOutline(geoBox: GeoBox, geoProjection: GeoProjection, context: PaintingContext,
+  protected renderGeoOutline(geoBox: GeoBox, context: PaintingContext,
                              outlineColor: Color, outlineWidth: number): void {
-    if (!geoBox.isDefined()) {
+    const geoViewport = this.geoViewport.value;
+    if (!geoBox.isDefined() || geoViewport === null) {
       return;
     }
 
@@ -98,10 +98,10 @@ export class GeoView extends GraphicsView {
     const contextLineWidth = context.lineWidth;
     const contextStrokeStyle = context.strokeStyle;
 
-    const southWest = geoProjection.project(geoBox.southWest.normalized());
-    const northWest = geoProjection.project(geoBox.northWest.normalized());
-    const northEast = geoProjection.project(geoBox.northEast.normalized());
-    const southEast = geoProjection.project(geoBox.southEast.normalized());
+    const southWest = geoViewport.project(geoBox.southWest.normalized());
+    const northWest = geoViewport.project(geoBox.northWest.normalized());
+    const northEast = geoViewport.project(geoBox.northEast.normalized());
+    const southEast = geoViewport.project(geoBox.southEast.normalized());
     context.beginPath();
     context.moveTo(southWest.x, southWest.y);
     context.lineTo(northWest.x, northWest.y);
@@ -146,9 +146,10 @@ export class GeoView extends GraphicsView {
 
   @Property({
     valueType: GeoViewport,
+    value: null,
     inherits: true,
   })
-  readonly geoViewport!: Property<this, GeoViewport>;
+  readonly geoViewport!: Property<this, GeoViewport | null>;
 
   /**
    * The map-specified geo-coordinate bounding box in which this view should layout

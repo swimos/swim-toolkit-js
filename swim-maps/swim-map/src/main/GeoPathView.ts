@@ -85,6 +85,10 @@ export class GeoPathView extends GeoView {
 
   protected projectPath(): void {
     const geoViewport = this.geoViewport.value;
+    if (geoViewport === null) {
+      return;
+    }
+
     let viewPath: R2Path | null;
     if (this.viewPath.hasAffinity(Affinity.Intrinsic)) {
       const geoPath = this.geoPath.value;
@@ -104,7 +108,7 @@ export class GeoPathView extends GeoView {
 
     (this as Mutable<this>).viewBounds = viewPath !== null ? viewPath.bounds : this.viewFrame;
 
-    this.cullGeoFrame(this.geoViewport.value.geoFrame);
+    this.cullGeoFrame(geoViewport.geoFrame);
   }
 
   protected override updateGeoBounds(): void {

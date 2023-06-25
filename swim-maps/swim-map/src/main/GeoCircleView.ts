@@ -117,21 +117,26 @@ export class GeoCircleView extends GeoView implements FillView, StrokeView {
   }
 
   protected projectGeoCenter(geoCenter: GeoPoint | null): void {
-    if (!this.mounted) {
+    const geoViewport = this.geoViewport.value;
+    if (!this.mounted || geoViewport === null) {
       return;
     }
     const viewCenter = geoCenter !== null && geoCenter.isDefined()
-                     ? this.geoViewport.value.project(geoCenter)
+                     ? geoViewport.project(geoCenter)
                      : null;
     this.viewCenter.setInterpolatedValue(this.viewCenter.value, viewCenter);
     this.projectCircle();
   }
 
   protected projectCircle(): void {
+    const geoViewport = this.geoViewport.value;
+    if (geoViewport === null) {
+      return;
+    }
     if (Affinity.Intrinsic >= (this.viewCenter.flags & Affinity.Mask)) { // this.viewCenter.hasAffinity(Affinity.Intrinsic)
       const geoCenter = this.geoCenter.value;
       const viewCenter = geoCenter !== null && geoCenter.isDefined()
-                       ? this.geoViewport.value.project(geoCenter)
+                       ? geoViewport.project(geoCenter)
                        : null;
       (this.viewCenter as Mutable<typeof this.viewCenter>).value = viewCenter; // this.viewCenter.setValue(viewCenter, Affinity.Intrinsic)
     }

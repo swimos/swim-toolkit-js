@@ -14,6 +14,7 @@
 
 import type {Class} from "@swim/util";
 import type {Observes} from "@swim/util";
+import {Property} from "@swim/component";
 import type {GeoBox} from "@swim/geo";
 import type {Trait} from "@swim/model";
 import {TraitViewRef} from "@swim/controller";
@@ -56,20 +57,49 @@ export interface GeoLayerControllerObserver<C extends GeoLayerController = GeoLa
 export class GeoLayerController extends GeoController {
   declare readonly observerType?: Class<GeoLayerControllerObserver>;
 
+  @Property({extends: true, inherits: false})
+  override readonly minVisibleZoom!: Property<this, number>;
+
+  @Property({extends: true, inherits: false})
+  override readonly maxVisibleZoom!: Property<this, number>;
+
+  protected override autoCull(): void {
+    if (!this.mounted) {
+      return;
+    }
+    const geoView = this.geo.view;
+    if (geoView === null) {
+      return;
+    }
+    const geoViewport = geoView.geoViewport.value;
+    if (geoViewport === null) {
+      return;
+    }
+
+    // Layer controllers ignore maxVisibleZoom;
+    // child geo controllers inherit maxVisibleZoom and cull themselves.
+    const isVisible = this.minVisibleZoom.value <= geoViewport.zoom
+                   && geoViewport.geoFrame.intersects(geoView.geoBounds);
+    geoView.setCulled(!isVisible);
+  }
+
+  @Property({extends: true, inherits: false})
+  override readonly minConsumeZoom!: Property<this, number>;
+
+  @Property({extends: true, inherits: false})
+  override readonly maxConsumeZoom!: Property<this, number>;
+
   @TraitViewRef({
+    extends: true,
     traitType: GeoLayerTrait,
     observesTrait: true,
-    willAttachTrait(geoTrait: GeoLayerTrait): void {
-      this.owner.callObservers("controllerWillAttachGeoTrait", geoTrait, this.owner);
-    },
-    didAttachTrait(geoTrait: GeoLayerTrait): void {
+    initTrait(geoTrait: GeoLayerTrait): void {
+      super.initTrait(geoTrait);
       this.owner.features.addTraits(geoTrait.features.traits);
     },
-    willDetachTrait(geoTrait: GeoLayerTrait): void {
+    deinitTrait(geoTrait: GeoLayerTrait): void {
       this.owner.features.deleteTraits(geoTrait.features.traits);
-    },
-    didDetachTrait(geoTrait: GeoLayerTrait): void {
-      this.owner.callObservers("controllerDidDetachGeoTrait", geoTrait, this.owner);
+      super.deinitTrait(geoTrait);
     },
     traitWillSetGeoBounds(newGeoBounds: GeoBox, oldGeoBounds: GeoBox): void {
       this.owner.callObservers("controllerWillSetGeoBounds", newGeoBounds, oldGeoBounds, this.owner);
@@ -84,10 +114,8 @@ export class GeoLayerController extends GeoController {
       this.owner.features.deleteTrait(featureTrait);
     },
     viewType: GeoTreeView,
-    willAttachView(geoView: GeoView): void {
-      this.owner.callObservers("controllerWillAttachGeoView", geoView, this.owner);
-    },
-    didAttachView(geoView: GeoView): void {
+    initView(geoView: GeoView): void {
+      super.initView(geoView);
       const featureControllers = this.owner.features.controllers;
       for (const controllerId in featureControllers) {
         const featureController = featureControllers[controllerId]!;
@@ -97,11 +125,8 @@ export class GeoLayerController extends GeoController {
         }
       }
     },
-    didDetachView(geoView: GeoView): void {
-      this.owner.callObservers("controllerDidDetachGeoView", geoView, this.owner);
-    },
   })
-  readonly geo!: TraitViewRef<this, GeoLayerTrait, GeoView> & Observes<GeoLayerTrait>;
+  override readonly geo!: TraitViewRef<this, GeoLayerTrait, GeoView> & GeoController["geo"] & Observes<GeoLayerTrait>;
 
   @TraitViewControllerSet({
     controllerType: GeoController,
@@ -151,7 +176,7 @@ export class GeoLayerController extends GeoController {
       // hook
     },
     detachFeatureTrait(featureTrait: GeoTrait, featureController: GeoController): void {
-      // hook
+      this.deleteController(featureController);
     },
     controllerWillAttachGeoView(featureView: GeoView, featureController: GeoController): void {
       this.owner.callObservers("controllerWillAttachFeatureView", featureView, featureController, this.owner);
@@ -162,7 +187,10 @@ export class GeoLayerController extends GeoController {
       this.owner.callObservers("controllerDidDetachFeatureView", featureView, featureController, this.owner);
     },
     attachFeatureView(featureView: GeoView, featureController: GeoController): void {
-      // hook
+      const geoView = this.owner.geo.view;
+      if (geoView !== null && featureView.parent === null) {
+        featureController.geo.insertView(geoView);
+      }
     },
     detachFeatureView(featureView: GeoView, featureController: GeoController): void {
       featureView.remove();

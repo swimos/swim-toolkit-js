@@ -39,6 +39,7 @@ import {ViewRef} from "@swim/view";
 import type {StrokeView} from "@swim/graphics";
 import type {PaintingContext} from "@swim/graphics";
 import {PaintingRenderer} from "@swim/graphics";
+import type {GeoViewport} from "./GeoViewport";
 import type {GeoViewObserver} from "./GeoView";
 import {GeoView} from "./GeoView";
 
@@ -136,23 +137,25 @@ export class GeoRippleView extends GeoView implements StrokeView {
   }
 
   protected projectGeoCenter(geoCenter: GeoPoint | null): void {
-    if (!this.mounted) {
+    const geoViewport = this.geoViewport.value;
+    if (!this.mounted || geoViewport === null) {
       return;
     }
     const viewCenter = geoCenter !== null && geoCenter.isDefined()
-                     ? this.geoViewport.value.project(geoCenter)
+                     ? geoViewport.project(geoCenter)
                      : null;
     this.viewCenter.setInterpolatedValue(this.viewCenter.value, viewCenter);
     this.projectRipple();
   }
 
   protected projectRipple(): void {
-    if (!this.viewCenter.hasAffinity(Affinity.Intrinsic)) {
+    const geoViewport = this.geoViewport.value;
+    if (!this.viewCenter.hasAffinity(Affinity.Intrinsic) || geoViewport === null) {
       return;
     }
     const geoCenter = this.geoCenter.value;
     const viewCenter = geoCenter !== null && geoCenter.isDefined()
-                     ? this.geoViewport.value.project(geoCenter)
+                     ? geoViewport.project(geoCenter)
                      : null;
     this.viewCenter.setValue(viewCenter, Affinity.Intrinsic);
   }
@@ -280,8 +283,10 @@ export class GeoRippleView extends GeoView implements StrokeView {
   }
 
   static ripple(sourceView: GeoView, options?: GeoRippleOptions): GeoRippleView | null {
-    if (document.hidden || sourceView.hidden || sourceView.culled ||
-        !sourceView.geoBounds.intersects(sourceView.geoViewport.value.geoFrame)) {
+    let geoViewport: GeoViewport | null;
+    if (document.hidden || sourceView.hidden || sourceView.culled
+        || (geoViewport = sourceView.geoViewport.value) === null
+        || !sourceView.geoBounds.intersects(geoViewport.geoFrame)) {
       return null;
     }
     const rippleView = GeoRippleView.create();

@@ -97,12 +97,11 @@ export class GeoLineController extends GeoPathController {
   }
 
   @TraitViewRef({
+    extends: true,
     traitType: GeoLineTrait,
     observesTrait: true,
-    willAttachTrait(geoTrait: GeoLineTrait): void {
-      this.owner.callObservers("controllerWillAttachGeoTrait", geoTrait, this.owner);
-    },
-    didAttachTrait(geoTrait: GeoLineTrait): void {
+    initTrait(geoTrait: GeoLineTrait): void {
+      super.initTrait(geoTrait);
       const geoView = this.view;
       if (geoView === null) {
         return;
@@ -117,9 +116,6 @@ export class GeoLineController extends GeoPathController {
         this.owner.setStrokeWidth(strokeWidth);
       }
     },
-    didDetachTrait(geoTrait: GeoLineTrait): void {
-      this.owner.callObservers("controllerDidDetachGeoTrait", geoTrait, this.owner);
-    },
     traitDidSetGeoPath(geoPath: GeoPath | null): void {
       this.owner.setGeoPath(geoPath);
     },
@@ -131,10 +127,8 @@ export class GeoLineController extends GeoPathController {
     },
     viewType: GeoLineView,
     observesView: true,
-    willAttachView(geoView: GeoLineView): void {
-      this.owner.callObservers("controllerWillAttachGeoView", geoView, this.owner);
-    },
-    didAttachView(geoView: GeoLineView): void {
+    initView(geoView: GeoLineView): void {
+      super.initView(geoView);
       const geoTrait = this.trait;
       if (geoTrait === null) {
         return;
@@ -149,9 +143,6 @@ export class GeoLineController extends GeoPathController {
         this.owner.setStrokeWidth(strokeWidth);
       }
     },
-    didDetachView(geoView: GeoLineView): void {
-      this.owner.callObservers("controllerDidDetachGeoView", geoView, this.owner);
-    },
     viewDidSetGeoPath(geoPath: GeoPath | null): void {
       this.owner.callObservers("controllerDidSetGeoPath", geoPath, this.owner);
     },
@@ -162,5 +153,5 @@ export class GeoLineController extends GeoPathController {
       this.owner.callObservers("controllerDidSetStrokeWidth", strokeWidth, this.owner);
     },
   })
-  readonly geo!: TraitViewRef<this, GeoLineTrait, GeoLineView> & Observes<GeoLineTrait> & Observes<GeoLineView>;
+  override readonly geo!: TraitViewRef<this, GeoLineTrait, GeoLineView> & GeoPathController["geo"] & Observes<GeoLineTrait> & Observes<GeoLineView>;
 }

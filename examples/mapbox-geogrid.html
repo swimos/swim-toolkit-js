@@ -16,6 +16,8 @@
 
 mapboxgl.accessToken = "pk.eyJ1Ijoic3dpbWl0IiwiYSI6ImNqY2c3NXZkYzFoa2QycXQ1eXl1Mnd6M3EifQ.qpRE7xC08AyZfxJ56LoN7w";
 
+const vehicleIcon = swim.VectorIcon.create(24, 24, "M20,6L20,17C20,17.87,19.57,18.46,19,19L19,21C19,21.56,18.56,22,18,22L17,22C16.44,22,16,21.56,16,21.02L16,20L8,20L8,21C8,21.56,7.56,22,7,22L6,22C5.44,22,5.05,21.56,5,21L5,19C4.43,18.46,4.05,17.87,4,17L4,6C4,3.54,5.89,2.56,8.54,2.2L9,2.14L9,2.14L9.47,2.1L9.47,2.1L9.96,2.06L9.96,2.06L10.45,2.03L10.45,2.03L11.22,2.01L11.22,2.01L12,2L12,2L12.52,2L13.04,2.01L13.04,2.01L13.55,2.02L13.55,2.02L14.04,2.05L14.04,2.05L14.53,2.08C14.61,2.09,14.69,2.1,14.77,2.1L15.24,2.15L15.24,2.15L15.69,2.22C18.22,2.6,20,3.61,20,6ZM7.5,14C6.67,14,6,14.67,6,15.5C6,16.33,6.67,17,7.5,17C8.33,17,9,16.33,9,15.5C9,14.67,8.33,14,7.5,14ZM16.5,14C15.67,14,15,14.67,15,15.5C15,16.33,15.67,17,16.5,17C17.33,17,18,16.33,18,15.5C18,14.67,17.33,14,16.5,14ZM18,6L6,6L6,11L18,11L18,6Z");
+
 const ExampleMapboxController = (function () {
   const instanceInitializers = [];
   const mapInitializers = [];
@@ -75,6 +77,16 @@ const ExampleTileController = (function () {
       __runInitializers(this, instanceInitializers);
       this.geo = __runInitializers(this, geoInitializers, this.geo);
       this.tiles = __runInitializers(this, tilesInitializers, this.tiles);
+      // Only consume even zoom level tiles
+      this.maxVisibleZoom.setValue(geoTile.z + 2);
+      if (geoTile.z % 2 === 0) {
+        this.maxConsumeZoom.setValue(geoTile.z + 2);
+      } else {
+        this.maxConsumeZoom.setValue(geoTile.z); // disables auto-consume
+      }
+    }
+    createTileController(geoTile, geoTrait) {
+      return new ExampleTileController(geoTile);
     }
   }
   __esDecorate(null, null, [swim.TraitViewRef({
@@ -88,9 +100,6 @@ const ExampleTileController = (function () {
     extends: true,
     attachTileView(tileView, tileController) {
       super.attachTileView(tileView, tileController);
-    },
-    createController(tileTrait) {
-      return tileTrait !== void 0 ? new ExampleTileController(tileTrait.geoTile) : null;
     },
   })], {kind: "field", name: "tiles", static: false, private: false, access: {has: obj => "tiles" in obj, get: obj => obj.tiles, set: (obj, value) => { obj.tiles = value; }}}, tilesInitializers, instanceInitializers);
   return ExampleTileController;
@@ -111,19 +120,35 @@ const ExampleTileTrait = (function () {
       return new ExampleTileTrait(geoTile);
     }
     onStartConsuming() {
-      super.onStartConsuming();
       console.log("onStartConsuming " + this.geoTile);
+      super.onStartConsuming();
     }
     onStopConsuming() {
-      super.onStopConsuming();
       console.log("onStopConsuming " + this.geoTile);
+      super.onStopConsuming();
+      this.features.setModels({});
     }
   }
   __esDecorate(null, null, [swim.MapDownlink({
     consumed: true,
     laneUri: "vehicles",
     didUpdate(key, value) {
-      console.log(this.nodeUri + " updateVehicle " + key.toAny() + ":", value.toAny());
+      console.log(this.getNodeUri() + " updateVehicle " + key.toAny() + ":", value.toAny());
+      const featureId = key.stringValue();
+      let featureModel = this.owner.getChild(featureId);
+      let featureTrait = featureModel !== null ? featureModel.getTrait(swim.GeoIconTrait) : null;
+      if (featureTrait === null) {
+        featureTrait = new swim.GeoIconTrait()
+          .iconLayout({iconWidth: 16, iconHeight: 16})
+          .graphics(vehicleIcon);
+        this.owner.features.insertTrait(void 0, featureTrait);
+        featureModel = featureTrait.model;
+      }
+      const lng = value.get("longitude").numberValue(NaN);
+      const lat = value.get("latitude").numberValue(NaN);
+      if (isFinite(lng) && isFinite(lat)) {
+        featureTrait.geoCenter.setValue([lng, lat]);
+      }
     },
   })], {kind: "field", name: "vehiclesDownlink", static: false, private: false, access: {has: obj => "vehiclesDownlink" in obj, get: obj => obj.vehiclesDownlink, set: (obj, value) => { obj.vehiclesDownlink = value; }}}, vehiclesDownlinkInitializers, instanceInitializers);
   return ExampleTileTrait;

@@ -57,11 +57,8 @@ export class EsriSceneView extends EsriView {
 
   @Property({
     extends: true,
-    willSetValue(newGeoViewport: GeoViewport, oldGeoViewport: GeoViewport): void {
-      this.owner.callObservers("viewWillSetGeoViewport", newGeoViewport, oldGeoViewport, this.owner);
-    },
-    didSetValue(newGeoViewport: GeoViewport, oldGeoViewport: GeoViewport): void {
-      this.owner.callObservers("viewDidSetGeoViewport", newGeoViewport, oldGeoViewport, this.owner);
+    didSetValue(newGeoViewport: GeoViewport | null, oldGeoViewport: GeoViewport | null): void {
+      super.didSetValue(newGeoViewport, oldGeoViewport);
       const immediate = !this.owner.hidden && !this.owner.culled;
       this.owner.requireUpdate(View.NeedsProject, immediate);
     },
@@ -72,7 +69,7 @@ export class EsriSceneView extends EsriView {
       this.setValue(EsriSceneViewport.create(this.owner.map), Affinity.Intrinsic);
     },
   })
-  override readonly geoViewport!: Property<this, GeoViewport> & EsriView["geoViewport"] & {
+  override readonly geoViewport!: Property<this, GeoViewport | null> & EsriView["geoViewport"] & {
     /** @internal */
     update(): void;
   };
@@ -82,9 +79,12 @@ export class EsriSceneView extends EsriView {
   }
 
   override moveTo(geoPerspective: AnyGeoPerspective, timing?: AnyTiming | boolean): void {
+    const geoViewport = this.geoViewport.value;
+    if (geoViewport === null) {
+      return;
+    }
     const target: __esri.GoToTarget3D = {};
     const options: __esri.GoToOptions3D = {};
-    const geoViewport = this.geoViewport.value;
     let geoCenter = geoPerspective.geoCenter;
     if (geoCenter !== void 0 && geoCenter !== null) {
       geoCenter = GeoPoint.fromAny(geoCenter);

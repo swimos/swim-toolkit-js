@@ -181,22 +181,27 @@ export class GeoRasterView extends GeoView {
   }
 
   protected projectGeoAnchor(geoAnchor: GeoPoint | null): void {
-    if (!this.mounted) {
+    const geoViewport = this.geoViewport.value;
+    if (!this.mounted || geoViewport === null) {
       return;
     }
     const viewAnchor = geoAnchor !== null && geoAnchor.isDefined()
-                     ? this.geoViewport.value.project(geoAnchor)
+                     ? geoViewport.project(geoAnchor)
                      : null;
     this.viewAnchor.setInterpolatedValue(this.viewAnchor.value, viewAnchor);
     this.projectRaster();
   }
 
   protected projectRaster(): void {
+    const geoViewport = this.geoViewport.value;
+    if (geoViewport === null) {
+      return;
+    }
     let viewAnchor: R2Point | null;
     if (this.viewAnchor.hasAffinity(Affinity.Intrinsic)) {
       const geoAnchor = this.geoAnchor.value;
       viewAnchor = geoAnchor !== null && geoAnchor.isDefined()
-                 ? this.geoViewport.value.project(geoAnchor)
+                 ? geoViewport.project(geoAnchor)
                  : null;
       this.viewAnchor.setValue(viewAnchor, Affinity.Intrinsic);
     } else {

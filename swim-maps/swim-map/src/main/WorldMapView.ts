@@ -32,9 +32,9 @@ import {EquirectangularMapViewport} from "./WorldMapViewport";
 
 /** @public */
 export interface WorldMapViewObserver<V extends WorldMapView = WorldMapView> extends MapViewObserver<V> {
-  viewWillSetGeoViewport?(newGeoViewport: GeoViewport, oldGeoViewport: GeoViewport, view: V): void;
+  viewWillSetGeoViewport?(newGeoViewport: GeoViewport | null, oldGeoViewport: GeoViewport | null, view: V): void;
 
-  viewDidSetGeoViewport?(newGeoViewport: GeoViewport, oldGeoViewport: GeoViewport, view: V): void;
+  viewDidSetGeoViewport?(newGeoViewport: GeoViewport | null, oldGeoViewport: GeoViewport | null, view: V): void;
 }
 
 /** @public */
@@ -48,19 +48,13 @@ export class WorldMapView extends MapView {
 
   @Property({
     extends: true,
-    willSetValue(newGeoViewport: GeoViewport, oldGeoViewport: GeoViewport): void {
-      this.owner.callObservers("viewWillSetGeoViewport", newGeoViewport, oldGeoViewport, this.owner);
-    },
-    didSetValue(newGeoViewport: GeoViewport, oldGeoViewport: GeoViewport): void {
-      this.owner.callObservers("viewDidSetGeoViewport", newGeoViewport, oldGeoViewport, this.owner);
-    },
     update(): void {
       if (this.hasAffinity(Affinity.Intrinsic) && this.value instanceof WorldMapViewport) {
         this.setValue(this.value.withViewFrame(this.owner.viewFrame), Affinity.Intrinsic);
       }
     },
   })
-  override readonly geoViewport!: Property<this, GeoViewport> & MapView["geoViewport"] & {
+  override readonly geoViewport!: Property<this, GeoViewport | null> & MapView["geoViewport"] & {
     /** @internal */
     update(): void;
   };

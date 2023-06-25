@@ -217,8 +217,12 @@ export class GeoPointView extends GeoView {
 
   protected override onProject(): void {
     super.onProject();
+    const geoViewport = this.geoViewport.value;
+    if (geoViewport === null) {
+      return;
+    }
     if (this.viewPoint.hasAffinity(Affinity.Intrinsic)) {
-      const viewPoint = this.geoViewport.value.project(this.geoPoint.getValue());
+      const viewPoint = geoViewport.project(this.geoPoint.getValue());
       this.viewPoint.setInterpolatedValue(viewPoint, viewPoint);
     }
   }

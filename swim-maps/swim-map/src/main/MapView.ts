@@ -15,7 +15,7 @@
 import type {Class} from "@swim/util";
 import type {AnyTiming} from "@swim/util";
 import {Property} from "@swim/component";
-import type {GeoBox} from "@swim/geo";
+import {GeoBox} from "@swim/geo";
 import type {ViewFlags} from "@swim/view";
 import {View} from "@swim/view";
 import {ViewRef} from "@swim/view";
@@ -28,9 +28,9 @@ import {GeoView} from "./GeoView";
 
 /** @public */
 export interface MapViewObserver<V extends MapView = MapView> extends GeoViewObserver<V> {
-  viewWillSetGeoViewport?(newGeoViewport: GeoViewport, oldGeoViewport: GeoViewport, view: V): void;
+  viewWillSetGeoViewport?(newGeoViewport: GeoViewport | null, oldGeoViewport: GeoViewport | null, view: V): void;
 
-  viewDidSetGeoViewport?(newGeoViewport: GeoViewport, oldGeoViewport: GeoViewport, view: V): void;
+  viewDidSetGeoViewport?(newGeoViewport: GeoViewport | null, oldGeoViewport: GeoViewport | null, view: V): void;
 
   viewWillAttachMapCanvas?(mapCanvasView: CanvasView, view: V): void;
 
@@ -48,8 +48,14 @@ export abstract class MapView extends GeoView {
   @Property({
     extends: true,
     inherits: false,
+    willSetValue(newGeoViewport: GeoViewport | null, oldGeoViewport: GeoViewport | null): void {
+      this.owner.callObservers("viewWillSetGeoViewport", newGeoViewport, oldGeoViewport, this.owner);
+    },
+    didSetValue(newGeoViewport: GeoViewport | null, oldGeoViewport: GeoViewport | null): void {
+      this.owner.callObservers("viewDidSetGeoViewport", newGeoViewport, oldGeoViewport, this.owner);
+    },
   })
-  override readonly geoViewport!: Property<this, GeoViewport> & GeoView["geoViewport"];
+  override readonly geoViewport!: Property<this, GeoViewport | null> & GeoView["geoViewport"];
 
   abstract moveTo(geoPerspective: AnyGeoPerspective, timing?: AnyTiming | boolean): void;
 
@@ -83,6 +89,7 @@ export abstract class MapView extends GeoView {
   }
 
   override get geoFrame(): GeoBox {
-    return this.geoViewport.value.geoFrame;
+    const geoViewport = this.geoViewport.value;
+    return geoViewport !== null ? geoViewport.geoFrame : GeoBox.globe();
   }
 }

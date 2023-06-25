@@ -205,6 +205,10 @@ export class GeoPlotView extends GeoView implements StrokeView {
   }
 
   protected override didProject(): void {
+    const geoViewport = this.geoViewport.value;
+    if (geoViewport === null) {
+      return;
+    }
     const oldGeoBounds = this.geoBounds;
     let lngMin = Infinity;
     let latMin = Infinity;
@@ -262,7 +266,7 @@ export class GeoPlotView extends GeoView implements StrokeView {
       yMid /= pointCount;
       this.viewCentroid.setValue(new R2Point(xMid, yMid), Affinity.Intrinsic);
       (this as Mutable<this>).viewBounds = new R2Box(xMin, yMin, xMax, yMax);
-      this.cullGeoFrame(this.geoViewport.value.geoFrame);
+      this.cullGeoFrame(geoViewport.geoFrame);
     }
     (this as Mutable<this>).gradientStops = gradientStops;
     const newGeoBounds = this.geoBounds;

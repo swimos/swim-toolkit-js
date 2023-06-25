@@ -437,16 +437,15 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
 
   /** @internal */
   override cascadeMount(): void {
-    if ((this.flags & Model.MountedFlag) === 0) {
-      this.willMount();
-      this.setFlags(this.flags | Model.MountedFlag);
-      this.onMount();
-      this.mountTraits();
-      this.mountChildren();
-      this.didMount();
-    } else {
+    if ((this.flags & Model.MountedFlag) !== 0) {
       throw new Error("already mounted");
     }
+    this.willMount();
+    this.setFlags(this.flags | Model.MountedFlag);
+    this.onMount();
+    this.mountTraits();
+    this.mountChildren();
+    this.didMount();
   }
 
   protected override willMount(): void {
@@ -489,16 +488,15 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
 
   /** @internal */
   override cascadeUnmount(): void {
-    if ((this.flags & Model.MountedFlag) !== 0) {
-      this.willUnmount();
-      this.setFlags(this.flags & ~Model.MountedFlag);
-      this.unmountChildren();
-      this.unmountTraits();
-      this.onUnmount();
-      this.didUnmount();
-    } else {
+    if ((this.flags & Model.MountedFlag) === 0) {
       throw new Error("already unmounted");
     }
+    this.willUnmount();
+    this.setFlags(this.flags & ~Model.MountedFlag);
+    this.unmountChildren();
+    this.unmountTraits();
+    this.onUnmount();
+    this.didUnmount();
   }
 
   protected override willUnmount(): void {
@@ -568,16 +566,17 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
     if ((updateFlags & Model.RefreshMask) !== 0) {
       deltaUpdateFlags |= Model.NeedsRefresh;
     }
-    if (deltaUpdateFlags !== 0 || immediate) {
-      this.setFlags(this.flags | deltaUpdateFlags);
-      const parent = this.parent;
-      if (parent !== null) {
-        parent.requestUpdate(target, updateFlags, immediate);
-      } else if (this.mounted) {
-        const updaterService = this.updater.service;
-        if (updaterService !== null) {
-          updaterService.requestUpdate(target, updateFlags, immediate);
-        }
+    if (deltaUpdateFlags === 0 && !immediate) {
+      return;
+    }
+    this.setFlags(this.flags | deltaUpdateFlags);
+    const parent = this.parent;
+    if (parent !== null) {
+      parent.requestUpdate(target, updateFlags, immediate);
+    } else if (this.mounted) {
+      const updaterService = this.updater.service;
+      if (updaterService !== null) {
+        updaterService.requestUpdate(target, updateFlags, immediate);
       }
     }
   }
@@ -1094,30 +1093,31 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
   /** @internal */
   protected removeTraitMap(trait: Trait): void {
     const key = trait.key;
-    if (key !== void 0) {
-      const traitMap = this.traitMap as MutableDictionary<Trait>;
-      if (traitMap !== null) {
-        delete traitMap[key];
-      }
+    if (key === void 0) {
+      return;
+    }
+    const traitMap = this.traitMap as MutableDictionary<Trait>;
+    if (traitMap !== null) {
+      delete traitMap[key];
     }
   }
 
-  findTrait<F extends Class<Trait>>(key: string | undefined, traitBound: F): InstanceType<F> | null;
-  findTrait(key: string | undefined, traitBound: Class<Trait> | undefined): Trait | null;
-  findTrait(key: string | undefined, traitBound: Class<Trait> | undefined): Trait | null {
+  findTrait<F extends Class<Trait>>(key: string | undefined, traitClass: F): InstanceType<F> | null;
+  findTrait(key: string | undefined, traitClass: Class<Trait> | undefined): Trait | null;
+  findTrait(key: string | undefined, traitClass: Class<Trait> | undefined): Trait | null {
     if (key !== void 0) {
       const traitMap = this.traitMap;
       if (traitMap !== null) {
         const trait = traitMap[key];
-        if (trait !== void 0 && (traitBound === void 0 || trait instanceof traitBound)) {
+        if (trait !== void 0 && (traitClass === void 0 || trait instanceof traitClass)) {
           return trait;
         }
       }
     }
-    if (traitBound !== void 0) {
+    if (traitClass !== void 0) {
       let trait = this.firstTrait;
       while (trait !== null) {
-        if (trait instanceof traitBound) {
+        if (trait instanceof traitClass) {
           return trait;
         }
         trait = (trait as Trait).nextTrait;
@@ -1126,14 +1126,14 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
     return null;
   }
 
-  hasTrait(key: string, traitBound?: Class<Trait>): boolean;
-  hasTrait(traitBound: Class<Trait>): boolean;
-  hasTrait(key: string | Class<Trait>, traitBound?: Class<Trait>): boolean {
+  hasTrait(key: string, traitClass?: Class<Trait>): boolean;
+  hasTrait(traitClass: Class<Trait>): boolean;
+  hasTrait(key: string | Class<Trait>, traitClass?: Class<Trait>): boolean {
     if (typeof key === "string") {
       const traitMap = this.traitMap;
       if (traitMap !== null) {
         const trait = traitMap[key];
-        if (trait !== void 0 && (traitBound === void 0 || trait instanceof traitBound)) {
+        if (trait !== void 0 && (traitClass === void 0 || trait instanceof traitClass)) {
           return true;
         }
       }
@@ -1149,15 +1149,15 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
     return false;
   }
 
-  getTrait<F extends Class<Trait>>(key: string, traitBound: F): InstanceType<F> | null;
-  getTrait(key: string, traitBound?: Class<Trait>): Trait | null;
-  getTrait<F extends Class<Trait>>(traitBound: F): InstanceType<F> | null;
-  getTrait(key: string | Class<Trait>, traitBound?: Class<Trait>): Trait | null {
+  getTrait<F extends Class<Trait>>(key: string, traitClass: F): InstanceType<F> | null;
+  getTrait(key: string, traitClass?: Class<Trait>): Trait | null;
+  getTrait<F extends Class<Trait>>(traitClass: F): InstanceType<F> | null;
+  getTrait(key: string | Class<Trait>, traitClass?: Class<Trait>): Trait | null {
     if (typeof key === "string") {
       const traitMap = this.traitMap;
       if (traitMap !== null) {
         const trait = traitMap[key];
-        if (trait !== void 0 && (traitBound === void 0 || trait instanceof traitBound)) {
+        if (trait !== void 0 && (traitClass === void 0 || trait instanceof traitClass)) {
           return trait;
         }
       }
@@ -1472,26 +1472,28 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
 
   sortTraits(comparator: Comparator<Trait>): void {
     let trait = this.firstTrait;
-    if (trait !== null) {
-      const traits: Trait[] = [];
-      do {
-        traits.push(trait);
-        trait = trait.nextTrait;
-      } while (trait !== null);
-      traits.sort(comparator);
-
-      trait = traits[0]!;
-      this.setFirstTrait(trait);
-      trait.setPreviousTrait(null);
-      for (let i = 1; i < traits.length; i += 1) {
-        const next = traits[i]!;
-        trait.setNextTrait(next);
-        next.setPreviousTrait(trait);
-        trait = next;
-      }
-      trait.setNextTrait(null);
-      this.setLastTrait(trait);
+    if (trait === null) {
+      return;
     }
+
+    const traits: Trait[] = [];
+    do {
+      traits.push(trait);
+      trait = trait.nextTrait;
+    } while (trait !== null);
+    traits.sort(comparator);
+
+    trait = traits[0]!;
+    this.setFirstTrait(trait);
+    trait.setPreviousTrait(null);
+    for (let i = 1; i < traits.length; i += 1) {
+      const next = traits[i]!;
+      trait.setNextTrait(next);
+      next.setPreviousTrait(trait);
+      trait = next;
+    }
+    trait.setNextTrait(null);
+    this.setLastTrait(trait);
   }
 
   /** @internal */
@@ -1687,14 +1689,15 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
   consume(consumer: Consumer): void {
     const oldConsumers = this.consumers;
     const newConsumers = Arrays.inserted(consumer, oldConsumers);
-    if (oldConsumers !== newConsumers) {
-      this.willConsume(consumer);
-      (this as Mutable<this>).consumers = newConsumers;
-      this.onConsume(consumer);
-      this.didConsume(consumer);
-      if (oldConsumers.length === 0 && this.mounted) {
-        this.startConsuming();
-      }
+    if (oldConsumers === newConsumers) {
+      return;
+    }
+    this.willConsume(consumer);
+    (this as Mutable<this>).consumers = newConsumers;
+    this.onConsume(consumer);
+    this.didConsume(consumer);
+    if (oldConsumers.length === 0 && this.mounted) {
+      this.startConsuming();
     }
   }
 
@@ -1714,14 +1717,15 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
   unconsume(consumer: Consumer): void {
     const oldConsumers = this.consumers;
     const newConsumers = Arrays.removed(consumer, oldConsumers);
-    if (oldConsumers !== newConsumers) {
-      this.willUnconsume(consumer);
-      (this as Mutable<this>).consumers = newConsumers;
-      this.onUnconsume(consumer);
-      this.didUnconsume(consumer);
-      if (newConsumers.length === 0) {
-        this.stopConsuming();
-      }
+    if (oldConsumers === newConsumers) {
+      return;
+    }
+    this.willUnconsume(consumer);
+    (this as Mutable<this>).consumers = newConsumers;
+    this.onUnconsume(consumer);
+    this.didUnconsume(consumer);
+    if (newConsumers.length === 0) {
+      this.stopConsuming();
     }
   }
 
@@ -1746,12 +1750,13 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
   }
 
   protected startConsuming(): void {
-    if ((this.flags & Model.ConsumingFlag) === 0) {
-      this.willStartConsuming();
-      this.setFlags(this.flags | Model.ConsumingFlag);
-      this.onStartConsuming();
-      this.didStartConsuming();
+    if ((this.flags & Model.ConsumingFlag) !== 0) {
+      return;
     }
+    this.willStartConsuming();
+    this.setFlags(this.flags | Model.ConsumingFlag);
+    this.onStartConsuming();
+    this.didStartConsuming();
   }
 
   protected willStartConsuming(): void {
@@ -1784,12 +1789,13 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
   }
 
   protected stopConsuming(): void {
-    if ((this.flags & Model.ConsumingFlag) !== 0) {
-      this.willStopConsuming();
-      this.setFlags(this.flags & ~Model.ConsumingFlag);
-      this.onStopConsuming();
-      this.didStopConsuming();
+    if ((this.flags & Model.ConsumingFlag) === 0) {
+      return;
     }
+    this.willStopConsuming();
+    this.setFlags(this.flags & ~Model.ConsumingFlag);
+    this.onStopConsuming();
+    this.didStopConsuming();
   }
 
   protected willStopConsuming(): void {

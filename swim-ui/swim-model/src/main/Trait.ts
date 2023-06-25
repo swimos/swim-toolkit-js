@@ -657,19 +657,19 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     return model !== null ? model.forEachTrait(callback, thisArg) : void 0;
   }
 
-  findTrait<F extends Class<Trait>>(key: string | undefined, traitBound: F): InstanceType<F> | null;
-  findTrait(key: string | undefined, traitBound: Class<Trait> | undefined): Trait | null;
-  findTrait(key: string | undefined, traitBound: Class<Trait> | undefined): Trait | null {
+  findTrait<F extends Class<Trait>>(key: string | undefined, traitClass: F): InstanceType<F> | null;
+  findTrait(key: string | undefined, traitClass: Class<Trait> | undefined): Trait | null;
+  findTrait(key: string | undefined, traitClass: Class<Trait> | undefined): Trait | null {
     const model = this.model;
-    return model !== null ? model.findTrait(key, traitBound) : null;
+    return model !== null ? model.findTrait(key, traitClass) : null;
   }
 
-  getTrait<F extends Class<Trait>>(key: string, traitBound: F): InstanceType<F> | null;
-  getTrait(key: string, traitBound?: Class<Trait>): Trait | null;
-  getTrait<F extends Class<Trait>>(traitBound: F): InstanceType<F> | null;
-  getTrait(key: string | Class<Trait>, traitBound?: Class<Trait>): Trait | null {
+  getTrait<F extends Class<Trait>>(key: string, traitClass: F): InstanceType<F> | null;
+  getTrait(key: string, traitClass?: Class<Trait>): Trait | null;
+  getTrait<F extends Class<Trait>>(traitClass: F): InstanceType<F> | null;
+  getTrait(key: string | Class<Trait>, traitClass?: Class<Trait>): Trait | null {
     const model = this.model;
-    return model !== null ? model.getTrait(key as string, traitBound) : null;
+    return model !== null ? model.getTrait(key as string, traitClass) : null;
   }
 
   setTrait<T extends Trait>(key: string, newTrait: T): Trait | null;
@@ -677,11 +677,10 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   setTrait(key: string, newTrait: AnyTrait | null): Trait | null;
   setTrait(key: string, newTrait: AnyTrait | null): Trait | null {
     const model = this.model;
-    if (model !== null) {
-      return model.setTrait(key, newTrait);
-    } else {
+    if (model === null) {
       throw new Error("no model");
     }
+    return model.setTrait(key, newTrait);
   }
 
   appendTrait<T extends Trait>(trait: T, key?: string): T;
@@ -689,11 +688,10 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   appendTrait(trait: AnyTrait, key?: string): Trait;
   appendTrait(trait: AnyTrait, key?: string): Trait {
     const model = this.model;
-    if (model !== null) {
-      return model.appendTrait(trait, key);
-    } else {
+    if (model === null) {
       throw new Error("no model");
     }
+    return model.appendTrait(trait, key);
   }
 
   prependTrait<T extends Trait>(trait: T, key?: string): T;
@@ -701,11 +699,10 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   prependTrait(trait: AnyTrait, key?: string): Trait;
   prependTrait(trait: AnyTrait, key?: string): Trait {
     const model = this.model;
-    if (model !== null) {
-      return model.prependTrait(trait, key);
-    } else {
+    if (model === null) {
       throw new Error("no model");
     }
+    return model.prependTrait(trait, key);
   }
 
   insertTrait<T extends Trait>(trait: T, target: Trait | null, key?: string): T;
@@ -713,22 +710,20 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   insertTrait(trait: AnyTrait, target: Trait | null, key?: string): Trait;
   insertTrait(trait: AnyTrait, target: Trait | null, key?: string): Trait {
     const model = this.model;
-    if (model !== null) {
-      return model.insertTrait(trait, target, key);
-    } else {
+    if (model === null) {
       throw new Error("no model");
     }
+    return model.insertTrait(trait, target, key);
   }
 
   replaceTraitt<T extends Trait>(newTrait: Trait, oldTrait: T): T;
   replaceTraitt<T extends Trait>(newTrait: AnyTrait, oldTrait: T): T;
   replaceTraitt(newTrait: AnyTrait, oldTrait: Trait): Trait {
     const model = this.model;
-    if (model !== null) {
-      return model.replaceTrait(newTrait, oldTrait);
-    } else {
+    if (model === null) {
       throw new Error("no model");
     }
+    return model.replaceTrait(newTrait, oldTrait);
   }
 
   get insertTraitFlags(): ModelFlags {
@@ -773,9 +768,8 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     const model = this.model;
     if (model !== null) {
       return model.removeTrait(key);
-    } else {
-      return null;
     }
+    return null;
   }
 
   get removeTraitFlags(): ModelFlags {
@@ -1068,14 +1062,13 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @internal */
   mountTrait(): void {
-    if ((this.flags & Trait.MountedFlag) === 0) {
-      this.setFlags(this.flags | Trait.MountedFlag);
-      this.willMount();
-      this.onMount();
-      this.didMount();
-    } else {
+    if ((this.flags & Trait.MountedFlag) !== 0) {
       throw new Error("already mounted");
     }
+    this.setFlags(this.flags | Trait.MountedFlag);
+    this.willMount();
+    this.onMount();
+    this.didMount();
   }
 
   protected willMount(): void {
@@ -1114,14 +1107,13 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @internal */
   unmountTrait(): void {
-    if ((this.flags & Trait.MountedFlag) !== 0) {
-      this.setFlags(this.flags & ~Trait.MountedFlag);
-      this.willUnmount();
-      this.onUnmount();
-      this.didUnmount();
-    } else {
+    if ((this.flags & Trait.MountedFlag) === 0) {
       throw new Error("already unmounted");
     }
+    this.setFlags(this.flags & ~Trait.MountedFlag);
+    this.willUnmount();
+    this.onUnmount();
+    this.didUnmount();
   }
 
   protected willUnmount(): void {
@@ -1163,11 +1155,10 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   requestUpdate(target: Model, updateFlags: ModelFlags, immediate: boolean): void {
     const model = this.model;
-    if (model !== null) {
-      model.requestUpdate(target, updateFlags, immediate);
-    } else {
+    if (model === null) {
       throw new TypeError("no model");
     }
+    model.requestUpdate(target, updateFlags, immediate);
   }
 
   get updating(): boolean {
@@ -1658,12 +1649,13 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   observe(observer: Observes<this>): void {
     const oldObservers = this.observers;
     const newObservers = Arrays.inserted(observer, oldObservers);
-    if (oldObservers !== newObservers) {
-      this.willObserve(observer);
-      (this as Mutable<this>).observers = newObservers;
-      this.onObserve(observer);
-      this.didObserve(observer);
+    if (oldObservers === newObservers) {
+      return;
     }
+    this.willObserve(observer);
+    (this as Mutable<this>).observers = newObservers;
+    this.onObserve(observer);
+    this.didObserve(observer);
   }
 
   protected willObserve(observer: Observes<this>): void {
@@ -1682,12 +1674,13 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   unobserve(observer: Observes<this>): void {
     const oldObservers = this.observers;
     const newObservers = Arrays.removed(observer, oldObservers);
-    if (oldObservers !== newObservers) {
-      this.willUnobserve(observer);
-      (this as Mutable<this>).observers = newObservers;
-      this.onUnobserve(observer);
-      this.didUnobserve(observer);
+    if (oldObservers === newObservers) {
+      return;
     }
+    this.willUnobserve(observer);
+    (this as Mutable<this>).observers = newObservers;
+    this.onUnobserve(observer);
+    this.didUnobserve(observer);
   }
 
   protected willUnobserve(observer: Observes<this>): void {
@@ -1720,14 +1713,15 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   consume(consumer: Consumer): void {
     const oldConsumers = this.consumers;
     const newConsumers = Arrays.inserted(consumer, oldConsumers);
-    if (oldConsumers !== newConsumers) {
-      this.willConsume(consumer);
-      (this as Mutable<this>).consumers = newConsumers;
-      this.onConsume(consumer);
-      this.didConsume(consumer);
-      if (oldConsumers.length === 0 && this.mounted) {
-        this.startConsuming();
-      }
+    if (oldConsumers === newConsumers) {
+      return;
+    }
+    this.willConsume(consumer);
+    (this as Mutable<this>).consumers = newConsumers;
+    this.onConsume(consumer);
+    this.didConsume(consumer);
+    if (oldConsumers.length === 0 && this.mounted) {
+      this.startConsuming();
     }
   }
 
@@ -1747,14 +1741,15 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   unconsume(consumer: Consumer): void {
     const oldConsumers = this.consumers;
     const newConsumers = Arrays.removed(consumer, oldConsumers);
-    if (oldConsumers !== newConsumers) {
-      this.willUnconsume(consumer);
-      (this as Mutable<this>).consumers = newConsumers;
-      this.onUnconsume(consumer);
-      this.didUnconsume(consumer);
-      if (newConsumers.length === 0) {
-        this.stopConsuming();
-      }
+    if (oldConsumers === newConsumers) {
+      return;
+    }
+    this.willUnconsume(consumer);
+    (this as Mutable<this>).consumers = newConsumers;
+    this.onUnconsume(consumer);
+    this.didUnconsume(consumer);
+    if (newConsumers.length === 0) {
+      this.stopConsuming();
     }
   }
 
@@ -1779,12 +1774,13 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   }
 
   protected startConsuming(): void {
-    if ((this.flags & Trait.ConsumingFlag) === 0) {
-      this.willStartConsuming();
-      this.setFlags(this.flags | Trait.ConsumingFlag);
-      this.onStartConsuming();
-      this.didStartConsuming();
+    if ((this.flags & Trait.ConsumingFlag) !== 0) {
+      return;
     }
+    this.willStartConsuming();
+    this.setFlags(this.flags | Trait.ConsumingFlag);
+    this.onStartConsuming();
+    this.didStartConsuming();
   }
 
   protected willStartConsuming(): void {
@@ -1817,12 +1813,13 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   }
 
   protected stopConsuming(): void {
-    if ((this.flags & Trait.ConsumingFlag) !== 0) {
-      this.willStopConsuming();
-      this.setFlags(this.flags & ~Trait.ConsumingFlag);
-      this.onStopConsuming();
-      this.didStopConsuming();
+    if ((this.flags & Trait.ConsumingFlag) === 0) {
+      return;
     }
+    this.willStopConsuming();
+    this.setFlags(this.flags & ~Trait.ConsumingFlag);
+    this.onStopConsuming();
+    this.didStopConsuming();
   }
 
   protected willStopConsuming(): void {

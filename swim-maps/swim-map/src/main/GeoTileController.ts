@@ -14,14 +14,16 @@
 
 import type {Class} from "@swim/util";
 import type {Observes} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
+import type {AnyUri} from "@swim/uri";
+import type {Uri} from "@swim/uri";
 import type {GeoTile} from "@swim/geo";
 import type {Trait} from "@swim/model";
-import type {View} from "@swim/view";
 import type {Controller} from "@swim/controller";
 import {TraitViewRef} from "@swim/controller";
 import {TraitViewControllerRef} from "@swim/controller";
 import {TraitViewControllerSet} from "@swim/controller";
-import type {GeoViewport} from "./GeoViewport";
 import type {GeoView} from "./GeoView";
 import type {GeoTrait} from "./GeoTrait";
 import {GeoController} from "./GeoController";
@@ -54,41 +56,52 @@ export class GeoTileController extends GeoLayerController {
   constructor(geoTile: GeoTile) {
     super();
     this.geoTile = geoTile;
+    this.minVisibleZoom.setValue(geoTile.z, Affinity.Intrinsic);
+    this.maxVisibleZoom.setValue(geoTile.z + 1, Affinity.Intrinsic);
+    this.minConsumeZoom.setValue(geoTile.z, Affinity.Intrinsic);
+    this.maxConsumeZoom.setValue(geoTile.z + 1, Affinity.Intrinsic);
   }
 
   declare readonly observerType?: Class<GeoTileControllerObserver>;
 
   readonly geoTile: GeoTile;
 
-  get minCullZoom(): number {
-    return this.geoTile.z;
-  }
+  @Property({extends: true, inherits: false})
+  override readonly nodeUri!: Property<this, Uri | null, AnyUri | null>;
 
-  get maxCullZoom(): number {
-    return Infinity;
-  }
+  protected override autoConsume(): void {
+    if (!this.mounted) {
+      return;
+    }
+    const geoView = this.geo.view;
+    if (geoView === null) {
+      return;
+    }
+    const geoViewport = geoView.geoViewport.value;
+    if (geoViewport === null) {
+      return;
+    }
 
-  protected autoCullGeoView(geoViewport: GeoViewport, geoView: GeoView): void {
-    const tileIsVisible = this.minCullZoom <= geoViewport.zoom
-                       && geoViewport.zoom < this.maxCullZoom
-                       && geoViewport.geoFrame.intersects(geoView.geoBounds);
-    geoView.setCulled(!tileIsVisible);
-  }
+    const intersectsViewport = geoViewport.geoFrame.intersects(geoView.geoBounds);
+    const isConsumable = this.minConsumeZoom.value <= geoViewport.zoom
+                      && geoViewport.zoom < this.maxConsumeZoom.value
+                      && intersectsViewport;
 
-  get minConsumeZoom(): number {
-    return this.geoTile.z;
-  }
+    if (intersectsViewport && this.maxConsumeZoom.value <= geoViewport.zoom) {
+      const geoTrait = this.geo.trait;
+      if (geoTrait !== null) {
+        geoTrait.tiles.insert();
+      }
+      this.tiles.insert();
+    } else if (!intersectsViewport || geoViewport.zoom < this.minConsumeZoom.value) {
+      const geoTrait = this.geo.trait;
+      if (geoTrait !== null) {
+        geoTrait.tiles.delete();
+      }
+      this.tiles.delete();
+    }
 
-  get maxConsumeZoom(): number {
-    return Infinity;
-  }
-
-  protected autoConsumeGeoView(geoViewport: GeoViewport, geoView: GeoView): void {
-    const viewIsVisible = geoView.mounted
-                       && this.minConsumeZoom <= geoViewport.zoom
-                       && geoViewport.zoom < this.maxConsumeZoom
-                       && geoViewport.geoFrame.intersects(geoView.geoBounds);
-    if (viewIsVisible) {
+    if (isConsumable) {
       this.consume(geoView);
     } else {
       this.unconsume(geoView);
@@ -100,13 +113,13 @@ export class GeoTileController extends GeoLayerController {
     consumed: true,
     traitType: GeoTileTrait,
     observesTrait: true,
-    didAttachTrait(geoTrait: GeoTileTrait, targetTrait: Trait | null): void {
+    initTrait(geoTrait: GeoTileTrait): void {
+      super.initTrait(geoTrait);
       this.owner.tiles.addTraits(geoTrait.tiles.traits);
-      super.didAttachTrait(geoTrait, targetTrait);
     },
-    willDetachTrait(geoTrait: GeoTileTrait): void {
-      super.willDetachTrait(geoTrait);
+    deinitTrait(geoTrait: GeoTileTrait): void {
       this.owner.tiles.deleteTraits(geoTrait.tiles.traits);
+      super.deinitTrait(geoTrait);
     },
     traitWillAttachTile(tileTrait: GeoTileTrait, targetTrait: Trait): void {
       this.owner.tiles.addTrait(tileTrait, targetTrait);
@@ -116,9 +129,8 @@ export class GeoTileController extends GeoLayerController {
     },
     viewType: GeoTileView,
     observesView: true,
-    didAttachView(geoView: GeoView, targetView: View | null): void {
-      super.didAttachView(geoView, targetView);
-      geoView.setCulled(true);
+    initView(geoView: GeoView): void {
+      super.initView(geoView);
       const tileControllers = this.owner.tiles.controllers;
       for (const controllerId in tileControllers) {
         const tileController = tileControllers[controllerId]!;
@@ -128,20 +140,15 @@ export class GeoTileController extends GeoLayerController {
         }
       }
     },
-    willDetachView(geoView: GeoView): void {
-      super.willDetachView(geoView);
+    deinitView(geoView: GeoView): void {
       this.owner.unconsume(geoView);
-    },
-    viewDidProject(geoView: GeoView): void {
-      const geoViewport = geoView.geoViewport.value;
-      this.owner.autoCullGeoView(geoViewport, geoView);
-      this.owner.autoConsumeGeoView(geoViewport, geoView);
+      super.deinitView(geoView);
     },
     createView(): GeoTileView {
       return new GeoTileView(this.owner.geoTile);
     },
   })
-  override readonly geo!: TraitViewRef<this, GeoTileTrait, GeoView> & GeoLayerController["geo"] & Observes<GeoTileTrait> & Observes<GeoView>;
+  override readonly geo!: TraitViewRef<this, GeoTileTrait, GeoView> & GeoLayerController["geo"] & Observes<GeoTileTrait> & Observes<GeoTileView>;
 
   @TraitViewControllerSet({
     extends: true,
@@ -201,7 +208,7 @@ export class GeoTileController extends GeoLayerController {
       // hook
     },
     detachTileTrait(tileTrait: GeoTileTrait, tileController: GeoTileController): void {
-      // hook
+      this.deleteController(tileController);
     },
     controllerWillAttachGeoView(tileView: GeoView, tileController: GeoTileController): void {
       this.owner.callObservers("controllerWillAttachTileView", tileView, tileController, this.owner);
@@ -222,16 +229,30 @@ export class GeoTileController extends GeoLayerController {
     },
     createController(tileTrait?: GeoTileTrait): GeoTileController {
       if (tileTrait !== void 0) {
-        return this.owner.createTileController(tileTrait.geoTile);
+        return this.owner.createTileController(tileTrait.geoTile, tileTrait);
       }
       return super.createController();
     },
+    insert(): void {
+      this.owner.southWest.insertController();
+      this.owner.northWest.insertController();
+      this.owner.southEast.insertController();
+      this.owner.northEast.insertController();
+    },
+    delete(): void {
+      this.owner.southWest.deleteController();
+      this.owner.northWest.deleteController();
+      this.owner.southEast.deleteController();
+      this.owner.northEast.deleteController();
+    },
   })
   readonly tiles!: TraitViewControllerSet<this, GeoTileTrait, GeoView, GeoTileController> & Observes<GeoTileController> & {
-    attachTileTrait(tileTrait: GeoTileTrait, tileController: GeoTileController): void,
-    detachTileTrait(tileTrait: GeoTileTrait, tileController: GeoTileController): void,
-    attachTileView(tileView: GeoView, tileController: GeoTileController): void,
-    detachTileView(tileView: GeoView, tileController: GeoTileController): void,
+    attachTileTrait(tileTrait: GeoTileTrait, tileController: GeoTileController): void;
+    detachTileTrait(tileTrait: GeoTileTrait, tileController: GeoTileController): void;
+    attachTileView(tileView: GeoView, tileController: GeoTileController): void;
+    detachTileView(tileView: GeoView, tileController: GeoTileController): void;
+    insert(): void;
+    delete(): void;
   };
 
   @TraitViewControllerRef({
@@ -247,7 +268,7 @@ export class GeoTileController extends GeoLayerController {
       return tileController.geo;
     },
     createController(tileTrait?: GeoTileTrait): GeoTileController {
-      return this.owner.createTileController(this.owner.geoTile.southWestTile);
+      return this.owner.createTileController(this.owner.geoTile.southWestTile, tileTrait);
     },
   })
   readonly southWest!: TraitViewControllerRef<this, GeoTileTrait, GeoView, GeoTileController>;
@@ -265,7 +286,7 @@ export class GeoTileController extends GeoLayerController {
       return tileController.geo;
     },
     createController(tileTrait?: GeoTileTrait): GeoTileController {
-      return this.owner.createTileController(this.owner.geoTile.northWestTile);
+      return this.owner.createTileController(this.owner.geoTile.northWestTile, tileTrait);
     },
   })
   readonly northWest!: TraitViewControllerRef<this, GeoTileTrait, GeoView, GeoTileController>;
@@ -283,7 +304,7 @@ export class GeoTileController extends GeoLayerController {
       return tileController.geo;
     },
     createController(tileTrait?: GeoTileTrait): GeoTileController {
-      return this.owner.createTileController(this.owner.geoTile.southEastTile);
+      return this.owner.createTileController(this.owner.geoTile.southEastTile, tileTrait);
     },
   })
   readonly southEast!: TraitViewControllerRef<this, GeoTileTrait, GeoView, GeoTileController>;
@@ -301,24 +322,17 @@ export class GeoTileController extends GeoLayerController {
       return tileController.geo;
     },
     createController(tileTrait?: GeoTileTrait): GeoTileController {
-      return this.owner.createTileController(this.owner.geoTile.northEastTile);
+      return this.owner.createTileController(this.owner.geoTile.northEastTile, tileTrait);
     },
   })
   readonly northEast!: TraitViewControllerRef<this, GeoTileTrait, GeoView, GeoTileController>;
 
-  protected createTileController(geoTile: GeoTile): GeoTileController {
+  protected createTileController(geoTile: GeoTile, tileTrait?: GeoTileTrait | null): GeoTileController {
     return new GeoTileController(geoTile);
-  }
-
-  protected initTiles(): void {
-    this.southWest.insertController();
-    this.northWest.insertController();
-    this.southEast.insertController();
-    this.northEast.insertController();
   }
 
   protected override onStartConsuming(): void {
     super.onStartConsuming();
-    this.initTiles();
+    this.tiles.insert();
   }
 }
