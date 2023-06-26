@@ -1160,7 +1160,11 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     refreshChildren.call(this.model!, refreshFlags, refreshChild);
   }
 
-  getFastener<F extends Fastener<unknown>>(fastenerName: string | symbol, fastenerType: Proto<F>, contextType?: Proto<unknown> | null): F | null {
+  getOptionalFastener<K extends keyof this>(fastenerName: K): this[K] | null {
+    return FastenerContext.getOptionalFastener(this, fastenerName);
+  }
+
+  getFastener<F extends Fastener<any>>(fastenerName: PropertyKey, fastenerType: Proto<F>, contextType?: Proto<unknown> | null): F | null {
     if (contextType !== void 0 && contextType !== null && !(this instanceof contextType)) {
       return null;
     }
@@ -1172,7 +1176,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   }
 
   /** @override */
-  getParentFastener<F extends Fastener<unknown>>(fastenerName: string, fastenerType: Proto<F>, contextType?: Proto<unknown> | null): F | null {
+  getParentFastener<F extends Fastener<any>>(fastenerName: string, fastenerType: Proto<F>, contextType?: Proto<unknown> | null): F | null {
     let parent = this.model;
     if (parent === null) {
       return null;
@@ -1214,9 +1218,9 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @internal */
   protected mountFasteners(): void {
-    const fastenerNames = FastenerContext.getFastenerNames(this);
-    for (let i = 0; i < fastenerNames.length; i += 1) {
-      const fastener = this[fastenerNames[i]!];
+    const fastenerSlots = FastenerContext.getFastenerSlots(this);
+    for (let i = 0; i < fastenerSlots.length; i += 1) {
+      const fastener = this[fastenerSlots[i]!];
       if (fastener instanceof Fastener) {
         fastener.mount();
       }
@@ -1225,9 +1229,9 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @internal */
   protected unmountFasteners(): void {
-    const fastenerNames = FastenerContext.getFastenerNames(this);
-    for (let i = 0; i < fastenerNames.length; i += 1) {
-      const fastener = this[fastenerNames[i]!];
+    const fastenerSlots = FastenerContext.getFastenerSlots(this);
+    for (let i = 0; i < fastenerSlots.length; i += 1) {
+      const fastener = this[fastenerSlots[i]!];
       if (fastener instanceof Fastener) {
         fastener.unmount();
       }
@@ -1258,18 +1262,18 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @internal */
   protected bindModelFasteners(model: Model): void {
-    const fastenerNames = FastenerContext.getFastenerNames(this);
+    const fastenerSlots = FastenerContext.getFastenerSlots(this);
     model.forEachChild(function (child: Model): void {
-      for (let i = 0; i < fastenerNames.length; i += 1) {
-        const fastener = this[fastenerNames[i]!];
+      for (let i = 0; i < fastenerSlots.length; i += 1) {
+        const fastener = this[fastenerSlots[i]!];
         if (fastener instanceof Fastener) {
           this.bindChildFastener(fastener, child, null);
         }
       }
     }, this);
     model.forEachTrait(function (trait: Trait): void {
-      for (let i = 0; i < fastenerNames.length; i += 1) {
-        const fastener = this[fastenerNames[i]!];
+      for (let i = 0; i < fastenerSlots.length; i += 1) {
+        const fastener = this[fastenerSlots[i]!];
         if (fastener instanceof Fastener) {
           this.bindTraitFastener(fastener, trait, null);
         }
@@ -1279,18 +1283,18 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @internal */
   protected unbindModelFasteners(model: Model): void {
-    const fastenerNames = FastenerContext.getFastenerNames(this);
+    const fastenerSlots = FastenerContext.getFastenerSlots(this);
     model.forEachTrait(function (trait: Trait): void {
-      for (let i = 0; i < fastenerNames.length; i += 1) {
-        const fastener = this[fastenerNames[i]!];
+      for (let i = 0; i < fastenerSlots.length; i += 1) {
+        const fastener = this[fastenerSlots[i]!];
         if (fastener instanceof Fastener) {
           this.unbindTraitFastener(fastener, trait);
         }
       }
     }, this);
     model.forEachChild(function (child: Model): void {
-      for (let i = 0; i < fastenerNames.length; i += 1) {
-        const fastener = this[fastenerNames[i]!];
+      for (let i = 0; i < fastenerSlots.length; i += 1) {
+        const fastener = this[fastenerSlots[i]!];
         if (fastener instanceof Fastener) {
           this.unbindChildFastener(fastener, child);
         }
@@ -1300,9 +1304,9 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @internal */
   protected bindChildFasteners(child: Model, target: Model | null): void {
-    const fastenerNames = FastenerContext.getFastenerNames(this);
-    for (let i = 0; i < fastenerNames.length; i += 1) {
-      const fastener = this[fastenerNames[i]!];
+    const fastenerSlots = FastenerContext.getFastenerSlots(this);
+    for (let i = 0; i < fastenerSlots.length; i += 1) {
+      const fastener = this[fastenerSlots[i]!];
       if (fastener instanceof Fastener) {
         this.bindChildFastener(fastener, child, target);
       }
@@ -1318,9 +1322,9 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @internal */
   protected unbindChildFasteners(child: Model): void {
-    const fastenerNames = FastenerContext.getFastenerNames(this);
-    for (let i = 0; i < fastenerNames.length; i += 1) {
-      const fastener = this[fastenerNames[i]!];
+    const fastenerSlots = FastenerContext.getFastenerSlots(this);
+    for (let i = 0; i < fastenerSlots.length; i += 1) {
+      const fastener = this[fastenerSlots[i]!];
       if (fastener instanceof Fastener) {
         this.unbindChildFastener(fastener, child);
       }
@@ -1336,9 +1340,9 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @internal */
   protected bindTraitFasteners(trait: Trait, target: Trait | null): void {
-    const fastenerNames = FastenerContext.getFastenerNames(this);
-    for (let i = 0; i < fastenerNames.length; i += 1) {
-      const fastener = this[fastenerNames[i]!];
+    const fastenerSlots = FastenerContext.getFastenerSlots(this);
+    for (let i = 0; i < fastenerSlots.length; i += 1) {
+      const fastener = this[fastenerSlots[i]!];
       if (fastener instanceof Fastener) {
         this.bindTraitFastener(fastener, trait, target);
       }
@@ -1354,9 +1358,9 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @internal */
   protected unbindTraitFasteners(trait: Trait): void {
-    const fastenerNames = FastenerContext.getFastenerNames(this);
-    for (let i = 0; i < fastenerNames.length; i += 1) {
-      const fastener = this[fastenerNames[i]!];
+    const fastenerSlots = FastenerContext.getFastenerSlots(this);
+    for (let i = 0; i < fastenerSlots.length; i += 1) {
+      const fastener = this[fastenerSlots[i]!];
       if (fastener instanceof Fastener) {
         this.unbindTraitFastener(fastener, trait);
       }
@@ -1626,9 +1630,9 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @internal */
   protected startConsumingFasteners(): void {
-    const fastenerNames = FastenerContext.getFastenerNames(this);
-    for (let i = 0; i < fastenerNames.length; i += 1) {
-      const fastener = this[fastenerNames[i]!];
+    const fastenerSlots = FastenerContext.getFastenerSlots(this);
+    for (let i = 0; i < fastenerSlots.length; i += 1) {
+      const fastener = this[fastenerSlots[i]!];
       if (fastener instanceof WarpDownlink && fastener.consumed === true) {
         fastener.consume(this);
       } else if (fastener instanceof TraitRelation && fastener.consumed === true) {
@@ -1641,9 +1645,9 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @internal */
   protected stopConsumingFasteners(): void {
-    const fastenerNames = FastenerContext.getFastenerNames(this);
-    for (let i = 0; i < fastenerNames.length; i += 1) {
-      const fastener = this[fastenerNames[i]!];
+    const fastenerSlots = FastenerContext.getFastenerSlots(this);
+    for (let i = 0; i < fastenerSlots.length; i += 1) {
+      const fastener = this[fastenerSlots[i]!];
       if (fastener instanceof WarpDownlink && fastener.consumed === true) {
         fastener.unconsume(this);
       } else if (fastener instanceof TraitRelation && fastener.consumed === true) {

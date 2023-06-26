@@ -49,7 +49,9 @@ export class GeoView extends GraphicsView {
   declare readonly observerType?: Class<GeoViewObserver>;
 
   @ThemeAnimator({valueType: Color, value: null, inherits: true})
-  readonly geoBoundsColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  get geoBoundsColor(): ThemeAnimator<this, Color | null, AnyColor | null> {
+    return ThemeAnimator.dummy();
+  }
 
   protected override didInsertChild(child: View, target: View | null): void {
     if (child instanceof GeoView) {
@@ -65,16 +67,10 @@ export class GeoView extends GraphicsView {
     super.didRemoveChild(child);
   }
 
-  protected override willProcess(processFlags: ViewFlags): void {
-    super.willProcess(processFlags);
-    if ((processFlags & (View.NeedsChange | View.NeedsProject)) !== 0) {
-      this.geoViewport.recohere(this.updateTime);
-    }
-  }
-
   protected override onRender(): void {
     super.onRender();
-    const outlineColor = this.geoBoundsColor.value;
+    const geoBoundsColorAnimator = this.getOptionalFastener("geoBoundsColor");
+    const outlineColor = geoBoundsColorAnimator !== null ? geoBoundsColorAnimator.value : null;
     if (outlineColor !== null) {
       this.renderGeoBounds(outlineColor, 1);
     }

@@ -373,52 +373,53 @@ export class Controller extends Component<Controller> implements Initable<Contro
       compileFlags &= ~Controller.NeedsCompile;
       compileFlags |= this.flags & Controller.UpdateMask;
       compileFlags = this.needsCompile(compileFlags);
-      if ((compileFlags & Controller.CompileMask) !== 0) {
-        let cascadeFlags = compileFlags;
-        this.setFlags(this.flags & ~Controller.NeedsCompile | Controller.CompilingFlag);
-        this.willCompile(cascadeFlags);
-        if (((this.flags | compileFlags) & Controller.NeedsResolve) !== 0) {
-          cascadeFlags |= Controller.NeedsResolve;
-          this.setFlags(this.flags & ~Controller.NeedsResolve);
-          this.willResolve();
-        }
-        if (((this.flags | compileFlags) & Controller.NeedsGenerate) !== 0) {
-          cascadeFlags |= Controller.NeedsGenerate;
-          this.setFlags(this.flags & ~Controller.NeedsGenerate);
-          this.willGenerate();
-        }
-        if (((this.flags | compileFlags) & Controller.NeedsAssemble) !== 0) {
-          cascadeFlags |= Controller.NeedsAssemble;
-          this.setFlags(this.flags & ~Controller.NeedsAssemble);
-          this.willAssemble();
-        }
-
-        this.onCompile(cascadeFlags);
-        if ((cascadeFlags & Controller.NeedsResolve) !== 0) {
-          this.onResolve();
-        }
-        if ((cascadeFlags & Controller.NeedsGenerate) !== 0) {
-          this.onGenerate();
-        }
-        if ((cascadeFlags & Controller.NeedsAssemble) !== 0) {
-          this.onAssemble();
-        }
-
-        if ((cascadeFlags & Controller.CompileMask) !== 0) {
-          this.compileChildren(cascadeFlags, this.compileChild);
-        }
-
-        if ((cascadeFlags & Controller.NeedsAssemble) !== 0) {
-          this.didAssemble();
-        }
-        if ((cascadeFlags & Controller.NeedsGenerate) !== 0) {
-          this.didGenerate();
-        }
-        if ((cascadeFlags & Controller.NeedsResolve) !== 0) {
-          this.didResolve();
-        }
-        this.didCompile(cascadeFlags);
+      if ((compileFlags & Controller.CompileMask) === 0) {
+        return;
       }
+      let cascadeFlags = compileFlags;
+      this.setFlags(this.flags & ~Controller.NeedsCompile | Controller.CompilingFlag);
+      this.willCompile(cascadeFlags);
+      if (((this.flags | compileFlags) & Controller.NeedsResolve) !== 0) {
+        cascadeFlags |= Controller.NeedsResolve;
+        this.setFlags(this.flags & ~Controller.NeedsResolve);
+        this.willResolve();
+      }
+      if (((this.flags | compileFlags) & Controller.NeedsGenerate) !== 0) {
+        cascadeFlags |= Controller.NeedsGenerate;
+        this.setFlags(this.flags & ~Controller.NeedsGenerate);
+        this.willGenerate();
+      }
+      if (((this.flags | compileFlags) & Controller.NeedsAssemble) !== 0) {
+        cascadeFlags |= Controller.NeedsAssemble;
+        this.setFlags(this.flags & ~Controller.NeedsAssemble);
+        this.willAssemble();
+      }
+
+      this.onCompile(cascadeFlags);
+      if ((cascadeFlags & Controller.NeedsResolve) !== 0) {
+        this.onResolve();
+      }
+      if ((cascadeFlags & Controller.NeedsGenerate) !== 0) {
+        this.onGenerate();
+      }
+      if ((cascadeFlags & Controller.NeedsAssemble) !== 0) {
+        this.onAssemble();
+      }
+
+      if ((cascadeFlags & Controller.CompileMask) !== 0) {
+        this.compileChildren(cascadeFlags, this.compileChild);
+      }
+
+      if ((cascadeFlags & Controller.NeedsAssemble) !== 0) {
+        this.didAssemble();
+      }
+      if ((cascadeFlags & Controller.NeedsGenerate) !== 0) {
+        this.didGenerate();
+      }
+      if ((cascadeFlags & Controller.NeedsResolve) !== 0) {
+        this.didResolve();
+      }
+      this.didCompile(cascadeFlags);
     } finally {
       this.setFlags(this.flags & ~Controller.CompilingFlag);
     }
@@ -501,41 +502,42 @@ export class Controller extends Component<Controller> implements Initable<Contro
       executeFlags &= ~Controller.NeedsExecute;
       executeFlags |= this.flags & Controller.UpdateMask;
       executeFlags = this.needsExecute(executeFlags);
-      if ((executeFlags & Controller.ExecuteMask) !== 0) {
-        let cascadeFlags = executeFlags;
-        this.setFlags(this.flags & ~Controller.NeedsExecute | Controller.ExecutingFlag);
-        this.willExecute(cascadeFlags);
-        if (((this.flags | executeFlags) & Controller.NeedsRevise) !== 0) {
-          cascadeFlags |= Controller.NeedsRevise;
-          this.setFlags(this.flags & ~Controller.NeedsRevise);
-          this.willRevise();
-        }
-        if (((this.flags | executeFlags) & Controller.NeedsCompute) !== 0) {
-          cascadeFlags |= Controller.NeedsCompute;
-          this.setFlags(this.flags & ~Controller.NeedsCompute);
-          this.willCompute();
-        }
-
-        this.onExecute(cascadeFlags);
-        if ((cascadeFlags & Controller.NeedsRevise) !== 0) {
-          this.onRevise();
-        }
-        if ((cascadeFlags & Controller.NeedsCompute) !== 0) {
-          this.onCompute();
-        }
-
-        if ((cascadeFlags & Controller.ExecuteMask) !== 0) {
-          this.executeChildren(cascadeFlags, this.executeChild);
-        }
-
-        if ((cascadeFlags & Controller.NeedsCompute) !== 0) {
-          this.didCompute();
-        }
-        if ((cascadeFlags & Controller.NeedsRevise) !== 0) {
-          this.didRevise();
-        }
-        this.didExecute(cascadeFlags);
+      if ((executeFlags & Controller.ExecuteMask) === 0) {
+        return;
       }
+      let cascadeFlags = executeFlags;
+      this.setFlags(this.flags & ~Controller.NeedsExecute | Controller.ExecutingFlag);
+      this.willExecute(cascadeFlags);
+      if (((this.flags | executeFlags) & Controller.NeedsRevise) !== 0) {
+        cascadeFlags |= Controller.NeedsRevise;
+        this.setFlags(this.flags & ~Controller.NeedsRevise);
+        this.willRevise();
+      }
+      if (((this.flags | executeFlags) & Controller.NeedsCompute) !== 0) {
+        cascadeFlags |= Controller.NeedsCompute;
+        this.setFlags(this.flags & ~Controller.NeedsCompute);
+        this.willCompute();
+      }
+
+      this.onExecute(cascadeFlags);
+      if ((cascadeFlags & Controller.NeedsRevise) !== 0) {
+        this.onRevise();
+      }
+      if ((cascadeFlags & Controller.NeedsCompute) !== 0) {
+        this.onCompute();
+      }
+
+      if ((cascadeFlags & Controller.ExecuteMask) !== 0) {
+        this.executeChildren(cascadeFlags, this.executeChild);
+      }
+
+      if ((cascadeFlags & Controller.NeedsCompute) !== 0) {
+        this.didCompute();
+      }
+      if ((cascadeFlags & Controller.NeedsRevise) !== 0) {
+        this.didRevise();
+      }
+      this.didExecute(cascadeFlags);
     } finally {
       this.setFlags(this.flags & ~Controller.ExecutingFlag);
     }
@@ -779,9 +781,9 @@ export class Controller extends Component<Controller> implements Initable<Contro
 
   /** @internal */
   protected startConsumingFasteners(): void {
-    const fastenerNames = FastenerContext.getFastenerNames(this);
-    for (let i = 0; i < fastenerNames.length; i += 1) {
-      const fastener = this[fastenerNames[i]!];
+    const fastenerSlots = FastenerContext.getFastenerSlots(this);
+    for (let i = 0; i < fastenerSlots.length; i += 1) {
+      const fastener = this[fastenerSlots[i]!];
       if (fastener instanceof WarpDownlink && fastener.consumed === true) {
         fastener.consume(this);
       } else if (fastener instanceof ControllerRelation && fastener.consumed === true) {
@@ -798,9 +800,9 @@ export class Controller extends Component<Controller> implements Initable<Contro
 
   /** @internal */
   protected stopConsumingFasteners(): void {
-    const fastenerNames = FastenerContext.getFastenerNames(this);
-    for (let i = 0; i < fastenerNames.length; i += 1) {
-      const fastener = this[fastenerNames[i]!];
+    const fastenerSlots = FastenerContext.getFastenerSlots(this);
+    for (let i = 0; i < fastenerSlots.length; i += 1) {
+      const fastener = this[fastenerSlots[i]!];
       if (fastener instanceof WarpDownlink && fastener.consumed === true) {
         fastener.unconsume(this);
       } else if (fastener instanceof ControllerRelation && fastener.consumed === true) {

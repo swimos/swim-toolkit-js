@@ -119,11 +119,14 @@ export class GeoTreeView extends GeoView {
   }
 
   @ThemeAnimator({valueType: Color, value: null})
-  readonly geoTreeColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  get geoTreeColor(): ThemeAnimator<this, Color | null, AnyColor | null> {
+    return ThemeAnimator.dummy();
+  }
 
   protected override onRender(): void {
     super.onRender();
-    const outlineColor = this.geoTreeColor.value;
+    const geoTreeColorAnimator = this.getOptionalFastener("geoTreeColor");
+    const outlineColor = geoTreeColorAnimator !== null ? geoTreeColorAnimator.value : null;
     if (outlineColor !== null) {
       this.renderGeoTree(outlineColor);
     }

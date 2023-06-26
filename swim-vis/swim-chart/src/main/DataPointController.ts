@@ -73,103 +73,104 @@ export class DataPointController<X = unknown, Y = unknown> extends Controller {
 
   protected setX(x: X, timing?: AnyTiming | boolean): void {
     const dataPointView = this.dataPoint.view;
-    if (dataPointView !== null) {
-      if (timing === void 0 || timing === true) {
-        timing = this.dataPointTiming.value;
-        if (timing === true) {
-          timing = dataPointView.getLook(Look.timing, Mood.ambient);
-        }
-      } else {
-        timing = Timing.fromAny(timing);
+    if (dataPointView === null) {
+      return;
+    } else if (timing === void 0 || timing === true) {
+      timing = this.dataPointTiming.value;
+      if (timing === true) {
+        timing = dataPointView.getLook(Look.timing, Mood.ambient);
       }
-      dataPointView.x.setState(x, timing, Affinity.Intrinsic);
+    } else {
+      timing = Timing.fromAny(timing);
     }
+    dataPointView.x.setState(x, timing, Affinity.Intrinsic);
   }
 
   protected setY(y: Y, timing?: AnyTiming | boolean): void {
     const dataPointView = this.dataPoint.view;
-    if (dataPointView !== null) {
-      if (timing === void 0 || timing === true) {
-        timing = this.dataPointTiming.value;
-        if (timing === true) {
-          timing = dataPointView.getLook(Look.timing, Mood.ambient);
-        }
-      } else {
-        timing = Timing.fromAny(timing);
+    if (dataPointView === null) {
+      return;
+    } else if (timing === void 0 || timing === true) {
+      timing = this.dataPointTiming.value;
+      if (timing === true) {
+        timing = dataPointView.getLook(Look.timing, Mood.ambient);
       }
-      dataPointView.y.setState(y, timing, Affinity.Intrinsic);
+    } else {
+      timing = Timing.fromAny(timing);
     }
+    dataPointView.y.setState(y, timing, Affinity.Intrinsic);
   }
 
   protected setY2(y2: Y | undefined, timing?: AnyTiming | boolean): void {
     const dataPointView = this.dataPoint.view;
-    if (dataPointView !== null) {
-      if (timing === void 0 || timing === true) {
-        timing = this.dataPointTiming.value;
-        if (timing === true) {
-          timing = dataPointView.getLook(Look.timing, Mood.ambient);
-        }
-      } else {
-        timing = Timing.fromAny(timing);
+    if (dataPointView === null) {
+      return;
+    } else if (timing === void 0 || timing === true) {
+      timing = this.dataPointTiming.value;
+      if (timing === true) {
+        timing = dataPointView.getLook(Look.timing, Mood.ambient);
       }
-      dataPointView.y2.setState(y2, timing, Affinity.Intrinsic);
+    } else {
+      timing = Timing.fromAny(timing);
     }
+    dataPointView.y2.setState(y2, timing, Affinity.Intrinsic);
   }
 
   protected setRadius(radius: AnyLength | null, timing?: AnyTiming | boolean): void {
     const dataPointView = this.dataPoint.view;
-    if (dataPointView !== null) {
-      if (timing === void 0 || timing === true) {
-        timing = this.dataPointTiming.value;
-        if (timing === true) {
-          timing = dataPointView.getLook(Look.timing, Mood.ambient);
-        }
-      } else {
-        timing = Timing.fromAny(timing);
+    if (dataPointView === null) {
+      return;
+    } else if (timing === void 0 || timing === true) {
+      timing = this.dataPointTiming.value;
+      if (timing === true) {
+        timing = dataPointView.getLook(Look.timing, Mood.ambient);
       }
-      dataPointView.radius.setState(radius, timing, Affinity.Intrinsic);
+    } else {
+      timing = Timing.fromAny(timing);
     }
+    dataPointView.radius.setState(radius, timing, Affinity.Intrinsic);
   }
 
   protected setColor(color: AnyColorOrLook | null, timing?: AnyTiming | boolean): void {
     const dataPointView = this.dataPoint.view;
-    if (dataPointView !== null) {
-      if (timing === void 0 || timing === true) {
-        timing = this.dataPointTiming.value;
-        if (timing === true) {
-          timing = dataPointView.getLook(Look.timing, Mood.ambient);
-        }
-      } else {
-        timing = Timing.fromAny(timing);
+    if (dataPointView === null) {
+      return;
+    } else if (timing === void 0 || timing === true) {
+      timing = this.dataPointTiming.value;
+      if (timing === true) {
+        timing = dataPointView.getLook(Look.timing, Mood.ambient);
       }
-      if (color instanceof Look) {
-        dataPointView.color.setLook(color, timing, Affinity.Intrinsic);
-      } else {
-        dataPointView.color.setState(color, timing, Affinity.Intrinsic);
-      }
+    } else {
+      timing = Timing.fromAny(timing);
+    }
+    if (color instanceof Look) {
+      dataPointView.color.setLook(color, timing, Affinity.Intrinsic);
+    } else {
+      dataPointView.color.setState(color, timing, Affinity.Intrinsic);
     }
   }
 
   protected setOpacity(opacity: number | undefined, timing?: AnyTiming | boolean): void {
     const dataPointView = this.dataPoint.view;
-    if (dataPointView !== null) {
-      if (timing === void 0 || timing === true) {
-        timing = this.dataPointTiming.value;
-        if (timing === true) {
-          timing = dataPointView.getLook(Look.timing, Mood.ambient);
-        }
-      } else {
-        timing = Timing.fromAny(timing);
+    if (dataPointView === null) {
+      return;
+    } else if (timing === void 0 || timing === true) {
+      timing = this.dataPointTiming.value;
+      if (timing === true) {
+        timing = dataPointView.getLook(Look.timing, Mood.ambient);
       }
-      dataPointView.opacity.setState(opacity, timing, Affinity.Intrinsic);
+    } else {
+      timing = Timing.fromAny(timing);
     }
+    dataPointView.opacity.setState(opacity, timing, Affinity.Intrinsic);
   }
 
   protected setLabelView(label: string | undefined): void {
     const dataPointView = this.dataPoint.view;
-    if (dataPointView !== null) {
-      dataPointView.label.setText(label);
+    if (dataPointView === null) {
+      return;
     }
+    dataPointView.label.setText(label);
   }
 
   @Property({valueType: Timing, inherits: true})
@@ -188,11 +189,26 @@ export class DataPointController<X = unknown, Y = unknown> extends Controller {
       if (dataPointView !== null) {
         this.owner.setX(dataPointTrait.x.value);
         this.owner.setY(dataPointTrait.y.value);
-        this.owner.setY2(dataPointTrait.y2.value);
-        this.owner.setRadius(dataPointTrait.radius.value);
-        this.owner.setColor(dataPointTrait.color.value);
-        this.owner.setOpacity(dataPointTrait.opacity.value);
-        this.owner.setLabelView(dataPointTrait.label.value);
+        const y2 = dataPointTrait.getOptionalFastener("y2");
+        if (y2 !== null) {
+          this.owner.setY2(y2.value);
+        }
+        const radius = dataPointTrait.getOptionalFastener("radius");
+        if (radius !== null) {
+          this.owner.setRadius(radius.value);
+        }
+        const color = dataPointTrait.getOptionalFastener("color");
+        if (color !== null) {
+          this.owner.setColor(color.value);
+        }
+        const opacity = dataPointTrait.getOptionalFastener("opacity");
+        if (opacity !== null) {
+          this.owner.setOpacity(opacity.value);
+        }
+        const label = dataPointTrait.getOptionalFastener("label");
+        if (label !== null) {
+          this.owner.setLabelView(label.value);
+        }
       }
     },
     willDetachTrait(dataPointTrait: DataPointTrait<X, Y>): void {
@@ -233,18 +249,34 @@ export class DataPointController<X = unknown, Y = unknown> extends Controller {
     didAttachView(dataPointView: DataPointView<X, Y>): void {
       this.owner.label.setView(dataPointView.label.view);
       const dataPointTrait = this.trait;
-      if (dataPointTrait !== null) {
+      if (dataPointTrait === null) {
+        return;
+      }
         this.owner.setX(dataPointTrait.x.value);
         this.owner.setY(dataPointTrait.y.value);
-        this.owner.setY2(dataPointTrait.y2.value);
-        this.owner.setRadius(dataPointTrait.radius.value);
-        this.owner.setColor(dataPointTrait.color.value);
-        this.owner.setOpacity(dataPointTrait.opacity.value);
-        this.owner.setLabelView(dataPointTrait.label.value);
+        const y2 = dataPointTrait.getOptionalFastener("y2");
+        if (y2 !== null) {
+          this.owner.setY2(y2.value);
+        }
+        const radius = dataPointTrait.getOptionalFastener("radius");
+        if (radius !== null) {
+          this.owner.setRadius(radius.value);
+        }
+        const color = dataPointTrait.getOptionalFastener("color");
+        if (color !== null) {
+          this.owner.setColor(color.value);
+        }
+        const opacity = dataPointTrait.getOptionalFastener("opacity");
+        if (opacity !== null) {
+          this.owner.setOpacity(opacity.value);
+        }
+        const label = dataPointTrait.getOptionalFastener("label");
+        if (label !== null) {
+          this.owner.setLabelView(label.value);
+        }
         const x = dataPointView.x.value;
         const y = dataPointView.y.value;
         this.owner.updateLabel(x, y, dataPointTrait);
-      }
     },
     willDetachView(dataPointView: DataPointView<X, Y>): void {
       this.owner.label.setView(null);
@@ -292,8 +324,14 @@ export class DataPointController<X = unknown, Y = unknown> extends Controller {
       if (dataPointTrait !== null) {
         dataPointView.x.setState(dataPointTrait.x.value, Affinity.Intrinsic);
         dataPointView.y.setState(dataPointTrait.y.value, Affinity.Intrinsic);
-        dataPointView.y2.setState(dataPointTrait.y2.value, Affinity.Intrinsic);
-        dataPointView.radius.setState(dataPointTrait.radius.value, Affinity.Intrinsic);
+        const y2 = dataPointTrait.getOptionalFastener("y2");
+        if (y2 !== null) {
+          dataPointView.y2.setState(y2.value, Affinity.Intrinsic);
+        }
+        const radius = dataPointTrait.getOptionalFastener("radius");
+        if (radius !== null) {
+          dataPointView.radius.setState(radius.value, Affinity.Intrinsic);
+        }
       }
       return dataPointView;
     },

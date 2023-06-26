@@ -299,7 +299,8 @@ export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
   }
 
   protected layoutDataPoint(frame: R2Box): void {
-    const labelView = this.label.view;
+    const label = this.getOptionalFastener("label");
+    const labelView = label !== null ? label.view : null;
     if (labelView !== null) {
       this.layoutLabel(labelView, frame);
     }
@@ -349,8 +350,10 @@ export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
   }
 
   protected hitTestPoint(x: number, y: number, context: CanvasContext, frame: R2Box): GraphicsView | null {
-    let hitRadius = this.hitRadius.value;
-    const radius = this.radius.value;
+    const hitRadiusProperty = this.getOptionalFastener("hitRadius");
+    let hitRadius = hitRadiusProperty !== null ? hitRadiusProperty.value : 5;
+    const radiusAnimator = this.getOptionalFastener("radius");
+    const radius = radiusAnimator !== null ? radiusAnimator.value : null;
     if (radius !== null) {
       const size = Math.min(frame.width, frame.height);
       hitRadius = Math.max(hitRadius, radius.pxValue(size));

@@ -191,23 +191,20 @@ export class CanvasView extends HtmlView {
   protected createRenderer(rendererType: GraphicsRendererType = "canvas"): GraphicsRenderer | null {
     if (rendererType === "canvas") {
       const context = this.node.getContext("2d");
-      if (context !== null) {
-        const pixelRatio = this.pixelRatio;
-        const transform = Transform.affine(pixelRatio, 0, 0, pixelRatio, 0, 0);
-        return new CanvasRenderer(context, transform, pixelRatio);
-      } else {
+      if (context === null) {
         throw new Error("Failed to create canvas rendering context");
       }
+      const pixelRatio = this.pixelRatio;
+      const transform = Transform.affine(pixelRatio, 0, 0, pixelRatio, 0, 0);
+      return new CanvasRenderer(context, transform, pixelRatio);
     } else if (rendererType === "webgl") {
       const context = this.node.getContext("webgl");
-      if (context !== null) {
-        return new WebGLRenderer(context, this.pixelRatio);
-      } else {
+      if (context === null) {
         throw new Error("Failed to create webgl rendering context");
       }
-    } else {
-      throw new Error("Failed to create " + rendererType + " renderer");
+      return new WebGLRenderer(context, this.pixelRatio);
     }
+    throw new Error("Failed to create " + rendererType + " renderer");
   }
 
   /** @internal */
@@ -234,17 +231,14 @@ export class CanvasView extends HtmlView {
   }
 
   cascadeHitTest(x: number, y: number): GraphicsView | null {
-    if (!this.hidden && !this.culled && !this.intangible) {
-      const hitBounds = this.hitBounds;
-      if (hitBounds.contains(x, y)) {
-        let hit = this.hitTestChildren(x, y);
-        if (hit === null) {
-          hit = this.hitTest(x, y);
-        }
-        return hit;
-      }
+    if (this.hidden || this.culled || this.intangible || !this.hitBounds.contains(x, y)) {
+      return null;
     }
-    return null;
+    let hit = this.hitTestChildren(x, y);
+    if (hit === null) {
+      hit = this.hitTest(x, y);
+    }
+    return hit;
   }
 
   protected hitTest(x: number, y: number): GraphicsView | null {

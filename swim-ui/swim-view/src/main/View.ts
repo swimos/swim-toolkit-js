@@ -234,10 +234,18 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     this.constraintVariables = null;
 
     // Observer caches
+    this.willAttachParentObservers = null;
+    this.didAttachParentObservers = null;
+    this.willDetachParentObservers = null;
+    this.didDetachParentObservers = null;
     this.willInsertChildObservers = null;
     this.didInsertChildObservers = null;
     this.willRemoveChildObservers = null;
     this.didRemoveChildObservers = null;
+    this.willMountObservers = null;
+    this.didMountObservers = null;
+    this.willUnmountObservers = null;
+    this.didUnmountObservers = null;
     this.willResizeObservers = null;
     this.didResizeObservers = null;
     this.willScrollObservers = null;
@@ -294,28 +302,56 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     this.didAttachParent(parent);
   }
 
+  /** @internal */
+  protected willAttachParentObservers: Set<Required<Pick<ViewObserver, "viewWillAttachParent">>> | null;
   protected override willAttachParent(parent: View): void {
-    this.callObservers("viewWillAttachParent", parent, this);
+    const observers = this.willAttachParentObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
+        observer.viewWillAttachParent(parent, this);
+      }
+    }
   }
 
   protected override onAttachParent(parent: View): void {
     // hook
   }
 
+  /** @internal */
+  protected didAttachParentObservers: Set<Required<Pick<ViewObserver, "viewDidAttachParent">>> | null;
   protected override didAttachParent(parent: View): void {
-    this.callObservers("viewDidAttachParent", parent, this);
+    const observers = this.didAttachParentObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
+        observer.viewDidAttachParent(parent, this);
+      }
+    }
   }
 
+  /** @internal */
+  protected willDetachParentObservers: Set<Required<Pick<ViewObserver, "viewWillDetachParent">>> | null;
   protected override willDetachParent(parent: View): void {
-    this.callObservers("viewWillDetachParent", parent, this);
+    const observers = this.willDetachParentObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
+        observer.viewWillDetachParent(parent, this);
+      }
+    }
   }
 
   protected override onDetachParent(parent: View): void {
     // hook
   }
 
+  /** @internal */
+  protected didDetachParentObservers: Set<Required<Pick<ViewObserver, "viewDidDetachParent">>> | null;
   protected override didDetachParent(parent: View): void {
-    this.callObservers("viewDidDetachParent", parent, this);
+    const observers = this.didDetachParentObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
+        observer.viewDidDetachParent(parent, this);
+      }
+    }
   }
 
   override setChild<V extends View>(key: string, newChild: V): View | null;
@@ -451,9 +487,15 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     throw new Error();
   }
 
+  protected willMountObservers: Set<Required<Pick<ViewObserver, "viewWillMount">>> | null;
   protected override willMount(): void {
     super.willMount();
-    this.callObservers("viewWillMount", this);
+    const observers = this.willMountObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
+        observer.viewWillMount(this);
+      }
+    }
   }
 
   protected override onMount(): void {
@@ -468,9 +510,15 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     this.mountFasteners();
   }
 
+  protected didMountObservers: Set<Required<Pick<ViewObserver, "viewDidMount">>> | null;
   protected override didMount(): void {
     this.activateLayout();
-    this.callObservers("viewDidMount", this);
+    const observers = this.didMountObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
+        observer.viewDidMount(this);
+      }
+    }
     super.didMount();
   }
 
@@ -479,14 +527,26 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     throw new Error();
   }
 
+  protected willUnmountObservers: Set<Required<Pick<ViewObserver, "viewWillUnmount">>> | null;
   protected override willUnmount(): void {
     super.willUnmount();
-    this.callObservers("viewWillUnmount", this);
+    const observers = this.willUnmountObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
+        observer.viewWillUnmount(this);
+      }
+    }
     this.deactivateLayout();
   }
 
+  protected didUnmountObservers: Set<Required<Pick<ViewObserver, "viewDidUnmount">>> | null;
   protected override didUnmount(): void {
-    this.callObservers("viewDidUnmount", this);
+    const observers = this.didUnmountObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
+        observer.viewDidUnmount(this);
+      }
+    }
     super.didUnmount();
   }
 
@@ -521,17 +581,17 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
 
   /** @internal */
   cascadeCull(): void {
-    if ((this.flags & View.CullFlag) === 0) {
-      if ((this.flags & View.CulledFlag) === 0) {
-        this.willCull();
-        this.setFlags(this.flags | View.CullFlag);
-        this.onCull();
-        this.cullChildren();
-        this.didCull();
-      } else {
-        this.setFlags(this.flags | View.CullFlag);
-      }
+    if ((this.flags & View.CullFlag) !== 0) {
+      return;
+    } else if ((this.flags & View.CulledFlag) !== 0) {
+      this.setFlags(this.flags | View.CullFlag);
+      return;
     }
+    this.willCull();
+    this.setFlags(this.flags | View.CullFlag);
+    this.onCull();
+    this.cullChildren();
+    this.didCull();
   }
 
   protected willCull(): void {
@@ -561,17 +621,17 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
 
   /** @internal */
   cascadeUncull(): void {
-    if ((this.flags & View.CullFlag) !== 0) {
-      if ((this.flags & View.CulledFlag) === 0) {
-        this.willUncull();
-        this.setFlags(this.flags & ~View.CullFlag);
-        this.uncullChildren();
-        this.onUncull();
-        this.didUncull();
-      } else {
-        this.setFlags(this.flags & ~View.CullFlag);
-      }
+    if ((this.flags & View.CullFlag) === 0) {
+      return;
+    } else if ((this.flags & View.CulledFlag) !== 0) {
+      this.setFlags(this.flags & ~View.CullFlag);
+      return;
     }
+    this.willUncull();
+    this.setFlags(this.flags & ~View.CullFlag);
+    this.uncullChildren();
+    this.onUncull();
+    this.didUncull();
   }
 
   get uncullFlags(): ViewFlags {
@@ -652,17 +712,17 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
 
   /** @internal */
   cascadeHide(): void {
-    if ((this.flags & View.HideFlag) === 0) {
-      if ((this.flags & View.HiddenFlag) === 0) {
-        this.willHide();
-        this.setFlags(this.flags | View.HideFlag);
-        this.onHide();
-        this.hideChildren();
-        this.didHide();
-      } else {
-        this.setFlags(this.flags | View.HideFlag);
-      }
+    if ((this.flags & View.HideFlag) !== 0) {
+      return;
+    } else if ((this.flags & View.HiddenFlag) !== 0) {
+      this.setFlags(this.flags | View.HideFlag);
+      return;
     }
+    this.willHide();
+    this.setFlags(this.flags | View.HideFlag);
+    this.onHide();
+    this.hideChildren();
+    this.didHide();
   }
 
   protected willHide(): void {
@@ -691,17 +751,17 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   }
 
   cascadeUnhide(): void {
-    if ((this.flags & View.HideFlag) !== 0) {
-      if ((this.flags & View.HiddenFlag) === 0) {
-        this.willUnhide();
-        this.setFlags(this.flags & ~View.HideFlag);
-        this.unhideChildren();
-        this.onUnhide();
-        this.didUnhide();
-      } else {
-        this.setFlags(this.flags & ~View.HideFlag);
-      }
+    if ((this.flags & View.HideFlag) === 0) {
+      return;
+    } else if ((this.flags & View.HiddenFlag) !== 0) {
+      this.setFlags(this.flags & ~View.HideFlag);
+      return;
     }
+    this.willUnhide();
+    this.setFlags(this.flags & ~View.HideFlag);
+    this.unhideChildren();
+    this.onUnhide();
+    this.didUnhide();
   }
 
   get unhideFlags(): ViewFlags {
@@ -850,74 +910,75 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
       processFlags &= ~View.NeedsProcess;
       processFlags |= this.flags & View.UpdateMask;
       processFlags = this.needsProcess(processFlags);
-      if ((processFlags & View.ProcessMask) !== 0) {
-        let cascadeFlags = processFlags;
-        this.setFlags(this.flags & ~View.NeedsProcess | View.ProcessingFlag);
-        this.willProcess(cascadeFlags);
-        if (((this.flags | processFlags) & View.NeedsResize) !== 0) {
-          cascadeFlags |= View.NeedsResize;
-          this.setFlags(this.flags & ~View.NeedsResize);
-          this.willResize();
-        }
-        if (((this.flags | processFlags) & View.NeedsScroll) !== 0) {
-          cascadeFlags |= View.NeedsScroll;
-          this.setFlags(this.flags & ~View.NeedsScroll);
-          this.willScroll();
-        }
-        if (((this.flags | processFlags) & View.NeedsChange) !== 0) {
-          cascadeFlags |= View.NeedsChange;
-          this.setFlags(this.flags & ~View.NeedsChange);
-          this.willChange();
-        }
-        if (((this.flags | processFlags) & View.NeedsAnimate) !== 0) {
-          cascadeFlags |= View.NeedsAnimate;
-          this.setFlags(this.flags & ~View.NeedsAnimate);
-          this.willAnimate();
-        }
-        if (((this.flags | processFlags) & View.NeedsProject) !== 0) {
-          cascadeFlags |= View.NeedsProject;
-          this.setFlags(this.flags & ~View.NeedsProject);
-          this.willProject();
-        }
-
-        this.onProcess(cascadeFlags, );
-        if ((cascadeFlags & View.NeedsResize) !== 0) {
-          this.onResize();
-        }
-        if ((cascadeFlags & View.NeedsScroll) !== 0) {
-          this.onScroll();
-        }
-        if ((cascadeFlags & View.NeedsChange) !== 0) {
-          this.onChange();
-        }
-        if ((cascadeFlags & View.NeedsAnimate) !== 0) {
-          this.onAnimate();
-        }
-        if ((cascadeFlags & View.NeedsProject) !== 0) {
-          this.onProject();
-        }
-
-        if ((cascadeFlags & View.ProcessMask) !== 0) {
-          this.processChildren(cascadeFlags, this.processChild);
-        }
-
-        if ((cascadeFlags & View.NeedsProject) !== 0) {
-          this.didProject();
-        }
-        if ((cascadeFlags & View.NeedsAnimate) !== 0) {
-          this.didAnimate();
-        }
-        if ((cascadeFlags & View.NeedsChange) !== 0) {
-          this.didChange();
-        }
-        if ((cascadeFlags & View.NeedsScroll) !== 0) {
-          this.didScroll();
-        }
-        if ((cascadeFlags & View.NeedsResize) !== 0) {
-          this.didResize();
-        }
-        this.didProcess(cascadeFlags);
+      if ((processFlags & View.ProcessMask) === 0) {
+        return;
       }
+      let cascadeFlags = processFlags;
+      this.setFlags(this.flags & ~View.NeedsProcess | View.ProcessingFlag);
+      this.willProcess(cascadeFlags);
+      if (((this.flags | processFlags) & View.NeedsResize) !== 0) {
+        cascadeFlags |= View.NeedsResize;
+        this.setFlags(this.flags & ~View.NeedsResize);
+        this.willResize();
+      }
+      if (((this.flags | processFlags) & View.NeedsScroll) !== 0) {
+        cascadeFlags |= View.NeedsScroll;
+        this.setFlags(this.flags & ~View.NeedsScroll);
+        this.willScroll();
+      }
+      if (((this.flags | processFlags) & View.NeedsChange) !== 0) {
+        cascadeFlags |= View.NeedsChange;
+        this.setFlags(this.flags & ~View.NeedsChange);
+        this.willChange();
+      }
+      if (((this.flags | processFlags) & View.NeedsAnimate) !== 0) {
+        cascadeFlags |= View.NeedsAnimate;
+        this.setFlags(this.flags & ~View.NeedsAnimate);
+        this.willAnimate();
+      }
+      if (((this.flags | processFlags) & View.NeedsProject) !== 0) {
+        cascadeFlags |= View.NeedsProject;
+        this.setFlags(this.flags & ~View.NeedsProject);
+        this.willProject();
+      }
+
+      this.onProcess(cascadeFlags, );
+      if ((cascadeFlags & View.NeedsResize) !== 0) {
+        this.onResize();
+      }
+      if ((cascadeFlags & View.NeedsScroll) !== 0) {
+        this.onScroll();
+      }
+      if ((cascadeFlags & View.NeedsChange) !== 0) {
+        this.onChange();
+      }
+      if ((cascadeFlags & View.NeedsAnimate) !== 0) {
+        this.onAnimate();
+      }
+      if ((cascadeFlags & View.NeedsProject) !== 0) {
+        this.onProject();
+      }
+
+      if ((cascadeFlags & View.ProcessMask) !== 0) {
+        this.processChildren(cascadeFlags, this.processChild);
+      }
+
+      if ((cascadeFlags & View.NeedsProject) !== 0) {
+        this.didProject();
+      }
+      if ((cascadeFlags & View.NeedsAnimate) !== 0) {
+        this.didAnimate();
+      }
+      if ((cascadeFlags & View.NeedsChange) !== 0) {
+        this.didChange();
+      }
+      if ((cascadeFlags & View.NeedsScroll) !== 0) {
+        this.didScroll();
+      }
+      if ((cascadeFlags & View.NeedsResize) !== 0) {
+        this.didResize();
+      }
+      this.didProcess(cascadeFlags);
     } finally {
       this.setFlags(this.flags & ~View.ProcessingFlag);
     }
@@ -1095,63 +1156,64 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
       displayFlags &= ~View.NeedsDisplay;
       displayFlags |= this.flags & View.UpdateMask;
       displayFlags = this.needsDisplay(displayFlags);
-      if ((displayFlags & View.DisplayMask) !== 0) {
-        let cascadeFlags = displayFlags;
-        this.setFlags(this.flags & ~View.NeedsDisplay | View.DisplayingFlag);
-        this.willDisplay(cascadeFlags);
-        if (((this.flags | displayFlags) & View.NeedsLayout) !== 0) {
-          cascadeFlags |= View.NeedsLayout;
-          this.setFlags(this.flags & ~View.NeedsLayout);
-          this.willLayout();
-        }
-        if (((this.flags | displayFlags) & View.NeedsRender) !== 0) {
-          cascadeFlags |= View.NeedsRender;
-          this.setFlags(this.flags & ~View.NeedsRender);
-          this.willRender();
-        }
-        if (((this.flags | displayFlags) & View.NeedsRasterize) !== 0) {
-          cascadeFlags |= View.NeedsRasterize;
-          this.setFlags(this.flags & ~View.NeedsRasterize);
-          this.willRasterize();
-        }
-        if (((this.flags | displayFlags) & View.NeedsComposite) !== 0) {
-          cascadeFlags |= View.NeedsComposite;
-          this.setFlags(this.flags & ~View.NeedsComposite);
-          this.willComposite();
-        }
-
-        this.onDisplay(cascadeFlags);
-        if ((cascadeFlags & View.NeedsLayout) !== 0) {
-          this.onLayout();
-        }
-        if ((cascadeFlags & View.NeedsRender) !== 0) {
-          this.onRender();
-        }
-        if ((cascadeFlags & View.NeedsRasterize) !== 0) {
-          this.onRasterize();
-        }
-        if ((cascadeFlags & View.NeedsComposite) !== 0) {
-          this.onComposite();
-        }
-
-        if ((cascadeFlags & View.DisplayMask) !== 0 && !this.hidden && !this.culled) {
-          this.displayChildren(cascadeFlags, this.displayChild);
-        }
-
-        if ((cascadeFlags & View.NeedsComposite) !== 0) {
-          this.didComposite();
-        }
-        if ((cascadeFlags & View.NeedsRasterize) !== 0) {
-          this.didRasterize();
-        }
-        if ((cascadeFlags & View.NeedsRender) !== 0) {
-          this.didRender();
-        }
-        if ((cascadeFlags & View.NeedsLayout) !== 0) {
-          this.didLayout();
-        }
-        this.didDisplay(cascadeFlags);
+      if ((displayFlags & View.DisplayMask) === 0) {
+        return;
       }
+      let cascadeFlags = displayFlags;
+      this.setFlags(this.flags & ~View.NeedsDisplay | View.DisplayingFlag);
+      this.willDisplay(cascadeFlags);
+      if (((this.flags | displayFlags) & View.NeedsLayout) !== 0) {
+        cascadeFlags |= View.NeedsLayout;
+        this.setFlags(this.flags & ~View.NeedsLayout);
+        this.willLayout();
+      }
+      if (((this.flags | displayFlags) & View.NeedsRender) !== 0) {
+        cascadeFlags |= View.NeedsRender;
+        this.setFlags(this.flags & ~View.NeedsRender);
+        this.willRender();
+      }
+      if (((this.flags | displayFlags) & View.NeedsRasterize) !== 0) {
+        cascadeFlags |= View.NeedsRasterize;
+        this.setFlags(this.flags & ~View.NeedsRasterize);
+        this.willRasterize();
+      }
+      if (((this.flags | displayFlags) & View.NeedsComposite) !== 0) {
+        cascadeFlags |= View.NeedsComposite;
+        this.setFlags(this.flags & ~View.NeedsComposite);
+        this.willComposite();
+      }
+
+      this.onDisplay(cascadeFlags);
+      if ((cascadeFlags & View.NeedsLayout) !== 0) {
+        this.onLayout();
+      }
+      if ((cascadeFlags & View.NeedsRender) !== 0) {
+        this.onRender();
+      }
+      if ((cascadeFlags & View.NeedsRasterize) !== 0) {
+        this.onRasterize();
+      }
+      if ((cascadeFlags & View.NeedsComposite) !== 0) {
+        this.onComposite();
+      }
+
+      if ((cascadeFlags & View.DisplayMask) !== 0 && !this.hidden && !this.culled) {
+        this.displayChildren(cascadeFlags, this.displayChild);
+      }
+
+      if ((cascadeFlags & View.NeedsComposite) !== 0) {
+        this.didComposite();
+      }
+      if ((cascadeFlags & View.NeedsRasterize) !== 0) {
+        this.didRasterize();
+      }
+      if ((cascadeFlags & View.NeedsRender) !== 0) {
+        this.didRender();
+      }
+      if ((cascadeFlags & View.NeedsLayout) !== 0) {
+        this.didLayout();
+      }
+      this.didDisplay(cascadeFlags);
     } finally {
       this.setFlags(this.flags & ~View.DisplayingFlag);
     }
@@ -1472,9 +1534,9 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
 
   /** @internal */
   protected themeAnimators(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
-    const fastenerNames = FastenerContext.getFastenerNames(this);
-    for (let i = 0; i < fastenerNames.length; i += 1) {
-      const fastener = this[fastenerNames[i]!];
+    const fastenerSlots = FastenerContext.getFastenerSlots(this);
+    for (let i = 0; i < fastenerSlots.length; i += 1) {
+      const fastener = this[fastenerSlots[i]!];
       if (fastener instanceof ThemeAnimator) {
         fastener.applyTheme(theme, mood, timing);
       }
@@ -1485,50 +1547,54 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     valueType: MoodMatrix,
     value: null,
     didSetValue(moodModifier: MoodMatrix | null): void {
-      if (moodModifier !== null && this.owner.mood.hasAffinity(Affinity.Inherited)) {
-        let superMood = this.owner.mood.inletValue;
-        if (superMood === void 0 || superMood === null) {
-          const stylerService = this.owner.styler.service;
-          if (stylerService !== void 0 && stylerService !== null) {
-            superMood = stylerService.mood.value;
-          }
+      if (moodModifier === null || !this.owner.mood.hasAffinity(Affinity.Inherited)) {
+        return;
+      }
+      let superMood = this.owner.mood.inletValue;
+      if (superMood === void 0 || superMood === null) {
+        const stylerService = this.owner.styler.service;
+        if (stylerService !== void 0 && stylerService !== null) {
+          superMood = stylerService.mood.value;
         }
-        if (superMood !== void 0 && superMood !== null) {
-          const mood = moodModifier.timesCol(superMood, true);
-          this.owner.mood.setValue(mood, Affinity.Reflexive);
-        }
+      }
+      if (superMood !== void 0 && superMood !== null) {
+        const mood = moodModifier.timesCol(superMood, true);
+        this.owner.mood.setValue(mood, Affinity.Reflexive);
       }
     },
   })
   readonly moodModifier!: Property<this, MoodMatrix | null>;
 
   modifyMood(feel: Feel, updates: MoodVectorUpdates<Feel>, timing?: AnyTiming | boolean): void {
-    if (this.moodModifier.hasAffinity(Affinity.Intrinsic)) {
-      const oldMoodModifier = this.moodModifier.getValueOr(MoodMatrix.empty());
-      const newMoodModifier = oldMoodModifier.updatedCol(feel, updates, true);
-      if (!newMoodModifier.equals(oldMoodModifier)) {
-        this.mood.timing = timing;
-        this.moodModifier.setValue(newMoodModifier, Affinity.Intrinsic);
-      }
+    if (!this.moodModifier.hasAffinity(Affinity.Intrinsic)) {
+      return;
     }
+    const oldMoodModifier = this.moodModifier.getValueOr(MoodMatrix.empty());
+    const newMoodModifier = oldMoodModifier.updatedCol(feel, updates, true);
+    if (newMoodModifier.equals(oldMoodModifier)) {
+      return;
+    }
+    this.mood.timing = timing;
+    this.moodModifier.setValue(newMoodModifier, Affinity.Intrinsic);
   }
 
   @Property({
     valueType: MoodMatrix,
     value: null,
     didSetValue(themeModifier: MoodMatrix | null): void {
-      if (themeModifier !== null && this.owner.theme.hasAffinity(Affinity.Inherited)) {
-        let superTheme = this.owner.theme.inletValue;
-        if (superTheme === void 0 || superTheme === null) {
-          const stylerService = this.owner.styler.service;
-          if (stylerService !== void 0 && stylerService !== null) {
-            superTheme = stylerService.theme.value;
-          }
+      if (themeModifier === null || !this.owner.theme.hasAffinity(Affinity.Inherited)) {
+        return;
+      }
+      let superTheme = this.owner.theme.inletValue;
+      if (superTheme === void 0 || superTheme === null) {
+        const stylerService = this.owner.styler.service;
+        if (stylerService !== void 0 && stylerService !== null) {
+          superTheme = stylerService.theme.value;
         }
-        if (superTheme !== void 0 && superTheme !== null) {
-          const theme = superTheme.transform(themeModifier, true);
-          this.owner.theme.setValue(theme, Affinity.Reflexive);
-        }
+      }
+      if (superTheme !== void 0 && superTheme !== null) {
+        const theme = superTheme.transform(themeModifier, true);
+        this.owner.theme.setValue(theme, Affinity.Reflexive);
       }
     },
   })
@@ -1537,29 +1603,30 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   modifyTheme(feel: Feel, updates: MoodVectorUpdates<Feel>, timing?: AnyTiming | boolean): void;
   modifyTheme(cols: [feel: Feel, updates: MoodVectorUpdates<Feel> | undefined][], timing?: AnyTiming | boolean): void;
   modifyTheme(feel: Feel | [feel: Feel, updates: MoodVectorUpdates<Feel> | undefined][], updates?: MoodVectorUpdates<Feel> | AnyTiming | boolean, timing?: AnyTiming | boolean): void {
-    if (this.themeModifier.hasAffinity(Affinity.Intrinsic)) {
-      const oldThemeModifier = this.themeModifier.getValueOr(MoodMatrix.empty());
-      let newThemeModifier: MoodMatrix;
-      if (feel instanceof Feel) {
-        newThemeModifier = oldThemeModifier.updatedCol(feel, updates as MoodVectorUpdates<Feel>, true);
-      } else {
-        newThemeModifier = oldThemeModifier;
-        const cols = feel as [feel: Feel, updates: MoodVectorUpdates<Feel> | undefined][];
-        timing = updates as AnyTiming | boolean;
-        updates = void 0;
-        for (let i = 0, n = cols.length; i < n; i += 1) {
-          [feel, updates] = cols[i]!;
-          if (updates !== void 0) {
-            newThemeModifier = newThemeModifier.updatedCol(feel, updates, true);
-          } else {
-            newThemeModifier = newThemeModifier.col(feel, void 0);
-          }
+    if (!this.themeModifier.hasAffinity(Affinity.Intrinsic)) {
+      return;
+    }
+    const oldThemeModifier = this.themeModifier.getValueOr(MoodMatrix.empty());
+    let newThemeModifier: MoodMatrix;
+    if (feel instanceof Feel) {
+      newThemeModifier = oldThemeModifier.updatedCol(feel, updates as MoodVectorUpdates<Feel>, true);
+    } else {
+      newThemeModifier = oldThemeModifier;
+      const cols = feel as [feel: Feel, updates: MoodVectorUpdates<Feel> | undefined][];
+      timing = updates as AnyTiming | boolean;
+      updates = void 0;
+      for (let i = 0, n = cols.length; i < n; i += 1) {
+        [feel, updates] = cols[i]!;
+        if (updates !== void 0) {
+          newThemeModifier = newThemeModifier.updatedCol(feel, updates, true);
+        } else {
+          newThemeModifier = newThemeModifier.col(feel, void 0);
         }
       }
-      if (!newThemeModifier.equals(oldThemeModifier)) {
-        this.theme.timing = timing;
-        this.themeModifier.setValue(newThemeModifier, Affinity.Intrinsic);
-      }
+    }
+    if (!newThemeModifier.equals(oldThemeModifier)) {
+      this.theme.timing = timing;
+      this.themeModifier.setValue(newThemeModifier, Affinity.Intrinsic);
     }
   }
 
@@ -1792,7 +1859,8 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
 
   /** @internal @override */
   setConstraintVariable(constraintVariable: ConstraintVariable, value: number): void {
-    const solverService = this.solver.service;
+    const solverProvider = this.getOptionalFastener("solver");
+    const solverService = solverProvider !== null ? this.solver.service : null;
     if (solverService === null) {
       return;
     }
@@ -1812,8 +1880,11 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
 
   /** @internal */
   protected activateLayout(): void {
-    const solverService = this.solver.service;
     const constraints = this.constraints;
+    if (constraints === null) {
+      return;
+    }
+    const solverService = this.solver.service;
     if (solverService === null || constraints === null) {
       return;
     }
@@ -1824,9 +1895,12 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
 
   /** @internal */
   protected deactivateLayout(): void {
-    const solverService = this.solver.service;
     const constraints = this.constraints;
-    if (solverService === null || constraints === null) {
+    if (constraints === null) {
+      return;
+    }
+    const solverService = this.solver.service;
+    if (solverService === null) {
       return;
     }
     for (const constraint of constraints) {
@@ -1935,6 +2009,30 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
 
   protected override onObserve(observer: Observes<this>): void {
     super.onObserve(observer);
+    if (observer.viewWillAttachParent !== void 0) {
+      if (this.willAttachParentObservers === null) {
+        this.willAttachParentObservers = new Set();
+      }
+      this.willAttachParentObservers.add(observer as Required<Pick<ViewObserver, "viewWillAttachParent">>);
+    }
+    if (observer.viewDidAttachParent !== void 0) {
+      if (this.didAttachParentObservers === null) {
+        this.didAttachParentObservers = new Set();
+      }
+      this.didAttachParentObservers.add(observer as Required<Pick<ViewObserver, "viewDidAttachParent">>);
+    }
+    if (observer.viewWillDetachParent !== void 0) {
+      if (this.willDetachParentObservers === null) {
+        this.willDetachParentObservers = new Set();
+      }
+      this.willDetachParentObservers.add(observer as Required<Pick<ViewObserver, "viewWillDetachParent">>);
+    }
+    if (observer.viewDidDetachParent !== void 0) {
+      if (this.didDetachParentObservers === null) {
+        this.didDetachParentObservers = new Set();
+      }
+      this.didDetachParentObservers.add(observer as Required<Pick<ViewObserver, "viewDidDetachParent">>);
+    }
     if (observer.viewWillInsertChild !== void 0) {
       if (this.willInsertChildObservers === null) {
         this.willInsertChildObservers = new Set();
@@ -1958,6 +2056,30 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
         this.didRemoveChildObservers = new Set();
       }
       this.didRemoveChildObservers.add(observer as Required<Pick<ViewObserver, "viewDidRemoveChild">>);
+    }
+    if (observer.viewWillMount !== void 0) {
+      if (this.willMountObservers === null) {
+        this.willMountObservers = new Set();
+      }
+      this.willMountObservers.add(observer as Required<Pick<ViewObserver, "viewWillMount">>);
+    }
+    if (observer.viewDidMount !== void 0) {
+      if (this.didMountObservers === null) {
+        this.didMountObservers = new Set();
+      }
+      this.didMountObservers.add(observer as Required<Pick<ViewObserver, "viewDidMount">>);
+    }
+    if (observer.viewWillUnmount !== void 0) {
+      if (this.willUnmountObservers === null) {
+        this.willUnmountObservers = new Set();
+      }
+      this.willUnmountObservers.add(observer as Required<Pick<ViewObserver, "viewWillUnmount">>);
+    }
+    if (observer.viewDidUnmount !== void 0) {
+      if (this.didUnmountObservers === null) {
+        this.didUnmountObservers = new Set();
+      }
+      this.didUnmountObservers.add(observer as Required<Pick<ViewObserver, "viewDidUnmount">>);
     }
     if (observer.viewWillResize !== void 0) {
       if (this.willResizeObservers === null) {
@@ -2071,6 +2193,18 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
 
   protected override onUnobserve(observer: Observes<this>): void {
     super.onUnobserve(observer);
+    if (observer.viewWillAttachParent !== void 0 && this.willAttachParentObservers !== null) {
+      this.willAttachParentObservers.delete(observer as Required<Pick<ViewObserver, "viewWillAttachParent">>);
+    }
+    if (observer.viewDidAttachParent !== void 0 && this.didAttachParentObservers !== null) {
+      this.didAttachParentObservers.delete(observer as Required<Pick<ViewObserver, "viewDidAttachParent">>);
+    }
+    if (observer.viewWillDetachParent !== void 0 && this.willDetachParentObservers !== null) {
+      this.willDetachParentObservers.delete(observer as Required<Pick<ViewObserver, "viewWillDetachParent">>);
+    }
+    if (observer.viewDidDetachParent !== void 0 && this.didDetachParentObservers !== null) {
+      this.didDetachParentObservers.delete(observer as Required<Pick<ViewObserver, "viewDidDetachParent">>);
+    }
     if (observer.viewWillInsertChild !== void 0 && this.willInsertChildObservers !== null) {
       this.willInsertChildObservers.delete(observer as Required<Pick<ViewObserver, "viewWillInsertChild">>);
     }
@@ -2082,6 +2216,18 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     }
     if (observer.viewDidRemoveChild !== void 0 && this.didRemoveChildObservers !== null) {
       this.didRemoveChildObservers.delete(observer as Required<Pick<ViewObserver, "viewDidRemoveChild">>);
+    }
+    if (observer.viewWillMount !== void 0 && this.willMountObservers !== null) {
+      this.willMountObservers.delete(observer as Required<Pick<ViewObserver, "viewWillMount">>);
+    }
+    if (observer.viewDidMount !== void 0 && this.didMountObservers !== null) {
+      this.didMountObservers.delete(observer as Required<Pick<ViewObserver, "viewDidMount">>);
+    }
+    if (observer.viewWillUnmount !== void 0 && this.willUnmountObservers !== null) {
+      this.willUnmountObservers.delete(observer as Required<Pick<ViewObserver, "viewWillUnmount">>);
+    }
+    if (observer.viewDidUnmount !== void 0 && this.didUnmountObservers !== null) {
+      this.didUnmountObservers.delete(observer as Required<Pick<ViewObserver, "viewDidUnmount">>);
     }
     if (observer.viewWillResize !== void 0 && this.willResizeObservers !== null) {
       this.willResizeObservers.delete(observer as Required<Pick<ViewObserver, "viewWillResize">>);

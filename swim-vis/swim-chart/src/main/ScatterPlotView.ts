@@ -174,12 +174,13 @@ export abstract class ScatterPlotView<X = unknown, Y = unknown> extends Graphics
 
   protected setXDataDomain(newXDataDomain: Domain<X> | null): void {
     const oldXDataDomain = this.xDataDomain;
-    if (!Equals(newXDataDomain, oldXDataDomain)) {
-      this.willSetXDataDomain(newXDataDomain, oldXDataDomain);
-      (this as Mutable<this>).xDataDomain = newXDataDomain;
-      this.onSetXDataDomain(newXDataDomain, oldXDataDomain);
-      this.didSetXDataDomain(newXDataDomain, oldXDataDomain);
+    if (Equals(newXDataDomain, oldXDataDomain)) {
+      return;
     }
+    this.willSetXDataDomain(newXDataDomain, oldXDataDomain);
+    (this as Mutable<this>).xDataDomain = newXDataDomain;
+    this.onSetXDataDomain(newXDataDomain, oldXDataDomain);
+    this.didSetXDataDomain(newXDataDomain, oldXDataDomain);
   }
 
   protected willSetXDataDomain(newXDataDomain: Domain<X> | null, oldXDataDomain: Domain<X> | null): void {
@@ -215,12 +216,13 @@ export abstract class ScatterPlotView<X = unknown, Y = unknown> extends Graphics
 
   protected setYDataDomain(newYDataDomain: Domain<Y> | null): void {
     const oldYDataDomain = this.yDataDomain;
-    if (!Equals(newYDataDomain, oldYDataDomain)) {
-      this.willSetYDataDomain(newYDataDomain, oldYDataDomain);
-      (this as Mutable<this>).yDataDomain = newYDataDomain;
-      this.onSetYDataDomain(newYDataDomain, oldYDataDomain);
-      this.didSetYDataDomain(newYDataDomain, oldYDataDomain);
+    if (Equals(newYDataDomain, oldYDataDomain)) {
+      return;
     }
+    this.willSetYDataDomain(newYDataDomain, oldYDataDomain);
+    (this as Mutable<this>).yDataDomain = newYDataDomain;
+    this.onSetYDataDomain(newYDataDomain, oldYDataDomain);
+    this.didSetYDataDomain(newYDataDomain, oldYDataDomain);
   }
 
   protected willSetYDataDomain(newYDataDomain: Domain<Y> | null, oldYDataDomain: Domain<Y> | null): void {
@@ -268,13 +270,14 @@ export abstract class ScatterPlotView<X = unknown, Y = unknown> extends Graphics
 
   protected updateXDataRange(): void {
     const xDataDomain = this.xDataDomain;
-    if (xDataDomain !== null) {
-      const xScale = this.xScale.value;
-      if (xScale !== null) {
-        this.setXDataRange(LinearRange(xScale(xDataDomain[0]), xScale(xDataDomain[1])));
-      } else {
-        this.setXDataRange(null);
-      }
+    if (xDataDomain === null) {
+      return;
+    }
+    const xScale = this.xScale.value;
+    if (xScale !== null) {
+      this.setXDataRange(LinearRange(xScale(xDataDomain[0]), xScale(xDataDomain[1])));
+    } else {
+      this.setXDataRange(null);
     }
   }
 
@@ -287,13 +290,14 @@ export abstract class ScatterPlotView<X = unknown, Y = unknown> extends Graphics
 
   protected updateYDataRange(): void {
     const yDataDomain = this.yDataDomain;
-    if (yDataDomain !== null) {
-      const yScale = this.yScale.value;
-      if (yScale !== null) {
-        this.setYDataRange(LinearRange(yScale(yDataDomain[0]), yScale(yDataDomain[1])));
-      } else {
-        this.setYDataRange(null);
-      }
+    if (yDataDomain === null) {
+      return;
+    }
+    const yScale = this.yScale.value;
+    if (yScale !== null) {
+      this.setYDataRange(LinearRange(yScale(yDataDomain[0]), yScale(yDataDomain[1])));
+    } else {
+      this.setYDataRange(null);
     }
   }
 
@@ -413,7 +417,12 @@ export abstract class ScatterPlotView<X = unknown, Y = unknown> extends Graphics
         point1.setXCoord(frame.xMin + sx1);
         point1.setYCoord(frame.yMin + sy1);
 
-        if (point0 !== null) {
+        if (point0 === null) {
+          xDataDomainMin = x1;
+          xDataDomainMax = x1;
+          yDataDomainMin = y1;
+          yDataDomainMax = y1;
+        } else {
           // update extrema
           if (Values.compare(x1, xDataDomainMin) < 0) {
             xDataDomainMin = x1;
@@ -432,11 +441,6 @@ export abstract class ScatterPlotView<X = unknown, Y = unknown> extends Graphics
               yDataDomainMax = dy1;
             }
           }
-        } else {
-          xDataDomainMin = x1;
-          xDataDomainMax = x1;
-          yDataDomainMin = y1;
-          yDataDomainMax = y1;
         }
 
         if (r1 !== null) {

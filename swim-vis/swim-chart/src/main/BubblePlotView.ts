@@ -100,9 +100,11 @@ export class BubblePlotView<X = unknown, Y = unknown> extends ScatterPlotView<X,
       context.beginPath();
       const r = p.radius.getValueOr(radius).pxValue(size);
       context.arc(p.xCoord, p.yCoord, r, 0, 2 * Math.PI);
-      let fillColor = p.color.getValueOr(fill);
+      const colorAnimator = p.getOptionalFastener("color");
+      let fillColor = colorAnimator !== null ? colorAnimator.getValueOr(fill) : fill;
       if (fillColor !== null) {
-        const opacity = p.opacity.value;
+        const opacityAnimator = p.getOptionalFastener("opacity");
+        const opacity = opacityAnimator !== null ? opacityAnimator.value : void 0;
         if (opacity !== void 0) {
           fillColor = fillColor.alpha(opacity);
         }

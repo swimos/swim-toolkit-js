@@ -63,17 +63,17 @@ export class SvgIconView extends SvgView implements IconView {
     value: null,
     updateFlags: View.NeedsLayout,
     didSetState(iconColor: Color | null): void {
-      if (iconColor !== null) {
-        const oldGraphics = this.owner.graphics.value;
-        if (oldGraphics instanceof FilledIcon) {
-          const newGraphics = oldGraphics.withFillColor(iconColor);
-          const timing = this.timing !== null ? this.timing : false;
-          this.owner.graphics.setState(newGraphics, timing, Affinity.Reflexive);
-        }
+      const oldGraphics = this.owner.graphics.value;
+      if (oldGraphics instanceof FilledIcon) {
+        const newGraphics = oldGraphics.withFillColor(iconColor);
+        const timing = this.timing !== null ? this.timing : false;
+        this.owner.graphics.setState(newGraphics, timing, Affinity.Reflexive);
       }
     },
   })
-  readonly iconColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  get iconColor(): ThemeAnimator<this, Color | null, AnyColor | null> {
+    return ThemeAnimator.dummy();
+  }
 
   @ThemeAnimator({
     extends: IconGraphicsAnimator,

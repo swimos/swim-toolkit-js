@@ -159,13 +159,15 @@ export class DataSetController<X = unknown, Y = unknown> extends Controller {
       this.owner.callObservers("controllerDidDetachDataPointView", dataPointView, dataPointController, this.owner);
     },
     attachDataPointView(dataPointView: DataPointView<X, Y>, dataPointController: DataPointController<X, Y>): void {
-      const labelView = dataPointView.label.view;
+      const label = dataPointView.getOptionalFastener("label");
+      const labelView = label !== null ? label.view : null;
       if (labelView !== null) {
         this.attachDataPointLabelView(labelView, dataPointController);
       }
     },
     detachDataPointView(dataPointView: DataPointView<X, Y>, dataPointController: DataPointController<X, Y>): void {
-      const labelView = dataPointView.label.view;
+      const label = dataPointView.getOptionalFastener("label");
+      const labelView = label !== null ? label.view : null;
       if (labelView !== null) {
         this.detachDataPointLabelView(labelView, dataPointController);
       }

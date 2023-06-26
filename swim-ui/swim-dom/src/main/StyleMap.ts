@@ -289,14 +289,14 @@ export const StyleMap = (function () {
 
     /** @internal */
     defineField<K extends keyof StyleMap>(constructor: Proto<StyleMap>, name: K, decorators: StyleMap[K] extends StyleAnimator<any, any, any> ? FastenerDecorator<StyleMap[K]>[] : never,
-                                          fieldInitializers: {[name: string | symbol]: Function[]}, instanceInitializers: Function[]): void;
+                                          fieldInitializers: {[name: PropertyKey]: Function[]}, instanceInitializers: Function[]): void;
 
     /** @internal */
     defineGetter<K extends keyof StyleMap>(constructor: Proto<StyleMap>, name: K, decorators: StyleMap[K] extends StyleAnimator<any, any, any> ? FastenerDecorator<StyleMap[K]>[] : never,
-                                           fieldInitializers: {[name: string | symbol]: Function[]}, instanceInitializers: Function[]): void;
+                                           fieldInitializers: {[name: PropertyKey]: Function[]}, instanceInitializers: Function[]): void;
 
     /** @internal */
-    define(constructor: Proto<StyleMap>, fieldInitializers: {[name: string | symbol]: Function[]}, instanceInitializers: Function[]): void;
+    define(constructor: Proto<StyleMap>, fieldInitializers: {[name: PropertyKey]: Function[]}, instanceInitializers: Function[]): void;
 
     /** @internal */
     pctWidthUnit(node: Node | undefined): number;
@@ -315,7 +315,7 @@ export const StyleMap = (function () {
   };
 
   StyleMap.defineField = function <K extends keyof StyleMap>(constructor: Proto<StyleMap>, name: K, decorators: StyleMap[K] extends StyleAnimator<any, any, any> ? FastenerDecorator<StyleMap[K]>[] : never,
-                                                             fieldInitializers: {[name: string | symbol]: Function[]}, instanceInitializers: Function[]): void {
+                                                             fieldInitializers: {[name: PropertyKey]: Function[]}, instanceInitializers: Function[]): void {
     __esDecorate(null, null, decorators as Function[], {
       kind: "field",
       name,
@@ -336,7 +336,7 @@ export const StyleMap = (function () {
   };
 
   StyleMap.defineGetter = function <K extends keyof StyleMap>(constructor: Proto<StyleMap>, name: K, decorators: StyleMap[K] extends StyleAnimator<any, any, any> ? FastenerDecorator<StyleMap[K]>[] : never,
-                                                              fieldInitializers: {[name: string | symbol]: Function[]}, instanceInitializers: Function[]): void {
+                                                              fieldInitializers: {[name: PropertyKey]: Function[]}, instanceInitializers: Function[]): void {
     Object.defineProperty(constructor.prototype, name, {
       get: Fastener.dummy,
       enumerable: true,
@@ -361,7 +361,7 @@ export const StyleMap = (function () {
     }, null, instanceInitializers);
   };
 
-  StyleMap.define = function (constructor: Proto<StyleMap>, fieldInitializers: {[name: string | symbol]: Function[]}, instanceInitializers: Function[]): void {
+  StyleMap.define = function (constructor: Proto<StyleMap>, fieldInitializers: {[name: PropertyKey]: Function[]}, instanceInitializers: Function[]): void {
     StyleMap.defineGetter(constructor, "alignContent", [StyleAnimator({
       propertyNames: "align-content",
       valueType: String,

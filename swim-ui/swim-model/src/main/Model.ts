@@ -441,7 +441,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
     super.didUnmount();
   }
 
-  getTraitFastener<F extends Fastener<unknown>>(fastenerName: string | symbol, fastenerType: Proto<F>, contextType?: Proto<unknown> | null): F | null {
+  getTraitFastener<F extends Fastener<any>>(fastenerName: PropertyKey, fastenerType: Proto<F>, contextType?: Proto<unknown> | null): F | null {
     let trait = this.firstTrait;
     while (trait !== null) {
       const fastener = trait.getFastener(fastenerName, fastenerType, contextType);
@@ -520,52 +520,53 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
       analyzeFlags &= ~Model.NeedsAnalyze;
       analyzeFlags |= this.flags & Model.UpdateMask;
       analyzeFlags = this.needsAnalyze(analyzeFlags);
-      if ((analyzeFlags & Model.AnalyzeMask) !== 0) {
-        let cascadeFlags = analyzeFlags;
-        this.setFlags(this.flags & ~Model.NeedsAnalyze | Model.AnalyzingFlag);
-        this.willAnalyze(cascadeFlags);
-        if (((this.flags | analyzeFlags) & Model.NeedsMutate) !== 0) {
-          cascadeFlags |= Model.NeedsMutate;
-          this.setFlags(this.flags & ~Model.NeedsMutate);
-          this.willMutate();
-        }
-        if (((this.flags | analyzeFlags) & Model.NeedsAggregate) !== 0) {
-          cascadeFlags |= Model.NeedsAggregate;
-          this.setFlags(this.flags & ~Model.NeedsAggregate);
-          this.willAggregate();
-        }
-        if (((this.flags | analyzeFlags) & Model.NeedsCorrelate) !== 0) {
-          cascadeFlags |= Model.NeedsCorrelate;
-          this.setFlags(this.flags & ~Model.NeedsCorrelate);
-          this.willCorrelate();
-        }
-
-        this.onAnalyze(cascadeFlags);
-        if ((cascadeFlags & Model.NeedsMutate) !== 0) {
-          this.onMutate();
-        }
-        if ((cascadeFlags & Model.NeedsAggregate) !== 0) {
-          this.onAggregate();
-        }
-        if ((cascadeFlags & Model.NeedsCorrelate) !== 0) {
-          this.onCorrelate();
-        }
-
-        if ((cascadeFlags & Model.AnalyzeMask) !== 0) {
-          this.analyzeChildren(cascadeFlags, this.analyzeChild);
-        }
-
-        if ((cascadeFlags & Model.NeedsCorrelate) !== 0) {
-          this.didCorrelate();
-        }
-        if ((cascadeFlags & Model.NeedsAggregate) !== 0) {
-          this.didAggregate();
-        }
-        if ((cascadeFlags & Model.NeedsMutate) !== 0) {
-          this.didMutate();
-        }
-        this.didAnalyze(cascadeFlags);
+      if ((analyzeFlags & Model.AnalyzeMask) === 0) {
+        return;
       }
+      let cascadeFlags = analyzeFlags;
+      this.setFlags(this.flags & ~Model.NeedsAnalyze | Model.AnalyzingFlag);
+      this.willAnalyze(cascadeFlags);
+      if (((this.flags | analyzeFlags) & Model.NeedsMutate) !== 0) {
+        cascadeFlags |= Model.NeedsMutate;
+        this.setFlags(this.flags & ~Model.NeedsMutate);
+        this.willMutate();
+      }
+      if (((this.flags | analyzeFlags) & Model.NeedsAggregate) !== 0) {
+        cascadeFlags |= Model.NeedsAggregate;
+        this.setFlags(this.flags & ~Model.NeedsAggregate);
+        this.willAggregate();
+      }
+      if (((this.flags | analyzeFlags) & Model.NeedsCorrelate) !== 0) {
+        cascadeFlags |= Model.NeedsCorrelate;
+        this.setFlags(this.flags & ~Model.NeedsCorrelate);
+        this.willCorrelate();
+      }
+
+      this.onAnalyze(cascadeFlags);
+      if ((cascadeFlags & Model.NeedsMutate) !== 0) {
+        this.onMutate();
+      }
+      if ((cascadeFlags & Model.NeedsAggregate) !== 0) {
+        this.onAggregate();
+      }
+      if ((cascadeFlags & Model.NeedsCorrelate) !== 0) {
+        this.onCorrelate();
+      }
+
+      if ((cascadeFlags & Model.AnalyzeMask) !== 0) {
+        this.analyzeChildren(cascadeFlags, this.analyzeChild);
+      }
+
+      if ((cascadeFlags & Model.NeedsCorrelate) !== 0) {
+        this.didCorrelate();
+      }
+      if ((cascadeFlags & Model.NeedsAggregate) !== 0) {
+        this.didAggregate();
+      }
+      if ((cascadeFlags & Model.NeedsMutate) !== 0) {
+        this.didMutate();
+      }
+      this.didAnalyze(cascadeFlags);
     } finally {
       this.setFlags(this.flags & ~Model.AnalyzingFlag);
     }
@@ -740,41 +741,42 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
       refreshFlags &= ~Model.NeedsRefresh;
       refreshFlags |= this.flags & Model.UpdateMask;
       refreshFlags = this.needsRefresh(refreshFlags);
-      if ((refreshFlags & Model.RefreshMask) !== 0) {
-        let cascadeFlags = refreshFlags;
-        this.setFlags(this.flags & ~Model.NeedsRefresh | Model.RefreshingFlag);
-        this.willRefresh(cascadeFlags);
-        if (((this.flags | refreshFlags) & Model.NeedsValidate) !== 0) {
-          cascadeFlags |= Model.NeedsValidate;
-          this.setFlags(this.flags & ~Model.NeedsValidate);
-          this.willValidate();
-        }
-        if (((this.flags | refreshFlags) & Model.NeedsReconcile) !== 0) {
-          cascadeFlags |= Model.NeedsReconcile;
-          this.setFlags(this.flags & ~Model.NeedsReconcile);
-          this.willReconcile();
-        }
-
-        this.onRefresh(cascadeFlags);
-        if ((cascadeFlags & Model.NeedsValidate) !== 0) {
-          this.onValidate();
-        }
-        if ((cascadeFlags & Model.NeedsReconcile) !== 0) {
-          this.onReconcile();
-        }
-
-        if ((cascadeFlags & Model.RefreshMask)) {
-          this.refreshChildren(cascadeFlags, this.refreshChild);
-        }
-
-        if ((cascadeFlags & Model.NeedsReconcile) !== 0) {
-          this.didReconcile();
-        }
-        if ((cascadeFlags & Model.NeedsValidate) !== 0) {
-          this.didValidate();
-        }
-        this.didRefresh(cascadeFlags);
+      if ((refreshFlags & Model.RefreshMask) === 0) {
+        return;
       }
+      let cascadeFlags = refreshFlags;
+      this.setFlags(this.flags & ~Model.NeedsRefresh | Model.RefreshingFlag);
+      this.willRefresh(cascadeFlags);
+      if (((this.flags | refreshFlags) & Model.NeedsValidate) !== 0) {
+        cascadeFlags |= Model.NeedsValidate;
+        this.setFlags(this.flags & ~Model.NeedsValidate);
+        this.willValidate();
+      }
+      if (((this.flags | refreshFlags) & Model.NeedsReconcile) !== 0) {
+        cascadeFlags |= Model.NeedsReconcile;
+        this.setFlags(this.flags & ~Model.NeedsReconcile);
+        this.willReconcile();
+      }
+
+      this.onRefresh(cascadeFlags);
+      if ((cascadeFlags & Model.NeedsValidate) !== 0) {
+        this.onValidate();
+      }
+      if ((cascadeFlags & Model.NeedsReconcile) !== 0) {
+        this.onReconcile();
+      }
+
+      if ((cascadeFlags & Model.RefreshMask)) {
+        this.refreshChildren(cascadeFlags, this.refreshChild);
+      }
+
+      if ((cascadeFlags & Model.NeedsReconcile) !== 0) {
+        this.didReconcile();
+      }
+      if ((cascadeFlags & Model.NeedsValidate) !== 0) {
+        this.didValidate();
+      }
+      this.didRefresh(cascadeFlags);
     } finally {
       this.setFlags(this.flags & ~Model.RefreshingFlag);
     }
@@ -1418,9 +1420,9 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
 
   /** @internal */
   protected bindTraitFasteners(trait: Trait, target: Trait | null): void {
-    const fastenerNames = FastenerContext.getFastenerNames(this);
-    for (let i = 0; i < fastenerNames.length; i += 1) {
-      const fastener = this[fastenerNames[i]!];
+    const fastenerSlots = FastenerContext.getFastenerSlots(this);
+    for (let i = 0; i < fastenerSlots.length; i += 1) {
+      const fastener = this[fastenerSlots[i]!];
       if (fastener instanceof Fastener) {
         this.bindTraitFastener(fastener, trait, target);
       }
@@ -1436,9 +1438,9 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
 
   /** @internal */
   protected unbindTraitFasteners(trait: Trait): void {
-    const fastenerNames = FastenerContext.getFastenerNames(this);
-    for (let i = 0; i < fastenerNames.length; i += 1) {
-      const fastener = this[fastenerNames[i]!];
+    const fastenerSlots = FastenerContext.getFastenerSlots(this);
+    for (let i = 0; i < fastenerSlots.length; i += 1) {
+      const fastener = this[fastenerSlots[i]!];
       if (fastener instanceof Fastener) {
         this.unbindTraitFastener(fastener, trait);
       }
@@ -1634,9 +1636,9 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
 
   /** @internal */
   protected startConsumingFasteners(): void {
-    const fastenerNames = FastenerContext.getFastenerNames(this);
-    for (let i = 0; i < fastenerNames.length; i += 1) {
-      const fastener = this[fastenerNames[i]!];
+    const fastenerSlots = FastenerContext.getFastenerSlots(this);
+    for (let i = 0; i < fastenerSlots.length; i += 1) {
+      const fastener = this[fastenerSlots[i]!];
       if (fastener instanceof WarpDownlink && fastener.consumed === true) {
         fastener.consume(this);
       } else if (fastener instanceof TraitRelation && fastener.consumed === true) {
@@ -1649,9 +1651,9 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
 
   /** @internal */
   protected stopConsumingFasteners(): void {
-    const fastenerNames = FastenerContext.getFastenerNames(this);
-    for (let i = 0; i < fastenerNames.length; i += 1) {
-      const fastener = this[fastenerNames[i]!];
+    const fastenerSlots = FastenerContext.getFastenerSlots(this);
+    for (let i = 0; i < fastenerSlots.length; i += 1) {
+      const fastener = this[fastenerSlots[i]!];
       if (fastener instanceof WarpDownlink && fastener.consumed === true) {
         fastener.unconsume(this);
       } else if (fastener instanceof TraitRelation && fastener.consumed === true) {

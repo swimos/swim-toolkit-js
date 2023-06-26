@@ -136,21 +136,18 @@ export class GeoRasterView extends GeoView {
   protected createRenderer(rendererType: GraphicsRendererType = "canvas"): GraphicsRenderer | null {
     if (rendererType === "canvas") {
       const context = this.canvas.getContext("2d");
-      if (context !== null) {
-        return new CanvasRenderer(context, Transform.identity(), this.pixelRatio);
-      } else {
+      if (context === null) {
         throw new Error("Failed to create canvas rendering context");
       }
+      return new CanvasRenderer(context, Transform.identity(), this.pixelRatio);
     } else if (rendererType === "webgl") {
       const context = this.canvas.getContext("webgl");
-      if (context !== null) {
-        return new WebGLRenderer(context, this.pixelRatio);
-      } else {
+      if (context === null) {
         throw new Error("Failed to create webgl rendering context");
       }
-    } else {
-      throw new Error("Failed to create " + rendererType + " renderer");
+      return new WebGLRenderer(context, this.pixelRatio);
     }
+    throw new Error("Failed to create " + rendererType + " renderer");
   }
 
   protected override needsUpdate(updateFlags: ViewFlags, immediate: boolean): ViewFlags {

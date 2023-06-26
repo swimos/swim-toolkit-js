@@ -106,14 +106,18 @@ export class GeoIconView extends GeoView implements IconView {
     value: 0.5,
     updateFlags: View.NeedsProject | View.NeedsRender | View.NeedsRasterize | View.NeedsComposite,
   })
-  readonly xAlign!: Animator<this, number>;
+  get xAlign(): Animator<this, number> {
+    return Animator.dummy();
+  }
 
   @Animator({
     valueType: Number,
     value: 0.5,
     updateFlags: View.NeedsProject | View.NeedsRender | View.NeedsRasterize | View.NeedsComposite,
   })
-  readonly yAlign!: Animator<this, number>;
+  get yAlign(): Animator<this, number> {
+    return Animator.dummy();
+  }
 
   @ThemeAnimator({
     valueType: Length,
@@ -135,15 +139,16 @@ export class GeoIconView extends GeoView implements IconView {
     updateFlags: View.NeedsRender | View.NeedsRasterize | View.NeedsComposite,
     didSetState(iconColor: Color | null): void {
       const oldGraphics = this.owner.graphics.value;
-      if (!(oldGraphics instanceof FilledIcon)) {
-        return;
+      if (oldGraphics instanceof FilledIcon) {
+        const newGraphics = oldGraphics.withFillColor(iconColor);
+        const timing = this.timing !== null ? this.timing : false;
+        this.owner.graphics.setState(newGraphics, timing, Affinity.Reflexive);
       }
-      const newGraphics = oldGraphics.withFillColor(iconColor);
-      const timing = this.timing !== null ? this.timing : false;
-      this.owner.graphics.setState(newGraphics, timing, Affinity.Reflexive);
     },
   })
-  readonly iconColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  get iconColor(): ThemeAnimator<this, Color | null, AnyColor | null> {
+    return ThemeAnimator.dummy();
+  }
 
   @ThemeAnimator({
     extends: IconGraphicsAnimator,
@@ -284,8 +289,12 @@ export class GeoIconView extends GeoView implements IconView {
     iconWidth = iconWidth instanceof Length ? iconWidth.pxValue(viewSize) : viewSize;
     let iconHeight: Length | number | null = this.iconHeight.value;
     iconHeight = iconHeight instanceof Length ? iconHeight.pxValue(viewSize) : viewSize;
-    const x = viewCenter.x - iconWidth * this.xAlign.value;
-    const y = viewCenter.y - iconHeight * this.yAlign.value;
+    const xAlignAnimator = this.getOptionalFastener("xAlign");
+    const xAlign = xAlignAnimator !== null ? xAlignAnimator.value : 0.5;
+    const yAlignAnimator = this.getOptionalFastener("yAlign");
+    const yAlign = yAlignAnimator !== null ? yAlignAnimator.value : 0.5;
+    const x = viewCenter.x - iconWidth * xAlign;
+    const y = viewCenter.y - iconHeight * yAlign;
     return new R2Box(x, y, x + iconWidth, y + iconHeight);
   }
 
@@ -303,8 +312,12 @@ export class GeoIconView extends GeoView implements IconView {
     iconWidth = iconWidth instanceof Length ? iconWidth.pxValue(viewSize) : viewSize;
     let iconHeight: Length | number | null = this.iconHeight.value;
     iconHeight = iconHeight instanceof Length ? iconHeight.pxValue(viewSize) : viewSize;
-    const x = px - iconWidth * this.xAlign.getValue();
-    const y = py - iconHeight * this.yAlign.getValue();
+    const xAlignAnimator = this.getOptionalFastener("xAlign");
+    const xAlign = xAlignAnimator !== null ? xAlignAnimator.value : 0.5;
+    const yAlignAnimator = this.getOptionalFastener("yAlign");
+    const yAlign = yAlignAnimator !== null ? yAlignAnimator.value : 0.5;
+    const x = px - iconWidth * xAlign;
+    const y = py - iconHeight * yAlign;
     return new R2Box(x, y, x + iconWidth, y + iconHeight);
   }
 

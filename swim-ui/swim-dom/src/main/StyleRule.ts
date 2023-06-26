@@ -166,7 +166,7 @@ export interface StyleRule<O = unknown> extends CssRule<O, CSSStyleRule>, Fasten
 export const StyleRule = (function (_super: typeof CssRule) {
   const StyleRule = _super.extend("StyleRule", {}) as FastenerClass<StyleRule<any>> & {
     /** @internal */
-    readonly fieldInitializers: {[name: string | symbol]: Function[]};
+    readonly fieldInitializers: {[name: PropertyKey]: Function[]};
     /** @internal */
     readonly instanceInitializers: Function[];
   };
@@ -351,9 +351,9 @@ export const StyleRule = (function (_super: typeof CssRule) {
     } else {
       timing = Timing.fromAny(timing);
     }
-    const fastenerNames = FastenerContext.getFastenerNames(this);
-    for (let i = 0; i < fastenerNames.length; i += 1) {
-      const fastener = this[fastenerNames[i]!];
+    const fastenerSlots = FastenerContext.getFastenerSlots(this);
+    for (let i = 0; i < fastenerSlots.length; i += 1) {
+      const fastener = this[fastenerSlots[i]!];
       if (fastener instanceof ThemeAnimator) {
         fastener.applyTheme(theme, mood, timing as Timing | boolean);
       }
@@ -362,9 +362,9 @@ export const StyleRule = (function (_super: typeof CssRule) {
   };
 
   StyleRule.prototype.applyStyles = function(this: StyleRule): void {
-    const fastenerNames = FastenerContext.getFastenerNames(this);
-    for (let i = 0; i < fastenerNames.length; i += 1) {
-      const fastener = this[fastenerNames[i]!];
+    const fastenerSlots = FastenerContext.getFastenerSlots(this);
+    for (let i = 0; i < fastenerSlots.length; i += 1) {
+      const fastener = this[fastenerSlots[i]!];
       if (fastener instanceof StyleAnimator) {
         fastener.applyStyle(fastener.value, fastener.priority);
       }
@@ -382,9 +382,9 @@ export const StyleRule = (function (_super: typeof CssRule) {
   };
 
   StyleRule.prototype.mountFasteners = function (this: StyleRule): void {
-    const fastenerNames = FastenerContext.getFastenerNames(this);
-    for (let i = 0; i < fastenerNames.length; i += 1) {
-      const fastener = this[fastenerNames[i]!];
+    const fastenerSlots = FastenerContext.getFastenerSlots(this);
+    for (let i = 0; i < fastenerSlots.length; i += 1) {
+      const fastener = this[fastenerSlots[i]!];
       if (fastener instanceof Fastener) {
         fastener.mount();
       }
@@ -392,9 +392,9 @@ export const StyleRule = (function (_super: typeof CssRule) {
   };
 
   StyleRule.prototype.unmountFasteners = function (this: StyleRule): void {
-    const fastenerNames = FastenerContext.getFastenerNames(this);
-    for (let i = 0; i < fastenerNames.length; i += 1) {
-      const fastener = this[fastenerNames[i]!];
+    const fastenerSlots = FastenerContext.getFastenerSlots(this);
+    for (let i = 0; i < fastenerSlots.length; i += 1) {
+      const fastener = this[fastenerSlots[i]!];
       if (fastener instanceof Fastener) {
         fastener.unmount();
       }

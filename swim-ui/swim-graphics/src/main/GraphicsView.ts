@@ -92,25 +92,27 @@ export class GraphicsView extends View {
   }
 
   protected renderViewOutline(viewBox: R2Box, context: CanvasContext, outlineColor: Color, outlineWidth: number): void {
-    if (viewBox.isDefined()) {
-      // save
-      const contextLineWidth = context.lineWidth;
-      const contextStrokeStyle = context.strokeStyle;
-
-      context.beginPath();
-      context.moveTo(viewBox.xMin, viewBox.yMin);
-      context.lineTo(viewBox.xMin, viewBox.yMax);
-      context.lineTo(viewBox.xMax, viewBox.yMax);
-      context.lineTo(viewBox.xMax, viewBox.yMin);
-      context.closePath();
-      context.lineWidth = outlineWidth;
-      context.strokeStyle = outlineColor.toString();
-      context.stroke();
-
-      // restore
-      context.lineWidth = contextLineWidth;
-      context.strokeStyle = contextStrokeStyle;
+    if (!viewBox.isDefined()) {
+      return;
     }
+
+    // save
+    const contextLineWidth = context.lineWidth;
+    const contextStrokeStyle = context.strokeStyle;
+
+    context.beginPath();
+    context.moveTo(viewBox.xMin, viewBox.yMin);
+    context.lineTo(viewBox.xMin, viewBox.yMax);
+    context.lineTo(viewBox.xMax, viewBox.yMax);
+    context.lineTo(viewBox.xMax, viewBox.yMin);
+    context.closePath();
+    context.lineWidth = outlineWidth;
+    context.strokeStyle = outlineColor.toString();
+    context.stroke();
+
+    // restore
+    context.lineWidth = contextLineWidth;
+    context.strokeStyle = contextStrokeStyle;
   }
 
   @Provider({
@@ -149,9 +151,8 @@ export class GraphicsView extends View {
     const parent = this.parent;
     if (parent instanceof GraphicsView || parent instanceof CanvasView) {
       return parent.viewFrame;
-    } else {
-      return R2Box.undefined();
     }
+    return R2Box.undefined();
   }
 
   cullViewFrame(viewFrame: R2Box = this.viewFrame): void {
@@ -220,17 +221,14 @@ export class GraphicsView extends View {
   }
 
   cascadeHitTest(x: number, y: number): GraphicsView | null {
-    if (!this.hidden && !this.culled && !this.intangible) {
-      const hitBounds = this.hitBounds;
-      if (hitBounds.contains(x, y)) {
-        let hit = this.hitTestChildren(x, y);
-        if (hit === null) {
-          hit = this.hitTest(x, y);
-        }
-        return hit;
-      }
+    if (this.hidden || this.culled || this.intangible || !this.hitBounds.contains(x, y)) {
+      return null;
     }
-    return null;
+    let hit = this.hitTestChildren(x, y);
+    if (hit === null) {
+      hit = this.hitTest(x, y);
+    }
+    return hit;
   }
 
   protected hitTest(x: number, y: number): GraphicsView | null {
@@ -289,23 +287,23 @@ export class GraphicsView extends View {
       handler = {listener, capture, passive, once};
       handlers = [handler];
       eventHandlers[type] = handlers;
+      return;
+    }
+    const n = handlers.length;
+    let i = 0;
+    while (i < n) {
+      handler = handlers[i]!;
+      if (handler.listener === listener && handler.capture === capture) {
+        break;
+      }
+      i += 1;
+    }
+    if (i < n) {
+      handler!.passive = passive;
+      handler!.once = once;
     } else {
-      const n = handlers.length;
-      let i = 0;
-      while (i < n) {
-        handler = handlers[i]!;
-        if (handler.listener === listener && handler.capture === capture) {
-          break;
-        }
-        i += 1;
-      }
-      if (i < n) {
-        handler!.passive = passive;
-        handler!.once = once;
-      } else {
-        handler = {listener, capture, passive, once};
-        handlers.push(handler);
-      }
+      handler = {listener, capture, passive, once};
+      handlers.push(handler);
     }
   }
 
@@ -313,24 +311,26 @@ export class GraphicsView extends View {
   override removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: EventListenerOptions | boolean): void;
   override removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: EventListenerOptions | boolean): void {
     const eventHandlers = this.eventHandlers;
-    if (eventHandlers !== null) {
-      const handlers = eventHandlers[type];
-      if (handlers !== void 0) {
-        const capture = typeof options === "boolean" ? options : typeof options === "object" && options !== null && options.capture || false;
-        const n = handlers.length;
-        let i = 0;
-        while (i < n) {
-          const handler = handlers[i]!;
-          if (handler.listener === listener && handler.capture === capture) {
-            handlers.splice(i, 1);
-            if (handlers.length === 0) {
-              delete eventHandlers[type];
-            }
-            break;
-          }
-          i += 1;
+    if (eventHandlers === null) {
+      return;
+    }
+    const handlers = eventHandlers[type];
+    if (handlers === void 0) {
+      return;
+    }
+    const capture = typeof options === "boolean" ? options : typeof options === "object" && options !== null && options.capture || false;
+    const n = handlers.length;
+    let i = 0;
+    while (i < n) {
+      const handler = handlers[i]!;
+      if (handler.listener === listener && handler.capture === capture) {
+        handlers.splice(i, 1);
+        if (handlers.length === 0) {
+          delete eventHandlers[type];
         }
+        break;
       }
+      i += 1;
     }
   }
 
@@ -338,34 +338,36 @@ export class GraphicsView extends View {
   handleEvent(event: GraphicsEvent): void {
     const type = event.type;
     const eventHandlers = this.eventHandlers;
-    if (eventHandlers !== null) {
-      const handlers = eventHandlers[type];
-      if (handlers !== void 0) {
-        let i = 0;
-        while (i < handlers.length) {
-          const handler = handlers[i]!;
-          if (!handler.capture) {
-            const listener = handler.listener;
-            if (typeof listener === "function") {
-              if (typeof listener.call === "function") {
-                listener.call(this, event);
-              } else {
-                listener(event);
-              }
-            } else if (typeof listener === "object" && listener !== null) {
-              listener.handleEvent(event);
-            }
-            if (handler.once) {
-              handlers.splice(i, 1);
-              continue;
-            }
+    if (eventHandlers === null) {
+      return;
+    }
+    const handlers = eventHandlers[type];
+    if (handlers === void 0) {
+      return;
+    }
+    let i = 0;
+    while (i < handlers.length) {
+      const handler = handlers[i]!;
+      if (!handler.capture) {
+        const listener = handler.listener;
+        if (typeof listener === "function") {
+          if (typeof listener.call === "function") {
+            listener.call(this, event);
+          } else {
+            listener(event);
           }
-          i += 1;
+        } else if (typeof listener === "object" && listener !== null) {
+          listener.handleEvent(event);
         }
-        if (handlers.length === 0) {
-          delete eventHandlers[type];
+        if (handler.once) {
+          handlers.splice(i, 1);
+          continue;
         }
       }
+      i += 1;
+    }
+    if (handlers.length === 0) {
+      delete eventHandlers[type];
     }
   }
 
@@ -378,28 +380,23 @@ export class GraphicsView extends View {
    */
   bubbleEvent(event: GraphicsEvent): View | null {
     this.handleEvent(event);
-    let next: View | null;
-    if (event.bubbles && !event.cancelBubble) {
-      const parent = this.parent;
-      if (parent instanceof GraphicsView || parent instanceof CanvasView) {
-        next = parent.bubbleEvent(event);
-      } else {
-        next = parent;
-      }
-    } else {
-      next = null;
+    if (!event.bubbles || event.cancelBubble) {
+      return null;
     }
-    return next;
+    const parent = this.parent;
+    if (parent instanceof GraphicsView || parent instanceof CanvasView) {
+      return parent.bubbleEvent(event);
+    }
+    return parent;
   }
 
   override dispatchEvent(event: GraphicsEvent): boolean {
     event.targetView = this;
     const next = this.bubbleEvent(event);
-    if (next !== null) {
-      return next.dispatchEvent(event);
-    } else {
+    if (next === null) {
       return !event.cancelBubble;
     }
+    return next.dispatchEvent(event);
   }
 
   override init(init: GraphicsViewInit): void {

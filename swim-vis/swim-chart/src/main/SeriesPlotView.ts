@@ -188,12 +188,13 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
 
   protected setXDataDomain(newXDataDomain: Domain<X> | null): void {
     const oldXDataDomain = this.xDataDomain;
-    if (!Equals(newXDataDomain, oldXDataDomain)) {
-      this.willSetXDataDomain(newXDataDomain, oldXDataDomain);
-      (this as Mutable<this>).xDataDomain = newXDataDomain;
-      this.onSetXDataDomain(newXDataDomain, oldXDataDomain);
-      this.didSetXDataDomain(newXDataDomain, oldXDataDomain);
+    if (Equals(newXDataDomain, oldXDataDomain)) {
+      return;
     }
+    this.willSetXDataDomain(newXDataDomain, oldXDataDomain);
+    (this as Mutable<this>).xDataDomain = newXDataDomain;
+    this.onSetXDataDomain(newXDataDomain, oldXDataDomain);
+    this.didSetXDataDomain(newXDataDomain, oldXDataDomain);
   }
 
   protected willSetXDataDomain(newXDataDomain: Domain<X> | null, oldXDataDomain: Domain<X> | null): void {
@@ -228,12 +229,13 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
 
   protected setYDataDomain(newYDataDomain: Domain<Y> | null): void {
     const oldYDataDomain = this.yDataDomain;
-    if (!Equals(newYDataDomain, oldYDataDomain)) {
-      this.willSetYDataDomain(newYDataDomain, oldYDataDomain);
-      (this as Mutable<this>).yDataDomain = newYDataDomain;
-      this.onSetYDataDomain(newYDataDomain, oldYDataDomain);
-      this.didSetYDataDomain(newYDataDomain, oldYDataDomain);
+    if (Equals(newYDataDomain, oldYDataDomain)) {
+      return;
     }
+    this.willSetYDataDomain(newYDataDomain, oldYDataDomain);
+    (this as Mutable<this>).yDataDomain = newYDataDomain;
+    this.onSetYDataDomain(newYDataDomain, oldYDataDomain);
+    this.didSetYDataDomain(newYDataDomain, oldYDataDomain);
   }
 
   protected willSetYDataDomain(newYDataDomain: Domain<Y> | null, oldYDataDomain: Domain<Y> | null): void {
@@ -281,13 +283,14 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
 
   protected updateXDataRange(): void {
     const xDataDomain = this.xDataDomain;
-    if (xDataDomain !== null) {
-      const xScale = this.xScale.value;
-      if (xScale !== null) {
-        this.setXDataRange(LinearRange(xScale(xDataDomain[0]), xScale(xDataDomain[1])));
-      } else {
-        this.setXDataRange(null);
-      }
+    if (xDataDomain === null) {
+      return;
+    }
+    const xScale = this.xScale.value;
+    if (xScale !== null) {
+      this.setXDataRange(LinearRange(xScale(xDataDomain[0]), xScale(xDataDomain[1])));
+    } else {
+      this.setXDataRange(null);
     }
   }
 
@@ -300,13 +303,14 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
 
   protected updateYDataRange(): void {
     const yDataDomain = this.yDataDomain;
-    if (yDataDomain !== null) {
-      const yScale = this.yScale.value;
-      if (yScale !== null) {
-        this.setYDataRange(LinearRange(yScale(yDataDomain[0]), yScale(yDataDomain[1])));
-      } else {
-        this.setYDataRange(null);
-      }
+    if (yDataDomain === null) {
+      return;
+    }
+    const yScale = this.yScale.value;
+    if (yScale !== null) {
+      this.setYDataRange(LinearRange(yScale(yDataDomain[0]), yScale(yDataDomain[1])));
+    } else {
+      this.setYDataRange(null);
     }
   }
 
@@ -413,9 +417,8 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
       const oldView = this.getChild(key);
       super.insertChild(newChild, target, key);
       return oldView;
-    } else {
-      return super.setChild(key, newChild) as View | null;
     }
+    return super.setChild(key, newChild) as View | null;
   }
 
   override appendChild<V extends View>(child: V, key?: string): V;
@@ -426,9 +429,8 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
     if (child instanceof DataPointView) {
       const target = this.dataPointViews.nextValue(child.x.state) ?? null;
       return super.insertChild(child, target, key);
-    } else {
-      return super.appendChild(child, key);
     }
+    return super.appendChild(child, key);
   }
 
   override prependChild<V extends View>(child: V, key?: string): V;
@@ -439,9 +441,8 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
     if (child instanceof DataPointView) {
       const target = this.dataPointViews.nextValue(child.x.state) ?? null;
       return super.insertChild(child, target, key);
-    } else {
-      return super.prependChild(child, key);
     }
+    return super.prependChild(child, key);
   }
 
   override insertChild<V extends View>(child: V, target: View | null, key?: string): V;
@@ -526,7 +527,12 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
         gradientStops += 1;
       }
 
-      if (point1 !== null) {
+      if (point1 === null) {
+        xDataDomainMin = x2;
+        xDataDomainMax = x2;
+        yDataDomainMin = y2;
+        yDataDomainMax = y2;
+      } else {
         let category: DataPointCategory;
         if (point0 !== null) {
           // categorize mid point
@@ -566,11 +572,6 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
             yDataDomainMax = dy2;
           }
         }
-      } else {
-        xDataDomainMin = x2;
-        xDataDomainMax = x2;
-        yDataDomainMin = y2;
-        yDataDomainMax = y2;
       }
 
       point0 = point1;
@@ -640,23 +641,24 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
 
   protected hitTestDomain(x: number, y: number, renderer: CanvasRenderer): GraphicsView | null {
     const xScale = this.xScale.value;
-    if (xScale !== null) {
-      const d = xScale.inverse(x);
-      const v0 = this.dataPointViews.previousValue(d);
-      const v1 = this.dataPointViews.nextValue(d);
-      const x0 = v0 !== void 0 ? v0.x.value : void 0;
-      const x1 = v1 !== void 0 ? v1.x.value : void 0;
-      const dx0 = x0 !== void 0 ? +d - +x0! : NaN;
-      const dx1 = x1 !== void 0 ? +x1! - +d : NaN;
-      if (dx0 <= dx1) {
-        return v0!;
-      } else if (dx0 > dx1) {
-        return v1!;
-      } else if (v0 !== void 0) {
-        return v0;
-      } else if (v1 !== void 0) {
-        return v1;
-      }
+    if (xScale === null) {
+      return null;
+    }
+    const d = xScale.inverse(x);
+    const v0 = this.dataPointViews.previousValue(d);
+    const v1 = this.dataPointViews.nextValue(d);
+    const x0 = v0 !== void 0 ? v0.x.value : void 0;
+    const x1 = v1 !== void 0 ? v1.x.value : void 0;
+    const dx0 = x0 !== void 0 ? +d - +x0! : NaN;
+    const dx1 = x1 !== void 0 ? +x1! - +d : NaN;
+    if (dx0 <= dx1) {
+      return v0!;
+    } else if (dx0 > dx1) {
+      return v1!;
+    } else if (v0 !== void 0) {
+      return v0;
+    } else if (v1 !== void 0) {
+      return v1;
     }
     return null;
   }

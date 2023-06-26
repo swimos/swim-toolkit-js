@@ -518,7 +518,7 @@ export class HtmlView extends ElementView {
   }
 
   /** @internal */
-  static readonly fieldInitializers: {[name: string | symbol]: Function[]} = {};
+  static readonly fieldInitializers: {[name: PropertyKey]: Function[]} = {};
   /** @internal */
   static readonly instanceInitializers: Function[] = [];
 }
