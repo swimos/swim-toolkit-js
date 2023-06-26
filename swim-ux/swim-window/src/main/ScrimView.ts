@@ -166,7 +166,9 @@ export class ScrimView extends HtmlView {
       this.owner.hide(false);
     },
   })
-  override readonly modal!: Provider<this, ModalService> & HtmlView["modal"] & Observes<ModalService>;
+  override get modal(): Provider<this, ModalService> & HtmlView["modal"] & Observes<ModalService> {
+    return Provider.dummy();
+  }
 
   serviceDidSetModality(newModality: number, oldModality: number, modalService: ModalService): void {
     if (newModality !== 0) {

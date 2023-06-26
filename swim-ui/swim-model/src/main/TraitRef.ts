@@ -482,11 +482,8 @@ export const TraitRef = (function (_super: typeof TraitRelation) {
   };
 
   TraitRef.prototype.recohere = function (this: TraitRef, t: number): void {
-    if ((this.flags & Fastener.DerivedFlag) === 0) {
-      return;
-    }
-    const inlet = this.inlet;
-    if (inlet === null) {
+    let inlet: TraitRef | null;
+    if ((this.flags & Fastener.DerivedFlag) === 0 || (inlet = this.inlet) === null) {
       return;
     }
     this.setTrait(inlet.trait);

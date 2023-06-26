@@ -274,7 +274,9 @@ export class LeafView extends HtmlView {
       }
     },
   })
-  readonly hyperlink!: Property<this, Hyperlink | null, AnyHyperlink | null>;
+  get hyperlink(): Property<this, Hyperlink | null, AnyHyperlink | null> {
+    return Property.dummy();
+  }
 
   @PositionGesture({
     bindsOwner: true,

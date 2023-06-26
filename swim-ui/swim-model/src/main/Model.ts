@@ -16,7 +16,6 @@ import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
 import type {Instance} from "@swim/util";
 import type {Proto} from "@swim/util";
-import {Arrays} from "@swim/util";
 import type {Comparator} from "@swim/util";
 import type {FromAny} from "@swim/util";
 import type {Dictionary} from "@swim/util";
@@ -157,7 +156,7 @@ export interface ModelObserver<M extends Model = Model> extends ComponentObserve
 export class Model extends Component<Model> implements Initable<ModelInit>, Consumable, WarpRef {
   constructor() {
     super();
-    this.consumers = Arrays.empty;
+    this.consumers = null;
     this.firstTrait = null;
     this.lastTrait = null;
     this.traitMap = null;
@@ -170,13 +169,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
   declare readonly observerType?: Class<ModelObserver>;
 
   protected override willAttachParent(parent: Model): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.modelWillAttachParent !== void 0) {
-        observer.modelWillAttachParent(parent, this);
-      }
-    }
+    this.callObservers("modelWillAttachParent", parent, this);
     let trait = this.firstTrait;
     while (trait !== null) {
       const next = trait.nextTrait;
@@ -201,23 +194,11 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
       trait.didAttachParent(parent);
       trait = next !== null && next.model === this ? next : null;
     }
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.modelDidAttachParent !== void 0) {
-        observer.modelDidAttachParent(parent, this);
-      }
-    }
+    this.callObservers("modelDidAttachParent", parent, this);
   }
 
   protected override willDetachParent(parent: Model): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.modelWillDetachParent !== void 0) {
-        observer.modelWillDetachParent(parent, this);
-      }
-    }
+    this.callObservers("modelWillDetachParent", parent, this);
     let trait = this.firstTrait;
     while (trait !== null) {
       const next = trait.nextTrait;
@@ -242,13 +223,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
       trait.didDetachParent(parent);
       trait = next !== null && next.model === this ? next : null;
     }
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.modelDidDetachParent !== void 0) {
-        observer.modelDidDetachParent(parent, this);
-      }
-    }
+    this.callObservers("modelDidDetachParent", parent, this);
   }
 
   override setChild<M extends Model>(key: string, newChild: M): Model | null;
@@ -298,13 +273,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
 
   protected override willInsertChild(child: Model, target: Model | null): void {
     super.willInsertChild(child, target);
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.modelWillInsertChild !== void 0) {
-        observer.modelWillInsertChild(child, target, this);
-      }
-    }
+    this.callObservers("modelWillInsertChild", child, target, this);
     let trait = this.firstTrait;
     while (trait !== null) {
       const next = trait.nextTrait;
@@ -330,13 +299,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
       trait.didInsertChild(child, target);
       trait = next !== null && next.model === this ? next : null;
     }
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.modelDidInsertChild !== void 0) {
-        observer.modelDidInsertChild(child, target, this);
-      }
-    }
+    this.callObservers("modelDidInsertChild", child, target, this);
     super.didInsertChild(child, target);
   }
 
@@ -355,13 +318,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
 
   protected override willRemoveChild(child: Model): void {
     super.willRemoveChild(child);
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.modelWillRemoveChild !== void 0) {
-        observer.modelWillRemoveChild(child, this);
-      }
-    }
+    this.callObservers("modelWillRemoveChild", child, this);
     let trait = this.firstTrait;
     while (trait !== null) {
       const next = trait.nextTrait;
@@ -387,25 +344,13 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
       trait.didRemoveChild(child);
       trait = next !== null && next.model === this ? next : null;
     }
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.modelDidRemoveChild !== void 0) {
-        observer.modelDidRemoveChild(child, this);
-      }
-    }
+    this.callObservers("modelDidRemoveChild", child, this);
     super.didRemoveChild(child);
   }
 
   protected override willReinsertChild(child: Model, target: Model | null): void {
     super.willReinsertChild(child, target);
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.modelWillReinsertChild !== void 0) {
-        observer.modelWillReinsertChild(child, target, this);
-      }
-    }
+    this.callObservers("modelWillReinsertChild", child, target, this);
     let trait = this.firstTrait;
     while (trait !== null) {
       const next = trait.nextTrait;
@@ -425,13 +370,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
       trait.didReinsertChild(child, target);
       trait = next !== null && next.model === this ? next : null;
     }
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.modelDidReinsertChild !== void 0) {
-        observer.modelDidReinsertChild(child, target, this);
-      }
-    }
+    this.callObservers("modelDidReinsertChild", child, target, this);
     super.didReinsertChild(child, target);
   }
 
@@ -450,13 +389,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
 
   protected override willMount(): void {
     super.willMount();
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.modelWillMount !== void 0) {
-        observer.modelWillMount(this);
-      }
-    }
+    this.callObservers("modelWillMount", this);
   }
 
   protected override onMount(): void {
@@ -470,19 +403,13 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
 
     this.mountFasteners();
 
-    if (this.consumers.length !== 0) {
+    if (this.consumers !== null && this.consumers.size !== 0) {
       this.startConsuming();
     }
   }
 
   protected override didMount(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.modelDidMount !== void 0) {
-        observer.modelDidMount(this);
-      }
-    }
+    this.callObservers("modelDidMount", this);
     super.didMount();
   }
 
@@ -501,13 +428,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
 
   protected override willUnmount(): void {
     super.willUnmount();
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.modelWillUnmount !== void 0) {
-        observer.modelWillUnmount(this);
-      }
-    }
+    this.callObservers("modelWillUnmount", this);
   }
 
   protected override onUnmount(): void {
@@ -516,13 +437,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
   }
 
   protected override didUnmount(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.modelDidUnmount !== void 0) {
-        observer.modelDidUnmount(this);
-      }
-    }
+    this.callObservers("modelDidUnmount", this);
     super.didUnmount();
   }
 
@@ -541,10 +456,11 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
   override requireUpdate(updateFlags: ModelFlags, immediate: boolean = false): void {
     const flags = this.flags;
     const deltaUpdateFlags = updateFlags & ~flags & Model.UpdateMask;
-    if (deltaUpdateFlags !== 0) {
-      this.setFlags(flags | deltaUpdateFlags);
-      this.requestUpdate(this, deltaUpdateFlags, immediate);
+    if (deltaUpdateFlags === 0) {
+      return;
     }
+    this.setFlags(flags | deltaUpdateFlags);
+    this.requestUpdate(this, deltaUpdateFlags, immediate);
   }
 
   protected needsUpdate(updateFlags: ModelFlags, immediate: boolean): ModelFlags {
@@ -683,13 +599,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
   }
 
   protected willMutate(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.modelWillMutate !== void 0) {
-        observer.modelWillMutate(this);
-      }
-    }
+    this.callObservers("modelWillMutate", this);
     let trait = this.firstTrait;
     while (trait !== null) {
       const next = trait.nextTrait;
@@ -715,23 +625,11 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
       trait.didMutate();
       trait = next !== null && next.model === this ? next : null;
     }
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.modelDidMutate !== void 0) {
-        observer.modelDidMutate(this);
-      }
-    }
+    this.callObservers("modelDidMutate", this);
   }
 
   protected willAggregate(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.modelWillAggregate !== void 0) {
-        observer.modelWillAggregate(this);
-      }
-    }
+    this.callObservers("modelWillAggregate", this);
     let trait = this.firstTrait;
     while (trait !== null) {
       const next = trait.nextTrait;
@@ -756,23 +654,11 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
       trait.didAggregate();
       trait = next !== null && next.model === this ? next : null;
     }
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.modelDidAggregate !== void 0) {
-        observer.modelDidAggregate(this);
-      }
-    }
+    this.callObservers("modelDidAggregate", this);
   }
 
   protected willCorrelate(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.modelWillCorrelate !== void 0) {
-        observer.modelWillCorrelate(this);
-      }
-    }
+    this.callObservers("modelWillCorrelate", this);
     let trait = this.firstTrait;
     while (trait !== null) {
       const next = trait.nextTrait;
@@ -797,13 +683,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
       trait.didCorrelate();
       trait = next !== null && next.model === this ? next : null;
     }
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.modelDidCorrelate !== void 0) {
-        observer.modelDidCorrelate(this);
-      }
-    }
+    this.callObservers("modelDidCorrelate", this);
   }
 
   protected analyzeChildren(analyzeFlags: ModelFlags, analyzeChild: (this: this, child: Model, analyzeFlags: ModelFlags) => void): void {
@@ -928,13 +808,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
   }
 
   protected willValidate(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.modelWillValidate !== void 0) {
-        observer.modelWillValidate(this);
-      }
-    }
+    this.callObservers("modelWillValidate", this);
     let trait = this.firstTrait;
     while (trait !== null) {
       const next = trait.nextTrait;
@@ -959,23 +833,11 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
       trait.didValidate();
       trait = next !== null && next.model === this ? next : null;
     }
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.modelDidValidate !== void 0) {
-        observer.modelDidValidate(this);
-      }
-    }
+    this.callObservers("modelDidValidate", this);
   }
 
   protected willReconcile(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.modelWillReconcile !== void 0) {
-        observer.modelWillReconcile(this);
-      }
-    }
+    this.callObservers("modelWillReconcile", this);
     let trait = this.firstTrait;
     while (trait !== null) {
       const next = trait.nextTrait;
@@ -1001,13 +863,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
       trait.didReconcile();
       trait = next !== null && next.model === this ? next : null;
     }
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.modelDidReconcile !== void 0) {
-        observer.modelDidReconcile(this);
-      }
-    }
+    this.callObservers("modelDidReconcile", this);
   }
 
   protected refreshChildren(refreshFlags: ModelFlags, refreshChild: (this: this, child: Model, refreshFlags: ModelFlags) => void): void {
@@ -1343,13 +1199,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
   }
 
   protected willInsertTrait(trait: Trait, target: Trait | null): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.modelWillInsertTrait !== void 0) {
-        observer.modelWillInsertTrait(trait, target, this);
-      }
-    }
+    this.callObservers("modelWillInsertTrait", trait, target, this);
     let prev = this.firstTrait;
     while (prev !== null) {
       const next = prev.nextTrait;
@@ -1382,13 +1232,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
       }
       prev = next !== null && next.model === this ? next : null;
     }
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.modelDidInsertTrait !== void 0) {
-        observer.modelDidInsertTrait(trait, target, this);
-      }
-    }
+    this.callObservers("modelDidInsertTrait", trait, target, this);
   }
 
   removeTrait<T extends Trait>(trait: T): T;
@@ -1422,13 +1266,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
   }
 
   protected willRemoveTrait(trait: Trait): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.modelWillRemoveTrait !== void 0) {
-        observer.modelWillRemoveTrait(trait, this);
-      }
-    }
+    this.callObservers("modelWillRemoveTrait", trait, this);
     let prev = this.firstTrait;
     while (prev !== null) {
       const next = prev.nextTrait;
@@ -1461,13 +1299,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
       }
       prev = next !== null && next.model === this ? next : null;
     }
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.modelDidRemoveTrait !== void 0) {
-        observer.modelDidRemoveTrait(trait, this);
-      }
-    }
+    this.callObservers("modelDidRemoveTrait", trait, this);
   }
 
   sortTraits(comparator: Comparator<Trait>): void {
@@ -1683,20 +1515,22 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
   }
 
   /** @internal */
-  readonly consumers: ReadonlyArray<Consumer>;
+  readonly consumers: ReadonlySet<Consumer> | null;
 
   /** @override */
   consume(consumer: Consumer): void {
-    const oldConsumers = this.consumers;
-    const newConsumers = Arrays.inserted(consumer, oldConsumers);
-    if (oldConsumers === newConsumers) {
+    let consumers = this.consumers as Set<Consumer> | null;
+    if (consumers === null) {
+      consumers = new Set<Consumer>();
+      (this as Mutable<this>).consumers = consumers;
+    } else if (consumers.has(consumer)) {
       return;
     }
     this.willConsume(consumer);
-    (this as Mutable<this>).consumers = newConsumers;
+    consumers.add(consumer);
     this.onConsume(consumer);
     this.didConsume(consumer);
-    if (oldConsumers.length === 0 && this.mounted) {
+    if (consumers.size === 1 && this.mounted) {
       this.startConsuming();
     }
   }
@@ -1715,16 +1549,15 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
 
   /** @override */
   unconsume(consumer: Consumer): void {
-    const oldConsumers = this.consumers;
-    const newConsumers = Arrays.removed(consumer, oldConsumers);
-    if (oldConsumers === newConsumers) {
+    const consumers = this.consumers as Set<Consumer> | null;
+    if (consumers === null || !consumers.has(consumer)) {
       return;
     }
     this.willUnconsume(consumer);
-    (this as Mutable<this>).consumers = newConsumers;
+    consumers.delete(consumer);
     this.onUnconsume(consumer);
     this.didUnconsume(consumer);
-    if (newConsumers.length === 0) {
+    if (consumers.size === 0) {
       this.stopConsuming();
     }
   }
@@ -1760,13 +1593,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
   }
 
   protected willStartConsuming(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.modelWillStartConsuming !== void 0) {
-        observer.modelWillStartConsuming(this);
-      }
-    }
+    this.callObservers("modelWillStartConsuming", this);
   }
 
   protected onStartConsuming(): void {
@@ -1775,13 +1602,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
   }
 
   protected didStartConsuming(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.modelDidStartConsuming !== void 0) {
-        observer.modelDidStartConsuming(this);
-      }
-    }
+    this.callObservers("modelDidStartConsuming", this);
   }
 
   get stopConsumingFlags(): ModelFlags {
@@ -1799,13 +1620,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
   }
 
   protected willStopConsuming(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.modelWillStopConsuming !== void 0) {
-        observer.modelWillStopConsuming(this);
-      }
-    }
+    this.callObservers("modelWillStopConsuming", this);
   }
 
   protected onStopConsuming(): void {
@@ -1814,13 +1629,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
   }
 
   protected didStopConsuming(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.modelDidStopConsuming !== void 0) {
-        observer.modelDidStopConsuming(this);
-      }
-    }
+    this.callObservers("modelDidStopConsuming", this);
   }
 
   /** @internal */
@@ -1877,7 +1686,9 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
       return SelectionService;
     },
   })
-  readonly selection!: Provider<this, SelectionService>;
+  get selection(): Provider<this, SelectionService> {
+    return Provider.dummy();
+  }
 
   /** @override */
   @Property({
@@ -1888,7 +1699,9 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
       return Model.NeedsReconcile;
     },
   })
-  readonly hostUri!: Property<this, Uri | null, AnyUri | null>;
+  get hostUri(): Property<this, Uri | null, AnyUri | null> {
+    return Property.dummy();
+  }
 
   /** @override */
   @Property({
@@ -1899,7 +1712,9 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
       return Model.NeedsReconcile;
     },
   })
-  readonly nodeUri!: Property<this, Uri | null, AnyUri | null>;
+  get nodeUri(): Property<this, Uri | null, AnyUri | null> {
+    return Property.dummy();
+  }
 
   /** @override */
   @Property({
@@ -1910,7 +1725,9 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
       return Model.NeedsReconcile;
     },
   })
-  readonly laneUri!: Property<this, Uri | null, AnyUri | null>;
+  get laneUri(): Property<this, Uri | null, AnyUri | null> {
+    return Property.dummy();
+  }
 
   /** @override */
   downlink(template?: ThisType<EventDownlink<this>> & EventDownlinkDescriptor & Partial<Omit<EventDownlink<this>, keyof EventDownlinkDescriptor>>): EventDownlink<this> {
@@ -2103,7 +1920,9 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
       return newValue === oldValue;
     },
   })
-  readonly warpRef!: Property<this, WarpRef>;
+  get warpRef(): Property<this, WarpRef> {
+    return Property.dummy();
+  }
 
   /** @override */
   override init(init: ModelInit): void {

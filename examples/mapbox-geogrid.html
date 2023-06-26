@@ -141,7 +141,7 @@ const ExampleTileTrait = (function () {
         featureTrait = new swim.GeoIconTrait()
           .iconLayout({iconWidth: 16, iconHeight: 16})
           .graphics(vehicleIcon);
-        this.owner.features.insertTrait(void 0, featureTrait);
+        this.owner.features.insertTrait(void 0, featureTrait, void 0, featureId);
         featureModel = featureTrait.model;
       }
       const lng = value.get("longitude").numberValue(NaN);

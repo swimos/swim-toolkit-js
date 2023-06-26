@@ -92,11 +92,6 @@ export type {ElementViewFactory} from "./ElementView";
 export type {ElementViewClass} from "./ElementView";
 export type {ElementViewConstructor} from "./ElementView";
 export type {ElementViewObserver} from "./ElementView";
-export type {ElementViewObserverCache} from "./ElementView";
-export type {ViewWillSetAttribute} from "./ElementView";
-export type {ViewDidSetAttribute} from "./ElementView";
-export type {ViewWillSetStyle} from "./ElementView";
-export type {ViewDidSetStyle} from "./ElementView";
 export {ElementView} from "./ElementView";
 
 // HTML

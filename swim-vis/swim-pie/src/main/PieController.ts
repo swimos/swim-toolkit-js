@@ -157,7 +157,9 @@ export class PieController extends Controller {
   readonly title!: ViewRef<this, GraphicsView>;
 
   @Property({valueType: Timing, value: true})
-  readonly sliceTiming!: Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined>;
+  get sliceTiming(): Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined> {
+    return Property.dummy();
+  }
 
   @TraitViewControllerSet({
     controllerType: SliceController,

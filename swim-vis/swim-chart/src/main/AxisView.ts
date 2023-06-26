@@ -230,9 +230,11 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   protected createTickLabel(tickValue: D, tickView: TickView<D>): GraphicsView | string | null {
     let tickLabel: GraphicsView | string | null = null;
     const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n && (tickLabel === void 0 || tickLabel === null); i += 1) {
-      const observer = observers[i]!;
-      if (observer.createTickLabel !== void 0) {
+    if (observers !== null) {
+      for (const observer of observers) {
+        if (observer.createTickLabel === void 0) {
+          continue;
+        }
         tickLabel = observer.createTickLabel(tickValue, tickView, this);
       }
     }
@@ -252,13 +254,16 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
 
   protected formatTickLabel(tickLabel: string, tickView: TickView<D>): string | null {
     const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.formatTickLabel !== void 0) {
-        const label = observer.formatTickLabel(tickLabel, tickView, this);
-        if (label !== void 0) {
-          return label;
-        }
+    if (observers === null) {
+      return tickLabel;
+    }
+    for (const observer of observers) {
+      if (observer.formatTickLabel === void 0) {
+        continue;
+      }
+      const label = observer.formatTickLabel(tickLabel, tickView, this);
+      if (label !== void 0) {
+        return label;
       }
     }
     return tickLabel;

@@ -118,7 +118,9 @@ export class GraphicsView extends View {
       return SpriteService;
     },
   })
-  readonly sprites!: Provider<this, SpriteService>;
+  get sprites(): Provider<this, SpriteService> {
+    return Provider.dummy();
+  }
 
   /** @internal */
   readonly ownViewFrame: R2Box | null;

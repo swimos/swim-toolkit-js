@@ -275,7 +275,9 @@ export class MapboxView extends MapView {
       this.owner.mapStyle.update();
     },
   })
-  override readonly viewport!: Provider<this, ViewportService> & MapView["viewport"] & Observes<ViewportService>;
+  override get viewport(): Provider<this, ViewportService> & MapView["viewport"] & Observes<ViewportService> {
+    return Provider.dummy();
+  }
 
   @Property({
     value: null,

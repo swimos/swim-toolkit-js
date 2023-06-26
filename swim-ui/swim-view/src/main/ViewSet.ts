@@ -287,10 +287,15 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
   };
 
   ViewSet.prototype.setViews = function <V extends View>(this: ViewSet, newViews: {readonly [viewId: string]: V | undefined}, target?: View | null): void {
+    const binds = this.binds;
+    const parent = binds ? this.parentView : null;
     const views = this.views;
     for (const viewId in views) {
       if (newViews[viewId] === void 0) {
-        this.detachView(views[viewId]!);
+        const oldView = this.detachView(views[viewId]!);
+        if (oldView !== null && binds && parent !== null && oldView.parent === parent) {
+          oldView.remove();
+        }
       }
     }
     if ((this.flags & ViewSet.OrderedFlag) !== 0) {
@@ -302,13 +307,13 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
         const newView = orderedViews[i]!;
         if (views[newView.uid] === void 0) {
           const targetView = i < n + 1 ? orderedViews[i + 1] : target;
-          this.attachView(newView, targetView);
+          this.addView(newView, targetView);
         }
       }
     } else {
       for (const viewId in newViews) {
         if (views[viewId] === void 0) {
-          this.attachView(newViews[viewId]!, target);
+          this.addView(newViews[viewId]!, target);
         }
       }
     }
@@ -517,11 +522,8 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
   };
 
   ViewSet.prototype.recohere = function (this: ViewSet, t: number): void {
-    if ((this.flags & Fastener.DerivedFlag) === 0) {
-      return;
-    }
-    const inlet = this.inlet;
-    if (inlet === null) {
+    let inlet: ViewSet | null;
+    if ((this.flags & Fastener.DerivedFlag) === 0 || (inlet = this.inlet) === null) {
       return;
     }
     this.setViews(inlet.views);

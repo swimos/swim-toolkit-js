@@ -298,10 +298,15 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
   };
 
   ModelSet.prototype.setModels = function <M extends Model>(this: ModelSet, newModels: {readonly [modelId: string]: M | undefined}, target?: Model | null): void {
+    const binds = this.binds;
+    const parent = binds ? this.parentModel : null;
     const models = this.models;
     for (const modelId in models) {
       if (newModels[modelId] === void 0) {
-        this.detachModel(models[modelId]!);
+        const oldModel = this.detachModel(models[modelId]!);
+        if (oldModel !== null && binds && parent !== null && oldModel.parent === parent) {
+          oldModel.remove();
+        }
       }
     }
     if ((this.flags & ModelSet.OrderedFlag) !== 0) {
@@ -313,13 +318,13 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
         const newModel = orderedModels[i]!;
         if (models[newModel.uid] === void 0) {
           const targetModel = i < n + 1 ? orderedModels[i + 1] : target;
-          this.attachModel(newModel, targetModel);
+          this.addModel(newModel, targetModel);
         }
       }
     } else {
       for (const modelId in newModels) {
         if (models[modelId] === void 0) {
-          this.attachModel(newModels[modelId]!, target);
+          this.addModel(newModels[modelId]!, target);
         }
       }
     }
@@ -552,11 +557,8 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
   };
 
   ModelSet.prototype.recohere = function (this: ModelSet, t: number): void {
-    if ((this.flags & Fastener.DerivedFlag) === 0) {
-      return;
-    }
-    const inlet = this.inlet;
-    if (inlet === null) {
+    let inlet: ModelSet | null;
+    if ((this.flags & Fastener.DerivedFlag) === 0 || (inlet = this.inlet) === null) {
       return;
     }
     this.setModels(inlet.models);

@@ -38,7 +38,9 @@ export abstract class PlotController<X = unknown, Y = unknown> extends DataSetCo
   declare readonly observerType?: Class<PlotControllerObserver<X, Y>>;
 
   @Property({valueType: Timing, inherits: true})
-  readonly plotTiming!: Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined>;
+  get plotTiming(): Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined> {
+    return Property.dummy();
+  }
 
   abstract readonly plot: TraitViewRef<this, PlotTrait<X, Y>, PlotView<X, Y>>;
 }

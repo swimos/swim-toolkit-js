@@ -155,16 +155,6 @@ export const ViewRelation = (function (_super: typeof Fastener) {
     configurable: true,
   });
 
-  ViewRelation.prototype.onBindInlet = function <V extends View>(this: ViewRelation<unknown, V>, inlet: ViewRelation<unknown, V>): void {
-    (this as Mutable<typeof this>).inlet = inlet;
-    _super.prototype.onBindInlet.call(this, inlet);
-  };
-
-  ViewRelation.prototype.onUnbindInlet = function <V extends View>(this: ViewRelation<unknown, V>, inlet: ViewRelation<unknown, V>): void {
-    _super.prototype.onUnbindInlet.call(this, inlet);
-    (this as Mutable<typeof this>).inlet = null;
-  };
-
   ViewRelation.prototype.attachOutlet = function <V extends View>(this: ViewRelation<unknown, V>, outlet: ViewRelation<unknown, V>): void {
     let outlets = this.outlets as ViewRelation<unknown, V>[] | null;
     if (outlets === null) {
@@ -276,12 +266,6 @@ export const ViewRelation = (function (_super: typeof Fastener) {
 
   ViewRelation.construct = function <F extends ViewRelation<any, any>>(fastener: F | null, owner: F extends ViewRelation<infer O, any> ? O : never): F {
     fastener = _super.construct.call(this, fastener, owner) as F;
-    Object.defineProperty(fastener, "inlet", { // override getter
-      value: null,
-      writable: true,
-      enumerable: true,
-      configurable: true,
-    });
     (fastener as Mutable<typeof fastener>).outlets = null;
     return fastener;
   };

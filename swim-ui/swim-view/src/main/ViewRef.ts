@@ -14,7 +14,6 @@
 
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
-import {Arrays} from "@swim/util";
 import {Affinity} from "@swim/component";
 import type {FastenerClass} from "@swim/component";
 import {Fastener} from "@swim/component";
@@ -151,7 +150,7 @@ export interface ViewRef<O = unknown, V extends View = View> extends ViewRelatio
   constraint(lhs: AnyConstraintExpression, relation: ConstraintRelation, rhs?: AnyConstraintExpression, strength?: AnyConstraintStrength): Constraint;
 
   /** @internal */
-  readonly constraints: ReadonlyArray<Constraint>;
+  readonly constraints: ReadonlySet<Constraint> | null;
 
   /** @override */
   hasConstraint(constraint: Constraint): boolean;
@@ -172,7 +171,7 @@ export interface ViewRef<O = unknown, V extends View = View> extends ViewRelatio
   constraintVariable(name: string, value?: number, strength?: AnyConstraintStrength): ConstraintProperty<unknown, number>;
 
   /** @internal */
-  readonly constraintVariables: ReadonlyArray<ConstraintVariable>;
+  readonly constraintVariables: ReadonlySet<ConstraintVariable> | null;
 
   /** @override */
   hasConstraintVariable(variable: ConstraintVariable): boolean;
@@ -485,11 +484,8 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
   };
 
   ViewRef.prototype.recohere = function (this: ViewRef, t: number): void {
-    if ((this.flags & Fastener.DerivedFlag) === 0) {
-      return;
-    }
-    const inlet = this.inlet;
-    if (inlet === null) {
+    let inlet: ViewRef | null;
+    if ((this.flags & Fastener.DerivedFlag) === 0 || (inlet = this.inlet) === null) {
       return;
     }
     this.setView(inlet.view);
@@ -512,25 +508,29 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
   };
 
   ViewRef.prototype.hasConstraint = function (this: ViewRef, constraint: Constraint): boolean {
-    return this.constraints.indexOf(constraint) >= 0;
+    const constraints = this.constraints;
+    return constraints !== null && constraints.has(constraint);
   };
 
   ViewRef.prototype.addConstraint = function (this: ViewRef, constraint: Constraint): void {
-    const oldConstraints = this.constraints;
-    const newConstraints = Arrays.inserted(constraint, oldConstraints);
-    if (oldConstraints !== newConstraints) {
-      (this as Mutable<typeof this>).constraints = newConstraints;
-      this.activateConstraint(constraint);
+    let constraints = this.constraints as Set<Constraint> | null;
+    if (constraints === null) {
+      constraints = new Set<Constraint>();
+      (this as Mutable<typeof this>).constraints = constraints;
+    } else if (constraints.has(constraint)) {
+      return;
     }
+    constraints.add(constraint);
+    this.activateConstraint(constraint);
   };
 
   ViewRef.prototype.removeConstraint = function (this: ViewRef, constraint: Constraint): void {
-    const oldConstraints = this.constraints;
-    const newConstraints = Arrays.removed(constraint, oldConstraints);
-    if (oldConstraints !== newConstraints) {
-      this.deactivateConstraint(constraint);
-      (this as Mutable<typeof this>).constraints = newConstraints;
+    const constraints = this.constraints as Set<Constraint> | null;
+    if (constraints === null || !constraints.has(constraint)) {
+      return;
     }
+    this.deactivateConstraint(constraint);
+    constraints.delete(constraint);
   };
 
   ViewRef.prototype.activateConstraint = function (this: ViewRef<ConstraintContext, View>, constraint: Constraint): void {
@@ -565,25 +565,29 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
   };
 
   ViewRef.prototype.hasConstraintVariable = function (this: ViewRef, constraintVariable: ConstraintVariable): boolean {
-    return this.constraintVariables.indexOf(constraintVariable) >= 0;
+    const constraintVariables = this.constraintVariables;
+    return constraintVariables !== null && constraintVariables.has(constraintVariable);
   };
 
   ViewRef.prototype.addConstraintVariable = function (this: ViewRef, constraintVariable: ConstraintVariable): void {
-    const oldConstraintVariables = this.constraintVariables;
-    const newConstraintVariables = Arrays.inserted(constraintVariable, oldConstraintVariables);
-    if (oldConstraintVariables !== newConstraintVariables) {
-      (this as Mutable<typeof this>).constraintVariables = newConstraintVariables;
-      this.activateConstraintVariable(constraintVariable);
+    let constraintVariables = this.constraintVariables as Set<ConstraintVariable> | null;
+    if (constraintVariables === null) {
+      constraintVariables = new Set<ConstraintVariable>();
+      (this as Mutable<typeof this>).constraintVariables = constraintVariables;
+    } else if (constraintVariables.has(constraintVariable)) {
+      return;
     }
+    constraintVariables.add(constraintVariable);
+    this.activateConstraintVariable(constraintVariable);
   };
 
   ViewRef.prototype.removeConstraintVariable = function (this: ViewRef, constraintVariable: ConstraintVariable): void {
-    const oldConstraintVariables = this.constraintVariables;
-    const newConstraintVariables = Arrays.removed(constraintVariable, oldConstraintVariables);
-    if (oldConstraintVariables !== newConstraintVariables) {
-      this.deactivateConstraintVariable(constraintVariable);
-      (this as Mutable<typeof this>).constraintVariables = newConstraintVariables;
+    const constraintVariables = this.constraintVariables as Set<ConstraintVariable> | null;
+    if (constraintVariables === null || !constraintVariables.has(constraintVariable)) {
+      return;
     }
+    this.deactivateConstraintVariable(constraintVariable);
+    constraintVariables.delete(constraintVariable);
   };
 
   ViewRef.prototype.activateConstraintVariable = function (this: ViewRef<ConstraintContext, View>, constraintVariable: ConstraintVariable): void {
@@ -600,23 +604,31 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
 
   ViewRef.prototype.activateLayout = function (this: ViewRef<ConstraintContext, View>): void {
     const constraintVariables = this.constraintVariables;
-    for (let i = 0, n = constraintVariables.length; i < n; i += 1) {
-      this.owner.activateConstraintVariable(constraintVariables[i]!);
+    if (constraintVariables !== null) {
+      for (const constraintVariable of constraintVariables) {
+        this.owner.activateConstraintVariable(constraintVariable);
+      }
     }
     const constraints = this.constraints;
-    for (let i = 0, n = constraints.length; i < n; i += 1) {
-      this.owner.activateConstraint(constraints[i]!);
+    if (constraints !== null) {
+      for (const constraint of constraints) {
+        this.owner.activateConstraint(constraint);
+      }
     }
   };
 
   ViewRef.prototype.deactivateLayout = function (this: ViewRef<ConstraintContext, View>): void {
     const constraints = this.constraints;
-    for (let i = 0, n = constraints.length; i < n; i += 1) {
-      this.owner.deactivateConstraint(constraints[i]!);
+    if (constraints !== null) {
+      for (const constraint of constraints) {
+        this.owner.deactivateConstraint(constraint);
+      }
     }
     const constraintVariables = this.constraintVariables;
-    for (let i = 0, n = constraintVariables.length; i < n; i += 1) {
-      this.owner.deactivateConstraintVariable(constraintVariables[i]!);
+    if (constraintVariables !== null) {
+      for (const constraintVariable of constraintVariables) {
+        this.owner.deactivateConstraintVariable(constraintVariable);
+      }
     }
   };
 
@@ -644,8 +656,8 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
       Object.setPrototypeOf(fastener, this.prototype);
     }
     fastener = _super.construct.call(this, fastener, owner) as F;
-    (fastener as Mutable<typeof fastener>).constraints = Arrays.empty;
-    (fastener as Mutable<typeof fastener>).constraintVariables = Arrays.empty;
+    (fastener as Mutable<typeof fastener>).constraints = null;
+    (fastener as Mutable<typeof fastener>).constraintVariables = null;
     (fastener as Mutable<typeof fastener>).view = null;
     return fastener;
   };

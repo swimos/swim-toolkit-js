@@ -90,7 +90,9 @@ export class LeafController extends Controller {
   declare readonly observerType?: Class<LeafControllerObserver>;
 
   @Property({valueType: Hyperlink, value: null})
-  readonly hyperlink!: Property<this, Hyperlink | null, AnyHyperlink | null>;
+  get hyperlink(): Property<this, Hyperlink | null, AnyHyperlink | null> {
+    return Property.dummy();
+  }
 
   @TraitViewRef({
     traitType: LeafTrait,

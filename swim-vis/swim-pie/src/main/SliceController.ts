@@ -121,7 +121,9 @@ export class SliceController extends Controller {
   }
 
   @Property({valueType: Timing, inherits: true})
-  readonly sliceTiming!: Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined>;
+  get sliceTiming(): Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined> {
+    return Property.dummy();
+  }
 
   @TraitViewRef({
     traitType: SliceTrait,

@@ -433,11 +433,8 @@ export const ModelRef = (function (_super: typeof ModelRelation) {
   };
 
   ModelRef.prototype.recohere = function (this: ModelRef, t: number): void {
-    if ((this.flags & Fastener.DerivedFlag) === 0) {
-      return;
-    }
-    const inlet = this.inlet;
-    if (inlet === null) {
+    let inlet: ModelRef | null;
+    if ((this.flags & Fastener.DerivedFlag) === 0 || (inlet = this.inlet) === null) {
       return;
     }
     this.setModel(inlet.model);

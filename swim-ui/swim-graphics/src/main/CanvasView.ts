@@ -14,8 +14,6 @@
 
 import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
-import {Arrays} from "@swim/util";
-import type {Observes} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import {Provider} from "@swim/component";
@@ -23,12 +21,6 @@ import {R2Box} from "@swim/math";
 import {Transform} from "@swim/math";
 import type {ViewFlags} from "@swim/view";
 import {View} from "@swim/view";
-import type {ViewWillRender} from "@swim/view";
-import type {ViewDidRender} from "@swim/view";
-import type {ViewWillRasterize} from "@swim/view";
-import type {ViewDidRasterize} from "@swim/view";
-import type {ViewWillComposite} from "@swim/view";
-import type {ViewDidComposite} from "@swim/view";
 import type {HtmlViewInit} from "@swim/dom";
 import type {HtmlViewObserver} from "@swim/dom";
 import {HtmlView} from "@swim/dom";
@@ -170,7 +162,9 @@ export class CanvasView extends HtmlView {
       return new SpriteService();
     },
   })
-  readonly sprites!: Provider<this, SpriteService>;
+  get sprites(): Provider<this, SpriteService> {
+    return Provider.dummy();
+  }
 
   get pixelRatio(): number {
     return window.devicePixelRatio || 1;
@@ -1230,50 +1224,6 @@ export class CanvasView extends HtmlView {
     } else if (renderer instanceof WebGLRenderer) {
       const frame = this.viewFrame;
       renderer.context.viewport(0, 0, frame.width, frame.height);
-    }
-  }
-
-  protected override onObserve(observer: Observes<this>): void {
-    super.onObserve(observer);
-    if (observer.viewWillRender !== void 0) {
-      this.observerCache.viewWillRenderObservers = Arrays.inserted(observer as ViewWillRender, this.observerCache.viewWillRenderObservers);
-    }
-    if (observer.viewDidRender !== void 0) {
-      this.observerCache.viewDidRenderObservers = Arrays.inserted(observer as ViewDidRender, this.observerCache.viewDidRenderObservers);
-    }
-    if (observer.viewWillRasterize !== void 0) {
-      this.observerCache.viewWillRasterizeObservers = Arrays.inserted(observer as ViewWillRasterize, this.observerCache.viewWillRasterizeObservers);
-    }
-    if (observer.viewDidRasterize !== void 0) {
-      this.observerCache.viewDidRasterizeObservers = Arrays.inserted(observer as ViewDidRasterize, this.observerCache.viewDidRasterizeObservers);
-    }
-    if (observer.viewWillComposite !== void 0) {
-      this.observerCache.viewWillCompositeObservers = Arrays.inserted(observer as ViewWillComposite, this.observerCache.viewWillCompositeObservers);
-    }
-    if (observer.viewDidComposite !== void 0) {
-      this.observerCache.viewDidCompositeObservers = Arrays.inserted(observer as ViewDidComposite, this.observerCache.viewDidCompositeObservers);
-    }
-  }
-
-  protected override onUnobserve(observer: Observes<this>): void {
-    super.onUnobserve(observer);
-    if (observer.viewWillRender !== void 0) {
-      this.observerCache.viewWillRenderObservers = Arrays.removed(observer as ViewWillRender, this.observerCache.viewWillRenderObservers);
-    }
-    if (observer.viewDidRender !== void 0) {
-      this.observerCache.viewDidRenderObservers = Arrays.removed(observer as ViewDidRender, this.observerCache.viewDidRenderObservers);
-    }
-    if (observer.viewWillRasterize !== void 0) {
-      this.observerCache.viewWillRasterizeObservers = Arrays.removed(observer as ViewWillRasterize, this.observerCache.viewWillRasterizeObservers);
-    }
-    if (observer.viewDidRasterize !== void 0) {
-      this.observerCache.viewDidRasterizeObservers = Arrays.removed(observer as ViewDidRasterize, this.observerCache.viewDidRasterizeObservers);
-    }
-    if (observer.viewWillComposite !== void 0) {
-      this.observerCache.viewWillCompositeObservers = Arrays.removed(observer as ViewWillComposite, this.observerCache.viewWillCompositeObservers);
-    }
-    if (observer.viewDidComposite !== void 0) {
-      this.observerCache.viewDidCompositeObservers = Arrays.removed(observer as ViewDidComposite, this.observerCache.viewDidCompositeObservers);
     }
   }
 

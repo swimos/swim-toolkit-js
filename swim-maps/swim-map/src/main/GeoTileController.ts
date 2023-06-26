@@ -67,7 +67,9 @@ export class GeoTileController extends GeoLayerController {
   readonly geoTile: GeoTile;
 
   @Property({extends: true, inherits: false})
-  override readonly nodeUri!: Property<this, Uri | null, AnyUri | null>;
+  override get nodeUri(): Property<this, Uri | null, AnyUri | null> {
+    return Property.dummy();
+  }
 
   protected override autoConsume(): void {
     if (!this.mounted) {

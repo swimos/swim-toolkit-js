@@ -157,7 +157,9 @@ export class DialController extends Controller {
   }
 
   @Property({valueType: Timing, inherits: true})
-  readonly dialTiming!: Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined>;
+  get dialTiming(): Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined> {
+    return Property.dummy();
+  }
 
   @TraitViewRef({
     traitType: DialTrait,

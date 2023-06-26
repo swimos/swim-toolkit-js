@@ -60,7 +60,9 @@ export class CellView extends HtmlView {
       }
     },
   })
-  readonly hyperlink!: Property<this, Hyperlink | null, AnyHyperlink | null>;
+  get hyperlink(): Property<this, Hyperlink | null, AnyHyperlink | null> {
+    return Property.dummy();
+  }
 
   didPress(input: PositionGestureInput, event: Event | null): void {
     this.callObservers("viewDidPress", input, event, this);

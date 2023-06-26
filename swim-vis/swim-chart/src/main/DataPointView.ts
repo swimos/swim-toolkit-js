@@ -140,7 +140,9 @@ export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
       this.owner.callObservers("viewDidSetY2", y2, this.owner);
     },
   })
-  readonly y2!: Animator<this, Y | undefined>;
+  get y2(): Animator<this, Y | undefined> {
+    return Animator.dummy();
+  }
 
   @ThemeAnimator({
     valueType: Length,
@@ -149,10 +151,14 @@ export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
       this.owner.callObservers("viewDidSetRadius", radius, this.owner);
     },
   })
-  readonly radius!: ThemeAnimator<this, Length | null, AnyLength | null>;
+  get radius(): ThemeAnimator<this, Length | null, AnyLength | null> {
+    return ThemeAnimator.dummy();
+  }
 
   @Property({valueType: Number, value: 5})
-  readonly hitRadius!: Property<this, number>;
+  get hitRadius(): Property<this, number> {
+    return Property.dummy();
+  }
 
   @ThemeAnimator({
     valueType: Color,
@@ -162,7 +168,9 @@ export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
       this.owner.callObservers("viewDidSetColor", color, this.owner);
     },
   })
-  readonly color!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  get color(): ThemeAnimator<this, Color | null, AnyColor | null> {
+    return ThemeAnimator.dummy();
+  }
 
   @ThemeAnimator({
     valueType: Number,
@@ -171,19 +179,29 @@ export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
       this.owner.callObservers("viewDidSetOpacity", opacity, this.owner);
     },
   })
-  readonly opacity!: ThemeAnimator<this, number | undefined>;
+  get opacity(): ThemeAnimator<this, number | undefined> {
+    return ThemeAnimator.dummy();
+  }
 
   @ThemeAnimator({valueType: Font, inherits: true})
-  readonly font!: ThemeAnimator<this, Font | undefined, AnyFont | undefined>;
+  get font(): ThemeAnimator<this, Font | undefined, AnyFont | undefined> {
+    return ThemeAnimator.dummy();
+  }
 
   @ThemeAnimator({valueType: Color, inherits: true})
-  readonly textColor!: ThemeAnimator<this, Color | undefined, AnyColor | undefined>;
+  get textColor(): ThemeAnimator<this, Color | undefined, AnyColor | undefined> {
+    return ThemeAnimator.dummy();
+  }
 
   @Property({valueType: String})
-  readonly category!: Property<this, DataPointCategory>;
+  get category(): Property<this, DataPointCategory> {
+    return Property.dummy();
+  }
 
   @ThemeAnimator({valueType: Length, value: Length.zero(), updateFlags: View.NeedsLayout})
-  readonly labelPadding!: ThemeAnimator<this, Length, AnyLength>;
+  get labelPadding(): ThemeAnimator<this, Length, AnyLength> {
+    return ThemeAnimator.dummy();
+  }
 
   @ViewRef({
     viewType: TextRunView,
@@ -212,7 +230,9 @@ export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
   };
 
   @Property({valueType: String, value: "auto"})
-  readonly labelPlacement!: Property<this, DataPointLabelPlacement>;
+  get labelPlacement(): Property<this, DataPointLabelPlacement> {
+    return Property.dummy();
+  }
 
   setState(point: DataPointViewInit<X, Y>, timing?: AnyTiming | boolean): void {
     if (point.x !== void 0) {

@@ -212,7 +212,9 @@ export class DrawerView extends HtmlView implements ModalView {
       return edgeInsets;
     },
   })
-  override readonly edgeInsets!: Property<this, ViewInsets>;
+  override get edgeInsets(): Property<this, ViewInsets> {
+    return Property.dummy();
+  }
 
   protected override onLayout(): void {
     super.onLayout();

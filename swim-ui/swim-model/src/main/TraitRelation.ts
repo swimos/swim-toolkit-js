@@ -14,7 +14,6 @@
 
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
-import {Arrays} from "@swim/util";
 import type {Observes} from "@swim/util";
 import type {Consumer} from "@swim/util";
 import type {Consumable} from "@swim/util";
@@ -162,7 +161,7 @@ export interface TraitRelation<O = unknown, T extends Trait = Trait> extends Fas
   fromAny(value: AnyTrait<T>): T;
 
   /** @internal */
-  readonly consumers: ReadonlyArray<Consumer>;
+  readonly consumers: ReadonlySet<Consumer> | null;
 
   /** @override */
   consume(consumer: Consumer): void
@@ -238,16 +237,6 @@ export const TraitRelation = (function (_super: typeof Fastener) {
     enumerable: true,
     configurable: true,
   });
-
-  TraitRelation.prototype.onBindInlet = function <T extends Trait>(this: TraitRelation<unknown, T>, inlet: TraitRelation<unknown, T>): void {
-    (this as Mutable<typeof this>).inlet = inlet;
-    _super.prototype.onBindInlet.call(this, inlet);
-  };
-
-  TraitRelation.prototype.onUnbindInlet = function <T extends Trait>(this: TraitRelation<unknown, T>, inlet: TraitRelation<unknown, T>): void {
-    _super.prototype.onUnbindInlet.call(this, inlet);
-    (this as Mutable<typeof this>).inlet = null;
-  };
 
   TraitRelation.prototype.attachOutlet = function <T extends Trait>(this: TraitRelation<unknown, T>, outlet: TraitRelation<unknown, T>): void {
     let outlets = this.outlets as TraitRelation<unknown, T>[] | null;
@@ -383,16 +372,18 @@ export const TraitRelation = (function (_super: typeof Fastener) {
   };
 
   TraitRelation.prototype.consume = function (this: TraitRelation, consumer: Consumer): void {
-    const oldConsumers = this.consumers;
-    const newConsumerrss = Arrays.inserted(consumer, oldConsumers);
-    if (oldConsumers === newConsumerrss) {
+    let consumers = this.consumers as Set<Consumer> | null;
+    if (consumers === null) {
+      consumers = new Set<Consumer>();
+      (this as Mutable<typeof this>).consumers = consumers;
+    } else if (consumers.has(consumer)) {
       return;
     }
     this.willConsume(consumer);
-    (this as Mutable<typeof this>).consumers = newConsumerrss;
+    consumers.add(consumer);
     this.onConsume(consumer);
     this.didConsume(consumer);
-    if (oldConsumers.length === 0 && this.mounted) {
+    if (consumers.size === 1 && this.mounted) {
       this.startConsuming();
     }
   };
@@ -410,16 +401,15 @@ export const TraitRelation = (function (_super: typeof Fastener) {
   };
 
   TraitRelation.prototype.unconsume = function (this: TraitRelation, consumer: Consumer): void {
-    const oldConsumers = this.consumers;
-    const newConsumerrss = Arrays.removed(consumer, oldConsumers);
-    if (oldConsumers === newConsumerrss) {
+    const consumers = this.consumers as Set<Consumer> | null;
+    if (consumers === null || !consumers.has(consumer)) {
       return;
     }
     this.willUnconsume(consumer);
-    (this as Mutable<typeof this>).consumers = newConsumerrss;
+    consumers.delete(consumer);
     this.onUnconsume(consumer);
     this.didUnconsume(consumer);
-    if (newConsumerrss.length === 0) {
+    if (consumers.size === 0) {
       this.stopConsuming();
     }
   };
@@ -490,7 +480,7 @@ export const TraitRelation = (function (_super: typeof Fastener) {
 
   TraitRelation.prototype.onMount = function (this: TraitRelation): void {
     _super.prototype.onMount.call(this);
-    if (this.consumers.length !== 0) {
+    if (this.consumers !== null && this.consumers.size !== 0) {
       this.startConsuming();
     }
   };
@@ -502,14 +492,8 @@ export const TraitRelation = (function (_super: typeof Fastener) {
 
   TraitRelation.construct = function <F extends TraitRelation<any, any>>(fastener: F | null, owner: F extends TraitRelation<infer O, any> ? O : never): F {
     fastener = _super.construct.call(this, fastener, owner) as F;
-    Object.defineProperty(fastener, "inlet", { // override getter
-      value: null,
-      writable: true,
-      enumerable: true,
-      configurable: true,
-    });
     (fastener as Mutable<typeof fastener>).outlets = null;
-    (fastener as Mutable<typeof fastener>).consumers = Arrays.empty;
+    (fastener as Mutable<typeof fastener>).consumers = null;
     return fastener;
   };
 

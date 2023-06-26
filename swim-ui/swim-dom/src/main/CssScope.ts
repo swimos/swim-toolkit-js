@@ -161,16 +161,6 @@ export const CssScope = (function (_super: typeof Fastener) {
     this.setCss(inletCss);
   };
 
-  CssScope.prototype.onBindInlet = function <S extends CSSStyleSheet | CSSRule>(this: CssScope<unknown, S>, inlet: CssScope): void {
-    (this as Mutable<typeof this>).inlet = inlet;
-    _super.prototype.onBindInlet.call(this, inlet);
-  };
-
-  CssScope.prototype.onUnbindInlet = function <S extends CSSStyleSheet | CSSRule>(this: CssScope<unknown, S>, inlet: CssScope): void {
-    _super.prototype.onUnbindInlet.call(this, inlet);
-    (this as Mutable<typeof this>).inlet = null;
-  };
-
   CssScope.prototype.attachOutlet = function <S extends CSSStyleSheet | CSSRule>(this: CssScope<unknown, S>, outlet: CssScope): void {
     let outlets = this.outlets as CssScope[] | null;
     if (outlets === null) {
@@ -358,11 +348,8 @@ export const CssScope = (function (_super: typeof Fastener) {
   };
 
   CssScope.prototype.recohere = function <S extends CSSStyleSheet | CSSRule>(this: CssScope<unknown, S>, t: number): void {
-    if ((this.flags & Fastener.DerivedFlag) === 0) {
-      return;
-    }
-    const inlet = this.inlet;
-    if (inlet === null) {
+    let inlet: CssScope | null;
+    if ((this.flags & Fastener.DerivedFlag) === 0 || (inlet = this.inlet) === null) {
       return;
     }
     const inletCss = inlet.getOutletCss(this);
@@ -377,12 +364,6 @@ export const CssScope = (function (_super: typeof Fastener) {
 
   CssScope.construct = function <F extends CssScope<any, any>>(fastener: F | null, owner: F extends CssScope<infer O, any> ? O : never): F {
     fastener = _super.construct.call(this, fastener, owner) as F;
-    Object.defineProperty(fastener, "inlet", { // override getter
-      value: null,
-      writable: true,
-      enumerable: true,
-      configurable: true,
-    });
     (fastener as Mutable<typeof fastener>).outlets = null;
     (fastener as Mutable<typeof fastener>).css = null;
     return fastener;

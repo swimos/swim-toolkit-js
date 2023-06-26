@@ -15,7 +15,6 @@
 import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
 import type {Instance} from "@swim/util";
-import {Arrays} from "@swim/util";
 import type {FromAny} from "@swim/util";
 import type {AnyTiming} from "@swim/util";
 import {Timing} from "@swim/util";
@@ -227,149 +226,36 @@ export interface ViewObserver<V extends View = View> extends ComponentObserver<V
   viewDidApplyTheme?(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, view: V): void;
 }
 
-/** @internal */
-export interface ViewObserverCache<V extends View> {
-  viewWillInsertChildObservers?: ReadonlyArray<ViewWillInsertChild<V>>;
-  viewDidInsertChildObservers?: ReadonlyArray<ViewDidInsertChild<V>>;
-  viewWillRemoveChildObservers?: ReadonlyArray<ViewWillRemoveChild<V>>;
-  viewDidRemoveChildObservers?: ReadonlyArray<ViewDidRemoveChild<V>>;
-  viewWillResizeObservers?: ReadonlyArray<ViewWillResize<V>>;
-  viewDidResizeObservers?: ReadonlyArray<ViewDidResize<V>>;
-  viewWillScrollObservers?: ReadonlyArray<ViewWillScroll<V>>;
-  viewDidScrollObservers?: ReadonlyArray<ViewDidScroll<V>>;
-  viewWillChangeObservers?: ReadonlyArray<ViewWillChange<V>>;
-  viewDidChangeObservers?: ReadonlyArray<ViewDidChange<V>>;
-  viewWillAnimateObservers?: ReadonlyArray<ViewWillAnimate<V>>;
-  viewDidAnimateObservers?: ReadonlyArray<ViewDidAnimate<V>>;
-  viewWillProjectObservers?: ReadonlyArray<ViewWillProject<V>>;
-  viewDidProjectObservers?: ReadonlyArray<ViewDidProject<V>>;
-  viewWillLayoutObservers?: ReadonlyArray<ViewWillLayout<V>>;
-  viewDidLayoutObservers?: ReadonlyArray<ViewDidLayout<V>>;
-  viewWillRenderObservers?: ReadonlyArray<ViewWillRender<V>>;
-  viewDidRenderObservers?: ReadonlyArray<ViewDidRender<V>>;
-  viewWillRasterizeObservers?: ReadonlyArray<ViewWillRasterize<V>>;
-  viewDidRasterizeObservers?: ReadonlyArray<ViewDidRasterize<V>>;
-  viewWillCompositeObservers?: ReadonlyArray<ViewWillComposite<V>>;
-  viewDidCompositeObservers?: ReadonlyArray<ViewDidComposite<V>>;
-}
-
-/** @internal */
-export interface ViewWillInsertChild<V extends View = View> {
-  viewWillInsertChild(child: View, target: View | null, view: V): void;
-}
-
-/** @internal */
-export interface ViewDidInsertChild<V extends View = View> {
-  viewDidInsertChild(child: View, target: View | null, view: V): void;
-}
-
-/** @internal */
-export interface ViewWillRemoveChild<V extends View = View> {
-  viewWillRemoveChild(child: View, view: V): void;
-}
-
-/** @internal */
-export interface ViewDidRemoveChild<V extends View = View> {
-  viewDidRemoveChild(child: View, view: V): void;
-}
-
-/** @internal */
-export interface ViewWillResize<V extends View = View> {
-  viewWillResize(view: V): void;
-}
-
-/** @internal */
-export interface ViewDidResize<V extends View = View> {
-  viewDidResize(view: V): void;
-}
-
-/** @internal */
-export interface ViewWillScroll<V extends View = View> {
-  viewWillScroll(view: V): void;
-}
-
-/** @internal */
-export interface ViewDidScroll<V extends View = View> {
-  viewDidScroll(view: V): void;
-}
-
-/** @internal */
-export interface ViewWillChange<V extends View = View> {
-  viewWillChange(view: V): void;
-}
-
-/** @internal */
-export interface ViewDidChange<V extends View = View> {
-  viewDidChange(view: V): void;
-}
-
-/** @internal */
-export interface ViewWillAnimate<V extends View = View> {
-  viewWillAnimate(view: V): void;
-}
-
-/** @internal */
-export interface ViewDidAnimate<V extends View = View> {
-  viewDidAnimate(view: V): void;
-}
-
-/** @internal */
-export interface ViewWillProject<V extends View = View> {
-  viewWillProject(view: V): void;
-}
-
-/** @internal */
-export interface ViewDidProject<V extends View = View> {
-  viewDidProject(view: V): void;
-}
-
-/** @internal */
-export interface ViewWillLayout<V extends View = View> {
-  viewWillLayout(view: V): void;
-}
-
-/** @internal */
-export interface ViewDidLayout<V extends View = View> {
-  viewDidLayout(view: V): void;
-}
-
-/** @internal */
-export interface ViewWillRender<V extends View = View> {
-  viewWillRender(view: V): void;
-}
-
-/** @internal */
-export interface ViewDidRender<V extends View = View> {
-  viewDidRender(view: V): void;
-}
-
-/** @internal */
-export interface ViewWillRasterize<V extends View = View> {
-  viewWillRasterize(view: V): void;
-}
-
-/** @internal */
-export interface ViewDidRasterize<V extends View = View> {
-  viewDidRasterize(view: V): void;
-}
-
-/** @internal */
-export interface ViewWillComposite<V extends View = View> {
-  viewWillComposite(view: V): void;
-}
-
-/** @internal */
-export interface ViewDidComposite<V extends View = View> {
-  viewDidComposite(view: V): void;
-}
-
 /** @public */
 export class View extends Component<View> implements Initable<ViewInit>, ConstraintScope, ConstraintContext, ThemeContext, EventTarget {
   constructor() {
     super();
-    this.observerCache = {};
-    this.constraints = Arrays.empty;
-    this.constraintVariables = Arrays.empty;
+    this.constraints = null;
+    this.constraintVariables = null;
+
+    // Observer caches
+    this.willInsertChildObservers = null;
+    this.didInsertChildObservers = null;
+    this.willRemoveChildObservers = null;
+    this.didRemoveChildObservers = null;
+    this.willResizeObservers = null;
+    this.didResizeObservers = null;
+    this.willScrollObservers = null;
+    this.didScrollObservers = null;
+    this.willChangeObservers = null;
+    this.didChangeObservers = null;
+    this.willAnimateObservers = null;
+    this.didAnimateObservers = null;
+    this.willProjectObservers = null;
+    this.didProjectObservers = null;
+    this.willLayoutObservers = null;
+    this.didLayoutObservers = null;
+    this.willRenderObservers = null;
+    this.didRenderObservers = null;
+    this.willRasterizeObservers = null;
+    this.didRasterizeObservers = null;
+    this.willCompositeObservers = null;
+    this.didCompositeObservers = null;
   }
 
   override get componentType(): Class<View> {
@@ -409,13 +295,7 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   }
 
   protected override willAttachParent(parent: View): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.viewWillAttachParent !== void 0) {
-        observer.viewWillAttachParent(parent, this);
-      }
-    }
+    this.callObservers("viewWillAttachParent", parent, this);
   }
 
   protected override onAttachParent(parent: View): void {
@@ -423,23 +303,11 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   }
 
   protected override didAttachParent(parent: View): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.viewDidAttachParent !== void 0) {
-        observer.viewDidAttachParent(parent, this);
-      }
-    }
+    this.callObservers("viewDidAttachParent", parent, this);
   }
 
   protected override willDetachParent(parent: View): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.viewWillDetachParent !== void 0) {
-        observer.viewWillDetachParent(parent, this);
-      }
-    }
+    this.callObservers("viewWillDetachParent", parent, this);
   }
 
   protected override onDetachParent(parent: View): void {
@@ -447,13 +315,7 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   }
 
   protected override didDetachParent(parent: View): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.viewDidDetachParent !== void 0) {
-        observer.viewDidDetachParent(parent, this);
-      }
-    }
+    this.callObservers("viewDidDetachParent", parent, this);
   }
 
   override setChild<V extends View>(key: string, newChild: V): View | null;
@@ -501,12 +363,13 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     return super.replaceChild(newChild, oldChild);
   }
 
+  /** @internal */
+  protected willInsertChildObservers: Set<Required<Pick<ViewObserver, "viewWillInsertChild">>> | null;
   protected override willInsertChild(child: View, target: View | null): void {
     super.willInsertChild(child, target);
-    const observers = this.observerCache.viewWillInsertChildObservers;
-    if (observers !== void 0) {
-      for (let i = 0, n = observers.length; i < n; i += 1) {
-        const observer = observers[i]!;
+    const observers = this.willInsertChildObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
         observer.viewWillInsertChild(child, target, this);
       }
     }
@@ -516,11 +379,12 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     super.onInsertChild(child, target);
   }
 
+  /** @internal */
+  protected didInsertChildObservers: Set<Required<Pick<ViewObserver, "viewDidInsertChild">>> | null;
   protected override didInsertChild(child: View, target: View | null): void {
-    const observers = this.observerCache.viewDidInsertChildObservers;
-    if (observers !== void 0) {
-      for (let i = 0, n = observers.length; i < n; i += 1) {
-        const observer = observers[i]!;
+    const observers = this.didInsertChildObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
         observer.viewDidInsertChild(child, target, this);
       }
     }
@@ -540,12 +404,13 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     }
   }
 
+  /** @internal */
+  protected willRemoveChildObservers: Set<Required<Pick<ViewObserver, "viewWillRemoveChild">>> | null;
   protected override willRemoveChild(child: View): void {
     super.willRemoveChild(child);
-    const observers = this.observerCache.viewWillRemoveChildObservers;
-    if (observers !== void 0) {
-      for (let i = 0, n = observers.length; i < n; i += 1) {
-        const observer = observers[i]!;
+    const observers = this.willRemoveChildObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
         observer.viewWillRemoveChild(child, this);
       }
     }
@@ -555,11 +420,12 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     super.onRemoveChild(child);
   }
 
+  /** @internal */
+  protected didRemoveChildObservers: Set<Required<Pick<ViewObserver, "viewDidRemoveChild">>> | null;
   protected override didRemoveChild(child: View): void {
-    const observers = this.observerCache.viewDidRemoveChildObservers;
-    if (observers !== void 0) {
-      for (let i = 0, n = observers.length; i < n; i += 1) {
-        const observer = observers[i]!;
+    const observers = this.didRemoveChildObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
         observer.viewDidRemoveChild(child, this);
       }
     }
@@ -568,13 +434,7 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
 
   protected override willReinsertChild(child: View, target: View | null): void {
     super.willReinsertChild(child, target);
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.viewWillReinsertChild !== void 0) {
-        observer.viewWillReinsertChild(child, target, this);
-      }
-    }
+    this.callObservers("viewWillReinsertChild", child, target, this);
   }
 
   protected override onReinsertChild(child: View, target: View | null): void {
@@ -582,13 +442,7 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   }
 
   protected override didReinsertChild(child: View, target: View | null): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.viewDidReinsertChild !== void 0) {
-        observer.viewDidReinsertChild(child, target, this);
-      }
-    }
+    this.callObservers("viewDidReinsertChild", child, target, this);
     super.didReinsertChild(child, target);
   }
 
@@ -599,13 +453,7 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
 
   protected override willMount(): void {
     super.willMount();
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.viewWillMount !== void 0) {
-        observer.viewWillMount(this);
-      }
-    }
+    this.callObservers("viewWillMount", this);
   }
 
   protected override onMount(): void {
@@ -622,13 +470,7 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
 
   protected override didMount(): void {
     this.activateLayout();
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.viewDidMount !== void 0) {
-        observer.viewDidMount(this);
-      }
-    }
+    this.callObservers("viewDidMount", this);
     super.didMount();
   }
 
@@ -639,24 +481,12 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
 
   protected override willUnmount(): void {
     super.willUnmount();
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.viewWillUnmount !== void 0) {
-        observer.viewWillUnmount(this);
-      }
-    }
+    this.callObservers("viewWillUnmount", this);
     this.deactivateLayout();
   }
 
   protected override didUnmount(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.viewDidUnmount !== void 0) {
-        observer.viewDidUnmount(this);
-      }
-    }
+    this.callObservers("viewDidUnmount", this);
     super.didUnmount();
   }
 
@@ -705,13 +535,7 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   }
 
   protected willCull(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.viewWillCull !== void 0) {
-        observer.viewWillCull(this);
-      }
-    }
+    this.callObservers("viewWillCull", this);
   }
 
   protected onCull(): void {
@@ -719,13 +543,7 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   }
 
   protected didCull(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.viewDidCull !== void 0) {
-        observer.viewDidCull(this);
-      }
-    }
+    this.callObservers("viewDidCull", this);
   }
 
   /** @internal */
@@ -761,13 +579,7 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   }
 
   protected willUncull(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.viewWillUncull !== void 0) {
-        observer.viewWillUncull(this);
-      }
-    }
+    this.callObservers("viewWillUncull", this);
   }
 
   protected onUncull(): void {
@@ -787,13 +599,7 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   }
 
   protected didUncull(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.viewDidUncull !== void 0) {
-        observer.viewDidUncull(this);
-      }
-    }
+    this.callObservers("viewDidUncull", this);
   }
 
   /** @internal */
@@ -860,13 +666,7 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   }
 
   protected willHide(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.viewWillHide !== void 0) {
-        observer.viewWillHide(this);
-      }
-    }
+    this.callObservers("viewWillHide", this);
   }
 
   protected onHide(): void {
@@ -874,13 +674,7 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   }
 
   protected didHide(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.viewDidHide !== void 0) {
-        observer.viewDidHide(this);
-      }
-    }
+    this.callObservers("viewDidHide", this);
   }
 
   /** @internal */
@@ -915,13 +709,7 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   }
 
   protected willUnhide(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.viewWillUnhide !== void 0) {
-        observer.viewWillUnhide(this);
-      }
-    }
+    this.callObservers("viewWillUnhide", this);
   }
 
   protected onUnhide(): void {
@@ -930,13 +718,7 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   }
 
   protected didUnhide(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.viewDidUnhide !== void 0) {
-        observer.viewDidUnhide(this);
-      }
-    }
+    this.callObservers("viewDidUnhide", this);
   }
 
   /** @internal */
@@ -1013,10 +795,11 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   override requireUpdate(updateFlags: ViewFlags, immediate: boolean = false): void {
     const flags = this.flags;
     const deltaUpdateFlags = updateFlags & ~flags & View.UpdateMask;
-    if (deltaUpdateFlags !== 0) {
-      this.setFlags(flags | deltaUpdateFlags);
-      this.requestUpdate(this, deltaUpdateFlags, immediate);
+    if (deltaUpdateFlags === 0) {
+      return;
     }
+    this.setFlags(flags | deltaUpdateFlags);
+    this.requestUpdate(this, deltaUpdateFlags, immediate);
   }
 
   protected needsUpdate(updateFlags: ViewFlags, immediate: boolean): ViewFlags {
@@ -1152,11 +935,12 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     // hook
   }
 
+  /** @internal */
+  protected willResizeObservers: Set<Required<Pick<ViewObserver, "viewWillResize">>> | null;
   protected willResize(): void {
-    const observers = this.observerCache.viewWillResizeObservers;
-    if (observers !== void 0) {
-      for (let i = 0, n = observers.length; i < n; i += 1) {
-        const observer = observers[i]!;
+    const observers = this.willResizeObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
         observer.viewWillResize(this);
       }
     }
@@ -1167,21 +951,23 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     // hook
   }
 
+  /** @internal */
+  protected didResizeObservers: Set<Required<Pick<ViewObserver, "viewDidResize">>> | null;
   protected didResize(): void {
-    const observers = this.observerCache.viewDidResizeObservers;
-    if (observers !== void 0) {
-      for (let i = 0, n = observers.length; i < n; i += 1) {
-        const observer = observers[i]!;
+    const observers = this.didResizeObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
         observer.viewDidResize(this);
       }
     }
   }
 
+  /** @internal */
+  protected willScrollObservers: Set<Required<Pick<ViewObserver, "viewWillScroll">>> | null;
   protected willScroll(): void {
-    const observers = this.observerCache.viewWillScrollObservers;
-    if (observers !== void 0) {
-      for (let i = 0, n = observers.length; i < n; i += 1) {
-        const observer = observers[i]!;
+    const observers = this.willScrollObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
         observer.viewWillScroll(this);
       }
     }
@@ -1191,21 +977,23 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     // hook
   }
 
+  /** @internal */
+  protected didScrollObservers: Set<Required<Pick<ViewObserver, "viewDidScroll">>> | null;
   protected didScroll(): void {
-    const observers = this.observerCache.viewDidScrollObservers;
-    if (observers !== void 0) {
-      for (let i = 0, n = observers.length; i < n; i += 1) {
-        const observer = observers[i]!;
+    const observers = this.didScrollObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
         observer.viewDidScroll(this);
       }
     }
   }
 
+  /** @internal */
+  protected willChangeObservers: Set<Required<Pick<ViewObserver, "viewWillChange">>> | null;
   protected willChange(): void {
-    const observers = this.observerCache.viewWillChangeObservers;
-    if (observers !== void 0) {
-      for (let i = 0, n = observers.length; i < n; i += 1) {
-        const observer = observers[i]!;
+    const observers = this.willChangeObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
         observer.viewWillChange(this);
       }
     }
@@ -1215,21 +1003,23 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     this.recohereFasteners(this.updateTime);
   }
 
+  /** @internal */
+  protected didChangeObservers: Set<Required<Pick<ViewObserver, "viewDidChange">>> | null;
   protected didChange(): void {
-    const observers = this.observerCache.viewDidChangeObservers;
-    if (observers !== void 0) {
-      for (let i = 0, n = observers.length; i < n; i += 1) {
-        const observer = observers[i]!;
+    const observers = this.didChangeObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
         observer.viewDidChange(this);
       }
     }
   }
 
+  /** @internal */
+  protected willAnimateObservers: Set<Required<Pick<ViewObserver, "viewWillAnimate">>> | null;
   protected willAnimate(): void {
-    const observers = this.observerCache.viewWillAnimateObservers;
-    if (observers !== void 0) {
-      for (let i = 0, n = observers.length; i < n; i += 1) {
-        const observer = observers[i]!;
+    const observers = this.willAnimateObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
         observer.viewWillAnimate(this);
       }
     }
@@ -1239,21 +1029,23 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     this.recohereAnimators(this.updateTime);
   }
 
+  /** @internal */
+  protected didAnimateObservers: Set<Required<Pick<ViewObserver, "viewDidAnimate">>> | null;
   protected didAnimate(): void {
-    const observers = this.observerCache.viewDidAnimateObservers;
-    if (observers !== void 0) {
-      for (let i = 0, n = observers.length; i < n; i += 1) {
-        const observer = observers[i]!;
+    const observers = this.didAnimateObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
         observer.viewDidAnimate(this);
       }
     }
   }
 
+  /** @internal */
+  protected willProjectObservers: Set<Required<Pick<ViewObserver, "viewWillProject">>> | null;
   protected willProject(): void {
-    const observers = this.observerCache.viewWillProjectObservers;
-    if (observers !== void 0) {
-      for (let i = 0; i < observers.length; i += 1) {
-        const observer = observers[i]!;
+    const observers = this.willProjectObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
         observer.viewWillProject(this);
       }
     }
@@ -1263,11 +1055,12 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     // hook
   }
 
+  /** @internal */
+  protected didProjectObservers: Set<Required<Pick<ViewObserver, "viewDidProject">>> | null;
   protected didProject(): void {
-    const observers = this.observerCache.viewDidProjectObservers;
-    if (observers !== void 0) {
-      for (let i = 0; i < observers.length; i += 1) {
-        const observer = observers[i]!;
+    const observers = this.didProjectObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
         observer.viewDidProject(this);
       }
     }
@@ -1376,11 +1169,12 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     // hook
   }
 
+  /** @internal */
+  protected willLayoutObservers: Set<Required<Pick<ViewObserver, "viewWillLayout">>> | null;
   protected willLayout(): void {
-    const observers = this.observerCache.viewWillLayoutObservers;
-    if (observers !== void 0) {
-      for (let i = 0, n = observers.length; i < n; i += 1) {
-        const observer = observers[i]!;
+    const observers = this.willLayoutObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
         observer.viewWillLayout(this);
       }
     }
@@ -1390,21 +1184,23 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     // hook
   }
 
+  /** @internal */
+  protected didLayoutObservers: Set<Required<Pick<ViewObserver, "viewDidLayout">>> | null;
   protected didLayout(): void {
-    const observers = this.observerCache.viewDidLayoutObservers;
-    if (observers !== void 0) {
-      for (let i = 0, n = observers.length; i < n; i += 1) {
-        const observer = observers[i]!;
+    const observers = this.didLayoutObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
         observer.viewDidLayout(this);
       }
     }
   }
 
+  /** @internal */
+  protected willRenderObservers: Set<Required<Pick<ViewObserver, "viewWillRender">>> | null;
   protected willRender(): void {
-    const observers = this.observerCache.viewWillRenderObservers;
-    if (observers !== void 0) {
-      for (let i = 0; i < observers.length; i += 1) {
-        const observer = observers[i]!;
+    const observers = this.willRenderObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
         observer.viewWillRender(this);
       }
     }
@@ -1414,21 +1210,23 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     // hook
   }
 
+  /** @internal */
+  protected didRenderObservers: Set<Required<Pick<ViewObserver, "viewDidRender">>> | null;
   protected didRender(): void {
-    const observers = this.observerCache.viewDidRenderObservers;
-    if (observers !== void 0) {
-      for (let i = 0; i < observers.length; i += 1) {
-        const observer = observers[i]!;
+    const observers = this.didRenderObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
         observer.viewDidRender(this);
       }
     }
   }
 
+  /** @internal */
+  protected willRasterizeObservers: Set<Required<Pick<ViewObserver, "viewWillRasterize">>> | null;
   protected willRasterize(): void {
-    const observers = this.observerCache.viewWillRasterizeObservers;
-    if (observers !== void 0) {
-      for (let i = 0; i < observers.length; i += 1) {
-        const observer = observers[i]!;
+    const observers = this.willRasterizeObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
         observer.viewWillRasterize(this);
       }
     }
@@ -1438,21 +1236,23 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     // hook
   }
 
+  /** @internal */
+  protected didRasterizeObservers: Set<Required<Pick<ViewObserver, "viewDidRasterize">>> | null;
   protected didRasterize(): void {
-    const observers = this.observerCache.viewDidRasterizeObservers;
-    if (observers !== void 0) {
-      for (let i = 0; i < observers.length; i += 1) {
-        const observer = observers[i]!;
+    const observers = this.didRasterizeObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
         observer.viewDidRasterize(this);
       }
     }
   }
 
+  /** @internal */
+  protected willCompositeObservers: Set<Required<Pick<ViewObserver, "viewWillComposite">>> | null;
   protected willComposite(): void {
-    const observers = this.observerCache.viewWillCompositeObservers;
-    if (observers !== void 0) {
-      for (let i = 0; i < observers.length; i += 1) {
-        const observer = observers[i]!;
+    const observers = this.willCompositeObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
         observer.viewWillComposite(this);
       }
     }
@@ -1462,11 +1262,12 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     // hook
   }
 
+  /** @internal */
+  protected didCompositeObservers: Set<Required<Pick<ViewObserver, "viewDidComposite">>> | null;
   protected didComposite(): void {
-    const observers = this.observerCache.viewDidCompositeObservers;
-    if (observers !== void 0) {
-      for (let i = 0; i < observers.length; i += 1) {
-        const observer = observers[i]!;
+    const observers = this.didCompositeObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
         observer.viewDidComposite(this);
       }
     }
@@ -1497,7 +1298,9 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
       return ViewportService;
     },
   })
-  readonly viewport!: Provider<this, ViewportService>;
+  get viewport(): Provider<this, ViewportService> {
+    return Provider.dummy();
+  }
 
   @Provider({
     get serviceType(): typeof DisplayerService { // avoid static forward reference
@@ -1519,7 +1322,9 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
       return SolverService;
     },
   })
-  readonly solver!: Provider<this, SolverService>;
+  get solver(): Provider<this, SolverService> {
+    return Provider.dummy();
+  }
 
   @Provider({
     get serviceType(): typeof StylerService { // avoid static forward reference
@@ -1654,13 +1459,7 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   }
 
   protected willApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.viewWillApplyTheme !== void 0) {
-        observer.viewWillApplyTheme(theme, mood, timing, this);
-      }
-    }
+    this.callObservers("viewWillApplyTheme", theme, mood, timing, this);
   }
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
@@ -1668,13 +1467,7 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   }
 
   protected didApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.viewDidApplyTheme !== void 0) {
-        observer.viewDidApplyTheme(theme, mood, timing, this);
-      }
-    }
+    this.callObservers("viewDidApplyTheme", theme, mood, timing, this);
   }
 
   /** @internal */
@@ -1871,49 +1664,55 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   }
 
   /** @internal */
-  readonly constraints: ReadonlyArray<Constraint>;
+  readonly constraints: ReadonlySet<Constraint> | null;
 
   /** @override */
   hasConstraint(constraint: Constraint): boolean {
-    return this.constraints.indexOf(constraint) >= 0;
+    const constraints = this.constraints;
+    return constraints !== null && constraints.has(constraint);
   }
 
   /** @override */
   addConstraint(constraint: Constraint): void {
-    const oldConstraints = this.constraints;
-    const newConstraints = Arrays.inserted(constraint, oldConstraints);
-    if (oldConstraints !== newConstraints) {
-      (this as Mutable<this>).constraints = newConstraints;
-      this.activateConstraint(constraint);
+    let constraints = this.constraints as Set<Constraint> | null;
+    if (constraints === null) {
+      constraints = new Set<Constraint>();
+      (this as Mutable<this>).constraints = constraints;
+    } else if (constraints.has(constraint)) {
+      return;
     }
+    constraints.add(constraint);
+    this.activateConstraint(constraint);
   }
 
   /** @override */
   removeConstraint(constraint: Constraint): void {
-    const oldConstraints = this.constraints;
-    const newConstraints = Arrays.removed(constraint, oldConstraints);
-    if (oldConstraints !== newConstraints) {
-      this.deactivateConstraint(constraint);
-      (this as Mutable<this>).constraints = newConstraints;
+    const constraints = this.constraints as Set<Constraint> | null;
+    if (constraints === null || !constraints.has(constraint)) {
+      return;
     }
+    this.deactivateConstraint(constraint);
+    constraints.delete(constraint);
   }
 
   /** @internal @override */
   activateConstraint(constraint: Constraint): void {
     const solverService = this.solver.service;
-    if (solverService !== null) {
-      solverService.activateConstraint(constraint);
-      this.requireUpdate(View.NeedsLayout);
+    if (solverService === null) {
+      return;
     }
+    solverService.activateConstraint(constraint);
+    this.requireUpdate(View.NeedsLayout);
   }
 
   /** @internal @override */
   deactivateConstraint(constraint: Constraint): void {
     const solverService = this.solver.service;
-    if (solverService !== null) {
-      solverService.deactivateConstraint(constraint);
-      this.requireUpdate(View.NeedsLayout);
+    if (solverService === null) {
+      return;
     }
+    solverService.deactivateConstraint(constraint);
+    this.requireUpdate(View.NeedsLayout);
   }
 
   /** @override */
@@ -1940,64 +1739,73 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   }
 
   /** @internal */
-  readonly constraintVariables: ReadonlyArray<ConstraintVariable>;
+  readonly constraintVariables: ReadonlySet<ConstraintVariable> | null;
 
   /** @override */
   hasConstraintVariable(constraintVariable: ConstraintVariable): boolean {
-    return this.constraintVariables.indexOf(constraintVariable) >= 0;
+    const constraintVariables = this.constraintVariables;
+    return constraintVariables !== null && constraintVariables.has(constraintVariable);
   }
 
   /** @override */
   addConstraintVariable(constraintVariable: ConstraintVariable): void {
-    const oldConstraintVariables = this.constraintVariables;
-    const newConstraintVariables = Arrays.inserted(constraintVariable, oldConstraintVariables);
-    if (oldConstraintVariables !== newConstraintVariables) {
-      (this as Mutable<this>).constraintVariables = newConstraintVariables;
-      this.activateConstraintVariable(constraintVariable);
+    let constraintVariables = this.constraintVariables as Set<ConstraintVariable> | null;
+    if (constraintVariables === null) {
+      constraintVariables = new Set<ConstraintVariable>();
+      (this as Mutable<this>).constraintVariables = constraintVariables;
+    } else if (constraintVariables.has(constraintVariable)) {
+      return;
     }
+    constraintVariables.add(constraintVariable);
+    this.activateConstraintVariable(constraintVariable);
   }
 
   /** @override */
   removeConstraintVariable(constraintVariable: ConstraintVariable): void {
-    const oldConstraintVariables = this.constraintVariables;
-    const newConstraintVariables = Arrays.removed(constraintVariable, oldConstraintVariables);
-    if (oldConstraintVariables !== newConstraintVariables) {
-      this.deactivateConstraintVariable(constraintVariable);
-      (this as Mutable<this>).constraintVariables = newConstraintVariables;
+    const constraintVariables = this.constraintVariables as Set<ConstraintVariable> | null;
+    if (constraintVariables === null || !constraintVariables.has(constraintVariable)) {
+      return;
     }
+    this.deactivateConstraintVariable(constraintVariable);
+    constraintVariables.delete(constraintVariable);
   }
 
   /** @internal @override */
   activateConstraintVariable(constraintVariable: ConstraintVariable): void {
     const solverService = this.solver.service;
-    if (solverService !== null) {
-      solverService.activateConstraintVariable(constraintVariable);
-      this.requireUpdate(View.NeedsLayout);
+    if (solverService === null) {
+      return;
     }
+    solverService.activateConstraintVariable(constraintVariable);
+    this.requireUpdate(View.NeedsLayout);
   }
 
   /** @internal @override */
   deactivateConstraintVariable(constraintVariable: ConstraintVariable): void {
     const solverService = this.solver.service;
-    if (solverService !== null) {
-      solverService.deactivateConstraintVariable(constraintVariable);
-      this.requireUpdate(View.NeedsLayout);
+    if (solverService === null) {
+      return;
     }
+    solverService.deactivateConstraintVariable(constraintVariable);
+    this.requireUpdate(View.NeedsLayout);
   }
 
   /** @internal @override */
   setConstraintVariable(constraintVariable: ConstraintVariable, value: number): void {
     const solverService = this.solver.service;
-    if (solverService !== null) {
-      solverService.setConstraintVariable(constraintVariable, value);
+    if (solverService === null) {
+      return;
     }
+    solverService.setConstraintVariable(constraintVariable, value);
   }
 
   /** @internal */
   evaluateConstraintVariables(): void {
     const constraintVariables = this.constraintVariables;
-    for (let i = 0, n = constraintVariables.length; i < n; i += 1) {
-      const constraintVariable = constraintVariables[i]!;
+    if (constraintVariables === null) {
+      return;
+    }
+    for (const constraintVariable of constraintVariables) {
       constraintVariable.evaluateConstraintVariable();
     }
   }
@@ -2005,22 +1813,24 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   /** @internal */
   protected activateLayout(): void {
     const solverService = this.solver.service;
-    if (solverService !== null) {
-      const constraints = this.constraints;
-      for (let i = 0, n = constraints.length; i < n; i += 1) {
-        solverService.activateConstraint(constraints[i]!);
-      }
+    const constraints = this.constraints;
+    if (solverService === null || constraints === null) {
+      return;
+    }
+    for (const constraint of constraints) {
+      solverService.activateConstraint(constraint);
     }
   }
 
   /** @internal */
   protected deactivateLayout(): void {
     const solverService = this.solver.service;
-    if (solverService !== null) {
-      const constraints = this.constraints;
-      for (let i = 0, n = constraints.length; i < n; i += 1) {
-        solverService.deactivateConstraint(constraints[i]!);
-      }
+    const constraints = this.constraints;
+    if (solverService === null || constraints === null) {
+      return;
+    }
+    for (const constraint of constraints) {
+      solverService.deactivateConstraint(constraint);
     }
   }
 
@@ -2045,7 +1855,9 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     },
     equalValues: ViewInsets.equal,
   })
-  readonly edgeInsets!: Property<this, ViewInsets>;
+  get edgeInsets(): Property<this, ViewInsets> {
+    return Property.dummy();
+  }
 
   /**
    * Returns the transformation from the parent view coordinates to view
@@ -2121,146 +1933,209 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     // nop
   }
 
-  /** @internal */
-  readonly observerCache: ViewObserverCache<this>;
-
   protected override onObserve(observer: Observes<this>): void {
     super.onObserve(observer);
     if (observer.viewWillInsertChild !== void 0) {
-      this.observerCache.viewWillInsertChildObservers = Arrays.inserted(observer as ViewWillInsertChild, this.observerCache.viewWillInsertChildObservers);
+      if (this.willInsertChildObservers === null) {
+        this.willInsertChildObservers = new Set();
+      }
+      this.willInsertChildObservers.add(observer as Required<Pick<ViewObserver, "viewWillInsertChild">>);
     }
     if (observer.viewDidInsertChild !== void 0) {
-      this.observerCache.viewDidInsertChildObservers = Arrays.inserted(observer as ViewDidInsertChild, this.observerCache.viewDidInsertChildObservers);
+      if (this.didInsertChildObservers === null) {
+        this.didInsertChildObservers = new Set();
+      }
+      this.didInsertChildObservers.add(observer as Required<Pick<ViewObserver, "viewDidInsertChild">>);
     }
     if (observer.viewWillRemoveChild !== void 0) {
-      this.observerCache.viewWillRemoveChildObservers = Arrays.inserted(observer as ViewWillRemoveChild, this.observerCache.viewWillRemoveChildObservers);
+      if (this.willRemoveChildObservers === null) {
+        this.willRemoveChildObservers = new Set();
+      }
+      this.willRemoveChildObservers.add(observer as Required<Pick<ViewObserver, "viewWillRemoveChild">>);
     }
     if (observer.viewDidRemoveChild !== void 0) {
-      this.observerCache.viewDidRemoveChildObservers = Arrays.inserted(observer as ViewDidRemoveChild, this.observerCache.viewDidRemoveChildObservers);
+      if (this.didRemoveChildObservers === null) {
+        this.didRemoveChildObservers = new Set();
+      }
+      this.didRemoveChildObservers.add(observer as Required<Pick<ViewObserver, "viewDidRemoveChild">>);
     }
     if (observer.viewWillResize !== void 0) {
-      this.observerCache.viewWillResizeObservers = Arrays.inserted(observer as ViewWillResize, this.observerCache.viewWillResizeObservers);
+      if (this.willResizeObservers === null) {
+        this.willResizeObservers = new Set();
+      }
+      this.willResizeObservers.add(observer as Required<Pick<ViewObserver, "viewWillResize">>);
     }
     if (observer.viewDidResize !== void 0) {
-      this.observerCache.viewDidResizeObservers = Arrays.inserted(observer as ViewDidResize, this.observerCache.viewDidResizeObservers);
+      if (this.didResizeObservers === null) {
+        this.didResizeObservers = new Set();
+      }
+      this.didResizeObservers.add(observer as Required<Pick<ViewObserver, "viewDidResize">>);
     }
     if (observer.viewWillScroll !== void 0) {
-      this.observerCache.viewWillScrollObservers = Arrays.inserted(observer as ViewWillScroll, this.observerCache.viewWillScrollObservers);
+      if (this.willScrollObservers === null) {
+        this.willScrollObservers = new Set();
+      }
+      this.willScrollObservers.add(observer as Required<Pick<ViewObserver, "viewWillScroll">>);
     }
     if (observer.viewDidScroll !== void 0) {
-      this.observerCache.viewDidScrollObservers = Arrays.inserted(observer as ViewDidScroll, this.observerCache.viewDidScrollObservers);
+      if (this.didScrollObservers === null) {
+        this.didScrollObservers = new Set();
+      }
+      this.didScrollObservers.add(observer as Required<Pick<ViewObserver, "viewDidScroll">>);
     }
     if (observer.viewWillChange !== void 0) {
-      this.observerCache.viewWillChangeObservers = Arrays.inserted(observer as ViewWillChange, this.observerCache.viewWillChangeObservers);
+      if (this.willChangeObservers === null) {
+        this.willChangeObservers = new Set();
+      }
+      this.willChangeObservers.add(observer as Required<Pick<ViewObserver, "viewWillChange">>);
     }
     if (observer.viewDidChange !== void 0) {
-      this.observerCache.viewDidChangeObservers = Arrays.inserted(observer as ViewDidChange, this.observerCache.viewDidChangeObservers);
+      if (this.didChangeObservers === null) {
+        this.didChangeObservers = new Set();
+      }
+      this.didChangeObservers.add(observer as Required<Pick<ViewObserver, "viewDidChange">>);
     }
     if (observer.viewWillAnimate !== void 0) {
-      this.observerCache.viewWillAnimateObservers = Arrays.inserted(observer as ViewWillAnimate, this.observerCache.viewWillAnimateObservers);
+      if (this.willAnimateObservers === null) {
+        this.willAnimateObservers = new Set();
+      }
+      this.willAnimateObservers.add(observer as Required<Pick<ViewObserver, "viewWillAnimate">>);
     }
     if (observer.viewDidAnimate !== void 0) {
-      this.observerCache.viewDidAnimateObservers = Arrays.inserted(observer as ViewDidAnimate, this.observerCache.viewDidAnimateObservers);
+      if (this.didAnimateObservers === null) {
+        this.didAnimateObservers = new Set();
+      }
+      this.didAnimateObservers.add(observer as Required<Pick<ViewObserver, "viewDidAnimate">>);
     }
     if (observer.viewWillProject !== void 0) {
-      this.observerCache.viewWillProjectObservers = Arrays.inserted(observer as ViewWillProject, this.observerCache.viewWillProjectObservers);
+      if (this.willProjectObservers === null) {
+        this.willProjectObservers = new Set();
+      }
+      this.willProjectObservers.add(observer as Required<Pick<ViewObserver, "viewWillProject">>);
     }
     if (observer.viewDidProject !== void 0) {
-      this.observerCache.viewDidProjectObservers = Arrays.inserted(observer as ViewDidProject, this.observerCache.viewDidProjectObservers);
+      if (this.didProjectObservers === null) {
+        this.didProjectObservers = new Set();
+      }
+      this.didProjectObservers.add(observer as Required<Pick<ViewObserver, "viewDidProject">>);
     }
     if (observer.viewWillLayout !== void 0) {
-      this.observerCache.viewWillLayoutObservers = Arrays.inserted(observer as ViewWillLayout, this.observerCache.viewWillLayoutObservers);
+      if (this.willLayoutObservers === null) {
+        this.willLayoutObservers = new Set();
+      }
+      this.willLayoutObservers.add(observer as Required<Pick<ViewObserver, "viewWillLayout">>);
     }
     if (observer.viewDidLayout !== void 0) {
-      this.observerCache.viewDidLayoutObservers = Arrays.inserted(observer as ViewDidLayout, this.observerCache.viewDidLayoutObservers);
+      if (this.didLayoutObservers === null) {
+        this.didLayoutObservers = new Set();
+      }
+      this.didLayoutObservers.add(observer as Required<Pick<ViewObserver, "viewDidLayout">>);
     }
     if (observer.viewWillRender !== void 0) {
-      this.observerCache.viewWillRenderObservers = Arrays.inserted(observer as ViewWillRender, this.observerCache.viewWillRenderObservers);
+      if (this.willRenderObservers === null) {
+        this.willRenderObservers = new Set();
+      }
+      this.willRenderObservers.add(observer as Required<Pick<ViewObserver, "viewWillRender">>);
     }
     if (observer.viewDidRender !== void 0) {
-      this.observerCache.viewDidRenderObservers = Arrays.inserted(observer as ViewDidRender, this.observerCache.viewDidRenderObservers);
+      if (this.didRenderObservers === null) {
+        this.didRenderObservers = new Set();
+      }
+      this.didRenderObservers.add(observer as Required<Pick<ViewObserver, "viewDidRender">>);
     }
     if (observer.viewWillRasterize !== void 0) {
-      this.observerCache.viewWillRasterizeObservers = Arrays.inserted(observer as ViewWillRasterize, this.observerCache.viewWillRasterizeObservers);
+      if (this.willRasterizeObservers === null) {
+        this.willRasterizeObservers = new Set();
+      }
+      this.willRasterizeObservers.add(observer as Required<Pick<ViewObserver, "viewWillRasterize">>);
     }
     if (observer.viewDidRasterize !== void 0) {
-      this.observerCache.viewDidRasterizeObservers = Arrays.inserted(observer as ViewDidRasterize, this.observerCache.viewDidRasterizeObservers);
+      if (this.didRasterizeObservers === null) {
+        this.didRasterizeObservers = new Set();
+      }
+      this.didRasterizeObservers.add(observer as Required<Pick<ViewObserver, "viewDidRasterize">>);
     }
     if (observer.viewWillComposite !== void 0) {
-      this.observerCache.viewWillCompositeObservers = Arrays.inserted(observer as ViewWillComposite, this.observerCache.viewWillCompositeObservers);
+      if (this.willCompositeObservers === null) {
+        this.willCompositeObservers = new Set();
+      }
+      this.willCompositeObservers.add(observer as Required<Pick<ViewObserver, "viewWillComposite">>);
     }
     if (observer.viewDidComposite !== void 0) {
-      this.observerCache.viewDidCompositeObservers = Arrays.inserted(observer as ViewDidComposite, this.observerCache.viewDidCompositeObservers);
+      if (this.didCompositeObservers === null) {
+        this.didCompositeObservers = new Set();
+      }
+      this.didCompositeObservers.add(observer as Required<Pick<ViewObserver, "viewDidComposite">>);
     }
   }
 
   protected override onUnobserve(observer: Observes<this>): void {
     super.onUnobserve(observer);
-    if (observer.viewWillInsertChild !== void 0) {
-      this.observerCache.viewWillInsertChildObservers = Arrays.removed(observer as ViewWillInsertChild, this.observerCache.viewWillInsertChildObservers);
+    if (observer.viewWillInsertChild !== void 0 && this.willInsertChildObservers !== null) {
+      this.willInsertChildObservers.delete(observer as Required<Pick<ViewObserver, "viewWillInsertChild">>);
     }
-    if (observer.viewDidInsertChild !== void 0) {
-      this.observerCache.viewDidInsertChildObservers = Arrays.removed(observer as ViewDidInsertChild, this.observerCache.viewDidInsertChildObservers);
+    if (observer.viewDidInsertChild !== void 0 && this.didInsertChildObservers !== null) {
+      this.didInsertChildObservers.delete(observer as Required<Pick<ViewObserver, "viewDidInsertChild">>);
     }
-    if (observer.viewWillRemoveChild !== void 0) {
-      this.observerCache.viewWillRemoveChildObservers = Arrays.removed(observer as ViewWillRemoveChild, this.observerCache.viewWillRemoveChildObservers);
+    if (observer.viewWillRemoveChild !== void 0 && this.willRemoveChildObservers !== null) {
+      this.willRemoveChildObservers.delete(observer as Required<Pick<ViewObserver, "viewWillRemoveChild">>);
     }
-    if (observer.viewDidRemoveChild !== void 0) {
-      this.observerCache.viewDidRemoveChildObservers = Arrays.removed(observer as ViewDidRemoveChild, this.observerCache.viewDidRemoveChildObservers);
+    if (observer.viewDidRemoveChild !== void 0 && this.didRemoveChildObservers !== null) {
+      this.didRemoveChildObservers.delete(observer as Required<Pick<ViewObserver, "viewDidRemoveChild">>);
     }
-    if (observer.viewWillResize !== void 0) {
-      this.observerCache.viewWillResizeObservers = Arrays.removed(observer as ViewWillResize, this.observerCache.viewWillResizeObservers);
+    if (observer.viewWillResize !== void 0 && this.willResizeObservers !== null) {
+      this.willResizeObservers.delete(observer as Required<Pick<ViewObserver, "viewWillResize">>);
     }
-    if (observer.viewDidResize !== void 0) {
-      this.observerCache.viewDidResizeObservers = Arrays.removed(observer as ViewDidResize, this.observerCache.viewDidResizeObservers);
+    if (observer.viewDidResize !== void 0 && this.didResizeObservers !== null) {
+      this.didResizeObservers.delete(observer as Required<Pick<ViewObserver, "viewDidResize">>);
     }
-    if (observer.viewWillScroll !== void 0) {
-      this.observerCache.viewWillScrollObservers = Arrays.removed(observer as ViewWillScroll, this.observerCache.viewWillScrollObservers);
+    if (observer.viewWillScroll !== void 0 && this.willScrollObservers !== null) {
+      this.willScrollObservers.delete(observer as Required<Pick<ViewObserver, "viewWillScroll">>);
     }
-    if (observer.viewDidScroll !== void 0) {
-      this.observerCache.viewDidScrollObservers = Arrays.removed(observer as ViewDidScroll, this.observerCache.viewDidScrollObservers);
+    if (observer.viewDidScroll !== void 0 && this.didScrollObservers !== null) {
+      this.didScrollObservers.delete(observer as Required<Pick<ViewObserver, "viewDidScroll">>);
     }
-    if (observer.viewWillChange !== void 0) {
-      this.observerCache.viewWillChangeObservers = Arrays.removed(observer as ViewWillChange, this.observerCache.viewWillChangeObservers);
+    if (observer.viewWillChange !== void 0 && this.willChangeObservers !== null) {
+      this.willChangeObservers.delete(observer as Required<Pick<ViewObserver, "viewWillChange">>);
     }
-    if (observer.viewDidChange !== void 0) {
-      this.observerCache.viewDidChangeObservers = Arrays.removed(observer as ViewDidChange, this.observerCache.viewDidChangeObservers);
+    if (observer.viewDidChange !== void 0 && this.didChangeObservers !== null) {
+      this.didChangeObservers.delete(observer as Required<Pick<ViewObserver, "viewDidChange">>);
     }
-    if (observer.viewWillAnimate !== void 0) {
-      this.observerCache.viewWillAnimateObservers = Arrays.removed(observer as ViewWillAnimate, this.observerCache.viewWillAnimateObservers);
+    if (observer.viewWillAnimate !== void 0 && this.willAnimateObservers !== null) {
+      this.willAnimateObservers.delete(observer as Required<Pick<ViewObserver, "viewWillAnimate">>);
     }
-    if (observer.viewDidAnimate !== void 0) {
-      this.observerCache.viewDidAnimateObservers = Arrays.removed(observer as ViewDidAnimate, this.observerCache.viewDidAnimateObservers);
+    if (observer.viewDidAnimate !== void 0 && this.didAnimateObservers !== null) {
+      this.didAnimateObservers.delete(observer as Required<Pick<ViewObserver, "viewDidAnimate">>);
     }
-    if (observer.viewWillProject !== void 0) {
-      this.observerCache.viewWillProjectObservers = Arrays.removed(observer as ViewWillProject, this.observerCache.viewWillProjectObservers);
+    if (observer.viewWillProject !== void 0 && this.willProjectObservers !== null) {
+      this.willProjectObservers.delete(observer as Required<Pick<ViewObserver, "viewWillProject">>);
     }
-    if (observer.viewDidProject !== void 0) {
-      this.observerCache.viewDidProjectObservers = Arrays.removed(observer as ViewDidProject, this.observerCache.viewDidProjectObservers);
+    if (observer.viewDidProject !== void 0 && this.didProjectObservers !== null) {
+      this.didProjectObservers.delete(observer as Required<Pick<ViewObserver, "viewDidProject">>);
     }
-    if (observer.viewWillLayout !== void 0) {
-      this.observerCache.viewWillLayoutObservers = Arrays.removed(observer as ViewWillLayout, this.observerCache.viewWillLayoutObservers);
+    if (observer.viewWillLayout !== void 0 && this.willLayoutObservers !== null) {
+      this.willLayoutObservers.delete(observer as Required<Pick<ViewObserver, "viewWillLayout">>);
     }
-    if (observer.viewDidLayout !== void 0) {
-      this.observerCache.viewDidLayoutObservers = Arrays.removed(observer as ViewDidLayout, this.observerCache.viewDidLayoutObservers);
+    if (observer.viewDidLayout !== void 0 && this.didLayoutObservers !== null) {
+      this.didLayoutObservers.delete(observer as Required<Pick<ViewObserver, "viewDidLayout">>);
     }
-    if (observer.viewWillRender !== void 0) {
-      this.observerCache.viewWillRenderObservers = Arrays.removed(observer as ViewWillRender, this.observerCache.viewWillRenderObservers);
+    if (observer.viewWillRender !== void 0 && this.willRenderObservers !== null) {
+      this.willRenderObservers.delete(observer as Required<Pick<ViewObserver, "viewWillRender">>);
     }
-    if (observer.viewDidRender !== void 0) {
-      this.observerCache.viewDidRenderObservers = Arrays.removed(observer as ViewDidRender, this.observerCache.viewDidRenderObservers);
+    if (observer.viewDidRender !== void 0 && this.didRenderObservers !== null) {
+      this.didRenderObservers.delete(observer as Required<Pick<ViewObserver, "viewDidRender">>);
     }
-    if (observer.viewWillRasterize !== void 0) {
-      this.observerCache.viewWillRasterizeObservers = Arrays.removed(observer as ViewWillRasterize, this.observerCache.viewWillRasterizeObservers);
+    if (observer.viewWillRasterize !== void 0 && this.willRasterizeObservers !== null) {
+      this.willRasterizeObservers.delete(observer as Required<Pick<ViewObserver, "viewWillRasterize">>);
     }
-    if (observer.viewDidRasterize !== void 0) {
-      this.observerCache.viewDidRasterizeObservers = Arrays.removed(observer as ViewDidRasterize, this.observerCache.viewDidRasterizeObservers);
+    if (observer.viewDidRasterize !== void 0 && this.didRasterizeObservers !== null) {
+      this.didRasterizeObservers.delete(observer as Required<Pick<ViewObserver, "viewDidRasterize">>);
     }
-    if (observer.viewWillComposite !== void 0) {
-      this.observerCache.viewWillCompositeObservers = Arrays.removed(observer as ViewWillComposite, this.observerCache.viewWillCompositeObservers);
+    if (observer.viewWillComposite !== void 0 && this.willCompositeObservers !== null) {
+      this.willCompositeObservers.delete(observer as Required<Pick<ViewObserver, "viewWillComposite">>);
     }
-    if (observer.viewDidComposite !== void 0) {
-      this.observerCache.viewDidCompositeObservers = Arrays.removed(observer as ViewDidComposite, this.observerCache.viewDidCompositeObservers);
+    if (observer.viewDidComposite !== void 0 && this.didCompositeObservers !== null) {
+      this.didCompositeObservers.delete(observer as Required<Pick<ViewObserver, "viewDidComposite">>);
     }
   }
 

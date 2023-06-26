@@ -266,37 +266,59 @@ export class HtmlView extends ElementView {
   }
 
   @AttributeAnimator({attributeName: "autocomplete", valueType: String})
-  readonly autocomplete!: AttributeAnimator<this, string | undefined>;
+  get autocomplete(): AttributeAnimator<this, string | undefined> {
+    return AttributeAnimator.dummy();
+  }
 
   @AttributeAnimator({attributeName: "checked", valueType: Boolean})
-  readonly checked!: AttributeAnimator<this, boolean | undefined, boolean | string | undefined>;
+  get checked(): AttributeAnimator<this, boolean | undefined, boolean | string | undefined> {
+    return AttributeAnimator.dummy();
+  }
 
   @AttributeAnimator({attributeName: "colspan", valueType: Number})
-  readonly colspan!: AttributeAnimator<this, number | undefined, number | string | undefined>;
+  get colspan(): AttributeAnimator<this, number | undefined, number | string | undefined> {
+    return AttributeAnimator.dummy();
+  }
 
   @AttributeAnimator({attributeName: "disabled", valueType: Boolean})
-  readonly disabled!: AttributeAnimator<this, boolean | undefined, boolean | string | undefined>;
+  get disabled(): AttributeAnimator<this, boolean | undefined, boolean | string | undefined> {
+    return AttributeAnimator.dummy();
+  }
 
   @AttributeAnimator({attributeName: "href", valueType: String})
-  readonly href!: AttributeAnimator<this, string | undefined>;
+  get href(): AttributeAnimator<this, string | undefined> {
+    return AttributeAnimator.dummy();
+  }
 
   @AttributeAnimator({attributeName: "placeholder", valueType: String})
-  readonly placeholder!: AttributeAnimator<this, string | undefined>;
+  get placeholder(): AttributeAnimator<this, string | undefined> {
+    return AttributeAnimator.dummy();
+  }
 
   @AttributeAnimator({attributeName: "rowspan", valueType: Number})
-  readonly rowspan!: AttributeAnimator<this, number | undefined, number | string | undefined>;
+  get rowspan(): AttributeAnimator<this, number | undefined, number | string | undefined> {
+    return AttributeAnimator.dummy();
+  }
 
   @AttributeAnimator({attributeName: "selected", valueType: Boolean})
-  readonly selected!: AttributeAnimator<this, boolean | undefined, boolean | string | undefined>;
+  get selected(): AttributeAnimator<this, boolean | undefined, boolean | string | undefined> {
+    return AttributeAnimator.dummy();
+  }
 
   @AttributeAnimator({attributeName: "title", valueType: String})
-  readonly title!: AttributeAnimator<this, string | undefined>;
+  get title(): AttributeAnimator<this, string | undefined> {
+    return AttributeAnimator.dummy();
+  }
 
   @AttributeAnimator({attributeName: "type", valueType: String})
-  readonly type!: AttributeAnimator<this, string | undefined>;
+  get type(): AttributeAnimator<this, string | undefined> {
+    return AttributeAnimator.dummy();
+  }
 
   @AttributeAnimator({attributeName: "value", valueType: String})
-  readonly value!: AttributeAnimator<this, string | undefined>;
+  get value(): AttributeAnimator<this, string | undefined> {
+    return AttributeAnimator.dummy();
+  }
 
   protected override onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
@@ -360,9 +382,8 @@ export class HtmlView extends ElementView {
     const parentNode = element.parentNode;
     if (parentNode instanceof HTMLElement) {
       return HtmlView.pageTransform(parentNode).transform(HtmlView.parentTransform(element));
-    } else {
-      return Transform.identity();
     }
+    return Transform.identity();
   }
 
   override get parentTransform(): Transform {
@@ -383,14 +404,12 @@ export class HtmlView extends ElementView {
     const parentView = this.parent;
     if (parentView !== null) {
       return parentView.pageTransform.transform(this.parentTransform);
-    } else {
-      const parentNode = this.node.parentNode;
-      if (parentNode instanceof HTMLElement) {
-        return HtmlView.pageTransform(parentNode).transform(this.parentTransform);
-      } else {
-        return Transform.identity();
-      }
     }
+    const parentNode = this.node.parentNode;
+    if (parentNode instanceof HTMLElement) {
+      return HtmlView.pageTransform(parentNode).transform(this.parentTransform);
+    }
+    return Transform.identity();
   }
 
   override addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, event: HTMLElementEventMap[K]) => unknown, options?: AddEventListenerOptions | boolean): void;
@@ -407,38 +426,11 @@ export class HtmlView extends ElementView {
 
   /** @internal */
   protected initAttributes(init: HtmlViewAttributesInit): void {
-    if (init.autocomplete !== void 0) {
-      this.autocomplete(init.autocomplete);
-    }
-    if (init.checked !== void 0) {
-      this.checked(init.checked);
-    }
-    if (init.colspan !== void 0) {
-      this.colspan(init.colspan);
-    }
-    if (init.disabled !== void 0) {
-      this.disabled(init.disabled);
-    }
-    if (init.href !== void 0) {
-      this.href(init.href);
-    }
-    if (init.placeholder !== void 0) {
-      this.placeholder(init.placeholder);
-    }
-    if (init.rowspan !== void 0) {
-      this.rowspan(init.rowspan);
-    }
-    if (init.selected !== void 0) {
-      this.selected(init.selected);
-    }
-    if (init.title !== void 0) {
-      this.title(init.title);
-    }
-    if (init.type !== void 0) {
-      this.type(init.type);
-    }
-    if (init.value !== void 0) {
-      this.value(init.value);
+    for (const key in init) {
+      const property = this[key as keyof this];
+      if (property instanceof AttributeAnimator) {
+        property(init[key as keyof HtmlViewAttributesInit] as any);
+      }
     }
   }
 

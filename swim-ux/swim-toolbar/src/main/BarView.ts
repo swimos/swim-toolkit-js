@@ -164,7 +164,9 @@ export class BarView extends HtmlView {
       return edgeInsets;
     },
   })
-  override readonly edgeInsets!: Property<this, ViewInsets> & HtmlView["edgeInsets"];
+  override get edgeInsets(): Property<this, ViewInsets> & HtmlView["edgeInsets"] {
+    return Property.dummy();
+  }
 
   getTool<F extends Class<ToolView>>(key: string, toolViewClass: F): InstanceType<F> | null;
   getTool(key: string): ToolView | null;

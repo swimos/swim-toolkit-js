@@ -51,7 +51,9 @@ export class GeoTileTrait extends GeoLayerTrait {
   }
 
   @Property({extends: true, inherits: false})
-  override readonly nodeUri!: Property<this, Uri | null, AnyUri | null>;
+  override get nodeUri(): Property<this, Uri | null, AnyUri | null> {
+    return Property.dummy();
+  }
 
   @TraitModelSet({
     extends: true,

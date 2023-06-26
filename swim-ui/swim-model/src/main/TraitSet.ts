@@ -308,10 +308,15 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
   };
 
   TraitSet.prototype.setTraits = function <T extends Trait>(this: TraitSet, newTraits: {readonly [traitId: string]: T | undefined}, target?: Trait | null): void {
+    const binds = this.binds;
+    const model = binds ? this.parentModel : null;
     const traits = this.traits;
     for (const traitId in traits) {
       if (newTraits[traitId] === void 0) {
-        this.detachTrait(traits[traitId]!);
+        const oldTrait = this.detachTrait(traits[traitId]!);
+        if (oldTrait !== null && binds && model !== null && oldTrait.model === model) {
+          oldTrait.remove();
+        }
       }
     }
     if ((this.flags & TraitSet.OrderedFlag) !== 0) {
@@ -323,13 +328,13 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
         const newTrait = orderedTraits[i]!;
         if (traits[newTrait.uid] === void 0) {
           const targetTrait = i < n + 1 ? orderedTraits[i + 1] : target;
-          this.attachTrait(newTrait, targetTrait);
+          this.addTrait(newTrait, targetTrait);
         }
       }
     } else {
       for (const traitId in newTraits) {
         if (traits[traitId] === void 0) {
-          this.attachTrait(newTraits[traitId]!, target);
+          this.addTrait(newTraits[traitId]!, target);
         }
       }
     }
@@ -605,11 +610,8 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
   };
 
   TraitSet.prototype.recohere = function (this: TraitSet, t: number): void {
-    if ((this.flags & Fastener.DerivedFlag) === 0) {
-      return;
-    }
-    const inlet = this.inlet;
-    if (inlet === null) {
+    let inlet: TraitSet | null;
+    if ((this.flags & Fastener.DerivedFlag) === 0 || (inlet = this.inlet) === null) {
       return;
     }
     this.setTraits(inlet.traits);

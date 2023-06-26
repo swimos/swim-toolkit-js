@@ -14,7 +14,6 @@
 
 import type {Class} from "@swim/util";
 import type {Instance} from "@swim/util";
-import {Arrays} from "@swim/util";
 import {Creatable} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Affinity} from "@swim/component";
@@ -25,11 +24,9 @@ import {Theme} from "@swim/theme";
 import {ToAttributeString} from "@swim/style";
 import {ToStyleString} from "@swim/style";
 import {ToCssValue} from "@swim/style";
-import type {ViewObserverCache} from "@swim/view";
 import {View} from "@swim/view";
 import type {ViewportColorScheme} from "@swim/view";
 import type {ViewportService} from "@swim/view";
-import type {StylerService} from "@swim/view";
 import type {StyleContext} from "./StyleContext";
 import type {ViewNodeType} from "./NodeView";
 import type {AnyNodeView} from "./NodeView";
@@ -86,38 +83,14 @@ export interface ElementViewObserver<V extends ElementView = ElementView> extend
   viewDidSetStyle?(name: string, value: unknown, priority: string | undefined, view: V): void;
 }
 
-/** @internal */
-export interface ElementViewObserverCache<V extends ElementView> extends ViewObserverCache<V> {
-  viewWillSetAttributeObservers?: ReadonlyArray<ViewWillSetAttribute<V>>;
-  viewDidSetAttributeObservers?: ReadonlyArray<ViewDidSetAttribute<V>>;
-  viewWillSetStyleObservers?: ReadonlyArray<ViewWillSetStyle<V>>;
-  viewDidSetStyleObservers?: ReadonlyArray<ViewDidSetStyle<V>>;
-}
-
-/** @internal */
-export interface ViewWillSetAttribute<V extends ElementView = ElementView> {
-  viewWillSetAttribute(name: string, value: unknown, view: V): void;
-}
-
-/** @internal */
-export interface ViewDidSetAttribute<V extends ElementView = ElementView> {
-  viewDidSetAttribute(name: string, value: unknown, view: V): void;
-}
-
-/** @internal */
-export interface ViewWillSetStyle<V extends ElementView = ElementView> {
-  viewWillSetStyle(name: string, value: unknown, priority: string | undefined, view: V): void;
-}
-
-/** @internal */
-export interface ViewDidSetStyle<V extends ElementView = ElementView> {
-  viewDidSetStyle(name: string, value: unknown, priority: string | undefined, view: V): void;
-}
-
 /** @public */
 export class ElementView extends NodeView implements StyleContext {
   constructor(node: Element) {
     super(node);
+    this.willSetAttributeObservers = null;
+    this.didSetAttributeObservers = null;
+    this.willSetStyleObservers = null;
+    this.didSetStyleObservers = null;
   }
 
   declare readonly observerType?: Class<ElementViewObserver>;
@@ -131,12 +104,9 @@ export class ElementView extends NodeView implements StyleContext {
       this.owner.detectTheme();
     },
   })
-  override readonly viewport!: Provider<this, ViewportService> & NodeView["viewport"] & Observes<ViewportService>;
-
-  @Provider({
-    extends: true,
-  })
-  override readonly styler!: Provider<this, StylerService> & NodeView["styler"];
+  override get viewport(): Provider<this, ViewportService> & NodeView["viewport"] & Observes<ViewportService> {
+    return Provider.dummy();
+  }
 
   @Provider({
     get serviceType(): typeof DomService { // avoid static forward reference
@@ -151,7 +121,9 @@ export class ElementView extends NodeView implements StyleContext {
       service.roots.removeView(this.owner);
     },
   })
-  readonly dom!: Provider<this, DomService>;
+  get dom(): Provider<this, DomService> {
+    return Provider.dummy();
+  }
 
   @Provider({
     get serviceType(): typeof ModalService { // avoid static forward reference
@@ -182,38 +154,40 @@ export class ElementView extends NodeView implements StyleContext {
       }
     },
   })
-  readonly modal!: Provider<this, ModalService> & {
+  get modal(): Provider<this, ModalService> & {
     present(modalView?: ModalView, options?: ModalOptions): void,
     dismiss(modalView?: ModalView): void,
     toggle(modalView?: ModalView): void,
-  };
+  } {
+    return Provider.dummy();
+  }
 
   protected detectTheme(): void {
     let themeName = this.node.getAttribute("swim-theme");
     if (themeName === "") {
       themeName = "auto";
     }
-    if (themeName !== null) {
-      let theme: ThemeMatrix | undefined;
-      if (themeName === "auto") {
-        const viewportService = this.viewport.getService();
-        const colorScheme = viewportService.colorScheme.value;
-        if (colorScheme === "dark") {
-          theme = Theme.dark;
-        } else {
-          theme = Theme.light;
-        }
-      } else if (themeName.indexOf('.') < 0) {
-        theme = (Theme as any)[themeName];
-      } else {
-        theme = DomService.eval(themeName) as ThemeMatrix | undefined;
-      }
-      if (theme instanceof ThemeMatrix) {
-        this.theme.setValue(theme, Affinity.Extrinsic);
-      } else {
-        throw new TypeError("unknown swim-theme: " + themeName);
-      }
+    if (themeName === null) {
+      return;
     }
+    let theme: ThemeMatrix | undefined;
+    if (themeName === "auto") {
+      const viewportService = this.viewport.getService();
+      const colorScheme = viewportService.colorScheme.value;
+      if (colorScheme === "dark") {
+        theme = Theme.dark;
+      } else {
+        theme = Theme.light;
+      }
+    } else if (themeName.indexOf('.') < 0) {
+      theme = (Theme as any)[themeName];
+    } else {
+      theme = DomService.eval(themeName) as ThemeMatrix | undefined;
+    }
+    if (!(theme instanceof ThemeMatrix)) {
+      throw new TypeError("unknown swim-theme: " + themeName);
+    }
+    this.theme.setValue(theme, Affinity.Extrinsic);
   }
 
   getAttribute(attributeName: string): string | null {
@@ -232,11 +206,12 @@ export class ElementView extends NodeView implements StyleContext {
     return this;
   }
 
+  /** @internal */
+  protected willSetAttributeObservers: Set<Required<Pick<ElementViewObserver, "viewWillSetAttribute">>> | null;
   protected willSetAttribute(attributeName: string, value: unknown): void {
-    const observers = this.observerCache.viewWillSetAttributeObservers;
-    if (observers !== void 0) {
-      for (let i = 0, n = observers.length; i < n; i += 1) {
-        const observer = observers[i]!;
+    const observers = this.willSetAttributeObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
         observer.viewWillSetAttribute(attributeName, value, this);
       }
     }
@@ -246,11 +221,12 @@ export class ElementView extends NodeView implements StyleContext {
     // hook
   }
 
+  /** @internal */
+  protected didSetAttributeObservers: Set<Required<Pick<ElementViewObserver, "viewDidSetAttribute">>> | null;
   protected didSetAttribute(attributeName: string, value: unknown): void {
-    const observers = this.observerCache.viewDidSetAttributeObservers;
-    if (observers !== void 0) {
-      for (let i = 0, n = observers.length; i < n; i += 1) {
-        const observer = observers[i]!;
+    const observers = this.didSetAttributeObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
         observer.viewDidSetAttribute(attributeName, value, this);
       }
     }
@@ -323,11 +299,12 @@ export class ElementView extends NodeView implements StyleContext {
     return this;
   }
 
+  /** @internal */
+  protected willSetStyleObservers: Set<Required<Pick<ElementViewObserver, "viewWillSetStyle">>> | null;
   protected willSetStyle(propertyName: string, value: unknown, priority: string | undefined): void {
-    const observers = this.observerCache.viewWillSetStyleObservers;
-    if (observers !== void 0) {
-      for (let i = 0, n = observers.length; i < n; i += 1) {
-        const observer = observers[i]!;
+    const observers = this.willSetStyleObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
         observer.viewWillSetStyle(propertyName, value, priority, this);
       }
     }
@@ -337,11 +314,12 @@ export class ElementView extends NodeView implements StyleContext {
     // hook
   }
 
+  /** @internal */
+  protected didSetStyleObservers: Set<Required<Pick<ElementViewObserver, "viewDidSetStyle">>> | null;
   protected didSetStyle(propertyName: string, value: unknown, priority: string | undefined): void {
-    const observers = this.observerCache.viewDidSetStyleObservers;
-    if (observers !== void 0) {
-      for (let i = 0, n = observers.length; i < n; i += 1) {
-        const observer = observers[i]!;
+    const observers = this.didSetStyleObservers;
+    if (observers !== null) {
+      for (const observer of observers) {
         observer.viewDidSetStyle(propertyName, value, priority, this);
       }
     }
@@ -432,38 +410,47 @@ export class ElementView extends NodeView implements StyleContext {
     this.node.removeEventListener(type, listener, options);
   }
 
-  /** @internal */
-  override readonly observerCache!: ElementViewObserverCache<this>;
-
   protected override onObserve(observer: Observes<this>): void {
     super.onObserve(observer);
     if (observer.viewWillSetAttribute !== void 0) {
-      this.observerCache.viewWillSetAttributeObservers = Arrays.inserted(observer as ViewWillSetAttribute, this.observerCache.viewWillSetAttributeObservers);
+      if (this.willSetAttributeObservers === null) {
+        this.willSetAttributeObservers = new Set();
+      }
+      this.willSetAttributeObservers.add(observer as Required<Pick<ElementViewObserver, "viewWillSetAttribute">>);
     }
     if (observer.viewDidSetAttribute !== void 0) {
-      this.observerCache.viewDidSetAttributeObservers = Arrays.inserted(observer as ViewDidSetAttribute, this.observerCache.viewDidSetAttributeObservers);
+      if (this.didSetAttributeObservers === null) {
+        this.didSetAttributeObservers = new Set();
+      }
+      this.didSetAttributeObservers.add(observer as Required<Pick<ElementViewObserver, "viewDidSetAttribute">>);
     }
     if (observer.viewWillSetStyle !== void 0) {
-      this.observerCache.viewWillSetStyleObservers = Arrays.inserted(observer as ViewWillSetStyle, this.observerCache.viewWillSetStyleObservers);
+      if (this.willSetStyleObservers === null) {
+        this.willSetStyleObservers = new Set();
+      }
+      this.willSetStyleObservers.add(observer as Required<Pick<ElementViewObserver, "viewWillSetStyle">>);
     }
     if (observer.viewDidSetStyle !== void 0) {
-      this.observerCache.viewDidSetStyleObservers = Arrays.inserted(observer as ViewDidSetStyle, this.observerCache.viewDidSetStyleObservers);
+      if (this.didSetStyleObservers === null) {
+        this.didSetStyleObservers = new Set();
+      }
+      this.didSetStyleObservers.add(observer as Required<Pick<ElementViewObserver, "viewDidSetStyle">>);
     }
   }
 
   protected override onUnobserve(observer: Observes<this>): void {
     super.onUnobserve(observer);
-    if (observer.viewWillSetAttribute !== void 0) {
-      this.observerCache.viewWillSetAttributeObservers = Arrays.removed(observer as ViewWillSetAttribute, this.observerCache.viewWillSetAttributeObservers);
+    if (observer.viewWillSetAttribute !== void 0 && this.willSetAttributeObservers !== null) {
+      this.willSetAttributeObservers.delete(observer as Required<Pick<ElementViewObserver, "viewWillSetAttribute">>);
     }
-    if (observer.viewDidSetAttribute !== void 0) {
-      this.observerCache.viewDidSetAttributeObservers = Arrays.removed(observer as ViewDidSetAttribute, this.observerCache.viewDidSetAttributeObservers);
+    if (observer.viewDidSetAttribute !== void 0 && this.didSetAttributeObservers !== null) {
+      this.didSetAttributeObservers.delete(observer as Required<Pick<ElementViewObserver, "viewDidSetAttribute">>);
     }
-    if (observer.viewWillSetStyle !== void 0) {
-      this.observerCache.viewWillSetStyleObservers = Arrays.removed(observer as ViewWillSetStyle, this.observerCache.viewWillSetStyleObservers);
+    if (observer.viewWillSetStyle !== void 0 && this.willSetStyleObservers !== null) {
+      this.willSetStyleObservers.delete(observer as Required<Pick<ElementViewObserver, "viewWillSetStyle">>);
     }
-    if (observer.viewDidSetStyle !== void 0) {
-      this.observerCache.viewDidSetStyleObservers = Arrays.removed(observer as ViewDidSetStyle, this.observerCache.viewDidSetStyleObservers);
+    if (observer.viewDidSetStyle !== void 0 && this.didSetStyleObservers !== null) {
+      this.didSetStyleObservers.delete(observer as Required<Pick<ElementViewObserver, "viewDidSetStyle">>);
     }
   }
 

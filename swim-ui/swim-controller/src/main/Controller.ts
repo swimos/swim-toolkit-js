@@ -15,7 +15,6 @@
 import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
 import type {Instance} from "@swim/util";
-import {Arrays} from "@swim/util";
 import type {FromAny} from "@swim/util";
 import {Creatable} from "@swim/util";
 import type {Inits} from "@swim/util";
@@ -145,7 +144,7 @@ export interface ControllerObserver<C extends Controller = Controller> extends C
 export class Controller extends Component<Controller> implements Initable<ControllerInit>, Consumable, WarpRef {
   constructor() {
     super();
-    this.consumers = Arrays.empty;
+    this.consumers = null;
   }
 
   override get componentType(): Class<Controller> {
@@ -155,13 +154,7 @@ export class Controller extends Component<Controller> implements Initable<Contro
   declare readonly observerType?: Class<ControllerObserver>;
 
   protected override willAttachParent(parent: Controller): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.controllerWillAttachParent !== void 0) {
-        observer.controllerWillAttachParent(parent, this);
-      }
-    }
+    this.callObservers("controllerWillAttachParent", parent, this);
   }
 
   protected override onAttachParent(parent: Controller): void {
@@ -169,23 +162,11 @@ export class Controller extends Component<Controller> implements Initable<Contro
   }
 
   protected override didAttachParent(parent: Controller): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.controllerDidAttachParent !== void 0) {
-        observer.controllerDidAttachParent(parent, this);
-      }
-    }
+    this.callObservers("controllerDidAttachParent", parent, this);
   }
 
   protected override willDetachParent(parent: Controller): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.controllerWillDetachParent !== void 0) {
-        observer.controllerWillDetachParent(parent, this);
-      }
-    }
+    this.callObservers("controllerWillDetachParent", parent, this);
   }
 
   protected override onDetachParent(parent: Controller): void {
@@ -193,13 +174,7 @@ export class Controller extends Component<Controller> implements Initable<Contro
   }
 
   protected override didDetachParent(parent: Controller): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.controllerDidDetachParent !== void 0) {
-        observer.controllerDidDetachParent(parent, this);
-      }
-    }
+    this.callObservers("controllerDidDetachParent", parent, this);
   }
 
   override setChild<C extends Controller>(key: string, newChild: C): Controller | null;
@@ -249,13 +224,7 @@ export class Controller extends Component<Controller> implements Initable<Contro
 
   protected override willInsertChild(child: Controller, target: Controller | null): void {
     super.willInsertChild(child, target);
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.controllerWillInsertChild !== void 0) {
-        observer.controllerWillInsertChild(child, target, this);
-      }
-    }
+    this.callObservers("controllerWillInsertChild", child, target, this);
   }
 
   protected override onInsertChild(child: Controller, target: Controller | null): void {
@@ -263,38 +232,26 @@ export class Controller extends Component<Controller> implements Initable<Contro
   }
 
   protected override didInsertChild(child: Controller, target: Controller | null): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.controllerDidInsertChild !== void 0) {
-        observer.controllerDidInsertChild(child, target, this);
-      }
-    }
+    this.callObservers("controllerDidInsertChild", child, target, this);
     super.didInsertChild(child, target);
   }
 
   /** @internal */
   override cascadeInsert(updateFlags?: ControllerFlags): void {
-    if ((this.flags & Controller.MountedFlag) !== 0) {
-      if (updateFlags === void 0) {
-        updateFlags = 0;
-      }
-      updateFlags |= this.flags & Controller.UpdateMask;
-      if ((updateFlags & Controller.CompileMask) !== 0) {
-        this.cascadeCompile(updateFlags);
-      }
+    if ((this.flags & Controller.MountedFlag) === 0) {
+      return;
+    } else if (updateFlags === void 0) {
+      updateFlags = 0;
+    }
+    updateFlags |= this.flags & Controller.UpdateMask;
+    if ((updateFlags & Controller.CompileMask) !== 0) {
+      this.cascadeCompile(updateFlags);
     }
   }
 
   protected override willRemoveChild(child: Controller): void {
     super.willRemoveChild(child);
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.controllerWillRemoveChild !== void 0) {
-        observer.controllerWillRemoveChild(child, this);
-      }
-    }
+    this.callObservers("controllerWillRemoveChild", child, this);
   }
 
   protected override onRemoveChild(child: Controller): void {
@@ -302,25 +259,13 @@ export class Controller extends Component<Controller> implements Initable<Contro
   }
 
   protected override didRemoveChild(child: Controller): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.controllerDidRemoveChild !== void 0) {
-        observer.controllerDidRemoveChild(child, this);
-      }
-    }
+    this.callObservers("controllerDidRemoveChild", child, this);
     super.didRemoveChild(child);
   }
 
   protected override willReinsertChild(child: Controller, target: Controller | null): void {
     super.willReinsertChild(child, target);
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.controllerWillReinsertChild !== void 0) {
-        observer.controllerWillReinsertChild(child, target, this);
-      }
-    }
+    this.callObservers("controllerWillReinsertChild", child, target, this);
   }
 
   protected override onReinsertChild(child: Controller, target: Controller | null): void {
@@ -328,25 +273,13 @@ export class Controller extends Component<Controller> implements Initable<Contro
   }
 
   protected override didReinsertChild(child: Controller, target: Controller | null): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.controllerDidReinsertChild !== void 0) {
-        observer.controllerDidReinsertChild(child, target, this);
-      }
-    }
+    this.callObservers("controllerDidReinsertChild", child, target, this);
     super.didReinsertChild(child, target);
   }
 
   protected override willMount(): void {
     super.willMount();
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.controllerWillMount !== void 0) {
-        observer.controllerWillMount(this);
-      }
-    }
+    this.callObservers("controllerWillMount", this);
   }
 
   protected override onMount(): void {
@@ -360,31 +293,19 @@ export class Controller extends Component<Controller> implements Initable<Contro
 
     this.mountFasteners();
 
-    if (this.consumers.length !== 0) {
+    if (this.consumers !== null && this.consumers.size !== 0) {
       this.startConsuming();
     }
   }
 
   protected override didMount(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.controllerDidMount !== void 0) {
-        observer.controllerDidMount(this);
-      }
-    }
+    this.callObservers("controllerDidMount", this);
     super.didMount();
   }
 
   protected override willUnmount(): void {
     super.willUnmount();
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.controllerWillUnmount !== void 0) {
-        observer.controllerWillUnmount(this);
-      }
-    }
+    this.callObservers("controllerWillUnmount", this);
   }
 
   protected override onUnmount(): void {
@@ -393,23 +314,18 @@ export class Controller extends Component<Controller> implements Initable<Contro
   }
 
   protected override didUnmount(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.controllerDidUnmount !== void 0) {
-        observer.controllerDidUnmount(this);
-      }
-    }
+    this.callObservers("controllerDidUnmount", this);
     super.didUnmount();
   }
 
   override requireUpdate(updateFlags: ControllerFlags, immediate: boolean = false): void {
     const flags = this.flags;
     const deltaUpdateFlags = updateFlags & ~flags & Controller.UpdateMask;
-    if (deltaUpdateFlags !== 0) {
-      this.setFlags(flags | deltaUpdateFlags);
-      this.requestUpdate(this, deltaUpdateFlags, immediate);
+    if (deltaUpdateFlags === 0) {
+      return;
     }
+    this.setFlags(flags | deltaUpdateFlags);
+    this.requestUpdate(this, deltaUpdateFlags, immediate);
   }
 
   protected needsUpdate(updateFlags: ControllerFlags, immediate: boolean): ControllerFlags {
@@ -521,13 +437,7 @@ export class Controller extends Component<Controller> implements Initable<Contro
   }
 
   protected willResolve(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.controllerWillResolve !== void 0) {
-        observer.controllerWillResolve(this);
-      }
-    }
+    this.callObservers("controllerWillResolve", this);
   }
 
   protected onResolve(): void {
@@ -535,23 +445,11 @@ export class Controller extends Component<Controller> implements Initable<Contro
   }
 
   protected didResolve(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.controllerDidResolve !== void 0) {
-        observer.controllerDidResolve(this);
-      }
-    }
+    this.callObservers("controllerDidResolve", this);
   }
 
   protected willGenerate(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.controllerWillGenerate !== void 0) {
-        observer.controllerWillGenerate(this);
-      }
-    }
+    this.callObservers("controllerWillGenerate", this);
   }
 
   protected onGenerate(): void {
@@ -559,23 +457,11 @@ export class Controller extends Component<Controller> implements Initable<Contro
   }
 
   protected didGenerate(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.controllerDidGenerate !== void 0) {
-        observer.controllerDidGenerate(this);
-      }
-    }
+    this.callObservers("controllerDidGenerate", this);
   }
 
   protected willAssemble(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.controllerWillAssemble !== void 0) {
-        observer.controllerWillAssemble(this);
-      }
-    }
+    this.callObservers("controllerWillAssemble", this);
   }
 
   protected onAssemble(): void {
@@ -583,13 +469,7 @@ export class Controller extends Component<Controller> implements Initable<Contro
   }
 
   protected didAssemble(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.controllerDidAssemble !== void 0) {
-        observer.controllerDidAssemble(this);
-      }
-    }
+    this.callObservers("controllerDidAssemble", this);
   }
 
   protected compileChildren(compileFlags: ControllerFlags, compileChild: (this: this, child: Controller, compileFlags: ControllerFlags) => void): void {
@@ -674,13 +554,7 @@ export class Controller extends Component<Controller> implements Initable<Contro
   }
 
   protected willRevise(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.controllerWillRevise !== void 0) {
-        observer.controllerWillRevise(this);
-      }
-    }
+    this.callObservers("controllerWillRevise", this);
   }
 
   protected onRevise(): void {
@@ -688,23 +562,11 @@ export class Controller extends Component<Controller> implements Initable<Contro
   }
 
   protected didRevise(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.controllerDidRevise !== void 0) {
-        observer.controllerDidRevise(this);
-      }
-    }
+    this.callObservers("controllerDidRevise", this);
   }
 
   protected willCompute(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.controllerWillCompute !== void 0) {
-        observer.controllerWillCompute(this);
-      }
-    }
+    this.callObservers("controllerWillCompute", this);
   }
 
   protected onCompute(): void {
@@ -712,13 +574,7 @@ export class Controller extends Component<Controller> implements Initable<Contro
   }
 
   protected didCompute(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.controllerDidCompute !== void 0) {
-        observer.controllerDidCompute(this);
-      }
-    }
+    this.callObservers("controllerDidCompute", this);
   }
 
   protected executeChildren(executeFlags: ControllerFlags, executeChild: (this: this, child: Controller, executeFlags: ControllerFlags) => void): void {
@@ -804,20 +660,22 @@ export class Controller extends Component<Controller> implements Initable<Contro
   }
 
   /** @internal */
-  readonly consumers: ReadonlyArray<Consumer>;
+  readonly consumers: ReadonlySet<Consumer> | null;
 
   /** @override */
   consume(consumer: Consumer): void {
-    const oldConsumers = this.consumers;
-    const newConsumers = Arrays.inserted(consumer, oldConsumers);
-    if (oldConsumers === newConsumers) {
+    let consumers = this.consumers as Set<Consumer> | null;
+    if (consumers === null) {
+      consumers = new Set<Consumer>();
+      (this as Mutable<this>).consumers = consumers;
+    } else if (consumers.has(consumer)) {
       return;
     }
     this.willConsume(consumer);
-    (this as Mutable<this>).consumers = newConsumers;
+    consumers.add(consumer);
     this.onConsume(consumer);
     this.didConsume(consumer);
-    if (oldConsumers.length === 0 && this.mounted) {
+    if (consumers.size === 1 && this.mounted) {
       this.startConsuming();
     }
   }
@@ -836,16 +694,15 @@ export class Controller extends Component<Controller> implements Initable<Contro
 
   /** @override */
   unconsume(consumer: Consumer): void {
-    const oldConsumers = this.consumers;
-    const newConsumers = Arrays.removed(consumer, oldConsumers);
-    if (oldConsumers === newConsumers) {
+    const consumers = this.consumers as Set<Consumer> | null;
+    if (consumers === null || !consumers.has(consumer)) {
       return;
     }
     this.willUnconsume(consumer);
-    (this as Mutable<this>).consumers = newConsumers;
+    consumers.delete(consumer);
     this.onUnconsume(consumer);
     this.didUnconsume(consumer);
-    if (newConsumers.length === 0) {
+    if (consumers.size === 0) {
       this.stopConsuming();
     }
   }
@@ -881,13 +738,7 @@ export class Controller extends Component<Controller> implements Initable<Contro
   }
 
   protected willStartConsuming(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.controllerWillStartConsuming !== void 0) {
-        observer.controllerWillStartConsuming(this);
-      }
-    }
+    this.callObservers("controllerWillStartConsuming", this);
   }
 
   protected onStartConsuming(): void {
@@ -896,13 +747,7 @@ export class Controller extends Component<Controller> implements Initable<Contro
   }
 
   protected didStartConsuming(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.controllerDidStartConsuming !== void 0) {
-        observer.controllerDidStartConsuming(this);
-      }
-    }
+    this.callObservers("controllerDidStartConsuming", this);
   }
 
   get stopConsumingFlags(): ControllerFlags {
@@ -920,13 +765,7 @@ export class Controller extends Component<Controller> implements Initable<Contro
   }
 
   protected willStopConsuming(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.controllerWillStopConsuming !== void 0) {
-        observer.controllerWillStopConsuming(this);
-      }
-    }
+    this.callObservers("controllerWillStopConsuming", this);
   }
 
   protected onStopConsuming(): void {
@@ -935,13 +774,7 @@ export class Controller extends Component<Controller> implements Initable<Contro
   }
 
   protected didStopConsuming(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.controllerDidStopConsuming !== void 0) {
-        observer.controllerDidStopConsuming(this);
-      }
-    }
+    this.callObservers("controllerDidStopConsuming", this);
   }
 
   /** @internal */
@@ -1010,7 +843,9 @@ export class Controller extends Component<Controller> implements Initable<Contro
       return Controller.NeedsRevise;
     },
   })
-  readonly hostUri!: Property<this, Uri | null, AnyUri | null>;
+  get hostUri(): Property<this, Uri | null, AnyUri | null> {
+    return Property.dummy();
+  }
 
   /** @override */
   @Property({
@@ -1021,7 +856,9 @@ export class Controller extends Component<Controller> implements Initable<Contro
       return Controller.NeedsRevise;
     },
   })
-  readonly nodeUri!: Property<this, Uri | null, AnyUri | null>;
+  get nodeUri(): Property<this, Uri | null, AnyUri | null> {
+    return Property.dummy();
+  }
 
   /** @override */
   @Property({
@@ -1032,7 +869,9 @@ export class Controller extends Component<Controller> implements Initable<Contro
       return Controller.NeedsRevise;
     },
   })
-  readonly laneUri!: Property<this, Uri | null, AnyUri | null>;
+  get laneUri(): Property<this, Uri | null, AnyUri | null> {
+    return Property.dummy();
+  }
 
   /** @override */
   downlink(template?: ThisType<EventDownlink<this>> & EventDownlinkDescriptor & Partial<Omit<EventDownlink<this>, keyof EventDownlinkDescriptor>>): EventDownlink<this> {
@@ -1225,7 +1064,9 @@ export class Controller extends Component<Controller> implements Initable<Contro
       return newValue === oldValue;
     },
   })
-  readonly warpRef!: Property<this, WarpRef>;
+  get warpRef(): Property<this, WarpRef> {
+    return Property.dummy();
+  }
 
   /** @override */
   override init(init: ControllerInit): void {

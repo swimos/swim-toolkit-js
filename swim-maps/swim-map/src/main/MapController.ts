@@ -201,7 +201,9 @@ export class MapController extends Controller {
   readonly container!: ViewRef<this, HtmlView>;
 
   @Property({valueType: Timing, value: true})
-  readonly geoTiming!: Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined>;
+  get geoTiming(): Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined> {
+    return Property.dummy();
+  }
 
   @TraitViewControllerSet({
     controllerType: GeoController,

@@ -240,7 +240,9 @@ export class FolioView extends HtmlView {
       return edgeInsets;
     },
   })
-  override readonly edgeInsets!: Property<this, ViewInsets>;
+  override get edgeInsets(): Property<this, ViewInsets> {
+    return Property.dummy();
+  }
 
   protected override onResize(): void {
     super.onResize();

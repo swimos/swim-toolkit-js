@@ -172,7 +172,9 @@ export class GaugeController extends Controller {
   readonly title!: ViewRef<this, GraphicsView>;
 
   @Property({valueType: Timing, value: true})
-  readonly dialTiming!: Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined>;
+  get dialTiming(): Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined> {
+    return Property.dummy();
+  }
 
   @TraitViewControllerSet({
     controllerType: DialController,

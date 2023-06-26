@@ -78,14 +78,13 @@ export class NodeView extends View {
   override setChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(key: string, factory: F): View | null;
   override setChild(key: string, newChild: AnyView | Node | null): View | null;
   override setChild(key: string, newChild: AnyView | Node | null): View | null {
-    const oldChild = this.getChild(key);
-    let target: View | null;
-
     if (newChild instanceof Node) {
       newChild = NodeView.fromNode(newChild);
     } else if (newChild !== null) {
       newChild = View.fromAny(newChild);
     }
+    const oldChild = this.getChild(key);
+    let target: View | null;
 
     if (oldChild !== null && newChild !== null && oldChild !== newChild) { // replace
       newChild.remove();
@@ -354,59 +353,58 @@ export class NodeView extends View {
   override replaceChild(newChild: AnyView | Node, oldChild: View): View {
     if (oldChild.parent !== this) {
       throw new TypeError("" + oldChild);
-    }
-
-    if (newChild instanceof Node) {
+    } else if (newChild instanceof Node) {
       newChild = NodeView.fromNode(newChild);
     } else {
       newChild = View.fromAny(newChild);
     }
-
-    if (newChild !== oldChild) {
-      newChild.remove();
-      const target = oldChild.nextSibling;
-
-      if ((oldChild.flags & View.RemovingFlag) === 0) {
-        oldChild.setFlags(oldChild.flags | View.RemovingFlag);
-        this.willRemoveChild(oldChild);
-        oldChild.detachParent(this);
-        this.removeChildMap(oldChild);
-        this.onRemoveChild(oldChild);
-        this.didRemoveChild(oldChild);
-        oldChild.setKey(void 0);
-        oldChild.setFlags(oldChild.flags & ~View.RemovingFlag);
-      }
-
-      newChild.setFlags(newChild.flags | View.InsertingFlag);
-      newChild.setKey(oldChild.key);
-      this.willInsertChild(newChild, target);
-      if (newChild instanceof NodeView) {
-        if (oldChild instanceof NodeView) {
-          this.node.replaceChild(newChild.node, oldChild.node);
-        } else if (target !== null) {
-          let targetNode: Node | null = null;
-          let next: View | null = target;
-          do {
-            if (next instanceof NodeView) {
-              targetNode = next.node;
-              break;
-            }
-            next = next.nextSibling;
-          } while (next !== null);
-          this.node.insertBefore(newChild.node, targetNode);
-        } else {
-          this.node.appendChild(newChild.node);
-        }
-      } else if (oldChild instanceof NodeView) {
-        this.node.removeChild(oldChild.node);
-      }
-      this.insertChildMap(newChild);
-      newChild.attachParent(this, target);
-      this.onInsertChild(newChild, target);
-      this.didInsertChild(newChild, target);
-      newChild.cascadeInsert();
-      newChild.setFlags(newChild.flags & ~View.InsertingFlag);
+    if (newChild === oldChild) {
+      return oldChild;
     }
+
+    newChild.remove();
+    const target = oldChild.nextSibling;
+
+    if ((oldChild.flags & View.RemovingFlag) === 0) {
+      oldChild.setFlags(oldChild.flags | View.RemovingFlag);
+      this.willRemoveChild(oldChild);
+      oldChild.detachParent(this);
+      this.removeChildMap(oldChild);
+      this.onRemoveChild(oldChild);
+      this.didRemoveChild(oldChild);
+      oldChild.setKey(void 0);
+      oldChild.setFlags(oldChild.flags & ~View.RemovingFlag);
+    }
+
+    newChild.setFlags(newChild.flags | View.InsertingFlag);
+    newChild.setKey(oldChild.key);
+    this.willInsertChild(newChild, target);
+    if (newChild instanceof NodeView) {
+      if (oldChild instanceof NodeView) {
+        this.node.replaceChild(newChild.node, oldChild.node);
+      } else if (target !== null) {
+        let targetNode: Node | null = null;
+        let next: View | null = target;
+        do {
+          if (next instanceof NodeView) {
+            targetNode = next.node;
+            break;
+          }
+          next = next.nextSibling;
+        } while (next !== null);
+        this.node.insertBefore(newChild.node, targetNode);
+      } else {
+        this.node.appendChild(newChild.node);
+      }
+    } else if (oldChild instanceof NodeView) {
+      this.node.removeChild(oldChild.node);
+    }
+    this.insertChildMap(newChild);
+    newChild.attachParent(this, target);
+    this.onInsertChild(newChild, target);
+    this.didInsertChild(newChild, target);
+    newChild.cascadeInsert();
+    newChild.setFlags(newChild.flags & ~View.InsertingFlag);
 
     return oldChild;
   }
@@ -477,38 +475,35 @@ export class NodeView extends View {
   override reinsertChild(child: View, target: View | null): void {
     if (child.parent !== this) {
       throw new Error("not a child");
-    }
-    if (target !== null && target.parent !== this) {
+    } else if (target !== null && target.parent !== this) {
       throw new Error("reinsert target is not a child");
+    } else if (child.nextSibling === target) {
+      return;
     }
 
-    if (child.nextSibling !== target) {
-      this.willReinsertChild(child, target);
-      if (child instanceof NodeView) {
-        this.node.removeChild(child.node);
-        this.node.insertBefore(child.node, target instanceof NodeView ? target.node : null);
-      }
-      child.reattachParent(target);
-      this.onReinsertChild(child, target);
-      this.didReinsertChild(child, target);
+    this.willReinsertChild(child, target);
+    if (child instanceof NodeView) {
+      this.node.removeChild(child.node);
+      this.node.insertBefore(child.node, target instanceof NodeView ? target.node : null);
     }
+    child.reattachParent(target);
+    this.onReinsertChild(child, target);
+    this.didReinsertChild(child, target);
   }
 
   /** @internal */
   static isRootView(node: Node): boolean {
     do {
       const parentNode: ViewNode | null = node.parentNode;
-      if (parentNode !== null) {
-        const parentView = parentNode.view;
-        if (parentView !== void 0) {
-          return false;
-        }
-        node = parentNode;
-        continue;
+      if (parentNode === null) {
+        return true;
       }
-      break;
+      const parentView = parentNode.view;
+      if (parentView !== void 0) {
+        return false;
+      }
+      node = parentNode;
     } while (true);
-    return true;
   }
 
   /** @internal */
@@ -516,11 +511,11 @@ export class NodeView extends View {
     let isConnected: boolean | undefined = node.isConnected;
     if (typeof isConnected !== "boolean") {
       const ownerDocument = node.ownerDocument;
-      if (ownerDocument !== null) {
+      if (ownerDocument === null) {
+        isConnected = false;
+      } else {
         const position = ownerDocument.compareDocumentPosition(node);
         isConnected = (position & node.DOCUMENT_POSITION_DISCONNECTED) === 0;
-      } else {
-        isConnected = false;
       }
     }
     return isConnected;
@@ -528,37 +523,39 @@ export class NodeView extends View {
 
   /** @internal */
   static mount(view: NodeView): void {
-    if (view.parent === null) {
-      const parentNode = view.node.parentNode as ViewNode | null;
-      const parentView = parentNode !== null && parentNode.view !== void 0 ? parentNode.view : null;
-      if (parentView !== null) {
-        let targetView: View | null = null;
-        let targetNode: ViewNode | null = view.node.nextSibling;
-        while (targetNode !== null) {
-          if (targetNode.view !== void 0) {
-            targetView = targetNode.view;
-            break;
-          }
-          targetNode = targetNode.nextSibling;
-        }
-        view.setFlags(view.flags | View.InsertingFlag);
-        view.attachParent(parentView, targetView);
-        view.cascadeInsert();
-        view.setFlags(view.flags & ~View.InsertingFlag);
-      } else {
-        view.mount();
-      }
+    if (view.parent !== null) {
+      return;
     }
+    const parentNode = view.node.parentNode as ViewNode | null;
+    const parentView = parentNode !== null && parentNode.view !== void 0 ? parentNode.view : null;
+    if (parentView === null) {
+      view.mount();
+      return;
+    }
+    let targetView: View | null = null;
+    let targetNode: ViewNode | null = view.node.nextSibling;
+    while (targetNode !== null) {
+      if (targetNode.view !== void 0) {
+        targetView = targetNode.view;
+        break;
+      }
+      targetNode = targetNode.nextSibling;
+    }
+    view.setFlags(view.flags | View.InsertingFlag);
+    view.attachParent(parentView, targetView);
+    view.cascadeInsert();
+    view.setFlags(view.flags & ~View.InsertingFlag);
   }
 
   /** @internal */
   override mount(): void {
-    if (!this.mounted && NodeView.isNodeMounted(this.node) && NodeView.isRootView(this.node)) {
-      this.setFlags(this.flags | View.InsertingFlag);
-      this.cascadeMount();
-      this.cascadeInsert();
-      this.setFlags(this.flags & ~View.InsertingFlag);
+    if (this.mounted || !NodeView.isNodeMounted(this.node) || !NodeView.isRootView(this.node)) {
+      return;
     }
+    this.setFlags(this.flags | View.InsertingFlag);
+    this.cascadeMount();
+    this.cascadeInsert();
+    this.setFlags(this.flags & ~View.InsertingFlag);
   }
 
   text(): string | undefined;
@@ -570,13 +567,11 @@ export class NodeView extends View {
         value = void 0;
       }
       return value;
-    } else {
-      if (value === void 0) {
-        value = null;
-      }
-      this.node.textContent = value;
-      return this;
+    } else if (value === void 0) {
+      value = null;
     }
+    this.node.textContent = value;
+    return this;
   }
 
   override get parentTransform(): Transform {

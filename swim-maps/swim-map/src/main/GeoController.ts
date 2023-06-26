@@ -127,7 +127,9 @@ export abstract class GeoController extends Controller {
   }
 
   @Property({valueType: Timing, inherits: true})
-  readonly geoTiming!: Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined>;
+  get geoTiming(): Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined> {
+    return Property.dummy();
+  }
 
   @TraitViewRef({
     traitType: GeoTrait,

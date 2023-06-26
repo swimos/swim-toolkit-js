@@ -298,10 +298,15 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
   };
 
   ControllerSet.prototype.setControllers = function <C extends Controller>(this: ControllerSet, newControllers: {readonly [controllerId: string]: C | undefined}, target?: Controller | null): void {
+    const binds = this.binds;
+    const parent = binds ? this.parentController : null;
     const controllers = this.controllers;
     for (const controllerId in controllers) {
       if (newControllers[controllerId] === void 0) {
-        this.detachController(controllers[controllerId]!);
+        const oldController = this.detachController(controllers[controllerId]!);
+        if (oldController !== null && binds && parent !== null && oldController.parent === parent) {
+          oldController.remove();
+        }
       }
     }
     if ((this.flags & ControllerSet.OrderedFlag) !== 0) {
@@ -313,13 +318,13 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
         const newController = orderedControllers[i]!;
         if (controllers[newController.uid] === void 0) {
           const targetController = i < n + 1 ? orderedControllers[i + 1] : target;
-          this.attachController(newController, targetController);
+          this.addController(newController, targetController);
         }
       }
     } else {
       for (const controllerId in newControllers) {
         if (controllers[controllerId] === void 0) {
-          this.attachController(newControllers[controllerId]!, target);
+          this.addController(newControllers[controllerId]!, target);
         }
       }
     }
@@ -552,11 +557,8 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
   };
 
   ControllerSet.prototype.recohere = function (this: ControllerSet, t: number): void {
-    if ((this.flags & Fastener.DerivedFlag) === 0) {
-      return;
-    }
-    const inlet = this.inlet;
-    if (inlet === null) {
+    let inlet: ControllerSet | null;
+    if ((this.flags & Fastener.DerivedFlag) === 0 || (inlet = this.inlet) === null) {
       return;
     }
     this.setControllers(inlet.controllers);

@@ -433,11 +433,8 @@ export const ControllerRef = (function (_super: typeof ControllerRelation) {
   };
 
   ControllerRef.prototype.recohere = function (this: ControllerRef, t: number): void {
-    if ((this.flags & Fastener.DerivedFlag) === 0) {
-      return;
-    }
-    const inlet = this.inlet;
-    if (inlet === null) {
+    let inlet: ControllerRef | null;
+    if ((this.flags & Fastener.DerivedFlag) === 0 || (inlet = this.inlet) === null) {
       return;
     }
     this.setController(inlet.controller);

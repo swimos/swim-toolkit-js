@@ -17,7 +17,6 @@ import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
 import type {Instance} from "@swim/util";
 import type {Proto} from "@swim/util";
-import {Arrays} from "@swim/util";
 import type {HashCode} from "@swim/util";
 import type {Comparator} from "@swim/util";
 import type {FromAny} from "@swim/util";
@@ -171,8 +170,8 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     this.nextTrait = null;
     this.previousTrait = null;
     this.decoherent = null;
-    this.observers = Arrays.empty;
-    this.consumers = Arrays.empty;
+    this.observers = null;
+    this.consumers = null;
   }
 
   declare readonly observerType?: Class<TraitObserver>;
@@ -232,13 +231,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   }
 
   protected willAttachModel(model: Model): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitWillAttachModel !== void 0) {
-        observer.traitWillAttachModel(model, this);
-      }
-    }
+    this.callObservers("traitWillAttachModel", model, this);
   }
 
   protected onAttachModel(model: Model): void {
@@ -246,13 +239,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   }
 
   protected didAttachModel(model: Model): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitDidAttachModel !== void 0) {
-        observer.traitDidAttachModel(model, this);
-      }
-    }
+    this.callObservers("traitDidAttachModel", model, this);
   }
 
   /** @internal */
@@ -282,13 +269,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   }
 
   protected willDetachModel(model: Model): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitWillDetachModel !== void 0) {
-        observer.traitWillDetachModel(model, this);
-      }
-    }
+    this.callObservers("traitWillDetachModel", model, this);
   }
 
   protected onDetachModel(model: Model): void {
@@ -296,13 +277,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   }
 
   protected didDetachModel(model: Model): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitDidDetachModel !== void 0) {
-        observer.traitDidDetachModel(model, this);
-      }
-    }
+    this.callObservers("traitDidDetachModel", model, this);
   }
 
   get modelFlags(): ModelFlags {
@@ -312,11 +287,10 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   setModelFlags(modelFlags: ModelFlags): void {
     const model = this.model;
-    if (model !== null) {
-      model.setFlags(modelFlags);
-    } else {
+    if (model === null) {
       throw new Error("no model");
     }
+    model.setFlags(modelFlags);
   }
 
   remove(): void {
@@ -333,13 +307,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @protected */
   willAttachParent(parent: Model): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitWillAttachParent !== void 0) {
-        observer.traitWillAttachParent(parent, this);
-      }
-    }
+    this.callObservers("traitWillAttachParent", parent, this);
   }
 
   /** @protected */
@@ -349,24 +317,12 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @protected */
   didAttachParent(parent: Model): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitDidAttachParent !== void 0) {
-        observer.traitDidAttachParent(parent, this);
-      }
-    }
+    this.callObservers("traitDidAttachParent", parent, this);
   }
 
   /** @protected */
   willDetachParent(parent: Model): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitWillDetachParent !== void 0) {
-        observer.traitWillDetachParent(parent, this);
-      }
-    }
+    this.callObservers("traitWillDetachParent", parent, this);
   }
 
   /** @protected */
@@ -376,13 +332,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @protected */
   didDetachParent(parent: Model): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitDidDetachParent !== void 0) {
-        observer.traitDidDetachParent(parent, this);
-      }
-    }
+    this.callObservers("traitDidDetachParent", parent, this);
   }
 
   get nextSibling(): Model | null {
@@ -424,11 +374,10 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   setChild(key: string, newChild: AnyModel | null): Model | null;
   setChild(key: string, newChild: AnyModel | null): Model | null {
     const model = this.model;
-    if (model !== null) {
-      return model.setChild(key, newChild);
-    } else {
+    if (model === null) {
       throw new Error("no model");
     }
+    return model.setChild(key, newChild);
   }
 
   appendChild<M extends Model>(child: M, key?: string): M;
@@ -436,11 +385,10 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   appendChild(child: AnyModel, key?: string): Model;
   appendChild(child: AnyModel, key?: string): Model {
     const model = this.model;
-    if (model !== null) {
-      return model.appendChild(child, key);
-    } else {
+    if (model === null) {
       throw new Error("no model");
     }
+    return model.appendChild(child, key);
   }
 
   prependChild<M extends Model>(child: M, key?: string): M;
@@ -448,11 +396,10 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   prependChild(child: AnyModel, key?: string): Model;
   prependChild(child: AnyModel, key?: string): Model {
     const model = this.model;
-    if (model !== null) {
-      return model.prependChild(child, key);
-    } else {
+    if (model === null) {
       throw new Error("no model");
     }
+    return model.prependChild(child, key);
   }
 
   insertChild<M extends Model>(child: M, target: Model | null, key?: string): M;
@@ -460,31 +407,28 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   insertChild(child: AnyModel, target: Model | null, key?: string): Model;
   insertChild(child: AnyModel, target: Model | null, key?: string): Model {
     const model = this.model;
-    if (model !== null) {
-      return model.insertChild(child, target, key);
-    } else {
+    if (model === null) {
       throw new Error("no model");
     }
+    return model.insertChild(child, target, key);
   }
 
   reinsertChild(child: Model, target: Model | null): void {
     const model = this.model;
-    if (model !== null) {
-      model.reinsertChild(child, target);
-    } else {
+    if (model === null) {
       throw new Error("no model");
     }
+    model.reinsertChild(child, target);
   }
 
   replaceChild<M extends Model>(newChild: Model, oldChild: M): M;
   replaceChild<M extends Model>(newChild: AnyModel, oldChild: M): M;
   replaceChild(newChild: AnyModel, oldChild: Model): Model {
     const model = this.model;
-    if (model !== null) {
-      return model.replaceChild(newChild, oldChild);
-    } else {
+    if (model === null) {
       throw new Error("no model");
     }
+    return model.replaceChild(newChild, oldChild);
   }
 
   get insertChildFlags(): ModelFlags {
@@ -493,13 +437,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @protected */
   willInsertChild(child: Model, target: Model | null): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitWillInsertChild !== void 0) {
-        observer.traitWillInsertChild(child, target, this);
-      }
-    }
+    this.callObservers("traitWillInsertChild", child, target, this);
   }
 
   /** @protected */
@@ -510,24 +448,14 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @protected */
   didInsertChild(child: Model, target: Model | null): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitDidInsertChild !== void 0) {
-        observer.traitDidInsertChild(child, target, this);
-      }
-    }
+    this.callObservers("traitDidInsertChild", child, target, this);
   }
 
   removeChild<M extends Model>(child: M): M | null;
   removeChild(key: string | Model): Model | null;
   removeChild(key: string | Model): Model | null {
     const model = this.model;
-    if (model !== null) {
-      return model.removeChild(key);
-    } else {
-      return null;
-    }
+    return model !== null ? model.removeChild(key) : null;
   }
 
   get removeChildFlags(): ModelFlags {
@@ -536,13 +464,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @protected */
   willRemoveChild(child: Model): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitWillRemoveChild !== void 0) {
-        observer.traitWillRemoveChild(child, this);
-      }
-    }
+    this.callObservers("traitWillRemoveChild", child, this);
     this.requireUpdate(this.removeChildFlags);
   }
 
@@ -553,13 +475,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @protected */
   didRemoveChild(child: Model): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitDidRemoveChild !== void 0) {
-        observer.traitDidRemoveChild(child, this);
-      }
-    }
+    this.callObservers("traitDidRemoveChild", child, this);
   }
 
   get reinsertChildFlags(): ModelFlags {
@@ -568,13 +484,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @protected */
   willReinsertChild(child: Model, target: Model | null): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitWillReinsertChild !== void 0) {
-        observer.traitWillReinsertChild(child, target, this);
-      }
-    }
+    this.callObservers("traitWillReinsertChild", child, target, this);
   }
 
   /** @protected */
@@ -584,13 +494,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @protected */
   didReinsertChild(child: Model, target: Model | null): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitDidReinsertChild !== void 0) {
-        observer.traitDidReinsertChild(child, target, this);
-      }
-    }
+    this.callObservers("traitDidReinsertChild", child, target, this);
   }
 
   removeChildren(): void {
@@ -609,11 +513,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   getTargetChild(child: Model, comparator: Comparator<Model>): Model | null {
     const model = this.model;
-    if (model !== null) {
-      return model.getTargetChild(child, comparator);
-    } else {
-      return null;
-    }
+    return model !== null ? model.getTargetChild(child, comparator) : null;
   }
 
   getAncestor<F extends Class<Model>>(ancestorType: F): InstanceType<F> | null {
@@ -736,13 +636,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @protected */
   willInsertTrait(trait: Trait, target: Trait | null): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitWillInsertTrait !== void 0) {
-        observer.traitWillInsertTrait(trait, target, this);
-      }
-    }
+    this.callObservers("traitWillInsertTrait", trait, target, this);
   }
 
   /** @protected */
@@ -753,23 +647,14 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @protected */
   didInsertTrait(trait: Trait, target: Trait | null): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitDidInsertTrait !== void 0) {
-        observer.traitDidInsertTrait(trait, target, this);
-      }
-    }
+    this.callObservers("traitDidInsertTrait", trait, target, this);
   }
 
   removeTrait<T extends Trait>(trait: T): T | null;
   removeTrait(key: string | Trait): Trait | null;
   removeTrait(key: string | Trait): Trait | null {
     const model = this.model;
-    if (model !== null) {
-      return model.removeTrait(key);
-    }
-    return null;
+    return model !== null ? model.removeTrait(key) : null;
   }
 
   get removeTraitFlags(): ModelFlags {
@@ -782,13 +667,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @protected */
   willRemoveTrait(trait: Trait): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitWillRemoveTrait !== void 0) {
-        observer.traitWillRemoveTrait(trait, this);
-      }
-    }
+    this.callObservers("traitWillRemoveTrait", trait, this);
   }
 
   /** @protected */
@@ -799,13 +678,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @protected */
   didRemoveTrait(trait: Trait): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitDidRemoveTrait !== void 0) {
-        observer.traitDidRemoveTrait(trait, this);
-      }
-    }
+    this.callObservers("traitDidRemoveTrait", trait, this);
   }
 
   sortTraits(comparator: Comparator<Trait>): void {
@@ -835,7 +708,9 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     },
     updateFlags: Model.NeedsReconcile,
   })
-  readonly hostUri!: Property<this, Uri | null, AnyUri | null>;
+  get hostUri(): Property<this, Uri | null, AnyUri | null> {
+    return Property.dummy();
+  }
 
   /** @override */
   @Property({
@@ -847,7 +722,9 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     },
     updateFlags: Model.NeedsReconcile,
   })
-  readonly nodeUri!: Property<this, Uri | null, AnyUri | null>;
+  get nodeUri(): Property<this, Uri | null, AnyUri | null> {
+    return Property.dummy();
+  }
 
   /** @override */
   @Property({
@@ -859,7 +736,9 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     },
     updateFlags: Model.NeedsReconcile,
   })
-  readonly laneUri!: Property<this, Uri | null, AnyUri | null>;
+  get laneUri(): Property<this, Uri | null, AnyUri | null> {
+    return Property.dummy();
+  }
 
   /** @override */
   downlink(template?: ThisType<EventDownlink<this>> & EventDownlinkDescriptor & Partial<Omit<EventDownlink<this>, keyof EventDownlinkDescriptor>>): EventDownlink<this> {
@@ -1050,7 +929,9 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
       return newValue === oldValue;
     },
   })
-  readonly warpRef!: Property<this, WarpRef>;
+  get warpRef(): Property<this, WarpRef> {
+    return Property.dummy();
+  }
 
   get mounted(): boolean {
     return (this.flags & Trait.MountedFlag) !== 0;
@@ -1072,13 +953,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   }
 
   protected willMount(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitWillMount !== void 0) {
-        observer.traitWillMount(this);
-      }
-    }
+    this.callObservers("traitWillMount", this);
   }
 
   protected onMount(): void {
@@ -1090,19 +965,13 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
     this.mountFasteners();
 
-    if (this.consumers.length !== 0) {
+    if (this.consumers !== null && this.consumers.size !== 0) {
       this.startConsuming();
     }
   }
 
   protected didMount(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitDidMount !== void 0) {
-        observer.traitDidMount(this);
-      }
-    }
+    this.callObservers("traitDidMount", this);
   }
 
   /** @internal */
@@ -1117,13 +986,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   }
 
   protected willUnmount(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitWillUnmount !== void 0) {
-        observer.traitWillUnmount(this);
-      }
-    }
+    this.callObservers("traitWillUnmount", this);
   }
 
   protected onUnmount(): void {
@@ -1132,13 +995,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   }
 
   protected didUnmount(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitDidUnmount !== void 0) {
-        observer.traitDidUnmount(this);
-      }
-    }
+    this.callObservers("traitDidUnmount", this);
   }
 
   requireUpdate(updateFlags: ModelFlags, immediate: boolean = false): void {
@@ -1193,13 +1050,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @protected */
   willMutate(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitWillMutate !== void 0) {
-        observer.traitWillMutate(this);
-      }
-    }
+    this.callObservers("traitWillMutate", this);
   }
 
   /** @protected */
@@ -1209,24 +1060,12 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @protected */
   didMutate(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitDidMutate !== void 0) {
-        observer.traitDidMutate(this);
-      }
-    }
+    this.callObservers("traitDidMutate", this);
   }
 
   /** @protected */
   willAggregate(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitWillAggregate !== void 0) {
-        observer.traitWillAggregate(this);
-      }
-    }
+    this.callObservers("traitWillAggregate", this);
   }
 
   /** @protected */
@@ -1236,24 +1075,12 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @protected */
   didAggregate(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitDidAggregate !== void 0) {
-        observer.traitDidAggregate(this);
-      }
-    }
+    this.callObservers("traitDidAggregate", this);
   }
 
   /** @protected */
   willCorrelate(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitWillCorrelate !== void 0) {
-        observer.traitWillCorrelate(this);
-      }
-    }
+    this.callObservers("traitWillCorrelate", this);
   }
 
   /** @protected */
@@ -1263,13 +1090,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @protected */
   didCorrelate(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitDidCorrelate !== void 0) {
-        observer.traitDidCorrelate(this);
-      }
-    }
+    this.callObservers("traitDidCorrelate", this);
   }
 
   /** @protected */
@@ -1305,13 +1126,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @protected */
   willValidate(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitWillValidate !== void 0) {
-        observer.traitWillValidate(this);
-      }
-    }
+    this.callObservers("traitWillValidate", this);
   }
 
   /** @protected */
@@ -1321,24 +1136,12 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @protected */
   didValidate(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitDidValidate !== void 0) {
-        observer.traitDidValidate(this);
-      }
-    }
+    this.callObservers("traitDidValidate", this);
   }
 
   /** @protected */
   willReconcile(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitWillReconcile !== void 0) {
-        observer.traitWillReconcile(this);
-      }
-    }
+    this.callObservers("traitWillReconcile", this);
   }
 
   /** @protected */
@@ -1348,13 +1151,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @protected */
   didReconcile(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitDidReconcile !== void 0) {
-        observer.traitDidReconcile(this);
-      }
-    }
+    this.callObservers("traitDidReconcile", this);
   }
 
   /** @protected */
@@ -1643,17 +1440,19 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   }
 
   /** @internal */
-  readonly observers: ReadonlyArray<Observes<this>>;
+  readonly observers: ReadonlySet<Observes<this>> | null;
 
   /** @override */
   observe(observer: Observes<this>): void {
-    const oldObservers = this.observers;
-    const newObservers = Arrays.inserted(observer, oldObservers);
-    if (oldObservers === newObservers) {
+    let observers = this.observers as Set<Observes<this>> | null;
+    if (observers === null) {
+      observers = new Set<Observes<this>>();
+      (this as Mutable<this>).observers = observers;
+    } else if (observers.has(observer)) {
       return;
     }
     this.willObserve(observer);
-    (this as Mutable<this>).observers = newObservers;
+    observers.add(observer);
     this.onObserve(observer);
     this.didObserve(observer);
   }
@@ -1672,13 +1471,12 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @override */
   unobserve(observer: Observes<this>): void {
-    const oldObservers = this.observers;
-    const newObservers = Arrays.removed(observer, oldObservers);
-    if (oldObservers === newObservers) {
+    const observers = this.observers as Set<Observes<this>> | null;
+    if (observers === null || !observers.has(observer)) {
       return;
     }
     this.willUnobserve(observer);
-    (this as Mutable<this>).observers = newObservers;
+    observers.delete(observer);
     this.onUnobserve(observer);
     this.didUnobserve(observer);
   }
@@ -1696,9 +1494,11 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   }
 
   callObservers<O, K extends keyof ObserverMethods<O>>(this: {readonly observerType?: Class<O>}, key: K, ...args: ObserverParameters<O, K>): void {
-    const observers = (this as Trait).observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]! as ObserverMethods<O>;
+    const observers = (this as Trait).observers as ReadonlySet<ObserverMethods<O>> | null;
+    if (observers === null) {
+      return;
+    }
+    for (const observer of observers) {
       const method = observer[key];
       if (typeof method === "function") {
         method.call(observer, ...args);
@@ -1707,20 +1507,22 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   }
 
   /** @internal */
-  readonly consumers: ReadonlyArray<Consumer>;
+  readonly consumers: ReadonlySet<Consumer> | null;
 
   /** @override */
   consume(consumer: Consumer): void {
-    const oldConsumers = this.consumers;
-    const newConsumers = Arrays.inserted(consumer, oldConsumers);
-    if (oldConsumers === newConsumers) {
+    let consumers = this.consumers as Set<Consumer> | null;
+    if (consumers === null) {
+      consumers = new Set<Consumer>();
+      (this as Mutable<this>).consumers = consumers;
+    } else if (consumers.has(consumer)) {
       return;
     }
     this.willConsume(consumer);
-    (this as Mutable<this>).consumers = newConsumers;
+    consumers.add(consumer);
     this.onConsume(consumer);
     this.didConsume(consumer);
-    if (oldConsumers.length === 0 && this.mounted) {
+    if (consumers.size === 1 && this.mounted) {
       this.startConsuming();
     }
   }
@@ -1739,16 +1541,15 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   /** @override */
   unconsume(consumer: Consumer): void {
-    const oldConsumers = this.consumers;
-    const newConsumers = Arrays.removed(consumer, oldConsumers);
-    if (oldConsumers === newConsumers) {
+    const consumers = this.consumers as Set<Consumer> | null;
+    if (consumers === null || !consumers.has(consumer)) {
       return;
     }
     this.willUnconsume(consumer);
-    (this as Mutable<this>).consumers = newConsumers;
+    consumers.delete(consumer);
     this.onUnconsume(consumer);
     this.didUnconsume(consumer);
-    if (newConsumers.length === 0) {
+    if (consumers.size === 0) {
       this.stopConsuming();
     }
   }
@@ -1784,13 +1585,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   }
 
   protected willStartConsuming(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitWillStartConsuming !== void 0) {
-        observer.traitWillStartConsuming(this);
-      }
-    }
+    this.callObservers("traitWillStartConsuming", this);
   }
 
   protected onStartConsuming(): void {
@@ -1799,13 +1594,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   }
 
   protected didStartConsuming(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitDidStartConsuming !== void 0) {
-        observer.traitDidStartConsuming(this);
-      }
-    }
+    this.callObservers("traitDidStartConsuming", this);
   }
 
   get stopConsumingFlags(): ModelFlags {
@@ -1823,13 +1612,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   }
 
   protected willStopConsuming(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitWillStopConsuming !== void 0) {
-        observer.traitWillStopConsuming(this);
-      }
-    }
+    this.callObservers("traitWillStopConsuming", this);
   }
 
   protected onStopConsuming(): void {
@@ -1838,13 +1621,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   }
 
   protected didStopConsuming(): void {
-    const observers = this.observers;
-    for (let i = 0, n = observers.length; i < n; i += 1) {
-      const observer = observers[i]!;
-      if (observer.traitDidStopConsuming !== void 0) {
-        observer.traitDidStopConsuming(this);
-      }
-    }
+    this.callObservers("traitDidStopConsuming", this);
   }
 
   /** @internal */

@@ -68,7 +68,9 @@ export class DataPointTrait<X = unknown, Y = unknown> extends Trait {
       this.owner.callObservers("traitDidSetY2", y2, this.owner);
     },
   })
-  readonly y2!: Property<this, Y | undefined>;
+  get y2(): Property<this, Y | undefined> {
+    return Property.dummy();
+  }
 
   @Property({
     valueType: Length,
@@ -77,7 +79,9 @@ export class DataPointTrait<X = unknown, Y = unknown> extends Trait {
       this.owner.callObservers("traitDidSetRadius", radius, this.owner);
     },
   })
-  readonly radius!: Property<this, Length | null, AnyLength | null>;
+  get radius(): Property<this, Length | null, AnyLength | null> {
+    return Property.dummy();
+  }
 
   @Property({
     valueType: ColorLook,
@@ -86,7 +90,9 @@ export class DataPointTrait<X = unknown, Y = unknown> extends Trait {
       this.owner.callObservers("traitDidSetColor", color, this.owner);
     },
   })
-  readonly color!: Property<this, ColorOrLook | null, AnyColorOrLook | null>;
+  get color(): Property<this, ColorOrLook | null, AnyColorOrLook | null> {
+    return Property.dummy();
+  }
 
   @Property({
     valueType: Number,
@@ -94,7 +100,9 @@ export class DataPointTrait<X = unknown, Y = unknown> extends Trait {
       this.owner.callObservers("traitDidSetOpacity", opacity, this.owner);
     },
   })
-  readonly opacity!: Property<this, number | undefined>;
+  get opacity(): Property<this, number | undefined> {
+    return Property.dummy();
+  }
 
   formatLabel(x: X | undefined, y: Y | undefined): string | undefined {
     return void 0;
@@ -106,5 +114,7 @@ export class DataPointTrait<X = unknown, Y = unknown> extends Trait {
       this.owner.callObservers("traitDidSetLabel", label, this.owner);
     },
   })
-  readonly label!: Property<this, string | undefined>;
+  get label(): Property<this, string | undefined> {
+    return Property.dummy();
+  }
 }
