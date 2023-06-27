@@ -36,6 +36,17 @@ export interface ModelRelationDescriptor<M extends Model = Model> extends Fasten
 }
 
 /** @public */
+export interface ModelRelationClass<F extends ModelRelation<any, any> = ModelRelation<any, any>> extends FastenerClass<F> {
+  /** @internal */
+  readonly ConsumingFlag: FastenerFlags;
+
+  /** @internal @override */
+  readonly FlagShift: number;
+  /** @internal @override */
+  readonly FlagMask: FastenerFlags;
+}
+
+/** @public */
 export interface ModelRelation<O = unknown, M extends Model = Model> extends Fastener<O>, Consumable {
   /** @override */
   get descriptorType(): Proto<ModelRelationDescriptor<M>>;
@@ -214,7 +225,7 @@ export interface ModelRelation<O = unknown, M extends Model = Model> extends Fas
 
 /** @public */
 export const ModelRelation = (function (_super: typeof Fastener) {
-  const ModelRelation = _super.extend("ModelRelation", {}) as FastenerClass<ModelRelation<any, any>> & {
+  const ModelRelation = _super.extend("ModelRelation", {}) as ModelRelationClass & {
     /** @internal */
     readonly ConsumingFlag: FastenerFlags;
 

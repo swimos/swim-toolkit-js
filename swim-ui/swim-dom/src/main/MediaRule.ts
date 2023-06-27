@@ -13,13 +13,17 @@
 // limitations under the License.
 
 import type {Proto} from "@swim/util";
-import type {FastenerClass} from "@swim/component";
 import type {CssRuleDescriptor} from "./CssRule";
+import type {CssRuleClass} from "./CssRule";
 import {CssRule} from "./CssRule";
 
 /** @public */
 export interface MediaRuleDescriptor extends CssRuleDescriptor<CSSMediaRule> {
   extends?: Proto<MediaRule<any>> | boolean | null;
+}
+
+/** @public */
+export interface MediaRuleClass<F extends MediaRule<any> = MediaRule<any>> extends CssRuleClass<F> {
 }
 
 /** @public */
@@ -41,7 +45,7 @@ export interface MediaRule<O = unknown> extends CssRule<O, CSSMediaRule> {
 
 /** @public */
 export const MediaRule = (function (_super: typeof CssRule) {
-  const MediaRule = _super.extend("MediaRule", {}) as FastenerClass<MediaRule<any>>;
+  const MediaRule = _super.extend("MediaRule", {}) as MediaRuleClass;
 
   Object.defineProperty(MediaRule.prototype, "fastenerType", {
     value: MediaRule,

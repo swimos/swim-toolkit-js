@@ -15,18 +15,24 @@
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
 import {Affinity} from "@swim/component";
-import type {FastenerClass} from "@swim/component";
+import {FastenerContext} from "@swim/component";
 import {Fastener} from "@swim/component";
 import type {Model} from "./Model";
 import type {AnyTrait} from "./Trait";
 import type {Trait} from "./Trait";
 import type {TraitRelationDescriptor} from "./TraitRelation";
+import type {TraitRelationClass} from "./TraitRelation";
 import {TraitRelation} from "./TraitRelation";
 
 /** @public */
 export interface TraitRefDescriptor<T extends Trait = Trait> extends TraitRelationDescriptor<T> {
   extends?: Proto<TraitRef<any, any>> | boolean | null;
   traitKey?: string | boolean;
+}
+
+/** @public */
+export interface TraitRefClass<F extends TraitRef<any, any> = TraitRef<any, any>> extends TraitRelationClass<F> {
+  tryTrait<O, K extends keyof O, F extends O[K] = O[K]>(owner: O, fastenerName: K): F extends TraitRef<any, infer T> ? T | null : null;
 }
 
 /** @public */
@@ -156,7 +162,7 @@ export interface TraitRef<O = unknown, T extends Trait = Trait> extends TraitRel
 
 /** @public */
 export const TraitRef = (function (_super: typeof TraitRelation) {
-  const TraitRef = _super.extend("TraitRef", {}) as FastenerClass<TraitRef<any, any>>;
+  const TraitRef = _super.extend("TraitRef", {}) as TraitRefClass;
 
   Object.defineProperty(TraitRef.prototype, "fastenerType", {
     value: TraitRef,
@@ -489,6 +495,14 @@ export const TraitRef = (function (_super: typeof TraitRelation) {
     this.setTrait(inlet.trait);
   };
 
+  TraitRef.tryTrait = function <O, K extends keyof O, F extends O[K]>(owner: O, fastenerName: K): F extends TraitRef<any, infer T> ? T | null : null {
+    const traitRef = FastenerContext.tryFastener(owner, fastenerName) as TraitRef | null;
+    if (traitRef !== null) {
+      return traitRef.trait as any;
+    }
+    return null as any;
+  };
+
   TraitRef.construct = function <F extends TraitRef<any, any>>(fastener: F | null, owner: F extends TraitRef<infer O, any> ? O : never): F {
     if (fastener === null) {
       fastener = function (trait?: F extends TraitRef<any, infer T> ? AnyTrait<T> | null : never, target?: Trait | null, key?: string): F extends TraitRef<infer O, infer T> ? T | O | null : never {
@@ -507,7 +521,7 @@ export const TraitRef = (function (_super: typeof TraitRelation) {
     return fastener;
   };
 
-  TraitRef.refine = function (fastenerClass: FastenerClass<any>): void {
+  TraitRef.refine = function (fastenerClass: TraitRefClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

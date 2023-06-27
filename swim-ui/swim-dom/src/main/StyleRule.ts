@@ -18,7 +18,6 @@ import type {Proto} from "@swim/util";
 import type {AnyTiming} from "@swim/util";
 import {Timing} from "@swim/util";
 import {FastenerContext} from "@swim/component";
-import type {FastenerClass} from "@swim/component";
 import {Fastener} from "@swim/component";
 import type {AnyConstraintExpression} from "@swim/constraint";
 import type {ConstraintVariable} from "@swim/constraint";
@@ -40,12 +39,21 @@ import {StyleAnimator} from "./StyleAnimator";
 import type {StyleMapInit} from "./StyleMap";
 import {StyleMap} from "./StyleMap";
 import type {CssRuleDescriptor} from "./CssRule";
+import type {CssRuleClass} from "./CssRule";
 import {CssRule} from "./CssRule";
 
 /** @public */
 export interface StyleRuleDescriptor extends CssRuleDescriptor<CSSStyleRule> {
   extends?: Proto<StyleRule<any>> | boolean | null;
   style?: StyleMapInit;
+}
+
+/** @public */
+export interface StyleRuleClass<F extends StyleRule<any> = StyleRule<any>> extends CssRuleClass<F> {
+  /** @internal */
+  readonly fieldInitializers: {[name: PropertyKey]: Function[]};
+  /** @internal */
+  readonly instanceInitializers: Function[];
 }
 
 /** @public */
@@ -164,12 +172,7 @@ export interface StyleRule<O = unknown> extends CssRule<O, CSSStyleRule>, Fasten
 
 /** @public */
 export const StyleRule = (function (_super: typeof CssRule) {
-  const StyleRule = _super.extend("StyleRule", {}) as FastenerClass<StyleRule<any>> & {
-    /** @internal */
-    readonly fieldInitializers: {[name: PropertyKey]: Function[]};
-    /** @internal */
-    readonly instanceInitializers: Function[];
-  };
+  const StyleRule = _super.extend("StyleRule", {}) as StyleRuleClass;
 
   Object.defineProperty(StyleRule.prototype, "fastenerType", {
     value: StyleRule,

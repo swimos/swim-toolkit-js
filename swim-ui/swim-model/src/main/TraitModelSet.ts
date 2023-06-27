@@ -17,9 +17,9 @@ import type {Class} from "@swim/util";
 import type {Proto} from "@swim/util";
 import type {Observes} from "@swim/util";
 import type {Consumer} from "@swim/util";
-import type {FastenerClass} from "@swim/component";
 import type {Model} from "./Model";
 import type {ModelSetDescriptor} from "./ModelSet";
+import type {ModelSetClass} from "./ModelSet";
 import {ModelSet} from "./ModelSet";
 import type {AnyTrait} from "./Trait";
 import type {TraitFactory} from "./Trait";
@@ -31,6 +31,10 @@ export interface TraitModelSetDescriptor<T extends Trait = Trait, M extends Mode
   traitType?: TraitFactory<T>;
   traitKey?: string | boolean;
   observesTrait?: boolean;
+}
+
+/** @public */
+export interface TraitModelSetClass<F extends TraitModelSet<any, any, any> = TraitModelSet<any, any, any>> extends ModelSetClass<F> {
 }
 
 /** @public */
@@ -142,7 +146,7 @@ export interface TraitModelSet<O = unknown, T extends Trait = Trait, M extends M
 
 /** @public */
 export const TraitModelSet = (function (_super: typeof ModelSet) {
-  const TraitModelSet = _super.extend("TraitModelSet", {}) as FastenerClass<TraitModelSet<any, any, any>>;
+  const TraitModelSet = _super.extend("TraitModelSet", {}) as TraitModelSetClass;
 
   TraitModelSet.prototype.hasTrait = function (this: TraitModelSet, trait: Trait): boolean {
     return this.traits[trait.uid] !== void 0;
@@ -443,7 +447,7 @@ export const TraitModelSet = (function (_super: typeof ModelSet) {
     return fastener;
   };
 
-  TraitModelSet.refine = function (fastenerClass: FastenerClass<any>): void {
+  TraitModelSet.refine = function (fastenerClass: TraitModelSetClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

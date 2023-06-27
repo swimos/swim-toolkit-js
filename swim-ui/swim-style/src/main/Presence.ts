@@ -25,7 +25,7 @@ import type {Output} from "@swim/codec";
 import type {Debug} from "@swim/codec";
 import {Format} from "@swim/codec";
 import {Affinity} from "@swim/component";
-import type {FastenerClass} from "@swim/component";
+import type {AnimatorClass} from "@swim/component";
 import {Animator} from "@swim/component";
 
 /** @public */
@@ -353,7 +353,7 @@ export interface PresenceAnimator<O = unknown, T extends Presence | null | undef
 export const PresenceAnimator = (function (_super: typeof Animator) {
   const PresenceAnimator = _super.extend("PresenceAnimator", {
     valueType: Presence,
-  }) as FastenerClass<PresenceAnimator<any, any, any>>;
+  }) as AnimatorClass<PresenceAnimator<any, any, any>>;
 
   Object.defineProperty(PresenceAnimator.prototype, "phase", {
     get(this: PresenceAnimator): number | undefined {

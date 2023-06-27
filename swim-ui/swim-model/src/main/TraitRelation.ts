@@ -36,6 +36,17 @@ export interface TraitRelationDescriptor<T extends Trait = Trait> extends Fasten
 }
 
 /** @public */
+export interface TraitRelationClass<F extends TraitRelation<any, any> = TraitRelation<any, any>> extends FastenerClass<F> {
+  /** @internal */
+  readonly ConsumingFlag: FastenerFlags;
+
+  /** @internal @override */
+  readonly FlagShift: number;
+  /** @internal @override */
+  readonly FlagMask: FastenerFlags;
+}
+
+/** @public */
 export interface TraitRelation<O = unknown, T extends Trait = Trait> extends Fastener<O>, Consumable {
   /** @override */
   get descriptorType(): Proto<TraitRelationDescriptor<T>>;
@@ -222,15 +233,7 @@ export interface TraitRelation<O = unknown, T extends Trait = Trait> extends Fas
 
 /** @public */
 export const TraitRelation = (function (_super: typeof Fastener) {
-  const TraitRelation = _super.extend("TraitRelation", {}) as FastenerClass<TraitRelation<any, any>> & {
-    /** @internal */
-    readonly ConsumingFlag: FastenerFlags;
-
-    /** @internal @override */
-    readonly FlagShift: number;
-    /** @internal @override */
-    readonly FlagMask: FastenerFlags;
-  };
+  const TraitRelation = _super.extend("TraitRelation", {}) as TraitRelationClass;
 
   Object.defineProperty(TraitRelation.prototype, "fastenerType", {
     value: TraitRelation,

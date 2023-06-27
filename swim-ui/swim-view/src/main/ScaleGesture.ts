@@ -17,13 +17,13 @@ import type {Proto} from "@swim/util";
 import type {AnyTiming} from "@swim/util";
 import type {ContinuousScale} from "@swim/util";
 import type {FastenerFlags} from "@swim/component";
-import type {FastenerClass} from "@swim/component";
 import type {R2Box} from "@swim/math";
 import {View} from "./View";
 import type {GestureInputType} from "./Gesture";
 import {GestureInput} from "./Gesture";
 import {MomentumGestureInput} from "./MomentumGesture";
 import type {MomentumGestureDescriptor} from "./MomentumGesture";
+import type {MomentumGestureClass} from "./MomentumGesture";
 import {MomentumGesture} from "./MomentumGesture";
 
 /** @public */
@@ -57,6 +57,24 @@ export interface ScaleGestureDescriptor<V extends View = View, X = unknown, Y = 
   distanceMin?: number;
   preserveAspectRatio?: boolean;
   wheel?: boolean;
+}
+
+/** @public */
+export interface ScaleGestureClass<F extends ScaleGesture<any, any, any, any> = ScaleGesture<any, any, any, any>> extends MomentumGestureClass<F> {
+  /** @internal */
+  readonly DistanceMin: number;
+
+  /** @internal */
+  readonly PreserveAspectRatioFlag: FastenerFlags;
+  /** @internal */
+  readonly WheelFlag: FastenerFlags;
+  /** @internal */
+  readonly NeedsRescale: FastenerFlags;
+
+  /** @internal @override */
+  readonly FlagShift: number;
+  /** @internal @override */
+  readonly FlagMask: FastenerFlags;
 }
 
 /** @public */
@@ -220,22 +238,7 @@ export interface ScaleGesture<O = unknown, V extends View = View, X = unknown, Y
 
 /** @public */
 export const ScaleGesture = (function (_super: typeof MomentumGesture) {
-  const ScaleGesture = _super.extend("ScaleGesture", {}) as FastenerClass<ScaleGesture<any, any, any, any>> & {
-    /** @internal */
-    readonly DistanceMin: number;
-
-    /** @internal */
-    readonly PreserveAspectRatioFlag: FastenerFlags;
-    /** @internal */
-    readonly WheelFlag: FastenerFlags;
-    /** @internal */
-    readonly NeedsRescale: FastenerFlags;
-
-    /** @internal @override */
-    readonly FlagShift: number;
-    /** @internal @override */
-    readonly FlagMask: FastenerFlags;
-  };
+  const ScaleGesture = _super.extend("ScaleGesture", {}) as ScaleGestureClass;
 
   ScaleGesture.prototype.createInput = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>, inputId: string, inputType: GestureInputType, isPrimary: boolean,
                                                        x: number, y: number, t: number): ScaleGestureInput<X, Y> {
@@ -1088,8 +1091,8 @@ export const ScaleGesture = (function (_super: typeof MomentumGesture) {
     return gesture;
   };
 
-  ScaleGesture.specialize = function (template: ScaleGestureDescriptor<any>): FastenerClass<ScaleGesture<any, any, any, any>> {
-    let superClass = template.extends as FastenerClass<ScaleGesture<any, any, any, any>> | null | undefined;
+  ScaleGesture.specialize = function (template: ScaleGestureDescriptor<any>): ScaleGestureClass {
+    let superClass = template.extends as ScaleGestureClass | null | undefined;
     if (superClass === void 0 || superClass === null) {
       const method = template.method;
       if (method === "pointer") {
@@ -1109,7 +1112,7 @@ export const ScaleGesture = (function (_super: typeof MomentumGesture) {
     return superClass;
   };
 
-  ScaleGesture.refine = function (gestureClass: FastenerClass<any>): void {
+  ScaleGesture.refine = function (gestureClass: ScaleGestureClass<any>): void {
     _super.refine.call(this, gestureClass);
     const fastenerPrototype = gestureClass.prototype;
     let flagsInit = fastenerPrototype.flagsInit;
@@ -1204,7 +1207,7 @@ export interface PointerScaleGesture<O = unknown, V extends View = View, X = unk
 export const PointerScaleGesture = (function (_super: typeof ScaleGesture) {
   const PointerScaleGesture = _super.extend("PointerScaleGesture", {
     wheel: true,
-  }) as FastenerClass<PointerScaleGesture<any, any, any, any>>;
+  }) as ScaleGestureClass<PointerScaleGesture<any, any, any, any>>;
 
   PointerScaleGesture.prototype.attachHoverEvents = function (this: PointerScaleGesture, view: View): void {
     view.addEventListener("pointerenter", this.onPointerEnter as EventListener);
@@ -1387,7 +1390,7 @@ export interface TouchScaleGesture<O = unknown, V extends View = View, X = unkno
 
 /** @internal */
 export const TouchScaleGesture = (function (_super: typeof ScaleGesture) {
-  const TouchScaleGesture = _super.extend("TouchScaleGesture", {}) as FastenerClass<TouchScaleGesture<any, any, any, any>>;
+  const TouchScaleGesture = _super.extend("TouchScaleGesture", {}) as ScaleGestureClass<TouchScaleGesture<any, any, any, any>>;
 
   TouchScaleGesture.prototype.attachHoverEvents = function (this: TouchScaleGesture, view: View): void {
     view.addEventListener("touchstart", this.onTouchStart as EventListener);
@@ -1533,7 +1536,7 @@ export interface MouseScaleGesture<O = unknown, V extends View = View, X = unkno
 export const MouseScaleGesture = (function (_super: typeof ScaleGesture) {
   const MouseScaleGesture = _super.extend("MouseScaleGesture", {
     wheel: true,
-  }) as FastenerClass<MouseScaleGesture<any, any, any, any>>;
+  }) as ScaleGestureClass<MouseScaleGesture<any, any, any, any>>;
 
   MouseScaleGesture.prototype.attachHoverEvents = function (this: MouseScaleGesture, view: View): void {
     view.addEventListener("mouseenter", this.onMouseEnter as EventListener);

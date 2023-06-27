@@ -20,7 +20,7 @@ import type {AnyDateTime} from "@swim/time";
 import {DateTime} from "@swim/time";
 import {TimeDomain} from "@swim/time";
 import {Affinity} from "@swim/component";
-import type {FastenerClass} from "@swim/component";
+import type {AnimatorClass} from "@swim/component";
 import {Animator} from "@swim/component";
 import type {View} from "@swim/view";
 import {ScaledView} from "./"; // forward import
@@ -55,7 +55,7 @@ export interface ContinuousScaleAnimator<O extends View = View, X = unknown, Y =
 export const ContinuousScaleAnimator = (function (_super: typeof Animator) {
   const ContinuousScaleAnimator = _super.extend("ContinuousScaleAnimator", {
     valueType: ContinuousScale,
-  }) as FastenerClass<ContinuousScaleAnimator<any, any, any, any, any>>;
+  }) as AnimatorClass<ContinuousScaleAnimator<any, any, any, any, any>>;
 
   ContinuousScaleAnimator.prototype.setScale = function <X, Y>(this: ContinuousScaleAnimator<View, X, Y>, xMin?: Domain<X> | X | string, xMax?: Range<Y> | X,
                                                                yMin?: Y | AnyTiming | boolean | null, yMax?: Y, timing?: AnyTiming | boolean | null): void {

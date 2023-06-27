@@ -28,6 +28,10 @@ export interface CssScopeDescriptor<S extends CSSStyleSheet | CSSRule = CSSStyle
 }
 
 /** @public */
+export interface CssScopeClass<F extends CssScope<any, any> = CssScope<any, any>> extends FastenerClass<F> {
+}
+
+/** @public */
 export interface CssScope<O = unknown, S extends CSSStyleSheet | CSSRule = CSSStyleSheet | CSSRule> extends Fastener<O> {
   /** @override */
   get descriptorType(): Proto<CssScopeDescriptor<S>>;
@@ -148,7 +152,7 @@ export interface CssScope<O = unknown, S extends CSSStyleSheet | CSSRule = CSSSt
 
 /** @public */
 export const CssScope = (function (_super: typeof Fastener) {
-  const CssScope = _super.extend("CssScope", {}) as FastenerClass<CssScope<any, any>>;
+  const CssScope = _super.extend("CssScope", {}) as CssScopeClass;
 
   Object.defineProperty(CssScope.prototype, "fastenerType", {
     value: CssScope,

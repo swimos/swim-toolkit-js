@@ -744,7 +744,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   downlink(template?: ThisType<EventDownlink<this>> & EventDownlinkDescriptor & Partial<Omit<EventDownlink<this>, keyof EventDownlinkDescriptor>>): EventDownlink<this> {
     let downlinkClass = EventDownlink;
     if (template !== void 0) {
-      downlinkClass = downlinkClass.define("downlink", template);
+      downlinkClass = downlinkClass.define("downlink", template) as typeof EventDownlink;
     }
     return downlinkClass.create(this);
   }
@@ -753,7 +753,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   downlinkValue<V = Value, VU = V extends Value ? AnyValue : V>(template?: ThisType<ValueDownlink<this, V, VU>> & ValueDownlinkDescriptor<V, VU> & Partial<Omit<ValueDownlink<this, V, VU>, keyof ValueDownlinkDescriptor<V, VU>>>): ValueDownlink<this, V, VU> {
     let downlinkClass = ValueDownlink;
     if (template !== void 0) {
-      downlinkClass = downlinkClass.define("downlinkValue", template);
+      downlinkClass = downlinkClass.define("downlinkValue", template) as typeof ValueDownlink;
     }
     return downlinkClass.create(this);
   }
@@ -762,7 +762,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   downlinkList<V = Value, VU = V extends Value ? AnyValue : V>(template?: ThisType<ListDownlink<this, V, VU>> & ListDownlinkDescriptor<V, VU> & Partial<Omit<ListDownlink<this, V, VU>, keyof ListDownlinkDescriptor<V, VU>>>): ListDownlink<this, V, VU> {
     let downlinkClass = ListDownlink;
     if (template !== void 0) {
-      downlinkClass = downlinkClass.define("downlinkList", template);
+      downlinkClass = downlinkClass.define("downlinkList", template) as typeof ListDownlink;
     }
     return downlinkClass.create(this);
   }
@@ -771,7 +771,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
   downlinkMap<K = Value, V = Value, KU = K extends Value ? AnyValue : K, VU = V extends Value ? AnyValue : V>(template?: ThisType<MapDownlink<this, K, V, KU, VU>> & MapDownlinkDescriptor<K, V, KU, VU> & Partial<Omit<MapDownlink<this, K, V, KU, VU>, keyof MapDownlinkDescriptor<K, V, KU, VU>>>): MapDownlink<this, K, V, KU, VU> {
     let downlinkClass = MapDownlink;
     if (template !== void 0) {
-      downlinkClass = downlinkClass.define("downlinkMap", template);
+      downlinkClass = downlinkClass.define("downlinkMap", template) as typeof MapDownlink;
     }
     return downlinkClass.create(this);
   }
@@ -1160,8 +1160,8 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     refreshChildren.call(this.model!, refreshFlags, refreshChild);
   }
 
-  getOptionalFastener<K extends keyof this>(fastenerName: K): this[K] | null {
-    return FastenerContext.getOptionalFastener(this, fastenerName);
+  tryFastener<K extends keyof this>(fastenerName: K): this[K] | null {
+    return FastenerContext.tryFastener(this, fastenerName);
   }
 
   getFastener<F extends Fastener<any>>(fastenerName: PropertyKey, fastenerType: Proto<F>, contextType?: Proto<unknown> | null): F | null {

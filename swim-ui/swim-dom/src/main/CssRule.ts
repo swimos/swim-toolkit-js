@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import type {Proto} from "@swim/util";
-import type {FastenerClass} from "@swim/component";
 import type {CssScopeDescriptor} from "./CssScope";
+import type {CssScopeClass} from "./CssScope";
 import {CssScope} from "./CssScope";
 
 /** @public */
@@ -22,6 +22,10 @@ export interface CssRuleDescriptor<S extends CSSRule = CSSRule> extends CssScope
   extends?: Proto<CssRule<any>> | boolean | null;
   selector?: string;
   cssText?: string;
+}
+
+/** @public */
+export interface CssRuleClass<F extends CssRule<any, any> = CssRule<any, any>> extends CssScopeClass<F> {
 }
 
 /** @public */
@@ -44,7 +48,7 @@ export interface CssRule<O = unknown, S extends CSSRule = CSSRule> extends CssSc
 
 /** @public */
 export const CssRule = (function (_super: typeof CssScope) {
-  const CssRule = _super.extend("CssRule", {}) as FastenerClass<CssRule<any>>;
+  const CssRule = _super.extend("CssRule", {}) as CssRuleClass;
 
   Object.defineProperty(CssRule.prototype, "fastenerType", {
     value: CssRule,

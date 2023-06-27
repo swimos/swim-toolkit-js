@@ -69,8 +69,7 @@ export class GeoView extends GraphicsView {
 
   protected override onRender(): void {
     super.onRender();
-    const geoBoundsColorAnimator = this.getOptionalFastener("geoBoundsColor");
-    const outlineColor = geoBoundsColorAnimator !== null ? geoBoundsColorAnimator.value : null;
+    const outlineColor = ThemeAnimator.tryValue(this, "geoBoundsColor");
     if (outlineColor !== null) {
       this.renderGeoBounds(outlineColor, 1);
     }

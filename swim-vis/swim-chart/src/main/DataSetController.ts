@@ -21,6 +21,7 @@ import type {Length} from "@swim/math";
 import type {Trait} from "@swim/model";
 import {TraitRef} from "@swim/model";
 import type {Color} from "@swim/style";
+import {ViewRef} from "@swim/view";
 import type {GraphicsView} from "@swim/graphics";
 import type {ControllerObserver} from "@swim/controller";
 import {Controller} from "@swim/controller";
@@ -159,15 +160,13 @@ export class DataSetController<X = unknown, Y = unknown> extends Controller {
       this.owner.callObservers("controllerDidDetachDataPointView", dataPointView, dataPointController, this.owner);
     },
     attachDataPointView(dataPointView: DataPointView<X, Y>, dataPointController: DataPointController<X, Y>): void {
-      const label = dataPointView.getOptionalFastener("label");
-      const labelView = label !== null ? label.view : null;
+      const labelView = ViewRef.tryView(dataPointView, "label");
       if (labelView !== null) {
         this.attachDataPointLabelView(labelView, dataPointController);
       }
     },
     detachDataPointView(dataPointView: DataPointView<X, Y>, dataPointController: DataPointController<X, Y>): void {
-      const label = dataPointView.getOptionalFastener("label");
-      const labelView = label !== null ? label.view : null;
+      const labelView = ViewRef.tryView(dataPointView, "label");
       if (labelView !== null) {
         this.detachDataPointLabelView(labelView, dataPointController);
       }

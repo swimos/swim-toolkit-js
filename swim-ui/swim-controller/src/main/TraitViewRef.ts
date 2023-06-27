@@ -46,6 +46,17 @@ export interface TraitViewRefDescriptor<T extends Trait = Trait, V extends View 
 }
 
 /** @public */
+export interface TraitViewRefClass<F extends TraitViewRef<any, any, any> = TraitViewRef<any, any, any>> extends FastenerClass<F> {
+  /** @internal */
+  readonly ConsumingFlag: FastenerFlags;
+
+  /** @internal @override */
+  readonly FlagShift: number;
+  /** @internal @override */
+  readonly FlagMask: FastenerFlags;
+}
+
+/** @public */
 export interface TraitViewRef<O = unknown, T extends Trait = Trait, V extends View = View> extends Fastener<O>, Consumable {
   /** @override */
   get descriptorType(): Proto<TraitViewRefDescriptor<T, V>>;
@@ -272,15 +283,7 @@ export interface TraitViewRef<O = unknown, T extends Trait = Trait, V extends Vi
 
 /** @public */
 export const TraitViewRef = (function (_super: typeof Fastener) {
-  const TraitViewRef = _super.extend("TraitViewRef", {}) as FastenerClass<TraitViewRef<any, any, any>> & {
-    /** @internal */
-    readonly ConsumingFlag: FastenerFlags;
-
-    /** @internal @override */
-    readonly FlagShift: number;
-    /** @internal @override */
-    readonly FlagMask: FastenerFlags;
-  };
+  const TraitViewRef = _super.extend("TraitViewRef", {}) as TraitViewRefClass;
 
   Object.defineProperty(TraitViewRef.prototype, "fastenerType", {
     value: TraitViewRef,

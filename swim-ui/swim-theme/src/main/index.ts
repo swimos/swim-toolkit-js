@@ -43,9 +43,11 @@ export {ThemeMatrix} from "./ThemeMatrix";
 export {ThemeContext} from "./ThemeContext";
 
 export type {ThemeAnimatorDescriptor} from "./ThemeAnimator";
+export type {ThemeAnimatorClass} from "./ThemeAnimator";
 export {ThemeAnimator} from "./ThemeAnimator";
 
 export type {ThemeConstraintAnimatorDescriptor} from "./ThemeConstraintAnimator";
+export type {ThemeConstraintAnimatorClass} from "./ThemeConstraintAnimator";
 export {ThemeConstraintAnimator} from "./ThemeConstraintAnimator";
 
 // Builtin

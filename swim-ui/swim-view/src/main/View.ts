@@ -1859,8 +1859,7 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
 
   /** @internal @override */
   setConstraintVariable(constraintVariable: ConstraintVariable, value: number): void {
-    const solverProvider = this.getOptionalFastener("solver");
-    const solverService = solverProvider !== null ? this.solver.service : null;
+    const solverService = Provider.tryService(this, "solver");
     if (solverService === null) {
       return;
     }

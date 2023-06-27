@@ -16,7 +16,6 @@ import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
 import {Affinity} from "@swim/component";
 import type {FastenerFlags} from "@swim/component";
-import type {FastenerClass} from "@swim/component";
 import {ConstraintId} from "@swim/constraint";
 import {ConstraintMap} from "@swim/constraint";
 import type {AnyConstraintExpression} from "@swim/constraint";
@@ -29,6 +28,7 @@ import type {Constraint} from "@swim/constraint";
 import {ConstraintScope} from "@swim/constraint";
 import type {ConstraintSolver} from "@swim/constraint";
 import type {ThemeAnimatorDescriptor} from "./ThemeAnimator";
+import type {ThemeAnimatorClass} from "./ThemeAnimator";
 import {ThemeAnimator} from "./ThemeAnimator";
 
 /** @public */
@@ -36,6 +36,19 @@ export interface ThemeConstraintAnimatorDescriptor<T = unknown, U = T> extends T
   extends?: Proto<ThemeConstraintAnimator<any, any, any>> | boolean | null;
   strength?: AnyConstraintStrength;
   constrained?: boolean;
+}
+
+/** @public */
+export interface ThemeConstraintAnimatorClass<A extends ThemeConstraintAnimator<any, any, any> = ThemeConstraintAnimator<any, any, any>> extends ThemeAnimatorClass<A> {
+  /** @internal */
+  readonly ConstrainedFlag: FastenerFlags;
+  /** @internal */
+  readonly ConstrainingFlag: FastenerFlags;
+
+  /** @internal @override */
+  readonly FlagShift: number;
+  /** @internal @override */
+  readonly FlagMask: FastenerFlags;
 }
 
 /** @public */
@@ -157,17 +170,7 @@ export interface ThemeConstraintAnimator<O = unknown, T = unknown, U = T> extend
 
 /** @public */
 export const ThemeConstraintAnimator = (function (_super: typeof ThemeAnimator) {
-  const ThemeConstraintAnimator = _super.extend("ThemeConstraintAnimator", {}) as FastenerClass<ThemeConstraintAnimator<any, any, any>> & {
-    /** @internal */
-    readonly ConstrainedFlag: FastenerFlags;
-    /** @internal */
-    readonly ConstrainingFlag: FastenerFlags;
-
-    /** @internal @override */
-    readonly FlagShift: number;
-    /** @internal @override */
-    readonly FlagMask: FastenerFlags;
-  };
+  const ThemeConstraintAnimator = _super.extend("ThemeConstraintAnimator", {}) as ThemeConstraintAnimatorClass;
 
   ThemeConstraintAnimator.prototype.isExternal = function (this: ThemeConstraintAnimator): boolean {
     return true;
@@ -408,7 +411,7 @@ export const ThemeConstraintAnimator = (function (_super: typeof ThemeAnimator) 
     return animator;
   };
 
-  ThemeConstraintAnimator.refine = function (animatorClass: FastenerClass<any>): void {
+  ThemeConstraintAnimator.refine = function (animatorClass: ThemeConstraintAnimatorClass<any>): void {
     _super.refine.call(this, animatorClass);
     const animatorPrototype = animatorClass.prototype;
     let flagsInit = animatorPrototype.flagsInit;

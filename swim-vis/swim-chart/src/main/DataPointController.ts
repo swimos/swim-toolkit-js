@@ -189,23 +189,23 @@ export class DataPointController<X = unknown, Y = unknown> extends Controller {
       if (dataPointView !== null) {
         this.owner.setX(dataPointTrait.x.value);
         this.owner.setY(dataPointTrait.y.value);
-        const y2 = dataPointTrait.getOptionalFastener("y2");
+        const y2 = dataPointTrait.tryFastener("y2");
         if (y2 !== null) {
           this.owner.setY2(y2.value);
         }
-        const radius = dataPointTrait.getOptionalFastener("radius");
+        const radius = dataPointTrait.tryFastener("radius");
         if (radius !== null) {
           this.owner.setRadius(radius.value);
         }
-        const color = dataPointTrait.getOptionalFastener("color");
+        const color = dataPointTrait.tryFastener("color");
         if (color !== null) {
           this.owner.setColor(color.value);
         }
-        const opacity = dataPointTrait.getOptionalFastener("opacity");
+        const opacity = dataPointTrait.tryFastener("opacity");
         if (opacity !== null) {
           this.owner.setOpacity(opacity.value);
         }
-        const label = dataPointTrait.getOptionalFastener("label");
+        const label = dataPointTrait.tryFastener("label");
         if (label !== null) {
           this.owner.setLabelView(label.value);
         }
@@ -254,23 +254,23 @@ export class DataPointController<X = unknown, Y = unknown> extends Controller {
       }
         this.owner.setX(dataPointTrait.x.value);
         this.owner.setY(dataPointTrait.y.value);
-        const y2 = dataPointTrait.getOptionalFastener("y2");
+        const y2 = dataPointTrait.tryFastener("y2");
         if (y2 !== null) {
           this.owner.setY2(y2.value);
         }
-        const radius = dataPointTrait.getOptionalFastener("radius");
+        const radius = dataPointTrait.tryFastener("radius");
         if (radius !== null) {
           this.owner.setRadius(radius.value);
         }
-        const color = dataPointTrait.getOptionalFastener("color");
+        const color = dataPointTrait.tryFastener("color");
         if (color !== null) {
           this.owner.setColor(color.value);
         }
-        const opacity = dataPointTrait.getOptionalFastener("opacity");
+        const opacity = dataPointTrait.tryFastener("opacity");
         if (opacity !== null) {
           this.owner.setOpacity(opacity.value);
         }
-        const label = dataPointTrait.getOptionalFastener("label");
+        const label = dataPointTrait.tryFastener("label");
         if (label !== null) {
           this.owner.setLabelView(label.value);
         }
@@ -324,11 +324,11 @@ export class DataPointController<X = unknown, Y = unknown> extends Controller {
       if (dataPointTrait !== null) {
         dataPointView.x.setState(dataPointTrait.x.value, Affinity.Intrinsic);
         dataPointView.y.setState(dataPointTrait.y.value, Affinity.Intrinsic);
-        const y2 = dataPointTrait.getOptionalFastener("y2");
+        const y2 = dataPointTrait.tryFastener("y2");
         if (y2 !== null) {
           dataPointView.y2.setState(y2.value, Affinity.Intrinsic);
         }
-        const radius = dataPointTrait.getOptionalFastener("radius");
+        const radius = dataPointTrait.tryFastener("radius");
         if (radius !== null) {
           dataPointView.radius.setState(radius.value, Affinity.Intrinsic);
         }

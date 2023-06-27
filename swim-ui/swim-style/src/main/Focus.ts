@@ -25,7 +25,7 @@ import type {Output} from "@swim/codec";
 import type {Debug} from "@swim/codec";
 import {Format} from "@swim/codec";
 import {Affinity} from "@swim/component";
-import type {FastenerClass} from "@swim/component";
+import type {AnimatorClass} from "@swim/component";
 import {Animator} from "@swim/component";
 
 /** @public */
@@ -353,7 +353,7 @@ export interface FocusAnimator<O = unknown, T extends Focus | null | undefined =
 export const FocusAnimator = (function (_super: typeof Animator) {
   const FocusAnimator = _super.extend("FocusAnimator", {
     valueType: Focus,
-  }) as FastenerClass<FocusAnimator<any, any, any>>;
+  }) as AnimatorClass<FocusAnimator<any, any, any>>;
 
   Object.defineProperty(FocusAnimator.prototype, "phase", {
     get(this: FocusAnimator): number | undefined {

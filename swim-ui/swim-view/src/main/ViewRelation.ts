@@ -31,6 +31,10 @@ export interface ViewRelationDescriptor<V extends View = View> extends FastenerD
 }
 
 /** @public */
+export interface ViewRelationClass<F extends ViewRelation<any, any> = ViewRelation<any, any>> extends FastenerClass<F> {
+}
+
+/** @public */
 export interface ViewRelation<O = unknown, V extends View = View> extends Fastener<O> {
   /** @override */
   get descriptorType(): Proto<ViewRelationDescriptor<V>>;
@@ -147,7 +151,7 @@ export interface ViewRelation<O = unknown, V extends View = View> extends Fasten
 
 /** @public */
 export const ViewRelation = (function (_super: typeof Fastener) {
-  const ViewRelation = _super.extend("ViewRelation", {}) as FastenerClass<ViewRelation<any, any>>;
+  const ViewRelation = _super.extend("ViewRelation", {}) as ViewRelationClass;
 
   Object.defineProperty(ViewRelation.prototype, "fastenerType", {
     value: ViewRelation,

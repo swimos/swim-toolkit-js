@@ -16,9 +16,9 @@ import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
 import type {Proto} from "@swim/util";
 import type {Observes} from "@swim/util";
-import type {FastenerClass} from "@swim/component";
 import type {Model} from "./Model";
 import type {ModelRefDescriptor} from "./ModelRef";
+import type {ModelRefClass} from "./ModelRef";
 import {ModelRef} from "./ModelRef";
 import type {AnyTrait} from "./Trait";
 import type {TraitFactory} from "./Trait";
@@ -30,6 +30,10 @@ export interface TraitModelRefDescriptor<T extends Trait = Trait, M extends Mode
   traitType?: TraitFactory<T>;
   traitKey?: string | boolean;
   observesTrait?: boolean;
+}
+
+/** @public */
+export interface TraitModelRefClass<F extends TraitModelRef<any, any, any> = TraitModelRef<any, any, any>> extends ModelRefClass<F> {
 }
 
 /** @public */
@@ -109,7 +113,7 @@ export interface TraitModelRef<O = unknown, T extends Trait = Trait, M extends M
 
 /** @public */
 export const TraitModelRef = (function (_super: typeof ModelRef) {
-  const TraitModelRef = _super.extend("TraitModelRef", {}) as FastenerClass<TraitModelRef<any, any, any>>;
+  const TraitModelRef = _super.extend("TraitModelRef", {}) as TraitModelRefClass;
 
   TraitModelRef.prototype.getTrait = function <T extends Trait, M extends Model>(this: TraitModelRef<unknown, T, M>): T {
     const trait = this.trait;
@@ -382,7 +386,7 @@ export const TraitModelRef = (function (_super: typeof ModelRef) {
     return fastener;
   };
 
-  TraitModelRef.refine = function (fastenerClass: FastenerClass<any>): void {
+  TraitModelRef.refine = function (fastenerClass: TraitModelRefClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

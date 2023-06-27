@@ -17,8 +17,8 @@ import type {Proto} from "@swim/util";
 import type {AnyTiming} from "@swim/util";
 import {Timing} from "@swim/util";
 import {Affinity} from "@swim/component";
-import type {FastenerClass} from "@swim/component";
 import type {Property} from "@swim/component";
+import type {AnimatorClass} from "@swim/component";
 import type {AnimatorDescriptor} from "@swim/component";
 import {Animator} from "@swim/component";
 import type {MoodVector} from "./MoodVector";
@@ -30,6 +30,10 @@ import {Look} from "./"; // forward import
 export interface ThemeAnimatorDescriptor<T = unknown, U = T> extends AnimatorDescriptor<T, U> {
   extends?: Proto<ThemeAnimator<any, any, any>> | boolean | null;
   look?: Look<T, any>;
+}
+
+/** @public */
+export interface ThemeAnimatorClass<A extends ThemeAnimator<any, any, any> = ThemeAnimator<any, any, any>> extends AnimatorClass<A> {
 }
 
 /** @public */
@@ -84,7 +88,7 @@ export interface ThemeAnimator<O = unknown, T = unknown, U = T> extends Animator
 
 /** @public */
 export const ThemeAnimator = (function (_super: typeof Animator) {
-  const ThemeAnimator = _super.extend("ThemeAnimator", {}) as FastenerClass<ThemeAnimator<any, any, any>>;
+  const ThemeAnimator = _super.extend("ThemeAnimator", {}) as ThemeAnimatorClass;
 
   ThemeAnimator.prototype.onSetAffinity = function (this: ThemeAnimator, newAffinity: Affinity, oldAffinity: Affinity): void {
     if (newAffinity > Affinity.Intrinsic) {

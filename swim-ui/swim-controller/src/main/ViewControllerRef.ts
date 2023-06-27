@@ -15,12 +15,12 @@
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
 import type {Observes} from "@swim/util";
-import type {FastenerClass} from "@swim/component";
 import type {AnyView} from "@swim/view";
 import type {ViewFactory} from "@swim/view";
 import {View} from "@swim/view";
 import type {Controller} from "./Controller";
 import type {ControllerRefDescriptor} from "./ControllerRef";
+import type {ControllerRefClass} from "./ControllerRef";
 import {ControllerRef} from "./ControllerRef";
 
 /** @public */
@@ -29,6 +29,10 @@ export interface ViewControllerRefDescriptor<V extends View = View, C extends Co
   viewType?: ViewFactory<V>;
   viewKey?: string | boolean;
   observesView?: boolean;
+}
+
+/** @public */
+export interface ViewControllerRefClass<F extends ViewControllerRef<any, any, any> = ViewControllerRef<any, any, any>> extends ControllerRefClass<F> {
 }
 
 /** @public */
@@ -108,7 +112,7 @@ export interface ViewControllerRef<O = unknown, V extends View = View, C extends
 
 /** @public */
 export const ViewControllerRef = (function (_super: typeof ControllerRef) {
-  const ViewControllerRef = _super.extend("ViewControllerRef", {}) as FastenerClass<ViewControllerRef<any, any, any>>;
+  const ViewControllerRef = _super.extend("ViewControllerRef", {}) as ViewControllerRefClass;
 
   ViewControllerRef.prototype.getView = function <V extends View, C extends Controller>(this: ViewControllerRef<unknown, V, C>): V {
     const view = this.view;
@@ -381,7 +385,7 @@ export const ViewControllerRef = (function (_super: typeof ControllerRef) {
     return fastener;
   };
 
-  ViewControllerRef.refine = function (fastenerClass: FastenerClass<any>): void {
+  ViewControllerRef.refine = function (fastenerClass: ViewControllerRefClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

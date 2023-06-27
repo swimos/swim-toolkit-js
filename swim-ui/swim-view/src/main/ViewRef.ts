@@ -15,7 +15,7 @@
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
 import {Affinity} from "@swim/component";
-import type {FastenerClass} from "@swim/component";
+import {FastenerContext} from "@swim/component";
 import {Fastener} from "@swim/component";
 import type {AnyConstraintExpression} from "@swim/constraint";
 import {ConstraintExpression} from "@swim/constraint";
@@ -30,12 +30,18 @@ import type {ConstraintContext} from "@swim/constraint";
 import type {AnyView} from "./View";
 import type {View} from "./View";
 import type {ViewRelationDescriptor} from "./ViewRelation";
+import type {ViewRelationClass} from "./ViewRelation";
 import {ViewRelation} from "./ViewRelation";
 
 /** @public */
 export interface ViewRefDescriptor<V extends View = View> extends ViewRelationDescriptor<V> {
   extends?: Proto<ViewRef<any, any>> | boolean | null;
   viewKey?: string | boolean;
+}
+
+/** @public */
+export interface ViewRefClass<F extends ViewRef<any, any> = ViewRef<any, any>> extends ViewRelationClass<F> {
+  tryView<O, K extends keyof O, F extends O[K] = O[K]>(owner: O, fastenerName: K): F extends ViewRef<any, infer V> ? V | null : null;
 }
 
 /** @public */
@@ -206,7 +212,7 @@ export interface ViewRef<O = unknown, V extends View = View> extends ViewRelatio
 
 /** @public */
 export const ViewRef = (function (_super: typeof ViewRelation) {
-  const ViewRef = _super.extend("ViewRef", {}) as FastenerClass<ViewRef<any, any>>;
+  const ViewRef = _super.extend("ViewRef", {}) as ViewRefClass;
 
   Object.defineProperty(ViewRef.prototype, "fastenerType", {
     value: ViewRef,
@@ -642,6 +648,14 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
     _super.prototype.onUnmount.call(this);
   };
 
+  ViewRef.tryView = function <O, K extends keyof O, F extends O[K]>(owner: O, fastenerName: K): F extends ViewRef<any, infer V> ? V | null : null {
+    const viewRef = FastenerContext.tryFastener(owner, fastenerName) as ViewRef | null;
+    if (viewRef !== null) {
+      return viewRef.view as any;
+    }
+    return null as any;
+  };
+
   ViewRef.construct = function <F extends ViewRef<any, any>>(fastener: F | null, owner: F extends ViewRef<infer O, any> ? O : never): F {
     if (fastener === null) {
       fastener = function (view?: F extends ViewRef<any, infer V> ? AnyView<V> : never, target?: View | null, key?: string): F extends ViewRef<infer O, infer V> ? V | O | null : never {
@@ -662,7 +676,7 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
     return fastener;
   };
 
-  ViewRef.refine = function (fastenerClass: FastenerClass<any>): void {
+  ViewRef.refine = function (fastenerClass: ViewRefClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

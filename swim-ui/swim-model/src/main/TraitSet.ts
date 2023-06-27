@@ -19,12 +19,12 @@ import type {Comparator} from "@swim/util";
 import type {Consumer} from "@swim/util";
 import {Affinity} from "@swim/component";
 import type {FastenerFlags} from "@swim/component";
-import type {FastenerClass} from "@swim/component";
 import {Fastener} from "@swim/component";
 import type {Model} from "./Model";
 import type {AnyTrait} from "./Trait";
 import type {Trait} from "./Trait";
 import type {TraitRelationDescriptor} from "./TraitRelation";
+import type {TraitRelationClass} from "./TraitRelation";
 import {TraitRelation} from "./TraitRelation";
 
 /** @public */
@@ -32,6 +32,19 @@ export interface TraitSetDescriptor<T extends Trait = Trait> extends TraitRelati
   extends?: Proto<TraitSet<any, any>> | boolean | null;
   ordered?: boolean;
   sorted?: boolean;
+}
+
+/** @public */
+export interface TraitSetClass<F extends TraitSet<any, any> = TraitSet<any, any>> extends TraitRelationClass<F> {
+  /** @internal */
+  readonly OrderedFlag: FastenerFlags;
+  /** @internal */
+  readonly SortedFlag: FastenerFlags;
+
+  /** @internal @override */
+  readonly FlagShift: number;
+  /** @internal @override */
+  readonly FlagMask: FastenerFlags;
 }
 
 /** @public */
@@ -223,17 +236,7 @@ export interface TraitSet<O = unknown, T extends Trait = Trait> extends TraitRel
 
 /** @public */
 export const TraitSet = (function (_super: typeof TraitRelation) {
-  const TraitSet = _super.extend("TraitSet", {}) as FastenerClass<TraitSet<any, any>> & {
-    /** @internal */
-    readonly OrderedFlag: FastenerFlags;
-    /** @internal */
-    readonly SortedFlag: FastenerFlags;
-
-    /** @internal @override */
-    readonly FlagShift: number;
-    /** @internal @override */
-    readonly FlagMask: FastenerFlags;
-  };
+  const TraitSet = _super.extend("TraitSet", {}) as TraitSetClass;
 
   Object.defineProperty(TraitSet.prototype, "fastenerType", {
     value: TraitSet,
@@ -759,7 +762,7 @@ export const TraitSet = (function (_super: typeof TraitRelation) {
     return fastener;
   };
 
-  TraitSet.refine = function (fastenerClass: FastenerClass<any>): void {
+  TraitSet.refine = function (fastenerClass: TraitSetClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
     let flagsInit = fastenerPrototype.flagsInit;

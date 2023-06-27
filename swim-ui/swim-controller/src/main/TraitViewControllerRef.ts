@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import type {Proto} from "@swim/util";
-import type {FastenerClass} from "@swim/component";
 import type {TraitFactory} from "@swim/model";
 import type {Trait} from "@swim/model";
 import type {AnyView} from "@swim/view";
@@ -21,6 +20,7 @@ import type {ViewFactory} from "@swim/view";
 import type {View} from "@swim/view";
 import type {Controller} from "./Controller";
 import type {ControllerRefDescriptor} from "./ControllerRef";
+import type {ControllerRefClass} from "./ControllerRef";
 import {ControllerRef} from "./ControllerRef";
 import type {TraitViewRef} from "./TraitViewRef";
 
@@ -31,6 +31,10 @@ export interface TraitViewControllerRefDescriptor<T extends Trait = Trait, V ext
   traitKey?: string | boolean;
   viewType?: ViewFactory<V>;
   viewKey?: string | boolean;
+}
+
+/** @public */
+export interface TraitViewControllerRefClass<F extends TraitViewControllerRef<any, any, any, any> = TraitViewControllerRef<any, any, any, any>> extends ControllerRefClass<F> {
 }
 
 /** @public */
@@ -89,7 +93,7 @@ export interface TraitViewControllerRef<O = unknown, T extends Trait = Trait, V 
 
 /** @public */
 export const TraitViewControllerRef = (function (_super: typeof ControllerRef) {
-  const TraitViewControllerRef = _super.extend("TraitViewControllerRef", {}) as FastenerClass<TraitViewControllerRef<any, any, any, any>>;
+  const TraitViewControllerRef = _super.extend("TraitViewControllerRef", {}) as TraitViewControllerRefClass;
 
   TraitViewControllerRef.prototype.getTraitViewRef = function <T extends Trait, V extends View, C extends Controller>(controller: C): TraitViewRef<unknown, T, V> {
     throw new Error("abstract");
@@ -281,7 +285,7 @@ export const TraitViewControllerRef = (function (_super: typeof ControllerRef) {
     configurable: true,
   });
 
-  TraitViewControllerRef.refine = function (fastenerClass: FastenerClass<any>): void {
+  TraitViewControllerRef.refine = function (fastenerClass: TraitViewControllerRefClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

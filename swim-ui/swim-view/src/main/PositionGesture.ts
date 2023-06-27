@@ -14,11 +14,11 @@
 
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
-import type {FastenerClass} from "@swim/component";
 import type {View} from "./View";
 import type {GestureInputType} from "./Gesture";
 import {GestureInput} from "./Gesture";
 import type {GestureDescriptor} from "./Gesture";
+import type {GestureClass} from "./Gesture";
 import {Gesture} from "./Gesture";
 
 /** @public */
@@ -65,6 +65,10 @@ export class PositionGestureInput extends GestureInput {
 /** @public */
 export interface PositionGestureDescriptor<V extends View = View> extends GestureDescriptor<V> {
   extends?: Proto<PositionGesture<any, any>> | boolean | null;
+}
+
+/** @public */
+export interface PositionGestureClass<F extends PositionGesture<any, any> = PositionGesture<any, any>> extends GestureClass<F> {
 }
 
 /** @public */
@@ -268,7 +272,7 @@ export interface PositionGesture<O = unknown, V extends View = View> extends Ges
 
 /** @public */
 export const PositionGesture = (function (_super: typeof Gesture) {
-  const PositionGesture = _super.extend("PositionGesture", {}) as FastenerClass<PositionGesture<any, any>>;
+  const PositionGesture = _super.extend("PositionGesture", {}) as PositionGestureClass;
 
   PositionGesture.prototype.attachEvents = function (this: PositionGesture, view: View): void {
     _super.prototype.attachEvents.call(this, view);
@@ -629,8 +633,8 @@ export const PositionGesture = (function (_super: typeof Gesture) {
     return gesture;
   };
 
-  PositionGesture.specialize = function (template: PositionGestureDescriptor<any>): FastenerClass<PositionGesture<any, any>> {
-    let superClass = template.extends as FastenerClass<PositionGesture<any, any>> | null | undefined;
+  PositionGesture.specialize = function (template: PositionGestureDescriptor<any>): PositionGestureClass {
+    let superClass = template.extends as PositionGestureClass | null | undefined;
     if (superClass === void 0 || superClass === null) {
       const method = template.method;
       if (method === "pointer") {
@@ -694,7 +698,7 @@ export interface PointerPositionGesture<O = unknown, V extends View = View> exte
 
 /** @internal */
 export const PointerPositionGesture = (function (_super: typeof PositionGesture) {
-  const PointerPositionGesture = _super.extend("PointerPositionGesture", {}) as FastenerClass<PointerPositionGesture<any, any>>;
+  const PointerPositionGesture = _super.extend("PointerPositionGesture", {}) as PositionGestureClass<PointerPositionGesture<any, any>>;
 
   PointerPositionGesture.prototype.attachHoverEvents = function (this: PointerPositionGesture, view: View): void {
     view.addEventListener("pointerenter", this.onPointerEnter as EventListener);
@@ -863,7 +867,7 @@ export interface TouchPositionGesture<O = unknown, V extends View = View> extend
 
 /** @internal */
 export const TouchPositionGesture = (function (_super: typeof PositionGesture) {
-  const TouchPositionGesture = _super.extend("TouchPositionGesture", {}) as FastenerClass<TouchPositionGesture<any, any>>;
+  const TouchPositionGesture = _super.extend("TouchPositionGesture", {}) as PositionGestureClass<TouchPositionGesture<any, any>>;
 
   TouchPositionGesture.prototype.attachHoverEvents = function (this: TouchPositionGesture, view: View): void {
     view.addEventListener("touchstart", this.onTouchStart as EventListener);
@@ -1003,7 +1007,7 @@ export interface MousePositionGesture<O = unknown, V extends View = View> extend
 
 /** @internal */
 export const MousePositionGesture = (function (_super: typeof PositionGesture) {
-  const MousePositionGesture = _super.extend("MousePositionGesture", {}) as FastenerClass<MousePositionGesture<any, any>>;
+  const MousePositionGesture = _super.extend("MousePositionGesture", {}) as PositionGestureClass<MousePositionGesture<any, any>>;
 
   MousePositionGesture.prototype.attachHoverEvents = function (this: MousePositionGesture, view: View): void {
     view.addEventListener("mouseenter", this.onMouseEnter as EventListener);

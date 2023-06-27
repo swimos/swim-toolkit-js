@@ -77,10 +77,8 @@ export class AreaPlotView<X = unknown, Y = unknown> extends SeriesPlotView<X, Y>
       if (gradientStops !== 0) {
         gradient = context.createLinearGradient(x0, 0, x1, 0);
         if (p0.isGradientStop()) {
-          const colorAnimator = p0.getOptionalFastener("color");
-          let color = colorAnimator !== null ? colorAnimator.getValueOr(fill) : fill;
-          const opacityAnimator = p0.getOptionalFastener("opacity");
-          const opacity = opacityAnimator !== null ? opacityAnimator.value : void 0;
+          let color = ThemeAnimator.tryValueOr(p0, "color", fill);
+          const opacity = ThemeAnimator.tryValue(p0, "opacity");
           if (opacity !== void 0) {
             color = color.alpha(opacity);
           }
@@ -99,10 +97,8 @@ export class AreaPlotView<X = unknown, Y = unknown> extends SeriesPlotView<X, Y>
       const p = cursor.next().value!;
       context.lineTo(p.xCoord, p.yCoord);
       if (gradient !== null && p.isGradientStop()) {
-        const colorAnimator = p.getOptionalFastener("color");
-        let color = colorAnimator !== null ? colorAnimator.getValueOr(fill) : fill;
-        const opacityAnimator = p.getOptionalFastener("opacity");
-        const opacity = opacityAnimator !== null ? opacityAnimator.value : void 0;
+        let color = ThemeAnimator.tryValueOr(p, "color", fill);
+        const opacity = ThemeAnimator.tryValue(p, "opacity");
         if (opacity !== void 0) {
           color = color.alpha(opacity);
         }

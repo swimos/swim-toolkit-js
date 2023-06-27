@@ -15,18 +15,22 @@
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
 import type {Consumer} from "@swim/util";
-import type {FastenerClass} from "@swim/component";
 import type {TraitFactory} from "@swim/model";
 import type {Trait} from "@swim/model";
 import type {TraitRef} from "@swim/model";
 import type {Controller} from "./Controller";
 import type {ControllerSetDescriptor} from "./ControllerSet";
+import type {ControllerSetClass} from "./ControllerSet";
 import {ControllerSet} from "./ControllerSet";
 
 /** @public */
 export interface TraitControllerSetDescriptor<T extends Trait = Trait, C extends Controller = Controller> extends ControllerSetDescriptor<C> {
   extends?: Proto<TraitControllerSet<any, any, any>> | boolean | null;
   traitType?: TraitFactory<T>;
+}
+
+/** @public */
+export interface TraitControllerSetClass<F extends TraitControllerSet<any, any, any> = TraitControllerSet<any, any, any>> extends ControllerSetClass<F> {
 }
 
 /** @public */
@@ -109,7 +113,7 @@ export interface TraitControllerSet<O = unknown, T extends Trait = Trait, C exte
 
 /** @public */
 export const TraitControllerSet = (function (_super: typeof ControllerSet) {
-  const TraitControllerSet = _super.extend("TraitControllerSet", {}) as FastenerClass<TraitControllerSet<any, any, any>>;
+  const TraitControllerSet = _super.extend("TraitControllerSet", {}) as TraitControllerSetClass;
 
   TraitControllerSet.prototype.getTraitRef = function <T extends Trait, C extends Controller>(controller: C): TraitRef<unknown, T> {
     throw new Error("missing implementation");

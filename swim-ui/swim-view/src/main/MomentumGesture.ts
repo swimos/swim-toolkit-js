@@ -14,12 +14,12 @@
 
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
-import type {FastenerClass} from "@swim/component";
 import {View} from "./View";
 import type {GestureInputType} from "./Gesture";
 import {GestureInput} from "./Gesture";
 import {PositionGestureInput} from "./PositionGesture";
 import type {PositionGestureDescriptor} from "./PositionGesture";
+import type {PositionGestureClass} from "./PositionGesture";
 import {PositionGesture} from "./PositionGesture";
 
 /** @public */
@@ -130,6 +130,16 @@ export interface MomentumGestureDescriptor<V extends View = View> extends Positi
   hysteresis?: number;
   acceleration?: number;
   velocityMax?: number;
+}
+
+/** @public */
+export interface MomentumGestureClass<F extends MomentumGesture<any, any> = MomentumGesture<any, any>> extends PositionGestureClass<F> {
+  /** @internal */
+  readonly Hysteresis: number;
+  /** @internal */
+  readonly Acceleration: number;
+  /** @internal */
+  readonly VelocityMax: number;
 }
 
 /** @public */
@@ -315,14 +325,7 @@ export interface MomentumGesture<O = unknown, V extends View = View> extends Pos
 export const MomentumGesture = (function (_super: typeof PositionGesture) {
   const MomentumGesture = _super.extend("MomentumGesture", {
     observes: true,
-  }) as FastenerClass<MomentumGesture<any, any>> & {
-    /** @internal */
-    readonly Hysteresis: number;
-    /** @internal */
-    readonly Acceleration: number;
-    /** @internal */
-    readonly VelocityMax: number;
-  };
+  }) as MomentumGestureClass;
 
   MomentumGesture.prototype.createInput = function (this: MomentumGesture, inputId: string, inputType: GestureInputType, isPrimary: boolean,
                                                     x: number, y: number, t: number): MomentumGestureInput {
@@ -650,8 +653,8 @@ export const MomentumGesture = (function (_super: typeof PositionGesture) {
     return gesture;
   };
 
-  MomentumGesture.specialize = function (template: MomentumGestureDescriptor<any>): FastenerClass<MomentumGesture<any, any>> {
-    let superClass = template.extends as FastenerClass<MomentumGesture<any, any>> | null | undefined;
+  MomentumGesture.specialize = function (template: MomentumGestureDescriptor<any>): MomentumGestureClass {
+    let superClass = template.extends as MomentumGestureClass | null | undefined;
     if (superClass === void 0 || superClass === null) {
       const method = template.method;
       if (method === "pointer") {
@@ -719,7 +722,7 @@ export interface PointerMomentumGesture<O = unknown, V extends View = View> exte
 
 /** @internal */
 export const PointerMomentumGesture = (function (_super: typeof MomentumGesture) {
-  const PointerMomentumGesture = _super.extend("PointerMomentumGesture", {}) as FastenerClass<PointerMomentumGesture<any, any>>;
+  const PointerMomentumGesture = _super.extend("PointerMomentumGesture", {}) as MomentumGestureClass<PointerMomentumGesture<any, any>>;
 
   PointerMomentumGesture.prototype.attachHoverEvents = function (this: PointerMomentumGesture, view: View): void {
     view.addEventListener("pointerenter", this.onPointerEnter as EventListener);
@@ -888,7 +891,7 @@ export interface TouchMomentumGesture<O = unknown, V extends View = View> extend
 
 /** @internal */
 export const TouchMomentumGesture = (function (_super: typeof MomentumGesture) {
-  const TouchMomentumGesture = _super.extend("TouchMomentumGesture", {}) as FastenerClass<TouchMomentumGesture<any, any>>;
+  const TouchMomentumGesture = _super.extend("TouchMomentumGesture", {}) as MomentumGestureClass<TouchMomentumGesture<any, any>>;
 
   TouchMomentumGesture.prototype.attachHoverEvents = function (this: TouchMomentumGesture, view: View): void {
     view.addEventListener("touchstart", this.onTouchStart as EventListener);
@@ -1028,7 +1031,7 @@ export interface MouseMomentumGesture<O = unknown, V extends View = View> extend
 
 /** @internal */
 export const MouseMomentumGesture = (function (_super: typeof MomentumGesture) {
-  const MouseMomentumGesture = _super.extend("MouseMomentumGesture", {}) as FastenerClass<MouseMomentumGesture<any, any>>;
+  const MouseMomentumGesture = _super.extend("MouseMomentumGesture", {}) as MomentumGestureClass<MouseMomentumGesture<any, any>>;
 
   MouseMomentumGesture.prototype.attachHoverEvents = function (this: MouseMomentumGesture, view: View): void {
     view.addEventListener("mouseenter", this.onMouseEnter as EventListener);

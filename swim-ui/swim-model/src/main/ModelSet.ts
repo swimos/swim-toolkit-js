@@ -19,11 +19,11 @@ import type {Comparator} from "@swim/util";
 import type {Consumer} from "@swim/util";
 import {Affinity} from "@swim/component";
 import type {FastenerFlags} from "@swim/component";
-import type {FastenerClass} from "@swim/component";
 import {Fastener} from "@swim/component";
 import type {AnyModel} from "./Model";
 import type {Model} from "./Model";
 import type {ModelRelationDescriptor} from "./ModelRelation";
+import type {ModelRelationClass} from "./ModelRelation";
 import {ModelRelation} from "./ModelRelation";
 
 /** @public */
@@ -31,6 +31,19 @@ export interface ModelSetDescriptor<M extends Model = Model> extends ModelRelati
   extends?: Proto<ModelSet<any, any>> | boolean | null;
   ordered?: boolean;
   sorted?: boolean;
+}
+
+/** @public */
+export interface ModelSetClass<F extends ModelSet<any, any> = ModelSet<any, any>> extends ModelRelationClass<F> {
+  /** @internal */
+  readonly OrderedFlag: FastenerFlags;
+  /** @internal */
+  readonly SortedFlag: FastenerFlags;
+
+  /** @internal @override */
+  readonly FlagShift: number;
+  /** @internal @override */
+  readonly FlagMask: FastenerFlags;
 }
 
 /** @public */
@@ -213,17 +226,7 @@ export interface ModelSet<O = unknown, M extends Model = Model> extends ModelRel
 
 /** @public */
 export const ModelSet = (function (_super: typeof ModelRelation) {
-  const ModelSet = _super.extend("ModelSet", {}) as FastenerClass<ModelSet<any, any>> & {
-    /** @internal */
-    readonly OrderedFlag: FastenerFlags;
-    /** @internal */
-    readonly SortedFlag: FastenerFlags;
-
-    /** @internal @override */
-    readonly FlagShift: number;
-    /** @internal @override */
-    readonly FlagMask: FastenerFlags;
-  };
+  const ModelSet = _super.extend("ModelSet", {}) as ModelSetClass;
 
   Object.defineProperty(ModelSet.prototype, "fastenerType", {
     value: ModelSet,
@@ -699,7 +702,7 @@ export const ModelSet = (function (_super: typeof ModelRelation) {
     return fastener;
   };
 
-  ModelSet.refine = function (fastenerClass: FastenerClass<any>): void {
+  ModelSet.refine = function (fastenerClass: ModelSetClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
     let flagsInit = fastenerPrototype.flagsInit;

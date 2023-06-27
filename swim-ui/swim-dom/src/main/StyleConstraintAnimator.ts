@@ -16,7 +16,6 @@ import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
 import {Affinity} from "@swim/component";
 import type {FastenerFlags} from "@swim/component";
-import type {FastenerClass} from "@swim/component";
 import {ConstraintId} from "@swim/constraint";
 import {ConstraintMap} from "@swim/constraint";
 import type {AnyConstraintExpression} from "@swim/constraint";
@@ -37,6 +36,7 @@ import {EmLength} from "@swim/math";
 import {RemLength} from "@swim/math";
 import {PctLength} from "@swim/math";
 import type {StyleAnimatorDescriptor} from "./StyleAnimator";
+import type {StyleAnimatorClass} from "./StyleAnimator";
 import {StyleAnimator} from "./StyleAnimator";
 import {StyleContext} from "./"; // forward import
 
@@ -45,6 +45,19 @@ export interface StyleConstraintAnimatorDescriptor<T = unknown, U = T> extends S
   extends?: Proto<StyleConstraintAnimator<any, any, any>> | boolean | null;
   strength?: AnyConstraintStrength;
   constrained?: boolean;
+}
+
+/** @public */
+export interface StyleConstraintAnimatorClass<A extends StyleConstraintAnimator<any, any, any> = StyleConstraintAnimator<any, any, any>> extends StyleAnimatorClass<A> {
+  /** @internal */
+  readonly ConstrainedFlag: FastenerFlags;
+  /** @internal */
+  readonly ConstrainingFlag: FastenerFlags;
+
+  /** @internal @override */
+  readonly FlagShift: number;
+  /** @internal @override */
+  readonly FlagMask: FastenerFlags;
 }
 
 /** @public */
@@ -169,17 +182,7 @@ export interface StyleConstraintAnimator<O = unknown, T = unknown, U = T> extend
 
 /** @public */
 export const StyleConstraintAnimator = (function (_super: typeof StyleAnimator) {
-  const StyleConstraintAnimator = _super.extend("StyleConstraintAnimator", {}) as FastenerClass<StyleConstraintAnimator<any, any, any>> & {
-    /** @internal */
-    readonly ConstrainedFlag: FastenerFlags;
-    /** @internal */
-    readonly ConstrainingFlag: FastenerFlags;
-
-    /** @internal @override */
-    readonly FlagShift: number;
-    /** @internal @override */
-    readonly FlagMask: FastenerFlags;
-  };
+  const StyleConstraintAnimator = _super.extend("StyleConstraintAnimator", {}) as StyleConstraintAnimatorClass;
 
   StyleConstraintAnimator.prototype.isExternal = function (this: StyleConstraintAnimator): boolean {
     return true;
@@ -438,8 +441,8 @@ export const StyleConstraintAnimator = (function (_super: typeof StyleAnimator) 
     return animator;
   };
 
-  StyleConstraintAnimator.specialize = function (template: StyleConstraintAnimatorDescriptor<any, any>): FastenerClass<StyleConstraintAnimator<any, any, any>> {
-    let superClass = template.extends as FastenerClass<StyleConstraintAnimator<any, any, any>> | null | undefined;
+  StyleConstraintAnimator.specialize = function (template: StyleConstraintAnimatorDescriptor<any, any>): StyleConstraintAnimatorClass {
+    let superClass = template.extends as StyleConstraintAnimatorClass | null | undefined;
     if (superClass === void 0 || superClass === null) {
       const valueType = template.valueType;
       if (valueType === Number) {
@@ -453,7 +456,7 @@ export const StyleConstraintAnimator = (function (_super: typeof StyleAnimator) 
     return superClass;
   };
 
-  StyleConstraintAnimator.refine = function (animatorClass: FastenerClass<any>): void {
+  StyleConstraintAnimator.refine = function (animatorClass: StyleConstraintAnimatorClass<any>): void {
     _super.refine.call(this, animatorClass);
     const animatorPrototype = animatorClass.prototype;
     let flagsInit = animatorPrototype.flagsInit;
@@ -503,7 +506,7 @@ export interface NumberStyleConstraintAnimator<O = unknown, T extends number | u
 export const NumberStyleConstraintAnimator = (function (_super: typeof StyleConstraintAnimator) {
   const NumberStyleConstraintAnimator = _super.extend("NumberStyleConstraintAnimator", {
     valueType: Number,
-  }) as FastenerClass<NumberStyleConstraintAnimator<any, any, any>>;
+  }) as StyleConstraintAnimatorClass<NumberStyleConstraintAnimator<any, any, any>>;
 
   NumberStyleConstraintAnimator.prototype.toNumber = function (value: number): number {
     return typeof value === "number" ? value : 0;
@@ -595,7 +598,7 @@ export const LengthStyleConstraintAnimator = (function (_super: typeof StyleCons
   const LengthStyleConstraintAnimator = _super.extend("LengthStyleConstraintAnimator", {
     valueType: Length,
     value: null,
-  }) as FastenerClass<LengthStyleConstraintAnimator<any, any, any>>;
+  }) as StyleConstraintAnimatorClass<LengthStyleConstraintAnimator<any, any, any>>;
 
   Object.defineProperty(LengthStyleConstraintAnimator.prototype, "units", {
     get(this: LengthStyleConstraintAnimator): LengthUnits {

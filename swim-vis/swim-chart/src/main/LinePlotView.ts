@@ -122,10 +122,8 @@ export class LinePlotView<X = unknown, Y = unknown> extends SeriesPlotView<X, Y>
         context.lineTo(xCoord, yCoord);
       }
       if (gradient !== null && p.isGradientStop()) {
-        const colorAnimator = p.getOptionalFastener("color");
-        let color = colorAnimator !== null ? colorAnimator.getValueOr(stroke) : stroke;
-        const opacityAnimator = p.getOptionalFastener("opacity");
-        const opacity = opacityAnimator !== null ? opacityAnimator.value : void 0;
+        let color = ThemeAnimator.tryValueOr(p, "color", stroke);
+        const opacity = ThemeAnimator.tryValue(p, "opacity");
         if (opacity !== void 0) {
           color = color.alpha(opacity);
         }

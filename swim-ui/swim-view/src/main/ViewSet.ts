@@ -18,11 +18,11 @@ import {Objects} from "@swim/util";
 import type {Comparator} from "@swim/util";
 import {Affinity} from "@swim/component";
 import type {FastenerFlags} from "@swim/component";
-import type {FastenerClass} from "@swim/component";
 import {Fastener} from "@swim/component";
 import type {AnyView} from "./View";
 import type {View} from "./View";
 import type {ViewRelationDescriptor} from "./ViewRelation";
+import type {ViewRelationClass} from "./ViewRelation";
 import {ViewRelation} from "./ViewRelation";
 
 /** @public */
@@ -30,6 +30,19 @@ export interface ViewSetDescriptor<V extends View = View> extends ViewRelationDe
   extends?: Proto<ViewSet<any, any>> | boolean | null;
   ordered?: boolean;
   sorted?: boolean;
+}
+
+/** @public */
+export interface ViewSetClass<F extends ViewSet<any, any> = ViewSet<any, any>> extends ViewRelationClass<F> {
+  /** @internal */
+  readonly OrderedFlag: FastenerFlags;
+  /** @internal */
+  readonly SortedFlag: FastenerFlags;
+
+  /** @internal @override */
+  readonly FlagShift: number;
+  /** @internal @override */
+  readonly FlagMask: FastenerFlags;
 }
 
 /** @public */
@@ -202,17 +215,7 @@ export interface ViewSet<O = unknown, V extends View = View> extends ViewRelatio
 
 /** @public */
 export const ViewSet = (function (_super: typeof ViewRelation) {
-  const ViewSet = _super.extend("ViewSet", {}) as FastenerClass<ViewSet<any, any>> & {
-    /** @internal */
-    readonly OrderedFlag: FastenerFlags;
-    /** @internal */
-    readonly SortedFlag: FastenerFlags;
-
-    /** @internal @override */
-    readonly FlagShift: number;
-    /** @internal @override */
-    readonly FlagMask: FastenerFlags;
-  };
+  const ViewSet = _super.extend("ViewSet", {}) as ViewSetClass;
 
   Object.defineProperty(ViewSet.prototype, "fastenerType", {
     value: ViewSet,
@@ -664,7 +667,7 @@ export const ViewSet = (function (_super: typeof ViewRelation) {
     return fastener;
   };
 
-  ViewSet.refine = function (fastenerClass: FastenerClass<any>): void {
+  ViewSet.refine = function (fastenerClass: ViewSetClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
     let flagsInit = fastenerPrototype.flagsInit;

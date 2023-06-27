@@ -124,6 +124,10 @@ export interface GestureDescriptor<V extends View = View> extends FastenerDescri
 }
 
 /** @public */
+export interface GestureClass<F extends Gesture<any, any> = Gesture<any, any>> extends FastenerClass<F> {
+}
+
+/** @public */
 export interface Gesture<O = unknown, V extends View = View> extends Fastener<O> {
   (): V | null;
   (view: V | null): O;
@@ -220,7 +224,7 @@ export interface Gesture<O = unknown, V extends View = View> extends Fastener<O>
 
 /** @public */
 export const Gesture = (function (_super: typeof Fastener) {
-  const Gesture = _super.extend("Gesture", {}) as FastenerClass<Gesture<any, any>>;
+  const Gesture = _super.extend("Gesture", {}) as GestureClass;
 
   Object.defineProperty(Gesture.prototype, "fastenerType", {
     value: Gesture,
@@ -404,7 +408,7 @@ export const Gesture = (function (_super: typeof Fastener) {
     }
   };
 
-  Gesture.create = function <G extends Gesture<any, any>>(this: FastenerClass<G>, owner: G extends Gesture<infer O, any> ? O : never): G {
+  Gesture.create = function <G extends Gesture<any, any>>(this: GestureClass<G>, owner: G extends Gesture<infer O, any> ? O : never): G {
     const gesture = _super.create.call(this, owner) as G;
     if (gesture.view === null && gesture.bindsOwner === true && (owner as unknown) instanceof View) {
       gesture.setView(owner);
@@ -432,7 +436,7 @@ export const Gesture = (function (_super: typeof Fastener) {
     return gesture;
   };
 
-  Gesture.refine = function (fastenerClass: FastenerClass<any>): void {
+  Gesture.refine = function (fastenerClass: GestureClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

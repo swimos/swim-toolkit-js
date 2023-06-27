@@ -125,8 +125,7 @@ export class GeoTreeView extends GeoView {
 
   protected override onRender(): void {
     super.onRender();
-    const geoTreeColorAnimator = this.getOptionalFastener("geoTreeColor");
-    const outlineColor = geoTreeColorAnimator !== null ? geoTreeColorAnimator.value : null;
+    const outlineColor = ThemeAnimator.tryValue(this, "geoTreeColor");
     if (outlineColor !== null) {
       this.renderGeoTree(outlineColor);
     }

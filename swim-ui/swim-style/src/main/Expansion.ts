@@ -25,7 +25,7 @@ import type {Output} from "@swim/codec";
 import type {Debug} from "@swim/codec";
 import {Format} from "@swim/codec";
 import {Affinity} from "@swim/component";
-import type {FastenerClass} from "@swim/component";
+import type {AnimatorClass} from "@swim/component";
 import {Animator} from "@swim/component";
 
 /** @public */
@@ -355,7 +355,7 @@ export interface ExpansionAnimator<O = unknown, T extends Expansion | null | und
 export const ExpansionAnimator = (function (_super: typeof Animator) {
   const ExpansionAnimator = _super.extend("ExpansionAnimator", {
     valueType: Expansion,
-  }) as FastenerClass<ExpansionAnimator<any, any, any>>;
+  }) as AnimatorClass<ExpansionAnimator<any, any, any>>;
 
   Object.defineProperty(ExpansionAnimator.prototype, "phase", {
     get(this: ExpansionAnimator): number | undefined {

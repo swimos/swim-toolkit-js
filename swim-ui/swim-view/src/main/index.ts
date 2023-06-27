@@ -26,12 +26,15 @@ export type {ViewObserver} from "./View";
 export {View} from "./View";
 
 export type {ViewRelationDescriptor} from "./ViewRelation";
+export type {ViewRelationClass} from "./ViewRelation";
 export {ViewRelation} from "./ViewRelation";
 
 export type {ViewRefDescriptor} from "./ViewRef";
+export type {ViewRefClass} from "./ViewRef";
 export {ViewRef} from "./ViewRef";
 
 export type {ViewSetDescriptor} from "./ViewSet";
+export type {ViewSetClass} from "./ViewSet";
 export {ViewSet} from "./ViewSet";
 
 // Gesture
@@ -40,10 +43,12 @@ export type {GestureInputType} from "./Gesture";
 export {GestureInput} from "./Gesture";
 export type {GestureMethod} from "./Gesture";
 export type {GestureDescriptor} from "./Gesture";
+export type {GestureClass} from "./Gesture";
 export {Gesture} from "./Gesture";
 
 export {PositionGestureInput} from "./PositionGesture";
 export type {PositionGestureDescriptor} from "./PositionGesture";
+export type {PositionGestureClass} from "./PositionGesture";
 export {PositionGesture} from "./PositionGesture";
 export {PointerPositionGesture} from "./PositionGesture";
 export {TouchPositionGesture} from "./PositionGesture";
@@ -51,6 +56,7 @@ export {MousePositionGesture} from "./PositionGesture";
 
 export {MomentumGestureInput} from "./MomentumGesture";
 export type {MomentumGestureDescriptor} from "./MomentumGesture";
+export type {MomentumGestureClass} from "./MomentumGesture";
 export {MomentumGesture} from "./MomentumGesture";
 export {PointerMomentumGesture} from "./MomentumGesture";
 export {TouchMomentumGesture} from "./MomentumGesture";
@@ -60,6 +66,7 @@ export {ScaleGestureInput} from "./ScaleGesture";
 export type {ScaleGestureX} from "./ScaleGesture";
 export type {ScaleGestureY} from "./ScaleGesture";
 export type {ScaleGestureDescriptor} from "./ScaleGesture";
+export type {ScaleGestureClass} from "./ScaleGesture";
 export {ScaleGesture} from "./ScaleGesture";
 export {PointerScaleGesture} from "./ScaleGesture";
 export {TouchScaleGesture} from "./ScaleGesture";

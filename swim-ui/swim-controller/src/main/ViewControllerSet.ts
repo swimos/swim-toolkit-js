@@ -15,12 +15,12 @@
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
 import type {Observes} from "@swim/util";
-import type {FastenerClass} from "@swim/component";
 import type {AnyView} from "@swim/view";
 import type {ViewFactory} from "@swim/view";
 import {View} from "@swim/view";
 import type {Controller} from "./Controller";
 import type {ControllerSetDescriptor} from "./ControllerSet";
+import type {ControllerSetClass} from "./ControllerSet";
 import {ControllerSet} from "./ControllerSet";
 
 /** @public */
@@ -29,6 +29,10 @@ export interface ViewControllerSetDescriptor<V extends View = View, C extends Co
   viewType?: ViewFactory<V>;
   viewKey?: string | boolean;
   observesView?: boolean;
+}
+
+/** @public */
+export interface ViewControllerSetClass<F extends ViewControllerSet<any, any, any> = ViewControllerSet<any, any, any>> extends ControllerSetClass<F> {
 }
 
 /** @public */
@@ -147,7 +151,7 @@ export interface ViewControllerSet<O = unknown, V extends View = View, C extends
 
 /** @public */
 export const ViewControllerSet = (function (_super: typeof ControllerSet) {
-  const ViewControllerSet = _super.extend("ViewControllerSet", {}) as FastenerClass<ViewControllerSet<any, any, any>>;
+  const ViewControllerSet = _super.extend("ViewControllerSet", {}) as ViewControllerSetClass;
 
   ViewControllerSet.prototype.getViewController = function <V extends View, C extends Controller>(this: ViewControllerSet<unknown, V, C>, view: V): C | null {
     const controller = this.viewControllers[view.uid];
@@ -450,7 +454,7 @@ export const ViewControllerSet = (function (_super: typeof ControllerSet) {
     return fastener;
   };
 
-  ViewControllerSet.refine = function (fastenerClass: FastenerClass<any>): void {
+  ViewControllerSet.refine = function (fastenerClass: ViewControllerSetClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

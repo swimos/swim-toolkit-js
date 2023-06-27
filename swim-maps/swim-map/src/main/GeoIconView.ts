@@ -289,10 +289,8 @@ export class GeoIconView extends GeoView implements IconView {
     iconWidth = iconWidth instanceof Length ? iconWidth.pxValue(viewSize) : viewSize;
     let iconHeight: Length | number | null = this.iconHeight.value;
     iconHeight = iconHeight instanceof Length ? iconHeight.pxValue(viewSize) : viewSize;
-    const xAlignAnimator = this.getOptionalFastener("xAlign");
-    const xAlign = xAlignAnimator !== null ? xAlignAnimator.value : 0.5;
-    const yAlignAnimator = this.getOptionalFastener("yAlign");
-    const yAlign = yAlignAnimator !== null ? yAlignAnimator.value : 0.5;
+    const xAlign = Animator.tryValue(this, "xAlign");
+    const yAlign = Animator.tryValue(this, "yAlign");
     const x = viewCenter.x - iconWidth * xAlign;
     const y = viewCenter.y - iconHeight * yAlign;
     return new R2Box(x, y, x + iconWidth, y + iconHeight);
@@ -312,10 +310,8 @@ export class GeoIconView extends GeoView implements IconView {
     iconWidth = iconWidth instanceof Length ? iconWidth.pxValue(viewSize) : viewSize;
     let iconHeight: Length | number | null = this.iconHeight.value;
     iconHeight = iconHeight instanceof Length ? iconHeight.pxValue(viewSize) : viewSize;
-    const xAlignAnimator = this.getOptionalFastener("xAlign");
-    const xAlign = xAlignAnimator !== null ? xAlignAnimator.value : 0.5;
-    const yAlignAnimator = this.getOptionalFastener("yAlign");
-    const yAlign = yAlignAnimator !== null ? yAlignAnimator.value : 0.5;
+    const xAlign = Animator.tryValue(this, "xAlign");
+    const yAlign = Animator.tryValue(this, "yAlign");
     const x = px - iconWidth * xAlign;
     const y = py - iconHeight * yAlign;
     return new R2Box(x, y, x + iconWidth, y + iconHeight);

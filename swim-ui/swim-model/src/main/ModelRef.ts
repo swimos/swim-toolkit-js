@@ -15,17 +15,23 @@
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
 import {Affinity} from "@swim/component";
-import type {FastenerClass} from "@swim/component";
+import {FastenerContext} from "@swim/component";
 import {Fastener} from "@swim/component";
 import type {AnyModel} from "./Model";
 import type {Model} from "./Model";
 import type {ModelRelationDescriptor} from "./ModelRelation";
+import type {ModelRelationClass} from "./ModelRelation";
 import {ModelRelation} from "./ModelRelation";
 
 /** @public */
 export interface ModelRefDescriptor<M extends Model = Model> extends ModelRelationDescriptor<M> {
   extends?: Proto<ModelRef<any, any>> | boolean | null;
   modelKey?: string | boolean;
+}
+
+/** @public */
+export interface ModelRefClass<F extends ModelRef<any, any> = ModelRef<any, any>> extends ModelRelationClass<F> {
+  tryModel<O, K extends keyof O, F extends O[K] = O[K]>(owner: O, fastenerName: K): F extends ModelRef<any, infer M> ? M | null : null;
 }
 
 /** @public */
@@ -146,7 +152,7 @@ export interface ModelRef<O = unknown, M extends Model = Model> extends ModelRel
 
 /** @public */
 export const ModelRef = (function (_super: typeof ModelRelation) {
-  const ModelRef = _super.extend("ModelRef", {}) as FastenerClass<ModelRef<any, any>>;
+  const ModelRef = _super.extend("ModelRef", {}) as ModelRefClass;
 
   Object.defineProperty(ModelRef.prototype, "fastenerType", {
     value: ModelRef,
@@ -440,6 +446,14 @@ export const ModelRef = (function (_super: typeof ModelRelation) {
     this.setModel(inlet.model);
   };
 
+  ModelRef.tryModel = function <O, K extends keyof O, F extends O[K]>(owner: O, fastenerName: K): F extends ModelRef<any, infer M> ? M | null : null {
+    const modelRef = FastenerContext.tryFastener(owner, fastenerName) as ModelRef | null;
+    if (modelRef !== null) {
+      return modelRef.model as any;
+    }
+    return null as any;
+  };
+
   ModelRef.construct = function <F extends ModelRef<any, any>>(fastener: F | null, owner: F extends ModelRef<infer O, any> ? O : never): F {
     if (fastener === null) {
       fastener = function (model?: F extends ModelRef<any, infer M> ? AnyModel<M> | null : never, target?: Model | null, key?: string): F extends ModelRef<infer O, infer M> ? M | O | null : never {
@@ -458,7 +472,7 @@ export const ModelRef = (function (_super: typeof ModelRelation) {
     return fastener;
   };
 
-  ModelRef.refine = function (fastenerClass: FastenerClass<any>): void {
+  ModelRef.refine = function (fastenerClass: ModelRefClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

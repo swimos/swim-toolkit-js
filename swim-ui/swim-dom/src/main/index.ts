@@ -15,6 +15,7 @@
 // Attribute
 
 export type {AttributeAnimatorDescriptor} from "./AttributeAnimator";
+export type {AttributeAnimatorClass} from "./AttributeAnimator";
 export {AttributeAnimator} from "./AttributeAnimator";
 export {StringAttributeAnimator} from "./AttributeAnimator";
 export {NumberAttributeAnimator} from "./AttributeAnimator";
@@ -26,6 +27,7 @@ export {TransformAttributeAnimator} from "./AttributeAnimator";
 // Style
 
 export type {StyleAnimatorDescriptor} from "./StyleAnimator";
+export type {StyleAnimatorClass} from "./StyleAnimator";
 export {StyleAnimator} from "./StyleAnimator";
 export {StringStyleAnimator} from "./StyleAnimator";
 export {NumberStyleAnimator} from "./StyleAnimator";
@@ -36,6 +38,7 @@ export {BoxShadowStyleAnimator} from "./StyleAnimator";
 export {TransformStyleAnimator} from "./StyleAnimator";
 
 export type {StyleConstraintAnimatorDescriptor} from "./StyleConstraintAnimator";
+export type {StyleConstraintAnimatorClass} from "./StyleConstraintAnimator";
 export {StyleConstraintAnimator} from "./StyleConstraintAnimator";
 export {NumberStyleConstraintAnimator} from "./StyleConstraintAnimator";
 export {LengthStyleConstraintAnimator} from "./StyleConstraintAnimator";
@@ -48,18 +51,23 @@ export type {StyleMapInit} from "./StyleMap";
 export {StyleMap} from "./StyleMap";
 
 export type {CssScopeDescriptor} from "./CssScope";
+export type {CssScopeClass} from "./CssScope";
 export {CssScope} from "./CssScope";
 
 export type {StyleSheetDescriptor} from "./StyleSheet";
+export type {StyleSheetClass} from "./StyleSheet";
 export {StyleSheet} from "./StyleSheet";
 
 export type {CssRuleDescriptor} from "./CssRule";
+export type {CssRuleClass} from "./CssRule";
 export {CssRule} from "./CssRule";
 
 export type {StyleRuleDescriptor} from "./StyleRule";
+export type {StyleRuleClass} from "./StyleRule";
 export {StyleRule} from "./StyleRule";
 
 export type {MediaRuleDescriptor} from "./MediaRule";
+export type {MediaRuleClass} from "./MediaRule";
 export {MediaRule} from "./MediaRule";
 
 // Node

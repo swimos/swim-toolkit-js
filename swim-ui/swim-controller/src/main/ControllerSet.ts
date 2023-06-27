@@ -19,11 +19,11 @@ import type {Comparator} from "@swim/util";
 import type {Consumer} from "@swim/util";
 import {Affinity} from "@swim/component";
 import type {FastenerFlags} from "@swim/component";
-import type {FastenerClass} from "@swim/component";
 import {Fastener} from "@swim/component";
 import type {AnyController} from "./Controller";
 import type {Controller} from "./Controller";
 import type {ControllerRelationDescriptor} from "./ControllerRelation";
+import type {ControllerRelationClass} from "./ControllerRelation";
 import {ControllerRelation} from "./ControllerRelation";
 
 /** @public */
@@ -31,6 +31,19 @@ export interface ControllerSetDescriptor<C extends Controller = Controller> exte
   extends?: Proto<ControllerSet<any, any>> | boolean | null;
   ordered?: boolean;
   sorted?: boolean;
+}
+
+/** @public */
+export interface ControllerSetClass<F extends ControllerSet<any, any> = ControllerSet<any, any>> extends ControllerRelationClass<F> {
+  /** @internal */
+  readonly OrderedFlag: FastenerFlags;
+  /** @internal */
+  readonly SortedFlag: FastenerFlags;
+
+  /** @internal @override */
+  readonly FlagShift: number;
+  /** @internal @override */
+  readonly FlagMask: FastenerFlags;
 }
 
 /** @public */
@@ -213,17 +226,7 @@ export interface ControllerSet<O = unknown, C extends Controller = Controller> e
 
 /** @public */
 export const ControllerSet = (function (_super: typeof ControllerRelation) {
-  const ControllerSet = _super.extend("ControllerSet", {}) as FastenerClass<ControllerSet<any, any>> & {
-    /** @internal */
-    readonly OrderedFlag: FastenerFlags;
-    /** @internal */
-    readonly SortedFlag: FastenerFlags;
-
-    /** @internal @override */
-    readonly FlagShift: number;
-    /** @internal @override */
-    readonly FlagMask: FastenerFlags;
-  };
+  const ControllerSet = _super.extend("ControllerSet", {}) as ControllerSetClass;
 
   Object.defineProperty(ControllerSet.prototype, "fastenerType", {
     value: ControllerSet,
@@ -699,7 +702,7 @@ export const ControllerSet = (function (_super: typeof ControllerRelation) {
     return fastener;
   };
 
-  ControllerSet.refine = function (fastenerClass: FastenerClass<any>): void {
+  ControllerSet.refine = function (fastenerClass: ControllerSetClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
     let flagsInit = fastenerPrototype.flagsInit;

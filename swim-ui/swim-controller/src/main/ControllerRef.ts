@@ -15,17 +15,23 @@
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
 import {Affinity} from "@swim/component";
-import type {FastenerClass} from "@swim/component";
+import {FastenerContext} from "@swim/component";
 import {Fastener} from "@swim/component";
 import type {AnyController} from "./Controller";
 import type {Controller} from "./Controller";
 import type {ControllerRelationDescriptor} from "./ControllerRelation";
+import type {ControllerRelationClass} from "./ControllerRelation";
 import {ControllerRelation} from "./ControllerRelation";
 
 /** @public */
 export interface ControllerRefDescriptor<C extends Controller = Controller> extends ControllerRelationDescriptor<C> {
   extends?: Proto<ControllerRef<any, any>> | boolean | null;
   controllerKey?: string | boolean;
+}
+
+/** @public */
+export interface ControllerRefClass<F extends ControllerRef<any, any> = ControllerRef<any, any>> extends ControllerRelationClass<F> {
+  tryController<O, K extends keyof O, F extends O[K] = O[K]>(owner: O, fastenerName: K): F extends ControllerRef<any, infer C> ? C | null : null;
 }
 
 /** @public */
@@ -146,7 +152,7 @@ export interface ControllerRef<O = unknown, C extends Controller = Controller> e
 
 /** @public */
 export const ControllerRef = (function (_super: typeof ControllerRelation) {
-  const ControllerRef = _super.extend("ControllerRef", {}) as FastenerClass<ControllerRef<any, any>>;
+  const ControllerRef = _super.extend("ControllerRef", {}) as ControllerRefClass;
 
   Object.defineProperty(ControllerRef.prototype, "fastenerType", {
     value: ControllerRef,
@@ -440,6 +446,14 @@ export const ControllerRef = (function (_super: typeof ControllerRelation) {
     this.setController(inlet.controller);
   };
 
+  ControllerRef.tryController = function <O, K extends keyof O, F extends O[K]>(owner: O, fastenerName: K): F extends ControllerRef<any, infer C> ? C | null : null {
+    const controllerRef = FastenerContext.tryFastener(owner, fastenerName) as ControllerRef | null;
+    if (controllerRef !== null) {
+      return controllerRef.controller as any;
+    }
+    return null as any;
+  };
+
   ControllerRef.construct = function <F extends ControllerRef<any, any>>(fastener: F | null, owner: F extends ControllerRef<infer O, any> ? O : never): F {
     if (fastener === null) {
       fastener = function (controller?: F extends ControllerRef<any, infer C> ? AnyController<C> | null : never, target?: Controller | null, key?: string): F extends ControllerRef<infer O, infer C> ? C | O | null : never {
@@ -458,7 +472,7 @@ export const ControllerRef = (function (_super: typeof ControllerRelation) {
     return fastener;
   };
 
-  ControllerRef.refine = function (fastenerClass: FastenerClass<any>): void {
+  ControllerRef.refine = function (fastenerClass: ControllerRefClass<any>): void {
     _super.refine.call(this, fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

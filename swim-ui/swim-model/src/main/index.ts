@@ -24,12 +24,15 @@ export type {ModelObserver} from "./Model";
 export {Model} from "./Model";
 
 export type {ModelRelationDescriptor} from "./ModelRelation";
+export type {ModelRelationClass} from "./ModelRelation";
 export {ModelRelation} from "./ModelRelation";
 
 export type {ModelRefDescriptor} from "./ModelRef";
+export type {ModelRefClass} from "./ModelRef";
 export {ModelRef} from "./ModelRef";
 
 export type {ModelSetDescriptor} from "./ModelSet";
+export type {ModelSetClass} from "./ModelSet";
 export {ModelSet} from "./ModelSet";
 
 // Trait
@@ -44,18 +47,23 @@ export type {TraitObserver} from "./Trait";
 export {Trait} from "./Trait";
 
 export type {TraitRelationDescriptor} from "./TraitRelation";
+export type {TraitRelationClass} from "./TraitRelation";
 export {TraitRelation} from "./TraitRelation";
 
 export type {TraitRefDescriptor} from "./TraitRef";
+export type {TraitRefClass} from "./TraitRef";
 export {TraitRef} from "./TraitRef";
 
 export type {TraitSetDescriptor} from "./TraitSet";
+export type {TraitSetClass} from "./TraitSet";
 export {TraitSet} from "./TraitSet";
 
 export type {TraitModelRefDescriptor} from "./TraitModelRef";
+export type {TraitModelRefClass} from "./TraitModelRef";
 export {TraitModelRef} from "./TraitModelRef";
 
 export type {TraitModelSetDescriptor} from "./TraitModelSet";
+export type {TraitModelSetClass} from "./TraitModelSet";
 export {TraitModelSet} from "./TraitModelSet";
 
 // Refresher

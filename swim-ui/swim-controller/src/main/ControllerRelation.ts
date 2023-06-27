@@ -35,6 +35,17 @@ export interface ControllerRelationDescriptor<C extends Controller = Controller>
 }
 
 /** @public */
+export interface ControllerRelationClass<F extends ControllerRelation<any, any> = ControllerRelation<any, any>> extends FastenerClass<F> {
+  /** @internal */
+  readonly ConsumingFlag: FastenerFlags;
+
+  /** @internal @override */
+  readonly FlagShift: number;
+  /** @internal @override */
+  readonly FlagMask: FastenerFlags;
+}
+
+/** @public */
 export interface ControllerRelation<O = unknown, C extends Controller = Controller> extends Fastener<O>, Consumable {
   /** @override */
   get descriptorType(): Proto<ControllerRelationDescriptor<C>>;
@@ -213,15 +224,7 @@ export interface ControllerRelation<O = unknown, C extends Controller = Controll
 
 /** @public */
 export const ControllerRelation = (function (_super: typeof Fastener) {
-  const ControllerRelation = _super.extend("ControllerRelation", {}) as FastenerClass<ControllerRelation<any, any>> & {
-    /** @internal */
-    readonly ConsumingFlag: FastenerFlags;
-
-    /** @internal @override */
-    readonly FlagShift: number;
-    /** @internal @override */
-    readonly FlagMask: FastenerFlags;
-  };
+  const ControllerRelation = _super.extend("ControllerRelation", {}) as ControllerRelationClass;
 
   Object.defineProperty(ControllerRelation.prototype, "fastenerType", {
     value: ControllerRelation,

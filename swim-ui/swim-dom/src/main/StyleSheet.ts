@@ -13,13 +13,17 @@
 // limitations under the License.
 
 import type {Proto} from "@swim/util";
-import type {FastenerClass} from "@swim/component";
 import type {CssScopeDescriptor} from "./CssScope";
+import type {CssScopeClass} from "./CssScope";
 import {CssScope} from "./CssScope";
 
 /** @public */
 export interface StyleSheetDescriptor extends CssScopeDescriptor<CSSStyleSheet> {
   extends?: Proto<StyleSheet<any>> | boolean | null;
+}
+
+/** @public */
+export interface StyleSheetClass<F extends StyleSheet<any> = StyleSheet<any>> extends CssScopeClass<F> {
 }
 
 /** @public */
@@ -36,7 +40,7 @@ export interface StyleSheet<O = unknown> extends CssScope<O, CSSStyleSheet> {
 
 /** @public */
 export const StyleSheet = (function (_super: typeof CssScope) {
-  const StyleSheet = _super.extend("StyleSheet", {}) as FastenerClass<StyleSheet<any>>;
+  const StyleSheet = _super.extend("StyleSheet", {}) as StyleSheetClass;
 
   Object.defineProperty(StyleSheet.prototype, "fastenerType", {
     value: StyleSheet,

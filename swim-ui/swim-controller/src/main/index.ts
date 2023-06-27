@@ -24,35 +24,45 @@ export type {ControllerObserver} from "./Controller";
 export {Controller} from "./Controller";
 
 export type {ControllerRelationDescriptor} from "./ControllerRelation";
+export type {ControllerRelationClass} from "./ControllerRelation";
 export {ControllerRelation} from "./ControllerRelation";
 
 export type {ControllerRefDescriptor} from "./ControllerRef";
+export type {ControllerRefClass} from "./ControllerRef";
 export {ControllerRef} from "./ControllerRef";
 
 export type {ControllerSetDescriptor} from "./ControllerSet";
+export type {ControllerSetClass} from "./ControllerSet";
 export {ControllerSet} from "./ControllerSet";
 
 // MVC
 
 export type {TraitViewRefDescriptor} from "./TraitViewRef";
+export type {TraitViewRefClass} from "./TraitViewRef";
 export {TraitViewRef} from "./TraitViewRef";
 
 export type {ViewControllerRefDescriptor} from "./ViewControllerRef";
+export type {ViewControllerRefClass} from "./ViewControllerRef";
 export {ViewControllerRef} from "./ViewControllerRef";
 
 export type {ViewControllerSetDescriptor} from "./ViewControllerSet";
+export type {ViewControllerSetClass} from "./ViewControllerSet";
 export {ViewControllerSet} from "./ViewControllerSet";
 
 export type {TraitControllerRefDescriptor} from "./TraitControllerRef";
+export type {TraitControllerRefClass} from "./TraitControllerRef";
 export {TraitControllerRef} from "./TraitControllerRef";
 
 export type {TraitControllerSetDescriptor} from "./TraitControllerSet";
+export type {TraitControllerSetClass} from "./TraitControllerSet";
 export {TraitControllerSet} from "./TraitControllerSet";
 
 export type {TraitViewControllerRefDescriptor} from "./TraitViewControllerRef";
+export type {TraitViewControllerRefClass} from "./TraitViewControllerRef";
 export {TraitViewControllerRef} from "./TraitViewControllerRef";
 
 export type {TraitViewControllerSetDescriptor} from "./TraitViewControllerSet";
+export type {TraitViewControllerSetClass} from "./TraitViewControllerSet";
 export {TraitViewControllerSet} from "./TraitViewControllerSet";
 
 // Executor
