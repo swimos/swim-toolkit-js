@@ -59,7 +59,7 @@ export class HistoryService extends Service {
     const newUri = HistoryState.toUri(newState);
     this.willPushHistory(newState, oldState);
     (this as Mutable<this>).historyState = newState;
-    window.history.pushState(newState.ephemeral, "", newUri.toString());
+    window.history.pushState(newState.environment, "", newUri.toString());
     this.onPushHistory(newState, oldState);
     this.didPushHistory(newState, oldState);
   }
@@ -79,14 +79,15 @@ export class HistoryService extends Service {
   replaceHistory(deltaState: HistoryStateInit): void {
     const oldState = this.historyState;
     const newState = HistoryState.updated(deltaState, HistoryState.cloned(oldState));
-    if (!Objects.equal(oldState, newState)) {
-      const newUri = HistoryState.toUri(newState);
-      this.willReplaceHistory(newState, oldState);
-      (this as Mutable<this>).historyState = newState;
-      window.history.replaceState(newState.ephemeral, "", newUri.toString());
-      this.onReplaceHistory(newState, oldState);
-      this.didReplaceHistory(newState, oldState);
+    if (Objects.equal(oldState, newState)) {
+      return;
     }
+    const newUri = HistoryState.toUri(newState);
+    this.willReplaceHistory(newState, oldState);
+    (this as Mutable<this>).historyState = newState;
+    window.history.replaceState(newState.environment, "", newUri.toString());
+    this.onReplaceHistory(newState, oldState);
+    this.didReplaceHistory(newState, oldState);
   }
 
   protected willReplaceHistory(newState: HistoryState, oldState: HistoryState): void {
@@ -107,10 +108,10 @@ export class HistoryService extends Service {
     handle(event: PopStateEvent): void {
       const deltaState: HistoryStateInit = {};
       if (typeof event.state === "object" && event.state !== null) {
-        deltaState.ephemeral = event.state;
+        deltaState.environment = event.state;
       }
-      const oldState = HistoryState.current();
-      const newState = HistoryState.updated(deltaState, oldState);
+      const oldState = this.owner.historyState;
+      const newState = HistoryState.updated(deltaState, HistoryState.current());
       this.owner.willPopHistory(newState, oldState);
       (this.owner as Mutable<typeof this.owner>).historyState = newState;
       this.owner.onPopHistory(newState, oldState);

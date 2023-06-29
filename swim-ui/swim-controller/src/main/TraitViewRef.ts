@@ -358,6 +358,9 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
   };
 
   TraitViewRef.prototype.attachTrait = function <T extends Trait>(this: TraitViewRef<unknown, T, View>, newTrait?: AnyTrait<T>, target?: Trait | null): T {
+    if (target === void 0) {
+      target = null;
+    }
     const oldTrait = this.trait;
     if (newTrait !== void 0 && newTrait !== null) {
       newTrait = this.fromAnyTrait(newTrait);
@@ -367,9 +370,6 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
       newTrait = oldTrait;
     }
     if (oldTrait !== newTrait) {
-      if (target === void 0) {
-        target = null;
-      }
       if (oldTrait !== null) {
         (this as Mutable<typeof this>).trait = null;
         this.willDetachTrait(oldTrait);
@@ -441,6 +441,12 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
   };
 
   TraitViewRef.prototype.insertTrait = function <T extends Trait>(this: TraitViewRef<unknown, T, View>, model?: Model | null, newTrait?: AnyTrait<T> | null, target?: Trait | null, key?: string): T {
+    if (model === void 0) {
+      model = null;
+    }
+    if (target === void 0) {
+      target = null;
+    }
     let oldTrait = this.trait;
     if (newTrait !== void 0 && newTrait !== null) {
       newTrait = this.fromAnyTrait(newTrait);
@@ -449,15 +455,9 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
     } else {
       newTrait = oldTrait;
     }
-    if (model === void 0) {
-      model = null;
-    }
     if (this.bindsTrait || oldTrait !== newTrait || newTrait.model === null || model !== null || key !== void 0) {
       if (model === null) {
         model = this.parentModel;
-      }
-      if (target === void 0) {
-        target = null;
       }
       if (key === void 0) {
         key = this.traitKey;

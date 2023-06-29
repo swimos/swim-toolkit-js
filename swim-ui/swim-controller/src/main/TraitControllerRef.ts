@@ -48,6 +48,8 @@ export interface TraitControllerRef<O = unknown, T extends Trait = Trait, C exte
 
   get trait(): T | null;
 
+  getTrait(): T;
+
   setTrait(trait: T | null, targetTrait?: Trait | null, key?: string): C | null;
 
   attachTrait(trait?: T, targetTrait?: Trait | null): C;
@@ -77,6 +79,8 @@ export interface TraitControllerRef<O = unknown, T extends Trait = Trait, C exte
 
   /** @protected */
   didDetachTrait(trait: T, controller: C): void;
+
+  insertTrait(parent?: Controller | null, trait?: T, targetTrait?: Trait | null, key?: string): C;
 
   removeTrait(trait: T | null): C | null;
 
@@ -113,6 +117,20 @@ export const TraitControllerRef = (function (_super: typeof ControllerRef) {
     enumerable: true,
     configurable: true,
   });
+
+  TraitControllerRef.prototype.getTrait = function <T extends Trait>(this: TraitControllerRef<unknown, T, Controller>): T {
+    const trait = this.trait;
+    if (trait === null) {
+      let message = trait + " ";
+      const name = this.name.toString();
+      if (name.length !== 0) {
+        message += name + " ";
+      }
+      message += "trait";
+      throw new TypeError(message);
+    }
+    return trait;
+  };
 
   TraitControllerRef.prototype.setTrait = function <T extends Trait, C extends Controller>(this: TraitControllerRef<unknown, T, C>, trait: T | null, targetTrait?: Trait | null, key?: string): C | null {
     let controller = this.controller;
@@ -186,6 +204,20 @@ export const TraitControllerRef = (function (_super: typeof ControllerRef) {
 
   TraitControllerRef.prototype.didDetachTrait = function <T extends Trait, C extends Controller>(this: TraitControllerRef<unknown, T, C>, trait: T, controller: C): void {
     // hook
+  };
+
+  TraitControllerRef.prototype.insertTrait = function <T extends Trait, C extends Controller>(this: TraitControllerRef<unknown, T, C>, parent?: Controller | null, trait?: T, targetTrait?: Trait | null, key?: string): C {
+    if (trait === void 0 || trait === null) {
+      trait = this.createTrait();
+    }
+    let controller = this.controller;
+    if (controller === null) {
+      controller = this.createController(trait);
+    }
+    const traitRef = this.getTraitRef(controller);
+    traitRef.setTrait(trait, targetTrait, this.traitKey);
+    this.insertController(parent, controller);
+    return controller;
   };
 
   TraitControllerRef.prototype.removeTrait = function <T extends Trait, C extends Controller>(this: TraitControllerRef<unknown, T, C>, trait: T | null): C | null {

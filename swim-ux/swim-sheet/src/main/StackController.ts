@@ -376,9 +376,7 @@ export class StackController extends Controller {
           stackView.sheets.deleteView(sheetView);
         }
       }
-      if (sheetController.forward.controller !== null) {
-        this.removeController(sheetController);
-      } else {
+      if (sheetController.forward.controller === null) {
         this.deleteController(sheetController);
       }
     },

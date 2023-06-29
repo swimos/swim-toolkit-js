@@ -130,9 +130,7 @@ export class GeoTileController extends GeoLayerController {
       this.owner.tiles.deleteTrait(tileTrait);
     },
     viewType: GeoTileView,
-    observesView: true,
     initView(geoView: GeoView): void {
-      super.initView(geoView);
       const tileControllers = this.owner.tiles.controllers;
       for (const controllerId in tileControllers) {
         const tileController = tileControllers[controllerId]!;
@@ -141,6 +139,7 @@ export class GeoTileController extends GeoLayerController {
           tileController.geo.insertView(geoView);
         }
       }
+      super.initView(geoView);
     },
     deinitView(geoView: GeoView): void {
       this.owner.unconsume(geoView);
@@ -150,7 +149,7 @@ export class GeoTileController extends GeoLayerController {
       return new GeoTileView(this.owner.geoTile);
     },
   })
-  override readonly geo!: TraitViewRef<this, GeoTileTrait, GeoView> & GeoLayerController["geo"] & Observes<GeoTileTrait> & Observes<GeoTileView>;
+  override readonly geo!: TraitViewRef<this, GeoTileTrait, GeoView> & GeoLayerController["geo"] & Observes<GeoTileTrait>;
 
   @TraitViewControllerSet({
     extends: true,

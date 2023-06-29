@@ -221,10 +221,8 @@ export class SheetController extends Controller {
       this.owner.callObservers("controllerWillAttachTitle", titleController, this.owner);
     },
     didAttachController(titleController: ToolController): void {
-      const titleView = titleController.tool.view;
-      if (titleView !== null) {
-        this.attachToolView(titleView, titleController);
-      }
+      const titleView = titleController.tool.attachView();
+      this.attachToolView(titleView, titleController);
     },
     willDetachController(titleController: ToolController): void {
       const titleView = titleController.tool.view;
@@ -296,10 +294,8 @@ export class SheetController extends Controller {
       this.owner.callObservers("controllerWillAttachHandle", handleController, this.owner);
     },
     didAttachController(handleController: ToolController): void {
-      const handleView = handleController.tool.view;
-      if (handleView !== null) {
-        this.attachToolView(handleView, handleController);
-      }
+      const handleView = handleController.tool.attachView();
+      this.attachToolView(handleView, handleController);
     },
     willDetachController(handleController: ToolController): void {
       const handleView = handleController.tool.view;
@@ -347,11 +343,7 @@ export class SheetController extends Controller {
       }
     },
     setIcon(icon: Graphics | null): void {
-      let handleController = this.controller as ButtonToolController | null;
-      if (handleController === null) {
-        handleController = this.createController() as ButtonToolController;
-        this.setController(handleController);
-      }
+      const handleController = this.insertController() as ButtonToolController;
       const handleView = handleController.tool.attachView();
       handleView.graphics.setState(icon, Affinity.Intrinsic);
     },
@@ -390,10 +382,8 @@ export class SheetController extends Controller {
       this.owner.callObservers("controllerWillAttachModeTool", modeToolController, targetToolController, this.owner);
     },
     didAttachController(modeToolController: ToolController): void {
-      const modeToolView = modeToolController.tool.view;
-      if (modeToolView !== null) {
-        this.attachToolView(modeToolView, modeToolController);
-      }
+      const modeToolView = modeToolController.tool.attachView();
+      this.attachToolView(modeToolView, modeToolController);
     },
     willDetachController(modeToolController: ToolController): void {
       const modeToolView = modeToolController.tool.view;

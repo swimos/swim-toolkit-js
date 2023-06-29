@@ -72,8 +72,8 @@ export {ExecutorService} from "./ExecutorService";
 
 // History
 
-export type {MutableHistoryState} from "./HistoryState";
 export type {HistoryStateInit} from "./HistoryState";
+export type {MutableHistoryState} from "./HistoryState";
 export {HistoryState} from "./HistoryState";
 
 export type {HistoryServiceObserver} from "./HistoryService";

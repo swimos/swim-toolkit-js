@@ -1195,7 +1195,6 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
     return oldTrait;
   }
 
-
   get insertTraitFlags(): ModelFlags {
     return (this.constructor as typeof Model).InsertTraitFlags;
   }

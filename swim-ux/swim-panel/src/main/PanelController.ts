@@ -103,8 +103,8 @@ export class PanelController extends Controller {
     get parentView(): View | null {
       return this.owner.panel.attachView().header.parentView;
     },
-    initView(dialView: HtmlView): void {
-      this.owner.panel.attachView().header.setView(dialView);
+    initView(headerView: HtmlView): void {
+      this.owner.panel.attachView().header.setView(headerView);
     },
     createView(): HtmlView {
       return this.owner.panel.attachView().header.createView();
@@ -118,8 +118,8 @@ export class PanelController extends Controller {
     get parentView(): View | null {
       return this.owner.panel.attachView().headerTitle.parentView;
     },
-    initView(dialView: HtmlView): void {
-      this.owner.panel.attachView().headerTitle.setView(dialView);
+    initView(titleView: HtmlView): void {
+      this.owner.panel.attachView().headerTitle.setView(titleView);
     },
     setText(title: string | undefined): HtmlView {
       return this.owner.panel.attachView().headerTitle.setText(title);
@@ -138,8 +138,8 @@ export class PanelController extends Controller {
     get parentView(): View | null {
       return this.owner.panel.attachView().headerSubtitle.parentView;
     },
-    initView(dialView: HtmlView): void {
-      this.owner.panel.attachView().headerSubtitle.setView(dialView);
+    initView(subtitleView: HtmlView): void {
+      this.owner.panel.attachView().headerSubtitle.setView(subtitleView);
     },
     setText(subtitle: string | undefined): HtmlView {
       return this.owner.panel.attachView().headerSubtitle.setText(subtitle);

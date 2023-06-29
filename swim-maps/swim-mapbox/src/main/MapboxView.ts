@@ -22,6 +22,7 @@ import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import {Provider} from "@swim/component";
 import {GeoPoint} from "@swim/geo";
+import {GeoBox} from "@swim/geo";
 import {Look} from "@swim/theme";
 import {Mood} from "@swim/theme";
 import {View} from "@swim/view";
@@ -110,7 +111,17 @@ export class MapboxView extends MapView {
     if (geoViewport === null) {
       return;
     }
-    const options: mapboxgl.FlyToOptions = {};
+
+    let bounds: mapboxgl.LngLatBoundsLike | undefined;
+    const options: mapboxgl.FitBoundsOptions = {};
+
+    let geoFrame = geoPerspective.geoFrame;
+    if (geoFrame !== void 0 && geoFrame !== null) {
+      geoFrame = GeoBox.fromAny(geoFrame);
+      bounds = [(geoFrame as GeoBox).west, (geoFrame as GeoBox).south,
+                (geoFrame as GeoBox).east, (geoFrame as GeoBox).north];
+    }
+
     let geoCenter = geoPerspective.geoCenter;
     if (geoCenter !== void 0 && geoCenter !== null) {
       geoCenter = GeoPoint.fromAny(geoCenter);
@@ -118,27 +129,44 @@ export class MapboxView extends MapView {
         options.center = geoCenter;
       }
     }
+
     const zoom = geoPerspective.zoom;
     if (zoom !== void 0 && !Equivalent(geoViewport.zoom, zoom, 1e-5)) {
       options.zoom = zoom;
     }
+
     const heading = geoPerspective.heading;
     if (heading !== void 0 && !Equivalent(geoViewport.heading, heading, 1e-5)) {
       options.bearing = heading;
     }
+
     const tilt = geoPerspective.tilt;
     if (tilt !== void 0 && !Equivalent(geoViewport.tilt, tilt, 1e-5)) {
       options.pitch = tilt;
     }
+
     if (timing === void 0 || timing === true) {
       timing = this.getLookOr(Look.timing, Mood.ambient, false);
+    } else if (timing === false) {
+      timing = void 0;
     } else {
       timing = Timing.fromAny(timing);
     }
     if (timing instanceof Timing) {
       options.duration = timing.duration;
+    } else {
+      options.duration = 0;
     }
-    this.map.flyTo(options);
+
+    if (bounds !== void 0) {
+      this.map.fitBounds(bounds, options);
+    } else {
+      this.map.flyTo(options);
+    }
+
+    if (options.duration === 0) {
+      setTimeout(this.requireUpdate.bind(this, View.NeedsProject));
+    }
   }
 
   protected willMoveMap(): void {

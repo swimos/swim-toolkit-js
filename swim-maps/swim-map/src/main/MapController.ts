@@ -92,19 +92,20 @@ export class MapController extends Controller {
   }
 
   @TraitViewRef({
+    consumed: true,
     traitType: MapTrait,
     observesTrait: true,
     willAttachTrait(mapTrait: MapTrait): void {
       this.owner.callObservers("controllerWillAttachMapTrait", mapTrait, this.owner);
     },
-    didAttachTrait(mapTrait: MapTrait): void {
+    initTrait(mapTrait: MapTrait): void {
       const mapView = this.view;
       if (mapView !== null) {
         this.owner.setGeoPerspective(mapTrait.geoPerspective.value);
       }
       this.owner.layers.addTraits(mapTrait.layers.traits);
     },
-    willDetachTrait(mapTrait: MapTrait): void {
+    deinitTrait(mapTrait: MapTrait): void {
       this.owner.layers.deleteTraits(mapTrait.layers.traits);
     },
     didDetachTrait(mapTrait: MapTrait): void {
@@ -121,12 +122,7 @@ export class MapController extends Controller {
     },
     viewType: MapView,
     observesView: true,
-    willAttachView(mapView: MapView): void {
-      this.owner.callObservers("controllerWillAttachMapView", mapView, this.owner);
-    },
-    didAttachView(mapView: MapView): void {
-      this.owner.canvas.setView(mapView.canvas.view);
-      this.owner.container.setView(mapView.container.view);
+    initView(mapView: MapView): void {
       const mapTrait = this.trait;
       if (mapTrait !== null) {
         this.owner.setGeoPerspective(mapTrait.geoPerspective.value);
@@ -139,6 +135,13 @@ export class MapController extends Controller {
           layerController.geo.insertView(mapView);
         }
       }
+    },
+    willAttachView(mapView: MapView): void {
+      this.owner.callObservers("controllerWillAttachMapView", mapView, this.owner);
+    },
+    didAttachView(mapView: MapView): void {
+      this.owner.canvas.setView(mapView.canvas.view);
+      this.owner.container.setView(mapView.container.view);
     },
     willDetachView(mapView: MapView): void {
       this.owner.canvas.setView(null);
@@ -253,7 +256,7 @@ export class MapController extends Controller {
       // hook
     },
     detachLayerTrait(layerTrait: GeoTrait, layerController: GeoController): void {
-      // hook
+      this.deleteController(layerController);
     },
     controllerWillAttachGeoView(layerView: GeoView, layerController: GeoController): void {
       this.owner.callObservers("controllerWillAttachLayerView", layerView, layerController, this.owner);
@@ -264,7 +267,10 @@ export class MapController extends Controller {
       this.owner.callObservers("controllerDidDetachLayerView", layerView, layerController, this.owner);
     },
     attachLayerView(layerView: GeoView, layerController: GeoController): void {
-      // hook
+      const mapView = this.owner.map.view;
+      if (mapView !== null && layerView.parent === null) {
+        layerController.geo.insertView(mapView);
+      }
     },
     detachLayerView(layerView: GeoView, layerController: GeoController): void {
       layerView.remove();

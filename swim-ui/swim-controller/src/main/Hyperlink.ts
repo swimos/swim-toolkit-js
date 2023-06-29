@@ -56,16 +56,16 @@ export abstract class Hyperlink implements Equals, Debug {
   }
 
   static fromInit(init: HyperlinkInit): Hyperlink {
-    if ("fragment" in init || "permanent" in init || "ephemeral" in init) {
+    if ("fragment" in init || "parameters" in init || "environment" in init) {
       const state: HistoryStateInit = {};
       if (init.fragment !== void 0) {
         state.fragment = init.fragment;
       }
-      if (init.permanent !== void 0) {
-        state.permanent = init.permanent;
+      if (init.parameters !== void 0) {
+        state.parameters = init.parameters;
       }
-      if (init.ephemeral !== void 0) {
-        state.ephemeral = init.ephemeral;
+      if (init.environment !== void 0) {
+        state.environment = init.environment;
       }
       return new HistoryHyperlink(state, init.href, init.title);
     } else if (init.href !== void 0) {

@@ -55,11 +55,43 @@ export interface TraitViewControllerRef<O = unknown, T extends Trait = Trait, V 
 
   getTrait(): T;
 
-  setTrait(trait: T | null, targetTrait?: Trait | null, key?: string): T | null;
+  setTrait(trait: T | null, targetTrait?: Trait | null, key?: string): C | null;
+
+  attachTrait(trait?: T, targetTrait?: Trait | null): C;
+
+  /** @protected */
+  initTrait(trait: T, controller: C): void;
+
+  /** @protected */
+  willAttachTrait(trait: T, targetTrait: Trait | null, controller: C): void;
+
+  /** @protected */
+  onAttachTrait(trait: T, targetTrait: Trait | null, controller: C): void;
+
+  /** @protected */
+  didAttachTrait(trait: T, targetTrait: Trait | null, controller: C): void;
+
+  detachTrait(trait?: T): C | null;
+
+  /** @protected */
+  deinitTrait(trait: T, controller: C): void;
+
+  /** @protected */
+  willDetachTrait(trait: T, controller: C): void;
+
+  /** @protected */
+  onDetachTrait(trait: T, controller: C): void;
+
+  /** @protected */
+  didDetachTrait(trait: T, controller: C): void;
+
+  insertTrait(parent?: Controller | null, trait?: T, targetTrait?: Trait | null, key?: string): C;
 
   removeTrait(trait: T | null): C | null;
 
   deleteTrait(trait: T | null): C | null;
+
+  createTrait(): T;
 
   get parentView(): View | null;
 
@@ -84,8 +116,6 @@ export interface TraitViewControllerRef<O = unknown, T extends Trait = Trait, V 
   removeView(): V | null;
 
   deleteView(): V | null;
-
-  createTrait(): T;
 
   /** @override */
   createController(trait?: T): C;
@@ -126,25 +156,95 @@ export const TraitViewControllerRef = (function (_super: typeof ControllerRef) {
     return trait;
   };
 
-  TraitViewControllerRef.prototype.setTrait = function <T extends Trait>(this: TraitViewControllerRef<unknown, T, View, Controller>, newTrait: T | null, targetTrait?: Trait | null, key?: string): T | null {
+  TraitViewControllerRef.prototype.setTrait = function <T extends Trait, C extends Controller>(this: TraitViewControllerRef<unknown, T, View, C>, trait: T | null, targetTrait?: Trait | null, key?: string): C | null {
     let controller = this.controller;
-    if (newTrait !== null) {
+    if (trait !== null) {
       if (controller === null) {
-        controller = this.createController(newTrait);
+        controller = this.createController(trait);
       }
       const traitViewRef = this.getTraitViewRef(controller);
-      const traitKey = key !== void 0 ? key : this.traitKey;
-      const oldTrait = traitViewRef.setTrait(newTrait, targetTrait, traitKey);
+      traitViewRef.setTrait(trait, targetTrait, this.traitKey);
       this.setController(controller);
       if (traitViewRef.view === null) {
         traitViewRef.insertView(this.parentView, null, null, this.viewKey);
       }
-      return oldTrait;
     } else if (controller !== null) {
       const traitViewRef = this.getTraitViewRef(controller);
-      return traitViewRef.setTrait(null);
+      traitViewRef.setTrait(null);
+    }
+    return controller;
+  };
+
+  TraitViewControllerRef.prototype.attachTrait = function <T extends Trait, C extends Controller>(this: TraitViewControllerRef<unknown, T, View, C>, trait?: T | null, targetTrait?: Trait | null): C {
+    if (trait === void 0 || trait === null) {
+      trait = this.createTrait();
+    }
+    let controller = this.controller;
+    if (controller === null) {
+      controller = this.createController(trait);
+    }
+    const traitViewRef = this.getTraitViewRef(controller);
+    traitViewRef.setTrait(trait, targetTrait, this.traitKey);
+    this.attachController(controller, null);
+    return controller;
+  };
+
+  TraitViewControllerRef.prototype.initTrait = function <T extends Trait, C extends Controller>(this: TraitViewControllerRef<unknown, T, View, C>, trait: T, controller: C): void {
+    // hook
+  };
+
+  TraitViewControllerRef.prototype.willAttachTrait = function <T extends Trait, C extends Controller>(this: TraitViewControllerRef<unknown, T, View, C>, trait: T, targetTrait: Trait | null, controller: C): void {
+    // hook
+  };
+
+  TraitViewControllerRef.prototype.onAttachTrait = function <T extends Trait, C extends Controller>(this: TraitViewControllerRef<unknown, T, View, C>, trait: T, targetTrait: Trait | null, controller: C): void {
+    // hook
+  };
+
+  TraitViewControllerRef.prototype.didAttachTrait = function <T extends Trait, C extends Controller>(this: TraitViewControllerRef<unknown, T, View, C>, trait: T, targetTrait: Trait | null, controller: C): void {
+    // hook
+  };
+
+  TraitViewControllerRef.prototype.detachTrait = function <T extends Trait, C extends Controller>(this: TraitViewControllerRef<unknown, T, View, C>, trait?: T): C | null {
+    const controller = this.controller;
+    if (controller !== null && this.getTraitViewRef(controller).trait === trait) {
+      this.willDetachTrait(trait, controller);
+      this.onDetachTrait(trait, controller);
+      this.deinitTrait(trait, controller);
+      this.didDetachTrait(trait, controller);
+      return controller;
     }
     return null;
+  };
+
+  TraitViewControllerRef.prototype.deinitTrait = function <T extends Trait, C extends Controller>(this: TraitViewControllerRef<unknown, T, View, C>, trait: T, controller: C): void {
+    // hook
+  };
+
+  TraitViewControllerRef.prototype.willDetachTrait = function <T extends Trait, C extends Controller>(this: TraitViewControllerRef<unknown, T, View, C>, trait: T, controller: C): void {
+    // hook
+  };
+
+  TraitViewControllerRef.prototype.onDetachTrait = function <T extends Trait, C extends Controller>(this: TraitViewControllerRef<unknown, T, View, C>, trait: T, controller: C): void {
+    // hook
+  };
+
+  TraitViewControllerRef.prototype.didDetachTrait = function <T extends Trait, C extends Controller>(this: TraitViewControllerRef<unknown, T, View, C>, trait: T, controller: C): void {
+    // hook
+  };
+
+  TraitViewControllerRef.prototype.insertTrait = function <T extends Trait, C extends Controller>(this: TraitViewControllerRef<unknown, T, View, C>, parent?: Controller | null, trait?: T, targetTrait?: Trait | null, key?: string): C {
+    if (trait === void 0 || trait === null) {
+      trait = this.createTrait();
+    }
+    let controller = this.controller;
+    if (controller === null) {
+      controller = this.createController(trait);
+    }
+    const traitViewRef = this.getTraitViewRef(controller);
+    traitViewRef.setTrait(trait, targetTrait, this.traitKey);
+    this.insertController(parent, controller);
+    return controller;
   };
 
   TraitViewControllerRef.prototype.removeTrait = function <T extends Trait, C extends Controller>(this: TraitViewControllerRef<unknown, T, View, C>, trait: T | null): C | null {

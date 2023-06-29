@@ -188,9 +188,10 @@ export class BinderController extends SheetController {
 
   protected didPressTabHandle(input: PositionGestureInput, event: Event | null, tabController: SheetController): void {
     this.callObservers("controllerDidPressTabHandle", input, event, tabController, this);
-    if (!input.defaultPrevented) {
-      this.active.setController(tabController);
+    if (input.defaultPrevented) {
+      return;
     }
+    this.active.setController(tabController);
   }
 
   protected didLongPressTabHandle(input: PositionGestureInput, tabController: SheetController): void {
@@ -274,7 +275,7 @@ export class BinderController extends SheetController {
 
     let targetTabController: Controller | null;
     if (oldTabController !== null) {
-      targetTabController = oldTabController.nextSibling;
+      targetTabController = oldTabController.getNextSibling(SheetController);
       this.tabs.deleteController(oldTabController);
     } else {
       targetTabController = null;
@@ -310,14 +311,10 @@ export class BinderController extends SheetController {
       if (tabTrait !== null) {
         this.attachTabTrait(tabTrait, tabController);
       }
-      const tabView = tabController.sheet.view;
-      if (tabView !== null) {
-        this.attachTabView(tabView, tabController);
-      }
-      const tabHandleController = tabController.handle.controller;
-      if (tabHandleController !== null) {
-        this.attachTabHandle(tabHandleController, tabController);
-      }
+      const tabView = tabController.sheet.attachView();
+      this.attachTabView(tabView, tabController);
+      const tabHandleController = tabController.handle.insertController();
+      this.attachTabHandle(tabHandleController, tabController);
       if (this.owner.active.controller === null) {
         this.owner.active.setController(tabController);
       }
@@ -344,10 +341,12 @@ export class BinderController extends SheetController {
     },
     controllerWillAttachSheetTrait(tabTrait: Trait, tabController: SheetController): void {
       this.owner.callObservers("controllerWillAttachTabTrait", tabTrait, tabController, this.owner);
+      this.attachTrait(tabTrait, void 0, tabController);
       this.attachTabTrait(tabTrait, tabController);
     },
     controllerDidDetachSheetTrait(tabTrait: Trait, tabController: SheetController): void {
       this.detachTabTrait(tabTrait, tabController);
+      this.detachTrait(tabTrait);
       this.owner.callObservers("controllerDidDetachTabTrait", tabTrait, tabController, this.owner);
     },
     attachTabTrait(tabTrait: Trait, tabController: SheetController): void {
@@ -385,30 +384,28 @@ export class BinderController extends SheetController {
       this.owner.callObservers("controllerDidDetachTabHandle", tabHandleController, tabController, this.owner);
     },
     attachTabHandle(tabHandleController: ToolController, tabController: SheetController): void {
-      const tabStyle = this.owner.tabStyle.value;
-      if (tabStyle === "mode") {
+      if (this.owner.tabStyle.value === "mode") {
         const targetTabController = Objects.getNextValue(this.controllers, tabController.uid);
         const targetToolController = targetTabController !== void 0 ? targetTabController.handle.controller : null;
         this.owner.modeTools.attachController(tabHandleController, targetToolController);
       }
     },
     detachTabHandle(tabHandleController: ToolController, tabController: SheetController): void {
-      const tabStyle = this.owner.tabStyle.value;
-      if (tabStyle === "mode") {
+      if (this.owner.tabStyle.value === "mode") {
         this.owner.modeTools.deleteController(tabHandleController);
       }
       tabHandleController.remove();
     },
     updateTabStyle(tabStyle: BinderTabStyle, tabController: SheetController): void {
       const tabToolController = tabController.handle.controller;
-      if (tabToolController !== null) {
-        if (tabStyle === "mode") {
-          const targetTabController = Objects.getNextValue(this.controllers, tabController.uid);
-          const targetToolController = targetTabController !== void 0 ? targetTabController.handle.controller : null;
-          this.owner.modeTools.attachController(tabToolController, targetToolController);
-        } else {
-          this.owner.modeTools.detachController(tabToolController);
-        }
+      if (tabToolController === null) {
+        return;
+      } else if (tabStyle === "mode") {
+        const targetTabController = Objects.getNextValue(this.controllers, tabController.uid);
+        const targetToolController = targetTabController !== void 0 ? targetTabController.handle.controller : null;
+        this.owner.modeTools.attachController(tabToolController, targetToolController);
+      } else {
+        this.owner.modeTools.detachController(tabToolController);
       }
     },
   })

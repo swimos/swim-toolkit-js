@@ -129,11 +129,11 @@ export const ViewControllerRef = (function (_super: typeof ControllerRef) {
   };
 
   ViewControllerRef.prototype.setView = function <V extends View, C extends Controller>(this: ViewControllerRef<unknown, V, C>, newView: AnyView<V> | null, targetView?: View | null, controllerKey?: string): V | null {
-    if (newView !== null) {
-      newView = this.fromAnyView(newView);
-    }
     if (targetView === void 0) {
       targetView = null;
+    }
+    if (newView !== null) {
+      newView = this.fromAnyView(newView);
     }
     let oldView = this.view;
     if (oldView === newView) {
@@ -177,6 +177,9 @@ export const ViewControllerRef = (function (_super: typeof ControllerRef) {
   };
 
   ViewControllerRef.prototype.attachView = function <V extends View, C extends Controller>(this: ViewControllerRef<unknown, V, C>, newView?: AnyView<V>, targetView?: View | null): V {
+    if (targetView === void 0) {
+      targetView = null;
+    }
     let oldView = this.view;
     if (newView !== void 0 && newView !== null) {
       newView = this.fromAnyView(newView);
@@ -184,9 +187,6 @@ export const ViewControllerRef = (function (_super: typeof ControllerRef) {
       newView = this.createView();
     } else {
       newView = oldView;
-    }
-    if (targetView === void 0) {
-      targetView = null;
     }
     let controller = this.controller;
     if (controller === null) {
@@ -260,6 +260,9 @@ export const ViewControllerRef = (function (_super: typeof ControllerRef) {
   };
 
   ViewControllerRef.prototype.insertView = function <V extends View, C extends Controller>(this: ViewControllerRef<unknown, V, C>, controller?: C | null, newView?: AnyView<V>, targetView?: View | null, controllerKey?: string): V {
+    if (controller === void 0) {
+      controller = null;
+    }
     let oldView = this.view;
     if (newView !== void 0 && newView !== null) {
       newView = this.fromAnyView(newView);
@@ -267,9 +270,6 @@ export const ViewControllerRef = (function (_super: typeof ControllerRef) {
       newView = this.createView();
     } else {
       newView = oldView;
-    }
-    if (controller === void 0) {
-      controller = null;
     }
     if (oldView !== newView || controller !== null) {
       if (targetView === void 0) {
