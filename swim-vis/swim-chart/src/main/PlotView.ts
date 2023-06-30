@@ -17,6 +17,7 @@ import type {Domain} from "@swim/util";
 import type {Range} from "@swim/util";
 import type {AnyTiming} from "@swim/util";
 import type {ContinuousScale} from "@swim/util";
+import type {Property} from "@swim/component";
 import type {AnyFont} from "@swim/style";
 import type {AnyColor} from "@swim/style";
 import type {ThemeAnimator} from "@swim/theme";
@@ -80,10 +81,10 @@ export interface PlotView<X = unknown, Y = unknown> extends GraphicsView, Scaled
   yRange(): Range<number> | null;
 
   /** @override */
-  xRangePadding(): readonly [number, number];
+  readonly xRangePadding: Property<this, readonly [number, number]>
 
   /** @override */
-  yRangePadding(): readonly [number, number];
+  readonly yRangePadding: Property<this, readonly [number, number]>
 
   /** @override */
   readonly xDataDomain: Domain<X> | null;

@@ -164,7 +164,7 @@ export class GaugeView extends GraphicsView {
         this.setView(titleView);
       }
       if (titleView instanceof TextRunView) {
-        titleView.text(title !== void 0 ? title : "");
+        titleView.text.setState(title !== void 0 ? title : "");
       }
       return titleView;
     },

@@ -17,6 +17,7 @@ import type {Domain} from "@swim/util";
 import type {Range} from "@swim/util";
 import type {ContinuousScale} from "@swim/util";
 import type {AnyTiming} from "@swim/util";
+import type {Property} from "@swim/component";
 import type {GraphicsViewObserver} from "@swim/graphics";
 import {GraphicsView} from "@swim/graphics";
 import type {ContinuousScaleAnimator} from "./ContinuousScaleAnimator";
@@ -44,7 +45,7 @@ export interface ScaledXView<X = unknown> extends GraphicsView {
 
   xRange(): Range<number> | null;
 
-  xRangePadding(): readonly [number, number];
+  readonly xRangePadding: Property<this, readonly [number, number]>
 
   readonly xDataDomain: Domain<X> | null;
 

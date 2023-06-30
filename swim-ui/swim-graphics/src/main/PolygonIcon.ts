@@ -58,10 +58,9 @@ export class PolygonIcon extends FilledIcon implements Interpolate<PolygonIcon>,
   override withFillColor(fillColor: Color | null): PolygonIcon {
     if (Equals(this.fillColor, fillColor)) {
       return this;
-    } else {
-      return this.copy(this.sides, this.rotation, fillColor,
-                       this.fillLook, this.moodModifier);
     }
+    return this.copy(this.sides, this.rotation, fillColor,
+                     this.fillLook, this.moodModifier);
   }
 
   override readonly fillLook: Look<Color> | null;
@@ -69,10 +68,9 @@ export class PolygonIcon extends FilledIcon implements Interpolate<PolygonIcon>,
   override withFillLook(fillLook: Look<Color> | null): PolygonIcon {
     if (this.fillLook === fillLook) {
       return this;
-    } else {
-      return this.copy(this.sides, this.rotation, this.fillColor,
-                       fillLook, this.moodModifier);
     }
+    return this.copy(this.sides, this.rotation, this.fillColor,
+                     fillLook, this.moodModifier);
   }
 
   override readonly moodModifier: MoodMatrix | null;
@@ -80,10 +78,9 @@ export class PolygonIcon extends FilledIcon implements Interpolate<PolygonIcon>,
   override withMoodModifier(moodModifier: MoodMatrix | null): PolygonIcon {
     if (Equals(this.moodModifier, moodModifier)) {
       return this;
-    } else {
-      return this.copy(this.sides, this.rotation, this.fillColor,
-                       this.fillLook, moodModifier);
     }
+    return this.copy(this.sides, this.rotation, this.fillColor,
+                     this.fillLook, moodModifier);
   }
 
   override modifyMood(feel: Feel, updates: MoodVectorUpdates<Feel>): PolygonIcon {
@@ -92,11 +89,10 @@ export class PolygonIcon extends FilledIcon implements Interpolate<PolygonIcon>,
       oldMoodModifier = MoodMatrix.empty();
     }
     const newMoodModifier = oldMoodModifier.updatedCol(feel, updates, true);
-    if (!newMoodModifier.equals(oldMoodModifier)) {
-      return this.withMoodModifier(newMoodModifier);
-    } else {
+    if (newMoodModifier.equals(oldMoodModifier)) {
       return this;
     }
+    return this.withMoodModifier(newMoodModifier);
   }
 
   override isThemed(): boolean {
@@ -105,15 +101,14 @@ export class PolygonIcon extends FilledIcon implements Interpolate<PolygonIcon>,
 
   override withTheme(theme: ThemeMatrix, mood: MoodVector): PolygonIcon {
     const fillLook = this.fillLook;
-    if (fillLook !== null) {
-      const moodModifier = this.moodModifier;
-      if (moodModifier !== null) {
-        mood = moodModifier.timesCol(mood, true);
-      }
-      return this.withFillColor(theme.getOr(fillLook, mood, null));
-    } else {
+    if (fillLook === null) {
       return this;
     }
+    const moodModifier = this.moodModifier;
+    if (moodModifier !== null) {
+      mood = moodModifier.timesCol(mood, true);
+    }
+    return this.withFillColor(theme.getOr(fillLook, mood, null));
   }
 
   override render(renderer: GraphicsRenderer, frame: R2Box): void {
@@ -144,24 +139,25 @@ export class PolygonIcon extends FilledIcon implements Interpolate<PolygonIcon>,
 
   override draw(context: DrawingContext, frame: R2Box): void {
     const sides = this.sides;
-    if (sides >= 3) {
-      const centerX = (frame.xMin + frame.xMax) / 2;
-      const centerY = (frame.yMin + frame.yMax) / 2;
-      const width = frame.width;
-      const height = frame.height;
-      const radius = Math.min(width, height) / 2;
-      const sector = 2 * Math.PI / sides;
-      let angle = this.rotation.radValue();
-      context.moveTo(centerX + radius * Math.cos(angle),
+    if (sides < 3) {
+      return;
+    }
+    const centerX = (frame.xMin + frame.xMax) / 2;
+    const centerY = (frame.yMin + frame.yMax) / 2;
+    const width = frame.width;
+    const height = frame.height;
+    const radius = Math.min(width, height) / 2;
+    const sector = 2 * Math.PI / sides;
+    let angle = this.rotation.radValue();
+    context.moveTo(centerX + radius * Math.cos(angle),
+                   centerY + radius * Math.sin(angle));
+    angle += sector;
+    for (let i = 1; i < sides; i += 1) {
+      context.lineTo(centerX + radius * Math.cos(angle),
                      centerY + radius * Math.sin(angle));
       angle += sector;
-      for (let i = 1; i < sides; i += 1) {
-        context.lineTo(centerX + radius * Math.cos(angle),
-                       centerY + radius * Math.sin(angle));
-        angle += sector;
-      }
-      context.closePath();
     }
+    context.closePath();
   }
 
   protected copy(sides: number, rotation: Angle, fillColor: Color | null,
@@ -174,9 +170,8 @@ export class PolygonIcon extends FilledIcon implements Interpolate<PolygonIcon>,
   interpolateTo(that: unknown): Interpolator<PolygonIcon> | null {
     if (that instanceof PolygonIcon) {
       return PolygonIconInterpolator(this, that);
-    } else {
-      return null;
     }
+    return null;
   }
 
   equivalentTo(that: unknown, epsilon?: number): boolean {

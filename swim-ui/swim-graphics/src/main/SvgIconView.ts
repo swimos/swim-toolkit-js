@@ -132,21 +132,20 @@ export class SvgIconView extends SvgView implements IconView {
     if (viewportElement === null) {
       viewportElement = this.node;
     }
-    if (viewportElement instanceof SVGSVGElement) {
-      const viewBox = viewportElement.viewBox.animVal;
-      const viewWidth = viewBox.width;
-      const viewHeight = viewBox.height;
-      const viewSize = Math.min(viewWidth, viewHeight);
-      let iconWidth: Length | number | null = this.iconWidth.value;
-      iconWidth = iconWidth instanceof Length ? iconWidth.pxValue(viewSize) : viewSize;
-      let iconHeight: Length | number | null = this.iconHeight.value;
-      iconHeight = iconHeight instanceof Length ? iconHeight.pxValue(viewSize) : viewSize;
-      const x = viewBox.x + (viewWidth - iconWidth) * this.xAlign.getValue();
-      const y = viewBox.y + (viewHeight - iconHeight) * this.yAlign.getValue();
-      return new R2Box(x, y, x + iconWidth, y + iconHeight);
-    } else {
+    if (!(viewportElement instanceof SVGSVGElement)) {
       return R2Box.undefined();
     }
+    const viewBox = viewportElement.viewBox.animVal;
+    const viewWidth = viewBox.width;
+    const viewHeight = viewBox.height;
+    const viewSize = Math.min(viewWidth, viewHeight);
+    let iconWidth: Length | number | null = this.iconWidth.value;
+    iconWidth = iconWidth instanceof Length ? iconWidth.pxValue(viewSize) : viewSize;
+    let iconHeight: Length | number | null = this.iconHeight.value;
+    iconHeight = iconHeight instanceof Length ? iconHeight.pxValue(viewSize) : viewSize;
+    const x = viewBox.x + (viewWidth - iconWidth) * this.xAlign.getValue();
+    const y = viewBox.y + (viewHeight - iconHeight) * this.yAlign.getValue();
+    return new R2Box(x, y, x + iconWidth, y + iconHeight);
   }
 
   override init(init: SvgIconViewInit): void {

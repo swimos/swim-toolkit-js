@@ -218,27 +218,25 @@ export class ArcView extends GraphicsView implements FillView, StrokeView {
     const arc = this.value;
     context.beginPath();
     arc.draw(context, frame);
+
+    let strokeWidth: Length | null;
     if (this.fill.value !== null && context.isPointInPath(x, y)) {
       return this;
-    } else if (this.stroke.value !== null) {
-      const strokeWidth = this.strokeWidth.value;
-      if (strokeWidth !== null) {
-        // save
-        const contextLineWidth = context.lineWidth;
-
-        const size = Math.min(frame.width, frame.height);
-        context.lineWidth = strokeWidth.pxValue(size);
-        const pointInStroke = context.isPointInStroke(x, y);
-
-        // restore
-        context.lineWidth = contextLineWidth;
-
-        if (pointInStroke) {
-          return this;
-        }
-      }
+    } else if (this.stroke.value === null || (strokeWidth = this.strokeWidth.value) === null) {
+      return null;
     }
-    return null;
+
+    // save
+    const contextLineWidth = context.lineWidth;
+
+    const size = Math.min(frame.width, frame.height);
+    context.lineWidth = strokeWidth.pxValue(size);
+    const pointInStroke = context.isPointInStroke(x, y);
+
+    // restore
+    context.lineWidth = contextLineWidth;
+
+    return pointInStroke ? this : null;
   }
 
   override init(init: Arc | ArcViewInit): void {

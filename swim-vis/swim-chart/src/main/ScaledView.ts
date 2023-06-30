@@ -1130,7 +1130,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
             xDataDomainMin = childXDataDomain[0];
             xDataDomainMax = childXDataDomain[1];
           }
-          const childXRangePadding = childView.xRangePadding();
+          const childXRangePadding = childView.xRangePadding.value;
           xRangePaddingMin = Math.max(childXRangePadding[0], xRangePaddingMin);
           xRangePaddingMax = Math.max(childXRangePadding[1], xRangePaddingMax);
           xCount += 1;
@@ -1150,7 +1150,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
             yDataDomainMin = childYDataDomain[0];
             yDataDomainMax = childYDataDomain[1];
           }
-          const childYRangePadding = childView.yRangePadding();
+          const childYRangePadding = childView.yRangePadding.value;
           yRangePaddingMin = Math.max(childYRangePadding[0], yRangePaddingMin);
           yRangePaddingMax = Math.max(childYRangePadding[1], yRangePaddingMax);
           yCount += 1;

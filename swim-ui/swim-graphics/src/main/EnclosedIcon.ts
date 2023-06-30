@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import type {Mutable} from "@swim/util";
-import {Lazy} from "@swim/util";
 import {Equals} from "@swim/util";
 import {Equivalent} from "@swim/util";
 import type {Interpolate} from "@swim/util";
@@ -52,10 +51,9 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
   withOuter(outer: Icon | null): EnclosedIcon {
     if (this.outer === outer) {
       return this;
-    } else {
-      return this.copy(outer, this.inner, this.innerScale, this.moodModifier,
-                       this.outerMoodModifier, this.innerMoodModifier);
     }
+    return this.copy(outer, this.inner, this.innerScale, this.moodModifier,
+                     this.outerMoodModifier, this.innerMoodModifier);
   }
 
   readonly inner: Icon | null;
@@ -63,10 +61,9 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
   withInner(inner: Icon | null): EnclosedIcon {
     if (this.inner === inner) {
       return this;
-    } else {
-      return this.copy(this.outer, inner, this.innerScale, this.moodModifier,
-                       this.outerMoodModifier, this.innerMoodModifier);
     }
+    return this.copy(this.outer, inner, this.innerScale, this.moodModifier,
+                     this.outerMoodModifier, this.innerMoodModifier);
   }
 
   readonly innerScale: number;
@@ -74,10 +71,9 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
   withInnerScale(innerScale: number): EnclosedIcon {
     if (this.innerScale === innerScale) {
       return this;
-    } else {
-      return this.copy(this.outer, this.inner, innerScale, this.moodModifier,
-                       this.outerMoodModifier, this.innerMoodModifier);
     }
+    return this.copy(this.outer, this.inner, innerScale, this.moodModifier,
+                     this.outerMoodModifier, this.innerMoodModifier);
   }
 
   override readonly moodModifier: MoodMatrix | null;
@@ -85,10 +81,9 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
   override withMoodModifier(moodModifier: MoodMatrix | null): EnclosedIcon {
     if (Equals(this.moodModifier, moodModifier)) {
       return this;
-    } else {
-      return this.copy(this.outer, this.inner, this.innerScale, moodModifier,
-                       this.outerMoodModifier, this.innerMoodModifier);
     }
+    return this.copy(this.outer, this.inner, this.innerScale, moodModifier,
+                     this.outerMoodModifier, this.innerMoodModifier);
   }
 
   override modifyMood(feel: Feel, updates: MoodVectorUpdates<Feel>): EnclosedIcon {
@@ -97,11 +92,10 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
       oldMoodModifier = MoodMatrix.empty();
     }
     const newMoodModifier = oldMoodModifier.updatedCol(feel, updates, true);
-    if (!newMoodModifier.equals(oldMoodModifier)) {
-      return this.withMoodModifier(newMoodModifier);
-    } else {
+    if (newMoodModifier.equals(oldMoodModifier)) {
       return this;
     }
+    return this.withMoodModifier(newMoodModifier);
   }
 
   /** @internal */
@@ -110,10 +104,9 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
   withOuterMoodModifier(outerMoodModifier: MoodMatrix | null): EnclosedIcon {
     if (Equals(this.outerMoodModifier, outerMoodModifier)) {
       return this;
-    } else {
-      return this.copy(this.outer, this.inner, this.innerScale, this.moodModifier,
-                       outerMoodModifier, this.innerMoodModifier);
     }
+    return this.copy(this.outer, this.inner, this.innerScale, this.moodModifier,
+                     outerMoodModifier, this.innerMoodModifier);
   }
 
   modifyOuterMood(feel: Feel, updates: MoodVectorUpdates<Feel>): EnclosedIcon {
@@ -122,11 +115,10 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
       oldOuterMoodModifier = MoodMatrix.empty();
     }
     const newOuterMoodModifier = oldOuterMoodModifier.updatedCol(feel, updates, true);
-    if (!newOuterMoodModifier.equals(oldOuterMoodModifier)) {
-      return this.withOuterMoodModifier(newOuterMoodModifier);
-    } else {
+    if (newOuterMoodModifier.equals(oldOuterMoodModifier)) {
       return this;
     }
+    return this.withOuterMoodModifier(newOuterMoodModifier);
   }
 
   /** @internal */
@@ -135,10 +127,9 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
   withInnerMoodModifier(innerMoodModifier: MoodMatrix | null): EnclosedIcon {
     if (Equals(this.innerMoodModifier, innerMoodModifier)) {
       return this;
-    } else {
-      return this.copy(this.outer, this.inner, this.innerScale, this.moodModifier,
-                       this.outerMoodModifier, innerMoodModifier);
     }
+    return this.copy(this.outer, this.inner, this.innerScale, this.moodModifier,
+                     this.outerMoodModifier, innerMoodModifier);
   }
 
   modifyInnerMood(feel: Feel, updates: MoodVectorUpdates<Feel>): EnclosedIcon {
@@ -147,11 +138,10 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
       oldInnerMoodModifier = MoodMatrix.empty();
     }
     const newInnerMoodModifier = oldInnerMoodModifier.updatedCol(feel, updates, true);
-    if (!newInnerMoodModifier.equals(oldInnerMoodModifier)) {
-      return this.withInnerMoodModifier(newInnerMoodModifier);
-    } else {
+    if (newInnerMoodModifier.equals(oldInnerMoodModifier)) {
       return this;
     }
+    return this.withInnerMoodModifier(newInnerMoodModifier);
   }
 
   override isThemed(): boolean {
@@ -173,34 +163,33 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
 
     const oldOuter = this.outer;
     let newOuter: Icon | null;
-    if (oldOuter !== null) {
+    if (oldOuter === null) {
+      newOuter = null;
+    } else {
       let outerMood = modifiedMood;
       if (outerMoodModifier !== null) {
         outerMood = outerMoodModifier.timesCol(outerMood, true);
       }
       newOuter = oldOuter.withTheme(theme, outerMood);
-    } else {
-      newOuter = null;
     }
 
     const oldInner = this.inner;
     let newInner: Icon | null;
-    if (oldInner !== null) {
+    if (oldInner === null) {
+      newInner = null;
+    } else {
       let innerMood = modifiedMood;
       if (innerMoodModifier !== null) {
         innerMood = innerMoodModifier.timesCol(innerMood, true);
       }
       newInner = oldInner.withTheme(theme, innerMood);
-    } else {
-      newInner = null;
     }
 
-    if (oldOuter !== newOuter || oldInner !== newInner) {
-      return this.copy(newOuter, newInner, this.innerScale, moodModifier,
-                       outerMoodModifier, innerMoodModifier);
-    } else {
+    if (newOuter === oldOuter && newInner === oldInner) {
       return this;
     }
+    return this.copy(newOuter, newInner, this.innerScale, moodModifier,
+                     outerMoodModifier, innerMoodModifier);
   }
 
   override render(renderer: GraphicsRenderer, frame: R2Box): void {
@@ -261,11 +250,10 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
       yMin += ey;
       yMax -= ey;
     }
-    if (width !== height || innerScale !== 1) {
-      return new R2Box(xMin, yMin, xMax, yMax);
-    } else {
+    if (width === height && innerScale === 1) {
       return frame;
     }
+    return new R2Box(xMin, yMin, xMax, yMax);
   }
 
   protected copy(outer: Icon | null, inner: Icon | null, innerScale: number, moodModifier: MoodMatrix | null,
@@ -278,9 +266,8 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
   interpolateTo(that: unknown): Interpolator<EnclosedIcon> | null {
     if (that instanceof EnclosedIcon) {
       return EnclosedIconInterpolator(this, that);
-    } else {
-      return null;
     }
+    return null;
   }
 
   equivalentTo(that: unknown, epsilon?: number): boolean {
@@ -334,7 +321,6 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
     return new EnclosedIcon(outer, inner, 1, null, null, EnclosedIcon.embossedMoodModifier);
   }
 
-  @Lazy
   static get embossedMoodModifier(): MoodMatrix {
     return MoodMatrix.empty().updatedCol(Feel.default, [[Feel.embossed, 1]], true);
   }

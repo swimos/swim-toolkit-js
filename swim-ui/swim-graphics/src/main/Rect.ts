@@ -51,9 +51,8 @@ export class Rect implements Graphics, Equals, Debug {
     x = Length.fromAny(x);
     if (this.x.equals(x)) {
       return this;
-    } else {
-      return this.copy(x, this.y, this.width, this.height);
     }
+    return this.copy(x, this.y, this.width, this.height);
   }
 
   readonly y: Length;
@@ -62,9 +61,8 @@ export class Rect implements Graphics, Equals, Debug {
     y = Length.fromAny(y);
     if (this.y.equals(y)) {
       return this;
-    } else {
-      return this.copy(this.x, y, this.width, this.height);
     }
+    return this.copy(this.x, y, this.width, this.height);
   }
 
   readonly width: Length;
@@ -73,9 +71,8 @@ export class Rect implements Graphics, Equals, Debug {
     width = Length.fromAny(width);
     if (this.width.equals(width)) {
       return this;
-    } else {
-      return this.copy(this.x, this.y, width, this.height);
     }
+    return this.copy(this.x, this.y, width, this.height);
   }
 
   readonly height: Length;
@@ -84,9 +81,8 @@ export class Rect implements Graphics, Equals, Debug {
     height = Length.fromAny(height);
     if (this.height.equals(height)) {
       return this;
-    } else {
-      return this.copy(this.x, this.y, this.width, height);
     }
+    return this.copy(this.x, this.y, this.width, height);
   }
 
   render(): string;

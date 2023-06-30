@@ -90,38 +90,38 @@ export class SvgContext implements PaintingContext {
 
   /** @internal */
   nextPathView(): SvgView | null {
-    let pathView = this.pathView;
-    if (pathView !== null) {
-      let nextNode = pathView.node.nextSibling;
-      pathView = null;
-      while (nextNode !== null) {
-        if (nextNode instanceof SVGPathElement) {
-          pathView = SvgView.fromNode(nextNode);
-          break;
-        }
-        nextNode = nextNode.nextSibling;
-      }
+    const pathView = this.pathView;
+    if (pathView === null) {
+      return null;
     }
-    return pathView;
+    let nextNode = pathView.node.nextSibling;
+    while (nextNode !== null) {
+      if (nextNode instanceof SVGPathElement) {
+        return SvgView.fromNode(nextNode);
+      }
+      nextNode = nextNode.nextSibling;
+    }
+    return null;
   }
 
   /** @internal */
   finalizePath(): void {
     const pathView = this.pathView;
-    if (pathView !== null) {
-      const pathFlags = this.pathFlags;
-      if ((pathFlags & SvgContext.FillFlag) === 0) {
-        pathView.fill.setValue(null, Affinity.Intrinsic);
-      }
-      if ((pathFlags & SvgContext.FillRuleFlag) === 0) {
-        pathView.fillRule.setValue(void 0, Affinity.Intrinsic);
-      }
-      if ((pathFlags & SvgContext.StrokeFlag) === 0) {
-        pathView.stroke.setValue(null, Affinity.Intrinsic);
-      }
-      if ((pathFlags & SvgContext.PathFlag) === 0) {
-        pathView.d.setValue(void 0, Affinity.Intrinsic);
-      }
+    if (pathView === null) {
+      return;
+    }
+    const pathFlags = this.pathFlags;
+    if ((pathFlags & SvgContext.FillFlag) === 0) {
+      pathView.fill.setValue(null, Affinity.Intrinsic);
+    }
+    if ((pathFlags & SvgContext.FillRuleFlag) === 0) {
+      pathView.fillRule.setValue(void 0, Affinity.Intrinsic);
+    }
+    if ((pathFlags & SvgContext.StrokeFlag) === 0) {
+      pathView.stroke.setValue(null, Affinity.Intrinsic);
+    }
+    if ((pathFlags & SvgContext.PathFlag) === 0) {
+      pathView.d.setValue(void 0, Affinity.Intrinsic);
     }
   }
 
@@ -207,94 +207,92 @@ export class SvgContext implements PaintingContext {
 
   fill(fillRule?: PaintingFillRule): void {
     const fillStyle = this.fillStyle;
-    if (typeof fillStyle === "string") {
-      let pathView = this.pathView;
-      if (pathView !== null && (this.pathFlags & SvgContext.FillFlag) !== 0) {
-        this.finalizePath();
-        pathView = this.nextPathView();
-        this.setPathView(pathView);
-      }
-      let created = false;
-      if (pathView === null) {
-        pathView = SvgView.fromTag("path");
-        this.setPathView(pathView);
-        created = true;
-      }
-      pathView.fill.setState(fillStyle, Affinity.Intrinsic);
-      pathView.fillOpacity.setState(this.globalAlpha !== 1 ? this.globalAlpha : void 0);
-      this.setPathFlags(this.pathFlags | SvgContext.FillFlag);
-      if (fillRule !== void 0) {
-        pathView.fillRule.setState(fillRule, Affinity.Intrinsic);
-        this.setPathFlags(this.pathFlags | SvgContext.FillRuleFlag);
-      }
-      if ((this.pathFlags & SvgContext.PathFlag) === 0) {
-        const pathString = this.getPathContext().toString();
-        pathView.d.setState(pathString, Affinity.Intrinsic);
-        this.setPathFlags(this.pathFlags | SvgContext.PathFlag);
-      }
-      if (created) {
-        this.view.appendChild(pathView);
-      }
-    } else {
+    if (typeof fillStyle !== "string") {
       throw new Error("unsupported fill style: " + fillStyle);
+    }
+    let pathView = this.pathView;
+    if (pathView !== null && (this.pathFlags & SvgContext.FillFlag) !== 0) {
+      this.finalizePath();
+      pathView = this.nextPathView();
+      this.setPathView(pathView);
+    }
+    let created = false;
+    if (pathView === null) {
+      pathView = SvgView.fromTag("path");
+      this.setPathView(pathView);
+      created = true;
+    }
+    pathView.fill.setState(fillStyle, Affinity.Intrinsic);
+    pathView.fillOpacity.setState(this.globalAlpha !== 1 ? this.globalAlpha : void 0);
+    this.setPathFlags(this.pathFlags | SvgContext.FillFlag);
+    if (fillRule !== void 0) {
+      pathView.fillRule.setState(fillRule, Affinity.Intrinsic);
+      this.setPathFlags(this.pathFlags | SvgContext.FillRuleFlag);
+    }
+    if ((this.pathFlags & SvgContext.PathFlag) === 0) {
+      const pathString = this.getPathContext().toString();
+      pathView.d.setState(pathString, Affinity.Intrinsic);
+      this.setPathFlags(this.pathFlags | SvgContext.PathFlag);
+    }
+    if (created) {
+      this.view.appendChild(pathView);
     }
   }
 
   stroke(): void {
     const strokeStyle = this.strokeStyle;
     const lineWidth = this.lineWidth;
-    if (typeof strokeStyle === "string" && lineWidth !== 0 && isFinite(lineWidth)) {
-      let pathView = this.pathView;
-      if (pathView !== null && (this.pathFlags & SvgContext.StrokeFlag) !== 0) {
-        this.finalizePath();
-        pathView = this.nextPathView();
-        this.setPathView(pathView);
-      }
-      let created = false;
-      if (pathView === null) {
-        pathView = SvgView.fromTag("path");
-        this.setPathView(pathView);
-        created = true;
-      }
-      pathView.stroke.setState(strokeStyle, Affinity.Intrinsic);
-      pathView.strokeWidth.setState(lineWidth, Affinity.Intrinsic);
-      pathView.strokeLinecap.setState(this.lineCap, Affinity.Intrinsic);
-      pathView.strokeLinejoin.setState(this.lineJoin, Affinity.Intrinsic);
-      pathView.strokeOpacity.setState(this.globalAlpha !== 1 ? this.globalAlpha : void 0);
-      if (this.lineJoin === "miter") {
-        pathView.strokeMiterlimit.setState(this.miterLimit, Affinity.Intrinsic);
-      } else {
-        pathView.strokeMiterlimit.setState(void 0, Affinity.Intrinsic);
-      }
-      if (this.lineDash.length !== 0) {
-        let dash = "";
-        for (let i = 0; i < this.lineDash.length; i += 1) {
-          if (i !== 0) {
-            dash += " ";
-          }
-          dash += this.lineDash[i];
+    if (typeof strokeStyle !== "string" || lineWidth === 0 || !isFinite(lineWidth)) {
+      throw new Error("unsupported stroke style: " + strokeStyle);
+    }
+    let pathView = this.pathView;
+    if (pathView !== null && (this.pathFlags & SvgContext.StrokeFlag) !== 0) {
+      this.finalizePath();
+      pathView = this.nextPathView();
+      this.setPathView(pathView);
+    }
+    let created = false;
+    if (pathView === null) {
+      pathView = SvgView.fromTag("path");
+      this.setPathView(pathView);
+      created = true;
+    }
+    pathView.stroke.setState(strokeStyle, Affinity.Intrinsic);
+    pathView.strokeWidth.setState(lineWidth, Affinity.Intrinsic);
+    pathView.strokeLinecap.setState(this.lineCap, Affinity.Intrinsic);
+    pathView.strokeLinejoin.setState(this.lineJoin, Affinity.Intrinsic);
+    pathView.strokeOpacity.setState(this.globalAlpha !== 1 ? this.globalAlpha : void 0);
+    if (this.lineJoin === "miter") {
+      pathView.strokeMiterlimit.setState(this.miterLimit, Affinity.Intrinsic);
+    } else {
+      pathView.strokeMiterlimit.setState(void 0, Affinity.Intrinsic);
+    }
+    if (this.lineDash.length !== 0) {
+      let dash = "";
+      for (let i = 0; i < this.lineDash.length; i += 1) {
+        if (i !== 0) {
+          dash += " ";
         }
-        pathView.strokeDasharray.setState(dash, Affinity.Intrinsic);
-        if (this.lineDashOffset !== 0) {
-          pathView.strokeDashoffset.setState(this.lineDashOffset, Affinity.Intrinsic);
-        } else {
-          pathView.strokeDashoffset.setState(void 0, Affinity.Intrinsic);
-        }
+        dash += this.lineDash[i];
+      }
+      pathView.strokeDasharray.setState(dash, Affinity.Intrinsic);
+      if (this.lineDashOffset !== 0) {
+        pathView.strokeDashoffset.setState(this.lineDashOffset, Affinity.Intrinsic);
       } else {
-        pathView.strokeDasharray.setState(void 0, Affinity.Intrinsic);
         pathView.strokeDashoffset.setState(void 0, Affinity.Intrinsic);
       }
-      this.setPathFlags(this.pathFlags | SvgContext.StrokeFlag);
-      if ((this.pathFlags & SvgContext.PathFlag) === 0) {
-        const pathString = this.getPathContext().toString();
-        pathView.d.setState(pathString, Affinity.Intrinsic);
-        this.setPathFlags(this.pathFlags | SvgContext.PathFlag);
-      }
-      if (created) {
-        this.view.appendChild(pathView);
-      }
     } else {
-      throw new Error("unsupported stroke style: " + strokeStyle);
+      pathView.strokeDasharray.setState(void 0, Affinity.Intrinsic);
+      pathView.strokeDashoffset.setState(void 0, Affinity.Intrinsic);
+    }
+    this.setPathFlags(this.pathFlags | SvgContext.StrokeFlag);
+    if ((this.pathFlags & SvgContext.PathFlag) === 0) {
+      const pathString = this.getPathContext().toString();
+      pathView.d.setState(pathString, Affinity.Intrinsic);
+      this.setPathFlags(this.pathFlags | SvgContext.PathFlag);
+    }
+    if (created) {
+      this.view.appendChild(pathView);
     }
   }
 
@@ -314,19 +312,20 @@ export class SvgContext implements PaintingContext {
 
   finalizeSvg(): void {
     let pathView = this.pathView;
-    if (pathView !== null) {
-      let nextNode = pathView.node.nextSibling;
-      if (pathView.fill.state === null && pathView.stroke.state === null) {
-        (this as Mutable<this>).pathView = null;
-        pathView.remove();
-      }
-      pathView = null;
-      while (nextNode !== null) {
-        const nextView = (nextNode as ViewNode).view;
-        nextNode = nextNode.nextSibling;
-        if (nextView !== void 0) {
-          nextView.remove();
-        }
+    if (pathView === null) {
+      return;
+    }
+    let nextNode = pathView.node.nextSibling;
+    if (pathView.fill.state === null && pathView.stroke.state === null) {
+      (this as Mutable<this>).pathView = null;
+      pathView.remove();
+    }
+    pathView = null;
+    while (nextNode !== null) {
+      const nextView = (nextNode as ViewNode).view;
+      nextNode = nextNode.nextSibling;
+      if (nextView !== void 0) {
+        nextView.remove();
       }
     }
   }

@@ -136,17 +136,18 @@ export class HtmlIconView extends HtmlView implements IconView {
 
   protected layoutIcon(): void {
     const svgView = this.svg.view;
-    if (svgView !== null && (svgView.width.hasAffinity(Affinity.Intrinsic)
-                          || svgView.height.hasAffinity(Affinity.Intrinsic)
-                          || svgView.viewBox.hasAffinity(Affinity.Intrinsic))) {
-      let viewWidth: Length | number | null = this.width.value;
-      viewWidth = viewWidth instanceof Length ? viewWidth.pxValue() : this.node.offsetWidth;
-      let viewHeight: Length | number | null = this.height.value;
-      viewHeight = viewHeight instanceof Length ? viewHeight.pxValue() : this.node.offsetHeight;
-      svgView.width.setState(viewWidth, Affinity.Intrinsic);
-      svgView.height.setState(viewHeight, Affinity.Intrinsic);
-      svgView.viewBox.setState("0 0 " + viewWidth + " " + viewHeight, Affinity.Intrinsic);
+    if (svgView === null || !svgView.width.hasAffinity(Affinity.Intrinsic)
+                         && !svgView.height.hasAffinity(Affinity.Intrinsic)
+                         && !svgView.viewBox.hasAffinity(Affinity.Intrinsic)) {
+      return;
     }
+    let viewWidth: Length | number | null = this.width.value;
+    viewWidth = viewWidth instanceof Length ? viewWidth.pxValue() : this.node.offsetWidth;
+    let viewHeight: Length | number | null = this.height.value;
+    viewHeight = viewHeight instanceof Length ? viewHeight.pxValue() : this.node.offsetHeight;
+    svgView.width.setState(viewWidth, Affinity.Intrinsic);
+    svgView.height.setState(viewHeight, Affinity.Intrinsic);
+    svgView.viewBox.setState("0 0 " + viewWidth + " " + viewHeight, Affinity.Intrinsic);
   }
 
   override init(init: HtmlIconViewInit): void {

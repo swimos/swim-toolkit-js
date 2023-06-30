@@ -164,27 +164,26 @@ export class RectView extends GraphicsView implements FillView, StrokeView {
     const height = this.height.getValue().pxValue(frame.height);
     context.beginPath();
     context.rect(x, y, width, height);
+
     if (this.fill.value !== null && context.isPointInPath(hx, hy)) {
       return this;
-    } else if (this.stroke.value !== null) {
-      const strokeWidth = this.strokeWidth.value;
-      if (strokeWidth !== null) {
-        // save
-        const contextLineWidth = context.lineWidth;
-
-        const size = Math.min(frame.width, frame.height);
-        context.lineWidth = strokeWidth.pxValue(size);
-        const pointInStroke = context.isPointInStroke(hx, hy);
-
-        // restore
-        context.lineWidth = contextLineWidth;
-
-        if (pointInStroke) {
-          return this;
-        }
-      }
     }
-    return null;
+    let strokeWidth: Length | null;
+    if (this.stroke.value === null || (strokeWidth = this.strokeWidth.value) === null) {
+      return null;
+    }
+
+    // save
+    const contextLineWidth = context.lineWidth;
+
+    const size = Math.min(frame.width, frame.height);
+    context.lineWidth = strokeWidth.pxValue(size);
+    const pointInStroke = context.isPointInStroke(hx, hy);
+
+    // restore
+    context.lineWidth = contextLineWidth;
+
+    return pointInStroke ? this : null;
   }
 
   override init(init: Rect | RectViewInit): void {

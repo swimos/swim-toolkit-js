@@ -71,25 +71,25 @@ export class SpriteService extends Service {
   /** @internal */
   getFreeSlab(sizeClass: number): SpriteSheet | null {
     sizeClass = Math.max(this.minSizeClass, sizeClass);
-    if (sizeClass <= this.maxSizeClass) {
-      const index = sizeClass - this.minSizeClass;
-      const slabs = this.slabs as Array<SpriteSheet | null>;
-      let slab: SpriteSheet | null = slabs[index]!;
-      if (slab === null) {
-        slab = this.createSlab(sizeClass);
-        slabs[index] = slab;
-      } else if (slab.freeCount === 0) {
-        let freeSlab = SpriteSheet.acquireNextFreeSheet(slab);
-        if (freeSlab === null) {
-          freeSlab = this.createSlab(sizeClass);
-        }
-        freeSlab.nextSheet = slab;
-        slab = freeSlab;
-        slabs[index] = slab;
-      }
-      return slab;
+    if (sizeClass > this.maxSizeClass) {
+      return null;
     }
-    return null;
+    const index = sizeClass - this.minSizeClass;
+    const slabs = this.slabs as Array<SpriteSheet | null>;
+    let slab: SpriteSheet | null = slabs[index]!;
+    if (slab === null) {
+      slab = this.createSlab(sizeClass);
+      slabs[index] = slab;
+    } else if (slab.freeCount === 0) {
+      let freeSlab = SpriteSheet.acquireNextFreeSheet(slab);
+      if (freeSlab === null) {
+        freeSlab = this.createSlab(sizeClass);
+      }
+      freeSlab.nextSheet = slab;
+      slab = freeSlab;
+      slabs[index] = slab;
+    }
+    return slab;
   }
 
   /** @internal */

@@ -58,10 +58,9 @@ export class VectorIcon extends FilledIcon implements Interpolate<VectorIcon>, E
   withFillRule(fillRule: PaintingFillRule): VectorIcon {
     if (Equals(this.fillRule, fillRule)) {
       return this;
-    } else {
-      return this.copy(this.path, fillRule, this.fillColor,
-                       this.fillLook, this.moodModifier);
     }
+    return this.copy(this.path, fillRule, this.fillColor,
+                     this.fillLook, this.moodModifier);
   }
 
   override readonly fillColor: Color | null;
@@ -69,10 +68,9 @@ export class VectorIcon extends FilledIcon implements Interpolate<VectorIcon>, E
   override withFillColor(fillColor: Color | null): VectorIcon {
     if (Equals(this.fillColor, fillColor)) {
       return this;
-    } else {
-      return this.copy(this.path, this.fillRule, fillColor,
-                       this.fillLook, this.moodModifier);
     }
+    return this.copy(this.path, this.fillRule, fillColor,
+                     this.fillLook, this.moodModifier);
   }
 
   override readonly fillLook: Look<Color> | null;
@@ -80,10 +78,9 @@ export class VectorIcon extends FilledIcon implements Interpolate<VectorIcon>, E
   override withFillLook(fillLook: Look<Color> | null): VectorIcon {
     if (this.fillLook === fillLook) {
       return this;
-    } else {
-      return this.copy(this.path, this.fillRule, this.fillColor,
-                       fillLook, this.moodModifier);
     }
+    return this.copy(this.path, this.fillRule, this.fillColor,
+                     fillLook, this.moodModifier);
   }
 
   override readonly moodModifier: MoodMatrix | null;
@@ -91,10 +88,9 @@ export class VectorIcon extends FilledIcon implements Interpolate<VectorIcon>, E
   override withMoodModifier(moodModifier: MoodMatrix | null): VectorIcon {
     if (Equals(this.moodModifier, moodModifier)) {
       return this;
-    } else {
-      return this.copy(this.path, this.fillRule, this.fillColor,
-                       this.fillLook, moodModifier);
     }
+    return this.copy(this.path, this.fillRule, this.fillColor,
+                     this.fillLook, moodModifier);
   }
 
   override modifyMood(feel: Feel, updates: MoodVectorUpdates<Feel>): VectorIcon {
@@ -103,11 +99,10 @@ export class VectorIcon extends FilledIcon implements Interpolate<VectorIcon>, E
       oldMoodModifier = MoodMatrix.empty();
     }
     const newMoodModifier = oldMoodModifier.updatedCol(feel, updates, true);
-    if (!newMoodModifier.equals(oldMoodModifier)) {
-      return this.withMoodModifier(newMoodModifier);
-    } else {
+    if (newMoodModifier.equals(oldMoodModifier)) {
       return this;
     }
+    return this.withMoodModifier(newMoodModifier);
   }
 
   override isThemed(): boolean {
@@ -116,15 +111,14 @@ export class VectorIcon extends FilledIcon implements Interpolate<VectorIcon>, E
 
   override withTheme(theme: ThemeMatrix, mood: MoodVector): VectorIcon {
     const fillLook = this.fillLook;
-    if (fillLook !== null) {
-      const moodModifier = this.moodModifier;
-      if (moodModifier !== null) {
-        mood = moodModifier.timesCol(mood, true);
-      }
-      return this.withFillColor(theme.getOr(fillLook, mood, null));
-    } else {
+    if (fillLook === null) {
       return this;
     }
+    const moodModifier = this.moodModifier;
+    if (moodModifier !== null) {
+      mood = moodModifier.timesCol(mood, true);
+    }
+    return this.withFillColor(theme.getOr(fillLook, mood, null));
   }
 
   override render(renderer: GraphicsRenderer, frame: R2Box): void {
@@ -168,9 +162,8 @@ export class VectorIcon extends FilledIcon implements Interpolate<VectorIcon>, E
   interpolateTo(that: unknown): Interpolator<VectorIcon> | null {
     if (that instanceof VectorIcon) {
       return VectorIconInterpolator(this, that);
-    } else {
-      return null;
     }
+    return null;
   }
 
   equivalentTo(that: unknown, epsilon?: number): boolean {

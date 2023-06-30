@@ -140,13 +140,13 @@ export class TextRunView extends GraphicsView implements TypesetView {
   }
 
   override init(init: TextRun | TextRunViewInit | string): void {
-    if (typeof init !== "string") {
+    if (typeof init === "string") {
+      this.text(init);
+    } else {
       if (!(init instanceof TextRun)) {
         super.init(init);
       }
       this.setState(init);
-    } else {
-      this.text(init);
     }
   }
 }

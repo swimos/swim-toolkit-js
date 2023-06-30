@@ -439,17 +439,18 @@ export class CanvasView extends HtmlView {
   /** @internal */
   fireEvent(event: GraphicsEvent, clientX: number, clientY: number): GraphicsView | null {
     const clientBounds = this.clientBounds;
-    if (clientBounds.contains(clientX, clientY)) {
-      const x = clientX - clientBounds.x;
-      const y = clientY - clientBounds.y;
-      const hit = this.cascadeHitTest(x, y);
-      if (hit !== null) {
-        event.targetView = hit;
-        hit.bubbleEvent(event);
-        return hit;
-      }
+    if (!clientBounds.contains(clientX, clientY)) {
+      return null;
     }
-    return null;
+    const x = clientX - clientBounds.x;
+    const y = clientY - clientBounds.y;
+    const hit = this.cascadeHitTest(x, y);
+    if (hit === null) {
+      return null;
+    }
+    event.targetView = hit;
+    hit.bubbleEvent(event);
+    return hit;
   }
 
   /** @internal */

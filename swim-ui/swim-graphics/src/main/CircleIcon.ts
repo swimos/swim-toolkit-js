@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import type {Mutable} from "@swim/util";
-import {Lazy} from "@swim/util";
 import {Equals} from "@swim/util";
 import {Equivalent} from "@swim/util";
 import type {Interpolate} from "@swim/util";
@@ -60,9 +59,8 @@ export class CircleIcon extends FilledIcon implements Interpolate<CircleIcon>, E
   override withFillLook(fillLook: Look<Color> | null): CircleIcon {
     if (this.fillLook === fillLook) {
       return this;
-    } else {
-      return this.copy(this.fillColor, fillLook, this.moodModifier);
     }
+    return this.copy(this.fillColor, fillLook, this.moodModifier);
   }
 
   override readonly moodModifier: MoodMatrix | null;
@@ -70,9 +68,8 @@ export class CircleIcon extends FilledIcon implements Interpolate<CircleIcon>, E
   override withMoodModifier(moodModifier: MoodMatrix | null): CircleIcon {
     if (Equals(this.moodModifier, moodModifier)) {
       return this;
-    } else {
-      return this.copy(this.fillColor, this.fillLook, moodModifier);
     }
+    return this.copy(this.fillColor, this.fillLook, moodModifier);
   }
 
   override modifyMood(feel: Feel, updates: MoodVectorUpdates<Feel>): CircleIcon {
@@ -81,11 +78,10 @@ export class CircleIcon extends FilledIcon implements Interpolate<CircleIcon>, E
       oldMoodModifier = MoodMatrix.empty();
     }
     const newMoodModifier = oldMoodModifier.updatedCol(feel, updates, true);
-    if (!newMoodModifier.equals(oldMoodModifier)) {
-      return this.withMoodModifier(newMoodModifier);
-    } else {
+    if (newMoodModifier.equals(oldMoodModifier)) {
       return this;
     }
+    return this.withMoodModifier(newMoodModifier);
   }
 
   override isThemed(): boolean {
@@ -94,15 +90,14 @@ export class CircleIcon extends FilledIcon implements Interpolate<CircleIcon>, E
 
   override withTheme(theme: ThemeMatrix, mood: MoodVector): CircleIcon {
     const fillLook = this.fillLook;
-    if (fillLook !== null) {
-      const moodModifier = this.moodModifier;
-      if (moodModifier !== null) {
-        mood = moodModifier.timesCol(mood, true);
-      }
-      return this.withFillColor(theme.getOr(fillLook, mood, null));
-    } else {
+    if (fillLook === null) {
       return this;
     }
+    const moodModifier = this.moodModifier;
+    if (moodModifier !== null) {
+      mood = moodModifier.timesCol(mood, true);
+    }
+    return this.withFillColor(theme.getOr(fillLook, mood, null));
   }
 
   override render(renderer: GraphicsRenderer, frame: R2Box): void {
@@ -151,9 +146,8 @@ export class CircleIcon extends FilledIcon implements Interpolate<CircleIcon>, E
   interpolateTo(that: unknown): Interpolator<CircleIcon> | null {
     if (that instanceof CircleIcon) {
       return CircleIconInterpolator(this, that);
-    } else {
-      return null;
     }
+    return null;
   }
 
   equivalentTo(that: unknown, epsilon?: number): boolean {
@@ -190,7 +184,6 @@ export class CircleIcon extends FilledIcon implements Interpolate<CircleIcon>, E
     return Format.debug(this);
   }
 
-  @Lazy
   static create(): CircleIcon {
     return new CircleIcon(null, Look.accentColor, null);
   }

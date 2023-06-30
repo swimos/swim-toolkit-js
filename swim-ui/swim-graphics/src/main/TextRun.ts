@@ -59,10 +59,9 @@ export class TextRun implements Graphics, Equals, Debug {
   withText(text: string): TextRun {
     if (this.text === text) {
       return this;
-    } else {
-      return this.copy(text, this.font, this.textAlign,
-                       this.textBaseline, this.textOrigin, this.textColor);
     }
+        return this.copy(text, this.font, this.textAlign,
+                         this.textBaseline, this.textOrigin, this.textColor);
   }
 
   readonly font: Font | null;
@@ -73,10 +72,9 @@ export class TextRun implements Graphics, Equals, Debug {
     }
     if (this.font === font) {
       return this;
-    } else {
-      return this.copy(this.text, font, this.textAlign,
-                       this.textBaseline, this.textOrigin, this.textColor);
     }
+    return this.copy(this.text, font, this.textAlign,
+                     this.textBaseline, this.textOrigin, this.textColor);
   }
 
   readonly textAlign: CanvasTextAlign | null;
@@ -84,10 +82,9 @@ export class TextRun implements Graphics, Equals, Debug {
   withTextAlign(textAlign: CanvasTextAlign | null): TextRun {
     if (this.textAlign === textAlign) {
       return this;
-    } else {
-      return this.copy(this.text, this.font, textAlign,
-                       this.textBaseline, this.textOrigin, this.textColor);
     }
+    return this.copy(this.text, this.font, textAlign,
+                     this.textBaseline, this.textOrigin, this.textColor);
   }
 
   readonly textBaseline: CanvasTextBaseline | null;
@@ -95,10 +92,9 @@ export class TextRun implements Graphics, Equals, Debug {
   withTextBaseline(textBaseline: CanvasTextBaseline | null): TextRun {
     if (this.textBaseline === textBaseline) {
       return this;
-    } else {
-      return this.copy(this.text, this.font, this.textAlign,
-                       textBaseline, this.textOrigin, this.textColor);
     }
+    return this.copy(this.text, this.font, this.textAlign,
+                     textBaseline, this.textOrigin, this.textColor);
   }
 
   readonly textOrigin: R2Point | null;
@@ -109,10 +105,9 @@ export class TextRun implements Graphics, Equals, Debug {
     }
     if (Equals(this.textOrigin, textOrigin)) {
       return this;
-    } else {
-      return this.copy(this.text, this.font, this.textAlign,
-                       this.textBaseline, textOrigin as R2Point, this.textColor);
     }
+    return this.copy(this.text, this.font, this.textAlign,
+                     this.textBaseline, textOrigin as R2Point, this.textColor);
   }
 
   readonly textColor: Color | null;
@@ -123,10 +118,9 @@ export class TextRun implements Graphics, Equals, Debug {
     }
     if (Equals(this.textColor, textColor)) {
       return this;
-    } else {
-      return this.copy(this.text, this.font, this.textAlign,
-                       this.textBaseline, this.textOrigin, textColor);
     }
+    return this.copy(this.text, this.font, this.textAlign,
+                     this.textBaseline, this.textOrigin, textColor);
   }
 
   render(renderer: GraphicsRenderer, frame: R2Box): void {

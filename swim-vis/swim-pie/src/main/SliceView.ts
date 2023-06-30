@@ -178,7 +178,7 @@ export class SliceView extends GraphicsView {
         this.setView(labelView);
       }
       if (labelView instanceof TextRunView) {
-        labelView.text(label !== void 0 ? label : "");
+        labelView.text.setState(label !== void 0 ? label : "");
       }
       return labelView;
     },
@@ -204,7 +204,7 @@ export class SliceView extends GraphicsView {
         this.setView(legendView);
       }
       if (legendView instanceof TextRunView) {
-        legendView.text(legend !== void 0 ? legend : "");
+        legendView.text.setState(legend !== void 0 ? legend : "");
       }
       return legendView;
     },

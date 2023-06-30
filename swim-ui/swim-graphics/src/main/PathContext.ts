@@ -231,11 +231,12 @@ export class PathContext implements DrawingContext {
   }
 
   closePath(): void {
-    if (!isNaN(this.x1)) {
-      this.d += "Z";
-      this.x1 = this.x0;
-      this.y1 = this.y0;
+    if (isNaN(this.x1)) {
+      return;
     }
+    this.d += "Z";
+    this.x1 = this.x0;
+    this.y1 = this.y0;
   }
 
   toString(): string {
