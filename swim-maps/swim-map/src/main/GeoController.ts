@@ -17,16 +17,19 @@ import type {AnyTiming} from "@swim/util";
 import {Timing} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Property} from "@swim/component";
-import type {GeoBox} from "@swim/geo";
 import {View} from "@swim/view";
 import type {ControllerObserver} from "@swim/controller";
 import {Controller} from "@swim/controller";
 import {TraitViewRef} from "@swim/controller";
+import type {AnyGeoPerspective} from "./GeoPerspective";
+import {GeoPerspective} from "./GeoPerspective";
 import {GeoView} from "./GeoView";
 import {GeoTrait} from "./GeoTrait";
 
 /** @public */
 export interface GeoControllerObserver<C extends GeoController = GeoController> extends ControllerObserver<C> {
+  controllerDidSetGeoPerspective?(geoPerspective: GeoPerspective | null, controller: C): void;
+
   controllerWillAttachGeoTrait?(geoTrait: GeoTrait, controller: C): void;
 
   controllerDidDetachGeoTrait?(geoTrait: GeoTrait, controller: C): void;
@@ -34,15 +37,20 @@ export interface GeoControllerObserver<C extends GeoController = GeoController> 
   controllerWillAttachGeoView?(geoView: GeoView, controller: C): void;
 
   controllerDidDetachGeoView?(geoView: GeoView, controller: C): void;
-
-  controllerWillSetGeoBounds?(newGeoBounds: GeoBox, oldGeoBounds: GeoBox, controller: C): void;
-
-  controllerDidSetGeoBounds?(newGeoBounds: GeoBox, oldGeoBounds: GeoBox, controller: C): void;
 }
 
 /** @public */
 export abstract class GeoController extends Controller {
   declare readonly observerType?: Class<GeoControllerObserver>;
+
+  @Property({
+    valueType: GeoPerspective,
+    value: null,
+    didSetValue(geoPerspective: GeoPerspective | null): void {
+      this.owner.callObservers("controllerDidSetGeoPerspective", geoPerspective, this.owner);
+    },
+  })
+  readonly geoPerspective!: Property<this, GeoPerspective | null, AnyGeoPerspective | null>;
 
   @Property({
     valueType: Number,
@@ -135,6 +143,12 @@ export abstract class GeoController extends Controller {
     traitType: GeoTrait,
     willAttachTrait(geoTrait: GeoTrait): void {
       this.owner.callObservers("controllerWillAttachGeoTrait", geoTrait, this.owner);
+    },
+    initTrait(geoTrait: GeoTrait): void {
+      this.owner.geoPerspective.bindInlet(geoTrait.geoPerspective);
+    },
+    deinitTrait(geoTrait: GeoTrait): void {
+      this.owner.geoPerspective.unbindInlet(geoTrait.geoPerspective);
     },
     didDetachTrait(geoTrait: GeoTrait): void {
       this.owner.callObservers("controllerDidDetachGeoTrait", geoTrait, this.owner);

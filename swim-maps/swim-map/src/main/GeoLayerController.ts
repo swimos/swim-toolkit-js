@@ -15,10 +15,10 @@
 import type {Class} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Property} from "@swim/component";
-import type {GeoBox} from "@swim/geo";
 import type {Trait} from "@swim/model";
 import {TraitViewRef} from "@swim/controller";
 import {TraitViewControllerSet} from "@swim/controller";
+import type {GeoPerspective} from "./GeoPerspective";
 import type {GeoView} from "./GeoView";
 import type {GeoTrait} from "./GeoTrait";
 import type {GeoControllerObserver} from "./GeoController";
@@ -48,9 +48,7 @@ export interface GeoLayerControllerObserver<C extends GeoLayerController = GeoLa
 
   controllerDidDetachFeatureView?(featureView: GeoView, featureController: GeoController, controller: C): void;
 
-  controllerWillSetFeatureGeoBounds?(newGeoBounds: GeoBox, oldGeoBounds: GeoBox, featureController: GeoController, controller: C): void;
-
-  controllerDidSetFeatureGeoBounds?(newGeoBounds: GeoBox, oldGeoBounds: GeoBox, featureController: GeoController, controller: C): void;
+  controllerDidSetFeatureGeoPerspective?(geoPerspective: GeoPerspective | null, featureController: GeoController, controller: C): void;
 }
 
 /** @public */
@@ -100,12 +98,6 @@ export class GeoLayerController extends GeoController {
     deinitTrait(geoTrait: GeoLayerTrait): void {
       this.owner.features.deleteTraits(geoTrait.features.traits);
       super.deinitTrait(geoTrait);
-    },
-    traitWillSetGeoBounds(newGeoBounds: GeoBox, oldGeoBounds: GeoBox): void {
-      this.owner.callObservers("controllerWillSetGeoBounds", newGeoBounds, oldGeoBounds, this.owner);
-    },
-    traitDidSetGeoBounds(newGeoBounds: GeoBox, oldGeoBounds: GeoBox): void {
-      this.owner.callObservers("controllerDidSetGeoBounds", newGeoBounds, oldGeoBounds, this.owner);
     },
     traitWillAttachFeature(featureTrait: GeoTrait, targetTrait: Trait | null): void {
       this.owner.features.addTrait(featureTrait, targetTrait);
@@ -195,11 +187,8 @@ export class GeoLayerController extends GeoController {
     detachFeatureView(featureView: GeoView, featureController: GeoController): void {
       featureView.remove();
     },
-    controllerWillSetGeoBounds(newGeoBounds: GeoBox, oldGeoBounds: GeoBox, featureController: GeoController): void {
-      this.owner.callObservers("controllerWillSetFeatureGeoBounds", newGeoBounds, oldGeoBounds, featureController, this.owner);
-    },
-    controllerDidSetGeoBounds(newGeoBounds: GeoBox, oldGeoBounds: GeoBox, featureController: GeoController): void {
-      this.owner.callObservers("controllerDidSetFeatureGeoBounds", newGeoBounds, oldGeoBounds, featureController, this.owner);
+    controllerDidSetGeoPerspective(geoPerspective: GeoPerspective | null, featureController: GeoController): void {
+      this.owner.callObservers("controllerDidSetFeatureGeoPerspective", geoPerspective, featureController, this.owner);
     },
     createController(featureTrait?: GeoTrait): GeoController {
       if (featureTrait !== void 0) {

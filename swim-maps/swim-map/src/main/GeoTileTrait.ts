@@ -17,7 +17,6 @@ import {Property} from "@swim/component";
 import type {AnyUri} from "@swim/uri";
 import type {Uri} from "@swim/uri";
 import type {GeoTile} from "@swim/geo";
-import type {GeoBox} from "@swim/geo";
 import {Model} from "@swim/model";
 import {TraitModelRef} from "@swim/model";
 import {TraitModelSet} from "@swim/model";
@@ -37,18 +36,11 @@ export class GeoTileTrait extends GeoLayerTrait {
   constructor(geoTile: GeoTile) {
     super();
     this.geoTile = geoTile;
-    this.geoBounds = geoTile.bounds;
   }
 
   declare readonly observerType?: Class<GeoTileTraitObserver>;
 
   readonly geoTile: GeoTile;
-
-  override readonly geoBounds: GeoBox;
-
-  override setGeoBounds(newGeoBounds: GeoBox): void {
-    // immutable
-  }
 
   @Property({extends: true, inherits: false})
   override get nodeUri(): Property<this, Uri | null, AnyUri | null> {

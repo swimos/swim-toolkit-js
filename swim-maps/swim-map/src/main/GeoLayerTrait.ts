@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
+import type {AnyGeoBox} from "@swim/geo";
 import {GeoBox} from "@swim/geo";
 import {Model} from "@swim/model";
 import {TraitModelSet} from "@swim/model";
@@ -24,6 +26,8 @@ import {GeoLayerController} from "./"; // forward import
 
 /** @public */
 export interface GeoLayerTraitObserver<T extends GeoLayerTrait = GeoLayerTrait> extends GeoTraitObserver<T> {
+  traitDidSetGeoBounds?(geoBoubnds: GeoBox | null, trait: T): void;
+
   traitWillAttachFeature?(featureTrait: GeoTrait, trait: T): void;
 
   traitDidDetachFeature?(featureTrait: GeoTrait, trait: T): void;
@@ -31,37 +35,17 @@ export interface GeoLayerTraitObserver<T extends GeoLayerTrait = GeoLayerTrait> 
 
 /** @public */
 export class GeoLayerTrait extends GeoTrait {
-  constructor() {
-    super();
-    this.geoBounds = GeoBox.globe();
-  }
-
   declare readonly observerType?: Class<GeoLayerTraitObserver>;
 
-  override readonly geoBounds: GeoBox;
-
-  setGeoBounds(newGeoBounds: GeoBox): void {
-    const oldGeoBounds = this.geoBounds;
-    if (newGeoBounds.equals(oldGeoBounds)) {
-      return;
-    }
-    this.willSetGeoBounds(newGeoBounds, oldGeoBounds);
-    (this as Mutable<this>).geoBounds = newGeoBounds;
-    this.onSetGeoBounds(newGeoBounds, oldGeoBounds);
-    this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
-  }
-
-  protected willSetGeoBounds(newGeoBounds: GeoBox, oldGeoBounds: GeoBox): void {
-    this.callObservers("traitWillSetGeoBounds", newGeoBounds, oldGeoBounds, this);
-  }
-
-  protected onSetGeoBounds(newGeoBounds: GeoBox, oldGeoBounds: GeoBox): void {
-    // hook
-  }
-
-  protected didSetGeoBounds(newGeoBounds: GeoBox, oldGeoBounds: GeoBox): void {
-    this.callObservers("traitDidSetGeoBounds", newGeoBounds, oldGeoBounds, this);
-  }
+  @Property({
+    valueType: GeoBox,
+    value: null,
+    didSetValue(geoBounds: GeoBox | null): void {
+      this.owner.callObservers("traitDidSetGeoBounds", geoBounds, this.owner);
+      this.owner.geoPerspective.setValue(geoBounds, Affinity.Intrinsic);
+    },
+  })
+  readonly geoBounds!: Property<this, GeoBox | null, AnyGeoBox | null>;
 
   @TraitModelSet({
     traitType: GeoTrait,

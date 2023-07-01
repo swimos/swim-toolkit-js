@@ -648,7 +648,7 @@ export class NodeView extends View {
       }
     } else if (value instanceof Node) {
       return this.fromNode(value);
-    } else if (Creatable.is(value)) {
+    } else if (Creatable[Symbol.hasInstance](value)) {
       return value.create();
     } else {
       return this.fromInit(value);

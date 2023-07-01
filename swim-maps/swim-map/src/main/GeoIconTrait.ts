@@ -13,10 +13,10 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
+import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import type {AnyGeoPoint} from "@swim/geo";
 import {GeoPoint} from "@swim/geo";
-import {GeoBox} from "@swim/geo";
 import {Graphics} from "@swim/graphics";
 import type {AnyIconLayout} from "@swim/graphics";
 import {IconLayout} from "@swim/graphics";
@@ -38,16 +38,12 @@ export interface GeoIconTraitObserver<T extends GeoIconTrait = GeoIconTrait> ext
 export class GeoIconTrait extends GeoTrait {
   declare readonly observerType?: Class<GeoIconTraitObserver>;
 
-  override get geoBounds(): GeoBox {
-    const geoCenter = this.geoCenter.value;
-    return geoCenter !== null ? geoCenter.bounds : GeoBox.undefined();
-  }
-
   @Property({
     valueType: GeoPoint,
     value: null,
     didSetValue(geoCenter: GeoPoint | null): void {
       this.owner.callObservers("traitDidSetGeoCenter", geoCenter, this.owner);
+      this.owner.geoPerspective.setValue(geoCenter, Affinity.Intrinsic);
     },
   })
   readonly geoCenter!: Property<this, GeoPoint | null, AnyGeoPoint | null>;

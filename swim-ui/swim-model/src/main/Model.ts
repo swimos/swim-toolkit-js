@@ -1936,7 +1936,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
 
   static override fromInit<S extends Class<Instance<S, Model>>>(this: S, init: Inits<InstanceType<S>>): InstanceType<S> {
     let type: Creatable<Model>;
-    if ((typeof init === "object" && init !== null || typeof init === "function") && Creatable.is((init as ModelInit).type)) {
+    if ((typeof init === "object" && init !== null || typeof init === "function") && Creatable[Symbol.hasInstance]((init as ModelInit).type)) {
       type = (init as ModelInit).type!;
     } else {
       type = this as unknown as Creatable<Model>;
@@ -1955,7 +1955,7 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
       } else {
         throw new TypeError(value + " not an instance of " + this);
       }
-    } else if (Creatable.is(value)) {
+    } else if (Creatable[Symbol.hasInstance](value)) {
       return (value as Creatable<InstanceType<S>>).create();
     } else {
       return (this as unknown as ModelFactory<InstanceType<S>>).fromInit(value as Inits<InstanceType<S>>);

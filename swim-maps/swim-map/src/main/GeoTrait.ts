@@ -13,23 +13,30 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {GeoBox} from "@swim/geo";
+import {Property} from "@swim/component";
 import type {TraitObserver} from "@swim/model";
 import {Trait} from "@swim/model";
+import type {AnyGeoPerspective} from "./GeoPerspective";
+import {GeoPerspective} from "./GeoPerspective";
 import type {GeoController} from "./GeoController";
 
 /** @public */
 export interface GeoTraitObserver<T extends GeoTrait = GeoTrait> extends TraitObserver<T> {
-  traitWillSetGeoBounds?(newGeoBounds: GeoBox, oldGeoBounds: GeoBox, trait: T): void;
-
-  traitDidSetGeoBounds?(newGeoBounds: GeoBox, oldGeoBounds: GeoBox, trait: T): void;
+  traitDidSetGeoPerspective?(geoPerspective: GeoPerspective | null, trait: T): void;
 }
 
 /** @public */
 export abstract class GeoTrait extends Trait {
   declare readonly observerType?: Class<GeoTraitObserver>;
 
-  abstract readonly geoBounds: GeoBox;
+  @Property({
+    valueType: GeoPerspective,
+    value: null,
+    didSetValue(geoPerspective: GeoPerspective | null): void {
+      this.owner.callObservers("traitDidSetGeoPerspective", geoPerspective, this.owner);
+    },
+  })
+  readonly geoPerspective!: Property<this, GeoPerspective | null, AnyGeoPerspective | null>;
 
   abstract createGeoController(): GeoController;
 }

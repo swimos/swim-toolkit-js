@@ -15,7 +15,7 @@
 // Geo
 
 export type {AnyGeoPerspective} from "./GeoPerspective";
-export type {GeoPerspectiveInit} from "./GeoPerspective";
+export {GeoPerspectiveInit} from "./GeoPerspective";
 export {GeoPerspective} from "./GeoPerspective";
 
 export {GeoViewport} from "./GeoViewport";

@@ -19,7 +19,6 @@ import type {AnyTiming} from "@swim/util";
 import {Timing} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
-import {GeoPoint} from "@swim/geo";
 import {Look} from "@swim/theme";
 import {Mood} from "@swim/theme";
 import {View} from "@swim/view";
@@ -27,6 +26,7 @@ import {ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import type {CanvasView} from "@swim/graphics";
 import type {AnyGeoPerspective} from "@swim/map";
+import {GeoPerspective} from "@swim/map";
 import type {GeoViewport} from "@swim/map";
 import type {EsriViewObserver} from "./EsriView";
 import {EsriView} from "./EsriView";
@@ -83,27 +83,31 @@ export class EsriSceneView extends EsriView {
     if (geoViewport === null) {
       return;
     }
+
+    geoPerspective = GeoPerspective.fromAny(geoPerspective);
     const target: __esri.GoToTarget3D = {};
     const options: __esri.GoToOptions3D = {};
-    let geoCenter = geoPerspective.geoCenter;
-    if (geoCenter !== void 0 && geoCenter !== null) {
-      geoCenter = GeoPoint.fromAny(geoCenter);
-      if (!geoViewport.geoCenter.equivalentTo(geoCenter, 1e-5)) {
-        target.center = [geoCenter.lng, geoCenter.lat];
-      }
+
+    const geoCenter = geoPerspective.geoCenter;
+    if (geoCenter !== null && !geoViewport.geoCenter.equivalentTo(geoCenter, 1e-5)) {
+      target.center = [geoCenter.lng, geoCenter.lat];
     }
+
     const zoom = geoPerspective.zoom;
     if (zoom !== void 0 && !Equivalent(geoViewport.zoom, zoom, 1e-5)) {
       target.zoom = zoom;
     }
+
     const heading = geoPerspective.heading;
     if (heading !== void 0 && !Equivalent(geoViewport.heading, heading, 1e-5)) {
       target.heading = heading;
     }
+
     const tilt = geoPerspective.tilt;
     if (tilt !== void 0 && !Equivalent(geoViewport.tilt, tilt, 1e-5)) {
       target.tilt = tilt;
     }
+
     if (timing === void 0 || timing === true) {
       timing = this.getLookOr(Look.timing, Mood.ambient, false);
     } else {
@@ -111,7 +115,10 @@ export class EsriSceneView extends EsriView {
     }
     if (timing instanceof Timing) {
       options.duration = timing.duration;
+    } else {
+      options.duration = 0;
     }
+
     this.map.goTo(target, options);
   }
 

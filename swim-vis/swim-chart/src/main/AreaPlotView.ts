@@ -26,6 +26,7 @@ import type {FillViewInit} from "@swim/graphics";
 import type {FillView} from "@swim/graphics";
 import type {SeriesPlotViewInit} from "./SeriesPlotView";
 import type {SeriesPlotViewObserver} from "./SeriesPlotView";
+import type {DataPointView} from "./DataPointView";
 import {SeriesPlotView} from "./SeriesPlotView";
 
 /** @public */
@@ -94,7 +95,7 @@ export class AreaPlotView<X = unknown, Y = unknown> extends SeriesPlotView<X, Y>
     const cursor = dataPointViews.values();
     cursor.next();
     while (cursor.hasNext()) {
-      const p = cursor.next().value!;
+      const p = cursor.next().value as DataPointView<X, Y>;
       context.lineTo(p.xCoord, p.yCoord);
       if (gradient !== null && p.isGradientStop()) {
         let color = ThemeAnimator.tryValueOr(p, "color", fill);

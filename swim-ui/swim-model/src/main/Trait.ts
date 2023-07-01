@@ -1683,7 +1683,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
 
   static fromInit<S extends Class<Instance<S, Trait>>>(this: S, init: Inits<InstanceType<S>>): InstanceType<S> {
     let type: Creatable<Trait>;
-    if ((typeof init === "object" && init !== null || typeof init === "function") && Creatable.is((init as TraitInit).type)) {
+    if ((typeof init === "object" && init !== null || typeof init === "function") && Creatable[Symbol.hasInstance]((init as TraitInit).type)) {
       type = (init as TraitInit).type!;
     } else {
       type = this as unknown as Creatable<Trait>;
@@ -1702,7 +1702,7 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
       } else {
         throw new TypeError(value + " not an instance of " + this);
       }
-    } else if (Creatable.is(value)) {
+    } else if (Creatable[Symbol.hasInstance](value)) {
       return (value as Creatable<InstanceType<S>>).create();
     } else {
       return (this as unknown as TraitFactory<InstanceType<S>>).fromInit(value as Inits<InstanceType<S>>);

@@ -113,7 +113,7 @@ export class LinePlotView<X = unknown, Y = unknown> extends SeriesPlotView<X, Y>
 
     context.beginPath();
     let i = 0;
-    dataPointViews.forEach(function (x: X, p: DataPointView<X, Y>): void {
+    dataPointViews.forEach(function (p: DataPointView<X, Y>): void {
       const xCoord = p.xCoord;
       const yCoord = p.yCoord;
       if (i === 0) {
@@ -163,7 +163,7 @@ export class LinePlotView<X = unknown, Y = unknown> extends SeriesPlotView<X, Y>
 
     context.beginPath();
     let i = 0;
-    this.dataPointViews.forEach(function (x: X, p: DataPointView<X, Y>): void {
+    this.dataPointViews.forEach(function (p: DataPointView<X, Y>): void {
       const xCoord = p.xCoord;
       const yCoord = p.yCoord;
       if (i === 0) {

@@ -17,7 +17,6 @@ import type {AnyTiming} from "@swim/util";
 import {Timing} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Property} from "@swim/component";
-import type {GeoBox} from "@swim/geo";
 import type {Trait} from "@swim/model";
 import {ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
@@ -68,9 +67,7 @@ export interface MapControllerObserver<C extends MapController = MapController> 
 
   controllerDidDetachLayerView?(layerView: GeoView, layerController: GeoController, controller: C): void;
 
-  controllerWillSetLayerGeoBounds?(newGeoBounds: GeoBox, oldGeoBounds: GeoBox, layerController: GeoController, controller: C): void;
-
-  controllerDidSetLayerGeoBounds?(newGeoBounds: GeoBox, oldGeoBounds: GeoBox, layerController: GeoController, controller: C): void;
+  controllerDidSetLayerGeoPerspective?(geoPerspective: GeoPerspective | null, layerController: GeoController, controller: C): void;
 }
 
 /** @public */
@@ -275,11 +272,8 @@ export class MapController extends Controller {
     detachLayerView(layerView: GeoView, layerController: GeoController): void {
       layerView.remove();
     },
-    controllerWillSetGeoBounds(newGeoBounds: GeoBox, oldGeoBounds: GeoBox, layerController: GeoController): void {
-      this.owner.callObservers("controllerWillSetLayerGeoBounds", newGeoBounds, oldGeoBounds, layerController, this.owner);
-    },
-    controllerDidSetGeoBounds(newGeoBounds: GeoBox, oldGeoBounds: GeoBox, layerController: GeoController): void {
-      this.owner.callObservers("controllerDidSetLayerGeoBounds", newGeoBounds, oldGeoBounds, layerController, this.owner);
+    controllerDidSetGeoPerspective(geoPerspective: GeoPerspective | null, layerController: GeoController): void {
+      this.owner.callObservers("controllerDidSetLayerGeoPerspective", geoPerspective, layerController, this.owner);
     },
     createController(layerTrait?: GeoTrait): GeoController {
       if (layerTrait !== void 0) {

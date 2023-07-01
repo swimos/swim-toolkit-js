@@ -18,7 +18,6 @@ import type {AnyTiming} from "@swim/util";
 import {Timing} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
-import {GeoPoint} from "@swim/geo";
 import {Look} from "@swim/theme";
 import {Mood} from "@swim/theme";
 import {View} from "@swim/view";
@@ -26,6 +25,7 @@ import {ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import type {CanvasView} from "@swim/graphics";
 import type {AnyGeoPerspective} from "@swim/map";
+import {GeoPerspective} from "@swim/map";
 import type {GeoViewport} from "@swim/map";
 import type {MapViewObserver} from "@swim/map";
 import {MapView} from "@swim/map";
@@ -97,14 +97,17 @@ export class LeafletView extends MapView {
     if (geoViewport === null) {
       return;
     }
+
+    geoPerspective = GeoPerspective.fromAny(geoPerspective);
     const options: L.ZoomPanOptions = {};
+
     let geoCenter = geoPerspective.geoCenter;
-    if (geoCenter !== void 0 && geoCenter !== null) {
-      geoCenter = GeoPoint.fromAny(geoCenter);
-    } else {
+    if (geoCenter === null) {
       geoCenter = geoViewport.geoCenter;
     }
+
     const zoom = geoPerspective.zoom;
+
     if (timing === void 0 || timing === true) {
       timing = this.getLookOr(Look.timing, Mood.ambient, false);
     } else {
@@ -113,7 +116,10 @@ export class LeafletView extends MapView {
     if (timing instanceof Timing) {
       options.animate = true;
       options.duration = timing.duration;
+    } else {
+      options.duration = 0;
     }
+
     this.map.flyTo(geoCenter, zoom, options);
   }
 

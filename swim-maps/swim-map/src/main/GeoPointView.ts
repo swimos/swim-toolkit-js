@@ -22,9 +22,8 @@ import {Length} from "@swim/math";
 import type {AnyR2Point} from "@swim/math";
 import {R2Point} from "@swim/math";
 import {R2Box} from "@swim/math";
-import type {AnyGeoPoint} from "@swim/geo";
-import type {GeoPointInit} from "@swim/geo";
-import type {GeoPointTuple} from "@swim/geo";
+import {AnyGeoPoint} from "@swim/geo";
+import {GeoPointTuple} from "@swim/geo";
 import {GeoPoint} from "@swim/geo";
 import type {AnyFont} from "@swim/style";
 import {Font} from "@swim/style";
@@ -49,7 +48,7 @@ import {GeoRippleView} from "./GeoRippleView";
 export type GeoPointLabelPlacement = "auto" | "top" | "right" | "bottom" | "left";
 
 /** @public */
-export type AnyGeoPointView = GeoPointView | GeoPointViewInit | GeoPoint | GeoPointInit | GeoPointTuple;
+export type AnyGeoPointView = GeoPointView | GeoPointViewInit | AnyGeoPoint;
 
 /** @public */
 export interface GeoPointViewInit extends GeoViewInit {
@@ -161,7 +160,7 @@ export class GeoPointView extends GeoView {
       init = point.toAny();
     } else if (point instanceof GeoPoint) {
       init = point.toAny();
-    } else if (GeoPoint.isTuple(point)) {
+    } else if (GeoPointTuple[Symbol.hasInstance](point)) {
       init = {lng: point[0], lat: point[1]};
     } else {
       init = point;
@@ -328,7 +327,7 @@ export class GeoPointView extends GeoView {
   }
 
   override init(init: AnyGeoPoint | GeoPointViewInit): void {
-    if (init instanceof GeoPoint || GeoPoint.isTuple(init)) {
+    if (init instanceof GeoPoint || AnyGeoPoint[Symbol.hasInstance](init)) {
       this.setState(init);
     } else {
       super.init(init as GeoPointViewInit);

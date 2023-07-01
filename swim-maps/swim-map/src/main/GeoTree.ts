@@ -590,7 +590,7 @@ export class GeoTree {
                        geoFrame: GeoBox, geoBounds?: GeoBox, geoCenter?: GeoPoint,
                        southWest: GeoTree | null = null, northWest: GeoTree | null = null,
                        southEast: GeoTree | null = null, northEast: GeoTree | null = null,
-                       views: ReadonlyArray<GeoView> = Arrays.empty, size: number = 0): GeoTree {
+                       views: ReadonlyArray<GeoView> = Arrays.empty(), size: number = 0): GeoTree {
     if (geoCenter === void 0) {
       geoCenter = geoFrame.center;
     }
@@ -634,6 +634,6 @@ export class GeoTree {
       density = 8;
     }
     return new GeoTree(depth, maxDepth, density, geoFrame, geoFrame,
-                       geoFrame.center, null, null, null, null, Arrays.empty, 0);
+                       geoFrame.center, null, null, null, null, Arrays.empty(), 0);
   }
 }

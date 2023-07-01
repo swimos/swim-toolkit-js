@@ -233,10 +233,8 @@ export class MoodVector<M extends Mood = Feel> implements Equals, Debug {
   }
 
   forEach<R>(callback: (value: number, key: M) => R | void): R | undefined;
-  forEach<R, S>(callback: (this: S, value: number, key: M) => R | void,
-                thisArg: S): R | undefined;
-  forEach<R, S>(callback: (this: S | undefined, value: number, key: M) => R | void,
-                thisArg?: S): R | undefined {
+  forEach<R, S>(callback: (this: S, value: number, key: M) => R | void, thisArg: S): R | undefined;
+  forEach<R, S>(callback: (this: S | undefined, value: number, key: M) => R | void, thisArg?: S): R | undefined {
     const array = this.array;
     for (let i = 0, n = array.length; i < n; i += 1) {
       const entry = array[i]!;

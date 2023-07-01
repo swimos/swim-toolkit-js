@@ -148,10 +148,8 @@ export class LookVector<T> implements Equals, Debug {
   }
 
   forEach<R>(callback: (value: T, feel: Feel) => R | void): R | undefined;
-  forEach<R, S>(callback: (this: S, value: T, feel: Feel) => R | void,
-                thisArg: S): R | undefined;
-  forEach<R, S>(callback: (this: S | undefined, value: T, feel: Feel) => R | void,
-                thisArg?: S): R | undefined {
+  forEach<R, S>(callback: (this: S, value: T, feel: Feel) => R | void, thisArg: S): R | undefined;
+  forEach<R, S>(callback: (this: S | undefined, value: T, feel: Feel) => R | void, thisArg?: S): R | undefined {
     const array = this.array;
     for (let i = 0, n = array.length; i < n; i += 1) {
       const entry = array[i]!;
@@ -194,7 +192,7 @@ export class LookVector<T> implements Equals, Debug {
 
   @Lazy
   static empty<T>(): LookVector<T> {
-    return new LookVector(Arrays.empty, {});
+    return new LookVector(Arrays.empty(), {});
   }
 
   static of<T>(...feels: [Feel, T][]): LookVector<T> {

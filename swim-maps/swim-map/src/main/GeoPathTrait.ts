@@ -13,10 +13,10 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
+import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import type {AnyGeoPath} from "@swim/geo";
 import {GeoPath} from "@swim/geo";
-import {GeoBox} from "@swim/geo";
 import type {GeoTraitObserver} from "./GeoTrait";
 import {GeoTrait} from "./GeoTrait";
 
@@ -29,16 +29,12 @@ export interface GeoPathTraitObserver<T extends GeoPathTrait = GeoPathTrait> ext
 export abstract class GeoPathTrait extends GeoTrait {
   declare readonly observerType?: Class<GeoPathTraitObserver>;
 
-  override get geoBounds(): GeoBox {
-    const geoPath = this.geoPath.value;
-    return geoPath !== null ? geoPath.bounds : GeoBox.undefined();
-  }
-
   @Property({
     valueType: GeoPath,
     value: null,
     didSetValue(geoPath: GeoPath | null): void {
       this.owner.callObservers("traitDidSetGeoPath", geoPath, this.owner);
+      this.owner.geoPerspective.setValue(geoPath, Affinity.Intrinsic);
     },
   })
   readonly geoPath!: Property<this, GeoPath | null, AnyGeoPath | null>;

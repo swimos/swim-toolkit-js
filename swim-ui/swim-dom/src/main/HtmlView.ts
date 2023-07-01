@@ -500,7 +500,7 @@ export class HtmlView extends ElementView {
       return this.fromNode(value);
     } else if (typeof value === "string") {
       return this.fromTag(value);
-    } else if (Creatable.is(value)) {
+    } else if (Creatable[Symbol.hasInstance](value)) {
       return value.create();
     } else {
       return this.fromInit(value);

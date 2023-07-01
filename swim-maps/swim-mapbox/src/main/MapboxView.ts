@@ -21,8 +21,6 @@ import type {Observes} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import {Provider} from "@swim/component";
-import {GeoPoint} from "@swim/geo";
-import {GeoBox} from "@swim/geo";
 import {Look} from "@swim/theme";
 import {Mood} from "@swim/theme";
 import {View} from "@swim/view";
@@ -32,6 +30,7 @@ import type {ViewportService} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import type {CanvasView} from "@swim/graphics";
 import type {AnyGeoPerspective} from "@swim/map";
+import {GeoPerspective} from "@swim/map";
 import type {GeoViewport} from "@swim/map";
 import type {MapViewObserver} from "@swim/map";
 import {MapView} from "@swim/map";
@@ -112,22 +111,18 @@ export class MapboxView extends MapView {
       return;
     }
 
+    geoPerspective = GeoPerspective.fromAny(geoPerspective);
     let bounds: mapboxgl.LngLatBoundsLike | undefined;
     const options: mapboxgl.FitBoundsOptions = {};
 
-    let geoFrame = geoPerspective.geoFrame;
-    if (geoFrame !== void 0 && geoFrame !== null) {
-      geoFrame = GeoBox.fromAny(geoFrame);
-      bounds = [(geoFrame as GeoBox).west, (geoFrame as GeoBox).south,
-                (geoFrame as GeoBox).east, (geoFrame as GeoBox).north];
+    const geoFrame = geoPerspective.geoFrame;
+    if (geoFrame !== null) {
+      bounds = [geoFrame.west, geoFrame.south, geoFrame.east, geoFrame.north];
     }
 
-    let geoCenter = geoPerspective.geoCenter;
-    if (geoCenter !== void 0 && geoCenter !== null) {
-      geoCenter = GeoPoint.fromAny(geoCenter);
-      if (!geoViewport.geoCenter.equivalentTo(geoCenter, 1e-5)) {
-        options.center = geoCenter;
-      }
+    const geoCenter = geoPerspective.geoCenter;
+    if (geoCenter !== null && !geoViewport.geoCenter.equivalentTo(geoCenter, 1e-5)) {
+      options.center = geoCenter;
     }
 
     const zoom = geoPerspective.zoom;
@@ -147,8 +142,6 @@ export class MapboxView extends MapView {
 
     if (timing === void 0 || timing === true) {
       timing = this.getLookOr(Look.timing, Mood.ambient, false);
-    } else if (timing === false) {
-      timing = void 0;
     } else {
       timing = Timing.fromAny(timing);
     }

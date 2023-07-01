@@ -1081,7 +1081,7 @@ export class Controller extends Component<Controller> implements Initable<Contro
 
   static override fromInit<S extends Class<Instance<S, Controller>>>(this: S, init: Inits<InstanceType<S>>): InstanceType<S> {
     let type: Creatable<Controller>;
-    if ((typeof init === "object" && init !== null || typeof init === "function") && Creatable.is((init as ControllerInit).type)) {
+    if ((typeof init === "object" && init !== null || typeof init === "function") && Creatable[Symbol.hasInstance]((init as ControllerInit).type)) {
       type = (init as ControllerInit).type!;
     } else {
       type = this as unknown as Creatable<Controller>;
@@ -1100,7 +1100,7 @@ export class Controller extends Component<Controller> implements Initable<Contro
       } else {
         throw new TypeError(value + " not an instance of " + this);
       }
-    } else if (Creatable.is(value)) {
+    } else if (Creatable[Symbol.hasInstance](value)) {
       return (value as Creatable<InstanceType<S>>).create();
     } else {
       return (this as unknown as ControllerFactory<InstanceType<S>>).fromInit(value as Inits<InstanceType<S>>);

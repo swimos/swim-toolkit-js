@@ -94,7 +94,7 @@ export class TextView extends NodeView {
       return this.fromNode(value);
     } else if (typeof value === "string") {
       return this.create(value);
-    } else if (Creatable.is(value)) {
+    } else if (Creatable[Symbol.hasInstance](value)) {
       return value.create();
     } else {
       return this.fromInit(value);

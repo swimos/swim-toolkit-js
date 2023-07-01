@@ -12,16 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Uninitable} from "@swim/util";
+import {Objects} from "@swim/util";
 import type {AnyGeoPoint} from "@swim/geo";
 import {GeoPoint} from "@swim/geo";
 import type {AnyGeoBox} from "@swim/geo";
+import {GeoBoxInit} from "@swim/geo";
 import {GeoBox} from "@swim/geo";
 
 /** @public */
-export type AnyGeoPerspective = GeoPerspective | GeoPerspectiveInit;
+export type AnyGeoPerspective = GeoPerspective | GeoPerspectiveInit | AnyGeoBox;
 
 /** @public */
 export interface GeoPerspectiveInit {
+  /** @internal */
+  readonly typeid?: "GeoPerspectiveInit";
   geoFrame?: AnyGeoBox | null;
   geoCenter?: AnyGeoPoint | null;
   zoom?: number;
@@ -30,7 +35,17 @@ export interface GeoPerspectiveInit {
 }
 
 /** @public */
+export const GeoPerspectiveInit = {
+  [Symbol.hasInstance](instance: unknown): instance is GeoPerspectiveInit {
+    return Objects.hasAnyKey<GeoPerspectiveInit>(instance, "geoFrame", "geoCenter");
+  },
+};
+
+/** @public */
 export interface GeoPerspective {
+  /** @internal */
+  readonly typeid?: "GeoPerspective";
+
   readonly geoFrame: GeoBox | null;
 
   readonly geoCenter: GeoPoint | null;
@@ -43,46 +58,31 @@ export interface GeoPerspective {
 }
 
 /** @public */
-export const GeoPerspective = (function () {
-  const GeoPerspective = {} as {
-    fromAny(value: AnyGeoPerspective): GeoPerspective;
-
-    is(object: unknown): object is GeoPerspective;
-  };
-
-  GeoPerspective.fromAny = function (value: AnyGeoPerspective): GeoPerspective {
+export const GeoPerspective = {
+  fromAny<T extends AnyGeoPerspective | null | undefined>(value: T): GeoPerspective | Uninitable<T> {
     if (value === void 0 || value === null) {
-      return value;
+      return value as GeoPerspective | Uninitable<T>;
+    } else if (GeoBoxInit[Symbol.hasInstance](value)) {
+      return {
+        geoFrame: GeoBox.fromInit(value),
+        geoCenter: null,
+        zoom: void 0,
+        heading: void 0,
+        tilt: void 0,
+      };
     }
-    let geoFrame: GeoBox | null;
-    if (value.geoFrame !== void 0 && value.geoFrame !== null) {
-      geoFrame = GeoBox.fromAny(value.geoFrame);
-    } else {
-      geoFrame = null;
-    }
-    let geoCenter: GeoPoint | null;
-    if (value.geoCenter !== void 0 && value.geoCenter !== null) {
-      geoCenter = GeoPoint.fromAny(value.geoCenter);
-    } else {
-      geoCenter = null;
-    }
-    const zoom = value.zoom;
-    const heading = value.heading;
-    const tilt = value.tilt;
-    return {geoFrame, geoCenter, zoom, heading, tilt};
-  };
+    return {
+      geoFrame: value.geoFrame !== void 0 && value.geoFrame !== null
+              ? GeoBox.fromAny(value.geoFrame) : null,
+      geoCenter: value.geoCenter !== void 0 && value.geoCenter !== null
+               ? GeoPoint.fromAny(value.geoCenter) : null,
+      zoom: value.zoom,
+      heading: value.heading,
+      tilt: value.tilt,
+    };
+  },
 
-  GeoPerspective.is = function (object: unknown): object is GeoPerspective {
-    if (object !== void 0 && object !== null || typeof object === "function") {
-      const viewport = object as GeoPerspective;
-      return "geoFrame" in viewport
-          && "geoCenter" in viewport
-          && "zoom" in viewport
-          && "heading" in viewport
-          && "tilt" in viewport;
-    }
-    return false;
-  };
-
-  return GeoPerspective;
-})();
+  [Symbol.hasInstance](instance: unknown): instance is GeoPerspective {
+    return Objects.hasAllKeys<GeoPerspective>(instance, "geoFrame", "geoCenter", "zoom", "heading", "tilt");
+  },
+};

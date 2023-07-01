@@ -19,7 +19,6 @@ import {Equivalent} from "@swim/util";
 import type {AnyTiming} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
-import {GeoPoint} from "@swim/geo";
 import type {ViewFlags} from "@swim/view";
 import {View} from "@swim/view";
 import {ViewRef} from "@swim/view";
@@ -28,6 +27,7 @@ import {HtmlView} from "@swim/dom";
 import type {CanvasView} from "@swim/graphics";
 import type {GeoViewport} from "@swim/map";
 import type {AnyGeoPerspective} from "@swim/map";
+import {GeoPerspective} from "@swim/map";
 import type {MapViewObserver} from "@swim/map";
 import {MapView} from "@swim/map";
 import {GoogleMapViewport} from "./GoogleMapViewport";
@@ -127,21 +127,24 @@ export class GoogleMapView extends MapView {
     if (geoViewport === null) {
       return;
     }
-    let geoCenter = geoPerspective.geoCenter;
-    if (geoCenter !== void 0 && geoCenter !== null) {
-      geoCenter = GeoPoint.fromAny(geoCenter);
-      if (!geoViewport.geoCenter.equivalentTo(geoCenter, 1e-5)) {
-        this.map.panTo(geoCenter);
-      }
+
+    geoPerspective = GeoPerspective.fromAny(geoPerspective);
+
+    const geoCenter = geoPerspective.geoCenter;
+    if (geoCenter !== null && !geoViewport.geoCenter.equivalentTo(geoCenter, 1e-5)) {
+      this.map.panTo(geoCenter);
     }
+
     const zoom = geoPerspective.zoom;
     if (zoom !== void 0 && !Equivalent(geoViewport.zoom, zoom, 1e-5)) {
       this.map.setZoom(zoom);
     }
+
     const heading = geoPerspective.heading;
     if (heading !== void 0 && !Equivalent(geoViewport.heading, heading, 1e-5)) {
       this.map.setHeading(heading);
     }
+
     const tilt = geoPerspective.tilt;
     if (tilt !== void 0 && !Equivalent(geoViewport.tilt, tilt, 1e-5)) {
       this.map.setTilt(tilt);

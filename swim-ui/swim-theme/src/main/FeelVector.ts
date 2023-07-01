@@ -218,10 +218,8 @@ export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
   }
 
   forEach<R>(callback: <T>(value: T, look: Look<T>) => R | void): R | undefined;
-  forEach<R, S>(callback: <T>(this: S, value: T, look: Look<T>) => R | void,
-                thisArg: S): R | undefined;
-  forEach<R, S>(callback: <T>(this: S | undefined, value: T, look: Look<T>) => R | void,
-                thisArg?: S): R | undefined {
+  forEach<R, S>(callback: <T>(this: S, value: T, look: Look<T>) => R | void, thisArg: S): R | undefined;
+  forEach<R, S>(callback: <T>(this: S | undefined, value: T, look: Look<T>) => R | void, thisArg?: S): R | undefined {
     const array = this.array;
     for (let i = 0, n = array.length; i < n; i += 1) {
       const entry = array[i]!;

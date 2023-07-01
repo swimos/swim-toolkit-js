@@ -2306,7 +2306,7 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
 
   static override fromInit<S extends Class<Instance<S, View>>>(this: S, init: Inits<InstanceType<S>>): InstanceType<S> {
     let type: Creatable<View>;
-    if ((typeof init === "object" && init !== null || typeof init === "function") && Creatable.is((init as ViewInit).type)) {
+    if ((typeof init === "object" && init !== null || typeof init === "function") && Creatable[Symbol.hasInstance]((init as ViewInit).type)) {
       type = (init as ViewInit).type!;
     } else {
       type = this as unknown as Creatable<View>;
@@ -2325,7 +2325,7 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
       } else {
         throw new TypeError(value + " not an instance of " + this);
       }
-    } else if (Creatable.is(value)) {
+    } else if (Creatable[Symbol.hasInstance](value)) {
       return (value as Creatable<InstanceType<S>>).create();
     } else {
       return (this as unknown as ViewFactory<InstanceType<S>>).fromInit(value as Inits<InstanceType<S>>);
