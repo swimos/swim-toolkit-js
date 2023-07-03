@@ -134,10 +134,7 @@ export class GeoTileController extends GeoLayerController {
       const tileControllers = this.owner.tiles.controllers;
       for (const controllerId in tileControllers) {
         const tileController = tileControllers[controllerId]!;
-        const tileView = tileController.geo.view;
-        if (tileView !== null && tileView.parent === null) {
-          tileController.geo.insertView(geoView);
-        }
+        tileController.geo.insertView(geoView);
       }
       super.initView(geoView);
     },
@@ -166,7 +163,7 @@ export class GeoTileController extends GeoLayerController {
     binds: true,
     observes: true,
     get parentView(): GeoView | null {
-      return this.owner.geo.view;
+      return this.owner.geo.attachView();
     },
     getTraitViewRef(tileController: GeoTileController): TraitViewRef<unknown, GeoTileTrait, GeoView> {
       return tileController.geo;
@@ -179,10 +176,8 @@ export class GeoTileController extends GeoLayerController {
       if (tileTrait !== null) {
         this.attachTileTrait(tileTrait, tileController);
       }
-      const tileView = tileController.geo.view;
-      if (tileView !== null) {
-        this.attachTileView(tileView, tileController);
-      }
+      const tileView = tileController.geo.attachView();
+      this.attachTileView(tileView, tileController);
     },
     willDetachController(tileController: GeoTileController): void {
       const tileView = tileController.geo.view;
@@ -220,10 +215,8 @@ export class GeoTileController extends GeoLayerController {
       this.owner.callObservers("controllerDidDetachTileView", tileView, tileController, this.owner);
     },
     attachTileView(tileView: GeoView, tileController: GeoTileController): void {
-      const geoView = this.owner.geo.view;
-      if (geoView !== null && tileView.parent === null) {
-        tileController.geo.insertView(geoView);
-      }
+      const geoView = this.owner.geo.attachView();
+      tileController.geo.insertView(geoView);
     },
     detachTileView(tileView: GeoView, tileController: GeoTileController): void {
       tileView.remove();
@@ -263,7 +256,7 @@ export class GeoTileController extends GeoLayerController {
     controllerKey: true,
     binds: true,
     get parentView(): GeoView | null {
-      return this.owner.geo.view;
+      return this.owner.geo.attachView();
     },
     getTraitViewRef(tileController: GeoTileController): TraitViewRef<unknown, GeoTileTrait, GeoView> {
       return tileController.geo;
@@ -281,7 +274,7 @@ export class GeoTileController extends GeoLayerController {
     controllerKey: true,
     binds: true,
     get parentView(): GeoView | null {
-      return this.owner.geo.view;
+      return this.owner.geo.attachView();
     },
     getTraitViewRef(tileController: GeoTileController): TraitViewRef<unknown, GeoTileTrait, GeoView> {
       return tileController.geo;
@@ -299,7 +292,7 @@ export class GeoTileController extends GeoLayerController {
     controllerKey: true,
     binds: true,
     get parentView(): GeoView | null {
-      return this.owner.geo.view;
+      return this.owner.geo.attachView();
     },
     getTraitViewRef(tileController: GeoTileController): TraitViewRef<unknown, GeoTileTrait, GeoView> {
       return tileController.geo;
@@ -317,7 +310,7 @@ export class GeoTileController extends GeoLayerController {
     controllerKey: true,
     binds: true,
     get parentView(): GeoView | null {
-      return this.owner.geo.view;
+      return this.owner.geo.attachView();
     },
     getTraitViewRef(tileController: GeoTileController): TraitViewRef<unknown, GeoTileTrait, GeoView> {
       return tileController.geo;
@@ -329,7 +322,7 @@ export class GeoTileController extends GeoLayerController {
   readonly northEast!: TraitViewControllerRef<this, GeoTileTrait, GeoView, GeoTileController>;
 
   protected createTileController(geoTile: GeoTile, tileTrait?: GeoTileTrait | null): GeoTileController {
-    return new GeoTileController(geoTile);
+    return new (this.constructor as typeof GeoTileController)(geoTile);
   }
 
   protected override onStartConsuming(): void {

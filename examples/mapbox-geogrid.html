@@ -85,9 +85,6 @@ const ExampleTileController = (function () {
         this.maxConsumeZoom.setValue(geoTile.z); // disables auto-consume
       }
     }
-    createTileController(geoTile, geoTrait) {
-      return new ExampleTileController(geoTile);
-    }
   }
   __esDecorate(null, null, [swim.TraitViewRef({
     extends: true,
@@ -115,9 +112,6 @@ const ExampleTileTrait = (function () {
       this.vehiclesDownlink = __runInitializers(this, vehiclesDownlinkInitializers, this.vehiclesDownlinkInitializers);
       const tileId = geoTile.x + "," + geoTile.y + "," + geoTile.z;
       this.nodeUri.setValue(swim.Uri.path(swim.UriPath.of("/", "map", "/", tileId)));
-    }
-    createTileTrait(geoTile) {
-      return new ExampleTileTrait(geoTile);
     }
     onStartConsuming() {
       console.log("onStartConsuming " + this.geoTile);

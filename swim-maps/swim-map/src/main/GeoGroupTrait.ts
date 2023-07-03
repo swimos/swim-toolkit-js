@@ -13,19 +13,23 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
+import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
+import {GeoGroup} from "@swim/geo";
 import type {AnyColorOrLook} from "@swim/theme";
 import type {ColorOrLook} from "@swim/theme";
 import {ColorLook} from "@swim/theme";
 import type {GeoController} from "./GeoController";
-import type {GeoPathTraitObserver} from "./GeoPathTrait";
-import {GeoPathTrait} from "./GeoPathTrait";
-import {GeoAreaController} from "./"; // forward import
+import type {GeoTraitObserver} from "./GeoTrait";
+import {GeoTrait} from "./GeoTrait";
+import {GeoGroupController} from "./"; // forward import
 
 /** @public */
-export interface GeoAreaTraitObserver<T extends GeoAreaTrait = GeoAreaTrait> extends GeoPathTraitObserver<T> {
+export interface GeoGroupTraitObserver<T extends GeoGroupTrait = GeoGroupTrait> extends GeoTraitObserver<T> {
+  traitDidSetGeoGroup?(geoGroup: GeoGroup | null, trait: T): void;
+
   traitDidSetFill?(fill: ColorOrLook | null, trait: T): void;
 
   traitDidSetStroke?(stroke: ColorOrLook | null, trait: T): void;
@@ -34,8 +38,18 @@ export interface GeoAreaTraitObserver<T extends GeoAreaTrait = GeoAreaTrait> ext
 }
 
 /** @public */
-export class GeoAreaTrait extends GeoPathTrait {
-  declare readonly observerType?: Class<GeoAreaTraitObserver>;
+export class GeoGroupTrait extends GeoTrait {
+  declare readonly observerType?: Class<GeoGroupTraitObserver>;
+
+  @Property({
+    valueType: GeoGroup,
+    value: null,
+    didSetValue(geoGroup: GeoGroup | null): void {
+      this.owner.callObservers("traitDidSetGeoGroup", geoGroup, this.owner);
+      this.owner.geoPerspective.setValue(geoGroup, Affinity.Intrinsic);
+    },
+  })
+  readonly geoGroup!: Property<this, GeoGroup | null>;
 
   @Property({
     valueType: ColorLook,
@@ -65,6 +79,6 @@ export class GeoAreaTrait extends GeoPathTrait {
   readonly strokeWidth!: Property<this, Length | null, AnyLength | null>;
 
   override createGeoController(): GeoController {
-    return new GeoAreaController();
+    return new GeoGroupController();
   }
 }

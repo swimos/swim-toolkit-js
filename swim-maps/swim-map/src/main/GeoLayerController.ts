@@ -111,10 +111,7 @@ export class GeoLayerController extends GeoController {
       const featureControllers = this.owner.features.controllers;
       for (const controllerId in featureControllers) {
         const featureController = featureControllers[controllerId]!;
-        const featureView = featureController.geo.view;
-        if (featureView !== null && featureView.parent === null) {
-          featureController.geo.insertView(geoView);
-        }
+        featureController.geo.insertView(geoView);
       }
     },
   })
@@ -125,7 +122,7 @@ export class GeoLayerController extends GeoController {
     binds: true,
     observes: true,
     get parentView(): GeoView | null {
-      return this.owner.geo.view;
+      return this.owner.geo.attachView();
     },
     getTraitViewRef(featureController: GeoController): TraitViewRef<unknown, GeoTrait, GeoView> {
       return featureController.geo;
@@ -138,10 +135,8 @@ export class GeoLayerController extends GeoController {
       if (featureTrait !== null) {
         this.attachFeatureTrait(featureTrait, featureController);
       }
-      const featureView = featureController.geo.view;
-      if (featureView !== null) {
-        this.attachFeatureView(featureView, featureController);
-      }
+      const featureView = featureController.geo.attachView();
+      this.attachFeatureView(featureView, featureController);
     },
     willDetachController(featureController: GeoController): void {
       const featureView = featureController.geo.view;
@@ -179,10 +174,8 @@ export class GeoLayerController extends GeoController {
       this.owner.callObservers("controllerDidDetachFeatureView", featureView, featureController, this.owner);
     },
     attachFeatureView(featureView: GeoView, featureController: GeoController): void {
-      const geoView = this.owner.geo.view;
-      if (geoView !== null && featureView.parent === null) {
-        featureController.geo.insertView(geoView);
-      }
+      const geoView = this.owner.geo.attachView();
+      featureController.geo.insertView(geoView);
     },
     detachFeatureView(featureView: GeoView, featureController: GeoController): void {
       featureView.remove();

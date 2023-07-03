@@ -59,12 +59,18 @@ export class GeoPathView extends GeoView {
   @Animator({
     valueType: GeoPath,
     value: null,
-    didSetValue(newGeoPath: GeoPath | null, oldGeoPath: GeoPath | null): void {
-      this.owner.setGeoBounds(newGeoPath !== null ? newGeoPath.bounds : GeoBox.undefined());
+    didSetValue(geoPath: GeoPath | null): void {
+      if (geoPath !== null) {
+        this.owner.setGeoBounds(geoPath.bounds);
+        this.owner.geoCentroid.setState(geoPath.bounds.center, Affinity.Intrinsic);
+      } else {
+        this.owner.setGeoBounds(GeoBox.undefined());
+        this.owner.geoCentroid.setState(null, Affinity.Intrinsic);
+      }
       if (this.mounted) {
         this.owner.projectPath();
       }
-      this.owner.callObservers("viewDidSetGeoPath", newGeoPath, this.owner);
+      this.owner.callObservers("viewDidSetGeoPath", geoPath, this.owner);
     },
   })
   readonly geoPath!: Animator<this, GeoPath | null, AnyGeoPath | null>;

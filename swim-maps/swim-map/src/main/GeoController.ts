@@ -40,7 +40,7 @@ export interface GeoControllerObserver<C extends GeoController = GeoController> 
 }
 
 /** @public */
-export abstract class GeoController extends Controller {
+export class GeoController extends Controller {
   declare readonly observerType?: Class<GeoControllerObserver>;
 
   @Property({

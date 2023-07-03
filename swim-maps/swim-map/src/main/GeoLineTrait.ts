@@ -32,7 +32,7 @@ export interface GeoLineTraitObserver<T extends GeoLineTrait = GeoLineTrait> ext
 }
 
 /** @public */
-export abstract class GeoLineTrait extends GeoPathTrait {
+export class GeoLineTrait extends GeoPathTrait {
   declare readonly observerType?: Class<GeoLineTraitObserver>;
 
   @Property({

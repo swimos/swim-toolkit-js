@@ -18,7 +18,7 @@ import type {TraitObserver} from "@swim/model";
 import {Trait} from "@swim/model";
 import type {AnyGeoPerspective} from "./GeoPerspective";
 import {GeoPerspective} from "./GeoPerspective";
-import type {GeoController} from "./GeoController";
+import {GeoController} from "./"; // forward import
 
 /** @public */
 export interface GeoTraitObserver<T extends GeoTrait = GeoTrait> extends TraitObserver<T> {
@@ -38,5 +38,7 @@ export abstract class GeoTrait extends Trait {
   })
   readonly geoPerspective!: Property<this, GeoPerspective | null, AnyGeoPerspective | null>;
 
-  abstract createGeoController(): GeoController;
+  createGeoController(): GeoController {
+    return new GeoController();
+  }
 }

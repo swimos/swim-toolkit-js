@@ -144,7 +144,7 @@ export class GeoTileTrait extends GeoLayerTrait {
   readonly northEast!: TraitModelRef<this, GeoTileTrait, Model>;
 
   protected createTileTrait(geoTile: GeoTile): GeoTileTrait {
-    return new GeoTileTrait(geoTile);
+    return new (this.constructor as typeof GeoTileTrait)(geoTile);
   }
 
   protected createTileModel(geoTile: GeoTile): Model | null {

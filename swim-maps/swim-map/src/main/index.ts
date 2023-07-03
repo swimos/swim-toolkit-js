@@ -137,6 +137,18 @@ export {GeoIconTrait} from "./GeoIconTrait";
 export type {GeoIconControllerObserver} from "./GeoIconController";
 export {GeoIconController} from "./GeoIconController";
 
+// Group
+
+export type {GeoGroupViewInit} from "./GeoGroupView";
+export type {GeoGroupViewObserver} from "./GeoGroupView";
+export {GeoGroupView} from "./GeoGroupView";
+
+export type {GeoGroupTraitObserver} from "./GeoGroupTrait";
+export {GeoGroupTrait} from "./GeoGroupTrait";
+
+export type {GeoGroupControllerObserver} from "./GeoGroupController";
+export {GeoGroupController} from "./GeoGroupController";
+
 // Map
 
 export type {MapViewObserver} from "./MapView";
