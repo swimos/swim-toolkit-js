@@ -176,10 +176,10 @@ export const ThemeAnimator = (function (_super: typeof Animator) {
     } else {
       timing = Timing.fromAny(timing);
     }
-    this.willSetLook(newLook, oldLook, timing as Timing | boolean);
+    this.willSetLook(newLook, oldLook, timing);
     (this as Mutable<typeof this>).look = newLook;
-    this.onSetLook(newLook, oldLook, timing as Timing | boolean);
-    this.didSetLook(newLook, oldLook, timing as Timing | boolean);
+    this.onSetLook(newLook, oldLook, timing);
+    this.didSetLook(newLook, oldLook, timing);
   };
 
   ThemeAnimator.prototype.willSetLook = function <T>(this: ThemeAnimator<unknown, T>, newLook: Look<T, any> | null, oldLook: Look<T, any> | null, timing: Timing | boolean): void {
@@ -198,7 +198,7 @@ export const ThemeAnimator = (function (_super: typeof Animator) {
 
   ThemeAnimator.prototype.applyLook = function <T>(this: ThemeAnimator<unknown, T>, look: Look<T, any>, timing: Timing | boolean): void {
     const themeContext = this.owner;
-    if (!this.mounted || !ThemeContext.is(themeContext)) {
+    if (!this.mounted || !ThemeContext[Symbol.hasInstance](themeContext)) {
       return;
     }
     const state = themeContext.getLook(look);

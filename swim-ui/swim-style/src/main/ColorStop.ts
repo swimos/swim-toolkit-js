@@ -12,24 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Uninitable} from "@swim/util";
 import type {Mutable} from "@swim/util";
 import {Equals} from "@swim/util";
 import {Equivalent} from "@swim/util";
+import {Objects} from "@swim/util";
 import type {Interpolate} from "@swim/util";
 import {Interpolator} from "@swim/util";
 import {Diagnostic} from "@swim/codec";
 import type {Input} from "@swim/codec";
 import {Parser} from "@swim/codec";
 import {Unicode} from "@swim/codec";
-import type {AnyLength} from "@swim/math";
+import {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
 import {LengthParser} from "@swim/math";
-import type {AnyColor} from "./Color";
+import {AnyColor} from "./Color";
 import {Color} from "./Color";
 import {ColorParser} from "./Color";
 
 /** @public */
 export type AnyColorStop = ColorStop | ColorStopInit | ColorStopTuple | string;
+
+/** @public */
+export const AnyColorStop = {
+  [Symbol.hasInstance](instance: unknown): instance is AnyColorStop {
+    return instance instanceof ColorStop
+        || ColorStopInit[Symbol.hasInstance](instance)
+        || ColorStopTuple[Symbol.hasInstance](instance)
+        || typeof instance === "string";
+  },
+};
 
 /** @public */
 export interface ColorStopInit {
@@ -39,7 +51,23 @@ export interface ColorStopInit {
 }
 
 /** @public */
+export const ColorStopInit = {
+  [Symbol.hasInstance](instance: unknown): instance is ColorStopInit {
+    return Objects.hasAllKeys(instance, "color");
+  },
+};
+
+/** @public */
 export type ColorStopTuple = [AnyColor, AnyLength | null];
+
+/** @public */
+export const ColorStopTuple = {
+  [Symbol.hasInstance](instance: unknown): instance is ColorStopTuple {
+    return Array.isArray(instance) && instance.length === 2
+        && AnyColor[Symbol.hasInstance](instance[0])
+        && (instance[1] === null || AnyLength[Symbol.hasInstance](instance[1]));
+  },
+};
 
 /** @public */
 export class ColorStop implements Interpolate<ColorStop>, Equals, Equivalent {
@@ -59,31 +87,28 @@ export class ColorStop implements Interpolate<ColorStop>, Equals, Equivalent {
   readonly stop: Length | null;
 
   withStop(stop: AnyLength | null): ColorStop {
-    if (stop !== null) {
-      stop = Length.fromAny(stop, "%");
-    }
+    stop = Length.fromAny(stop, "%");
     return new ColorStop(this.color, stop, this.hint);
   }
 
   readonly hint: Length | null;
 
   withHint(hint: AnyLength | null): ColorStop {
-    if (hint !== null) {
-      hint = Length.fromAny(hint, "%");
-    }
+    hint = Length.fromAny(hint, "%");
     return new ColorStop(this.color, this.stop, hint);
   }
 
+  /** @override */
   interpolateTo(that: ColorStop): Interpolator<ColorStop>;
   interpolateTo(that: unknown): Interpolator<ColorStop> | null;
   interpolateTo(that: unknown): Interpolator<ColorStop> | null {
     if (that instanceof ColorStop) {
       return ColorStopInterpolator(this, that);
-    } else {
-      return null;
     }
+    return null;
   }
 
+  /** @override */
   equivalentTo(that: unknown, epsilon?: number): boolean {
     if (this === that) {
       return true;
@@ -95,6 +120,7 @@ export class ColorStop implements Interpolate<ColorStop>, Equals, Equivalent {
     return false;
   }
 
+  /** @override */
   equals(that: unknown): boolean {
     if (this === that) {
       return true;
@@ -106,6 +132,7 @@ export class ColorStop implements Interpolate<ColorStop>, Equals, Equivalent {
     return false;
   }
 
+  /** @override */
   toString(): string {
     let s = "";
     if (this.hint !== null) {
@@ -123,13 +150,22 @@ export class ColorStop implements Interpolate<ColorStop>, Equals, Equivalent {
   static create(color: AnyColor, stop: AnyLength | null = null,
                 hint: AnyLength | null = null): ColorStop {
     color = Color.fromAny(color);
-    if (stop !== null) {
-      stop = Length.fromAny(stop, "%");
+    stop = Length.fromAny(stop, "%");
+    hint = Length.fromAny(hint, "%");
+    return new ColorStop(color, stop, hint);
+  }
+
+  static fromAny<T extends AnyColorStop | null | undefined>(value: T): ColorStop | Uninitable<T> {
+    if (value === void 0 || value === null || value instanceof ColorStop) {
+      return value as ColorStop | Uninitable<T>;
+    } else if (typeof value === "string") {
+      return ColorStop.parse(value);
+    } else if (ColorStopInit[Symbol.hasInstance](value)) {
+      return ColorStop.fromInit(value);
+    } else if (ColorStopTuple[Symbol.hasInstance](value)) {
+      return ColorStop.fromTuple(value);
     }
-    if (hint !== null) {
-      hint = Length.fromAny(hint, "%");
-    }
-    return new ColorStop(color, stop as Length | null, hint as Length | null);
+    throw new TypeError("" + value);
   }
 
   static fromInit(init: ColorStopInit): ColorStop {
@@ -141,24 +177,8 @@ export class ColorStop implements Interpolate<ColorStop>, Equals, Equivalent {
 
   static fromTuple(value: ColorStopTuple): ColorStop {
     const color = Color.fromAny(value[0]);
-    const stop = value[1] !== null ? Length.fromAny(value[1], "%") : null;
+    const stop = Length.fromAny(value[1], "%");
     return new ColorStop(color, stop, null);
-  }
-
-  static fromAny(value: AnyColorStop): ColorStop;
-  static fromAny(value: AnyColorStop | null): ColorStop | null;
-  static fromAny(value: AnyColorStop | null | undefined): ColorStop | null | undefined;
-  static fromAny(value: AnyColorStop | null | undefined): ColorStop | null | undefined {
-    if (value === void 0 || value === null || value instanceof ColorStop) {
-      return value;
-    } else if (typeof value === "string") {
-      return ColorStop.parse(value);
-    } else if (ColorStop.isInit(value)) {
-      return ColorStop.fromInit(value);
-    } else if (ColorStop.isTuple(value)) {
-      return ColorStop.fromTuple(value);
-    }
-    throw new TypeError("" + value);
   }
 
   static parse(string: string): ColorStop {
@@ -210,31 +230,6 @@ export class ColorStop implements Interpolate<ColorStop>, Equals, Equivalent {
       parser = Parser.error(Diagnostic.unexpected(input));
     }
     return parser.bind();
-  }
-
-  /** @internal */
-  static isInit(value: unknown): value is ColorStopInit {
-    if (typeof value === "object" && value !== null) {
-      const init = value as ColorStopInit;
-      return init.color !== void 0;
-    }
-    return false;
-  }
-
-  /** @internal */
-  static isTuple(value: unknown): value is ColorStopTuple {
-    return Array.isArray(value)
-        && value.length === 2
-        && Color.isAny(value[0])
-        && (value[1] === null || Length.isAny(value[1]));
-  }
-
-  /** @internal */
-  static isAny(value: unknown): value is AnyColorStop {
-    return value instanceof ColorStop
-        || ColorStop.isInit(value)
-        || ColorStop.isTuple(value)
-        || typeof value === "string";
   }
 }
 

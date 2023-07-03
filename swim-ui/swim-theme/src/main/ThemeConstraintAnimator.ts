@@ -16,8 +16,6 @@ import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
 import {Affinity} from "@swim/component";
 import type {FastenerFlags} from "@swim/component";
-import {ConstraintId} from "@swim/constraint";
-import {ConstraintMap} from "@swim/constraint";
 import type {AnyConstraintExpression} from "@swim/constraint";
 import {ConstraintExpression} from "@swim/constraint";
 import type {ConstraintTerm} from "@swim/constraint";
@@ -57,9 +55,6 @@ export interface ThemeConstraintAnimator<O = unknown, T = unknown, U = T> extend
   get descriptorType(): Proto<ThemeConstraintAnimatorDescriptor<T, U>>;
 
   /** @internal @override */
-  readonly id: number;
-
-  /** @internal @override */
   isExternal(): boolean;
 
   /** @internal @override */
@@ -92,7 +87,7 @@ export interface ThemeConstraintAnimator<O = unknown, T = unknown, U = T> extend
   get variable(): ConstraintVariable | null;
 
   /** @override */
-  get terms(): ConstraintMap<ConstraintVariable, number>;
+  get terms(): ReadonlyMap<ConstraintVariable, number>;
 
   /** @override */
   get constant(): number;
@@ -223,8 +218,8 @@ export const ThemeConstraintAnimator = (function (_super: typeof ThemeAnimator) 
   });
 
   Object.defineProperty(ThemeConstraintAnimator.prototype, "terms", {
-    get(this: ThemeConstraintAnimator): ConstraintMap<ConstraintVariable, number> {
-      const terms = new ConstraintMap<ConstraintVariable, number>();
+    get(this: ThemeConstraintAnimator): ReadonlyMap<ConstraintVariable, number> {
+      const terms = new Map<ConstraintVariable, number>();
       terms.set(this, 1);
       return terms;
     },
@@ -240,9 +235,8 @@ export const ThemeConstraintAnimator = (function (_super: typeof ThemeAnimator) 
     that = ConstraintExpression.fromAny(that);
     if (this === that) {
       return ConstraintExpression.product(2, this);
-    } else {
-      return ConstraintExpression.sum(this, that);
     }
+    return ConstraintExpression.sum(this, that);
   };
 
   ThemeConstraintAnimator.prototype.negative = function (this: ThemeConstraintAnimator): ConstraintTerm {
@@ -252,10 +246,9 @@ export const ThemeConstraintAnimator = (function (_super: typeof ThemeAnimator) 
   ThemeConstraintAnimator.prototype.minus = function (this: ThemeConstraintAnimator, that: AnyConstraintExpression): ConstraintExpression {
     that = ConstraintExpression.fromAny(that);
     if (this === that) {
-      return ConstraintExpression.zero;
-    } else {
-      return ConstraintExpression.sum(this, that.negative());
+      return ConstraintExpression.zero();
     }
+    return ConstraintExpression.sum(this, that.negative());
   };
 
   ThemeConstraintAnimator.prototype.times = function (this: ThemeConstraintAnimator, scalar: number): ConstraintExpression {
@@ -331,7 +324,7 @@ export const ThemeConstraintAnimator = (function (_super: typeof ThemeAnimator) 
 
   ThemeConstraintAnimator.prototype.onStartConstraining = function (this: ThemeConstraintAnimator): void {
     const constraintScope = this.owner;
-    if (ConstraintScope.is(constraintScope)) {
+    if (ConstraintScope[Symbol.hasInstance](constraintScope)) {
       constraintScope.addConstraintVariable(this);
     }
   };
@@ -356,7 +349,7 @@ export const ThemeConstraintAnimator = (function (_super: typeof ThemeAnimator) 
 
   ThemeConstraintAnimator.prototype.onStopConstraining = function (this: ThemeConstraintAnimator): void {
     const constraintScope = this.owner;
-    if (ConstraintScope.is(constraintScope)) {
+    if (ConstraintScope[Symbol.hasInstance](constraintScope)) {
       constraintScope.removeConstraintVariable(this);
     }
   };
@@ -368,7 +361,7 @@ export const ThemeConstraintAnimator = (function (_super: typeof ThemeAnimator) 
   ThemeConstraintAnimator.prototype.updateConstraintVariable = function (this: ThemeConstraintAnimator): void {
     const constraintScope = this.owner;
     const value = this.value;
-    if (value !== void 0 && ConstraintScope.is(constraintScope)) {
+    if (value !== void 0 && ConstraintScope[Symbol.hasInstance](constraintScope)) {
       constraintScope.setConstraintVariable(this, this.toNumber(value));
     }
   };
@@ -376,7 +369,7 @@ export const ThemeConstraintAnimator = (function (_super: typeof ThemeAnimator) 
   ThemeConstraintAnimator.prototype.onSetValue = function <T>(this: ThemeConstraintAnimator<unknown, T>, newValue: T, oldValue: T): void {
     _super.prototype.onSetValue.call(this, newValue, oldValue);
     const constraintScope = this.owner;
-    if (this.constraining && ConstraintScope.is(constraintScope)) {
+    if (this.constraining && ConstraintScope[Symbol.hasInstance](constraintScope)) {
       constraintScope.setConstraintVariable(this, newValue !== void 0 && newValue !== null ? this.toNumber(newValue) : 0);
     }
   };
@@ -401,7 +394,6 @@ export const ThemeConstraintAnimator = (function (_super: typeof ThemeAnimator) 
 
   ThemeConstraintAnimator.construct = function <A extends ThemeConstraintAnimator<any, any>>(animator: A | null, owner: A extends ThemeConstraintAnimator<infer O, any, any> ? O : never): A {
     animator = _super.construct.call(this, animator, owner) as A;
-    (animator as Mutable<typeof animator>).id = ConstraintId.next();
     (animator as Mutable<typeof animator>).strength = animator.initStrength();
     (animator as Mutable<typeof animator>).conditionCount = 0;
     const flagsInit = animator.flagsInit;

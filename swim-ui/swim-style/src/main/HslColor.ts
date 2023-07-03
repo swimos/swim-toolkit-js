@@ -12,10 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Murmur3} from "@swim/util";
+import type {Uninitable} from "@swim/util";
 import type {Mutable} from "@swim/util";
+import {Lazy} from "@swim/util";
+import {Murmur3} from "@swim/util";
 import {Numbers} from "@swim/util";
 import {Constructors} from "@swim/util";
+import {Objects} from "@swim/util";
 import {Interpolator} from "@swim/util";
 import {Diagnostic} from "@swim/codec";
 import type {Input} from "@swim/codec";
@@ -37,12 +40,28 @@ import {RgbColor} from "./RgbColor";
 export type AnyHslColor = HslColor | HslColorInit | string;
 
 /** @public */
+export const AnyHslColor = {
+  [Symbol.hasInstance](instance: unknown): instance is AnyHslColor {
+    return instance instanceof HslColor
+        || HslColorInit[Symbol.hasInstance](instance)
+        || typeof instance === "string";
+  },
+};
+
+/** @public */
 export interface HslColorInit {
   readonly h: AnyAngle;
   readonly s: number;
   readonly l: number;
   readonly a?: number;
 }
+
+/** @public */
+export const HslColorInit = {
+  [Symbol.hasInstance](instance: unknown): instance is HslColorInit {
+    return Objects.hasAllKeys(instance, "h", "s", "l");
+  },
+};
 
 /** @public */
 export class HslColor extends Color {
@@ -73,11 +92,10 @@ export class HslColor extends Color {
   override alpha(a?: number): number | HslColor {
     if (a === void 0) {
       return this.a;
-    } else if (this.a !== a) {
-      return new HslColor(this.h, this.s, this.l, a);
-    } else {
+    } else if (this.a === a) {
       return this;
     }
+    return new HslColor(this.h, this.s, this.l, a);
   }
 
   override get lightness(): number {
@@ -139,9 +157,8 @@ export class HslColor extends Color {
   override interpolateTo(that: unknown): Interpolator<Color> | null {
     if (that instanceof HslColor) {
       return HslColorInterpolator(this, that);
-    } else {
-      return super.interpolateTo(that);
     }
+    return super.interpolateTo(that);
   }
 
   override equivalentTo(that: unknown, epsilon?: number): boolean {
@@ -219,6 +236,7 @@ export class HslColor extends Color {
     return s;
   }
 
+  @Lazy
   static override transparent(): HslColor {
     return new HslColor(0, 0, 0, 0);
   }
@@ -231,23 +249,22 @@ export class HslColor extends Color {
     return new HslColor(0, 1, 1, alpha);
   }
 
-  static override fromInit(value: HslColorInit): HslColor {
-    const h = typeof value.h === "number" ? value.h : Angle.fromAny(value.h).degValue();
-    return new HslColor(h, value.s, value.l, value.a);
-  }
-
-  static override fromAny(value: AnyHslColor): HslColor;
-  static override fromAny(value: AnyHslColor | null): HslColor | null;
-  static override fromAny(value: AnyHslColor | null | undefined): HslColor | null | undefined;
-  static override fromAny(value: AnyHslColor | null | undefined): HslColor | null | undefined {
+  static override fromAny<T extends AnyHslColor | null | undefined>(value: T): HslColor | Uninitable<T>;
+  static override fromAny<T extends AnyColor | null | undefined>(value: T): never;
+  static override fromAny<T extends AnyHslColor | null | undefined>(value: T): HslColor | Uninitable<T> {
     if (value === void 0 || value === null || value instanceof HslColor) {
-      return value;
+      return value as HslColor | Uninitable<T>;
     } else if (typeof value === "string") {
       return HslColor.parse(value);
-    } else if (HslColor.isInit(value)) {
+    } else if (HslColorInit[Symbol.hasInstance](value)) {
       return HslColor.fromInit(value);
     }
     throw new TypeError("" + value);
+  }
+
+  static override fromInit(value: HslColorInit): HslColor {
+    const h = typeof value.h === "number" ? value.h : Angle.fromAny(value.h).degValue();
+    return new HslColor(h, value.s, value.l, value.a);
   }
 
   static override fromValue(value: Value): HslColor | null {
@@ -295,25 +312,6 @@ export class HslColor extends Color {
 
   static override parse(str: string): HslColor {
     return Color.parse(str).hsl();
-  }
-
-  /** @internal */
-  static override isInit(value: unknown): value is HslColorInit {
-    if (typeof value === "object" && value !== null) {
-      const init = value as HslColorInit;
-      return Angle.isAny(init.h)
-          && typeof init.s === "number"
-          && typeof init.l === "number"
-          && (typeof init.a === "number" || typeof init.a === "undefined");
-    }
-    return false;
-  }
-
-  /** @internal */
-  static override isAny(value: unknown): value is AnyHslColor {
-    return value instanceof HslColor
-        || HslColor.isInit(value)
-        || typeof value === "string";
   }
 }
 

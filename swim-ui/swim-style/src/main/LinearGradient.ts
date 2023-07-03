@@ -12,11 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Uninitable} from "@swim/util";
 import type {Mutable} from "@swim/util";
-import {Arrays} from "@swim/util";
-import {Values} from "@swim/util";
 import type {Equals} from "@swim/util";
 import type {Equivalent} from "@swim/util";
+import {Arrays} from "@swim/util";
+import {Objects} from "@swim/util";
+import {Values} from "@swim/util";
 import type {Interpolate} from "@swim/util";
 import {Interpolator} from "@swim/util";
 import {Diagnostic} from "@swim/codec";
@@ -31,9 +33,6 @@ import {ColorStop} from "./ColorStop";
 import {ColorStopListParser} from "./ColorStop";
 
 /** @public */
-export type AnyLinearGradient = LinearGradient | LinearGradientInit | string;
-
-/** @public */
 export type AnyLinearGradientAngle = LinearGradientAngle | number;
 
 /** @public */
@@ -46,10 +45,29 @@ export type LinearGradientCorner = [LinearGradientSide, LinearGradientSide];
 export type LinearGradientSide = "left" | "right" | "top" | "bottom";
 
 /** @public */
+export type AnyLinearGradient = LinearGradient | LinearGradientInit | string;
+
+/** @public */
+export const AnyLinearGradient = {
+  [Symbol.hasInstance](instance: unknown): instance is AnyLinearGradient {
+    return instance instanceof LinearGradient
+        || LinearGradientInit[Symbol.hasInstance](instance)
+        || typeof instance === "string";
+  },
+};
+
+/** @public */
 export interface LinearGradientInit {
   angle: AnyLinearGradientAngle;
   stops: AnyColorStop[];
 }
+
+/** @public */
+export const LinearGradientInit = {
+  [Symbol.hasInstance](instance: unknown): instance is LinearGradientInit {
+    return Objects.hasAllKeys(instance, "angle", "stops");
+  },
+};
 
 /** @public */
 export class LinearGradient implements Interpolate<LinearGradient>, Equals, Equivalent {
@@ -79,16 +97,17 @@ export class LinearGradient implements Interpolate<LinearGradient>, Equals, Equi
     return new LinearGradient(this.angle, array);
   }
 
+  /** @override */
   interpolateTo(that: LinearGradient): Interpolator<LinearGradient>;
   interpolateTo(that: unknown): Interpolator<LinearGradient> | null;
   interpolateTo(that: unknown): Interpolator<LinearGradient> | null {
     if (that instanceof LinearGradient) {
       return LinearGradientInterpolator(this, that);
-    } else {
-      return null;
     }
+    return null;
   }
 
+  /** @override */
   equivalentTo(that: unknown, epsilon?: number): boolean {
     if (this === that) {
       return true;
@@ -99,6 +118,7 @@ export class LinearGradient implements Interpolate<LinearGradient>, Equals, Equi
     return false;
   }
 
+  /** @override */
   equals(that: unknown): boolean {
     if (this === that) {
       return true;
@@ -112,6 +132,7 @@ export class LinearGradient implements Interpolate<LinearGradient>, Equals, Equi
   /** @internal */
   readonly stringValue: string | undefined;
 
+  /** @override */
   toString(): string {
     let s = this.stringValue;
     if (s === void 0) {
@@ -161,6 +182,17 @@ export class LinearGradient implements Interpolate<LinearGradient>, Equals, Equi
     return new LinearGradient(angle, array);
   }
 
+  static fromAny<T extends AnyLinearGradient | null | undefined>(value: T): LinearGradient | Uninitable<T> {
+    if (value === void 0 || value === null || value instanceof LinearGradient) {
+      return value as LinearGradient | Uninitable<T>;
+    } else if (typeof value === "string") {
+      return LinearGradient.parse(value);
+    } else if (typeof value === "object") {
+      return LinearGradient.fromInit(value);
+    }
+    throw new TypeError("" + value);
+  }
+
   static fromInit(init: LinearGradientInit): LinearGradient {
     let angle: AnyLinearGradientAngle = init.angle;
     if (angle instanceof Angle || typeof angle === "number") {
@@ -172,20 +204,6 @@ export class LinearGradient implements Interpolate<LinearGradient>, Equals, Equi
       array[i] = ColorStop.fromAny(init.stops[i]!);
     }
     return new LinearGradient(angle, array);
-  }
-
-  static fromAny(value: AnyLinearGradient): LinearGradient;
-  static fromAny(value: AnyLinearGradient | null): LinearGradient | null;
-  static fromAny(value: AnyLinearGradient | null | undefined): LinearGradient | null | undefined;
-  static fromAny(value: AnyLinearGradient | null | undefined): LinearGradient | null | undefined {
-    if (value === void 0 || value === null || value instanceof LinearGradient) {
-      return value;
-    } else if (typeof value === "string") {
-      return LinearGradient.parse(value);
-    } else if (typeof value === "object" && value !== null) {
-      return LinearGradient.fromInit(value);
-    }
-    throw new TypeError("" + value);
   }
 
   static parse(string: string): LinearGradient {
@@ -220,22 +238,6 @@ export class LinearGradient implements Interpolate<LinearGradient>, Equals, Equi
       parser = Parser.error(Diagnostic.unexpected(input));
     }
     return parser.bind();
-  }
-
-  /** @internal */
-  static isInit(value: unknown): value is LinearGradientInit {
-    if (typeof value === "object" && value !== null) {
-      const init = value as LinearGradientInit;
-      return init.angle !== void 0 && init.stops !== void 0;
-    }
-    return false;
-  }
-
-  /** @internal */
-  static isAny(value: unknown): value is AnyLinearGradient {
-    return value instanceof LinearGradient
-        || LinearGradient.isInit(value)
-        || typeof value === "string";
   }
 }
 
@@ -321,14 +323,15 @@ export const LinearGradientInterpolator = (function (_super: typeof Interpolator
     } else if (that instanceof LinearGradientInterpolator) {
       if (this.angleInterpolator.equals(that.angleInterpolator)) {
         const n = this.stopInterpolators.length;
-        if (n === that.stopInterpolators.length) {
-          for (let i = 0; i < n; i += 1) {
-            if (!this.stopInterpolators[i]!.equals(that.stopInterpolators[i]!)) {
-              return false;
-            }
-          }
-          return true;
+        if (n !== that.stopInterpolators.length) {
+          return false;
         }
+        for (let i = 0; i < n; i += 1) {
+          if (!this.stopInterpolators[i]!.equals(that.stopInterpolators[i]!)) {
+            return false;
+          }
+        }
+        return true;
       }
     }
     return false;

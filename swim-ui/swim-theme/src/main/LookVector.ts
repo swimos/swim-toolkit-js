@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Uninitable} from "@swim/util";
 import {Lazy} from "@swim/util";
 import {Arrays} from "@swim/util";
 import type {Equals} from "@swim/util";
@@ -135,11 +136,10 @@ export class LookVector<T> implements Equals, Debug {
         oldIndex = newIndex;
       }
     }
-    if (newArray !== void 0 && newIndex !== void 0) {
-      return this.copy(newArray, newIndex);
-    } else {
+    if (newArray === void 0 || newIndex === void 0) {
       return this;
     }
+    return this.copy(newArray, newIndex);
   }
 
   protected copy(array: ReadonlyArray<[Feel, T]>,
@@ -161,6 +161,7 @@ export class LookVector<T> implements Equals, Debug {
     return void 0;
   }
 
+  /** @override */
   equals(that: unknown): boolean {
     if (this === that) {
       return true;
@@ -170,6 +171,7 @@ export class LookVector<T> implements Equals, Debug {
     return false;
   }
 
+  /** @override */
   debug<T>(output: Output<T>): Output<T> {
     const array = this.array;
     const n = array.length;
@@ -186,6 +188,7 @@ export class LookVector<T> implements Equals, Debug {
     return output;
   }
 
+  /** @override */
   toString(): string {
     return Format.debug(this);
   }
@@ -199,21 +202,21 @@ export class LookVector<T> implements Equals, Debug {
     return new LookVector(feels, LookVector.index(feels));
   }
 
+  static fromAny<T, V extends AnyLookVector<T> | null | undefined>(value: V): LookVector<T> | Uninitable<V> {
+    if (value === void 0 || value === null || value instanceof LookVector) {
+      return value as LookVector<T> | Uninitable<V>;
+    } else if (Array.isArray(value)) {
+      return LookVector.fromArray(value);
+    }
+    throw new TypeError("" + value);
+  }
+
   static fromArray<T>(array: ReadonlyArray<[Feel, T]>,
                       index?: {[name: string]: number | undefined}): LookVector<T> {
     if (index === void 0) {
       index = LookVector.index(array);
     }
     return new LookVector(array, index);
-  }
-
-  static fromAny<T>(value: AnyLookVector<T>): LookVector<T> {
-    if (value === void 0 || value === null || value instanceof LookVector) {
-      return value;
-    } else if (Array.isArray(value)) {
-      return LookVector.fromArray(value);
-    }
-    throw new TypeError("" + value);
   }
 
   /** @internal */

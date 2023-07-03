@@ -130,7 +130,7 @@ export class ElementView extends NodeView implements StyleContext {
       return ModalService;
     },
     present(modalView?: ModalView, options?: ModalOptions): void {
-      if (modalView === void 0 && ModalView.is(this.owner)) {
+      if (modalView === void 0 && ModalView[Symbol.hasInstance](this.owner)) {
         modalView = this.owner;
       }
       if (modalView !== void 0) {
@@ -138,7 +138,7 @@ export class ElementView extends NodeView implements StyleContext {
       }
     },
     dismiss(modalView?: ModalView): void {
-      if (modalView === void 0 && ModalView.is(this.owner)) {
+      if (modalView === void 0 && ModalView[Symbol.hasInstance](this.owner)) {
         modalView = this.owner;
       }
       if (modalView !== void 0) {
@@ -146,7 +146,7 @@ export class ElementView extends NodeView implements StyleContext {
       }
     },
     toggle(modalView?: ModalView, options?: ModalOptions): void {
-      if (modalView === void 0 && ModalView.is(this.owner)) {
+      if (modalView === void 0 && ModalView[Symbol.hasInstance](this.owner)) {
         modalView = this.owner;
       }
       if (modalView !== void 0) {

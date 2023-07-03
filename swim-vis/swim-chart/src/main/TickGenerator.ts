@@ -258,8 +258,8 @@ export class TimeTickGenerator extends TickGenerator<DateTime> {
       }
       d0 = DateTime.fromAny(d0);
       d1 = DateTime.fromAny(d1);
-      this.t0 = (d0 as DateTime).time;
-      this.dt = (d1 as DateTime).time - this.t0;
+      this.t0 = d0.time;
+      this.dt = d1.time - this.t0;
       return this;
     }
   }

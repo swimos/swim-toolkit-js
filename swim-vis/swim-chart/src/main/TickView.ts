@@ -345,7 +345,7 @@ export class TopTickView<X = unknown> extends TickView<X> {
     const y1 = y0 - this.tickMarkLength.getValue();
     const y2 = y1 - this.tickLabelPadding.getValue();
 
-    if (TypesetView.is(labelView)) {
+    if (TypesetView[Symbol.hasInstance](labelView)) {
       labelView.textAlign.setState("center", Affinity.Intrinsic);
       labelView.textBaseline.setState("bottom", Affinity.Intrinsic);
       labelView.textOrigin.setState(new R2Point(x, y2), Affinity.Intrinsic);
@@ -408,7 +408,7 @@ export class RightTickView<Y = unknown> extends TickView<Y> {
     const x1 = x0 + this.tickMarkLength.getValue();
     const x2 = x1 + this.tickLabelPadding.getValue();
 
-    if (TypesetView.is(labelView)) {
+    if (TypesetView[Symbol.hasInstance](labelView)) {
       labelView.textAlign.setState("left", Affinity.Intrinsic);
       labelView.textBaseline.setState("middle", Affinity.Intrinsic);
       labelView.textOrigin.setState(new R2Point(x2, y), Affinity.Intrinsic);
@@ -471,7 +471,7 @@ export class BottomTickView<X = unknown> extends TickView<X> {
     const y1 = y0 + this.tickMarkLength.getValue();
     const y2 = y1 + this.tickLabelPadding.getValue();
 
-    if (TypesetView.is(labelView)) {
+    if (TypesetView[Symbol.hasInstance](labelView)) {
       labelView.textAlign.setState("center", Affinity.Intrinsic);
       labelView.textBaseline.setState("top", Affinity.Intrinsic);
       labelView.textOrigin.setState(new R2Point(x, y2), Affinity.Intrinsic);
@@ -534,7 +534,7 @@ export class LeftTickView<Y = unknown> extends TickView<Y> {
     const x1 = x0 - this.tickMarkLength.getValue();
     const x2 = x1 - this.tickLabelPadding.getValue();
 
-    if (TypesetView.is(labelView)) {
+    if (TypesetView[Symbol.hasInstance](labelView)) {
       labelView.textAlign.setState("right", Affinity.Intrinsic);
       labelView.textBaseline.setState("middle", Affinity.Intrinsic);
       labelView.textOrigin.setState(new R2Point(x2, y), Affinity.Intrinsic);

@@ -49,9 +49,8 @@ export class CircleIcon extends FilledIcon implements Interpolate<CircleIcon>, E
   override withFillColor(fillColor: Color | null): CircleIcon {
     if (Equals(this.fillColor, fillColor)) {
       return this;
-    } else {
-      return this.copy(fillColor, this.fillLook, this.moodModifier);
     }
+    return this.copy(fillColor, this.fillLook, this.moodModifier);
   }
 
   override readonly fillLook: Look<Color> | null;
@@ -141,6 +140,7 @@ export class CircleIcon extends FilledIcon implements Interpolate<CircleIcon>, E
     return new CircleIcon(fillColor, fillLook, moodModifier);
   }
 
+  /** @override */
   interpolateTo(that: CircleIcon): Interpolator<CircleIcon>;
   interpolateTo(that: unknown): Interpolator<CircleIcon> | null;
   interpolateTo(that: unknown): Interpolator<CircleIcon> | null {
@@ -150,6 +150,7 @@ export class CircleIcon extends FilledIcon implements Interpolate<CircleIcon>, E
     return null;
   }
 
+  /** @override */
   equivalentTo(that: unknown, epsilon?: number): boolean {
     if (this === that) {
       return true;
@@ -161,6 +162,7 @@ export class CircleIcon extends FilledIcon implements Interpolate<CircleIcon>, E
     return false;
   }
 
+  /** @override */
   equals(that: unknown): boolean {
     if (this === that) {
       return true;
@@ -172,6 +174,7 @@ export class CircleIcon extends FilledIcon implements Interpolate<CircleIcon>, E
     return false;
   }
 
+  /** @override */
   debug<T>(output: Output<T>): Output<T> {
     output = output.write("new").write(32/*' '*/).write("CircleIcon").write(40/*'('*/)
                    .debug(this.fillColor).write(", ")
@@ -180,6 +183,7 @@ export class CircleIcon extends FilledIcon implements Interpolate<CircleIcon>, E
     return output;
   }
 
+  /** @override */
   override toString(): string {
     return Format.debug(this);
   }

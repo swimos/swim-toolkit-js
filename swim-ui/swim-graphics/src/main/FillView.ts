@@ -29,27 +29,15 @@ export interface FillView extends GraphicsView {
 }
 
 /** @public */
-export const FillView = (function () {
-  const FillView = {} as {
-    init(view: FillView, init: FillViewInit): void;
-
-    is(object: unknown): object is FillView;
-  };
-
-  FillView.init = function (view: FillView, init: FillViewInit): void {
+export const FillView = {
+  init(view: FillView, init: FillViewInit): void {
     if (init.fill !== void 0) {
       view.fill(init.fill);
     }
-  };
+  },
 
-  FillView.is = function (object: unknown): object is FillView {
-    if (typeof object === "object" && object !== null) {
-      const view = object as FillView;
-      return view instanceof GraphicsView
-          && "fill" in view;
-    }
-    return false;
-  };
-
-  return FillView;
-})();
+  [Symbol.hasInstance](instance: unknown): instance is FillView {
+    return instance instanceof GraphicsView
+        && "fill" in instance;
+  },
+};

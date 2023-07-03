@@ -122,7 +122,7 @@ export {TextRunView} from "./TextRunView";
 // Icon
 
 export type {AnyIconLayout} from "./IconLayout";
-export type {IconLayoutInit} from "./IconLayout";
+export {IconLayoutInit} from "./IconLayout";
 export {IconLayout} from "./IconLayout";
 
 export {Icon} from "./Icon";

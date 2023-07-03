@@ -248,7 +248,7 @@ export class GeoPointView extends GeoView {
       y1 += padding;
     }
 
-    if (TypesetView.is(labelView)) {
+    if (TypesetView[Symbol.hasInstance](labelView)) {
       labelView.textAlign.setState("center", Affinity.Intrinsic);
       labelView.textBaseline.setState("bottom", Affinity.Intrinsic);
       labelView.textOrigin.setState(new R2Point(x, y1), Affinity.Intrinsic);

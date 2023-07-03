@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {Lazy} from "@swim/util";
-import {Arrays} from "@swim/util";
 import type {Equals} from "@swim/util";
+import {Arrays} from "@swim/util";
 import type {Output} from "@swim/codec";
 import type {Debug} from "@swim/codec";
 import {Format} from "@swim/codec";
@@ -178,12 +178,12 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
       rowKey = this.rowIndex[rowKey];
     }
     const entry = typeof rowKey === "number" ? this.rowArray[rowKey] : void 0;
-    if (entry !== void 0) {
-      rowKey = entry[0];
-      const row = entry[1];
-      return row.dot(col);
+    if (entry === void 0) {
+      return void 0;
     }
-    return void 0;
+    rowKey = entry[0];
+    const row = entry[1];
+    return row.dot(col);
   }
 
   timesCol(col: MoodVector<N>): MoodVector<M>;
@@ -253,30 +253,32 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
       if (col === void 0 && implicitIdentity) {
         col = MoodVector.of([colKey, 1]);
       }
-      if (col !== void 0) {
-        for (let i = 0, m = thisRowArray.length; i < m; i += 1) {
-          const [rowKey, row] = thisRowArray[i]!;
-          const value = row.dot(col);
-          if (value !== void 0) {
-            const i2 = newRowIndex[rowKey.name];
-            if (i2 !== void 0) {
-              const newRow = newRowArray[i2]![1];
-              (newRow.index as {[name: string]: number | undefined})[rowKey.name] = newRow.array.length;
-              (newRow.array as [N, number][]).push([colKey, value]);
-            } else {
-              newRowIndex[rowKey.name] = newRowArray.length;
-              newRowArray.push([rowKey, MoodVector.of([colKey, value])]);
-            }
-            const j2 = newColIndex[colKey.name];
-            if (j2 !== void 0) {
-              const newCol = newColArray[j2]![1];
-              (newCol.index as {[name: string]: number | undefined})[colKey.name] = newCol.array.length;
-              (newCol.array as [M, number][]).push([rowKey, value]);
-            } else {
-              newColIndex[colKey.name] = newColArray.length;
-              newColArray.push([colKey, MoodVector.of([rowKey, value])]);
-            }
-          }
+      if (col === void 0) {
+        continue;
+      }
+      for (let i = 0, m = thisRowArray.length; i < m; i += 1) {
+        const [rowKey, row] = thisRowArray[i]!;
+        const value = row.dot(col);
+        if (value === void 0) {
+          continue;
+        }
+        const i2 = newRowIndex[rowKey.name];
+        if (i2 === void 0) {
+          newRowIndex[rowKey.name] = newRowArray.length;
+          newRowArray.push([rowKey, MoodVector.of([colKey, value])]);
+        } else {
+          const newRow = newRowArray[i2]![1];
+          (newRow.index as {[name: string]: number | undefined})[rowKey.name] = newRow.array.length;
+          (newRow.array as [N, number][]).push([colKey, value]);
+        }
+        const j2 = newColIndex[colKey.name];
+        if (j2 === void 0) {
+          newColIndex[colKey.name] = newColArray.length;
+          newColArray.push([colKey, MoodVector.of([rowKey, value])]);
+        } else {
+          const newCol = newColArray[j2]![1];
+          (newCol.index as {[name: string]: number | undefined})[colKey.name] = newCol.array.length;
+          (newCol.array as [M, number][]).push([rowKey, value]);
         }
       }
     }
@@ -291,25 +293,24 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
     let newRowIndex: {[name: string]: number | undefined} | undefined;
     for (let j = 0, n = thatColArray.length; j < n; j += 1) {
       const colKey = thatColArray[j]![0];
-      if (!this.hasRow(colKey)) {
-        if (newRowArray === void 0) {
-          newRowArray = thisRowArray.slice(0);
-        }
-        if (newRowIndex === void 0) {
-          newRowIndex = {};
-          for (const name in this.rowIndex) {
-            newRowIndex[name] = this.rowIndex[name];
-          }
-        }
-        newRowIndex[colKey.name] = newRowArray.length;
-        newRowArray.push([colKey, MoodVector.of([colKey, 1])]);
+      if (this.hasRow(colKey)) {
+        continue;
+      } else if (newRowArray === void 0) {
+        newRowArray = thisRowArray.slice(0);
       }
+      if (newRowIndex === void 0) {
+        newRowIndex = {};
+        for (const name in this.rowIndex) {
+          newRowIndex[name] = this.rowIndex[name];
+        }
+      }
+      newRowIndex[colKey.name] = newRowArray.length;
+      newRowArray.push([colKey, MoodVector.of([colKey, 1])]);
     }
-    if (newRowArray !== void 0 && newRowIndex !== void 0) {
-      return MoodMatrix.fromRowArray(newRowArray, newRowIndex);
-    } else {
+    if (newRowArray === void 0 || newRowIndex === void 0) {
       return this;
     }
+    return MoodMatrix.fromRowArray(newRowArray, newRowIndex);
   }
 
   row(rowKey: M, row: AnyMoodVector<N> | undefined): MoodMatrix<M, N> {
@@ -345,9 +346,8 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
         }
       }
       return MoodMatrix.fromRowArray(newRowArray, newRowIndex);
-    } else { // nop
-      return this;
     }
+    return this; // nop
   }
 
   col(colKey: N, col: AnyMoodVector<M> | undefined): MoodMatrix<M, N> {
@@ -383,9 +383,8 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
         }
       }
       return MoodMatrix.fromColArray(newColArray, newColIndex);
-    } else { // nop
-      return this;
-    }
+    } else
+    return this; // nop
   }
 
   updatedRow(rowKey: M, updates: MoodVectorUpdates<N>,
@@ -402,19 +401,18 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
       } else if (defaultRow === false) {
         defaultRow = void 0;
       }
-      if (defaultRow !== void 0) {
-        defaultRow = MoodVector.fromAny(defaultRow);
-      } else {
+      if (defaultRow === void 0) {
         defaultRow = MoodVector.empty();
+      } else {
+        defaultRow = MoodVector.fromAny(defaultRow);
       }
       newRow = defaultRow;
     }
     newRow = newRow.updated(updates);
-    if (!newRow.equals(oldRow)) {
-      return this.row(rowKey, newRow);
-    } else {
+    if (newRow.equals(oldRow)) {
       return this;
     }
+    return this.row(rowKey, newRow);
   }
 
   updatedCol(colKey: N, updates: MoodVectorUpdates<M>,
@@ -431,21 +429,21 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
       } else if (defaultCol === false) {
         defaultCol = void 0;
       }
-      if (defaultCol !== void 0) {
-        defaultCol = MoodVector.fromAny(defaultCol);
-      } else {
+      if (defaultCol === void 0) {
         defaultCol = MoodVector.empty();
+      } else {
+        defaultCol = MoodVector.fromAny(defaultCol);
       }
       newCol = defaultCol;
     }
     newCol = newCol.updated(updates);
-    if (!newCol.equals(oldCol)) {
-      return this.col(colKey, newCol);
-    } else {
+    if (newCol.equals(oldCol)) {
       return this;
     }
+    return this.col(colKey, newCol);
   }
 
+  /** @override */
   equals(that: unknown): boolean {
     if (this === that) {
       return true;
@@ -456,6 +454,7 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
     return false;
   }
 
+  /** @override */
   debug<T>(output: Output<T>): Output<T> {
     const cols = this.colArray;
     const n = cols.length;
@@ -472,13 +471,14 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
     return output;
   }
 
+  /** @override */
   toString(): string {
     return Format.debug(this);
   }
 
   @Lazy
   static empty<M extends Mood = Feel, N extends Mood = Feel>(): MoodMatrix<M, N> {
-    return new MoodMatrix([], {}, [], {});
+    return new MoodMatrix(Arrays.empty(), {}, Arrays.empty(), {});
   }
 
   static forRows<M extends Mood, N extends Mood>(...rows: [M, AnyMoodVector<N>][]): MoodMatrix<M, N> {

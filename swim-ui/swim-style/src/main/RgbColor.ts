@@ -12,10 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Murmur3} from "@swim/util";
+import type {Uninitable} from "@swim/util";
 import type {Mutable} from "@swim/util";
+import {Lazy} from "@swim/util";
+import {Murmur3} from "@swim/util";
 import {Numbers} from "@swim/util";
 import {Constructors} from "@swim/util";
+import {Objects} from "@swim/util";
 import {Interpolator} from "@swim/util";
 import {Diagnostic} from "@swim/codec";
 import type {Input} from "@swim/codec";
@@ -35,12 +38,28 @@ import {HslColor} from "./"; // forward import
 export type AnyRgbColor = RgbColor | RgbColorInit | string;
 
 /** @public */
+export const AnyRgbColor = {
+  [Symbol.hasInstance](instance: unknown): instance is AnyRgbColor {
+    return instance instanceof RgbColor
+        || RgbColorInit[Symbol.hasInstance](instance)
+        || typeof instance === "string";
+  },
+};
+
+/** @public */
 export interface RgbColorInit {
   readonly r: number;
   readonly g: number;
   readonly b: number;
   readonly a?: number;
 }
+
+/** @public */
+export const RgbColorInit = {
+  [Symbol.hasInstance](instance: unknown): instance is RgbColorInit {
+    return Objects.hasAllKeys(instance, "r", "g", "b");
+  },
+};
 
 /** @public */
 export class RgbColor extends Color {
@@ -71,11 +90,10 @@ export class RgbColor extends Color {
   override alpha(a?: number): number | RgbColor {
     if (a === void 0) {
       return this.a;
-    } else if (this.a !== a) {
-      return new RgbColor(this.r, this.g, this.b, a);
-    } else {
+    } else if (this.a === a) {
       return this;
     }
+    return new RgbColor(this.r, this.g, this.b, a);
   }
 
   override get lightness(): number {
@@ -148,9 +166,8 @@ export class RgbColor extends Color {
   override interpolateTo(that: unknown): Interpolator<Color> | null {
     if (that instanceof RgbColor) {
       return RgbColorInterpolator(this, that);
-    } else {
-      return super.interpolateTo(that);
     }
+    return super.interpolateTo(that);
   }
 
   override equivalentTo(that: unknown, epsilon?: number): boolean {
@@ -245,11 +262,9 @@ export class RgbColor extends Color {
     return s;
   }
 
-  /** @internal */
-  static readonly Transparent: RgbColor = new this(0, 0, 0, 0);
-
+  @Lazy
   static override transparent(): RgbColor {
-    return this.Transparent;
+    return new RgbColor(0, 0, 0, 0);
   }
 
   static override black(alpha: number = 1): RgbColor {
@@ -260,22 +275,21 @@ export class RgbColor extends Color {
     return new RgbColor(255, 255, 255, alpha);
   }
 
-  static override fromInit(value: RgbColorInit): RgbColor {
-    return new RgbColor(value.r, value.g, value.b, value.a);
-  }
-
-  static override fromAny(value: AnyRgbColor): RgbColor;
-  static override fromAny(value: AnyRgbColor | null): RgbColor | null;
-  static override fromAny(value: AnyRgbColor | null | undefined): RgbColor | null | undefined;
-  static override fromAny(value: AnyRgbColor | null | undefined): RgbColor | null | undefined {
+  static override fromAny<T extends AnyRgbColor | null | undefined>(value: T): RgbColor | Uninitable<T>;
+  static override fromAny<T extends AnyColor | null | undefined>(value: T): never;
+  static override fromAny<T extends AnyRgbColor | null | undefined>(value: T): RgbColor | Uninitable<T> {
     if (value === void 0 || value === null || value instanceof RgbColor) {
-      return value;
+      return value as RgbColor | Uninitable<T>;
     } else if (typeof value === "string") {
       return RgbColor.parse(value);
-    } else if (RgbColor.isInit(value)) {
+    } else if (RgbColorInit[Symbol.hasInstance](value)) {
       return RgbColor.fromInit(value);
     }
     throw new TypeError("" + value);
+  }
+
+  static override fromInit(value: RgbColorInit): RgbColor {
+    return new RgbColor(value.r, value.g, value.b, value.a);
   }
 
   static override fromValue(value: Value): RgbColor | null {
@@ -323,25 +337,6 @@ export class RgbColor extends Color {
 
   static override parse(str: string): RgbColor {
     return Color.parse(str).rgb();
-  }
-
-  /** @internal */
-  static override isInit(value: unknown): value is RgbColorInit {
-    if (typeof value === "object" && value !== null) {
-      const init = value as RgbColorInit;
-      return typeof init.r === "number"
-          && typeof init.g === "number"
-          && typeof init.b === "number"
-          && (typeof init.a === "number" || typeof init.a === "undefined");
-    }
-    return false;
-  }
-
-  /** @internal */
-  static override isAny(value: unknown): value is AnyRgbColor {
-    return value instanceof RgbColor
-        || RgbColor.isInit(value)
-        || typeof value === "string";
   }
 }
 

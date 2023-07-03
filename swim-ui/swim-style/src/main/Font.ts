@@ -12,13 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Lazy} from "@swim/util";
+import type {Uninitable} from "@swim/util";
 import type {Mutable} from "@swim/util";
-import {Strings} from "@swim/util";
-import {Values} from "@swim/util";
+import {Lazy} from "@swim/util";
 import type {Equals} from "@swim/util";
 import type {Equivalent} from "@swim/util";
 import type {Interpolate} from "@swim/util";
+import {Strings} from "@swim/util";
+import {Objects} from "@swim/util";
+import {Values} from "@swim/util";
 import {Interpolator} from "@swim/util";
 import {Diagnostic} from "@swim/codec";
 import type {Input} from "@swim/codec";
@@ -86,35 +88,28 @@ export type FontSize = Length
                      | "xx-small";
 
 /** @public */
-export const FontSize = (function () {
-  const FontSize = {} as {
-    fromAny(size: AnyFontSize): FontSize;
-
-    fromValue(value: Value): FontSize | null;
-  };
-
-  FontSize.fromAny = function (size: AnyFontSize): FontSize {
-    if (typeof size === "string" && (size === "large" || size === "larger" || size === "medium"
-        || size === "small" || size === "smaller"  || size === "x-large" || size === "x-small"
-        || size === "xx-large" || size === "xx-small")) {
-      return size;
-    } else {
-      return Length.fromAny(size);
+export const FontSize = {
+  fromAny<T extends AnyFontSize | null | undefined>(value: T): FontSize | Uninitable<T> {
+    if (value === void 0 || value === null) {
+      return value as FontSize | Uninitable<T>;
+    } else if (typeof value === "string"
+        && (value === "large" || value === "larger" || value === "medium"
+         || value === "small" || value === "smaller"  || value === "x-large" || value === "x-small"
+         || value === "xx-large" || value === "xx-small")) {
+      return value as FontSize;
     }
-  };
+    return Length.fromAny(value);
+  },
 
-  FontSize.fromValue = function (value: Value): FontSize | null {
+  fromValue(value: Value): FontSize | null {
     const string = value.stringValue(null);
     if (string !== null) {
       return FontSize.fromAny(string);
-    } else {
-      const size = Length.form().cast(value);
-      return size !== void 0 ? size : null;
     }
-  };
-
-  return FontSize;
-})();
+    const size = Length.form().cast(value);
+    return size !== void 0 ? size : null;
+  },
+};
 
 /** @public */
 export type AnyLineHeight = AnyLength | LineHeight;
@@ -123,33 +118,25 @@ export type AnyLineHeight = AnyLength | LineHeight;
 export type LineHeight = Length | "normal";
 
 /** @public */
-export const LineHeight = (function () {
-  const LineHeight = {} as {
-    fromAny(height: AnyLineHeight): LineHeight;
-
-    fromValue(value: Value): LineHeight | null;
-  };
-
-  LineHeight.fromAny = function (height: AnyLineHeight): LineHeight {
-    if (typeof height === "string" && height === "normal") {
-      return height;
-    } else {
-      return Length.fromAny(height);
+export const LineHeight = {
+  fromAny<T extends AnyLineHeight | null | undefined>(value: T): LineHeight | Uninitable<T> {
+    if (value === void 0 || value === null) {
+      return value as LineHeight | Uninitable<T>;
+    } else if (typeof value === "string" && value === "normal") {
+      return value as LineHeight;
     }
-  };
+    return Length.fromAny(value);
+  },
 
-  LineHeight.fromValue = function (value: Value): LineHeight | null {
+  fromValue(value: Value): LineHeight | null {
     const string = value.stringValue(null);
     if (string !== null) {
       return LineHeight.fromAny(string);
-    } else {
-      const height = Length.form().cast(value);
-      return height !== void 0 ? height : null;
     }
-  };
-
-  return LineHeight;
-})();
+    const height = Length.form().cast(value);
+    return height !== void 0 ? height : null;
+  },
+};
 
 /** @public */
 export type GenericFamily = "serif"
@@ -166,75 +153,70 @@ export type GenericFamily = "serif"
 export type FontFamily = string | GenericFamily;
 
 /** @public */
-export const FontFamily = (function () {
-  const FontFamily = {} as {
-    fromValue(value: Value): FontFamily | FontFamily[] | null;
-
-    format(family: FontFamily): string;
-  };
-
-  FontFamily.fromValue = function (value: Value): FontFamily | FontFamily[] | null {
+export const FontFamily = {
+  fromValue(value: Value): FontFamily | FontFamily[] | null {
     let family: FontFamily | FontFamily[] | null = null;
     value.forEach(function (item: Item): void {
-      if (item instanceof Value) {
-        const string = item.stringValue(void 0);
-        if (string !== void 0) {
-          if (family === null) {
-            family = string;
-          } else if (typeof family === "string") {
-            family = [family, string];
-          } else {
-            family.push(string);
-          }
-        }
+      let string: string | undefined;
+      if (!(item instanceof Value) || (string = item.stringValue(void 0)) === void 0) {
+        return;
+      }
+      if (family === null) {
+        family = string;
+      } else if (typeof family === "string") {
+        family = [family, string];
+      } else {
+        family.push(string);
       }
     });
     return family;
-  };
+  },
 
-  FontFamily.format = function (family: FontFamily): string {
-    const n = family.length;
-    let isIdent: boolean;
-    if (n > 0) {
+  format(family: FontFamily): string {
+    let isIdent = false;
+    if (family.length !== 0) {
       isIdent = Unicode.isAlpha(family.charCodeAt(0));
-      for (let i = Strings.offsetByCodePoints(family, 0, 1); isIdent && i < n; i = Strings.offsetByCodePoints(family, i, 1)) {
+      for (let i = Strings.offsetByCodePoints(family, 0, 1); isIdent && i < family.length; i = Strings.offsetByCodePoints(family, i, 1)) {
         const c = family.charCodeAt(i);
         isIdent = Unicode.isAlpha(c) || c === 45/*'-'*/;
       }
-    } else {
-      isIdent = false;
     }
     if (isIdent) {
       return family;
-    } else {
-      let output = Unicode.stringOutput();
-      output = output.write(34/*'"'*/);
-      for (let i = 0; i < n; i = Strings.offsetByCodePoints(family, i, 1)) {
-        const c = family.charCodeAt(i);
-        if (c === 10/*'\n'*/ || c === 34/*'"'*/ || c === 39/*'\''*/) {
-          output = output.write(92/*'\\'*/).write(c);
-        } else if (c >= 0x20) {
-          output = output.write(c);
-        } else {
-          const base16 = Base16.uppercase;
-          output = output.write(92/*'\\'*/).write(base16.encodeDigit(c >>> 20 & 0xf))
-                                           .write(base16.encodeDigit(c >>> 16 & 0xf))
-                                           .write(base16.encodeDigit(c >>> 12 & 0xf))
-                                           .write(base16.encodeDigit(c >>>  8 & 0xf))
-                                           .write(base16.encodeDigit(c >>>  4 & 0xf))
-                                           .write(base16.encodeDigit(c        & 0xf));
-        }
-      }
-      output = output.write(34/*'"'*/);
-      return output.toString();
     }
-  };
-
-  return FontFamily;
-})();
+    let output = Unicode.stringOutput();
+    output = output.write(34/*'"'*/);
+    for (let i = 0; i < family.length; i = Strings.offsetByCodePoints(family, i, 1)) {
+      const c = family.charCodeAt(i);
+      if (c === 10/*'\n'*/ || c === 34/*'"'*/ || c === 39/*'\''*/) {
+        output = output.write(92/*'\\'*/).write(c);
+      } else if (c >= 0x20) {
+        output = output.write(c);
+      } else {
+        const base16 = Base16.uppercase;
+        output = output.write(92/*'\\'*/).write(base16.encodeDigit(c >>> 20 & 0xf))
+                                         .write(base16.encodeDigit(c >>> 16 & 0xf))
+                                         .write(base16.encodeDigit(c >>> 12 & 0xf))
+                                         .write(base16.encodeDigit(c >>>  8 & 0xf))
+                                         .write(base16.encodeDigit(c >>>  4 & 0xf))
+                                         .write(base16.encodeDigit(c        & 0xf));
+      }
+    }
+    output = output.write(34/*'"'*/);
+    return output.toString();
+  },
+};
 
 /** @public */
 export type AnyFont = Font | FontInit | string;
+
+/** @public */
+export const AnyFont = {
+  [Symbol.hasInstance](instance: unknown): instance is AnyFont {
+    return instance instanceof Font
+        || FontInit[Symbol.hasInstance](instance);
+  },
+};
 
 /** @public */
 export interface FontInit {
@@ -246,6 +228,13 @@ export interface FontInit {
   height?: AnyLineHeight | null;
   family: FontFamily | FontFamily[];
 }
+
+/** @public */
+export const FontInit = {
+  [Symbol.hasInstance](instance: unknown): instance is FontInit {
+    return Objects.hasAllKeys<FontInit>(instance, "family");
+  },
+};
 
 /** @public */
 export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
@@ -268,10 +257,9 @@ export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
   withStyle(style: FontStyle | undefined): Font {
     if (style === this.style) {
       return this;
-    } else {
-      return new Font(style, this.variant, this.weight, this.stretch,
-                      this.size, this.height, this.family);
     }
+    return new Font(style, this.variant, this.weight, this.stretch,
+                    this.size, this.height, this.family);
   }
 
   readonly variant: FontVariant | undefined;
@@ -279,10 +267,9 @@ export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
   withVariant(variant: FontVariant | undefined): Font {
     if (variant === this.variant) {
       return this;
-    } else {
-      return new Font(this.style, variant, this.weight, this.stretch,
-                      this.size, this.height, this.family);
     }
+    return new Font(this.style, variant, this.weight, this.stretch,
+                    this.size, this.height, this.family);
   }
 
   readonly weight: FontWeight | undefined;
@@ -290,10 +277,9 @@ export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
   withWeight(weight: FontWeight | undefined): Font {
     if (weight === this.weight) {
       return this;
-    } else {
-      return new Font(this.style, this.variant, weight, this.stretch,
-                      this.size, this.height, this.family);
     }
+    return new Font(this.style, this.variant, weight, this.stretch,
+                    this.size, this.height, this.family);
   }
 
   readonly stretch: FontStretch | undefined;
@@ -301,38 +287,31 @@ export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
   withStretch(stretch: FontStretch | undefined): Font {
     if (stretch === this.stretch) {
       return this;
-    } else {
-      return new Font(this.style, this.variant, this.weight, stretch,
-                      this.size, this.height, this.family);
     }
+    return new Font(this.style, this.variant, this.weight, stretch,
+                    this.size, this.height, this.family);
   }
 
   readonly size: FontSize | null;
 
   withSize(size: AnyFontSize | null): Font{
-    if (size !== null) {
-      size = FontSize.fromAny(size);
-    }
+    size = FontSize.fromAny(size);
     if (Values.equal(size, this.size)) {
       return this;
-    } else {
-      return new Font(this.style, this.variant, this.weight, this.stretch,
-                      size as FontSize | null, this.height, this.family);
     }
+    return new Font(this.style, this.variant, this.weight, this.stretch,
+                    size as FontSize | null, this.height, this.family);
   }
 
   readonly height: LineHeight | null;
 
   withHeight(height: AnyLineHeight | null): Font {
-    if (height !== null) {
-      height = LineHeight.fromAny(height);
-    }
+    height = LineHeight.fromAny(height);
     if (Values.equal(height, this.height)) {
       return this;
-    } else {
-      return new Font(this.style, this.variant, this.weight, this.stretch,
-                      this.size, height as LineHeight | null, this.family);
     }
+    return new Font(this.style, this.variant, this.weight, this.stretch,
+                    this.size, height as LineHeight | null, this.family);
   }
 
   readonly family: FontFamily | ReadonlyArray<FontFamily>;
@@ -343,10 +322,9 @@ export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
     }
     if (Values.equal(family, this.family)) {
       return this;
-    } else {
-      return new Font(this.style, this.variant, this.weight, this.stretch,
-                      this.size, this.height, family);
     }
+    return new Font(this.style, this.variant, this.weight, this.stretch,
+                    this.size, this.height, family);
   }
 
   toAny(): FontInit {
@@ -361,16 +339,17 @@ export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
     };
   }
 
+  /** @override */
   interpolateTo(that: Font): Interpolator<Font>;
   interpolateTo(that: unknown): Interpolator<Font> | null;
   interpolateTo(that: unknown): Interpolator<Font> | null {
     if (that instanceof Font) {
       return FontInterpolator(this, that);
-    } else {
-      return null;
     }
+    return null;
   }
 
+  /** @override */
   equivalentTo(that: unknown, epsilon?: number): boolean {
     if (this === that) {
       return true;
@@ -384,6 +363,7 @@ export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
     return false;
   }
 
+  /** @override */
   equals(that: unknown): boolean {
     if (this === that) {
       return true;
@@ -397,6 +377,7 @@ export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
     return false;
   }
 
+  /** @override */
   debug<T>(output: Output<T>): Output<T> {
     output = output.write("Font").write(46/*'.'*/).write("family").write(40/*'('*/);
     if (typeof this.family === "string") {
@@ -432,6 +413,7 @@ export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
   /* @internal */
   readonly stringValue: string | undefined;
 
+  /** @override */
   toString(): string {
     let s = this.stringValue;
     if (s === void 0) {
@@ -543,6 +525,20 @@ export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
                     height as LineHeight | null, family);
   }
 
+  static fromAny(value: AnyFont): Font;
+  static fromAny(value: AnyFont | null): Font | null;
+  static fromAny(value: AnyFont | null | undefined): Font | null | undefined;
+  static fromAny(value: AnyFont | null | undefined): Font | null | undefined {
+    if (value === void 0 || value === null || value instanceof Font) {
+      return value;
+    } else if (typeof value === "object" && value !== null) {
+      return Font.fromInit(value);
+    } else if (typeof value === "string") {
+      return Font.parse(value);
+    }
+    throw new TypeError("" + value);
+  }
+
   static fromInit(init: FontInit): Font {
     return Font.create(init.style, init.variant, init.weight, init.stretch,
                        init.size, init.height, init.family);
@@ -566,20 +562,6 @@ export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
     return Font.create(style, variant, weight, stretch, size, height, family);
   }
 
-  static fromAny(value: AnyFont): Font;
-  static fromAny(value: AnyFont | null): Font | null;
-  static fromAny(value: AnyFont | null | undefined): Font | null | undefined;
-  static fromAny(value: AnyFont | null | undefined): Font | null | undefined {
-    if (value === void 0 || value === null || value instanceof Font) {
-      return value;
-    } else if (typeof value === "object" && value !== null) {
-      return Font.fromInit(value);
-    } else if (typeof value === "string") {
-      return Font.parse(value);
-    }
-    throw new TypeError("" + value);
-  }
-
   static parse(string: string): Font {
     let input = Unicode.stringInput(string);
     while (input.isCont() && Unicode.isWhitespace(input.head())) {
@@ -597,22 +579,8 @@ export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
     return parser.bind();
   }
 
-  /** @internal */
-  static isInit(value: unknown): value is FontInit {
-    if (typeof value === "object" && value !== null) {
-      const init = value as FontInit;
-      return init.family !== void 0;
-    }
-    return false;
-  }
-
-  /** @internal */
-  static isAny(value: unknown): value is AnyFont {
-    return value instanceof Font || Font.isInit(value);
-  }
-
   @Lazy
-  static form(unit?: Font): Form<Font, AnyFont> {
+  static form(): Form<Font, AnyFont> {
     return new FontForm(void 0);
   }
 }
@@ -732,11 +700,10 @@ export class FontForm extends Form<Font, AnyFont> {
   override readonly unit!: Font | undefined;
 
   override withUnit(unit: Font | undefined): Form<Font, AnyFont> {
-    if (unit !== this.unit) {
-      return new FontForm(unit);
-    } else {
+    if (unit === this.unit) {
       return this;
     }
+    return new FontForm(unit);
   }
 
   override mold(font: AnyFont): Item {

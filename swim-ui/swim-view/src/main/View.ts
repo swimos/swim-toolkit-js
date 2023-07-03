@@ -15,6 +15,7 @@
 import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
 import type {Instance} from "@swim/util";
+import {Lazy} from "@swim/util";
 import type {FromAny} from "@swim/util";
 import type {AnyTiming} from "@swim/util";
 import {Timing} from "@swim/util";
@@ -74,24 +75,17 @@ export interface ViewInsets {
 }
 
 /** @public */
-export const ViewInsets = (function () {
-  const ViewInsets = {} as {
-    readonly zero: ViewInsets;
-    equal(x: ViewInsets | null | undefined, y: ViewInsets | null | undefined): boolean;
-  };
-
-  Object.defineProperty(ViewInsets, "zero", {
-    value: Object.freeze({
+export const ViewInsets = {
+  zero: Lazy(function (): ViewInsets {
+    return Object.freeze({
       insetTop: 0,
       insetRight: 0,
       insetBottom: 0,
       insetLeft: 0,
-    }),
-    enumerable: true,
-    configurable: true,
-  });
+    });
+  }),
 
-  ViewInsets.equal = function (x: ViewInsets | null | undefined, y: ViewInsets | null | undefined): boolean {
+  equal(x: ViewInsets | null | undefined, y: ViewInsets | null | undefined): boolean {
     if (x === y) {
       return true;
     } else if (typeof x === "object" && x !== null && typeof y === "object" && y !== null) {
@@ -101,10 +95,8 @@ export const ViewInsets = (function () {
           && x.insetLeft === y.insetLeft;
     }
     return false;
-  };
-
-  return ViewInsets;
-})();
+  },
+};
 
 /** @public */
 export type ViewFlags = ComponentFlags;
@@ -1515,9 +1507,9 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     } else {
       timing = Timing.fromAny(timing);
     }
-    this.willApplyTheme(theme, mood, timing as Timing | boolean);
-    this.onApplyTheme(theme, mood, timing as Timing | boolean);
-    this.didApplyTheme(theme, mood, timing as Timing | boolean);
+    this.willApplyTheme(theme, mood, timing);
+    this.onApplyTheme(theme, mood, timing);
+    this.didApplyTheme(theme, mood, timing);
   }
 
   protected willApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
@@ -1716,9 +1708,7 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
   constraint(lhs: AnyConstraintExpression, relation: ConstraintRelation,
              rhs?: AnyConstraintExpression, strength?: AnyConstraintStrength): Constraint {
     lhs = ConstraintExpression.fromAny(lhs);
-    if (rhs !== void 0) {
-      rhs = ConstraintExpression.fromAny(rhs);
-    }
+    rhs = ConstraintExpression.fromAny(rhs);
     const expression = rhs !== void 0 ? lhs.minus(rhs) : lhs;
     if (strength === void 0) {
       strength = ConstraintStrength.Required;
@@ -1921,7 +1911,7 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
 
   @Property({
     valueType: ViewInsets,
-    value: ViewInsets.zero,
+    value: ViewInsets.zero(),
     inherits: true,
     get updateFlags(): ViewFlags {
       return View.NeedsResize | View.NeedsScroll | View.NeedsLayout;

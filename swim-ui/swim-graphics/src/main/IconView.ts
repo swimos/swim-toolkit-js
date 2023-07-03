@@ -24,9 +24,6 @@ import {View} from "@swim/view";
 import {Graphics} from "./Graphics";
 import {Icon} from "./Icon";
 import {FilledIcon} from "./FilledIcon";
-import {GraphicsIconView} from "./"; // forward import
-import {SvgIconView} from "./"; // forward import
-import {HtmlIconView} from "./"; // forward import
 
 /** @public */
 export interface IconViewInit extends ViewInit {
@@ -54,31 +51,8 @@ export interface IconView extends View {
 }
 
 /** @public */
-export const IconView = (function () {
-  const IconView = {} as {
-    is(object: unknown): object is IconView;
-
-    init(view: IconView, init: IconViewInit): void;
-  };
-
-  IconView.is = function (object: unknown): object is IconView {
-    if (typeof object === "object" && object !== null) {
-      const view = object as IconView;
-      return view instanceof GraphicsIconView
-          || view instanceof SvgIconView
-          || view instanceof HtmlIconView
-          || view instanceof View
-          && "xAlign" in view
-          && "yAlign" in view
-          && "iconWidth" in view
-          && "iconHeight" in view
-          && "iconColor" in view
-          && "graphics" in view;
-    }
-    return false;
-  };
-
-  IconView.init = function (view: IconView, init: IconViewInit): void {
+export const IconView = {
+  init(view: IconView, init: IconViewInit): void {
     if (init.xAlign !== void 0) {
       view.xAlign(init.xAlign);
     }
@@ -97,10 +71,18 @@ export const IconView = (function () {
     if (init.graphics !== void 0) {
       view.graphics(init.graphics);
     }
-  };
+  },
 
-  return IconView;
-})();
+  [Symbol.hasInstance](instance: unknown): instance is IconView {
+    return instance instanceof View
+        && "xAlign" in instance
+        && "yAlign" in instance
+        && "iconWidth" in instance
+        && "iconHeight" in instance
+        && "iconColor" in instance
+        && "graphics" in instance;
+  },
+};
 
 /** @internal */
 export const IconGraphicsAnimator = (function (_super: typeof ThemeAnimator) {
@@ -110,7 +92,7 @@ export const IconGraphicsAnimator = (function (_super: typeof ThemeAnimator) {
 
   IconGraphicsAnimator.prototype.transformState = function (this: ThemeAnimator<unknown, Graphics | null>, icon: Graphics | null): Graphics | null {
     const iconView = this.owner;
-    if (IconView.is(iconView) && icon instanceof Icon) {
+    if (IconView[Symbol.hasInstance](iconView) && icon instanceof Icon) {
       const iconColor = iconView.iconColor.state;
       if (iconColor !== null && icon instanceof FilledIcon) {
         icon = icon.withFillColor(iconColor);

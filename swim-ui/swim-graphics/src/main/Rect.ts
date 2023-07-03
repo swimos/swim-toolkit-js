@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Uninitable} from "@swim/util";
 import type {Equals} from "@swim/util";
 import type {Output} from "@swim/codec";
 import type {Debug} from "@swim/codec";
@@ -149,10 +150,10 @@ export class Rect implements Graphics, Equals, Debug {
     return new Rect(x, y, width, height);
   }
 
-  static fromAny(value: AnyRect): Rect {
-    if (value instanceof Rect) {
-      return value;
-    } else if (typeof value === "object" && value !== null) {
+  static fromAny<T extends AnyRect | null | undefined>(value: T): Rect | Uninitable<T> {
+    if (value === void 0 || value === null || value instanceof Rect) {
+      return value as Rect | Uninitable<T>;
+    } else if (typeof value === "object") {
       return Rect.create(value.x, value.y, value.width, value.height);
     }
     throw new TypeError("" + value);

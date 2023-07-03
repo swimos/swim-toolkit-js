@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Uninitable} from "@swim/util";
+import {Lazy} from "@swim/util";
 import {Interpolator} from "@swim/util";
 import {Diagnostic} from "@swim/codec";
 import type {Input} from "@swim/codec";
@@ -35,26 +37,23 @@ import {ScaleTransformParser} from "@swim/math";
 import {RotateTransformParser} from "@swim/math";
 import {SkewTransformParser} from "@swim/math";
 import {AffineTransformParser} from "@swim/math";
-import type {AnyDateTime} from "@swim/time";
+import {AnyDateTime} from "@swim/time";
 import type {DateTimeInit} from "@swim/time";
 import {DateTime} from "@swim/time";
 import {DateTimeFormat} from "@swim/time";
 import type {FontWeight} from "./Font";
-import type {AnyFont} from "./Font";
+import {AnyFont} from "./Font";
 import {Font} from "./Font";
 import {FontParser} from "./Font";
-import type {AnyColor} from "./Color";
+import {AnyColor} from "./Color";
 import {Color} from "./Color";
-import type {RgbColorInit} from "./RgbColor";
 import {RgbColorParser} from "./RgbColor";
 import {HexColorParser} from "./RgbColor";
-import type {HslColorInit} from "./HslColor";
 import {HslColorParser} from "./HslColor";
-import type {AnyLinearGradient} from "./LinearGradient";
+import {AnyLinearGradient} from "./LinearGradient";
 import {LinearGradient} from "./LinearGradient";
 import {LinearGradientParser} from "./LinearGradient";
-import type {AnyBoxShadow} from "./BoxShadow";
-import type {BoxShadowInit} from "./BoxShadow";
+import {AnyBoxShadow} from "./BoxShadow";
 import {BoxShadow} from "./BoxShadow";
 
 /** @public */
@@ -62,9 +61,9 @@ export type AnyStyleValue = AnyDateTime
                           | AnyAngle
                           | AnyLength
                           | AnyFont
-                          | AnyColor | RgbColorInit | HslColorInit
+                          | AnyColor
                           | AnyLinearGradient
-                          | AnyBoxShadow | BoxShadowInit
+                          | AnyBoxShadow
                           | AnyTransform
                           | Interpolator<any>
                           | number
@@ -84,17 +83,10 @@ export type StyleValue = DateTime
                        | boolean;
 
 /** @public */
-export const StyleValue = (function () {
-  const StyleValue = {} as {
-    fromAny(value: AnyStyleValue): StyleValue;
-
-    parse(input: Input | string): StyleValue;
-
-    form(): Form<StyleValue, AnyStyleValue>;
-  };
-
-  StyleValue.fromAny = function (value: AnyStyleValue): StyleValue {
-    if (value instanceof DateTime
+export const StyleValue = {
+  fromAny<T extends AnyStyleValue | null | undefined>(value: T): StyleValue | Uninitable<T> {
+    if (value === void 0 || value === null
+        || value instanceof DateTime
         || value instanceof Angle
         || value instanceof Length
         || value instanceof Color
@@ -105,22 +97,24 @@ export const StyleValue = (function () {
         || value instanceof Interpolator
         || typeof value === "number"
         || typeof value === "boolean") {
-      return value;
-    } else if (value instanceof Date || DateTime.isInit(value)) {
+      return value as StyleValue | Uninitable<T>;
+    } else if (value instanceof Date || AnyDateTime[Symbol.hasInstance](value)) {
       return DateTime.fromAny(value);
-    } else if (Font.isInit(value)) {
-      return Font.fromAny(value);
-    } else if (Color.isInit(value)) {
+    } else if (AnyColor[Symbol.hasInstance](value)) {
       return Color.fromAny(value);
-    } else if (BoxShadow.isInit(value)) {
+    } else if (AnyFont[Symbol.hasInstance](value)) {
+      return Font.fromAny(value);
+    } else if (AnyBoxShadow[Symbol.hasInstance](value)) {
       return BoxShadow.fromAny(value)!;
+    } else if (AnyLinearGradient[Symbol.hasInstance](value)) {
+      return LinearGradient.fromAny(value)!;
     } else if (typeof value === "string") {
       return StyleValue.parse(value);
     }
     throw new TypeError("" + value);
-  };
+  },
 
-  StyleValue.parse = function (input: Input | string): StyleValue {
+  parse(input: Input | string): StyleValue {
     if (typeof input === "string") {
       input = Unicode.stringInput(input);
     }
@@ -137,26 +131,12 @@ export const StyleValue = (function () {
       parser = Parser.error(Diagnostic.unexpected(input));
     }
     return parser.bind();
-  };
+  },
 
-  Object.defineProperty(StyleValue, "form", {
-    value: function (): Form<StyleValue, AnyStyleValue> {
-      const form = new StyleValueForm(void 0);
-      Object.defineProperty(StyleValue, "form", {
-        value: function (): Form<StyleValue, AnyStyleValue> {
-          return form;
-        },
-        enumerable: true,
-        configurable: true,
-      });
-      return form;
-    },
-    enumerable: true,
-    configurable: true,
-  });
-
-  return StyleValue;
-})();
+  form: Lazy(function (): Form<StyleValue, AnyStyleValue> {
+    return new StyleValueForm(void 0);
+  }),
+};
 
 /** @internal */
 export class StyleValueForm extends Form<StyleValue, AnyStyleValue> {
@@ -171,37 +151,35 @@ export class StyleValueForm extends Form<StyleValue, AnyStyleValue> {
   override readonly unit!: StyleValue | undefined;
 
   override withUnit(unit: StyleValue | undefined): Form<StyleValue, AnyStyleValue> {
-    if (unit !== this.unit) {
-      return new StyleValueForm(unit);
-    } else {
+    if (unit === this.unit) {
       return this;
     }
+    return new StyleValueForm(unit);
   }
 
   override mold(value: AnyStyleValue): Item {
-    if (value !== void 0) {
-      value = StyleValue.fromAny(value);
-      if (value instanceof DateTime) {
-        return DateTime.form().mold(value);
-      } else if (value instanceof Angle) {
-        return Angle.form().mold(value);
-      } else if (value instanceof Length) {
-        return Length.form().mold(value);
-      } else if (value instanceof Font) {
-        return Font.form().mold(value);
-      } else if (value instanceof Color) {
-        return Color.form().mold(value);
-      } else if (value instanceof BoxShadow) {
-        return BoxShadow.form().mold(value);
-      } else if (value instanceof Transform) {
-        return Transform.form().mold(value);
-      } else if (typeof value === "number") {
-        return Num.from(value);
-      }
-      throw new TypeError("" + value);
-    } else {
+    if (value === void 0) {
       return Item.extant();
     }
+    value = StyleValue.fromAny(value);
+    if (value instanceof DateTime) {
+      return DateTime.form().mold(value);
+    } else if (value instanceof Angle) {
+      return Angle.form().mold(value);
+    } else if (value instanceof Length) {
+      return Length.form().mold(value);
+    } else if (value instanceof Font) {
+      return Font.form().mold(value);
+    } else if (value instanceof Color) {
+      return Color.form().mold(value);
+    } else if (value instanceof BoxShadow) {
+      return BoxShadow.form().mold(value);
+    } else if (value instanceof Transform) {
+      return Transform.form().mold(value);
+    } else if (typeof value === "number") {
+      return Num.from(value);
+    }
+    throw new TypeError("" + value);
   }
 
   override cast(item: Item): StyleValue | undefined {
@@ -415,7 +393,7 @@ export class StyleValueParser extends Parser<StyleValue> {
         }
         if (input.isCont() && (c = input.head(), Unicode.isSpace(c) || c === 47/*'/'*/)) {
           if (styleValue instanceof Length) {
-            return FontParser.parseRest(input, void 0, void 0, void 0, void 0, styleValue as Length);
+            return FontParser.parseRest(input, void 0, void 0, void 0, void 0, styleValue);
           } else if (typeof styleValue === "number") {
             switch (value) {
               case 100:

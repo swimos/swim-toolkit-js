@@ -327,7 +327,7 @@ export const StyleRule = (function (_super: typeof CssRule) {
 
   StyleRule.prototype.getLook = function <T>(this: StyleRule, look: Look<T, unknown>, mood?: MoodVector<Feel> | null): T | undefined {
     const themeContext = this.owner;
-    if (!ThemeContext.is(themeContext)) {
+    if (!ThemeContext[Symbol.hasInstance](themeContext)) {
       return void 0;
     }
     return themeContext.getLook(look, mood);
@@ -335,7 +335,7 @@ export const StyleRule = (function (_super: typeof CssRule) {
 
   StyleRule.prototype.getLookOr = function <T, E>(this: StyleRule, look: Look<T, unknown>, mood: MoodVector<Feel> | null | E, elseValue?: E): T | E {
     const themeContext = this.owner;
-    if (ThemeContext.is(themeContext)) {
+    if (ThemeContext[Symbol.hasInstance](themeContext)) {
       if (arguments.length === 2) {
         return themeContext.getLookOr(look, mood as E);
       } else {
@@ -349,7 +349,7 @@ export const StyleRule = (function (_super: typeof CssRule) {
   };
 
   StyleRule.prototype.applyTheme = function (this: StyleRule, theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean | null): void {
-    if (timing === void 0 || timing === true) {
+    if (timing === void 0 || timing === null || timing === true) {
       timing = theme.getOr(Look.timing, Mood.ambient, false);
     } else {
       timing = Timing.fromAny(timing);
@@ -358,7 +358,7 @@ export const StyleRule = (function (_super: typeof CssRule) {
     for (let i = 0; i < fastenerSlots.length; i += 1) {
       const fastener = this[fastenerSlots[i]!];
       if (fastener instanceof ThemeAnimator) {
-        fastener.applyTheme(theme, mood, timing as Timing | boolean);
+        fastener.applyTheme(theme, mood, timing);
       }
     }
     _super.prototype.applyTheme.call(this, theme, mood, timing);

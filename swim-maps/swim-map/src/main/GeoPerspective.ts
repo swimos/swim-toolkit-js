@@ -15,18 +15,28 @@
 import type {Uninitable} from "@swim/util";
 import {Objects} from "@swim/util";
 import type {AnyGeoPoint} from "@swim/geo";
+import {GeoShape} from "@swim/geo";
 import {GeoPoint} from "@swim/geo";
-import type {AnyGeoBox} from "@swim/geo";
-import {GeoBoxInit} from "@swim/geo";
+import {AnyGeoBox} from "@swim/geo";
 import {GeoBox} from "@swim/geo";
 
 /** @public */
-export type AnyGeoPerspective = GeoPerspective | GeoPerspectiveInit | AnyGeoBox;
+export type AnyGeoPerspective = GeoPerspective | GeoShape | GeoPerspectiveInit | AnyGeoBox;
+
+/** @public */
+export const AnyGeoPerspective = {
+  [Symbol.hasInstance](instance: unknown): instance is AnyGeoPerspective {
+    return GeoPerspective[Symbol.hasInstance](instance)
+        || instance instanceof GeoShape
+        || GeoPerspectiveInit[Symbol.hasInstance](instance)
+        || AnyGeoBox[Symbol.hasInstance](instance);
+  },
+};
 
 /** @public */
 export interface GeoPerspectiveInit {
   /** @internal */
-  readonly typeid?: "GeoPerspectiveInit";
+  typeid?: "GeoPerspectivInite";
   geoFrame?: AnyGeoBox | null;
   geoCenter?: AnyGeoPoint | null;
   zoom?: number;
@@ -44,7 +54,7 @@ export const GeoPerspectiveInit = {
 /** @public */
 export interface GeoPerspective {
   /** @internal */
-  readonly typeid?: "GeoPerspective";
+  typeid?: "GeoPerspective";
 
   readonly geoFrame: GeoBox | null;
 
@@ -60,11 +70,11 @@ export interface GeoPerspective {
 /** @public */
 export const GeoPerspective = {
   fromAny<T extends AnyGeoPerspective | null | undefined>(value: T): GeoPerspective | Uninitable<T> {
-    if (value === void 0 || value === null) {
+    if (value === void 0 || value === null || GeoPerspective[Symbol.hasInstance](value)) {
       return value as GeoPerspective | Uninitable<T>;
-    } else if (GeoBoxInit[Symbol.hasInstance](value)) {
+    } else if (value instanceof GeoShape || AnyGeoBox[Symbol.hasInstance](value)) {
       return {
-        geoFrame: GeoBox.fromInit(value),
+        geoFrame: GeoBox.fromAny(value),
         geoCenter: null,
         zoom: void 0,
         heading: void 0,

@@ -12,14 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Murmur3} from "@swim/util";
+import type {Uninitable} from "@swim/util";
 import type {Mutable} from "@swim/util";
-import {Numbers} from "@swim/util";
-import {Constructors} from "@swim/util";
+import {Lazy} from "@swim/util";
+import {Murmur3} from "@swim/util";
 import type {Equivalent} from "@swim/util";
 import type {HashCode} from "@swim/util";
+import {Numbers} from "@swim/util";
+import {Constructors} from "@swim/util";
 import type {AnyTiming} from "@swim/util";
 import type {Interpolate} from "@swim/util";
+import {Objects} from "@swim/util";
 import {Interpolator} from "@swim/util";
 import type {Output} from "@swim/codec";
 import type {Debug} from "@swim/codec";
@@ -32,12 +35,28 @@ import {Animator} from "@swim/component";
 export type AnyFocus = Focus | FocusInit | boolean;
 
 /** @public */
+export const AnyFocus = {
+  [Symbol.hasInstance](instance: unknown): instance is AnyFocus {
+    return instance instanceof Focus
+        || FocusInit[Symbol.hasInstance](instance)
+        || typeof instance === "boolean";
+  },
+};
+
+/** @public */
 export interface FocusInit {
   /** @internal */
-  uid?: never; // force type ambiguity between Focus and FocusInit
+  typeid?: "FocusInit";
   readonly phase: number;
   readonly direction: number;
 }
+
+/** @public */
+export const FocusInit = {
+  [Symbol.hasInstance](instance: unknown): instance is FocusInit {
+    return Objects.hasAllKeys<FocusInit>(instance, "phase", "direction");
+  },
+};
 
 /** @public */
 export class Focus implements Interpolate<Focus>, HashCode, Equivalent, Debug {
@@ -47,26 +66,24 @@ export class Focus implements Interpolate<Focus>, HashCode, Equivalent, Debug {
   }
 
   /** @internal */
-  declare uid?: unknown; // force type ambiguity between Focus and FocusInit
+  declare typeid?: "Focus";
 
   readonly phase: number;
 
   withPhase(phase: number): Focus {
-    if (phase !== this.phase) {
-      return Focus.create(phase, this.direction);
-    } else {
+    if (phase === this.phase) {
       return this;
     }
+    return Focus.create(phase, this.direction);
   }
 
   readonly direction: number;
 
   withDirection(direction: number): Focus {
-    if (direction !== this.direction) {
-      return Focus.create(this.phase, direction);
-    } else {
+    if (direction === this.direction) {
       return this;
     }
+    return Focus.create(this.phase, direction);
   }
 
   get unfocused(): boolean {
@@ -86,19 +103,17 @@ export class Focus implements Interpolate<Focus>, HashCode, Equivalent, Debug {
   }
 
   asFocusing(): Focus {
-    if (!this.focusing) {
-      return Focus.focusing(this.phase);
-    } else {
+    if (this.focusing) {
       return this;
     }
+    return Focus.focusing(this.phase);
   }
 
   asUnfocusing(): Focus {
-    if (!this.unfocusing) {
-      return Focus.unfocusing(this.phase);
-    } else {
+    if (this.unfocusing) {
       return this;
     }
+    return Focus.unfocusing(this.phase);
   }
 
   asToggling(): Focus {
@@ -106,9 +121,8 @@ export class Focus implements Interpolate<Focus>, HashCode, Equivalent, Debug {
       return Focus.unfocusing(this.phase);
     } else if (this.direction < 0 || this.phase < 0.5) {
       return Focus.focusing(this.phase);
-    } else {
-      return this;
     }
+    return this;
   }
 
   asToggled(): Focus {
@@ -116,21 +130,21 @@ export class Focus implements Interpolate<Focus>, HashCode, Equivalent, Debug {
       return Focus.unfocused();
     } else if (this.direction < 0 || this.phase < 0.5) {
       return Focus.focused();
-    } else {
-      return this;
     }
+    return this;
   }
 
+  /** @override */
   interpolateTo(that: Focus): Interpolator<Focus>;
   interpolateTo(that: unknown): Interpolator<Focus> | null;
   interpolateTo(that: unknown): Interpolator<Focus> | null {
     if (that instanceof Focus) {
       return FocusInterpolator(this, that);
-    } else {
-      return null;
     }
+    return null;
   }
 
+  /** @override */
   equivalentTo(that: unknown, epsilon?: number): boolean {
     if (this === that) {
       return true;
@@ -141,6 +155,7 @@ export class Focus implements Interpolate<Focus>, HashCode, Equivalent, Debug {
     return false;
   }
 
+  /** @override */
   equals(that: unknown): boolean {
     if (this === that) {
       return true;
@@ -150,11 +165,13 @@ export class Focus implements Interpolate<Focus>, HashCode, Equivalent, Debug {
     return false;
   }
 
+  /** @override */
   hashCode(): number {
     return Murmur3.mash(Murmur3.mix(Murmur3.mix(Constructors.hash(Focus),
         Numbers.hash(this.phase)), Numbers.hash(this.direction)));
   }
 
+  /** @override */
   debug<T>(output: Output<T>): Output<T> {
     output = output.write("Focus").write(46/*'.'*/);
     if (this.phase === 0 && this.direction === 0) {
@@ -181,22 +198,19 @@ export class Focus implements Interpolate<Focus>, HashCode, Equivalent, Debug {
     return output;
   }
 
+  /** @override */
   toString(): string {
     return Format.debug(this);
   }
 
-  /** @internal */
-  static readonly Unfocused: Focus = new this(0, 0);
-
+  @Lazy
   static unfocused(): Focus {
-    return this.Unfocused;
+    return new Focus(0, 0);
   }
 
-  /** @internal */
-  static readonly Focused: Focus = new this(1, 0);
-
+  @Lazy
   static focused(): Focus {
-    return this.Focused;
+    return new Focus(1, 0);
   }
 
   static focusing(phase?: number): Focus {
@@ -221,22 +235,14 @@ export class Focus implements Interpolate<Focus>, HashCode, Equivalent, Debug {
       return Focus.unfocused();
     } else if (phase === 1 && direction === 0) {
       return Focus.focused();
-    } else {
-      return new Focus(phase, direction);
     }
+    return new Focus(phase, direction);
   }
 
-  static fromInit(value: FocusInit): Focus {
-    return new Focus(value.phase, value.direction);
-  }
-
-  static fromAny(value: AnyFocus): Focus;
-  static fromAny(value: AnyFocus | null): Focus | null;
-  static fromAny(value: AnyFocus | null | undefined): Focus | null | undefined;
-  static fromAny(value: AnyFocus | null | undefined): Focus | null | undefined {
+  static fromAny<T extends AnyFocus | null | undefined>(value: T): Focus | Uninitable<T> {
     if (value === void 0 || value === null || value instanceof Focus) {
-      return value;
-    } else if (Focus.isInit(value)) {
+      return value as Focus | Uninitable<T>;
+    } else if (FocusInit[Symbol.hasInstance](value)) {
       return Focus.fromInit(value);
     } else if (value === true) {
       return Focus.focused();
@@ -246,21 +252,8 @@ export class Focus implements Interpolate<Focus>, HashCode, Equivalent, Debug {
     throw new TypeError("" + value);
   }
 
-  /** @internal */
-  static isInit(value: unknown): value is FocusInit {
-    if (typeof value === "object" && value !== null) {
-      const init = value as FocusInit;
-      return typeof init.phase === "number"
-          && typeof init.direction === "number";
-    }
-    return false;
-  }
-
-  /** @internal */
-  static isAny(value: unknown): value is AnyFocus {
-    return value instanceof Focus
-        || Focus.isInit(value)
-        || typeof value === "boolean";
+  static fromInit(value: FocusInit): Focus {
+    return new Focus(value.phase, value.direction);
   }
 }
 

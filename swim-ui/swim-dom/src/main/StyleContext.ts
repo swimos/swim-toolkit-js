@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Objects} from "@swim/util";
+
 /** @public */
 export interface StyleContext {
   readonly node?: Node;
@@ -22,18 +24,8 @@ export interface StyleContext {
 }
 
 /** @public */
-export const StyleContext = (function () {
-  const StyleContext = {} as {
-    is(object: unknown): object is StyleContext;
-  };
-
-  StyleContext.is = function (object: unknown): object is StyleContext {
-    if (typeof object === "object" && object !== null || typeof object === "function") {
-      const styleContext = object as StyleContext;
-      return "getStyle" in styleContext;
-    }
-    return false;
-  };
-
-  return StyleContext;
-})();
+export const StyleContext = {
+  [Symbol.hasInstance](instance: unknown): instance is StyleContext {
+    return Objects.hasAllKeys<StyleContext>(instance, "getStyle", "setStyle");
+  },
+};

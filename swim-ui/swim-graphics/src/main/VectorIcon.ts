@@ -157,6 +157,7 @@ export class VectorIcon extends FilledIcon implements Interpolate<VectorIcon>, E
     return new VectorIcon(path, fillRule, fillColor, fillLook, moodModifier);
   }
 
+  /** @override */
   interpolateTo(that: VectorIcon): Interpolator<VectorIcon>;
   interpolateTo(that: unknown): Interpolator<VectorIcon> | null;
   interpolateTo(that: unknown): Interpolator<VectorIcon> | null {
@@ -166,6 +167,7 @@ export class VectorIcon extends FilledIcon implements Interpolate<VectorIcon>, E
     return null;
   }
 
+  /** @override */
   equivalentTo(that: unknown, epsilon?: number): boolean {
     if (this === that) {
       return true;
@@ -179,6 +181,7 @@ export class VectorIcon extends FilledIcon implements Interpolate<VectorIcon>, E
     return false;
   }
 
+  /** @override */
   equals(that: unknown): boolean {
     if (this === that) {
       return true;
@@ -192,6 +195,7 @@ export class VectorIcon extends FilledIcon implements Interpolate<VectorIcon>, E
     return false;
   }
 
+  /** @override */
   debug<T>(output: Output<T>): Output<T> {
     output = output.write("new").write(32/*' '*/).write("VectorIcon").write(40/*'('*/)
                    .debug(this.path).write(", ")
@@ -202,6 +206,7 @@ export class VectorIcon extends FilledIcon implements Interpolate<VectorIcon>, E
     return output;
   }
 
+  /** @override */
   override toString(): string {
     return Format.debug(this);
   }

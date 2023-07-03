@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Uninitable} from "@swim/util";
 import {Equals} from "@swim/util";
 import type {Output} from "@swim/codec";
 import type {Debug} from "@swim/codec";
@@ -60,16 +61,14 @@ export class TextRun implements Graphics, Equals, Debug {
     if (this.text === text) {
       return this;
     }
-        return this.copy(text, this.font, this.textAlign,
-                         this.textBaseline, this.textOrigin, this.textColor);
+    return this.copy(text, this.font, this.textAlign,
+                     this.textBaseline, this.textOrigin, this.textColor);
   }
 
   readonly font: Font | null;
 
   withFont(font: AnyFont | null): TextRun {
-    if (font !== null) {
-      font = Font.fromAny(font);
-    }
+    font = Font.fromAny(font);
     if (this.font === font) {
       return this;
     }
@@ -100,22 +99,18 @@ export class TextRun implements Graphics, Equals, Debug {
   readonly textOrigin: R2Point | null;
 
   withTextOrigin(textOrigin: AnyR2Point | null): TextRun | null {
-    if (textOrigin !== null) {
-      textOrigin = R2Point.fromAny(textOrigin);
-    }
+    textOrigin = R2Point.fromAny(textOrigin);
     if (Equals(this.textOrigin, textOrigin)) {
       return this;
     }
     return this.copy(this.text, this.font, this.textAlign,
-                     this.textBaseline, textOrigin as R2Point, this.textColor);
+                     this.textBaseline, textOrigin, this.textColor);
   }
 
   readonly textColor: Color | null;
 
   withTextColor(textColor: AnyColor | null): TextRun {
-    if (textColor !== null) {
-      textColor = Color.fromAny(textColor);
-    }
+    textColor = Color.fromAny(textColor);
     if (Equals(this.textColor, textColor)) {
       return this;
     }
@@ -240,24 +235,18 @@ export class TextRun implements Graphics, Equals, Debug {
                 textBaseline: CanvasTextBaseline | null = null,
                 textOrigin: AnyR2Point | null = null,
                 textColor: AnyColor | null = null): TextRun {
-    if (font !== null) {
-      font = Font.fromAny(font);
-    }
-    if (textOrigin !== null) {
-      textOrigin = R2Point.fromAny(textOrigin);
-    }
-    if (textColor !== null) {
-      textColor = Color.fromAny(textColor);
-    }
-    return new TextRun(text, font, textAlign, textBaseline, textOrigin as R2Point, textColor);
+    font = Font.fromAny(font);
+    textOrigin = R2Point.fromAny(textOrigin);
+    textColor = Color.fromAny(textColor);
+    return new TextRun(text, font, textAlign, textBaseline, textOrigin, textColor);
   }
 
-  static fromAny(value: AnyTextRun): TextRun {
-    if (value instanceof TextRun) {
-      return value;
+  static fromAny<T extends AnyTextRun | null | undefined>(value: T): TextRun | Uninitable<T> {
+    if (value === void 0 || value === null || value instanceof TextRun) {
+      return value as TextRun | Uninitable<T>;
     } else if (typeof value === "string") {
       return TextRun.create(value);
-    } else if (typeof value === "object" && value !== null) {
+    } else if (typeof value === "object") {
       return TextRun.create(value.text, value.font, value.textAlign, value.textBaseline,
                             value.textOrigin, value.textColor);
     }

@@ -95,9 +95,8 @@ export class BrightnessFeel extends Feel {
       } else {
         return combination.lighter(-amount) as unknown as T;
       }
-    } else {
-      return look.combine(combination, value, weight);
     }
+    return look.combine(combination, value, weight);
   }
 }
 
@@ -114,9 +113,8 @@ export class OpacityFeel extends Feel {
       const alpha = (1.0 - weight) * alpha0 + weight * alpha1;
       const color = combination.alpha(alpha) as unknown as T;
       return color;
-    } else {
-      return look.combine(combination, value, weight);
     }
+    return look.combine(combination, value, weight);
   }
 }
 

@@ -192,12 +192,12 @@ export class ThemeMatrix implements Equals, Debug {
       look = this.rowIndex[look];
     }
     const entry = typeof look === "number" ? this.rowArray[look] : void 0;
-    if (entry !== void 0) {
-      look = entry[0];
-      const row = entry[1];
-      return look.dot(row, col);
+    if (entry === void 0) {
+      return void 0;
     }
-    return void 0;
+    look = entry[0];
+    const row = entry[1];
+    return look.dot(row, col);
   }
 
   dotOr<T, E>(look: Look<T>, col: MoodVector, elseValue: E): T | E;
@@ -210,12 +210,12 @@ export class ThemeMatrix implements Equals, Debug {
       look = this.rowIndex[look];
     }
     const entry = typeof look === "number" ? this.rowArray[look] : void 0;
-    if (entry !== void 0) {
-      look = entry[0];
-      const row = entry[1];
-      return look.dotOr(row, col, elseValue);
+    if (entry === void 0) {
+      return elseValue;
     }
-    return elseValue;
+    look = entry[0];
+    const row = entry[1];
+    return look.dotOr(row, col, elseValue);
   }
 
   timesCol(col: MoodVector): FeelVector {
@@ -246,30 +246,32 @@ export class ThemeMatrix implements Equals, Debug {
       if (col === void 0 && implicitIdentity) {
         col = MoodVector.of([feel, 1]);
       }
-      if (col !== void 0) {
-        for (let i = 0, m = thisRowArray.length; i < m; i += 1) {
-          const [look, row] = thisRowArray[i]!;
-          const value = look.dot(row, col);
-          if (value !== void 0) {
-            const i2 = newRowIndex[look.name];
-            if (i2 !== void 0) {
-              const newRow = newRowArray[i2]![1];
-              (newRow.index as {[name: string]: number | undefined})[look.name] = newRow.array.length;
-              (newRow.array as [Feel, unknown][]).push([feel, value]);
-            } else {
-              newRowIndex[look.name] = newRowArray.length;
-              newRowArray.push([look, LookVector.of([feel, value])]);
-            }
-            const j2 = newColIndex[feel.name];
-            if (j2 !== void 0) {
-              const newCol = newColArray[j2]![1];
-              (newCol.index as {[name: string]: number | undefined})[feel.name] = newCol.array.length;
-              (newCol.array as [Look<unknown>, unknown][]).push([look, value]);
-            } else {
-              newColIndex[feel.name] = newColArray.length;
-              newColArray.push([feel, FeelVector.of([look, value])]);
-            }
-          }
+      if (col === void 0) {
+        continue;
+      }
+      for (let i = 0, m = thisRowArray.length; i < m; i += 1) {
+        const [look, row] = thisRowArray[i]!;
+        const value = look.dot(row, col);
+        if (value === void 0) {
+          continue;
+        }
+        const i2 = newRowIndex[look.name];
+        if (i2 === void 0) {
+          newRowIndex[look.name] = newRowArray.length;
+          newRowArray.push([look, LookVector.of([feel, value])]);
+        } else {
+          const newRow = newRowArray[i2]![1];
+          (newRow.index as {[name: string]: number | undefined})[look.name] = newRow.array.length;
+          (newRow.array as [Feel, unknown][]).push([feel, value]);
+        }
+        const j2 = newColIndex[feel.name];
+        if (j2 === void 0) {
+          newColIndex[feel.name] = newColArray.length;
+          newColArray.push([feel, FeelVector.of([look, value])]);
+        } else {
+          const newCol = newColArray[j2]![1];
+          (newCol.index as {[name: string]: number | undefined})[feel.name] = newCol.array.length;
+          (newCol.array as [Look<unknown>, unknown][]).push([look, value]);
         }
       }
     }
@@ -309,9 +311,8 @@ export class ThemeMatrix implements Equals, Debug {
         }
       }
       return ThemeMatrix.fromRowArray(newRowArray, newRowIndex);
-    } else { // nop
-      return this;
     }
+    return this; // nop
   }
 
   col(feel: Feel, col: AnyFeelVector | undefined): ThemeMatrix {
@@ -347,9 +348,8 @@ export class ThemeMatrix implements Equals, Debug {
         }
       }
       return ThemeMatrix.fromColArray(newColArray, newColIndex);
-    } else { // nop
-      return this;
     }
+    return this; // nop
   }
 
   updatedRow<T, U = T>(look: Look<T, U>, updates: LookVectorUpdates<T>,
@@ -365,11 +365,10 @@ export class ThemeMatrix implements Equals, Debug {
       newRow = defaultRow;
     }
     newRow = newRow.updated(updates);
-    if (!newRow.equals(oldRow)) {
-      return this.row(look, newRow);
-    } else {
+    if (newRow.equals(oldRow)) {
       return this;
     }
+    return this.row(look, newRow);
   }
 
   updatedCol(feel: Feel, updates: FeelVectorUpdates,
@@ -385,13 +384,13 @@ export class ThemeMatrix implements Equals, Debug {
       newCol = defaultCol;
     }
     newCol = newCol.updated(updates);
-    if (!newCol.equals(oldCol)) {
-      return this.col(feel, newCol);
-    } else {
+    if (newCol.equals(oldCol)) {
       return this;
     }
+    return this.col(feel, newCol);
   }
 
+  /** @override */
   equals(that: unknown): boolean {
     if (this === that) {
       return true;
@@ -401,6 +400,7 @@ export class ThemeMatrix implements Equals, Debug {
     return false;
   }
 
+  /** @override */
   debug<T>(output: Output<T>): Output<T> {
     const cols = this.colArray;
     const n = cols.length;
@@ -417,13 +417,14 @@ export class ThemeMatrix implements Equals, Debug {
     return output;
   }
 
+  /** @override */
   toString(): string {
     return Format.debug(this);
   }
 
   @Lazy
   static empty(): ThemeMatrix {
-    return new ThemeMatrix([], {}, [], {});
+    return new ThemeMatrix(Arrays.empty(), {}, Arrays.empty(), {});
   }
 
   static forRows(...rows: [Look<unknown>, AnyLookVector<unknown>][]): ThemeMatrix {

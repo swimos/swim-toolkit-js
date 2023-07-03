@@ -302,7 +302,7 @@ export class DialView extends GraphicsView {
       const dx = labelPadding * Math.cos(padAngle);
       const dy = labelPadding * Math.sin(padAngle);
 
-      if (TypesetView.is(labelView)) {
+      if (TypesetView[Symbol.hasInstance](labelView)) {
         labelView.textAlign.setState(textAlign, Affinity.Intrinsic);
         labelView.textBaseline.setState("middle", Affinity.Intrinsic);
         labelView.textOrigin.setState(new R2Point(center.x + rx + dx, center.y + ry + dy), Affinity.Intrinsic);
@@ -360,9 +360,9 @@ export class DialView extends GraphicsView {
         }
       }
 
-      if (TypesetView.is(legendView)) {
+      if (TypesetView[Symbol.hasInstance](legendView)) {
         const tickPadding = this.tickPadding.getValue().pxValue(size);
-        if (FillView.is(legendView)) {
+        if (FillView[Symbol.hasInstance](legendView)) {
           legendView.fill.setState(tickColor, Affinity.Intrinsic);
         }
         legendView.textAlign.setState(textAlign, Affinity.Intrinsic);

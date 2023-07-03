@@ -55,6 +55,19 @@ export abstract class Hyperlink implements Equals, Debug {
     return new LocationHyperlink(href, title);
   }
 
+  static fromAny(hyperlink: AnyHyperlink): Hyperlink;
+  static fromAny(hyperlink: AnyHyperlink | null | undefined): Hyperlink | null | undefined;
+  static fromAny(hyperlink: AnyHyperlink | null | undefined): Hyperlink | null | undefined {
+    if (hyperlink === void 0 || hyperlink === null || hyperlink instanceof Hyperlink) {
+      return hyperlink;
+    } else if (typeof hyperlink === "string") {
+      return new LocationHyperlink(hyperlink, void 0);
+    } else if (!("state" in hyperlink) && !("href" in hyperlink)) {
+      return new HistoryHyperlink(hyperlink, void 0, void 0);
+    }
+    return this.fromInit(hyperlink);
+  }
+
   static fromInit(init: HyperlinkInit): Hyperlink {
     if ("fragment" in init || "parameters" in init || "environment" in init) {
       const state: HistoryStateInit = {};
@@ -72,19 +85,6 @@ export abstract class Hyperlink implements Equals, Debug {
       return new LocationHyperlink(init.href, init.title);
     }
     throw new TypeError("invalid hyperlink");
-  }
-
-  static fromAny(hyperlink: AnyHyperlink): Hyperlink;
-  static fromAny(hyperlink: AnyHyperlink | null | undefined): Hyperlink | null | undefined;
-  static fromAny(hyperlink: AnyHyperlink | null | undefined): Hyperlink | null | undefined {
-    if (hyperlink === void 0 || hyperlink === null || hyperlink instanceof Hyperlink) {
-      return hyperlink;
-    } else if (typeof hyperlink === "string") {
-      return new LocationHyperlink(hyperlink, void 0);
-    } else if (!("state" in hyperlink) && !("href" in hyperlink)) {
-      return new HistoryHyperlink(hyperlink, void 0, void 0);
-    }
-    return this.fromInit(hyperlink);
   }
 }
 
@@ -127,7 +127,7 @@ export class HistoryHyperlink extends Hyperlink {
     return false;
   }
 
-  debug<T>(output: Output<T>): Output<T> {
+  override debug<T>(output: Output<T>): Output<T> {
     output = output.write("Hyperlink").write(46/*'.'*/).write("history")
                    .write(40/*'('*/).debug(this.state);
     if (this.href !== void 0) {
@@ -180,7 +180,7 @@ export class LocationHyperlink extends Hyperlink {
     return false;
   }
 
-  debug<T>(output: Output<T>): Output<T> {
+  override debug<T>(output: Output<T>): Output<T> {
     output = output.write("Hyperlink").write(46/*'.'*/).write("location")
                    .write(40/*'('*/).debug(this.href);
     if (this.title !== void 0) {

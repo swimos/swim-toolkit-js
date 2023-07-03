@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Uninitable} from "@swim/util";
 import {Lazy} from "@swim/util";
 import type {HashCode} from "@swim/util";
 import type {Equivalent} from "@swim/util";
@@ -30,12 +31,12 @@ import {Text} from "@swim/structure";
 import {Form} from "@swim/structure";
 import type {AnyAngle} from "@swim/math";
 import {Angle} from "@swim/math";
-import type {RgbColorInit} from "./RgbColor";
+import {RgbColorInit} from "./"; // forward import
 import {RgbColor} from "./"; // forward import
 import {RgbColorInterpolator} from "./"; // forward import
 import {RgbColorParser} from "./"; // forward import
 import {HexColorParser} from "./"; // forward import
-import type {HslColorInit} from "./HslColor";
+import {HslColorInit} from "./"; // forward import
 import {HslColor} from "./"; // forward import
 import {HslColorParser} from "./"; // forward import
 
@@ -43,7 +44,24 @@ import {HslColorParser} from "./"; // forward import
 export type AnyColor = Color | ColorInit | string;
 
 /** @public */
+export const AnyColor = {
+  [Symbol.hasInstance](instance: unknown): instance is AnyColor {
+    return instance instanceof Color
+        || ColorInit[Symbol.hasInstance](instance)
+        || typeof instance === "string";
+  },
+};
+
+/** @public */
 export type ColorInit = RgbColorInit | HslColorInit;
+
+/** @public */
+export const ColorInit = {
+  [Symbol.hasInstance](instance: unknown): instance is ColorInit {
+    return RgbColorInit[Symbol.hasInstance](instance)
+        || HslColorInit[Symbol.hasInstance](instance);
+  },
+};
 
 /** @public */
 export abstract class Color implements Interpolate<Color>, HashCode, Equivalent, Debug {
@@ -72,22 +90,26 @@ export abstract class Color implements Interpolate<Color>, HashCode, Equivalent,
 
   abstract hsl(): HslColor;
 
+  /** @override */
   interpolateTo(that: Color): Interpolator<Color>;
   interpolateTo(that: unknown): Interpolator<Color> | null;
   interpolateTo(that: unknown): Interpolator<Color> | null {
     if (that instanceof Color) {
       return RgbColorInterpolator(this.rgb(), that.rgb());
-    } else {
-      return null;
     }
+    return null;
   }
 
+  /** @override */
   abstract equivalentTo(that: unknown, epsilon?: number): boolean;
 
+  /** @override */
   abstract equals(other: unknown): boolean;
 
+  /** @override */
   abstract hashCode(): number;
 
+  /** @override */
   abstract debug<T>(output: Output<T>): Output<T>;
 
   abstract toHexString(): string;
@@ -96,6 +118,7 @@ export abstract class Color implements Interpolate<Color>, HashCode, Equivalent,
 
   abstract toHslString(): string;
 
+  /** @override */
   abstract toString(): string;
 
   static transparent(): Color {
@@ -130,26 +153,19 @@ export abstract class Color implements Interpolate<Color>, HashCode, Equivalent,
     }
   }
 
-  static fromInit(value: ColorInit): Color {
-    if (RgbColor.isInit(value)) {
-      return RgbColor.fromInit(value);
-    } else if (HslColor.isInit(value)) {
-      return HslColor.fromInit(value);
-    }
-    throw new TypeError("" + value);
-  }
-
-  static fromAny(value: AnyColor): Color;
-  static fromAny(value: AnyColor | null): Color | null;
-  static fromAny(value: AnyColor | null | undefined): Color | null | undefined;
-  static fromAny(value: AnyColor | null | undefined): Color | null | undefined {
+  static fromAny<T extends AnyColor | null | undefined>(value: T): Color | Uninitable<T> {
     if (value === void 0 || value === null || value instanceof Color) {
-      return value;
+      return value as Color | Uninitable<T>;
     } else if (typeof value === "string") {
       return Color.parse(value);
-    } else if (RgbColor.isInit(value)) {
+    }
+    return Color.fromInit(value);
+  }
+
+  static fromInit(value: ColorInit): Color {
+    if (RgbColorInit[Symbol.hasInstance](value)) {
       return RgbColor.fromInit(value);
-    } else if (HslColor.isInit(value)) {
+    } else if (HslColorInit[Symbol.hasInstance](value)) {
       return HslColor.fromInit(value);
     }
     throw new TypeError("" + value);
@@ -181,18 +197,6 @@ export abstract class Color implements Interpolate<Color>, HashCode, Equivalent,
     return parser.bind();
   }
 
-  /** @internal */
-  static isInit(value: unknown): value is ColorInit {
-    return RgbColor.isInit(value) || HslColor.isInit(value);
-  }
-
-  /** @internal */
-  static isAny(value: unknown): value is AnyColor {
-    return value instanceof Color
-        || Color.isInit(value)
-        || typeof value === "string";
-  }
-
   @Lazy
   static form(): Form<Color, AnyColor> {
     return new ColorForm(Color.transparent());
@@ -217,11 +221,10 @@ export class ColorForm extends Form<Color, AnyColor> {
   override readonly unit: Color | undefined;
 
   override withUnit(unit: Color | undefined): Form<Color, AnyColor> {
-    if (unit !== this.unit) {
-      return new ColorForm(unit);
-    } else {
+    if (unit === this.unit) {
       return this;
     }
+    return new ColorForm(unit);
   }
 
   override mold(color: AnyColor): Item {

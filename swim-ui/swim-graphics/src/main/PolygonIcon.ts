@@ -165,6 +165,7 @@ export class PolygonIcon extends FilledIcon implements Interpolate<PolygonIcon>,
     return new PolygonIcon(sides, rotation, fillColor, fillLook, moodModifier);
   }
 
+  /** @override */
   interpolateTo(that: PolygonIcon): Interpolator<PolygonIcon>;
   interpolateTo(that: unknown): Interpolator<PolygonIcon> | null;
   interpolateTo(that: unknown): Interpolator<PolygonIcon> | null {
@@ -174,6 +175,7 @@ export class PolygonIcon extends FilledIcon implements Interpolate<PolygonIcon>,
     return null;
   }
 
+  /** @override */
   equivalentTo(that: unknown, epsilon?: number): boolean {
     if (this === that) {
       return true;
@@ -187,6 +189,7 @@ export class PolygonIcon extends FilledIcon implements Interpolate<PolygonIcon>,
     return false;
   }
 
+  /** @override */
   equals(that: unknown): boolean {
     if (this === that) {
       return true;
@@ -200,6 +203,7 @@ export class PolygonIcon extends FilledIcon implements Interpolate<PolygonIcon>,
     return false;
   }
 
+  /** @override */
   debug<T>(output: Output<T>): Output<T> {
     output = output.write("new").write(32/*' '*/).write("PolygonIcon").write(40/*'('*/)
                    .debug(this.sides).write(", ")
@@ -210,6 +214,7 @@ export class PolygonIcon extends FilledIcon implements Interpolate<PolygonIcon>,
     return output;
   }
 
+  /** @override */
   override toString(): string {
     return Format.debug(this);
   }

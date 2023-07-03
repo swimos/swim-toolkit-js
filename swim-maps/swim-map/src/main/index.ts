@@ -14,7 +14,7 @@
 
 // Geo
 
-export type {AnyGeoPerspective} from "./GeoPerspective";
+export {AnyGeoPerspective} from "./GeoPerspective";
 export {GeoPerspectiveInit} from "./GeoPerspective";
 export {GeoPerspective} from "./GeoPerspective";
 

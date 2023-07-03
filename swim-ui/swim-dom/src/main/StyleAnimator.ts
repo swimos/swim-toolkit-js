@@ -92,7 +92,7 @@ export const StyleAnimator = (function (_super: typeof ThemeAnimator) {
   Object.defineProperty(StyleAnimator.prototype, "propertyValue", {
     get: function <T>(this: StyleAnimator<unknown, T>): T {
       const styleContext = this.owner;
-      if (StyleContext.is(styleContext)) {
+      if (StyleContext[Symbol.hasInstance](styleContext)) {
         let value: T | CSSStyleValue | string | undefined = styleContext.getStyle(this.propertyNames);
         if (typeof CSSStyleValue !== "undefined" && value instanceof CSSStyleValue) { // CSS Typed OM support
           try {
@@ -131,7 +131,7 @@ export const StyleAnimator = (function (_super: typeof ThemeAnimator) {
   Object.defineProperty(StyleAnimator.prototype, "computedValue", {
     get: function <T>(this: StyleAnimator<unknown, T>): T {
       let computedValue: T | undefined;
-      const node = StyleContext.is(this.owner) ? this.owner.node : void 0;
+      const node = StyleContext[Symbol.hasInstance](this.owner) ? this.owner.node : void 0;
       if (node instanceof Element) {
         const styles = getComputedStyle(node);
         const propertyNames = this.propertyNames;
@@ -239,7 +239,7 @@ export const StyleAnimator = (function (_super: typeof ThemeAnimator) {
 
   StyleAnimator.prototype.applyStyle = function <T>(this: StyleAnimator<unknown, T>, value: T, priority: string | undefined): void {
     const styleContext = this.owner;
-    if (!StyleContext.is(styleContext)) {
+    if (!StyleContext[Symbol.hasInstance](styleContext)) {
       return;
     }
     const propertyNames = this.propertyNames;
@@ -345,18 +345,16 @@ export const NumberStyleAnimator = (function (_super: typeof StyleAnimator) {
   NumberStyleAnimator.prototype.fromCssValue = function (value: CSSStyleValue): number | undefined {
     if (value instanceof CSSNumericValue) {
       return value.to("number").value;
-    } else {
-      return void 0;
     }
+    return void 0;
   };
 
   NumberStyleAnimator.prototype.fromAny = function (value: number | string): number | undefined {
     if (typeof value === "number") {
       return value;
-    } else {
-      const number = +value;
-      return isFinite(number) ? number : void 0;
     }
+    const number = +value;
+    return isFinite(number) ? number : void 0;
   };
 
   return NumberStyleAnimator;
@@ -562,7 +560,7 @@ export const LengthStyleAnimator = (function (_super: typeof StyleAnimator) {
   Object.defineProperty(LengthStyleAnimator.prototype, "emUnit", {
     get(this: LengthStyleAnimator): Node | number | undefined {
       const styleContext = this.owner;
-      if (StyleContext.is(styleContext)) {
+      if (StyleContext[Symbol.hasInstance](styleContext)) {
         const node = styleContext.node;
         if (node !== void 0) {
           return node;

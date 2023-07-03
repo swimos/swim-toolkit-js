@@ -268,7 +268,7 @@ export class SliceView extends GraphicsView {
       const rx = r * Math.cos(labelAngle);
       const ry = r * Math.sin(labelAngle);
 
-      if (TypesetView.is(labelView)) {
+      if (TypesetView[Symbol.hasInstance](labelView)) {
         labelView.textAlign.setState("center", Affinity.Intrinsic);
         labelView.textBaseline.setState("middle", Affinity.Intrinsic);
         labelView.textOrigin.setState(new R2Point(center.x + rx, center.y + ry), Affinity.Intrinsic);
@@ -334,9 +334,9 @@ export class SliceView extends GraphicsView {
         }
       }
 
-      if (TypesetView.is(legendView)) {
+      if (TypesetView[Symbol.hasInstance](legendView)) {
         const tickPadding = this.tickPadding.getValue().pxValue(size);
-        if (FillView.is(legendView)) {
+        if (FillView[Symbol.hasInstance](legendView)) {
           legendView.fill.setState(tickColor, Affinity.Intrinsic);
         }
         legendView.textAlign.setState(textAlign, Affinity.Intrinsic);

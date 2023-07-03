@@ -34,31 +34,19 @@ export interface StrokeView extends GraphicsView {
 }
 
 /** @public */
-export const StrokeView = (function () {
-  const StrokeView = {} as {
-    init(view: StrokeView, init: StrokeViewInit): void;
-
-    is(object: unknown): object is StrokeView;
-  };
-
-  StrokeView.init = function (view: StrokeView, init: StrokeViewInit): void {
+export const StrokeView = {
+  init(view: StrokeView, init: StrokeViewInit): void {
     if (init.stroke !== void 0) {
       view.stroke(init.stroke);
     }
     if (init.strokeWidth !== void 0) {
       view.strokeWidth(init.strokeWidth);
     }
-  };
+  },
 
-  StrokeView.is = function (object: unknown): object is StrokeView {
-    if (typeof object === "object" && object !== null) {
-      const view = object as StrokeView;
-      return view instanceof GraphicsView
-          && "stroke" in view
-          && "strokeWidth" in view;
-    }
-    return false;
-  };
-
-  return StrokeView;
-})();
+  [Symbol.hasInstance](instance: unknown): instance is StrokeView {
+    return instance instanceof GraphicsView
+        && "stroke" in instance
+        && "strokeWidth" in instance;
+  },
+};

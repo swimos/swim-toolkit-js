@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Objects} from "@swim/util";
 import type {MoodVector} from "./MoodVector";
 import type {Look} from "./Look";
 import type {Feel} from "./Feel";
@@ -25,18 +26,8 @@ export interface ThemeContext {
 }
 
 /** @public */
-export const ThemeContext = (function () {
-  const ThemeContext = {} as {
-    is(object: unknown): object is ThemeContext;
-  };
-
-  ThemeContext.is = function (object: unknown): object is ThemeContext {
-    if (typeof object === "object" && object !== null || typeof object === "function") {
-      const themeContext = object as ThemeContext;
-      return "getLook" in themeContext;
-    }
-    return false;
-  };
-
-  return ThemeContext;
-})();
+export const ThemeContext = {
+  [Symbol.hasInstance](instance: unknown): instance is ThemeContext {
+    return Objects.hasAllKeys<ThemeContext>(instance, "getLook");
+  },
+};

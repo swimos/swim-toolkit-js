@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Uninitable} from "@swim/util";
+import {Objects} from "@swim/util";
 import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
 
@@ -27,6 +29,13 @@ export interface IconLayoutInit {
 }
 
 /** @public */
+export const IconLayoutInit = {
+  [Symbol.hasInstance](instance: unknown): instance is IconLayoutInit {
+    return Objects.hasAllKeys<IconLayoutInit>(instance, "iconWidth", "iconHeight", "xAlign", "yAlign");
+  },
+};
+
+/** @public */
 export interface IconLayout {
   readonly iconWidth: Length;
   readonly iconHeight: Length;
@@ -35,33 +44,29 @@ export interface IconLayout {
 }
 
 /** @public */
-export const IconLayout = (function () {
-  const IconLayout = {} as {
-    fromAny(value: AnyIconLayout): IconLayout;
-
-    is(object: unknown): object is IconLayout;
-  };
-
-  IconLayout.fromAny = function (value: AnyIconLayout): IconLayout {
-    if (value === void 0 || value === null) {
-      return value;
-    } else {
-      const iconWidth = Length.fromAny(value.iconWidth);
-      const iconHeight = Length.fromAny(value.iconHeight);
-      const xAlign = value.xAlign;
-      const yAlign = value.yAlign;
-      return {iconWidth, iconHeight, xAlign, yAlign};
+export const IconLayout = {
+  fromAny<T extends AnyIconLayout | null | undefined>(value: T): IconLayout | Uninitable<T> {
+    if (value === void 0 || value === null || IconLayout[Symbol.hasInstance](value)) {
+      return value as IconLayout | Uninitable<T>;
+    } else if (IconLayoutInit[Symbol.hasInstance](value)) {
+      return IconLayout.fromInit(value);
     }
-  };
+    throw new TypeError("" + value);
+  },
 
-  IconLayout.is = function (object: unknown): object is IconLayout {
-    if (typeof object === "object" && object !== null || typeof object === "function") {
-      const viewport = object as IconLayout;
-      return "iconWidth" in viewport
-          && "iconHeight" in viewport;
-    }
-    return false;
-  };
+  fromInit(init: IconLayoutInit): IconLayout {
+    const iconWidth = Length.fromAny(init.iconWidth);
+    const iconHeight = Length.fromAny(init.iconHeight);
+    const xAlign = init.xAlign;
+    const yAlign = init.yAlign;
+    return {iconWidth, iconHeight, xAlign, yAlign};
+  },
 
-  return IconLayout;
-})();
+  [Symbol.hasInstance](instance: unknown): instance is IconLayout {
+    return Objects.hasAllKeys<IconLayout>(instance, "iconWidth", "iconHeight", "xAlign", "yAlign")
+        && instance.iconWidth instanceof Length
+        && instance.iconHeight instanceof Length
+        && typeof instance.xAlign === "number"
+        && typeof instance.yAlign === "number";
+  },
+};

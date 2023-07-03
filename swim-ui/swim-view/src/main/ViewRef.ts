@@ -499,9 +499,7 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
 
   ViewRef.prototype.constraint = function (this: ViewRef<ConstraintScope & ConstraintContext, View>, lhs: AnyConstraintExpression, relation: ConstraintRelation, rhs?: AnyConstraintExpression, strength?: AnyConstraintStrength): Constraint {
     lhs = ConstraintExpression.fromAny(lhs);
-    if (rhs !== void 0) {
-      rhs = ConstraintExpression.fromAny(rhs);
-    }
+    rhs = ConstraintExpression.fromAny(rhs);
     const expression = rhs !== void 0 ? lhs.minus(rhs) : lhs;
     if (strength === void 0) {
       strength = ConstraintStrength.Required;

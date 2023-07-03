@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Lazy} from "@swim/util";
 import type {AnyUri} from "@swim/uri";
 import {Uri} from "@swim/uri";
 import {UriQuery} from "@swim/uri";
@@ -46,52 +47,28 @@ export interface HistoryState {
 }
 
 /** @public */
-export const HistoryState = (function () {
-  const HistoryState = {} as {
-    /** @internal */
-    empty(): HistoryState;
-
-    /** @internal */
-    current(): MutableHistoryState;
-
-    /** @internal */
-    updated(delta: HistoryStateInit, state?: MutableHistoryState): MutableHistoryState;
-
-    /** @internal */
-    cloned(state: HistoryState): MutableHistoryState;
-
-    /** @internal */
-    fromUri(uri: AnyUri): HistoryState;
-
-    /** @internal */
-    fromUriFragment(fragment: AnyUriFragment): HistoryState;
-
-    /** @internal */
-    toUri(state: HistoryState): Uri;
-  };
-
-  HistoryState.empty = function (): HistoryState {
-    return {
+export const HistoryState = {
+  /** @internal */
+  empty: Lazy(function (): HistoryState {
+    return Object.freeze({
       fragment: void 0,
       parameters: {},
       environment: {},
-    };
-  };
+    });
+  }),
 
-  HistoryState.current = function (): MutableHistoryState {
+  /** @internal */
+  current(): MutableHistoryState {
     try {
       return HistoryState.fromUri(window.location.href);
     } catch (e) {
       console.error(e);
-      return {
-        fragment: void 0,
-        parameters: {},
-        environment: {},
-      };
+      return HistoryState.empty();
     }
-  };
+  },
 
-  HistoryState.updated = function (delta: HistoryStateInit, state?: MutableHistoryState): MutableHistoryState {
+  /** @internal */
+  updated(delta: HistoryStateInit, state?: MutableHistoryState): MutableHistoryState {
     if (state === void 0) {
       state = HistoryState.current();
     }
@@ -115,9 +92,10 @@ export const HistoryState = (function () {
       }
     }
     return state;
-  };
+  },
 
-  HistoryState.cloned = function (oldState: HistoryState): MutableHistoryState {
+  /** @internal */
+  cloned(oldState: HistoryState): MutableHistoryState {
     const newState: MutableHistoryState = {
       fragment: oldState.fragment,
       parameters: {},
@@ -130,19 +108,20 @@ export const HistoryState = (function () {
       newState.environment[key] = oldState.environment[key];
     }
     return newState;
-  };
+  },
 
-  HistoryState.fromUri = function (uri: AnyUri): HistoryState {
+  /** @internal */
+  fromUri(uri: AnyUri): HistoryState {
     uri = Uri.fromAny(uri);
     const fragment = uri.fragment;
-    if (fragment.isDefined()) {
-      return HistoryState.fromUriFragment(fragment);
-    } else {
+    if (!fragment.isDefined()) {
       return HistoryState.empty();
     }
-  };
+    return HistoryState.fromUriFragment(fragment);
+  },
 
-  HistoryState.fromUriFragment = function (fragment: AnyUriFragment): HistoryState {
+  /** @internal */
+  fromUriFragment(fragment: AnyUriFragment): HistoryState {
     fragment = UriFragment.fromAny(fragment);
     let query = fragment.identifier !== void 0
               ? UriQuery.parse(fragment.identifier)
@@ -163,9 +142,10 @@ export const HistoryState = (function () {
       query = query.tail();
     }
     return state;
-  };
+  },
 
-  HistoryState.toUri = function (state: HistoryState): Uri {
+  /** @internal */
+  toUri(state: HistoryState): Uri {
     const queryBuilder = UriQuery.builder();
     if (state.fragment !== void 0) {
       queryBuilder.add(void 0, state.fragment);
@@ -174,8 +154,6 @@ export const HistoryState = (function () {
       const value = state.parameters[key]!;
       queryBuilder.add(key, value);
     }
-    return Uri.fragment(UriFragment.create(queryBuilder.bind().toString()));
-  };
-
-  return HistoryState;
-})();
+    return Uri.fragment(UriFragment.create(queryBuilder.build().toString()));
+  },
+};

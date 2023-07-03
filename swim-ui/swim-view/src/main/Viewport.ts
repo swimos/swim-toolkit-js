@@ -27,12 +27,8 @@ export interface LayoutViewport {
 }
 
 /** @public */
-export const LayoutViewport = (function () {
-  const LayoutViewport = {} as {
-    equal(x: LayoutViewport | null | undefined, y: LayoutViewport | null | undefined): boolean;
-  };
-
-  LayoutViewport.equal = function (x: LayoutViewport | null | undefined, y: LayoutViewport | null | undefined): boolean {
+export const LayoutViewport = {
+  equal(x: LayoutViewport | null | undefined, y: LayoutViewport | null | undefined): boolean {
     if (x === y) {
       return true;
     } else if (typeof x === "object" && x !== null && typeof y === "object" && y !== null) {
@@ -42,10 +38,8 @@ export const LayoutViewport = (function () {
           && x.pageTop === y.pageTop;
     }
     return false;
-  };
-
-  return LayoutViewport;
-})();
+  },
+};
 
 /** @public */
 export interface VisualViewport {
@@ -59,12 +53,8 @@ export interface VisualViewport {
 }
 
 /** @public */
-export const VisualViewport = (function () {
-  const VisualViewport = {} as {
-    equal(x: VisualViewport | null | undefined, y: VisualViewport | null | undefined): boolean;
-  };
-
-  VisualViewport.equal = function (x: VisualViewport | null | undefined, y: VisualViewport | null | undefined): boolean {
+export const VisualViewport = {
+  equal(x: VisualViewport | null | undefined, y: VisualViewport | null | undefined): boolean {
     if (x === y) {
       return true;
     } else if (typeof x === "object" && x !== null && typeof y === "object" && y !== null) {
@@ -77,7 +67,5 @@ export const VisualViewport = (function () {
           && x.scale === y.scale;
     }
     return false;
-  };
-
-  return VisualViewport;
-})();
+  },
+};

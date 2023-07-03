@@ -45,14 +45,8 @@ export interface TypesetView extends GraphicsView {
 }
 
 /** @public */
-export const TypesetView = (function () {
-  const TypesetView = {} as {
-    init(view: TypesetView, init: TypesetViewInit): void;
-
-    is(object: unknown): object is TypesetView;
- };
-
-  TypesetView.init = function (view: TypesetView, init: TypesetViewInit): void {
+export const TypesetView = {
+  init(view: TypesetView, init: TypesetViewInit): void {
     if (init.font !== void 0) {
       view.font(init.font);
     }
@@ -68,20 +62,14 @@ export const TypesetView = (function () {
     if (init.textColor !== void 0) {
       view.textColor(init.textColor);
     }
-  };
+  },
 
-  TypesetView.is = function (object: unknown): object is TypesetView {
-    if (typeof object === "object" && object !== null) {
-      const view = object as TypesetView;
-      return view instanceof GraphicsView
-          && "font" in view
-          && "textAlign" in view
-          && "textBaseline" in view
-          && "textOrigin" in view
-          && "textColor" in view;
-    }
-    return false;
-  };
-
-  return TypesetView;
-})();
+  [Symbol.hasInstance](instance: unknown): instance is TypesetView {
+    return instance instanceof GraphicsView
+          && "font" in instance
+          && "textAlign" in instance
+          && "textBaseline" in instance
+          && "textOrigin" in instance
+          && "textColor" in instance;
+  },
+};

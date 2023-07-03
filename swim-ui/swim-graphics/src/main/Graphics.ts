@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Objects} from "@swim/util";
 import type {R2Box} from "@swim/math";
 import type {GraphicsRenderer} from "./GraphicsRenderer";
 
@@ -21,18 +22,8 @@ export interface Graphics {
 }
 
 /** @public */
-export const Graphics = (function () {
-  const Graphics = {} as {
-    is(object: unknown): object is Graphics;
-  };
-
-  Graphics.is = function (object: unknown): object is Graphics {
-    if (typeof object === "object" && object !== null || typeof object === "function") {
-      const observable = object as Graphics;
-      return "render" in observable;
-    }
-    return false;
-  };
-
-  return Graphics;
-})();
+export const Graphics = {
+  [Symbol.hasInstance](instance: unknown): instance is Graphics {
+    return Objects.hasAllKeys<Graphics>(instance, "render");
+  },
+};

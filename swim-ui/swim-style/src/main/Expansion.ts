@@ -12,12 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Murmur3} from "@swim/util";
+import type {Uninitable} from "@swim/util";
 import type {Mutable} from "@swim/util";
-import {Numbers} from "@swim/util";
-import {Constructors} from "@swim/util";
+import {Lazy} from "@swim/util";
+import {Murmur3} from "@swim/util";
 import type {Equivalent} from "@swim/util";
 import type {HashCode} from "@swim/util";
+import {Numbers} from "@swim/util";
+import {Constructors} from "@swim/util";
+import {Objects} from "@swim/util";
 import type {AnyTiming} from "@swim/util";
 import type {Interpolate} from "@swim/util";
 import {Interpolator} from "@swim/util";
@@ -32,12 +35,28 @@ import {Animator} from "@swim/component";
 export type AnyExpansion = Expansion | ExpansionInit | boolean;
 
 /** @public */
+export const AnyExpansion = {
+  [Symbol.hasInstance](instance: unknown): instance is AnyExpansion {
+    return instance instanceof Expansion
+        || ExpansionInit[Symbol.hasInstance](instance)
+        || typeof instance === "boolean";
+  },
+};
+
+/** @public */
 export interface ExpansionInit {
   /** @internal */
-  uid?: never; // force type ambiguity between Expansion and ExpansionInit
+  typeid?: "ExpansionInit";
   readonly phase: number;
   readonly direction: number;
 }
+
+/** @public */
+export const ExpansionInit = {
+  [Symbol.hasInstance](instance: unknown): instance is ExpansionInit {
+    return Objects.hasAllKeys<ExpansionInit>(instance, "phase", "direction");
+  },
+};
 
 /** @public */
 export class Expansion implements Interpolate<Expansion>, HashCode, Equivalent, Debug {
@@ -47,26 +66,24 @@ export class Expansion implements Interpolate<Expansion>, HashCode, Equivalent, 
   }
 
   /** @internal */
-  declare uid?: unknown; // force type ambiguity between Expansion and ExpansionInit
+  declare typeid?: "Expansion";
 
   readonly phase: number;
 
   withPhase(phase: number): Expansion {
-    if (phase !== this.phase) {
-      return Expansion.create(phase, this.direction);
-    } else {
+    if (phase === this.phase) {
       return this;
     }
+    return Expansion.create(phase, this.direction);
   }
 
   readonly direction: number;
 
   withDirection(direction: number): Expansion {
-    if (direction !== this.direction) {
-      return Expansion.create(this.phase, direction);
-    } else {
+    if (direction === this.direction) {
       return this;
     }
+    return Expansion.create(this.phase, direction);
   }
 
   get collapsed(): boolean {
@@ -86,19 +103,17 @@ export class Expansion implements Interpolate<Expansion>, HashCode, Equivalent, 
   }
 
   asExpanding(): Expansion {
-    if (!this.expanding) {
-      return Expansion.expanding(this.phase);
-    } else {
+    if (this.expanding) {
       return this;
     }
+    return Expansion.expanding(this.phase);
   }
 
   asCollapsing(): Expansion {
-    if (!this.collapsing) {
-      return Expansion.collapsing(this.phase);
-    } else {
+    if (this.collapsing) {
       return this;
     }
+    return Expansion.collapsing(this.phase);
   }
 
   asToggling(): Expansion {
@@ -106,9 +121,8 @@ export class Expansion implements Interpolate<Expansion>, HashCode, Equivalent, 
       return Expansion.collapsing(this.phase);
     } else if (this.direction < 0 || this.phase < 0.5) {
       return Expansion.expanding(this.phase);
-    } else {
-      return this;
     }
+    return this;
   }
 
   asToggled(): Expansion {
@@ -116,21 +130,21 @@ export class Expansion implements Interpolate<Expansion>, HashCode, Equivalent, 
       return Expansion.collapsed();
     } else if (this.direction < 0 || this.phase < 0.5) {
       return Expansion.expanded();
-    } else {
-      return this;
     }
+    return this;
   }
 
+  /** @override */
   interpolateTo(that: Expansion): Interpolator<Expansion>;
   interpolateTo(that: unknown): Interpolator<Expansion> | null;
   interpolateTo(that: unknown): Interpolator<Expansion> | null {
     if (that instanceof Expansion) {
       return ExpansionInterpolator(this, that);
-    } else {
-      return null;
     }
+    return null;
   }
 
+  /** @override */
   equivalentTo(that: unknown, epsilon?: number): boolean {
     if (this === that) {
       return true;
@@ -141,6 +155,7 @@ export class Expansion implements Interpolate<Expansion>, HashCode, Equivalent, 
     return false;
   }
 
+  /** @override */
   equals(that: unknown): boolean {
     if (this === that) {
       return true;
@@ -150,11 +165,13 @@ export class Expansion implements Interpolate<Expansion>, HashCode, Equivalent, 
     return false;
   }
 
+  /** @override */
   hashCode(): number {
     return Murmur3.mash(Murmur3.mix(Murmur3.mix(Constructors.hash(Expansion),
         Numbers.hash(this.phase)), Numbers.hash(this.direction)));
   }
 
+  /** @override */
   debug<T>(output: Output<T>): Output<T> {
     output = output.write("Expansion").write(46/*'.'*/);
     if (this.phase === 0 && this.direction === 0) {
@@ -181,22 +198,19 @@ export class Expansion implements Interpolate<Expansion>, HashCode, Equivalent, 
     return output;
   }
 
+  /** @override */
   toString(): string {
     return Format.debug(this);
   }
 
-  /** @internal */
-  static readonly Collapsed: Expansion = new this(0, 0);
-
+  @Lazy
   static collapsed(): Expansion {
-    return this.Collapsed;
+    return new Expansion(0, 0);
   }
 
-  /** @internal */
-  static readonly Expanded: Expansion = new this(1, 0);
-
+  @Lazy
   static expanded(): Expansion {
-    return this.Expanded;
+    return new Expansion(1, 0);
   }
 
   static expanding(phase?: number): Expansion {
@@ -221,22 +235,14 @@ export class Expansion implements Interpolate<Expansion>, HashCode, Equivalent, 
       return Expansion.collapsed();
     } else if (phase === 1 && direction === 0) {
       return Expansion.expanded();
-    } else {
-      return new Expansion(phase, direction);
     }
+    return new Expansion(phase, direction);
   }
 
-  static fromInit(value: ExpansionInit): Expansion {
-    return new Expansion(value.phase, value.direction);
-  }
-
-  static fromAny(value: AnyExpansion): Expansion;
-  static fromAny(value: AnyExpansion | null): Expansion | null;
-  static fromAny(value: AnyExpansion | null | undefined): Expansion | null | undefined;
-  static fromAny(value: AnyExpansion | null | undefined): Expansion | null | undefined {
+  static fromAny<T extends AnyExpansion | null | undefined>(value: T): Expansion | Uninitable<T> {
     if (value === void 0 || value === null || value instanceof Expansion) {
-      return value;
-    } else if (Expansion.isInit(value)) {
+      return value as Expansion | Uninitable<T>;
+    } else if (ExpansionInit[Symbol.hasInstance](value)) {
       return Expansion.fromInit(value);
     } else if (value === true) {
       return Expansion.expanded();
@@ -246,21 +252,8 @@ export class Expansion implements Interpolate<Expansion>, HashCode, Equivalent, 
     throw new TypeError("" + value);
   }
 
-  /** @internal */
-  static isInit(value: unknown): value is ExpansionInit {
-    if (typeof value === "object" && value !== null) {
-      const init = value as ExpansionInit;
-      return typeof init.phase === "number"
-          && typeof init.direction === "number";
-    }
-    return false;
-  }
-
-  /** @internal */
-  static isAny(value: unknown): value is AnyExpansion {
-    return value instanceof Expansion
-        || Expansion.isInit(value)
-        || typeof value === "boolean";
+  static fromInit(value: ExpansionInit): Expansion {
+    return new Expansion(value.phase, value.direction);
   }
 }
 

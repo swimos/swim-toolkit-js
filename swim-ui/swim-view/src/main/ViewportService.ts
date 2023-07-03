@@ -163,7 +163,7 @@ export class ViewportService extends Service {
 
   @Property({
     valueType: ViewInsets,
-    value: ViewInsets.zero,
+    value: ViewInsets.zero(),
     update(): void {
       if (this.hasAffinity(Affinity.Intrinsic)) {
         const safeArea = this.detect();
@@ -180,7 +180,7 @@ export class ViewportService extends Service {
         const insetLeft = Length.parse(documentStyle.getPropertyValue("--safe-area-inset-left")).pxValue();
         safeArea = {insetTop, insetRight, insetBottom, insetLeft};
       } catch (swallow) {
-        safeArea = ViewInsets.zero;
+        safeArea = ViewInsets.zero();
       }
       return safeArea;
     },

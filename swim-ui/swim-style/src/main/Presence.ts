@@ -12,12 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Murmur3} from "@swim/util";
+import type {Uninitable} from "@swim/util";
 import type {Mutable} from "@swim/util";
-import {Numbers} from "@swim/util";
-import {Constructors} from "@swim/util";
+import {Lazy} from "@swim/util";
+import {Murmur3} from "@swim/util";
 import type {Equivalent} from "@swim/util";
 import type {HashCode} from "@swim/util";
+import {Numbers} from "@swim/util";
+import {Constructors} from "@swim/util";
+import {Objects} from "@swim/util";
 import type {AnyTiming} from "@swim/util";
 import type {Interpolate} from "@swim/util";
 import {Interpolator} from "@swim/util";
@@ -32,12 +35,28 @@ import {Animator} from "@swim/component";
 export type AnyPresence = Presence | PresenceInit | boolean;
 
 /** @public */
+export const AnyPresence = {
+  [Symbol.hasInstance](instance: unknown): instance is AnyPresence {
+    return instance instanceof Presence
+        || PresenceInit[Symbol.hasInstance](instance)
+        || typeof instance === "boolean";
+  },
+};
+
+/** @public */
 export interface PresenceInit {
   /** @internal */
-  uid?: never; // force type ambiguity between Presence and PresenceInit
+  typeid?: "PresenceInit";
   readonly phase: number;
   readonly direction: number;
 }
+
+/** @public */
+export const PresenceInit = {
+  [Symbol.hasInstance](instance: unknown): instance is PresenceInit {
+    return Objects.hasAllKeys<PresenceInit>(instance, "phase", "direction");
+  },
+};
 
 /** @public */
 export class Presence implements Interpolate<Presence>, HashCode, Equivalent, Debug {
@@ -47,26 +66,24 @@ export class Presence implements Interpolate<Presence>, HashCode, Equivalent, De
   }
 
   /** @internal */
-  declare uid?: unknown; // force type ambiguity between Presence and PresenceInit
+  declare typeid?: "Presence";
 
   readonly phase: number;
 
   withPhase(phase: number): Presence {
-    if (phase !== this.phase) {
-      return Presence.create(phase, this.direction);
-    } else {
+    if (phase === this.phase) {
       return this;
     }
+    return Presence.create(phase, this.direction);
   }
 
   readonly direction: number;
 
   withDirection(direction: number): Presence {
-    if (direction !== this.direction) {
-      return Presence.create(this.phase, direction);
-    } else {
+    if (direction === this.direction) {
       return this;
     }
+    return Presence.create(this.phase, direction);
   }
 
   get dismissed(): boolean {
@@ -86,19 +103,17 @@ export class Presence implements Interpolate<Presence>, HashCode, Equivalent, De
   }
 
   asPresenting(): Presence {
-    if (!this.presenting) {
-      return Presence.presenting(this.phase);
-    } else {
+    if (this.presenting) {
       return this;
     }
+    return Presence.presenting(this.phase);
   }
 
   asDismissing(): Presence {
-    if (!this.dismissing) {
-      return Presence.dismissing(this.phase);
-    } else {
+    if (this.dismissing) {
       return this;
     }
+    return Presence.dismissing(this.phase);
   }
 
   asToggling(): Presence {
@@ -106,9 +121,8 @@ export class Presence implements Interpolate<Presence>, HashCode, Equivalent, De
       return Presence.dismissing(this.phase);
     } else if (this.direction < 0 || this.phase < 0.5) {
       return Presence.presenting(this.phase);
-    } else {
-      return this;
     }
+    return this;
   }
 
   asToggled(): Presence {
@@ -116,21 +130,21 @@ export class Presence implements Interpolate<Presence>, HashCode, Equivalent, De
       return Presence.dismissed();
     } else if (this.direction < 0 || this.phase < 0.5) {
       return Presence.presented();
-    } else {
-      return this;
     }
+    return this;
   }
 
+  /** @override */
   interpolateTo(that: Presence): Interpolator<Presence>;
   interpolateTo(that: unknown): Interpolator<Presence> | null;
   interpolateTo(that: unknown): Interpolator<Presence> | null {
     if (that instanceof Presence) {
       return PresenceInterpolator(this, that);
-    } else {
-      return null;
     }
+    return null;
   }
 
+  /** @override */
   equivalentTo(that: unknown, epsilon?: number): boolean {
     if (this === that) {
       return true;
@@ -141,6 +155,7 @@ export class Presence implements Interpolate<Presence>, HashCode, Equivalent, De
     return false;
   }
 
+  /** @override */
   equals(that: unknown): boolean {
     if (this === that) {
       return true;
@@ -150,11 +165,13 @@ export class Presence implements Interpolate<Presence>, HashCode, Equivalent, De
     return false;
   }
 
+  /** @override */
   hashCode(): number {
     return Murmur3.mash(Murmur3.mix(Murmur3.mix(Constructors.hash(Presence),
         Numbers.hash(this.phase)), Numbers.hash(this.direction)));
   }
 
+  /** @override */
   debug<T>(output: Output<T>): Output<T> {
     output = output.write("Presence").write(46/*'.'*/);
     if (this.phase === 0 && this.direction === 0) {
@@ -181,22 +198,19 @@ export class Presence implements Interpolate<Presence>, HashCode, Equivalent, De
     return output;
   }
 
+  /** @override */
   toString(): string {
     return Format.debug(this);
   }
 
-  /** @internal */
-  static readonly Dismissed: Presence = new this(0, 0);
-
+  @Lazy
   static dismissed(): Presence {
-    return this.Dismissed;
+    return new Presence(0, 0);
   }
 
-  /** @internal */
-  static readonly Presented: Presence = new this(1, 0);
-
+  @Lazy
   static presented(): Presence {
-    return this.Presented;
+    return new Presence(1, 0);
   }
 
   static presenting(phase?: number): Presence {
@@ -221,22 +235,14 @@ export class Presence implements Interpolate<Presence>, HashCode, Equivalent, De
       return Presence.dismissed();
     } else if (phase === 1 && direction === 0) {
       return Presence.presented();
-    } else {
-      return new Presence(phase, direction);
     }
+    return new Presence(phase, direction);
   }
 
-  static fromInit(value: PresenceInit): Presence {
-    return new Presence(value.phase, value.direction);
-  }
-
-  static fromAny(value: AnyPresence): Presence;
-  static fromAny(value: AnyPresence | null): Presence | null;
-  static fromAny(value: AnyPresence | null | undefined): Presence | null | undefined;
-  static fromAny(value: AnyPresence | null | undefined): Presence | null | undefined {
+  static fromAny<T extends AnyPresence | null | undefined>(value: T): Presence | Uninitable<T> {
     if (value === void 0 || value === null || value instanceof Presence) {
-      return value;
-    } else if (Presence.isInit(value)) {
+      return value as Presence | Uninitable<T>;
+    } else if (PresenceInit[Symbol.hasInstance](value)) {
       return Presence.fromInit(value);
     } else if (value === true) {
       return Presence.presented();
@@ -246,21 +252,8 @@ export class Presence implements Interpolate<Presence>, HashCode, Equivalent, De
     throw new TypeError("" + value);
   }
 
-  /** @internal */
-  static isInit(value: unknown): value is PresenceInit {
-    if (typeof value === "object" && value !== null) {
-      const init = value as PresenceInit;
-      return typeof init.phase === "number"
-          && typeof init.direction === "number";
-    }
-    return false;
-  }
-
-  /** @internal */
-  static isAny(value: unknown): value is AnyPresence {
-    return value instanceof Presence
-        || Presence.isInit(value)
-        || typeof value === "boolean";
+  static fromInit(value: PresenceInit): Presence {
+    return new Presence(value.phase, value.direction);
   }
 }
 

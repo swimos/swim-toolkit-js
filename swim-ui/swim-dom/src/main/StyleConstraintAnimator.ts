@@ -16,8 +16,6 @@ import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
 import {Affinity} from "@swim/component";
 import type {FastenerFlags} from "@swim/component";
-import {ConstraintId} from "@swim/constraint";
-import {ConstraintMap} from "@swim/constraint";
 import type {AnyConstraintExpression} from "@swim/constraint";
 import {ConstraintExpression} from "@swim/constraint";
 import type {ConstraintTerm} from "@swim/constraint";
@@ -66,9 +64,6 @@ export interface StyleConstraintAnimator<O = unknown, T = unknown, U = T> extend
   get descriptorType(): Proto<StyleConstraintAnimatorDescriptor<T, U>>;
 
   /** @internal @override */
-  readonly id: number;
-
-  /** @internal @override */
   isExternal(): boolean;
 
   /** @internal @override */
@@ -104,7 +99,7 @@ export interface StyleConstraintAnimator<O = unknown, T = unknown, U = T> extend
   get variable(): ConstraintVariable | null;
 
   /** @override */
-  get terms(): ConstraintMap<ConstraintVariable, number>;
+  get terms(): ReadonlyMap<ConstraintVariable, number>;
 
   /** @override */
   get constant(): number;
@@ -209,7 +204,7 @@ export const StyleConstraintAnimator = (function (_super: typeof StyleAnimator) 
 
   StyleConstraintAnimator.prototype.evaluateConstraintVariable = function <T>(this: StyleConstraintAnimator<unknown, T>): void {
     const constraintScope = this.owner;
-    if (!ConstraintScope.is(constraintScope) || this.constrained || !this.constraining) {
+    if (!ConstraintScope[Symbol.hasInstance](constraintScope) || this.constrained || !this.constraining) {
       return;
     }
     const value = this.constraintValue;
@@ -250,8 +245,8 @@ export const StyleConstraintAnimator = (function (_super: typeof StyleAnimator) 
   });
 
   Object.defineProperty(StyleConstraintAnimator.prototype, "terms", {
-    get(this: StyleConstraintAnimator): ConstraintMap<ConstraintVariable, number> {
-      const terms = new ConstraintMap<ConstraintVariable, number>();
+    get(this: StyleConstraintAnimator): ReadonlyMap<ConstraintVariable, number> {
+      const terms = new Map<ConstraintVariable, number>();
       terms.set(this, 1);
       return terms;
     },
@@ -267,9 +262,8 @@ export const StyleConstraintAnimator = (function (_super: typeof StyleAnimator) 
     that = ConstraintExpression.fromAny(that);
     if (this === that) {
       return ConstraintExpression.product(2, this);
-    } else {
-      return ConstraintExpression.sum(this, that);
     }
+    return ConstraintExpression.sum(this, that);
   };
 
   StyleConstraintAnimator.prototype.negative = function (this: StyleConstraintAnimator): ConstraintTerm {
@@ -279,10 +273,9 @@ export const StyleConstraintAnimator = (function (_super: typeof StyleAnimator) 
   StyleConstraintAnimator.prototype.minus = function (this: StyleConstraintAnimator, that: AnyConstraintExpression): ConstraintExpression {
     that = ConstraintExpression.fromAny(that);
     if (this === that) {
-      return ConstraintExpression.zero;
-    } else {
-      return ConstraintExpression.sum(this, that.negative());
+      return ConstraintExpression.zero();
     }
+    return ConstraintExpression.sum(this, that.negative());
   };
 
   StyleConstraintAnimator.prototype.times = function (this: StyleConstraintAnimator, scalar: number): ConstraintExpression {
@@ -358,7 +351,7 @@ export const StyleConstraintAnimator = (function (_super: typeof StyleAnimator) 
 
   StyleConstraintAnimator.prototype.onStartConstraining = function (this: StyleConstraintAnimator): void {
     const constraintScope = this.owner;
-    if (ConstraintScope.is(constraintScope)) {
+    if (ConstraintScope[Symbol.hasInstance](constraintScope)) {
       constraintScope.addConstraintVariable(this);
     }
   };
@@ -383,7 +376,7 @@ export const StyleConstraintAnimator = (function (_super: typeof StyleAnimator) 
 
   StyleConstraintAnimator.prototype.onStopConstraining = function (this: StyleConstraintAnimator): void {
     const constraintScope = this.owner;
-    if (ConstraintScope.is(constraintScope)) {
+    if (ConstraintScope[Symbol.hasInstance](constraintScope)) {
       constraintScope.removeConstraintVariable(this);
     }
   };
@@ -394,7 +387,7 @@ export const StyleConstraintAnimator = (function (_super: typeof StyleAnimator) 
 
   StyleConstraintAnimator.prototype.updateConstraintVariable = function (this: StyleConstraintAnimator): void {
     const constraintScope = this.owner;
-    if (ConstraintScope.is(constraintScope)) {
+    if (ConstraintScope[Symbol.hasInstance](constraintScope)) {
       let value = this.value;
       if (!this.definedValue(value)) {
         value = this.constraintValue;
@@ -406,7 +399,7 @@ export const StyleConstraintAnimator = (function (_super: typeof StyleAnimator) 
   StyleConstraintAnimator.prototype.onSetValue = function <T>(this: StyleConstraintAnimator<unknown, T>, newValue: T, oldValue: T): void {
     _super.prototype.onSetValue.call(this, newValue, oldValue);
     const constraintScope = this.owner;
-    if (this.constraining && ConstraintScope.is(constraintScope)) {
+    if (this.constraining && ConstraintScope[Symbol.hasInstance](constraintScope)) {
       constraintScope.setConstraintVariable(this, newValue !== void 0 && newValue !== null ? this.toNumber(newValue) : 0);
     }
   };
@@ -431,7 +424,6 @@ export const StyleConstraintAnimator = (function (_super: typeof StyleAnimator) 
 
   StyleConstraintAnimator.construct = function <A extends StyleConstraintAnimator<any, any>>(animator: A | null, owner: A extends StyleConstraintAnimator<infer O, any, any> ? O : never): A {
     animator = _super.construct.call(this, animator, owner) as A;
-    (animator as Mutable<typeof animator>).id = ConstraintId.next();
     (animator as Mutable<typeof animator>).strength = animator.initStrength();
     (animator as Mutable<typeof animator>).conditionCount = 0;
     const flagsInit = animator.flagsInit;
@@ -741,7 +733,7 @@ export const LengthStyleConstraintAnimator = (function (_super: typeof StyleCons
   Object.defineProperty(LengthStyleConstraintAnimator.prototype, "emUnit", {
     get(this: LengthStyleConstraintAnimator): Node | number | undefined {
       const styleContext = this.owner;
-      if (StyleContext.is(styleContext)) {
+      if (StyleContext[Symbol.hasInstance](styleContext)) {
         const node = styleContext.node;
         if (node !== void 0) {
           return node;

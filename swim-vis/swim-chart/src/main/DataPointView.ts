@@ -327,7 +327,7 @@ export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
       y1 += this.labelPadding.getValue().pxValue(Math.min(frame.width, frame.height));
     }
 
-    if (TypesetView.is(labelView)) {
+    if (TypesetView[Symbol.hasInstance](labelView)) {
       labelView.textAlign.setState("center", Affinity.Intrinsic);
       if (placement === "above") {
         labelView.textBaseline.setState("bottom", Affinity.Intrinsic);

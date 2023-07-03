@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Uninitable} from "@swim/util";
 import {Numbers} from "@swim/util";
 import type {AnyTiming} from "@swim/util";
 import {Timing} from "@swim/util";
@@ -123,20 +124,18 @@ export abstract class Look<T, U = T> implements Mood {
 
   dotOr<E>(a: LookVector<T>, b: MoodVector, elseValue: E): T | E {
     const array = a.array;
-    const n = array.length;
-    if (n !== 0) {
-      let combination: T | undefined;
-      for (let i = 0, n = array.length; i < n; i += 1) {
-        const [feel, value] = array[i]!;
-        const weight = b.get(feel);
-        if (weight !== void 0 && weight !== 0) {
-          combination = feel.combine(this, combination, value, weight);
-        }
-      }
-      return combination!;
-    } else {
+    if (array.length === 0) {
       return elseValue;
     }
+    let combination: T | undefined;
+    for (let i = 0; i < array.length; i += 1) {
+      const [feel, value] = array[i]!;
+      const weight = b.get(feel);
+      if (weight !== void 0 && weight !== 0) {
+        combination = feel.combine(this, combination, value, weight);
+      }
+    }
+    return combination!;
   }
 
   abstract combine(combination: T | undefined, value: T, weight?: number): T;
@@ -219,9 +218,8 @@ export class NumberLook extends Look<number> {
       }
     } else if (weight !== void 0 && weight !== 1) {
       return value * weight;
-    } else {
-      return value;
     }
+    return value;
   }
 
   override between(a: number, b: number): Interpolator<number> {
@@ -232,15 +230,11 @@ export class NumberLook extends Look<number> {
     return value;
   }
 
-  static fromAny(value: Look<number> | number | string | boolean): Look<number> | number;
-  static fromAny(value: Look<number> | number | string | boolean | undefined): Look<number> | number | undefined;
-  static fromAny(value: Look<number> | number | string | boolean | null | undefined): Look<number> | number | null | undefined;
-  static fromAny(value: Look<number> | number | string | boolean | null | undefined): Look<number> | number | null | undefined {
+  static fromAny<T extends Look<number> | number | string | boolean | null | undefined>(value: T): Look<number> | number | Uninitable<T> {
     if (value === void 0 || value === null || value instanceof Look) {
-      return value;
-    } else {
-      return Numbers.fromAny(value);
+      return value as Look<number> | Uninitable<T>;
     }
+    return Numbers.fromAny<number | string | boolean>(value);
   }
 }
 
@@ -263,9 +257,8 @@ export class LengthLook extends Look<Length, AnyLength> {
       }
     } else if (weight !== void 0 && weight !== 1) {
       return value.times(weight);
-    } else {
-      return value;
     }
+    return value;
   }
 
   override between(a: Length, b: Length): Interpolator<Length> {
@@ -276,15 +269,11 @@ export class LengthLook extends Look<Length, AnyLength> {
     return Length.fromAny(value);
   }
 
-  static fromAny(value: Look<Length> | AnyLength): Look<Length> | Length;
-  static fromAny(value: Look<Length> | AnyLength | null): Look<Length> | Length | null;
-  static fromAny(value: Look<Length> | AnyLength | null | undefined): Look<Length> | Length | null | undefined;
-  static fromAny(value: Look<Length> | AnyLength | null | undefined): Look<Length> | Length | null | undefined {
+  static fromAny<T extends Look<Length> | AnyLength | null | undefined>(value: T): Look<Length> | Length | Uninitable<T> {
     if (value === void 0 || value === null || value instanceof Look || value instanceof Length) {
-      return value;
-    } else {
-      return Length.fromAny(value);
+      return value as Look<Length> | Length | Uninitable<T>;
     }
+    return Length.fromAny<AnyLength>(value);
   }
 }
 
@@ -307,9 +296,8 @@ export class ColorLook extends Look<Color, AnyColor> {
       }
     } else if (weight !== void 0 && weight !== 1) {
       return value.times(weight);
-    } else {
-      return value;
     }
+    return value;
   }
 
   override between(a: Color, b: Color): Interpolator<Color> {
@@ -320,15 +308,11 @@ export class ColorLook extends Look<Color, AnyColor> {
     return Color.fromAny(value);
   }
 
-  static fromAny(value: Look<Color> | AnyColor): Look<Color> | Color;
-  static fromAny(value: Look<Color> | AnyColor | null): Look<Color> | Color | null;
-  static fromAny(value: Look<Color> | AnyColor | null | undefined): Look<Color> | Color | null | undefined;
-  static fromAny(value: Look<Color> | AnyColor | null | undefined): Look<Color> | Color | null | undefined {
+  static fromAny<T extends Look<Color> | AnyColor | null | undefined>(value: T): Look<Color> | Color | Uninitable<T> {
     if (value === void 0 || value === null || value instanceof Look || value instanceof Color) {
-      return value;
-    } else {
-      return Color.fromAny(value);
+      return value as Look<Color> | Color | Uninitable<T>;
     }
+    return Color.fromAny<AnyColor>(value);
   }
 }
 
@@ -345,9 +329,8 @@ export class FontLook extends Look<Font, AnyFont> {
       return value;
     } else if (combination !== void 0) {
       return combination;
-    } else {
-      return Font.family(value.family);
     }
+    return Font.family(value.family);
   }
 
   override between(a: Font, b: Font): Interpolator<Font> {
@@ -358,15 +341,11 @@ export class FontLook extends Look<Font, AnyFont> {
     return Font.fromAny(value);
   }
 
-  static fromAny(value: Look<Font> | AnyFont): Look<Font> | Font;
-  static fromAny(value: Look<Font> | AnyFont | null): Look<Font> | Font | null;
-  static fromAny(value: Look<Font> | AnyFont | null | undefined): Look<Font> | Font | null | undefined;
-  static fromAny(value: Look<Font> | AnyFont | null | undefined): Look<Font> | Font | null | undefined {
+  static fromAny<T extends Look<Font> | AnyFont | null | undefined>(value: T): Look<Font> | Font | Uninitable<T> {
     if (value === void 0 || value === null || value instanceof Look || value instanceof Font) {
-      return value;
-    } else {
-      return Font.fromAny(value);
+      return value as Look<Font> | Font | Uninitable<T>;
     }
+    return Font.fromAny(value);
   }
 }
 
@@ -383,9 +362,8 @@ export class ShadowLook extends Look<BoxShadow, AnyBoxShadow> {
       return value;
     } else if (combination !== void 0) {
       return combination;
-    } else {
-      return value;
     }
+    return value;
   }
 
   override between(a: BoxShadow, b: BoxShadow): Interpolator<BoxShadow> {
@@ -396,15 +374,11 @@ export class ShadowLook extends Look<BoxShadow, AnyBoxShadow> {
     return BoxShadow.fromAny(value)!;
   }
 
-  static fromAny(value: Look<BoxShadow> | AnyBoxShadow): Look<BoxShadow> | BoxShadow;
-  static fromAny(value: Look<BoxShadow> | AnyBoxShadow | null): Look<BoxShadow> | BoxShadow | null;
-  static fromAny(value: Look<BoxShadow> | AnyBoxShadow | null | undefined): Look<BoxShadow> | BoxShadow | null | undefined;
-  static fromAny(value: Look<BoxShadow> | AnyBoxShadow | null | undefined): Look<BoxShadow> | BoxShadow | null | undefined {
+  static fromAny<T extends Look<BoxShadow> | AnyBoxShadow | null | undefined>(value: T): Look<BoxShadow> | BoxShadow | Uninitable<T>{
     if (value === void 0 || value === null || value instanceof Look || value instanceof BoxShadow) {
-      return value;
-    } else {
-      return BoxShadow.fromAny(value);
+      return value as Look<BoxShadow> | BoxShadow | Uninitable<T>;
     }
+    return BoxShadow.fromAny<AnyBoxShadow>(value);
   }
 }
 
@@ -421,9 +395,8 @@ export class TimingLook extends Look<Timing, AnyTiming> {
       return value;
     } else if (combination !== void 0) {
       return combination;
-    } else {
-      return value;
     }
+    return value;
   }
 
   override between(a: Timing, b: Timing): Interpolator<Timing> {
@@ -434,15 +407,11 @@ export class TimingLook extends Look<Timing, AnyTiming> {
     return Timing.fromAny(value);
   }
 
-  static fromAny(value: Look<Timing> | AnyTiming): Look<Timing> | Timing;
-  static fromAny(value: Look<Timing> | AnyTiming | null): Look<Timing> | Timing | null;
-  static fromAny(value: Look<Timing> | AnyTiming | null | undefined): Look<Timing> | Timing | null | undefined;
-  static fromAny(value: Look<Timing> | AnyTiming | null | undefined): Look<Timing> | Timing | null | undefined {
+  static fromAny<T extends Look<Timing> | AnyTiming | null | undefined>(value: T): Look<Timing> | Timing | Uninitable<T> {
     if (value === void 0 || value === null || value instanceof Look || value instanceof Timing) {
-      return value;
-    } else {
-      return Timing.fromAny(value);
+      return value as Look<Timing> | Timing | Uninitable<T>;
     }
+    return Timing.fromAny<AnyTiming>(value);
   }
 }
 

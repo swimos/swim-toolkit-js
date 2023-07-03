@@ -13,10 +13,10 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {Property} from "@swim/component";
+import type {Property} from "@swim/component";
 import type {AnyPresence} from "@swim/style";
 import type {Presence} from "@swim/style";
-import {PresenceAnimator} from "@swim/style";
+import type {PresenceAnimator} from "@swim/style";
 import type {ElementViewObserver} from "./ElementView";
 import {ElementView} from "./ElementView";
 
@@ -52,20 +52,10 @@ export interface ModalView extends ElementView {
 }
 
 /** @public */
-export const ModalView = (function () {
-  const ModalView = {} as {
-    is(object: unknown): object is ModalView;
-  };
-
-  ModalView.is = function (object: unknown): object is ModalView {
-    if (typeof object === "object" && object !== null) {
-      const modalView = object as ModalView;
-      return modalView instanceof ElementView
-          && modalView.presence instanceof PresenceAnimator
-          && modalView.modality instanceof Property;
-    }
-    return false;
-  };
-
-  return ModalView;
-})();
+export const ModalView = {
+  [Symbol.hasInstance](instance: unknown): instance is ModalView {
+    return instance instanceof ElementView
+        && "presence" in instance
+        && "modality" in instance;
+  },
+};

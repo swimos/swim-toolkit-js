@@ -141,7 +141,7 @@ export class PieView extends GraphicsView {
     viewKey: true,
     binds: true,
     initView(titleView: GraphicsView): void {
-      if (TypesetView.is(titleView)) {
+      if (TypesetView[Symbol.hasInstance](titleView)) {
         titleView.textAlign.setState("center", Affinity.Intrinsic);
         titleView.textBaseline.setState("middle", Affinity.Intrinsic);
         titleView.textOrigin.setState(this.owner.center.state, Affinity.Intrinsic);
@@ -271,7 +271,7 @@ export class PieView extends GraphicsView {
     }
 
     const titleView = this.title.view;
-    if (TypesetView.is(titleView)) {
+    if (TypesetView[Symbol.hasInstance](titleView)) {
       titleView.textOrigin.setState(this.center.value, Affinity.Intrinsic);
     }
   }

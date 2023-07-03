@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import type {Mutable} from "@swim/util";
+import {Lazy} from "@swim/util";
 import {Equals} from "@swim/util";
 import {Equivalent} from "@swim/util";
 import type {Interpolate} from "@swim/util";
@@ -261,6 +262,7 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
     return new EnclosedIcon(outer, inner, innerScale, moodModifier, outerMoodModifier, innerMoodModifier);
   }
 
+  /** @override */
   interpolateTo(that: EnclosedIcon): Interpolator<EnclosedIcon>;
   interpolateTo(that: unknown): Interpolator<EnclosedIcon> | null;
   interpolateTo(that: unknown): Interpolator<EnclosedIcon> | null {
@@ -270,6 +272,7 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
     return null;
   }
 
+  /** @override */
   equivalentTo(that: unknown, epsilon?: number): boolean {
     if (this === that) {
       return true;
@@ -284,6 +287,7 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
     return false;
   }
 
+  /** @override */
   equals(that: unknown): boolean {
     if (this === that) {
       return true;
@@ -298,6 +302,7 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
     return false;
   }
 
+  /** @override */
   debug<T>(output: Output<T>): Output<T> {
     output = output.write("new").write(32/*' '*/).write("EnclosedIcon").write(40/*'('*/)
                    .debug(this.outer).write(", ")
@@ -309,6 +314,7 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
     return output;
   }
 
+  /** @override */
   override toString(): string {
     return Format.debug(this);
   }
@@ -321,6 +327,7 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
     return new EnclosedIcon(outer, inner, 1, null, null, EnclosedIcon.embossedMoodModifier);
   }
 
+  @Lazy
   static get embossedMoodModifier(): MoodMatrix {
     return MoodMatrix.empty().updatedCol(Feel.default, [[Feel.embossed, 1]], true);
   }

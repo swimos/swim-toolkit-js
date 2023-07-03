@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Uninitable} from "@swim/util";
 import {Lazy} from "@swim/util";
 import type {Mutable} from "@swim/util";
 import {Arrays} from "@swim/util";
@@ -138,11 +139,10 @@ export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
         oldIndex = newIndex;
       }
     }
-    if (newArray !== void 0 && newIndex !== void 0) {
-      return this.copy(newArray, newIndex);
-    } else {
+    if (newArray === void 0 || newIndex === void 0) {
       return this;
     }
+    return this.copy(newArray, newIndex);
   }
 
   plus(that: FeelVector): FeelVector {
@@ -231,16 +231,17 @@ export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
     return void 0;
   }
 
+  /** @override */
   interpolateTo(that: FeelVector): Interpolator<FeelVector>;
   interpolateTo(that: unknown): Interpolator<FeelVector> | null;
   interpolateTo(that: unknown): Interpolator<FeelVector> | null {
     if (that instanceof FeelVector) {
       return FeelVectorInterpolator(this, that);
-    } else {
-      return null;
     }
+    return null;
   }
 
+  /** @override */
   equals(that: unknown): boolean {
     if (this === that) {
       return true;
@@ -250,6 +251,7 @@ export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
     return false;
   }
 
+  /** @override */
   debug<T>(output: Output<T>): Output<T> {
     const array = this.array;
     const n = array.length;
@@ -266,13 +268,14 @@ export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
     return output;
   }
 
+  /** @override */
   toString(): string {
     return Format.debug(this);
   }
 
   @Lazy
   static empty(): FeelVector {
-    return new FeelVector([], {});
+    return new FeelVector(Arrays.empty(), {});
   }
 
   static of(...looks: [Look<unknown>, unknown][]): FeelVector {
@@ -287,21 +290,21 @@ export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
     return new FeelVector(array, index);
   }
 
+  static fromAny<V extends AnyFeelVector | null | undefined>(value: V): FeelVector | Uninitable<V> {
+    if (value === void 0 || value === null || value instanceof FeelVector) {
+      return value as FeelVector | Uninitable<V>;
+    } else if (Array.isArray(value)) {
+      return FeelVector.of(...value);
+    }
+    throw new TypeError("" + value);
+  }
+
   static fromArray(array: ReadonlyArray<[Look<unknown>, unknown]>,
                    index?: {readonly [name: string]: number | undefined}): FeelVector {
     if (index === void 0) {
       index = FeelVector.index(array);
     }
     return new FeelVector(array, index);
-  }
-
-  static fromAny(value: AnyFeelVector): FeelVector {
-    if (value === void 0 || value === null || value instanceof FeelVector) {
-      return value;
-    } else if (Array.isArray(value)) {
-      return FeelVector.of(...value);
-    }
-    throw new TypeError("" + value);
   }
 
   /** @internal */
@@ -405,14 +408,15 @@ export const FeelVectorInterpolator = (function (_super: typeof Interpolator) {
       return true;
     } else if (that instanceof FeelVectorInterpolator) {
       const n = this.interpolators.length;
-      if (n === that.interpolators.length) {
-        for (let i = 0; i < n; i += 1) {
-          if (!Arrays.equal(this.interpolators[i]!, that.interpolators[i]!)) {
-            return false;
-          }
-        }
-        return true;
+      if (n !== that.interpolators.length) {
+        return false;
       }
+      for (let i = 0; i < n; i += 1) {
+        if (!Arrays.equal(this.interpolators[i]!, that.interpolators[i]!)) {
+          return false;
+        }
+      }
+      return true;
     }
     return false;
   };

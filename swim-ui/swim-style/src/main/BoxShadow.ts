@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Uninitable} from "@swim/util";
 import type {Mutable} from "@swim/util";
 import {Lazy} from "@swim/util";
 import {Equals} from "@swim/util";
 import {Equivalent} from "@swim/util";
+import {Objects} from "@swim/util";
 import type {Interpolate} from "@swim/util";
 import {Interpolator} from "@swim/util";
 import {Diagnostic} from "@swim/codec";
@@ -36,7 +38,29 @@ import {Color} from "./Color";
 import {ColorParser} from "./Color";
 
 /** @public */
-export type AnyBoxShadow = BoxShadow | BoxShadowInit | string | ReadonlyArray<AnyBoxShadow>;
+export type AnyBoxShadow = BoxShadow | BoxShadowInit | string | readonly AnyBoxShadow[];
+
+/** @public */
+export const AnyBoxShadow = {
+  [Symbol.hasInstance](instance: unknown): instance is AnyBoxShadow {
+    return instance instanceof BoxShadow
+        || BoxShadowInit[Symbol.hasInstance](instance)
+        || typeof instance === "string"
+        || AnyBoxShadow.isArray(instance);
+  },
+  /** @internal */
+  isArray(value: unknown): value is readonly AnyBoxShadow[] {
+    if (!Array.isArray(value) || value.length === 0) {
+      return false;
+    }
+    for (let i = 0; i < value.length; i += 1) {
+      if (!AnyBoxShadow[Symbol.hasInstance](value)) {
+        return false;
+      }
+    }
+    return true;
+  },
+};
 
 /** @public */
 export interface BoxShadowInit {
@@ -47,6 +71,13 @@ export interface BoxShadowInit {
   spreadRadius?: AnyLength;
   color?: AnyColor;
 }
+
+/** @public */
+export const BoxShadowInit = {
+  [Symbol.hasInstance](instance: unknown): instance is BoxShadowInit {
+    return Objects.hasAnyKey(instance, "inset", "offsetX", "offsetY", "blurRadius", "spreadRadius", "color");
+  },
+};
 
 /** @public */
 export class BoxShadow implements Interpolate<BoxShadow>, Equals, Equivalent {
@@ -67,10 +98,9 @@ export class BoxShadow implements Interpolate<BoxShadow>, Equals, Equivalent {
   withInset(inset: boolean): BoxShadow {
     if (inset === this.inset) {
       return this;
-    } else {
-      return new BoxShadow(inset, this.offsetX, this.offsetY, this.blurRadius,
-                           this.spreadRadius, this.color, this.next);
     }
+    return new BoxShadow(inset, this.offsetX, this.offsetY, this.blurRadius,
+                         this.spreadRadius, this.color, this.next);
   }
 
   readonly offsetX: Length;
@@ -79,10 +109,9 @@ export class BoxShadow implements Interpolate<BoxShadow>, Equals, Equivalent {
     offsetX = Length.fromAny(offsetX);
     if (offsetX.equals(this.offsetX)) {
       return this;
-    } else {
-      return new BoxShadow(this.inset, offsetX, this.offsetY, this.blurRadius,
-                           this.spreadRadius, this.color, this.next);
     }
+    return new BoxShadow(this.inset, offsetX, this.offsetY, this.blurRadius,
+                         this.spreadRadius, this.color, this.next);
   }
 
   readonly offsetY: Length;
@@ -91,10 +120,9 @@ export class BoxShadow implements Interpolate<BoxShadow>, Equals, Equivalent {
     offsetY = Length.fromAny(offsetY);
     if (offsetY.equals(this.offsetY)) {
       return this;
-    } else {
-      return new BoxShadow(this.inset, this.offsetX, offsetY, this.blurRadius,
-                           this.spreadRadius, this.color, this.next);
     }
+    return new BoxShadow(this.inset, this.offsetX, offsetY, this.blurRadius,
+                         this.spreadRadius, this.color, this.next);
   }
 
   readonly blurRadius: Length;
@@ -103,10 +131,9 @@ export class BoxShadow implements Interpolate<BoxShadow>, Equals, Equivalent {
     blurRadius = Length.fromAny(blurRadius);
     if (blurRadius.equals(this.blurRadius)) {
       return this;
-    } else {
-      return new BoxShadow(this.inset, this.offsetX, this.offsetY, blurRadius,
-                           this.spreadRadius, this.color, this.next);
     }
+    return new BoxShadow(this.inset, this.offsetX, this.offsetY, blurRadius,
+                         this.spreadRadius, this.color, this.next);
   }
 
   readonly spreadRadius: Length;
@@ -115,10 +142,9 @@ export class BoxShadow implements Interpolate<BoxShadow>, Equals, Equivalent {
     spreadRadius = Length.fromAny(spreadRadius);
     if (spreadRadius.equals(this.spreadRadius)) {
       return this;
-    } else {
-      return new BoxShadow(this.inset, this.offsetX, this.offsetY, this.blurRadius,
-                           spreadRadius, this.color, this.next);
     }
+    return new BoxShadow(this.inset, this.offsetX, this.offsetY, this.blurRadius,
+                         spreadRadius, this.color, this.next);
   }
 
   readonly color: Color;
@@ -127,10 +153,9 @@ export class BoxShadow implements Interpolate<BoxShadow>, Equals, Equivalent {
     color = Color.fromAny(color);
     if (color.equals(this.color)) {
       return this;
-    } else {
-      return new BoxShadow(this.inset, this.offsetX, this.offsetY, this.blurRadius,
-                           this.spreadRadius, color, this.next);
     }
+    return new BoxShadow(this.inset, this.offsetX, this.offsetY, this.blurRadius,
+                         this.spreadRadius, color, this.next);
   }
 
   readonly next: BoxShadow | null;
@@ -155,16 +180,17 @@ export class BoxShadow implements Interpolate<BoxShadow>, Equals, Equivalent {
                          this.spreadRadius, this.color, next);
   }
 
+  /** @override */
   interpolateTo(that: BoxShadow): Interpolator<BoxShadow>;
   interpolateTo(that: unknown): Interpolator<BoxShadow> | null;
   interpolateTo(that: unknown): Interpolator<BoxShadow> | null {
     if (that instanceof BoxShadow) {
       return BoxShadowInterpolator(this, that);
-    } else {
-      return null;
     }
+    return null;
   }
 
+  /** @override */
   equivalentTo(that: unknown, epsilon?: number): boolean {
     if (this === that) {
       return true;
@@ -180,6 +206,7 @@ export class BoxShadow implements Interpolate<BoxShadow>, Equals, Equivalent {
     return false;
   }
 
+  /** @override */
   equals(that: unknown): boolean {
     if (this === that) {
       return true;
@@ -195,6 +222,7 @@ export class BoxShadow implements Interpolate<BoxShadow>, Equals, Equivalent {
   /** @internal */
   readonly stringValue: string | undefined;
 
+  /** @override */
   toString(): string {
     let s = this.stringValue;
     if (s === void 0) {
@@ -280,24 +308,8 @@ export class BoxShadow implements Interpolate<BoxShadow>, Equals, Equivalent {
     return new BoxShadow(inset, offsetX, offsetY, blurRadius, spreadRadius, color, null);
   }
 
-  static fromInit(init: BoxShadowInit): BoxShadow {
-    const inset = init.inset || false;
-    const offsetX = init.offsetX !== void 0 ? Length.fromAny(init.offsetX) : Length.zero();
-    const offsetY = init.offsetY !== void 0 ? Length.fromAny(init.offsetY) : Length.zero();
-    const blurRadius = init.blurRadius !== void 0 ? Length.fromAny(init.blurRadius) : Length.zero();
-    const spreadRadius = init.spreadRadius !== void 0 ? Length.fromAny(init.spreadRadius) : Length.zero();
-    const color = init.color !== void 0 ? Color.fromAny(init.color) : Color.black();
-    return new BoxShadow(inset, offsetX, offsetY, blurRadius, spreadRadius, color, null);
-  }
-
-  static fromArray(array: ReadonlyArray<BoxShadow>): BoxShadow {
-    let boxShadow = BoxShadow.fromAny(array[0]!)!;
-    for (let i = 1; i < array.length; i += 1) {
-      boxShadow = boxShadow.and(array[i]!);
-    }
-    return boxShadow;
-  }
-
+  static fromAny<T extends AnyBoxShadow | null | undefined>(values: T): BoxShadow | Uninitable<T>;
+  static fromAny(...values: AnyBoxShadow[]): BoxShadow;
   static fromAny(...values: AnyBoxShadow[]): BoxShadow | null {
     let value: AnyBoxShadow;
     if (arguments.length === 0) {
@@ -311,12 +323,30 @@ export class BoxShadow implements Interpolate<BoxShadow>, Equals, Equivalent {
       return value;
     } else if (typeof value === "string") {
       return BoxShadow.parse(value);
-    } else if (typeof value === "object" && value !== null && (value as any).length === void 0) {
+    } else if (typeof value === "object" && (value as any).length === void 0) {
       return BoxShadow.fromInit(value as BoxShadowInit);
-    } else if (typeof value === "object" && value !== null && (value as any).length > 0) {
-      return BoxShadow.fromArray(value as ReadonlyArray<BoxShadow>);
+    } else if (typeof value === "object" && (value as any).length !== 0) {
+      return BoxShadow.fromArray(value as readonly AnyBoxShadow[]);
     }
     throw new TypeError("" + value);
+  }
+
+  static fromInit(init: BoxShadowInit): BoxShadow {
+    const inset = init.inset || false;
+    const offsetX = init.offsetX !== void 0 ? Length.fromAny(init.offsetX) : Length.zero();
+    const offsetY = init.offsetY !== void 0 ? Length.fromAny(init.offsetY) : Length.zero();
+    const blurRadius = init.blurRadius !== void 0 ? Length.fromAny(init.blurRadius) : Length.zero();
+    const spreadRadius = init.spreadRadius !== void 0 ? Length.fromAny(init.spreadRadius) : Length.zero();
+    const color = init.color !== void 0 ? Color.fromAny(init.color) : Color.black();
+    return new BoxShadow(inset, offsetX, offsetY, blurRadius, spreadRadius, color, null);
+  }
+
+  static fromArray(array: readonly AnyBoxShadow[]): BoxShadow {
+    let boxShadow = BoxShadow.fromAny(array[0]!)!;
+    for (let i = 1; i < array.length; i += 1) {
+      boxShadow = boxShadow.and(array[i]!);
+    }
+    return boxShadow;
   }
 
   static fromValue(value: Value): BoxShadow | null {
@@ -401,39 +431,6 @@ export class BoxShadow implements Interpolate<BoxShadow>, Equals, Equivalent {
       parser = Parser.error(Diagnostic.unexpected(input));
     }
     return parser.bind();
-  }
-
-  /** @internal */
-  static isInit(value: unknown): value is BoxShadowInit {
-    if (typeof value === "object" && value !== null) {
-      const init = value as BoxShadowInit;
-      return init.offsetX !== void 0 && init.offsetY !== void 0 && init.color !== void 0;
-    }
-    return false;
-  }
-
-  /** @internal */
-  static isArray(value: unknown): value is ReadonlyArray<BoxShadow> {
-    if (Array.isArray(value)) {
-      const n = value.length;
-      if (n !== 0) {
-        for (let i = 0; i < n; i += 1) {
-          if (!BoxShadow.isAny(value)) {
-            return false;
-          }
-        }
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /** @internal */
-  static isAny(value: unknown): value is AnyBoxShadow {
-    return value instanceof BoxShadow
-        || BoxShadow.isArray(value)
-        || BoxShadow.isInit(value)
-        || typeof value === "string";
   }
 
   @Lazy
@@ -557,11 +554,10 @@ export class BoxShadowForm extends Form<BoxShadow | null, AnyBoxShadow> {
   override readonly unit!: BoxShadow | null | undefined;
 
   override withUnit(unit: BoxShadow | null | undefined): Form<BoxShadow | null, AnyBoxShadow> {
-    if (unit !== this.unit) {
-      return new BoxShadowForm(unit);
-    } else {
+    if (unit === this.unit) {
       return this;
     }
+    return new BoxShadowForm(unit);
   }
 
   override mold(boxShadow: AnyBoxShadow): Item {

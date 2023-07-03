@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Uninitable} from "@swim/util";
 import {Lazy} from "@swim/util";
 import {Arrays} from "@swim/util";
 import type {Equals} from "@swim/util";
@@ -136,11 +137,10 @@ export class MoodVector<M extends Mood = Feel> implements Equals, Debug {
         oldIndex = newIndex;
       }
     }
-    if (newArray !== void 0 && newIndex !== void 0) {
-      return this.copy(newArray, newIndex);
-    } else {
+    if (newArray === void 0 || newIndex === void 0) {
       return this;
     }
+    return this.copy(newArray, newIndex);
   }
 
   plus(that: MoodVector<M>): MoodVector<M> {
@@ -216,12 +216,12 @@ export class MoodVector<M extends Mood = Feel> implements Equals, Debug {
     for (let i = 0, n = array.length; i < n; i += 1) {
       const [key, x] = array[i]!;
       const y = that.get(key);
-      if (y !== void 0) {
-        if (combination === void 0) {
-          combination = x * y;
-        } else {
-          combination += x * y;
-        }
+      if (y === void 0) {
+        continue;
+      } else if (combination === void 0) {
+        combination = x * y;
+      } else {
+        combination += x * y;
       }
     }
     return combination;
@@ -246,6 +246,7 @@ export class MoodVector<M extends Mood = Feel> implements Equals, Debug {
     return void 0;
   }
 
+  /** @override */
   equals(that: unknown): boolean {
     if (this === that) {
       return true;
@@ -255,6 +256,7 @@ export class MoodVector<M extends Mood = Feel> implements Equals, Debug {
     return false;
   }
 
+  /** @override */
   debug<T>(output: Output<T>): Output<T> {
     const array = this.array;
     const n = array.length;
@@ -271,17 +273,27 @@ export class MoodVector<M extends Mood = Feel> implements Equals, Debug {
     return output;
   }
 
+  /** @override */
   toString(): string {
     return Format.debug(this);
   }
 
   @Lazy
   static empty<M extends Mood>(): MoodVector<M> {
-    return new MoodVector([], {});
+    return new MoodVector(Arrays.empty(), {});
   }
 
   static of<M extends Mood>(...keys: [M, number][]): MoodVector<M> {
     return new MoodVector(keys, MoodVector.index(keys));
+  }
+
+  static fromAny<M extends Mood, V extends AnyMoodVector<M> | null | undefined>(value: V): MoodVector<M> | Uninitable<V> {
+    if (value === void 0 || value === null || value instanceof MoodVector) {
+      return value as MoodVector<M> | Uninitable<V>;
+    } else if (Array.isArray(value)) {
+      return MoodVector.fromArray(value);
+    }
+    throw new TypeError("" + value);
   }
 
   static fromArray<M extends Mood>(array: ReadonlyArray<[M, number]>,
@@ -290,15 +302,6 @@ export class MoodVector<M extends Mood = Feel> implements Equals, Debug {
       index = MoodVector.index(array);
     }
     return new MoodVector(array, index);
-  }
-
-  static fromAny<M extends Mood>(value: AnyMoodVector<M>): MoodVector<M> {
-    if (value === void 0 || value === null || value instanceof MoodVector) {
-      return value;
-    } else if (Array.isArray(value)) {
-      return MoodVector.fromArray(value);
-    }
-    throw new TypeError("" + value);
   }
 
   /** @internal */

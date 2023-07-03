@@ -59,8 +59,6 @@ export type AnyController<C extends Controller = Controller> = C | ControllerFac
 
 /** @public */
 export interface ControllerInit extends ComponentInit {
-  /** @internal */
-  uid?: never, // force type ambiguity between Controller and ControllerInit
   type?: Creatable<Controller>;
   key?: string;
   children?: AnyController[];

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Uninitable} from "@swim/util";
 import {Equals} from "@swim/util";
 import type {Output} from "@swim/codec";
 import type {Debug} from "@swim/codec";
@@ -64,10 +65,9 @@ export class Arc implements Graphics, Equals, Debug {
     center = R2Point.fromAny(center);
     if (this.center.equals(center)) {
       return this;
-    } else {
-      return this.copy(center as R2Point, this.innerRadius, this.outerRadius, this.startAngle,
-                       this.sweepAngle, this.padAngle, this.padRadius, this.cornerRadius);
     }
+    return this.copy(center, this.innerRadius, this.outerRadius, this.startAngle,
+                     this.sweepAngle, this.padAngle, this.padRadius, this.cornerRadius);
   }
 
   readonly innerRadius: Length;
@@ -76,10 +76,9 @@ export class Arc implements Graphics, Equals, Debug {
     innerRadius = Length.fromAny(innerRadius);
     if (this.innerRadius.equals(innerRadius)) {
       return this;
-    } else {
-      return this.copy(this.center, innerRadius, this.outerRadius, this.startAngle,
-                       this.sweepAngle, this.padAngle, this.padRadius, this.cornerRadius);
     }
+    return this.copy(this.center, innerRadius, this.outerRadius, this.startAngle,
+                     this.sweepAngle, this.padAngle, this.padRadius, this.cornerRadius);
   }
 
   readonly outerRadius: Length;
@@ -88,10 +87,9 @@ export class Arc implements Graphics, Equals, Debug {
     outerRadius = Length.fromAny(outerRadius);
     if (this.outerRadius.equals(outerRadius)) {
       return this;
-    } else {
-      return this.copy(this.center, this.innerRadius, outerRadius, this.startAngle,
-                       this.sweepAngle, this.padAngle, this.padRadius, this.cornerRadius);
     }
+    return this.copy(this.center, this.innerRadius, outerRadius, this.startAngle,
+                     this.sweepAngle, this.padAngle, this.padRadius, this.cornerRadius);
   }
 
   readonly startAngle: Angle;
@@ -100,10 +98,9 @@ export class Arc implements Graphics, Equals, Debug {
     startAngle = Angle.fromAny(startAngle);
     if (this.startAngle.equals(startAngle)) {
       return this;
-    } else {
-      return this.copy(this.center, this.innerRadius, this.outerRadius, startAngle,
-                       this.sweepAngle, this.padAngle, this.padRadius, this.cornerRadius);
     }
+    return this.copy(this.center, this.innerRadius, this.outerRadius, startAngle,
+                     this.sweepAngle, this.padAngle, this.padRadius, this.cornerRadius);
   }
 
   readonly sweepAngle: Angle;
@@ -112,10 +109,9 @@ export class Arc implements Graphics, Equals, Debug {
     sweepAngle = Angle.fromAny(sweepAngle);
     if (this.sweepAngle.equals(sweepAngle)) {
       return this;
-    } else {
-      return this.copy(this.center, this.innerRadius, this.outerRadius, this.startAngle,
-                       sweepAngle, this.padAngle, this.padRadius, this.cornerRadius);
     }
+    return this.copy(this.center, this.innerRadius, this.outerRadius, this.startAngle,
+                     sweepAngle, this.padAngle, this.padRadius, this.cornerRadius);
   }
 
   readonly padAngle: Angle;
@@ -124,10 +120,9 @@ export class Arc implements Graphics, Equals, Debug {
     padAngle = Angle.fromAny(padAngle);
     if (this.padAngle.equals(padAngle)) {
       return this;
-    } else {
-      return this.copy(this.center, this.innerRadius, this.outerRadius, this.startAngle,
-                       this.sweepAngle, padAngle, this.padRadius, this.cornerRadius);
     }
+    return this.copy(this.center, this.innerRadius, this.outerRadius, this.startAngle,
+                     this.sweepAngle, padAngle, this.padRadius, this.cornerRadius);
   }
 
   readonly padRadius: Length | null;
@@ -138,10 +133,9 @@ export class Arc implements Graphics, Equals, Debug {
     }
     if (Equals(this.padRadius, padRadius)) {
       return this;
-    } else {
-      return this.copy(this.center, this.innerRadius, this.outerRadius, this.startAngle,
-                       this.sweepAngle, this.padAngle, padRadius, this.cornerRadius);
     }
+    return this.copy(this.center, this.innerRadius, this.outerRadius, this.startAngle,
+                     this.sweepAngle, this.padAngle, padRadius, this.cornerRadius);
   }
 
   readonly cornerRadius: Length;
@@ -150,10 +144,9 @@ export class Arc implements Graphics, Equals, Debug {
     cornerRadius = Length.fromAny(cornerRadius);
     if (this.cornerRadius.equals(cornerRadius)) {
       return this;
-    } else {
-      return this.copy(this.center, this.innerRadius, this.outerRadius, this.startAngle,
-                       this.sweepAngle, this.padAngle, this.padRadius, cornerRadius);
     }
+    return this.copy(this.center, this.innerRadius, this.outerRadius, this.startAngle,
+                     this.sweepAngle, this.padAngle, this.padRadius, cornerRadius);
   }
 
   render(): string;
@@ -413,14 +406,14 @@ export class Arc implements Graphics, Equals, Debug {
     padAngle = Angle.fromAny(padAngle);
     padRadius = padRadius !== null ? Length.fromAny(padRadius) : null;
     cornerRadius = Length.fromAny(cornerRadius);
-    return new Arc(center as R2Point, innerRadius, outerRadius, startAngle,
+    return new Arc(center, innerRadius, outerRadius, startAngle,
                    sweepAngle, padAngle, padRadius, cornerRadius);
   }
 
-  static fromAny(value: AnyArc): Arc {
-    if (value instanceof Arc) {
-      return value;
-    } else if (typeof value === "object" && value !== null) {
+  static fromAny<T extends AnyArc | null | undefined>(value: T): Arc | Uninitable<T> {
+    if (value === void 0 || value === null || value instanceof Arc) {
+      return value as Arc | Uninitable<T>;
+    } else if (typeof value === "object") {
       return Arc.create(value.center, value.innerRadius, value.outerRadius, value.startAngle,
                         value.sweepAngle, value.padAngle, value.padRadius, value.cornerRadius);
     }

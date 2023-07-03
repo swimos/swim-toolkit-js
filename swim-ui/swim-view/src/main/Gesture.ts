@@ -104,9 +104,8 @@ export class GestureInput {
   static pointerInputType(inputType: string): GestureInputType {
     if (inputType === "mouse" || inputType === "touch" || inputType === "pen") {
       return inputType;
-    } else {
-      return "unknown";
     }
+    return "unknown";
   }
 }
 
