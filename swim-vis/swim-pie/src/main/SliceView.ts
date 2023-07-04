@@ -31,7 +31,6 @@ import {Look} from "@swim/theme";
 import {ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
 import {ViewRef} from "@swim/view";
-import type {GraphicsViewInit} from "@swim/graphics";
 import type {GraphicsViewObserver} from "@swim/graphics";
 import {GraphicsView} from "@swim/graphics";
 import type {PaintingContext} from "@swim/graphics";
@@ -42,34 +41,6 @@ import {FillView} from "@swim/graphics";
 import {Arc} from "@swim/graphics";
 import {TypesetView} from "@swim/graphics";
 import {TextRunView} from "@swim/graphics";
-
-/** @public */
-export type AnySliceView = SliceView | SliceViewInit;
-
-/** @public */
-export interface SliceViewInit extends GraphicsViewInit {
-  value?: number;
-  total?: number;
-  center?: AnyR2Point;
-  innerRadius?: AnyLength;
-  outerRadius?: AnyLength;
-  phaseAngle?: AnyAngle;
-  padAngle?: AnyAngle;
-  padRadius?: AnyLength | null;
-  cornerRadius?: AnyLength;
-  labelRadius?: AnyLength;
-  sliceColor?: AnyColor;
-  tickAlign?: number;
-  tickRadius?: AnyLength;
-  tickLength?: AnyLength;
-  tickWidth?: AnyLength;
-  tickPadding?: AnyLength;
-  tickColor?: AnyColor;
-  font?: AnyFont;
-  textColor?: AnyColor;
-  label?: GraphicsView | string;
-  legend?: GraphicsView | string;
-}
 
 /** @public */
 export interface SliceViewObserver<V extends SliceView = SliceView> extends GraphicsViewObserver<V> {
@@ -379,76 +350,5 @@ export class SliceView extends GraphicsView {
       return this;
     }
     return null;
-  }
-
-  override init(init: SliceViewInit): void {
-    super.init(init);
-    if (init.value !== void 0) {
-      this.value(init.value);
-    }
-    if (init.total !== void 0) {
-      this.total(init.total);
-    }
-    if (init.center !== void 0) {
-      this.center(init.center);
-    }
-    if (init.innerRadius !== void 0) {
-      this.innerRadius(init.innerRadius);
-    }
-    if (init.outerRadius !== void 0) {
-      this.outerRadius(init.outerRadius);
-    }
-    if (init.phaseAngle !== void 0) {
-      this.phaseAngle(init.phaseAngle);
-    }
-    if (init.padAngle !== void 0) {
-      this.padAngle(init.padAngle);
-    }
-    if (init.padRadius !== void 0) {
-      this.padRadius(init.padRadius);
-    }
-    if (init.cornerRadius !== void 0) {
-      this.cornerRadius(init.cornerRadius);
-    }
-    if (init.labelRadius !== void 0) {
-      this.labelRadius(init.labelRadius);
-    }
-    if (init.sliceColor !== void 0) {
-      this.sliceColor(init.sliceColor);
-    }
-    if (init.tickAlign !== void 0) {
-      this.tickAlign(init.tickAlign);
-    }
-    if (init.tickRadius !== void 0) {
-      this.tickRadius(init.tickRadius);
-    }
-    if (init.tickLength !== void 0) {
-      this.tickLength(init.tickLength);
-    }
-    if (init.tickWidth !== void 0) {
-      this.tickWidth(init.tickWidth);
-    }
-    if (init.tickPadding !== void 0) {
-      this.tickPadding(init.tickPadding);
-    }
-    if (init.tickColor !== void 0) {
-      this.tickColor(init.tickColor);
-    }
-    if (init.font !== void 0) {
-      this.font(init.font);
-    }
-    if (init.textColor !== void 0) {
-      this.textColor(init.textColor);
-    }
-    if (typeof init.label === "string") {
-      this.label.setText(init.label);
-    } else if (init.label !== void 0) {
-      this.label.setView(init.label);
-    }
-    if (typeof init.legend === "string") {
-      this.legend.setText(init.legend);
-    } else if (init.legend !== void 0) {
-      this.legend.setView(init.legend);
-    }
   }
 }

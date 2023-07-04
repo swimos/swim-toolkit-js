@@ -20,12 +20,12 @@ const bodyView = swim.HtmlView.fromNode(document.body);
 
 const containerView = bodyView.appendChild("div").position("relative").width("90%").height("90%").touchAction("none").userSelect("none");
 
-const canvasView = swim.CanvasView.create()
-    .wheelEventsEnabled(true)
-    .mouseEventsEnabled(true)
-    .pointerEventsEnabled(true)
-    .touchEventsEnabled(true)
-    .touchAction("manipulation");
+const canvasView = swim.CanvasView.create();
+canvasView.wheelEventsEnabled(true);
+canvasView.mouseEventsEnabled(true);
+canvasView.pointerEventsEnabled(true);
+canvasView.touchEventsEnabled(true);
+canvasView.touchAction("manipulation");
 
 const ExampleChartController = (function () {
   const instanceInitializers = [];
@@ -43,16 +43,16 @@ const ExampleChartController = (function () {
     extends: true,
     initView(chartView) {
       super.initView(chartView);
-      chartView.xDomainPadding([Math.PI, Math.PI])
-               .yDomainPadding([1, 1])
-               //.xRangePadding([2, 2])
-               //.yRangePadding([2, 2])
-               .fitAspectRatio(-1 / 4)
-               .preserveAspectRatio(true)
-               .domainTracking(true)
-               .xScaleGestures(true)
-               .yScaleGestures(true)
-               .font("12px sans-serif");
+      chartView.xDomainPadding([Math.PI, Math.PI]);
+      chartView.yDomainPadding([1, 1]);
+      //chartView.xRangePadding([2, 2]);
+      //chartView.yRangePadding([2, 2]);
+      chartView.fitAspectRatio(-1 / 4);
+      chartView.preserveAspectRatio(true);
+      chartView.domainTracking(true);
+      chartView.xScaleGestures(true);
+      chartView.yScaleGestures(true);
+      chartView.font("12px sans-serif");
     },
   })], {kind: "field", name: "chart", static: false, private: false, access: {has: obj => "chart" in obj, get: obj => obj.chart, set: (obj, value) => { obj.chart = value; }}}, chartInitializers, instanceInitializers);
   __esDecorate(null, null, [swim.TraitViewControllerSet({
@@ -72,9 +72,9 @@ const ExampleChartController = (function () {
 })();
 
 const plot1Model = new swim.Model();
-const plot1Trait = new swim.LinePlotTrait()
-  .stroke(swim.Look.accentColor)
-  .strokeWidth(4);
+const plot1Trait = new swim.LinePlotTrait();
+plot1Trait.stroke(swim.Look.accentColor);
+plot1Trait.strokeWidth(4);
 plot1Model.setTrait("plot", plot1Trait);
 
 const dataSet1Trait = new swim.DataSetTrait();

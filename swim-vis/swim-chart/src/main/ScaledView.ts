@@ -38,7 +38,6 @@ import {View} from "@swim/view";
 import {ViewSet} from "@swim/view";
 import type {ScaleGestureInput} from "@swim/view";
 import {ScaleGesture} from "@swim/view";
-import type {GraphicsViewInit} from "@swim/graphics";
 import {GraphicsView} from "@swim/graphics";
 import {ContinuousScaleAnimator} from "./ContinuousScaleAnimator";
 import {ScaledXView} from "./ScaledXView";
@@ -48,39 +47,6 @@ import type {ScaledXYView} from "./ScaledXYView";
 
 /** @internal */
 export type ScaledFlags = number;
-
-/** @public */
-export interface ScaledViewInit<X = unknown, Y = unknown> extends GraphicsViewInit {
-  xScale?: ContinuousScale<X, number>;
-  yScale?: ContinuousScale<Y, number>;
-
-  xDomainBounds?: [X | boolean, X | boolean];
-  yDomainBounds?: [Y | boolean, Y | boolean];
-  xZoomBounds?: [number | boolean, number | boolean];
-  yZoomBounds?: [number | boolean, number | boolean];
-
-  xDomainPadding?: [X | boolean, X | boolean];
-  yDomainPadding?: [Y | boolean, Y | boolean];
-  xRangePadding?: [number, number];
-  yRangePadding?: [number, number];
-
-  fitAlign?: [number, number] | number;
-  xFitAlign?: number;
-  yFitAlign?: number;
-  fitAspectRatio?: number;
-  preserveAspectRatio?: boolean;
-
-  domainTracking?: [boolean, boolean] | boolean;
-  xDomainTracking?: boolean;
-  yDomainTracking?: boolean;
-
-  scaleGestures?: [boolean, boolean] | boolean;
-  xScaleGestures?: boolean;
-  yScaleGestures?: boolean;
-
-  rescaleTransition?: AnyTiming | boolean;
-  reboundTransition?: AnyTiming | boolean;
-}
 
 /** @public */
 export interface ScaledViewObserver<X = unknown, Y = unknown, V extends ScaledView<X, Y> = ScaledView<X, Y>> extends ScaledXYViewObserver<X, Y, V> {
@@ -1288,85 +1254,6 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
     },
   })
   readonly gesture!: ScaleGesture<this, ScaledView<X, Y>, X, Y>;
-
-  override init(init: ScaledViewInit<X, Y>): void {
-    super.init(init);
-    if (init.xScale !== void 0) {
-      this.xScale(init.xScale);
-    }
-    if (init.yScale !== void 0) {
-      this.yScale(init.yScale);
-    }
-
-    if (init.xDomainBounds !== void 0) {
-      this.xDomainBounds(init.xDomainBounds);
-    }
-    if (init.yDomainBounds !== void 0) {
-      this.yDomainBounds(init.yDomainBounds);
-    }
-    if (init.xZoomBounds !== void 0) {
-      this.xZoomBounds(init.xZoomBounds);
-    }
-    if (init.yZoomBounds !== void 0) {
-      this.yZoomBounds(init.yZoomBounds);
-    }
-
-    if (init.xDomainPadding !== void 0) {
-      this.xDomainPadding(init.xDomainPadding);
-    }
-    if (init.yDomainPadding !== void 0) {
-      this.yDomainPadding(init.yDomainPadding);
-    }
-    if (init.xRangePadding !== void 0) {
-      this.xRangePadding(init.xRangePadding);
-    }
-    if (init.yRangePadding !== void 0) {
-      this.yRangePadding(init.yRangePadding);
-    }
-
-    if (init.fitAlign !== void 0) {
-      this.fitAlign(init.fitAlign);
-    }
-    if (init.xFitAlign !== void 0) {
-      this.xFitAlign(init.xFitAlign);
-    }
-    if (init.yFitAlign !== void 0) {
-      this.yFitAlign(init.yFitAlign);
-    }
-    if (init.fitAspectRatio !== void 0) {
-      this.fitAspectRatio(init.fitAspectRatio);
-    }
-    if (init.preserveAspectRatio !== void 0) {
-      this.preserveAspectRatio(init.preserveAspectRatio);
-    }
-
-    if (init.domainTracking !== void 0) {
-      this.domainTracking(init.domainTracking);
-    }
-    if (init.xDomainTracking !== void 0) {
-      this.xDomainTracking(init.xDomainTracking);
-    }
-    if (init.yDomainTracking !== void 0) {
-      this.yDomainTracking(init.yDomainTracking);
-    }
-
-    if (init.scaleGestures !== void 0) {
-      this.scaleGestures(init.scaleGestures);
-    }
-    if (init.xScaleGestures !== void 0) {
-      this.xScaleGestures(init.xScaleGestures);
-    }
-    if (init.yScaleGestures !== void 0) {
-      this.yScaleGestures(init.yScaleGestures);
-    }
-
-    if (init.rescaleTransition !== void 0) {
-      this.rescaleTransition.setValue(init.rescaleTransition);
-    }
-    if (init.reboundTransition !== void 0) {
-      this.reboundTransition.setValue(init.reboundTransition);
-    }
-  }
 
   /** @internal */
   static createScale<X, Y>(x0: X, x1: X, y0: Y | undefined, y1: Y | undefined): ContinuousScale<X, Y> {

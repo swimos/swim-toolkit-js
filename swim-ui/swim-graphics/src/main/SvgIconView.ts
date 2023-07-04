@@ -25,20 +25,14 @@ import type {ThemeMatrix} from "@swim/theme";
 import {ThemeAnimator} from "@swim/theme";
 import type {ViewFlags} from "@swim/view";
 import {View} from "@swim/view";
-import type {SvgViewInit} from "@swim/dom";
 import {SvgView} from "@swim/dom";
 import {Graphics} from "./Graphics";
 import {SvgContext} from "./SvgContext";
 import {SvgRenderer} from "./SvgRenderer";
 import {Icon} from "./Icon";
 import {FilledIcon} from "./FilledIcon";
-import type {IconViewInit} from "./IconView";
-import {IconView} from "./IconView";
+import type {IconView} from "./IconView";
 import {IconGraphicsAnimator} from "./IconView";
-
-/** @public */
-export interface SvgIconViewInit extends SvgViewInit, IconViewInit {
-}
 
 /** @public */
 export class SvgIconView extends SvgView implements IconView {
@@ -146,11 +140,6 @@ export class SvgIconView extends SvgView implements IconView {
     const x = viewBox.x + (viewWidth - iconWidth) * this.xAlign.getValue();
     const y = viewBox.y + (viewHeight - iconHeight) * this.yAlign.getValue();
     return new R2Box(x, y, x + iconWidth, y + iconHeight);
-  }
-
-  override init(init: SvgIconViewInit): void {
-    super.init(init);
-    IconView.init(this, init);
   }
 
   static override readonly MountFlags: ViewFlags = SvgView.MountFlags | View.NeedsAnimate;

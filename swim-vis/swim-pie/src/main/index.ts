@@ -14,8 +14,6 @@
 
 // Slice
 
-export type {AnySliceView} from "./SliceView";
-export type {SliceViewInit} from "./SliceView";
 export type {SliceViewObserver} from "./SliceView";
 export {SliceView} from "./SliceView";
 
@@ -27,8 +25,6 @@ export {SliceController} from "./SliceController";
 
 // Pie
 
-export type {AnyPieView} from "./PieView";
-export type {PieViewInit} from "./PieView";
 export type {PieViewObserver} from "./PieView";
 export {PieView} from "./PieView";
 

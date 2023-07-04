@@ -12,17 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Murmur3} from "@swim/util";
 import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
 import type {Instance} from "@swim/util";
 import type {Proto} from "@swim/util";
+import {Murmur3} from "@swim/util";
 import type {HashCode} from "@swim/util";
 import type {Comparator} from "@swim/util";
 import type {FromAny} from "@swim/util";
 import {Creatable} from "@swim/util";
-import type {Inits} from "@swim/util";
-import type {Initable} from "@swim/util";
 import type {Observes} from "@swim/util";
 import type {Observable} from "@swim/util";
 import type {ObserverMethods} from "@swim/util";
@@ -59,20 +57,10 @@ import {TraitRelation} from "./"; // forward import
 export type TraitFlags = number;
 
 /** @public */
-export type AnyTrait<T extends Trait = Trait> = T | TraitFactory<T> | Inits<T>;
-
-/** @public */
-export interface TraitInit {
-  /** @internal */
-  uid?: never, // force type ambiguity between Trait and TraitInit
-  type?: Creatable<Trait>;
-  key?: string;
-  traits?: AnyTrait[];
-}
+export type AnyTrait<T extends Trait = Trait> = T | TraitFactory<T>;
 
 /** @public */
 export interface TraitFactory<T extends Trait = Trait, U = AnyTrait<T>> extends Creatable<T>, FromAny<T, U> {
-  fromInit(init: Inits<T>): T;
 }
 
 /** @public */
@@ -161,7 +149,7 @@ export interface TraitObserver<T extends Trait = Trait> extends Observer<T> {
 }
 
 /** @public */
-export abstract class Trait implements HashCode, Initable<TraitInit>, Observable, Consumable, FastenerContext, WarpRef {
+export abstract class Trait implements HashCode, Observable, Consumable, FastenerContext, WarpRef {
   constructor() {
     this.uid = (this.constructor as typeof Trait).uid();
     this.key = void 0;
@@ -1672,41 +1660,22 @@ export abstract class Trait implements HashCode, Initable<TraitInit>, Observable
     return Murmur3.mash(Murmur3.mixString(0, this.uid));
   }
 
-  /** @override */
-  init(init: TraitInit): void {
-    // hook
-  }
-
   static create<S extends new () => InstanceType<S>>(this: S): InstanceType<S> {
     return new this();
   }
 
-  static fromInit<S extends Class<Instance<S, Trait>>>(this: S, init: Inits<InstanceType<S>>): InstanceType<S> {
-    let type: Creatable<Trait>;
-    if ((typeof init === "object" && init !== null || typeof init === "function") && Creatable[Symbol.hasInstance]((init as TraitInit).type)) {
-      type = (init as TraitInit).type!;
-    } else {
-      type = this as unknown as Creatable<Trait>;
-    }
-    const view = type.create();
-    view.init(init as TraitInit);
-    return view as InstanceType<S>;
-  }
-
   static fromAny<S extends Class<Instance<S, Trait>>>(this: S, value: AnyTrait<InstanceType<S>>): InstanceType<S> {
     if (value === void 0 || value === null) {
-      return value as InstanceType<S>;
+      return value;
     } else if (value instanceof Trait) {
-      if (value instanceof this) {
-        return value;
-      } else {
+      if (!((value as Trait) instanceof this)) {
         throw new TypeError(value + " not an instance of " + this);
       }
+      return value;
     } else if (Creatable[Symbol.hasInstance](value)) {
       return (value as Creatable<InstanceType<S>>).create();
-    } else {
-      return (this as unknown as TraitFactory<InstanceType<S>>).fromInit(value as Inits<InstanceType<S>>);
     }
+    throw new TypeError("" + this);
   }
 
   /** @internal */

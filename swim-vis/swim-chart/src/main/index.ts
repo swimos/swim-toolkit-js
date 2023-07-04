@@ -16,8 +16,6 @@
 
 export type {DataPointCategory} from "./DataPointView";
 export type {DataPointLabelPlacement} from "./DataPointView";
-export type {AnyDataPointView} from "./DataPointView";
-export type {DataPointViewInit} from "./DataPointView";
 export type {DataPointViewObserver} from "./DataPointView";
 export {DataPointView} from "./DataPointView";
 
@@ -47,40 +45,27 @@ export type {ScaledXYViewObserver} from "./ScaledXYView";
 export {ScaledXYView} from "./ScaledXYView";
 
 export type {ScaledFlags} from "./ScaledView";
-export type {ScaledViewInit} from "./ScaledView";
 export type {ScaledViewObserver} from "./ScaledView";
 export {ScaledView} from "./ScaledView";
 
 // Plot
 
-export type {AnyPlotView} from "./PlotView";
-export type {PlotViewInit} from "./PlotView";
 export type {PlotViewObserver} from "./PlotView";
 export type {PlotView} from "./PlotView";
 
-export type {AnyScatterPlotView} from "./ScatterPlotView";
-export type {ScatterPlotViewInit} from "./ScatterPlotView";
 export type {ScatterPlotViewObserver} from "./ScatterPlotView";
 export {ScatterPlotView} from "./ScatterPlotView";
 
 export type {SeriesPlotHitMode} from "./SeriesPlotView";
-export type {AnySeriesPlotView} from "./SeriesPlotView";
-export type {SeriesPlotViewInit} from "./SeriesPlotView";
 export type {SeriesPlotViewObserver} from "./SeriesPlotView";
 export {SeriesPlotView} from "./SeriesPlotView";
 
-export type {AnyBubblePlotView} from "./BubblePlotView";
-export type {BubblePlotViewInit} from "./BubblePlotView";
 export type {BubblePlotViewObserver} from "./BubblePlotView";
 export {BubblePlotView} from "./BubblePlotView";
 
-export type {AnyLinePlotView} from "./LinePlotView";
-export type {LinePlotViewInit} from "./LinePlotView";
 export type {LinePlotViewObserver} from "./LinePlotView";
 export {LinePlotView} from "./LinePlotView";
 
-export type {AnyAreaPlotView} from "./AreaPlotView";
-export type {AreaPlotViewInit} from "./AreaPlotView";
 export type {AreaPlotViewObserver} from "./AreaPlotView";
 export {AreaPlotView} from "./AreaPlotView";
 
@@ -122,8 +107,6 @@ export {AreaPlotController} from "./AreaPlotController";
 
 // Graph
 
-export type {AnyGraphView} from "./GraphView";
-export type {GraphViewInit} from "./GraphView";
 export type {GraphViewObserver} from "./GraphView";
 export {GraphView} from "./GraphView";
 
@@ -141,8 +124,6 @@ export {TimeTickGenerator} from "./TickGenerator";
 
 export {TickState} from "./TickView";
 export type {TickOrientation} from "./TickView";
-export type {AnyTickView} from "./TickView";
-export type {TickViewInit} from "./TickView";
 export type {TickViewObserver} from "./TickView";
 export {TickView} from "./TickView";
 export {TopTickView} from "./TickView";
@@ -153,8 +134,6 @@ export {LeftTickView} from "./TickView";
 // Axis
 
 export type {AxisOrientation} from "./AxisView";
-export type {AnyAxisView} from "./AxisView";
-export type {AxisViewInit} from "./AxisView";
 export type {AxisViewObserver} from "./AxisView";
 export {AxisView} from "./AxisView";
 export {TopAxisView} from "./AxisView";
@@ -178,8 +157,6 @@ export {LeftAxisController} from "./AxisController";
 
 // Chart
 
-export type {AnyChartView} from "./ChartView";
-export type {ChartViewInit} from "./ChartView";
 export type {ChartViewObserver} from "./ChartView";
 export {ChartView} from "./ChartView";
 

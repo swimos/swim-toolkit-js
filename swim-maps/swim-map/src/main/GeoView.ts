@@ -21,16 +21,11 @@ import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
 import type {ViewFlags} from "@swim/view";
 import {View} from "@swim/view";
-import type {GraphicsViewInit} from "@swim/graphics";
 import type {GraphicsViewObserver} from "@swim/graphics";
 import {GraphicsView} from "@swim/graphics";
 import type {PaintingContext} from "@swim/graphics";
 import {PaintingRenderer} from "@swim/graphics";
 import {GeoViewport} from "./GeoViewport";
-
-/** @public */
-export interface GeoViewInit extends GraphicsViewInit {
-}
 
 /** @public */
 export interface GeoViewObserver<V extends GeoView = GeoView> extends GraphicsViewObserver<V> {
@@ -243,10 +238,6 @@ export class GeoView extends GraphicsView {
       geoBounds = this.geoFrame;
     }
     return geoBounds;
-  }
-
-  override init(init: GeoViewInit): void {
-    super.init(init);
   }
 
   static override readonly MountFlags: ViewFlags = GraphicsView.MountFlags | View.NeedsProject;

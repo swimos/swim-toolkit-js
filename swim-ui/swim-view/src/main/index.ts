@@ -18,7 +18,6 @@ export type {ViewIdiom} from "./View";
 export {ViewInsets} from "./View";
 export type {ViewFlags} from "./View";
 export type {AnyView} from "./View";
-export type {ViewInit} from "./View";
 export type {ViewFactory} from "./View";
 export type {ViewClass} from "./View";
 export type {ViewConstructor} from "./View";

@@ -32,41 +32,11 @@ import {ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
 import {ViewRef} from "@swim/view";
 import {ViewSet} from "@swim/view";
-import type {GraphicsViewInit} from "@swim/graphics";
 import type {GraphicsViewObserver} from "@swim/graphics";
 import {GraphicsView} from "@swim/graphics";
 import {TypesetView} from "@swim/graphics";
 import {TextRunView} from "@swim/graphics";
-import type {AnyDialView} from "./DialView";
 import {DialView} from "./DialView";
-
-/** @public */
-export type AnyGaugeView = GaugeView | GaugeViewInit;
-
-/** @public */
-export interface GaugeViewInit extends GraphicsViewInit {
-  limit?: number;
-  center?: AnyR2Point;
-  innerRadius?: AnyLength;
-  outerRadius?: AnyLength;
-  startAngle?: AnyAngle;
-  sweepAngle?: AnyAngle;
-  cornerRadius?: AnyLength;
-  dialSpacing?: AnyLength;
-  dialColor?: AnyColor;
-  meterColor?: AnyColor;
-  labelPadding?: AnyLength;
-  tickAlign?: number;
-  tickRadius?: AnyLength;
-  tickLength?: AnyLength;
-  tickWidth?: AnyLength;
-  tickPadding?: AnyLength;
-  tickColor?: AnyColor;
-  font?: AnyFont;
-  textColor?: AnyColor;
-  title?: GraphicsView | string;
-  dials?: AnyDialView[];
-}
 
 /** @public */
 export interface GaugeViewObserver<V extends GaugeView = GaugeView> extends GraphicsViewObserver<V> {
@@ -287,76 +257,6 @@ export class GaugeView extends GraphicsView {
     const titleView = this.title.view;
     if (TypesetView[Symbol.hasInstance](titleView)) {
       titleView.textOrigin.setState(this.center.state, Affinity.Intrinsic);
-    }
-  }
-
-  override init(init: GaugeViewInit): void {
-    super.init(init);
-    if (init.limit !== void 0) {
-      this.limit(init.limit);
-    }
-    if (init.innerRadius !== void 0) {
-      this.innerRadius(init.innerRadius);
-    }
-    if (init.outerRadius !== void 0) {
-      this.outerRadius(init.outerRadius);
-    }
-    if (init.startAngle !== void 0) {
-      this.startAngle(init.startAngle);
-    }
-    if (init.sweepAngle !== void 0) {
-      this.sweepAngle(init.sweepAngle);
-    }
-    if (init.cornerRadius !== void 0) {
-      this.cornerRadius(init.cornerRadius);
-    }
-    if (init.dialSpacing !== void 0) {
-      this.dialSpacing(init.dialSpacing);
-    }
-    if (init.dialColor !== void 0) {
-      this.dialColor(init.dialColor);
-    }
-    if (init.meterColor !== void 0) {
-      this.meterColor(init.meterColor);
-    }
-    if (init.labelPadding !== void 0) {
-      this.labelPadding(init.labelPadding);
-    }
-    if (init.tickAlign !== void 0) {
-      this.tickAlign(init.tickAlign);
-    }
-    if (init.tickRadius !== void 0) {
-      this.tickRadius(init.tickRadius);
-    }
-    if (init.tickLength !== void 0) {
-      this.tickLength(init.tickLength);
-    }
-    if (init.tickWidth !== void 0) {
-      this.tickWidth(init.tickWidth);
-    }
-    if (init.tickPadding !== void 0) {
-      this.tickPadding(init.tickPadding);
-    }
-    if (init.tickColor !== void 0) {
-      this.tickColor(init.tickColor);
-    }
-    if (init.font !== void 0) {
-      this.font(init.font);
-    }
-    if (init.textColor !== void 0) {
-      this.textColor(init.textColor);
-    }
-    if (typeof init.title === "string") {
-      this.title.setText(init.title);
-    } else if (init.title !== void 0) {
-      this.title.setView(init.title);
-    }
-    const dials = init.dials;
-    if (dials !== void 0) {
-      for (let i = 0, n = dials.length; i < n; i += 1) {
-        const dial = dials[i]!;
-        this.appendChild(DialView.fromAny(dial), dial.key);
-      }
     }
   }
 }

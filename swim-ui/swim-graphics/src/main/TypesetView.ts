@@ -19,17 +19,7 @@ import type {Font} from "@swim/style";
 import type {AnyColor} from "@swim/style";
 import type {Color} from "@swim/style";
 import type {ThemeAnimator} from "@swim/theme";
-import type {GraphicsViewInit} from "./GraphicsView";
 import {GraphicsView} from "./GraphicsView";
-
-/** @public */
-export interface TypesetViewInit extends GraphicsViewInit {
-  font?: AnyFont;
-  textAlign?: CanvasTextAlign;
-  textBaseline?: CanvasTextBaseline;
-  textOrigin?: AnyR2Point;
-  textColor?: AnyColor;
-}
 
 /** @public */
 export interface TypesetView extends GraphicsView {
@@ -46,24 +36,6 @@ export interface TypesetView extends GraphicsView {
 
 /** @public */
 export const TypesetView = {
-  init(view: TypesetView, init: TypesetViewInit): void {
-    if (init.font !== void 0) {
-      view.font(init.font);
-    }
-    if (init.textAlign !== void 0) {
-      view.textAlign(init.textAlign);
-    }
-    if (init.textBaseline !== void 0) {
-      view.textBaseline(init.textBaseline);
-    }
-    if (init.textOrigin !== void 0) {
-      view.textOrigin(init.textOrigin);
-    }
-    if (init.textColor !== void 0) {
-      view.textColor(init.textColor);
-    }
-  },
-
   [Symbol.hasInstance](instance: unknown): instance is TypesetView {
     return instance instanceof GraphicsView
           && "font" in instance

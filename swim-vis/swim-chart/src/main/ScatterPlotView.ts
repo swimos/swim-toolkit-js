@@ -36,19 +36,10 @@ import {ViewSet} from "@swim/view";
 import {GraphicsView} from "@swim/graphics";
 import type {CanvasContext} from "@swim/graphics";
 import {CanvasRenderer} from "@swim/graphics";
-import type {AnyDataPointView} from "./DataPointView";
 import {DataPointView} from "./DataPointView";
 import {ContinuousScaleAnimator} from "./ContinuousScaleAnimator";
-import type {PlotViewInit} from "./PlotView";
 import type {PlotViewObserver} from "./PlotView";
 import type {PlotView} from "./PlotView";
-
-/** @public */
-export type AnyScatterPlotView<X = unknown, Y = unknown> = ScatterPlotView<X, Y> | ScatterPlotViewInit<X, Y>;
-
-/** @public */
-export interface ScatterPlotViewInit<X = unknown, Y = unknown> extends PlotViewInit<X, Y> {
-}
 
 /** @public */
 export interface ScatterPlotViewObserver<X = unknown, Y = unknown, V extends ScatterPlotView<X, Y> = ScatterPlotView<X, Y>> extends PlotViewObserver<X, Y, V> {
@@ -472,28 +463,4 @@ export abstract class ScatterPlotView<X = unknown, Y = unknown> extends Graphics
   }
 
   protected abstract renderPlot(context: CanvasContext, frame: R2Box): void;
-
-  override init(init: ScatterPlotViewInit<X, Y>): void {
-    super.init(init);
-    if (init.xScale !== void 0) {
-      this.xScale(init.xScale);
-    }
-    if (init.yScale !== void 0) {
-      this.yScale(init.yScale);
-    }
-
-    const data = init.data;
-    if (data !== void 0) {
-      for (let i = 0, n = data.length; i < n; i += 1) {
-        this.appendChild(DataPointView.fromAny(data[i]! as AnyDataPointView));
-      }
-    }
-
-    if (init.font !== void 0) {
-      this.font(init.font);
-    }
-    if (init.textColor !== void 0) {
-      this.textColor(init.textColor);
-    }
-  }
 }

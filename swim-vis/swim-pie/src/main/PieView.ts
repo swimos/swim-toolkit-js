@@ -32,40 +32,11 @@ import {ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
 import {ViewRef} from "@swim/view";
 import {ViewSet} from "@swim/view";
-import type {GraphicsViewInit} from "@swim/graphics";
 import type {GraphicsViewObserver} from "@swim/graphics";
 import {GraphicsView} from "@swim/graphics";
 import {TypesetView} from "@swim/graphics";
 import {TextRunView} from "@swim/graphics";
-import type {AnySliceView} from "./SliceView";
 import {SliceView} from "./SliceView";
-
-/** @public */
-export type AnyPieView = PieView | PieViewInit;
-
-/** @public */
-export interface PieViewInit extends GraphicsViewInit {
-  limit?: number;
-  center?: AnyR2Point;
-  baseAngle?: AnyAngle;
-  innerRadius?: AnyLength;
-  outerRadius?: AnyLength;
-  padAngle?: AnyAngle;
-  padRadius?: AnyLength | null;
-  cornerRadius?: AnyLength;
-  labelRadius?: AnyLength;
-  sliceColor?: AnyColor;
-  tickAlign?: number;
-  tickRadius?: AnyLength;
-  tickLength?: AnyLength;
-  tickWidth?: AnyLength;
-  tickPadding?: AnyLength;
-  tickColor?: AnyColor;
-  font?: AnyFont;
-  textColor?: AnyColor;
-  title?: GraphicsView | string;
-  slices?: AnySliceView[];
-}
 
 /** @public */
 export interface PieViewObserver<V extends PieView = PieView> extends GraphicsViewObserver<V> {
@@ -273,76 +244,6 @@ export class PieView extends GraphicsView {
     const titleView = this.title.view;
     if (TypesetView[Symbol.hasInstance](titleView)) {
       titleView.textOrigin.setState(this.center.value, Affinity.Intrinsic);
-    }
-  }
-
-  override init(init: PieViewInit): void {
-    super.init(init);
-    if (init.limit !== void 0) {
-      this.limit(init.limit);
-    }
-    if (init.center !== void 0) {
-      this.center(init.center);
-    }
-    if (init.baseAngle !== void 0) {
-      this.baseAngle(init.baseAngle);
-    }
-    if (init.innerRadius !== void 0) {
-      this.innerRadius(init.innerRadius);
-    }
-    if (init.outerRadius !== void 0) {
-      this.outerRadius(init.outerRadius);
-    }
-    if (init.padAngle !== void 0) {
-      this.padAngle(init.padAngle);
-    }
-    if (init.padRadius !== void 0) {
-      this.padRadius(init.padRadius);
-    }
-    if (init.cornerRadius !== void 0) {
-      this.cornerRadius(init.cornerRadius);
-    }
-    if (init.labelRadius !== void 0) {
-      this.labelRadius(init.labelRadius);
-    }
-    if (init.sliceColor !== void 0) {
-      this.sliceColor(init.sliceColor);
-    }
-    if (init.tickAlign !== void 0) {
-      this.tickAlign(init.tickAlign);
-    }
-    if (init.tickRadius !== void 0) {
-      this.tickRadius(init.tickRadius);
-    }
-    if (init.tickLength !== void 0) {
-      this.tickLength(init.tickLength);
-    }
-    if (init.tickWidth !== void 0) {
-      this.tickWidth(init.tickWidth);
-    }
-    if (init.tickPadding !== void 0) {
-      this.tickPadding(init.tickPadding);
-    }
-    if (init.tickColor !== void 0) {
-      this.tickColor(init.tickColor);
-    }
-    if (init.font !== void 0) {
-      this.font(init.font);
-    }
-    if (init.textColor !== void 0) {
-      this.textColor(init.textColor);
-    }
-    if (typeof init.title === "string") {
-      this.title.setText(init.title);
-    } else if (init.title !== void 0) {
-      this.title.setView(init.title);
-    }
-    const slices = init.slices;
-    if (slices !== void 0) {
-      for (let i = 0, n = slices.length; i < n; i += 1) {
-        const slice = slices[i]!;
-        this.appendChild(SliceView.fromAny(slice), slice.key);
-      }
     }
   }
 }

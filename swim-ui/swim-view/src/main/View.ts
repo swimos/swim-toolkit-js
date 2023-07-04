@@ -20,8 +20,6 @@ import type {FromAny} from "@swim/util";
 import type {AnyTiming} from "@swim/util";
 import {Timing} from "@swim/util";
 import {Creatable} from "@swim/util";
-import type {Inits} from "@swim/util";
-import type {Initable} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {FastenerContext} from "@swim/component";
@@ -30,7 +28,6 @@ import {Property} from "@swim/component";
 import {Animator} from "@swim/component";
 import {Provider} from "@swim/component";
 import type {ComponentFlags} from "@swim/component";
-import type {ComponentInit} from "@swim/component";
 import type {ComponentObserver} from "@swim/component";
 import {Component} from "@swim/component";
 import type {AnyConstraintExpression} from "@swim/constraint";
@@ -102,23 +99,10 @@ export const ViewInsets = {
 export type ViewFlags = ComponentFlags;
 
 /** @public */
-export type AnyView<V extends View = View> = V | ViewFactory<V> | Inits<V>;
-
-/** @public */
-export interface ViewInit extends ComponentInit {
-  type?: Creatable<View>;
-  key?: string;
-  children?: AnyView[];
-
-  mood?: MoodVector;
-  moodModifier?: MoodMatrix;
-  theme?: ThemeMatrix;
-  themeModifier?: MoodMatrix;
-}
+export type AnyView<V extends View = View> = V | ViewFactory<V>;
 
 /** @public */
 export interface ViewFactory<V extends View = View, U = AnyView<V>> extends Creatable<V>, FromAny<V, U> {
-  fromInit(init: Inits<V>): V;
 }
 
 /** @public */
@@ -219,7 +203,7 @@ export interface ViewObserver<V extends View = View> extends ComponentObserver<V
 }
 
 /** @public */
-export class View extends Component<View> implements Initable<ViewInit>, ConstraintScope, ConstraintContext, ThemeContext, EventTarget {
+export class View extends Component<View> implements ConstraintScope, ConstraintContext, ThemeContext, EventTarget {
   constructor() {
     super();
     this.constraints = null;
@@ -2274,52 +2258,22 @@ export class View extends Component<View> implements Initable<ViewInit>, Constra
     }
   }
 
-  /** @override */
-  override init(init: ViewInit): void {
-    if (init.mood !== void 0) {
-      this.mood(init.mood);
-    }
-    if (init.moodModifier !== void 0) {
-      this.moodModifier(init.moodModifier);
-    }
-    if (init.theme !== void 0) {
-      this.theme(init.theme);
-    }
-    if (init.themeModifier !== void 0) {
-      this.themeModifier(init.themeModifier);
-    }
-  }
-
   static override create<S extends new () => InstanceType<S>>(this: S): InstanceType<S> {
     return new this();
   }
 
-  static override fromInit<S extends Class<Instance<S, View>>>(this: S, init: Inits<InstanceType<S>>): InstanceType<S> {
-    let type: Creatable<View>;
-    if ((typeof init === "object" && init !== null || typeof init === "function") && Creatable[Symbol.hasInstance]((init as ViewInit).type)) {
-      type = (init as ViewInit).type!;
-    } else {
-      type = this as unknown as Creatable<View>;
-    }
-    const view = type.create();
-    view.init(init as ViewInit);
-    return view as InstanceType<S>;
-  }
-
   static override fromAny<S extends Class<Instance<S, View>>>(this: S, value: AnyView<InstanceType<S>>): InstanceType<S> {
     if (value === void 0 || value === null) {
-      return value as InstanceType<S>;
+      return value;
     } else if (value instanceof View) {
-      if (value instanceof this) {
-        return value;
-      } else {
+      if (!((value as View) instanceof this)) {
         throw new TypeError(value + " not an instance of " + this);
       }
+      return value;
     } else if (Creatable[Symbol.hasInstance](value)) {
       return (value as Creatable<InstanceType<S>>).create();
-    } else {
-      return (this as unknown as ViewFactory<InstanceType<S>>).fromInit(value as Inits<InstanceType<S>>);
     }
+    throw new TypeError("" + value);
   }
 
   /** @internal */

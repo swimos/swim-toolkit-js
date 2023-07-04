@@ -31,7 +31,6 @@ import {Mood} from "@swim/theme";
 import {ThemeConstraintAnimator} from "@swim/theme";
 import type {ViewInsets} from "@swim/view";
 import {View} from "@swim/view";
-import type {HtmlViewInit} from "@swim/dom";
 import type {HtmlViewObserver} from "@swim/dom";
 import {HtmlView} from "@swim/dom";
 import type {ModalViewObserver} from "@swim/dom";
@@ -39,13 +38,6 @@ import type {ModalView} from "@swim/dom";
 
 /** @public */
 export type DrawerPlacement = "top" | "right" | "bottom" | "left";
-
-/** @public */
-export interface DrawerViewInit extends HtmlViewInit {
-  placement?: DrawerPlacement;
-  collapsedWidth?: AnyLength;
-  expandedWidth?: AnyLength;
-}
 
 /** @public */
 export interface DrawerViewObserver<V extends DrawerView = DrawerView> extends HtmlViewObserver<V>, ModalViewObserver<V> {
@@ -428,19 +420,6 @@ export class DrawerView extends HtmlView implements ModalView {
     } else {
       this.stretch.toggle(timing);
       this.presence.present(timing);
-    }
-  }
-
-  override init(init: DrawerViewInit): void {
-    super.init(init);
-    if (init.placement !== void 0) {
-      this.placement(init.placement);
-    }
-    if (init.collapsedWidth !== void 0) {
-      this.collapsedWidth(init.collapsedWidth);
-    }
-    if (init.expandedWidth !== void 0) {
-      this.expandedWidth(init.expandedWidth);
     }
   }
 }

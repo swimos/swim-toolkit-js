@@ -47,7 +47,6 @@ export * from "./csstypes";
 
 export {StyleContext} from "./StyleContext";
 
-export type {StyleMapInit} from "./StyleMap";
 export {StyleMap} from "./StyleMap";
 
 export type {CssScopeDescriptor} from "./CssScope";
@@ -75,7 +74,6 @@ export {MediaRule} from "./MediaRule";
 export type {ViewNodeType} from "./NodeView";
 export type {ViewNode} from "./NodeView";
 export type {AnyNodeView} from "./NodeView";
-export type {NodeViewInit} from "./NodeView";
 export type {NodeViewFactory} from "./NodeView";
 export type {NodeViewClass} from "./NodeView";
 export type {NodeViewConstructor} from "./NodeView";
@@ -86,7 +84,6 @@ export {NodeView} from "./NodeView";
 
 export type {ViewText} from "./TextView";
 export type {AnyTextView} from "./TextView";
-export type {TextViewInit} from "./TextView";
 export type {TextViewConstructor} from "./TextView";
 export type {TextViewObserver} from "./TextView";
 export {TextView} from "./TextView";
@@ -95,7 +92,6 @@ export {TextView} from "./TextView";
 
 export type {ViewElement} from "./ElementView";
 export type {AnyElementView} from "./ElementView";
-export type {ElementViewInit} from "./ElementView";
 export type {ElementViewFactory} from "./ElementView";
 export type {ElementViewClass} from "./ElementView";
 export type {ElementViewConstructor} from "./ElementView";
@@ -106,9 +102,6 @@ export {ElementView} from "./ElementView";
 
 export type {ViewHtml} from "./HtmlView";
 export type {AnyHtmlView} from "./HtmlView";
-export type {HtmlViewInit} from "./HtmlView";
-export type {HtmlViewAttributesInit} from "./HtmlView";
-export type {HtmlViewStyleInit} from "./HtmlView";
 export type {HtmlViewTagMap} from "./HtmlView";
 export type {HtmlViewFactory} from "./HtmlView";
 export type {HtmlViewClass} from "./HtmlView";
@@ -117,7 +110,6 @@ export type {HtmlViewObserver} from "./HtmlView";
 export {HtmlView} from "./HtmlView";
 export {HtmlViewTagFactory} from "./HtmlView";
 
-export type {StyleViewInit} from "./StyleView";
 export type {StyleViewObserver} from "./StyleView";
 export {StyleView} from "./StyleView";
 
@@ -125,9 +117,6 @@ export {StyleView} from "./StyleView";
 
 export type {ViewSvg} from "./SvgView";
 export type {AnySvgView} from "./SvgView";
-export type {SvgViewInit} from "./SvgView";
-export type {SvgViewAttributesInit} from "./SvgView";
-export type {SvgViewStyleInit} from "./SvgView";
 export type {SvgViewTagMap} from "./SvgView";
 export type {SvgViewFactory} from "./SvgView";
 export type {SvgViewClass} from "./SvgView";

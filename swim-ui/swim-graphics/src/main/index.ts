@@ -36,7 +36,6 @@ export {GraphicsRenderer} from "./GraphicsRenderer";
 export {Graphics} from "./Graphics";
 
 export type {GraphicsViewEventMap} from "./GraphicsView";
-export type {GraphicsViewInit} from "./GraphicsView";
 export type {GraphicsViewObserver} from "./GraphicsView";
 export {GraphicsView} from "./GraphicsView";
 
@@ -68,13 +67,11 @@ export type {CanvasContext} from "./CanvasContext";
 export {CanvasRenderer} from "./CanvasRenderer";
 
 export type {CanvasFlags} from "./CanvasView";
-export type {CanvasViewInit} from "./CanvasView";
 export type {CanvasViewObserver} from "./CanvasView";
 export {CanvasView} from "./CanvasView";
 
 // Raster
 
-export type {RasterViewInit} from "./RasterView";
 export {RasterView} from "./RasterView";
 
 // Sprite
@@ -87,36 +84,30 @@ export {SpriteService} from "./SpriteService";
 
 // Shape
 
-export type {FillViewInit} from "./FillView";
 export {FillView} from "./FillView";
 
-export type {StrokeViewInit} from "./StrokeView";
 export {StrokeView} from "./StrokeView";
 
 export type {AnyRect} from "./Rect";
 export type {RectInit} from "./Rect";
 export {Rect} from "./Rect";
-export type {AnyRectView} from "./RectView";
-export type {RectViewInit} from "./RectView";
+
 export {RectView} from "./RectView";
 
 export type {AnyArc} from "./Arc";
 export type {ArcInit} from "./Arc";
 export {Arc} from "./Arc";
-export type {AnyArcView} from "./ArcView";
-export type {ArcViewInit} from "./ArcView";
+
 export {ArcView} from "./ArcView";
 
 // Typeset
 
-export type {TypesetViewInit} from "./TypesetView";
 export {TypesetView} from "./TypesetView";
 
 export type {AnyTextRun} from "./TextRun";
 export type {TextRunInit} from "./TextRun";
 export {TextRun} from "./TextRun";
-export type {AnyTextRunView} from "./TextRunView";
-export type {TextRunViewInit} from "./TextRunView";
+
 export {TextRunView} from "./TextRunView";
 
 // Icon
@@ -141,17 +132,13 @@ export {PolygonIconInterpolator} from "./PolygonIcon";
 export {EnclosedIcon} from "./EnclosedIcon";
 export {EnclosedIconInterpolator} from "./EnclosedIcon";
 
-export type {IconViewInit} from "./IconView";
 export {IconView} from "./IconView";
 export {IconGraphicsAnimator} from "./IconView";
 
-export type {GraphicsIconViewInit} from "./GraphicsIconView";
 export {GraphicsIconView} from "./GraphicsIconView";
 
-export type {SvgIconViewInit} from "./SvgIconView";
 export {SvgIconView} from "./SvgIconView";
 
-export type {HtmlIconViewInit} from "./HtmlIconView";
 export {HtmlIconView} from "./HtmlIconView";
 
 // WebGL

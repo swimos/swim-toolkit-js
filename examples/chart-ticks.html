@@ -19,59 +19,54 @@ const bodyView = swim.HtmlView.fromNode(document.body);
 
 const containerView = bodyView.appendChild("div").position("relative").width("90%").height("90%").touchAction("none").userSelect("none");
 
-const canvasView = swim.CanvasView.create()
-    .wheelEventsEnabled(true)
-    .mouseEventsEnabled(true)
-    .pointerEventsEnabled(true)
-    .touchEventsEnabled(true)
-    .touchAction("manipulation");
+const canvasView = swim.CanvasView.create();
+canvasView.wheelEventsEnabled(true);
+canvasView.mouseEventsEnabled(true);
+canvasView.pointerEventsEnabled(true);
+canvasView.touchEventsEnabled(true);
+canvasView.touchAction("manipulation");
 
-const chartView = canvasView.appendChild(swim.ChartView)
-    .topAxis(true)
-    .rightAxis(true)
-    .bottomAxis(true)
-    .leftAxis(true)
-    //.xRangePadding([2, 2])
-    //.yRangePadding([2, 2])
-    .fitAspectRatio(1)
-    .domainTracking(true)
-    .xScaleGestures(true)
-    .font("12px sans-serif");
+const chartView = canvasView.appendChild(swim.ChartView);
+const topAxisView = chartView.topAxis.insertView();
+const rightAxisView = chartView.rightAxis.insertView();
+chartView.bottomAxis.insertView();
+chartView.leftAxis.insertView();
+
+chartView.xRangePadding([2, 2]);
+chartView.yRangePadding([2, 2]);
+chartView.fitAspectRatio(1);
+chartView.domainTracking(true);
+chartView.xScaleGestures(true);
+chartView.font("12px sans-serif");
+
+topAxisView.tickGenerator(null);
+topAxisView.tickMarkWidth(0);
+topAxisView.tickMarkLength(0);
+topAxisView.borderWidth(0);
+topAxisView.gridLineColor.setLook(swim.Look.labelColor);
+
+rightAxisView.tickGenerator(null);
+rightAxisView.tickMarkWidth(0);
+rightAxisView.tickMarkLength(0);
+rightAxisView.borderWidth(0);
+rightAxisView.gridLineColor.setLook(swim.Look.labelColor);
 
 const graphView = chartView.graph.insertView();
-
-chartView.topAxis.view
-    .tickGenerator(null)
-    .tickMarkWidth(0)
-    .tickMarkLength(0)
-    .borderWidth(0);
-chartView.topAxis.view.gridLineColor.setLook(swim.Look.labelColor);
-chartView.rightAxis.view
-    .tickGenerator(null)
-    .tickMarkWidth(0)
-    .tickMarkLength(0)
-    .borderWidth(0);
-chartView.rightAxis.view.gridLineColor.setLook(swim.Look.labelColor);
-
-const plotView = graphView.appendChild(swim.LinePlotView)
-    .hitMode("domain")
-    .strokeWidth(2);
+const plotView = graphView.appendChild(swim.LinePlotView);
+plotView.hitMode("domain");
+plotView.strokeWidth(2);
 plotView.addEventListener("pointerover", function (event) {
   const dataPoint = event.targetView;
+
   const x = dataPoint.x.value;
-  chartView.topAxis.view.insertTick({
-    orientation: "top",
-    value: x,
-    tickLabel: x.toFixed(2),
-    gridLineWidth: 1,
-  });
+  const xTickView = chartView.topAxis.view.insertTick(x);
+  xTickView.label.setText(x.toFixed(2));
+  xTickView.gridLineWidth.setState(1);
+
   const y = dataPoint.y.value;
-  chartView.rightAxis.view.insertTick({
-    orientation: "right",
-    value: y,
-    tickLabel: y.toFixed(2),
-    gridLineWidth: 1,
-  });
+  const yTickView = chartView.rightAxis.view.insertTick(y);
+  yTickView.label.setText(y.toFixed(2));
+  yTickView.gridLineWidth.setState(1);
 });
 plotView.addEventListener("pointerout", function (event) {
   const dataPoint = event.targetView;
@@ -86,7 +81,8 @@ for (let i = 0, n = cycles * samples; i <= n; i += 1) {
   const x = i * 2 * Math.PI / samples;
   const y = Math.sin(x);
   const opacity = i === 0 ? 0.75 : i === n ? 0.25 : void 0;
-  plotView.insertDataPoint({x: x, y: y, opacity: opacity});
+  const dataPointView = plotView.insertDataPoint(new swim.DataPointView(x, y));
+  dataPointView.opacity.setState(opacity);
 }
 
 containerView.appendChild(canvasView);

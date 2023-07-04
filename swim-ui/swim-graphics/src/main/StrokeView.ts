@@ -17,14 +17,7 @@ import type {Length} from "@swim/math";
 import type {AnyColor} from "@swim/style";
 import type {Color} from "@swim/style";
 import type {ThemeAnimator} from "@swim/theme";
-import type {GraphicsViewInit} from "./GraphicsView";
 import {GraphicsView} from "./GraphicsView";
-
-/** @public */
-export interface StrokeViewInit extends GraphicsViewInit {
-  stroke?: AnyColor;
-  strokeWidth?: AnyLength;
-}
 
 /** @public */
 export interface StrokeView extends GraphicsView {
@@ -35,15 +28,6 @@ export interface StrokeView extends GraphicsView {
 
 /** @public */
 export const StrokeView = {
-  init(view: StrokeView, init: StrokeViewInit): void {
-    if (init.stroke !== void 0) {
-      view.stroke(init.stroke);
-    }
-    if (init.strokeWidth !== void 0) {
-      view.strokeWidth(init.strokeWidth);
-    }
-  },
-
   [Symbol.hasInstance](instance: unknown): instance is StrokeView {
     return instance instanceof GraphicsView
         && "stroke" in instance

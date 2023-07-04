@@ -25,19 +25,13 @@ import {ThemeAnimator} from "@swim/theme";
 import type {ViewFlags} from "@swim/view";
 import {View} from "@swim/view";
 import {ViewRef} from "@swim/view";
-import type {HtmlViewInit} from "@swim/dom";
 import {HtmlView} from "@swim/dom";
 import {Graphics} from "./Graphics";
 import {Icon} from "./Icon";
 import {FilledIcon} from "./FilledIcon";
-import type {IconViewInit} from "./IconView";
-import {IconView} from "./IconView";
+import type {IconView} from "./IconView";
 import {IconGraphicsAnimator} from "./IconView";
 import {SvgIconView} from "./SvgIconView";
-
-/** @public */
-export interface HtmlIconViewInit extends HtmlViewInit, IconViewInit {
-}
 
 /** @public */
 export class HtmlIconView extends HtmlView implements IconView {
@@ -148,10 +142,5 @@ export class HtmlIconView extends HtmlView implements IconView {
     svgView.width.setState(viewWidth, Affinity.Intrinsic);
     svgView.height.setState(viewHeight, Affinity.Intrinsic);
     svgView.viewBox.setState("0 0 " + viewWidth + " " + viewHeight, Affinity.Intrinsic);
-  }
-
-  override init(init: HtmlIconViewInit): void {
-    super.init(init);
-    IconView.init(this, init);
   }
 }

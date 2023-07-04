@@ -18,13 +18,8 @@ import type {MoodVector} from "@swim/theme";
 import type {ThemeMatrix} from "@swim/theme";
 import type {StyleContext} from "./StyleContext";
 import {StyleSheet} from "./StyleSheet";
-import type {HtmlViewInit} from "./HtmlView";
 import type {HtmlViewObserver} from "./HtmlView";
 import {HtmlView} from "./HtmlView";
-
-/** @public */
-export interface StyleViewInit extends HtmlViewInit {
-}
 
 /** @public */
 export interface StyleViewObserver<V extends StyleView = StyleView> extends HtmlViewObserver<V> {
@@ -56,10 +51,6 @@ export class StyleView extends HtmlView implements StyleContext {
   protected override onUnmount(): void {
     this.sheet.detachCss();
     super.onUnmount();
-  }
-
-  override init(init: StyleViewInit): void {
-    super.init(init);
   }
 
   /** @internal */

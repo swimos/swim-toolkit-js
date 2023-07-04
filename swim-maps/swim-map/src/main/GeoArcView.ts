@@ -33,36 +33,17 @@ import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
 import type {GraphicsView} from "@swim/graphics";
-import type {FillViewInit} from "@swim/graphics";
 import type {FillView} from "@swim/graphics";
-import type {StrokeViewInit} from "@swim/graphics";
 import type {StrokeView} from "@swim/graphics";
 import type {PaintingContext} from "@swim/graphics";
 import {PaintingRenderer} from "@swim/graphics";
 import type {CanvasContext} from "@swim/graphics";
 import {CanvasRenderer} from "@swim/graphics";
 import {Arc} from "@swim/graphics";
-import type {GeoViewInit} from "./GeoView";
 import type {GeoViewObserver} from "./GeoView";
 import {GeoView} from "./GeoView";
 import type {GeoRippleOptions} from "./GeoRippleView";
 import {GeoRippleView} from "./GeoRippleView";
-
-/** @public */
-export type AnyGeoArcView = GeoArcView | GeoArcViewInit;
-
-/** @public */
-export interface GeoArcViewInit extends GeoViewInit, FillViewInit, StrokeViewInit {
-  geoCenter?: AnyGeoPoint;
-  viewCenter?: R2Point;
-  innerRadius?: AnyLength;
-  outerRadius?: AnyLength;
-  startAngle?: AnyAngle;
-  sweepAngle?: AnyAngle;
-  padAngle?: AnyAngle;
-  padRadius?: AnyLength | null;
-  cornerRadius?: AnyLength;
-}
 
 /** @public */
 export interface GeoArcViewObserver<V extends GeoArcView = GeoArcView> extends GeoViewObserver<V> {
@@ -318,45 +299,5 @@ export class GeoArcView extends GeoView implements FillView, StrokeView {
 
   ripple(options?: GeoRippleOptions): GeoRippleView | null {
     return GeoRippleView.ripple(this, options);
-  }
-
-  override init(init: GeoArcViewInit): void {
-    super.init(init);
-    if (init.geoCenter !== void 0) {
-      this.geoCenter(init.geoCenter);
-    }
-    if (init.viewCenter !== void 0) {
-      this.viewCenter(init.viewCenter);
-    }
-    if (init.innerRadius !== void 0) {
-      this.innerRadius(init.innerRadius);
-    }
-    if (init.outerRadius !== void 0) {
-      this.outerRadius(init.outerRadius);
-    }
-    if (init.startAngle !== void 0) {
-      this.startAngle(init.startAngle);
-    }
-    if (init.sweepAngle !== void 0) {
-      this.sweepAngle(init.sweepAngle);
-    }
-    if (init.padAngle !== void 0) {
-      this.padAngle(init.padAngle);
-    }
-    if (init.padRadius !== void 0) {
-      this.padRadius(init.padRadius);
-    }
-    if (init.cornerRadius !== void 0) {
-      this.cornerRadius(init.cornerRadius);
-    }
-    if (init.fill !== void 0) {
-      this.fill(init.fill);
-    }
-    if (init.stroke !== void 0) {
-      this.stroke(init.stroke);
-    }
-    if (init.strokeWidth !== void 0) {
-      this.strokeWidth(init.strokeWidth);
-    }
   }
 }

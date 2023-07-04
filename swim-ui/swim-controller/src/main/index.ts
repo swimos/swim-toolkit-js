@@ -16,7 +16,6 @@
 
 export type {ControllerFlags} from "./Controller";
 export type {AnyController} from "./Controller";
-export type {ControllerInit} from "./Controller";
 export type {ControllerFactory} from "./Controller";
 export type {ControllerClass} from "./Controller";
 export type {ControllerConstructor} from "./Controller";

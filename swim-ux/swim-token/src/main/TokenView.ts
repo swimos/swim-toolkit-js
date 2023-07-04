@@ -32,7 +32,6 @@ import {View} from "@swim/view";
 import {ViewRef} from "@swim/view";
 import type {PositionGestureInput} from "@swim/view";
 import {PositionGesture} from "@swim/view";
-import type {HtmlViewInit} from "@swim/dom";
 import type {HtmlViewObserver} from "@swim/dom";
 import {HtmlView} from "@swim/dom";
 import {SvgView} from "@swim/dom";
@@ -42,10 +41,6 @@ import {PathRenderer} from "@swim/graphics";
 
 /** @public */
 export type TokenViewState = "collapsed" | "expanding" | "expanded" | "collapsing";
-
-/** @public */
-export interface TokenViewInit extends HtmlViewInit {
-}
 
 /** @public */
 export interface TokenViewObserver<V extends TokenView = TokenView> extends HtmlViewObserver<V> {
@@ -764,9 +759,5 @@ export class TokenView extends HtmlView {
 
   protected didPressFoot(): void {
     this.callObservers("tokenDidPressFoot", this);
-  }
-
-  override init(init: TokenViewInit): void {
-    super.init(init);
   }
 }

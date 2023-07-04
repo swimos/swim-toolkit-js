@@ -21,8 +21,6 @@ import type {FromAny} from "@swim/util";
 import type {Dictionary} from "@swim/util";
 import type {MutableDictionary} from "@swim/util";
 import {Creatable} from "@swim/util";
-import type {Inits} from "@swim/util";
-import type {Initable} from "@swim/util";
 import type {Consumer} from "@swim/util";
 import type {Consumable} from "@swim/util";
 import {FastenerContext} from "@swim/component";
@@ -30,7 +28,6 @@ import {Fastener} from "@swim/component";
 import {Property} from "@swim/component";
 import {Provider} from "@swim/component";
 import type {ComponentFlags} from "@swim/component";
-import type {ComponentInit} from "@swim/component";
 import type {ComponentObserver} from "@swim/component";
 import {Component} from "@swim/component";
 import type {AnyValue} from "@swim/structure";
@@ -60,19 +57,10 @@ import {SelectionService} from "./"; // forward import
 export type ModelFlags = ComponentFlags;
 
 /** @public */
-export type AnyModel<M extends Model = Model> = M | ModelFactory<M> | Inits<M>;
-
-/** @public */
-export interface ModelInit extends ComponentInit {
-  type?: Creatable<Model>;
-  key?: string;
-  traits?: AnyTrait[];
-  children?: AnyModel[];
-}
+export type AnyModel<M extends Model = Model> = M | ModelFactory<M>;
 
 /** @public */
 export interface ModelFactory<M extends Model = Model, U = AnyModel<M>> extends Creatable<M>, FromAny<M, U> {
-  fromInit(init: Inits<M>): M;
 }
 
 /** @public */
@@ -153,7 +141,7 @@ export interface ModelObserver<M extends Model = Model> extends ComponentObserve
 }
 
 /** @public */
-export class Model extends Component<Model> implements Initable<ModelInit>, Consumable, WarpRef {
+export class Model extends Component<Model> implements Consumable, WarpRef {
   constructor() {
     super();
     this.consumers = null;
@@ -1925,41 +1913,22 @@ export class Model extends Component<Model> implements Initable<ModelInit>, Cons
     return Property.dummy();
   }
 
-  /** @override */
-  override init(init: ModelInit): void {
-    // hook
-  }
-
   static override create<S extends new () => InstanceType<S>>(this: S): InstanceType<S> {
     return new this();
   }
 
-  static override fromInit<S extends Class<Instance<S, Model>>>(this: S, init: Inits<InstanceType<S>>): InstanceType<S> {
-    let type: Creatable<Model>;
-    if ((typeof init === "object" && init !== null || typeof init === "function") && Creatable[Symbol.hasInstance]((init as ModelInit).type)) {
-      type = (init as ModelInit).type!;
-    } else {
-      type = this as unknown as Creatable<Model>;
-    }
-    const view = type.create();
-    view.init(init as ModelInit);
-    return view as InstanceType<S>;
-  }
-
   static override fromAny<S extends Class<Instance<S, Model>>>(this: S, value: AnyModel<InstanceType<S>>): InstanceType<S> {
     if (value === void 0 || value === null) {
-      return value as InstanceType<S>;
+      return value;
     } else if (value instanceof Model) {
-      if (value instanceof this) {
-        return value;
-      } else {
+      if (!((value as Model) instanceof this)) {
         throw new TypeError(value + " not an instance of " + this);
       }
+      return value;
     } else if (Creatable[Symbol.hasInstance](value)) {
       return (value as Creatable<InstanceType<S>>).create();
-    } else {
-      return (this as unknown as ModelFactory<InstanceType<S>>).fromInit(value as Inits<InstanceType<S>>);
     }
+    throw new TypeError("" + value);
   }
 
   /** @internal */

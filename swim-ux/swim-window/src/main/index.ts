@@ -15,12 +15,10 @@
 export {ScrimView} from "./ScrimView";
 
 export type {PopoverPlacement} from "./PopoverView";
-export type {PopoverViewInit} from "./PopoverView";
 export type {PopoverViewObserver} from "./PopoverView";
 export {PopoverView} from "./PopoverView";
 
 export type {DrawerPlacement} from "./DrawerView";
-export type {DrawerViewInit} from "./DrawerView";
 export type {DrawerViewObserver} from "./DrawerView";
 export {DrawerView} from "./DrawerView";
 

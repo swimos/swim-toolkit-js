@@ -22,19 +22,10 @@ import {View} from "@swim/view";
 import type {GraphicsView} from "@swim/graphics";
 import type {CanvasContext} from "@swim/graphics";
 import type {CanvasRenderer} from "@swim/graphics";
-import type {FillViewInit} from "@swim/graphics";
 import type {FillView} from "@swim/graphics";
-import type {SeriesPlotViewInit} from "./SeriesPlotView";
 import type {SeriesPlotViewObserver} from "./SeriesPlotView";
 import type {DataPointView} from "./DataPointView";
 import {SeriesPlotView} from "./SeriesPlotView";
-
-/** @public */
-export type AnyAreaPlotView<X = unknown, Y = unknown> = AreaPlotView<X, Y> | AreaPlotViewInit<X, Y>;
-
-/** @public */
-export interface AreaPlotViewInit<X = unknown, Y = unknown> extends SeriesPlotViewInit<X, Y>, FillViewInit {
-}
 
 /** @public */
 export interface AreaPlotViewObserver<X = unknown, Y = unknown, V extends AreaPlotView<X, Y> = AreaPlotView<X, Y>> extends SeriesPlotViewObserver<X, Y, V> {
@@ -162,12 +153,5 @@ export class AreaPlotView<X = unknown, Y = unknown> extends SeriesPlotView<X, Y>
       }
     }
     return null;
-  }
-
-  override init(init: AreaPlotViewInit<X, Y>): void {
-    super.init(init);
-    if (init.fill !== void 0) {
-      this.fill(init.fill);
-    }
   }
 }

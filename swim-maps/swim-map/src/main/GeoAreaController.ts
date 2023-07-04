@@ -37,12 +37,6 @@ export interface GeoAreaControllerObserver<C extends GeoAreaController = GeoArea
   controllerWillAttachGeoView?(geoView: GeoAreaView, controller: C): void;
 
   controllerDidDetachGeoView?(geoView: GeoAreaView, controller: C): void;
-
-  controllerDidSetFill?(fill: ColorOrLook | null, controller: C): void;
-
-  controllerDidSetStroke?(stroke: ColorOrLook | null, controller: C): void;
-
-  controllerDidSetStrokeWidth?(strokeWidth: Length | null, controller: C): void;
 }
 
 /** @public */
@@ -177,15 +171,6 @@ export class GeoAreaController extends GeoPathController {
     },
     viewDidSetGeoPath(geoPath: GeoPath | null): void {
       this.owner.callObservers("controllerDidSetGeoPath", geoPath, this.owner);
-    },
-    viewDidSetFill(fill: ColorOrLook | null): void {
-      this.owner.callObservers("controllerDidSetFill", fill, this.owner);
-    },
-    viewDidSetStroke(stroke: ColorOrLook | null): void {
-      this.owner.callObservers("controllerDidSetStroke", stroke, this.owner);
-    },
-    viewDidSetStrokeWidth(strokeWidth: Length | null): void {
-      this.owner.callObservers("controllerDidSetStrokeWidth", strokeWidth, this.owner);
     },
   })
   override readonly geo!: TraitViewRef<this, GeoAreaTrait, GeoAreaView> & GeoPathController["geo"] & Observes<GeoAreaTrait> & Observes<GeoAreaView>;

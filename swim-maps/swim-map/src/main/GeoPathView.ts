@@ -26,16 +26,10 @@ import {GeoPoint} from "@swim/geo";
 import {GeoBox} from "@swim/geo";
 import type {AnyGeoPath} from "@swim/geo";
 import {GeoPath} from "@swim/geo";
-import type {GeoViewInit} from "./GeoView";
 import type {GeoViewObserver} from "./GeoView";
 import {GeoView} from "./GeoView";
 import type {GeoRippleOptions} from "./GeoRippleView";
 import {GeoRippleView} from "./GeoRippleView";
-
-/** @public */
-export interface GeoPathViewInit extends GeoViewInit {
-  geoPath?: GeoPath;
-}
 
 /** @public */
 export interface GeoPathViewObserver<V extends GeoPathView = GeoPathView> extends GeoViewObserver<V> {
@@ -136,12 +130,5 @@ export class GeoPathView extends GeoView {
 
   ripple(options?: GeoRippleOptions): GeoRippleView | null {
     return GeoRippleView.ripple(this, options);
-  }
-
-  override init(init: GeoPathViewInit): void {
-    super.init(init);
-    if (init.geoPath !== void 0) {
-      this.geoPath(init.geoPath);
-    }
   }
 }

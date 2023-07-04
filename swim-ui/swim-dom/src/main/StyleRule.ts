@@ -36,7 +36,6 @@ import type {ThemeMatrix} from "@swim/theme";
 import {ThemeAnimator} from "@swim/theme";
 import {ThemeContext} from "@swim/theme";
 import {StyleAnimator} from "./StyleAnimator";
-import type {StyleMapInit} from "./StyleMap";
 import {StyleMap} from "./StyleMap";
 import type {CssRuleDescriptor} from "./CssRule";
 import type {CssRuleClass} from "./CssRule";
@@ -45,7 +44,6 @@ import {CssRule} from "./CssRule";
 /** @public */
 export interface StyleRuleDescriptor extends CssRuleDescriptor<CSSStyleRule> {
   extends?: Proto<StyleRule<any>> | boolean | null;
-  style?: StyleMapInit;
 }
 
 /** @public */
@@ -75,9 +73,6 @@ export interface StyleRule<O = unknown> extends CssRule<O, CSSStyleRule>, Fasten
 
   /** @override */
   get selector(): string;
-
-  /** @protected */
-  get style(): StyleMapInit; // optional prototype property
 
   /** @override */
   getStyle(propertyNames: string | ReadonlyArray<string>): CSSStyleValue | string | undefined;
@@ -477,9 +472,6 @@ export const StyleRule = (function (_super: typeof CssRule) {
     __runInitializers(fastener, StyleRule.instanceInitializers);
     for (const key in StyleRule.fieldInitializers) {
       (fastener as any)[key] = __runInitializers(fastener, StyleRule.fieldInitializers[key]!, void 0);
-    }
-    if (fastener.style !== void 0) {
-      StyleMap.init(fastener, fastener.style);
     }
     return fastener;
   };

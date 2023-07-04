@@ -30,13 +30,11 @@ import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
 import type {ViewFlags} from "@swim/view";
 import {View} from "@swim/view";
-import type {GraphicsViewInit} from "@swim/graphics";
 import type {GraphicsViewObserver} from "@swim/graphics";
 import {GraphicsView} from "@swim/graphics";
 import type {PaintingContext} from "@swim/graphics";
 import {PaintingRenderer} from "@swim/graphics";
 import {ContinuousScaleAnimator} from "./ContinuousScaleAnimator";
-import type {AnyTickView} from "./TickView";
 import {TickView} from "./TickView";
 import {TickGenerator} from "./TickGenerator";
 
@@ -44,34 +42,11 @@ import {TickGenerator} from "./TickGenerator";
 export type AxisOrientation = "top" | "right" | "bottom" | "left";
 
 /** @public */
-export type AnyAxisView<D = unknown> = AxisView<D> | AxisViewInit<D>;
-
-/** @public */
-export interface AxisViewInit<D = unknown> extends GraphicsViewInit {
-  scale?: ContinuousScale<D, number> | string;
-  ticks?: AnyTickView<D>[];
-  tickGenerator?: TickGenerator<D> | true | null;
-
-  borderColor?: AnyColor;
-  borderWidth?: number;
-  borderSerif?: number;
-
-  tickMarkSpacing?: number;
-  tickMarkColor?: AnyColor;
-  tickMarkWidth?: number;
-  tickMarkLength?: number;
-  tickLabelPadding?: number;
-  tickTransition?: AnyTiming;
-
-  gridLineColor?: AnyColor;
-  gridLineWidth?: number;
-
-  font?: AnyFont;
-  textColor?: AnyColor;
-}
-
-/** @public */
 export interface AxisViewObserver<D = unknown, V extends AxisView<D> = AxisView<D>> extends GraphicsViewObserver<V> {
+  viewWillAttachTick?(tickView: TickView<D>, targetView: View | null, view: V): void;
+
+  viewDidDetachTick?(tickView: TickView<D>, view: V): void;
+
   createTickLabel?(tickValue: D, tickView: TickView<D>, view: V): GraphicsView | string | null;
 
   formatTickLabel?(tickLabel: string, tickView: TickView<D>, view: V): string | undefined;
@@ -81,7 +56,7 @@ export interface AxisViewObserver<D = unknown, V extends AxisView<D> = AxisView<
 export abstract class AxisView<D = unknown> extends GraphicsView {
   constructor() {
     super();
-    this.ticks = new BTree();
+    this.tickViews = new BTree();
   }
 
   declare readonly observerType?: Class<AxisViewObserver<D>>;
@@ -91,15 +66,19 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   abstract readonly scale: ContinuousScaleAnimator<this, D, number>;
 
   /** @internal */
-  readonly ticks!: BTree<D, TickView<D>>;
+  readonly tickViews!: BTree<D, TickView<D>>;
 
   getTick(value: D): TickView<D> | null {
-    const tickView = this.ticks.get(value);
+    const tickView = this.tickViews.get(value);
     return tickView !== void 0 ? tickView : null;
   }
 
-  insertTick(tickView: AnyTickView<D>): TickView<D> {
-    return this.insertChild(TickView.fromAny(tickView, this.orientation), null);
+  insertTick(value: D): TickView<D> | null {
+    const tickView = this.createTickView(value);
+    if (tickView !== null) {
+      return this.insertChild(tickView, null);
+    }
+    return tickView;
   }
 
   removeTick(value: D): TickView<D> | null {
@@ -164,15 +143,16 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   protected updateTicks(): void {
     const scale = this.scale.value;
     let tickGenerator = this.tickGenerator.value;
-    if (scale !== null && tickGenerator !== null) {
-      let timing: Timing | boolean = this.tickTransition.value;
-      if (tickGenerator === true) {
-        tickGenerator = TickGenerator.fromScale(scale);
-        this.tickGenerator.setValue(tickGenerator);
-        timing = false;
-      }
-      this.generateTicks(tickGenerator, scale, timing);
+    if (scale === null || tickGenerator === null) {
+      return;
     }
+    let timing: Timing | boolean = this.tickTransition.value;
+    if (tickGenerator === true) {
+      tickGenerator = TickGenerator.fromScale(scale);
+      this.tickGenerator.setValue(tickGenerator);
+      timing = false;
+    }
+    this.generateTicks(tickGenerator, scale, timing);
   }
 
   protected generateTicks(tickGenerator: TickGenerator<D>,
@@ -187,7 +167,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     }
     tickGenerator.domain(scale.domain);
 
-    const oldTicks = this.ticks.clone();
+    const oldTicks = this.tickViews.clone();
     const tickValues = tickGenerator.generate();
     for (let i = 0, n = tickValues.length; i < n; i += 1) {
       const tickValue = tickValues[i]!;
@@ -213,16 +193,17 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
 
   protected createTickView(tickValue: D): TickView<D> | null {
     const tickView = TickView.from(tickValue, this.orientation);
-    if (tickView !== null) {
-      const tickLabel = this.createTickLabel(tickValue, tickView);
-      if (tickLabel !== null) {
-        if (typeof tickLabel === "string") {
-          tickView.label.setText(tickLabel);
-        } else {
-          tickView.label.setView(tickLabel);
-        }
-        tickView.preserve(false);
+    if (tickView === null) {
+      return null;
+    }
+    const tickLabel = this.createTickLabel(tickValue, tickView);
+    if (tickLabel !== null) {
+      if (typeof tickLabel === "string") {
+        tickView.label.setText(tickLabel);
+      } else {
+        tickView.label.setView(tickLabel);
       }
+      tickView.preserve(false);
     }
     return tickView;
   }
@@ -271,15 +252,15 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
 
   protected override onInsertChild(child: View, target: View | null): void {
     super.onInsertChild(child, target);
-    if (child instanceof TickView && this.ticks.get(child.value) !== child) {
-      this.ticks.set(child.value, child);
+    if (child instanceof TickView && this.tickViews.get(child.value) !== child) {
+      this.tickViews.set(child.value, child);
     }
   }
 
   protected override onRemoveChild(child: View): void {
     super.onRemoveChild(child);
-    if (child instanceof TickView && this.ticks.get(child.value) === child) {
-      this.ticks.delete(child.value);
+    if (child instanceof TickView && this.tickViews.get(child.value) === child) {
+      this.tickViews.delete(child.value);
     }
   }
 
@@ -318,66 +299,6 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   }
 
   protected abstract renderDomain(context: PaintingContext, origin: R2Point, frame: R2Box): void;
-
-  override init(init: AxisViewInit<D>): void {
-    super.init(init);
-    if (init.scale !== void 0) {
-      this.scale(init.scale);
-    }
-
-    const ticks = init.ticks;
-    if (ticks !== void 0) {
-      for (let i = 0, n = ticks.length; i < n; i += 1) {
-        this.appendChild(TickView.fromAny(ticks[i]!));
-      }
-    }
-    if (init.tickGenerator !== void 0) {
-      this.tickGenerator(init.tickGenerator);
-    }
-
-    if (init.borderColor !== void 0) {
-      this.borderColor(init.borderColor);
-    }
-    if (init.borderWidth !== void 0) {
-      this.borderWidth(init.borderWidth);
-    }
-    if (init.borderSerif !== void 0) {
-      this.borderSerif(init.borderSerif);
-    }
-
-    if (init.tickMarkSpacing !== void 0) {
-      this.tickMarkSpacing(init.tickMarkSpacing);
-    }
-    if (init.tickMarkColor !== void 0) {
-      this.tickMarkColor(init.tickMarkColor);
-    }
-    if (init.tickMarkWidth !== void 0) {
-      this.tickMarkWidth(init.tickMarkWidth);
-    }
-    if (init.tickMarkLength !== void 0) {
-      this.tickMarkLength(init.tickMarkLength);
-    }
-    if (init.tickLabelPadding !== void 0) {
-      this.tickLabelPadding(init.tickLabelPadding);
-    }
-    if (init.tickTransition !== void 0) {
-      this.tickTransition(init.tickTransition);
-    }
-
-    if (init.gridLineColor !== void 0) {
-      this.gridLineColor(init.gridLineColor);
-    }
-    if (init.gridLineWidth !== void 0) {
-      this.gridLineWidth(init.gridLineWidth);
-    }
-
-    if (init.font !== void 0) {
-      this.font(init.font);
-    }
-    if (init.textColor !== void 0) {
-      this.textColor(init.textColor);
-    }
-  }
 }
 
 /** @public */
@@ -405,34 +326,36 @@ export class TopAxisView<X = unknown> extends AxisView<X> {
   protected override renderDomain(context: PaintingContext, origin: R2Point, frame: R2Box): void {
     const borderColor = this.borderColor.value;
     const borderWidth = this.borderWidth.getValue();
-    if (borderColor !== null && borderWidth !== 0) {
-      const x0 = frame.xMin;
-      const x1 = frame.xMax;
-      const y = origin.y;
-      const dy = this.borderSerif.getValue();
-
-      // save
-      const contextLineWidth = context.lineWidth;
-      const contextStrokeStyle = context.strokeStyle;
-
-      context.beginPath();
-      context.lineWidth = borderWidth;
-      context.strokeStyle = borderColor.toString();
-      if (dy !== 0) {
-        context.moveTo(x0, y - dy);
-        context.lineTo(x0, y);
-        context.lineTo(x1, y);
-        context.lineTo(x1, y - dy);
-      } else {
-        context.moveTo(x0, y);
-        context.lineTo(x1, y);
-      }
-      context.stroke();
-
-      // restore
-      context.lineWidth = contextLineWidth;
-      context.strokeStyle = contextStrokeStyle;
+    if (borderColor === null || borderWidth === 0) {
+      return;
     }
+
+    const x0 = frame.xMin;
+    const x1 = frame.xMax;
+    const y = origin.y;
+    const dy = this.borderSerif.getValue();
+
+    // save
+    const contextLineWidth = context.lineWidth;
+    const contextStrokeStyle = context.strokeStyle;
+
+    context.beginPath();
+    context.lineWidth = borderWidth;
+    context.strokeStyle = borderColor.toString();
+    if (dy !== 0) {
+      context.moveTo(x0, y - dy);
+      context.lineTo(x0, y);
+      context.lineTo(x1, y);
+      context.lineTo(x1, y - dy);
+    } else {
+      context.moveTo(x0, y);
+      context.lineTo(x1, y);
+    }
+    context.stroke();
+
+    // restore
+    context.lineWidth = contextLineWidth;
+    context.strokeStyle = contextStrokeStyle;
   }
 }
 
@@ -461,34 +384,36 @@ export class RightAxisView<Y = unknown> extends AxisView<Y> {
   protected override renderDomain(context: PaintingContext, origin: R2Point, frame: R2Box): void {
     const borderColor = this.borderColor.value;
     const borderWidth = this.borderWidth.getValue();
-    if (borderColor !== null && borderWidth !== 0) {
-      const x = origin.x;
-      const dx = this.borderSerif.getValue();
-      const y0 = frame.yMin;
-      const y1 = frame.yMax;
-
-      // save
-      const contextLineWidth = context.lineWidth;
-      const contextStrokeStyle = context.strokeStyle;
-
-      context.beginPath();
-      context.lineWidth = borderWidth;
-      context.strokeStyle = borderColor.toString();
-      if (dx !== 0) {
-        context.moveTo(x + dx, y0);
-        context.lineTo(x,      y0);
-        context.lineTo(x,      y1);
-        context.lineTo(x + dx, y1);
-      } else {
-        context.moveTo(x, y0);
-        context.lineTo(x, y1);
-      }
-      context.stroke();
-
-      // restore
-      context.lineWidth = contextLineWidth;
-      context.strokeStyle = contextStrokeStyle;
+    if (borderColor === null || borderWidth === 0) {
+      return;
     }
+
+    const x = origin.x;
+    const dx = this.borderSerif.getValue();
+    const y0 = frame.yMin;
+    const y1 = frame.yMax;
+
+    // save
+    const contextLineWidth = context.lineWidth;
+    const contextStrokeStyle = context.strokeStyle;
+
+    context.beginPath();
+    context.lineWidth = borderWidth;
+    context.strokeStyle = borderColor.toString();
+    if (dx !== 0) {
+      context.moveTo(x + dx, y0);
+      context.lineTo(x,      y0);
+      context.lineTo(x,      y1);
+      context.lineTo(x + dx, y1);
+    } else {
+      context.moveTo(x, y0);
+      context.lineTo(x, y1);
+    }
+    context.stroke();
+
+    // restore
+    context.lineWidth = contextLineWidth;
+    context.strokeStyle = contextStrokeStyle;
   }
 }
 
@@ -517,34 +442,36 @@ export class BottomAxisView<X = unknown> extends AxisView<X> {
   protected override renderDomain(context: PaintingContext, origin: R2Point, frame: R2Box): void {
     const borderColor = this.borderColor.value;
     const borderWidth = this.borderWidth.getValue();
-    if (borderColor !== null && borderWidth !== 0) {
-      const x0 = frame.xMin;
-      const x1 = frame.xMax;
-      const y = origin.y;
-      const dy = this.borderSerif.getValue();
-
-      // save
-      const contextLineWidth = context.lineWidth;
-      const contextStrokeStyle = context.strokeStyle;
-
-      context.beginPath();
-      context.lineWidth = borderWidth;
-      context.strokeStyle = borderColor.toString();
-      if (dy !== 0) {
-        context.moveTo(x0, y + dy);
-        context.lineTo(x0, y);
-        context.lineTo(x1, y);
-        context.lineTo(x1, y + dy);
-      } else {
-        context.moveTo(x0, y);
-        context.lineTo(x1, y);
-      }
-      context.stroke();
-
-      // restore
-      context.lineWidth = contextLineWidth;
-      context.strokeStyle = contextStrokeStyle;
+    if (borderColor === null || borderWidth === 0) {
+      return;
     }
+
+    const x0 = frame.xMin;
+    const x1 = frame.xMax;
+    const y = origin.y;
+    const dy = this.borderSerif.getValue();
+
+    // save
+    const contextLineWidth = context.lineWidth;
+    const contextStrokeStyle = context.strokeStyle;
+
+    context.beginPath();
+    context.lineWidth = borderWidth;
+    context.strokeStyle = borderColor.toString();
+    if (dy !== 0) {
+      context.moveTo(x0, y + dy);
+      context.lineTo(x0, y);
+      context.lineTo(x1, y);
+      context.lineTo(x1, y + dy);
+    } else {
+      context.moveTo(x0, y);
+      context.lineTo(x1, y);
+    }
+    context.stroke();
+
+    // restore
+    context.lineWidth = contextLineWidth;
+    context.strokeStyle = contextStrokeStyle;
   }
 }
 
@@ -573,33 +500,35 @@ export class LeftAxisView<Y = unknown> extends AxisView<Y> {
   protected override renderDomain(context: PaintingContext, origin: R2Point, frame: R2Box): void {
     const borderColor = this.borderColor.value;
     const borderWidth = this.borderWidth.getValue();
-    if (borderColor !== null && borderWidth !== 0) {
-      const x = origin.x;
-      const dx = this.borderSerif.getValue();
-      const y0 = frame.yMin;
-      const y1 = frame.yMax;
-
-      // save
-      const contextLineWidth = context.lineWidth;
-      const contextStrokeStyle = context.strokeStyle;
-
-      context.beginPath();
-      context.lineWidth = borderWidth;
-      context.strokeStyle = borderColor.toString();
-      if (dx !== 0) {
-        context.moveTo(x - dx, y0);
-        context.lineTo(x,      y0);
-        context.lineTo(x,      y1);
-        context.lineTo(x - dx, y1);
-      } else {
-        context.moveTo(x, y0);
-        context.lineTo(x, y1);
-      }
-      context.stroke();
-
-      // restore
-      context.lineWidth = contextLineWidth;
-      context.strokeStyle = contextStrokeStyle;
+    if (borderColor === null || borderWidth === 0) {
+      return;
     }
+
+    const x = origin.x;
+    const dx = this.borderSerif.getValue();
+    const y0 = frame.yMin;
+    const y1 = frame.yMax;
+
+    // save
+    const contextLineWidth = context.lineWidth;
+    const contextStrokeStyle = context.strokeStyle;
+
+    context.beginPath();
+    context.lineWidth = borderWidth;
+    context.strokeStyle = borderColor.toString();
+    if (dx !== 0) {
+      context.moveTo(x - dx, y0);
+      context.lineTo(x,      y0);
+      context.lineTo(x,      y1);
+      context.lineTo(x - dx, y1);
+    } else {
+      context.moveTo(x, y0);
+      context.lineTo(x, y1);
+    }
+    context.stroke();
+
+    // restore
+    context.lineWidth = contextLineWidth;
+    context.strokeStyle = contextStrokeStyle;
   }
 }

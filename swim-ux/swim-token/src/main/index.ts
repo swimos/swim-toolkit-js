@@ -13,10 +13,8 @@
 // limitations under the License.
 
 export type {TokenViewState} from "./TokenView";
-export type {TokenViewInit} from "./TokenView";
 export type {TokenViewObserver} from "./TokenView";
 export {TokenView} from "./TokenView";
 
-export type {InputTokenViewInit} from "./InputTokenView";
 export {InputTokenView} from "./InputTokenView";
 export type {InputTokenViewObserver} from "./InputTokenView";

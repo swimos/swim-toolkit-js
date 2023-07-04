@@ -21,7 +21,6 @@ import {R2Box} from "@swim/math";
 import {Transform} from "@swim/math";
 import type {ViewFlags} from "@swim/view";
 import {View} from "@swim/view";
-import type {HtmlViewInit} from "@swim/dom";
 import type {HtmlViewObserver} from "@swim/dom";
 import {HtmlView} from "@swim/dom";
 import type {GraphicsEvent} from "./GraphicsEvent";
@@ -42,16 +41,6 @@ import {SpriteService} from "./SpriteService";
 
 /** @internal */
 export type CanvasFlags = number;
-
-/** @public */
-export interface CanvasViewInit extends HtmlViewInit {
-  renderer?: AnyGraphicsRenderer;
-  clickEventsEnabled?: boolean;
-  wheelEventsEnabled?: boolean;
-  mouseEventsEnabled?: boolean;
-  pointerEventsEnabled?: boolean;
-  touchEventsEnabled?: boolean;
-}
 
 /** @public */
 export interface CanvasViewObserver<V extends CanvasView = CanvasView> extends HtmlViewObserver<V> {
@@ -1219,28 +1208,6 @@ export class CanvasView extends HtmlView {
     } else if (renderer instanceof WebGLRenderer) {
       const frame = this.viewFrame;
       renderer.context.viewport(0, 0, frame.width, frame.height);
-    }
-  }
-
-  override init(init: CanvasViewInit): void {
-    super.init(init);
-    if (init.renderer !== void 0) {
-      this.renderer(init.renderer);
-    }
-    if (init.clickEventsEnabled !== void 0) {
-      this.clickEventsEnabled(init.clickEventsEnabled);
-    }
-    if (init.wheelEventsEnabled !== void 0) {
-      this.wheelEventsEnabled(init.wheelEventsEnabled);
-    }
-    if (init.mouseEventsEnabled !== void 0) {
-      this.mouseEventsEnabled(init.mouseEventsEnabled);
-    }
-    if (init.pointerEventsEnabled !== void 0) {
-      this.pointerEventsEnabled(init.pointerEventsEnabled);
-    }
-    if (init.touchEventsEnabled !== void 0) {
-      this.touchEventsEnabled(init.touchEventsEnabled);
     }
   }
 

@@ -15,8 +15,6 @@
 // Dial
 
 export type {DialViewArrangement} from "./DialView";
-export type {AnyDialView} from "./DialView";
-export type {DialViewInit} from "./DialView";
 export type {DialViewObserver} from "./DialView";
 export {DialView} from "./DialView";
 
@@ -28,8 +26,6 @@ export {DialController} from "./DialController";
 
 // Gauge
 
-export type {AnyGaugeView} from "./GaugeView";
-export type {GaugeViewInit} from "./GaugeView";
 export type {GaugeViewObserver} from "./GaugeView";
 export {GaugeView} from "./GaugeView";
 

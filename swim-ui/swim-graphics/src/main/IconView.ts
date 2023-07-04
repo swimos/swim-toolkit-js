@@ -19,21 +19,10 @@ import type {Length} from "@swim/math";
 import type {AnyColor} from "@swim/style";
 import type {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
-import type {ViewInit} from "@swim/view";
 import {View} from "@swim/view";
 import {Graphics} from "./Graphics";
 import {Icon} from "./Icon";
 import {FilledIcon} from "./FilledIcon";
-
-/** @public */
-export interface IconViewInit extends ViewInit {
-  xAlign?: number;
-  yAlign?: number;
-  iconWidth?: AnyLength;
-  iconHeight?: AnyLength;
-  iconColor?: AnyColor;
-  graphics?: Graphics;
-}
 
 /** @public */
 export interface IconView extends View {
@@ -52,27 +41,6 @@ export interface IconView extends View {
 
 /** @public */
 export const IconView = {
-  init(view: IconView, init: IconViewInit): void {
-    if (init.xAlign !== void 0) {
-      view.xAlign(init.xAlign);
-    }
-    if (init.yAlign !== void 0) {
-      view.yAlign(init.yAlign);
-    }
-    if (init.iconWidth !== void 0) {
-      view.iconWidth(init.iconWidth);
-    }
-    if (init.iconHeight !== void 0) {
-      view.iconHeight(init.iconHeight);
-    }
-    if (init.iconColor !== void 0) {
-      view.iconColor(init.iconColor);
-    }
-    if (init.graphics !== void 0) {
-      view.graphics(init.graphics);
-    }
-  },
-
   [Symbol.hasInstance](instance: unknown): instance is IconView {
     return instance instanceof View
         && "xAlign" in instance

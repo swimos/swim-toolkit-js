@@ -27,7 +27,6 @@ import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
 import {ViewRef} from "@swim/view";
-import type {GraphicsViewInit} from "@swim/graphics";
 import type {GraphicsViewObserver} from "@swim/graphics";
 import {GraphicsView} from "@swim/graphics";
 import type {PaintingContext} from "@swim/graphics";
@@ -46,28 +45,6 @@ export const enum TickState {
 
 /** @public */
 export type TickOrientation = "top" | "right" | "bottom" | "left";
-
-/** @public */
-export type AnyTickView<D = unknown> = TickView<D> | TickViewInit<D>;
-
-/** @public */
-export interface TickViewInit<D = unknown> extends GraphicsViewInit {
-  value: D;
-  orientation?: TickOrientation;
-
-  tickMarkColor?: AnyColor;
-  tickMarkWidth?: number;
-  tickMarkLength?: number;
-  tickLabelPadding?: number;
-
-  gridLineColor?: AnyColor;
-  gridLineWidth?: number;
-
-  font?: AnyFont;
-  textColor?: AnyColor;
-
-  label?: GraphicsView | string | null;
-}
 
 /** @public */
 export interface TickViewObserver<D = unknown, V extends TickView<D> = TickView<D>> extends GraphicsViewObserver<V> {
@@ -231,42 +208,6 @@ export abstract class TickView<D = unknown> extends GraphicsView {
 
   protected abstract renderTick(context: PaintingContext, frame: R2Box): void;
 
-  override init(init: TickViewInit<D>): void {
-    super.init(init);
-    if (init.tickMarkColor !== void 0) {
-      this.tickMarkColor(init.tickMarkColor);
-    }
-    if (init.tickMarkWidth !== void 0) {
-      this.tickMarkWidth(init.tickMarkWidth);
-    }
-    if (init.tickMarkLength !== void 0) {
-      this.tickMarkLength(init.tickMarkLength);
-    }
-    if (init.tickLabelPadding !== void 0) {
-      this.tickLabelPadding(init.tickLabelPadding);
-    }
-
-    if (init.gridLineColor !== void 0) {
-      this.gridLineColor(init.gridLineColor);
-    }
-    if (init.gridLineWidth !== void 0) {
-      this.gridLineWidth(init.gridLineWidth);
-    }
-
-    if (init.font !== void 0) {
-      this.font(init.font);
-    }
-    if (init.textColor !== void 0) {
-      this.textColor(init.textColor);
-    }
-
-    if (typeof init.label === "string") {
-      this.label.setText(init.label);
-    } else if (init.label !== void 0) {
-      this.label.setView(init.label);
-    }
-  }
-
   static top<D>(value: D): TopTickView<D> {
     return new TopTickView(value);
   }
@@ -294,36 +235,6 @@ export abstract class TickView<D = unknown> extends GraphicsView {
       return this.left(value);
     } else {
       throw new TypeError(orientation);
-    }
-  }
-
-  static override fromInit<D>(init: TickViewInit<D>, orientation?: TickOrientation): TickView<D>;
-  static override fromInit(init: TickViewInit, orientation?: TickOrientation): TickView;
-  static override fromInit(init: TickViewInit, orientation?: TickOrientation): TickView {
-    if (init.orientation !== void 0) {
-      orientation = init.orientation;
-    }
-    if (orientation === void 0) {
-      throw new TypeError();
-    }
-    const view = this.from(init.value, orientation);
-    view.init(init);
-    return view;
-  }
-
-  static override fromAny<D>(value: AnyTickView<D>, orientation?: TickOrientation): TickView<D>;
-  static override fromAny(value: AnyTickView, orientation?: TickOrientation): TickView;
-  static override fromAny(value: AnyTickView, orientation?: TickOrientation): TickView {
-    if (value === void 0 || value === null) {
-      return value;
-    } else if (value instanceof View) {
-      if (value instanceof this) {
-        return value;
-      } else {
-        throw new TypeError(value + " not an instance of " + this);
-      }
-    } else {
-      return this.fromInit(value, orientation);
     }
   }
 }

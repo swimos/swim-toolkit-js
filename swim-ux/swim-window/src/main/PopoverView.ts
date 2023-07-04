@@ -34,7 +34,6 @@ import type {ViewFlags} from "@swim/view";
 import {View} from "@swim/view";
 import {ViewRef} from "@swim/view";
 import {StyleAnimator} from "@swim/dom";
-import type {HtmlViewInit} from "@swim/dom";
 import type {HtmlViewObserver} from "@swim/dom";
 import {HtmlView} from "@swim/dom";
 import type {ModalViewObserver} from "@swim/dom";
@@ -42,15 +41,6 @@ import type {ModalView} from "@swim/dom";
 
 /** @public */
 export type PopoverPlacement = "none" | "above" | "below" | "over" | "top" | "bottom" | "right" | "left";
-
-/** @public */
-export interface PopoverViewInit extends HtmlViewInit {
-  source?: View;
-  placement?: PopoverPlacement[];
-  placementFrame?: R2Box;
-  arrowWidth?: AnyLength;
-  arrowHeight?: AnyLength;
-}
 
 /** @public */
 export interface PopoverViewObserver<V extends PopoverView = PopoverView> extends HtmlViewObserver<V>, ModalViewObserver<V> {
@@ -667,25 +657,6 @@ export class PopoverView extends HtmlView implements ModalView {
 
   protected onClick(event: Event): void {
     event.stopPropagation();
-  }
-
-  override init(init: PopoverViewInit): void {
-    super.init(init);
-    if (init.source !== void 0) {
-      this.source.setView(init.source);
-    }
-    if (init.placement !== void 0) {
-      this.placement(init.placement);
-    }
-    if (init.placementFrame !== void 0) {
-      this.placementFrame(init.placementFrame);
-    }
-    if (init.arrowWidth !== void 0) {
-      this.arrowWidth(init.arrowWidth);
-    }
-    if (init.arrowHeight !== void 0) {
-      this.arrowHeight(init.arrowHeight);
-    }
   }
 
   /** @internal */

@@ -18,7 +18,6 @@ import type {Instance} from "@swim/util";
 import type {AnyTiming} from "@swim/util";
 import type {Timing} from "@swim/util";
 import {Creatable} from "@swim/util";
-import type {Inits} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Transform} from "@swim/math";
 import {Look} from "@swim/theme";
@@ -29,11 +28,9 @@ import type {ViewFlags} from "@swim/view";
 import type {AnyView} from "@swim/view";
 import {View} from "@swim/view";
 import {AttributeAnimator} from "./AttributeAnimator";
-import type {StyleMapInit} from "./StyleMap";
 import {StyleMap} from "./StyleMap";
 import type {ViewNodeType} from "./NodeView";
 import type {AnyElementView} from "./ElementView";
-import type {ElementViewInit} from "./ElementView";
 import type {ElementViewFactory} from "./ElementView";
 import type {ElementViewClass} from "./ElementView";
 import type {ElementViewConstructor} from "./ElementView";
@@ -49,21 +46,6 @@ export interface ViewHtml extends HTMLElement {
 
 /** @public */
 export type AnyHtmlView<V extends HtmlView = HtmlView> = AnyElementView<V> | keyof HtmlViewTagMap;
-
-/** @public */
-export interface HtmlViewInit extends ElementViewInit {
-  attributes?: HtmlViewAttributesInit;
-  style?: HtmlViewStyleInit;
-}
-
-/** @public */
-export type HtmlViewAttributesInit = {
-  [K in keyof HtmlView as HtmlView[K] extends AttributeAnimator<any, any, any> ? K : never]?: HtmlView[K] extends AttributeAnimator<any, infer T, infer U> ? T | U : never;
-};
-
-/** @public */
-export interface HtmlViewStyleInit extends StyleMapInit {
-}
 
 /** @public */
 export interface HtmlViewTagMap {
@@ -424,31 +406,6 @@ export class HtmlView extends ElementView {
     this.node.removeEventListener(type, listener, options);
   }
 
-  /** @internal */
-  protected initAttributes(init: HtmlViewAttributesInit): void {
-    for (const key in init) {
-      const property = this[key as keyof this];
-      if (property instanceof AttributeAnimator) {
-        property(init[key as keyof HtmlViewAttributesInit] as any);
-      }
-    }
-  }
-
-  /** @internal */
-  protected initStyle(init: HtmlViewStyleInit): void {
-    StyleMap.init(this, init);
-  }
-
-  override init(init: HtmlViewInit): void {
-    super.init(init);
-    if (init.attributes !== void 0) {
-      this.initAttributes(init.attributes);
-    }
-    if (init.style !== void 0) {
-      this.initStyle(init.style);
-    }
-  }
-
   static override readonly tag: string = "div";
 
   static override create<S extends Class<Instance<S, HtmlView>>>(this: S): InstanceType<S>;
@@ -457,19 +414,24 @@ export class HtmlView extends ElementView {
     return this.fromTag(this.tag);
   }
 
-  static override fromTag(tag: "style"): StyleView;
-  static override fromTag(tag: "svg"): SvgView;
-  static override fromTag<S extends Class<Instance<S, HtmlView>>>(this: S, tag: string): InstanceType<S>;
-  static override fromTag(tag: string): HtmlView;
-  static override fromTag(tag: string): ElementView {
-    if (tag === "style" && this !== StyleView) {
-      return StyleView.create();
-    } else if (tag === "svg") {
-      return SvgView.create();
-    } else {
-      const node = document.createElement(tag);
-      return this.fromNode(node);
+  static override fromAny<S extends Class<Instance<S, HtmlView>>>(this: S, value: AnyHtmlView<InstanceType<S>>): InstanceType<S>;
+  static override fromAny(value: AnyHtmlView | string): HtmlView;
+  static override fromAny(value: AnyHtmlView | string): HtmlView {
+    if (value === void 0 || value === null) {
+      return value;
+    } else if (value instanceof View) {
+      if (!(value instanceof this)) {
+        throw new TypeError(value + " not an instance of " + this);
+      }
+      return value;
+    } else if (value instanceof Node) {
+      return this.fromNode(value);
+    } else if (typeof value === "string") {
+      return this.fromTag(value);
+    } else if (Creatable[Symbol.hasInstance](value)) {
+      return this.create();
     }
+    throw new TypeError("" + value);
   }
 
   static override fromNode<S extends new (node: HTMLElement) => Instance<S, HtmlView>>(this: S, node: ViewNodeType<InstanceType<S>>): InstanceType<S>;
@@ -485,26 +447,18 @@ export class HtmlView extends ElementView {
     return view;
   }
 
-  static override fromAny<S extends Class<Instance<S, HtmlView>>>(this: S, value: AnyHtmlView<InstanceType<S>>): InstanceType<S>;
-  static override fromAny(value: AnyHtmlView | string): HtmlView;
-  static override fromAny(value: AnyHtmlView | string): HtmlView {
-    if (value === void 0 || value === null) {
-      return value;
-    } else if (value instanceof View) {
-      if (value instanceof this) {
-        return value;
-      } else {
-        throw new TypeError(value + " not an instance of " + this);
-      }
-    } else if (value instanceof Node) {
-      return this.fromNode(value);
-    } else if (typeof value === "string") {
-      return this.fromTag(value);
-    } else if (Creatable[Symbol.hasInstance](value)) {
-      return value.create();
-    } else {
-      return this.fromInit(value);
+  static override fromTag(tag: "style"): StyleView;
+  static override fromTag(tag: "svg"): SvgView;
+  static override fromTag<S extends Class<Instance<S, HtmlView>>>(this: S, tag: string): InstanceType<S>;
+  static override fromTag(tag: string): HtmlView;
+  static override fromTag(tag: string): ElementView {
+    if (tag === "style" && this !== StyleView) {
+      return StyleView.create();
+    } else if (tag === "svg") {
+      return SvgView.create();
     }
+    const node = document.createElement(tag);
+    return this.fromNode(node);
   }
 
   static forTag<S extends Class<Instance<S, HtmlView>>>(this: S, tag: string): HtmlViewFactory<InstanceType<S>>;
@@ -512,9 +466,8 @@ export class HtmlView extends ElementView {
   static forTag(tag: string): HtmlViewFactory {
     if (tag === this.tag) {
       return this;
-    } else {
-      return new HtmlViewTagFactory(this, tag);
     }
+    return new HtmlViewTagFactory(this, tag);
   }
 
   /** @internal */
@@ -546,26 +499,16 @@ export class HtmlViewTagFactory<V extends HtmlView> implements HtmlViewFactory<V
     return this.fromTag(this.tag);
   }
 
-  fromTag(tag: string): V {
-    const node = document.createElement(tag);
-    return this.fromNode(node as ViewNodeType<V>);
+  fromAny(value: AnyHtmlView<V>): V {
+    return this.factory.fromAny(value);
   }
 
   fromNode(node: ViewNodeType<V>): V {
     return this.factory.fromNode(node);
   }
 
-  fromInit(init: Inits<V>): V {
-    let type = init.type;
-    if (type === void 0) {
-      type = this;
-    }
-    const view = type.create() as V;
-    view.init(init);
-    return view;
-  }
-
-  fromAny(value: AnyHtmlView<V>): V {
-    return this.factory.fromAny(value);
+  fromTag(tag: string): V {
+    const node = document.createElement(tag);
+    return this.fromNode(node as ViewNodeType<V>);
   }
 }

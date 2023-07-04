@@ -37,10 +37,6 @@ export interface GeoLineControllerObserver<C extends GeoLineController = GeoLine
   controllerWillAttachGeoView?(geoView: GeoLineView, controller: C): void;
 
   controllerDidDetachGeoView?(geoView: GeoLineView, controller: C): void;
-
-  controllerDidSetStroke?(stroke: ColorOrLook | null, controller: C): void;
-
-  controllerDidSetStrokeWidth?(strokeWidth: Length | null, controller: C): void;
 }
 
 /** @public */
@@ -145,12 +141,6 @@ export class GeoLineController extends GeoPathController {
     },
     viewDidSetGeoPath(geoPath: GeoPath | null): void {
       this.owner.callObservers("controllerDidSetGeoPath", geoPath, this.owner);
-    },
-    viewDidSetStroke(stroke: ColorOrLook | null): void {
-      this.owner.callObservers("controllerDidSetStroke", stroke, this.owner);
-    },
-    viewDidSetStrokeWidth(strokeWidth: Length | null): void {
-      this.owner.callObservers("controllerDidSetStrokeWidth", strokeWidth, this.owner);
     },
   })
   override readonly geo!: TraitViewRef<this, GeoLineTrait, GeoLineView> & GeoPathController["geo"] & Observes<GeoLineTrait> & Observes<GeoLineView>;

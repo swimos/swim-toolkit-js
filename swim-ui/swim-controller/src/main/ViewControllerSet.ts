@@ -385,9 +385,8 @@ export const ViewControllerSet = (function (_super: typeof ControllerSet) {
     const viewType = this.viewType;
     if (viewType !== void 0) {
       return viewType.fromAny(value);
-    } else {
-      return View.fromAny(value) as V;
     }
+    return View.fromAny(value) as V;
   };
 
   ViewControllerSet.prototype.detectControllerView = function <V extends View, C extends Controller>(this: ViewControllerSet<unknown, V, C>, controller: Controller): V | null {

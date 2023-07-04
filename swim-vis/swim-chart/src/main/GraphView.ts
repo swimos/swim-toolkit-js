@@ -19,25 +19,11 @@ import {Font} from "@swim/style";
 import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
-import {View} from "@swim/view";
 import type {GraphicsView} from "@swim/graphics";
 import type {CanvasContext} from "@swim/graphics";
 import {CanvasRenderer} from "@swim/graphics";
-import type {ScaledViewInit} from "./ScaledView";
 import type {ScaledViewObserver} from "./ScaledView";
 import {ScaledView} from "./ScaledView";
-import type {AnyPlotView, PlotView} from "./PlotView";
-
-/** @public */
-export type AnyGraphView<X = unknown, Y = unknown> = GraphView<X, Y> | GraphViewInit<X, Y>;
-
-/** @public */
-export interface GraphViewInit<X = unknown, Y = unknown> extends ScaledViewInit<X, Y> {
-  plots?: AnyPlotView<X, Y>[];
-
-  font?: AnyFont;
-  textColor?: AnyColor;
-}
 
 /** @public */
 export interface GraphViewObserver<X = unknown, Y = unknown, V extends GraphView<X, Y> = GraphView<X, Y>> extends ScaledViewObserver<X, Y, V> {
@@ -52,14 +38,6 @@ export class GraphView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
 
   @ThemeAnimator({valueType: Color, value: null, inherits: true})
   readonly textColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
-
-  addPlot(plot: AnyPlotView<X, Y>, key?: string): void {
-    if (key === void 0 && typeof plot === "object" && plot !== null) {
-      key = plot.key;
-    }
-    plot = View.fromAny(plot) as PlotView<X, Y>;
-    this.appendChild(plot);
-  }
 
   protected override willRender(): void {
     super.willRender();
@@ -88,22 +66,5 @@ export class GraphView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
 
   protected override hitTest(x: number, y: number): GraphicsView | null {
     return this;
-  }
-
-  override init(init: GraphViewInit<X, Y>): void {
-    super.init(init);
-    const plots = init.plots;
-    if (plots !== void 0) {
-      for (let i = 0, n = plots.length; i < n; i += 1) {
-        this.addPlot(plots[i]!);
-      }
-    }
-
-    if (init.font !== void 0) {
-      this.font(init.font);
-    }
-    if (init.textColor !== void 0) {
-      this.textColor(init.textColor);
-    }
   }
 }

@@ -26,20 +26,10 @@ import {View} from "@swim/view";
 import type {GraphicsView} from "@swim/graphics";
 import type {CanvasContext} from "@swim/graphics";
 import type {CanvasRenderer} from "@swim/graphics";
-import type {StrokeViewInit} from "@swim/graphics";
 import type {StrokeView} from "@swim/graphics";
 import type {DataPointView} from "./DataPointView";
-import type {SeriesPlotViewInit} from "./SeriesPlotView";
 import type {SeriesPlotViewObserver} from "./SeriesPlotView";
 import {SeriesPlotView} from "./SeriesPlotView";
-
-/** @public */
-export type AnyLinePlotView<X = unknown, Y = unknown> = LinePlotView<X, Y> | LinePlotViewInit<X, Y>;
-
-/** @public */
-export interface LinePlotViewInit<X = unknown, Y = unknown> extends SeriesPlotViewInit<X, Y>, StrokeViewInit {
-  hitWidth?: number;
-}
 
 /** @public */
 export interface LinePlotViewObserver<X = unknown, Y = unknown, V extends LinePlotView<X, Y> = LinePlotView<X, Y>> extends SeriesPlotViewObserver<X, Y, V> {
@@ -193,19 +183,5 @@ export class LinePlotView<X = unknown, Y = unknown> extends SeriesPlotView<X, Y>
       }
     }
     return null;
-  }
-
-  override init(init: LinePlotViewInit<X, Y>): void {
-    super.init(init);
-     if (init.hitWidth !== void 0) {
-      this.hitWidth(init.hitWidth);
-    }
-
-    if (init.stroke !== void 0) {
-      this.stroke(init.stroke);
-    }
-    if (init.strokeWidth !== void 0) {
-      this.strokeWidth(init.strokeWidth);
-    }
   }
 }

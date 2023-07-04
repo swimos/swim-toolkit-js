@@ -40,17 +40,11 @@ import type {HtmlView} from "@swim/dom";
 import {Graphics} from "@swim/graphics";
 import {Icon} from "@swim/graphics";
 import {FilledIcon} from "@swim/graphics";
-import type {IconViewInit} from "@swim/graphics";
-import {IconView} from "@swim/graphics";
+import type {IconView} from "@swim/graphics";
 import {IconGraphicsAnimator} from "@swim/graphics";
 import {SvgIconView} from "@swim/graphics";
 import type {ButtonObserver} from "./ButtonObserver";
-import type {ButtonMembraneInit} from "./ButtonMembrane";
 import {ButtonMembrane} from "./ButtonMembrane";
-
-/** @public */
-export interface IconButtonInit extends ButtonMembraneInit, IconViewInit {
-}
 
 /** @public */
 export class IconButton extends ButtonMembrane implements IconView {
@@ -290,10 +284,5 @@ export class IconButton extends ButtonMembrane implements IconView {
   protected override onResize(): void {
     super.onResize();
     this.requireUpdate(View.NeedsLayout);
-  }
-
-  override init(init: IconButtonInit): void {
-    super.init(init);
-    IconView.init(this, init);
   }
 }

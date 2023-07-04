@@ -33,30 +33,16 @@ import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
 import type {GraphicsView} from "@swim/graphics";
-import type {FillViewInit} from "@swim/graphics";
 import type {FillView} from "@swim/graphics";
-import type {StrokeViewInit} from "@swim/graphics";
 import type {StrokeView} from "@swim/graphics";
 import type {PaintingContext} from "@swim/graphics";
 import {PaintingRenderer} from "@swim/graphics";
 import type {CanvasContext} from "@swim/graphics";
 import {CanvasRenderer} from "@swim/graphics";
-import type {GeoViewInit} from "./GeoView";
 import type {GeoViewObserver} from "./GeoView";
 import {GeoView} from "./GeoView";
 import type {GeoRippleOptions} from "./GeoRippleView";
 import {GeoRippleView} from "./GeoRippleView";
-
-/** @public */
-export type AnyGeoCircleView = GeoCircleView | GeoCircleViewInit;
-
-/** @public */
-export interface GeoCircleViewInit extends GeoViewInit, FillViewInit, StrokeViewInit {
-  geoCenter?: AnyGeoPoint;
-  viewCenter?: AnyR2Point;
-  radius?: AnyLength;
-  hitRadius?: number;
-}
 
 /** @public */
 export interface GeoCircleViewObserver<V extends GeoCircleView = GeoCircleView> extends GeoViewObserver<V> {
@@ -298,30 +284,5 @@ export class GeoCircleView extends GeoView implements FillView, StrokeView {
 
   ripple(options?: GeoRippleOptions): GeoRippleView | null {
     return GeoRippleView.ripple(this, options);
-  }
-
-  override init(init: GeoCircleViewInit): void {
-    super.init(init);
-    if (init.geoCenter !== void 0) {
-      this.geoCenter(init.geoCenter);
-    }
-    if (init.viewCenter !== void 0) {
-      this.viewCenter(init.viewCenter);
-    }
-    if (init.radius !== void 0) {
-      this.radius(init.radius);
-    }
-    if (init.hitRadius !== void 0) {
-      this.hitRadius(init.hitRadius);
-    }
-    if (init.fill !== void 0) {
-      this.fill(init.fill);
-    }
-    if (init.stroke !== void 0) {
-      this.stroke(init.stroke);
-    }
-    if (init.strokeWidth !== void 0) {
-      this.strokeWidth(init.strokeWidth);
-    }
   }
 }

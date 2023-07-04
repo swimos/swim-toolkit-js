@@ -16,33 +16,14 @@ import type {Class} from "@swim/util";
 import type {Domain} from "@swim/util";
 import type {Range} from "@swim/util";
 import type {AnyTiming} from "@swim/util";
-import type {ContinuousScale} from "@swim/util";
 import type {Property} from "@swim/component";
-import type {AnyFont} from "@swim/style";
-import type {AnyColor} from "@swim/style";
 import type {ThemeAnimator} from "@swim/theme";
 import type {View} from "@swim/view";
-import type {GraphicsViewInit} from "@swim/graphics";
 import type {GraphicsView} from "@swim/graphics";
-import type {AnyDataPointView} from "./DataPointView";
 import type {DataPointView} from "./DataPointView";
 import type {ContinuousScaleAnimator} from "./ContinuousScaleAnimator";
 import type {ScaledXYViewObserver} from "./ScaledXYView";
 import type {ScaledXYView} from "./ScaledXYView";
-
-/** @public */
-export type AnyPlotView<X = unknown, Y = unknown> = PlotView<X, Y> | PlotViewInit<X, Y>;
-
-/** @public */
-export interface PlotViewInit<X = unknown, Y = unknown> extends GraphicsViewInit {
-  xScale?: ContinuousScale<X, number>;
-  yScale?: ContinuousScale<Y, number>;
-
-  data?: AnyDataPointView<X, Y>[];
-
-  font?: AnyFont;
-  textColor?: AnyColor;
-}
 
 /** @public */
 export interface PlotViewObserver<X = unknown, Y = unknown, V extends PlotView<X, Y> = PlotView<X, Y>> extends ScaledXYViewObserver<X, Y, V> {

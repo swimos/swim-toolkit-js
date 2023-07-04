@@ -17,7 +17,6 @@ export type {ButtonObserver} from "./ButtonObserver";
 export type {ButtonGlowState} from "./ButtonGlow";
 export {ButtonGlow} from "./ButtonGlow";
 
-export type {ButtonMembraneInit} from "./ButtonMembrane";
 export {ButtonMembrane} from "./ButtonMembrane";
 
 export type {FloatingButtonType} from "./FloatingButton";
@@ -28,7 +27,6 @@ export {ButtonItem} from "./ButtonItem";
 export {ButtonStack} from "./ButtonStack";
 export type {ButtonStackObserver} from "./ButtonStackObserver";
 
-export type {IconButtonInit} from "./IconButton";
 export {IconButton} from "./IconButton";
 
 export {DisclosureButton} from "./DisclosureButton";

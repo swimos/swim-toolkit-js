@@ -26,22 +26,10 @@ import type {PaintingContext} from "./PaintingContext";
 import {PaintingRenderer} from "./PaintingRenderer";
 import type {CanvasContext} from "./CanvasContext";
 import {CanvasRenderer} from "./CanvasRenderer";
-import type {FillViewInit} from "./FillView";
 import type {FillView} from "./FillView";
-import type {StrokeViewInit} from "./StrokeView";
 import type {StrokeView} from "./StrokeView";
+import type {RectInit} from "./Rect";
 import {Rect} from "./Rect";
-
-/** @public */
-export type AnyRectView = RectView | Rect | RectViewInit;
-
-/** @public */
-export interface RectViewInit extends FillViewInit, StrokeViewInit {
-  x?: AnyLength;
-  y?: AnyLength;
-  width?: AnyLength;
-  height?: AnyLength;
-}
 
 /** @public */
 export class RectView extends GraphicsView implements FillView, StrokeView {
@@ -74,7 +62,7 @@ export class RectView extends GraphicsView implements FillView, StrokeView {
     return new Rect(this.x.getState(), this.y.getState(), this.width.getState(), this.height.getState());
   }
 
-  setState(rect: Rect | RectViewInit, timing?: AnyTiming | boolean): void {
+  setState(rect: Rect | RectInit, timing?: AnyTiming | boolean): void {
     if (rect instanceof Rect) {
       rect = rect.toAny();
     }
@@ -89,15 +77,6 @@ export class RectView extends GraphicsView implements FillView, StrokeView {
     }
     if (rect.height !== void 0) {
       this.height(rect.height, timing);
-    }
-    if (rect.fill !== void 0) {
-      this.fill(rect.fill, timing);
-    }
-    if (rect.stroke !== void 0) {
-      this.stroke(rect.stroke, timing);
-    }
-    if (rect.strokeWidth !== void 0) {
-      this.strokeWidth(rect.strokeWidth, timing);
     }
   }
 
@@ -184,13 +163,6 @@ export class RectView extends GraphicsView implements FillView, StrokeView {
     context.lineWidth = contextLineWidth;
 
     return pointInStroke ? this : null;
-  }
-
-  override init(init: Rect | RectViewInit): void {
-    if (!(init instanceof Rect)) {
-      super.init(init);
-    }
-    this.setState(init);
   }
 }
 Object.defineProperty(RectView.prototype, "viewBounds", {

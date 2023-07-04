@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {Initable} from "@swim/util";
 import type {Range} from "@swim/util";
 import type {AnyTiming} from "@swim/util";
 import {Timing} from "@swim/util";
@@ -33,52 +32,14 @@ import {Look} from "@swim/theme";
 import {ThemeAnimator} from "@swim/theme";
 import type {View} from "@swim/view";
 import {ViewRef} from "@swim/view";
-import type {ScaledViewInit} from "./ScaledView";
 import type {ScaledViewObserver} from "./ScaledView";
 import {ScaledView} from "./ScaledView";
-import type {AnyGraphView} from "./GraphView";
 import {GraphView} from "./GraphView";
-import type {AnyAxisView} from "./AxisView";
-import type {AxisViewInit} from "./AxisView";
 import type {AxisView} from "./AxisView";
 import {TopAxisView} from "./AxisView";
 import {RightAxisView} from "./AxisView";
 import {BottomAxisView} from "./AxisView";
 import {LeftAxisView} from "./AxisView";
-
-/** @public */
-export type AnyChartView<X = unknown, Y = unknown> = ChartView<X, Y> | ChartViewInit<X, Y>;
-
-/** @public */
-export interface ChartViewInit<X = unknown, Y = unknown> extends ScaledViewInit<X, Y> {
-  graph?: AnyGraphView<X, Y>;
-
-  topAxis?: AnyAxisView<X> | true;
-  rightAxis?: AnyAxisView<Y> | true;
-  bottomAxis?: AnyAxisView<X> | true;
-  leftAxis?: AnyAxisView<Y> | true;
-
-  gutterTop?: AnyLength;
-  gutterRight?: AnyLength;
-  gutterBottom?: AnyLength;
-  gutterLeft?: AnyLength;
-
-  borderColor?: AnyColor;
-  borderWidth?: number;
-  borderSerif?: number;
-
-  tickMarkColor?: AnyColor;
-  tickMarkWidth?: number;
-  tickMarkLength?: number;
-  tickLabelPadding?: number;
-  tickTransition?: AnyTiming;
-
-  gridLineColor?: AnyColor;
-  gridLineWidth?: number;
-
-  font?: AnyFont;
-  textColor?: AnyColor;
-}
 
 /** @public */
 export interface ChartViewObserver<X = unknown, Y = unknown, V extends ChartView<X, Y> = ChartView<X, Y>> extends ScaledViewObserver<X, Y, V> {
@@ -210,7 +171,7 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
       return view instanceof TopAxisView ? view : null;
     },
   })
-  readonly topAxis!: ViewRef<this, AxisView<X> & Initable<AxisViewInit<X> | true>>;
+  readonly topAxis!: ViewRef<this, AxisView<X>>;
 
   @ViewRef({
     viewType: RightAxisView,
@@ -226,7 +187,7 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
       return view instanceof RightAxisView ? view : null;
     },
   })
-  readonly rightAxis!: ViewRef<this, AxisView<Y> & Initable<AxisViewInit<Y> | true>>;
+  readonly rightAxis!: ViewRef<this, AxisView<Y>>;
 
   @ViewRef({
     viewType: BottomAxisView,
@@ -242,7 +203,7 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
       return view instanceof BottomAxisView ? view : null;
     },
   })
-  readonly bottomAxis!: ViewRef<this, AxisView<X> & Initable<AxisViewInit<X> | true>>;
+  readonly bottomAxis!: ViewRef<this, AxisView<X>>;
 
   @ViewRef({
     viewType: LeftAxisView,
@@ -258,7 +219,7 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
       return view instanceof LeftAxisView ? view : null;
     },
   })
-  readonly leftAxis!: ViewRef<this, AxisView<Y> & Initable<AxisViewInit<Y> | true>>;
+  readonly leftAxis!: ViewRef<this, AxisView<Y>>;
 
   protected override updateScales(): void {
     this.layoutChart(this.viewFrame);
@@ -300,79 +261,6 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
     const graphView = this.graph.view;
     if (graphView !== null) {
       graphView.setViewFrame(new R2Box(graphLeft, graphTop, graphRight, graphBottom));
-    }
-  }
-
-  override init(init: ChartViewInit<X, Y>): void {
-    super.init(init);
-     if (init.graph !== void 0) {
-      this.graph(init.graph);
-    }
-
-    if (init.topAxis !== void 0) {
-      this.topAxis(init.topAxis);
-    }
-    if (init.rightAxis !== void 0) {
-      this.rightAxis(init.rightAxis);
-    }
-    if (init.bottomAxis !== void 0) {
-      this.bottomAxis(init.bottomAxis);
-    }
-    if (init.leftAxis !== void 0) {
-      this.leftAxis(init.leftAxis);
-    }
-
-    if (init.gutterTop !== void 0) {
-      this.gutterTop(init.gutterTop);
-    }
-    if (init.gutterRight !== void 0) {
-      this.gutterRight(init.gutterRight);
-    }
-    if (init.gutterBottom !== void 0) {
-      this.gutterBottom(init.gutterBottom);
-    }
-    if (init.gutterLeft !== void 0) {
-      this.gutterLeft(init.gutterLeft);
-    }
-
-    if (init.borderColor !== void 0) {
-      this.borderColor(init.borderColor);
-    }
-    if (init.borderWidth !== void 0) {
-      this.borderWidth(init.borderWidth);
-    }
-    if (init.borderSerif !== void 0) {
-      this.borderSerif(init.borderSerif);
-    }
-
-    if (init.tickMarkColor !== void 0) {
-      this.tickMarkColor(init.tickMarkColor);
-    }
-    if (init.tickMarkWidth !== void 0) {
-      this.tickMarkWidth(init.tickMarkWidth);
-    }
-    if (init.tickMarkLength !== void 0) {
-      this.tickMarkLength(init.tickMarkLength);
-    }
-    if (init.tickLabelPadding !== void 0) {
-      this.tickLabelPadding(init.tickLabelPadding);
-    }
-    if (init.tickTransition !== void 0) {
-      this.tickTransition(init.tickTransition);
-    }
-
-    if (init.gridLineColor !== void 0) {
-      this.gridLineColor(init.gridLineColor);
-    }
-    if (init.gridLineWidth !== void 0) {
-      this.gridLineWidth(init.gridLineWidth);
-    }
-
-    if (init.font !== void 0) {
-      this.font(init.font);
-    }
-    if (init.textColor !== void 0) {
-      this.textColor(init.textColor);
     }
   }
 }

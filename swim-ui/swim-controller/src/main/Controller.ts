@@ -17,8 +17,6 @@ import type {Class} from "@swim/util";
 import type {Instance} from "@swim/util";
 import type {FromAny} from "@swim/util";
 import {Creatable} from "@swim/util";
-import type {Inits} from "@swim/util";
-import type {Initable} from "@swim/util";
 import type {Consumer} from "@swim/util";
 import type {Consumable} from "@swim/util";
 import {FastenerContext} from "@swim/component";
@@ -26,7 +24,6 @@ import type {Fastener} from "@swim/component";
 import {Property} from "@swim/component";
 import {Provider} from "@swim/component";
 import type {ComponentFlags} from "@swim/component";
-import type {ComponentInit} from "@swim/component";
 import type {ComponentObserver} from "@swim/component";
 import {Component} from "@swim/component";
 import type {AnyValue} from "@swim/structure";
@@ -55,18 +52,10 @@ import {ExecutorService} from "./"; // forward import
 export type ControllerFlags = ComponentFlags;
 
 /** @public */
-export type AnyController<C extends Controller = Controller> = C | ControllerFactory<C> | Inits<C>;
-
-/** @public */
-export interface ControllerInit extends ComponentInit {
-  type?: Creatable<Controller>;
-  key?: string;
-  children?: AnyController[];
-}
+export type AnyController<C extends Controller = Controller> = C | ControllerFactory<C>;
 
 /** @public */
 export interface ControllerFactory<C extends Controller = Controller, U = AnyController<C>> extends Creatable<C>, FromAny<C, U> {
-  fromInit(init: Inits<C>): C;
 }
 
 /** @public */
@@ -139,7 +128,7 @@ export interface ControllerObserver<C extends Controller = Controller> extends C
 }
 
 /** @public */
-export class Controller extends Component<Controller> implements Initable<ControllerInit>, Consumable, WarpRef {
+export class Controller extends Component<Controller> implements Consumable, WarpRef {
   constructor() {
     super();
     this.consumers = null;
@@ -1068,41 +1057,22 @@ export class Controller extends Component<Controller> implements Initable<Contro
     return Property.dummy();
   }
 
-  /** @override */
-  override init(init: ControllerInit): void {
-    // hook
-  }
-
   static override create<S extends new () => InstanceType<S>>(this: S): InstanceType<S> {
     return new this();
   }
 
-  static override fromInit<S extends Class<Instance<S, Controller>>>(this: S, init: Inits<InstanceType<S>>): InstanceType<S> {
-    let type: Creatable<Controller>;
-    if ((typeof init === "object" && init !== null || typeof init === "function") && Creatable[Symbol.hasInstance]((init as ControllerInit).type)) {
-      type = (init as ControllerInit).type!;
-    } else {
-      type = this as unknown as Creatable<Controller>;
-    }
-    const controller = type.create();
-    controller.init(init as ControllerInit);
-    return controller as InstanceType<S>;
-  }
-
   static override fromAny<S extends Class<Instance<S, Controller>>>(this: S, value: AnyController<InstanceType<S>>): InstanceType<S> {
     if (value === void 0 || value === null) {
-      return value as InstanceType<S>;
+      return value;
     } else if (value instanceof Controller) {
-      if (value instanceof this) {
-        return value;
-      } else {
+      if (!((value as Controller) instanceof this)) {
         throw new TypeError(value + " not an instance of " + this);
       }
+      return value;
     } else if (Creatable[Symbol.hasInstance](value)) {
       return (value as Creatable<InstanceType<S>>).create();
-    } else {
-      return (this as unknown as ControllerFactory<InstanceType<S>>).fromInit(value as Inits<InstanceType<S>>);
     }
+    throw new TypeError("" + value);
   }
 
   /** @internal */

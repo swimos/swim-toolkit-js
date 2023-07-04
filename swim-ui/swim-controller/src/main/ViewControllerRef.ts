@@ -340,9 +340,8 @@ export const ViewControllerRef = (function (_super: typeof ControllerRef) {
     const viewType = this.viewType;
     if (viewType !== void 0) {
       return viewType.fromAny(value);
-    } else {
-      return View.fromAny(value) as V;
     }
+    return View.fromAny(value) as V;
   };
 
   ViewControllerRef.prototype.detectControllerView = function <V extends View, C extends Controller>(this: ViewControllerRef<unknown, V, C>, controller: Controller): V | null {

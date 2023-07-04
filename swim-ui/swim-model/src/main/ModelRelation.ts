@@ -357,9 +357,8 @@ export const ModelRelation = (function (_super: typeof Fastener) {
     const modelType = this.modelType;
     if (modelType !== void 0) {
       return modelType.fromAny(value);
-    } else {
-      return Model.fromAny(value) as M;
     }
+    return Model.fromAny(value) as M;
   };
 
   ModelRelation.prototype.consume = function (this: ModelRelation, consumer: Consumer): void {

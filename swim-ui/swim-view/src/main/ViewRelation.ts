@@ -263,9 +263,8 @@ export const ViewRelation = (function (_super: typeof Fastener) {
     const viewType = this.viewType;
     if (viewType !== void 0) {
       return viewType.fromAny(value);
-    } else {
-      return View.fromAny(value) as V;
     }
+    return View.fromAny(value) as V;
   };
 
   ViewRelation.construct = function <F extends ViewRelation<any, any>>(fastener: F | null, owner: F extends ViewRelation<infer O, any> ? O : never): F {

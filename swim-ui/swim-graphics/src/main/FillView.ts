@@ -15,13 +15,7 @@
 import type {AnyColor} from "@swim/style";
 import type {Color} from "@swim/style";
 import type {ThemeAnimator} from "@swim/theme";
-import type {GraphicsViewInit} from "./GraphicsView";
 import {GraphicsView} from "./GraphicsView";
-
-/** @public */
-export interface FillViewInit extends GraphicsViewInit {
-  fill?: AnyColor;
-}
 
 /** @public */
 export interface FillView extends GraphicsView {
@@ -30,12 +24,6 @@ export interface FillView extends GraphicsView {
 
 /** @public */
 export const FillView = {
-  init(view: FillView, init: FillViewInit): void {
-    if (init.fill !== void 0) {
-      view.fill(init.fill);
-    }
-  },
-
   [Symbol.hasInstance](instance: unknown): instance is FillView {
     return instance instanceof GraphicsView
         && "fill" in instance;

@@ -41,23 +41,13 @@ import {GraphicsView} from "@swim/graphics";
 import type {CanvasContext} from "@swim/graphics";
 import {CanvasRenderer} from "@swim/graphics";
 import type {DataPointCategory} from "./DataPointView";
-import type {AnyDataPointView} from "./DataPointView";
 import {DataPointView} from "./DataPointView";
 import {ContinuousScaleAnimator} from "./ContinuousScaleAnimator";
-import type {PlotViewInit} from "./PlotView";
 import type {PlotViewObserver} from "./PlotView";
 import type {PlotView} from "./PlotView";
 
 /** @public */
 export type SeriesPlotHitMode = "domain" | "plot" | "data" | "none";
-
-/** @public */
-export type AnySeriesPlotView<X = unknown, Y = unknown> = SeriesPlotView<X, Y> | SeriesPlotViewInit<X, Y>;
-
-/** @public */
-export interface SeriesPlotViewInit<X = unknown, Y = unknown> extends PlotViewInit<X, Y> {
-  hitMode?: SeriesPlotHitMode;
-}
 
 /** @public */
 export interface SeriesPlotViewObserver<X = unknown, Y = unknown, V extends SeriesPlotView<X, Y> = SeriesPlotView<X, Y>> extends PlotViewObserver<X, Y, V> {
@@ -387,14 +377,8 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
     return dataPoint !== void 0 ? dataPoint : null;
   }
 
-  insertDataPoint(dataPointView: AnyDataPointView<X, Y>): DataPointView<X, Y> {
-    return this.insertChild(DataPointView.fromAny(dataPointView), null);
-  }
-
-  insertDataPoints(...dataPointViews: AnyDataPointView<X, Y>[]): void {
-    for (let i = 0, n = dataPointViews.length; i < n; i += 1) {
-      this.insertDataPoint(dataPointViews[i]!);
-    }
+  insertDataPoint(dataPointView: DataPointView<X, Y>): DataPointView<X, Y> {
+    return this.insertChild(dataPointView, null);
   }
 
   removeDataPoint(x: X): DataPointView<X, Y> | null {
@@ -664,30 +648,4 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
   }
 
   protected abstract hitTestPlot(x: number, y: number, renderer: CanvasRenderer): GraphicsView | null;
-
-  override init(init: SeriesPlotViewInit<X, Y>): void {
-    super.init(init);
-    if (init.xScale !== void 0) {
-      this.xScale(init.xScale);
-    }
-    if (init.yScale !== void 0) {
-      this.yScale(init.yScale);
-    }
-
-    const data = init.data;
-    if (data !== void 0) {
-      this.insertDataPoints(...data);
-    }
-
-    if (init.font !== void 0) {
-      this.font(init.font);
-    }
-    if (init.textColor !== void 0) {
-      this.textColor(init.textColor);
-    }
-
-    if (init.hitMode !== void 0) {
-      this.hitMode(init.hitMode);
-    }
-  }
 }

@@ -19,37 +19,35 @@ const bodyView = swim.HtmlView.fromNode(document.body);
 
 const containerView = bodyView.appendChild("div").position("relative").width("90%").height("90%").touchAction("none").userSelect("none");
 
-const canvasView = swim.CanvasView.create()
-    .wheelEventsEnabled(true)
-    .mouseEventsEnabled(true)
-    .pointerEventsEnabled(true)
-    .touchEventsEnabled(true)
-    .touchAction("manipulation");
+const canvasView = swim.CanvasView.create();
+canvasView.wheelEventsEnabled(true);
+canvasView.mouseEventsEnabled(true);
+canvasView.pointerEventsEnabled(true);
+canvasView.touchEventsEnabled(true);
+canvasView.touchAction("manipulation");
 
-const chartView = canvasView.appendChild(swim.ChartView)
-    .bottomAxis(true)
-    .leftAxis(true)
-    .xRangePadding([0, 0])
-    .yRangePadding([0, 0])
-    .fitAspectRatio(-1)
-    .preserveAspectRatio(true)
-    .domainTracking(true)
-    .xScaleGestures(true)
-    .yScaleGestures(true)
-    .font("12px sans-serif");
+const chartView = canvasView.appendChild(swim.ChartView);
+const bottomAxisView = chartView.bottomAxis.insertView();
+const leftAxisView = chartView.leftAxis.insertView();
+
+chartView.xRangePadding([0, 0]);
+chartView.yRangePadding([0, 0]);
+chartView.fitAspectRatio(-1);
+chartView.preserveAspectRatio(true);
+chartView.domainTracking(true);
+chartView.xScaleGestures(true);
+chartView.yScaleGestures(true);
+chartView.font("12px sans-serif");
+
+const zeroTickView = leftAxisView.insertTick(0);
+zeroTickView.label.setText("zero");
+zeroTickView.gridLineWidth.setState(1);
+zeroTickView.gridLineColor.setLook(swim.Look.accentColor);
 
 const graphView = chartView.graph.insertView();
-
-const zeroTick = chartView.leftAxis.view.insertTick({
-  value: 0,
-  label: "zero",
-  gridLineWidth: 1,
-});
-zeroTick.gridLineColor.setLook(swim.Look.accentColor);
-
-const plotView = graphView.appendChild(swim.LinePlotView)
-    .hitMode("plot")
-    .strokeWidth(4);
+const plotView = graphView.appendChild(swim.LinePlotView);
+plotView.hitMode("plot");
+plotView.strokeWidth(4);
 plotView.addEventListener("pointerenter", function (event) {
   plotView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, 1]], true);
 });
@@ -65,7 +63,7 @@ let n = cycles * samplesPerCycle
 while (i <= n) {
   const x = i * 2 * Math.PI / samplesPerCycle;
   const y = Math.sin(x);
-  plotView.insertDataPoint({x: x, y: y});
+  plotView.insertDataPoint(new swim.DataPointView(x, y));
   i += 1;
 }
 
@@ -79,7 +77,7 @@ function updatePlot() {
   while (i <= n) {
     const x = i * 2 * Math.PI / samplesPerCycle;
     const y = Math.sin(x);
-    plotView.insertDataPoint({x: x, y: y});
+    plotView.insertDataPoint(new swim.DataPointView(x, y));
     i += 1;
   }
   k += samplesPerInterval;

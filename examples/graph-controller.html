@@ -20,12 +20,12 @@ const bodyView = swim.HtmlView.fromNode(document.body);
 
 const containerView = bodyView.appendChild("div").display("flex").width("90%").height("90%").touchAction("none").userSelect("none");
 
-const canvasView = swim.CanvasView.create()
-    .wheelEventsEnabled(true)
-    .mouseEventsEnabled(true)
-    .pointerEventsEnabled(true)
-    .touchEventsEnabled(true)
-    .touchAction("manipulation");
+const canvasView = swim.CanvasView.create();
+canvasView.wheelEventsEnabled(true);
+canvasView.mouseEventsEnabled(true);
+canvasView.pointerEventsEnabled(true);
+canvasView.touchEventsEnabled(true);
+canvasView.touchAction("manipulation");
 
 const ExampleGraphController = (function () {
   const instanceInitializers = [];
@@ -44,15 +44,15 @@ const ExampleGraphController = (function () {
     extends: true,
     initView(graphView) {
       super.initView(graphView);
-      graphView.xDomainPadding([Math.PI, Math.PI])
-               .yDomainPadding([1, 1])
-               .xRangePadding([2, 2])
-               .yRangePadding([2, 2])
-               .fitAspectRatio(-1 / 4)
-               .preserveAspectRatio(true)
-               .domainTracking(true)
-               .xScaleGestures(true)
-               .yScaleGestures(true);
+      graphView.xDomainPadding([Math.PI, Math.PI]);
+      graphView.yDomainPadding([1, 1]);
+      graphView.xRangePadding([2, 2]);
+      graphView.yRangePadding([2, 2]);
+      graphView.fitAspectRatio(-1 / 4);
+      graphView.preserveAspectRatio(true);
+      graphView.domainTracking(true);
+      graphView.xScaleGestures(true);
+      graphView.yScaleGestures(true);
     },
   })], {kind: "field", name: "graph", static: false, private: false, access: {has: obj => "graph" in obj, get: obj => obj.graph, set: (obj, value) => { obj.graph = value; }}}, graphInitializers, instanceInitializers);
   __esDecorate(null, null, [swim.TraitViewControllerSet({
@@ -73,9 +73,9 @@ const ExampleGraphController = (function () {
 })();
 
 const plot1Model = new swim.Model();
-const plot1Trait = new swim.LinePlotTrait()
-  .stroke(swim.Look.accentColor)
-  .strokeWidth(4);
+const plot1Trait = new swim.LinePlotTrait();
+plot1Trait.stroke(swim.Look.accentColor);
+plot1Trait.strokeWidth(4);
 plot1Model.setTrait("plot", plot1Trait);
 
 const dataSet1Trait = new swim.DataSetTrait();

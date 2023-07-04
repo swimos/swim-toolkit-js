@@ -16,7 +16,6 @@ import type {Class} from "@swim/util";
 import type {Instance} from "@swim/util";
 import type {AnyTiming} from "@swim/util";
 import {Creatable} from "@swim/util";
-import type {Inits} from "@swim/util";
 import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
 import type {AnyTransform} from "@swim/math";
@@ -44,7 +43,6 @@ import type {TextAnchor} from "./csstypes";
 import type {TouchAction} from "./csstypes";
 import type {ViewNodeType} from "./NodeView";
 import type {AnyElementView} from "./ElementView";
-import type {ElementViewInit} from "./ElementView";
 import type {ElementViewFactory} from "./ElementView";
 import type {ElementViewClass} from "./ElementView";
 import type {ElementViewConstructor} from "./ElementView";
@@ -58,22 +56,6 @@ export interface ViewSvg extends SVGElement {
 
 /** @public */
 export type AnySvgView<V extends SvgView = SvgView> = AnyElementView<V> | keyof SvgViewTagMap;
-
-/** @public */
-export interface SvgViewInit extends ElementViewInit {
-  attributes?: SvgViewAttributesInit;
-  style?: SvgViewStyleInit;
-}
-
-/** @public */
-export type SvgViewAttributesInit = {
-  [K in keyof SvgView as SvgView[K] extends AttributeAnimator<any, any, any> ? K : never]?: SvgView[K] extends AttributeAnimator<any, infer T, infer U> ? T | U : never;
-};
-
-/** @public */
-export type SvgViewStyleInit = {
-  [K in keyof SvgView as SvgView[K] extends StyleAnimator<any, any, any> ? K : never]?: SvgView[K] extends StyleAnimator<any, infer T, infer U> ? T | U : never;
-};
 
 /** @public */
 export interface SvgViewTagMap {
@@ -580,36 +562,6 @@ export class SvgView extends ElementView {
     this.node.removeEventListener(type, listener, options);
   }
 
-  /** @internal */
-  protected initAttributes(init: SvgViewAttributesInit): void {
-    for (const key in init) {
-      const property = this[key as keyof this];
-      if (property instanceof AttributeAnimator) {
-        property(init[key as keyof SvgViewAttributesInit] as any);
-      }
-    }
-  }
-
-  /** @internal */
-  protected initStyle(init: SvgViewStyleInit): void {
-    for (const key in init) {
-      const property = this[key as keyof this];
-      if (property instanceof StyleAnimator) {
-        property(init[key as keyof SvgViewStyleInit] as any);
-      }
-    }
-  }
-
-  override init(init: SvgViewInit): void {
-    super.init(init);
-    if (init.attributes !== void 0) {
-      this.initAttributes(init.attributes);
-    }
-    if (init.style !== void 0) {
-      this.initStyle(init.style);
-    }
-  }
-
   static override readonly tag: string = "svg";
 
   static override readonly namespace: string = "http://www.w3.org/2000/svg";
@@ -620,11 +572,24 @@ export class SvgView extends ElementView {
     return this.fromTag(this.tag);
   }
 
-  static override fromTag<S extends Class<Instance<S, SvgView>>>(this: S, tag: string): InstanceType<S>;
-  static override fromTag(tag: string): SvgView;
-  static override fromTag(tag: string): SvgView {
-    const node = document.createElementNS(this.namespace, tag) as SVGElement;
-    return this.fromNode(node);
+  static override fromAny<S extends Class<Instance<S, SvgView>>>(this: S, value: AnySvgView<InstanceType<S>>): InstanceType<S>;
+  static override fromAny(value: AnySvgView | string): SvgView;
+  static override fromAny(value: AnySvgView | string): SvgView {
+    if (value === void 0 || value === null) {
+      return value;
+    } else if (value instanceof View) {
+      if (!(value instanceof this)) {
+        throw new TypeError(value + " not an instance of " + this);
+      }
+      return value;
+    } else if (value instanceof Node) {
+      return this.fromNode(value);
+    } else if (typeof value === "string") {
+      return this.fromTag(value);
+    } else if (Creatable[Symbol.hasInstance](value)) {
+      return this.create();
+    }
+    throw new TypeError("" + value);
   }
 
   static override fromNode<S extends new (node: SVGElement) => Instance<S, SvgView>>(this: S, node: ViewNodeType<InstanceType<S>>): InstanceType<S>;
@@ -640,26 +605,11 @@ export class SvgView extends ElementView {
     return view;
   }
 
-  static override fromAny<S extends Class<Instance<S, SvgView>>>(this: S, value: AnySvgView<InstanceType<S>>): InstanceType<S>;
-  static override fromAny(value: AnySvgView | string): SvgView;
-  static override fromAny(value: AnySvgView | string): SvgView {
-    if (value === void 0 || value === null) {
-      return value;
-    } else if (value instanceof View) {
-      if (value instanceof this) {
-        return value;
-      } else {
-        throw new TypeError(value + " not an instance of " + this);
-      }
-    } else if (value instanceof Node) {
-      return this.fromNode(value);
-    } else if (typeof value === "string") {
-      return this.fromTag(value);
-    } else if (Creatable[Symbol.hasInstance](value)) {
-      return value.create();
-    } else {
-      return this.fromInit(value);
-    }
+  static override fromTag<S extends Class<Instance<S, SvgView>>>(this: S, tag: string): InstanceType<S>;
+  static override fromTag(tag: string): SvgView;
+  static override fromTag(tag: string): SvgView {
+    const node = document.createElementNS(this.namespace, tag) as SVGElement;
+    return this.fromNode(node);
   }
 
   static forTag<S extends Class<Instance<S, SvgView>>>(this: S, tag: string): SvgViewFactory<InstanceType<S>>;
@@ -667,9 +617,8 @@ export class SvgView extends ElementView {
   static forTag(tag: string): SvgViewFactory {
     if (tag === this.tag) {
       return this;
-    } else {
-      return new SvgViewTagFactory(this, tag);
     }
+    return new SvgViewTagFactory(this, tag);
   }
 }
 
@@ -693,26 +642,16 @@ export class SvgViewTagFactory<V extends SvgView> implements SvgViewFactory<V> {
     return this.fromTag(this.tag);
   }
 
-  fromTag(tag: string): V {
-    const node = document.createElementNS(this.namespace, tag) as SVGElement;
-    return this.fromNode(node as ViewNodeType<V>);
+  fromAny(value: AnySvgView<V>): V {
+    return this.factory.fromAny(value);
   }
 
   fromNode(node: ViewNodeType<V>): V {
     return this.factory.fromNode(node);
   }
 
-  fromInit(init: Inits<V>): V {
-    let type = init.type;
-    if (type === void 0) {
-      type = this;
-    }
-    const view = type.create() as V;
-    view.init(init);
-    return view;
-  }
-
-  fromAny(value: AnySvgView<V>): V {
-    return this.factory.fromAny(value);
+  fromTag(tag: string): V {
+    const node = document.createElementNS(this.namespace, tag) as SVGElement;
+    return this.fromNode(node as ViewNodeType<V>);
   }
 }

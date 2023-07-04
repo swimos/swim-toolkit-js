@@ -25,17 +25,9 @@ import {View} from "@swim/view";
 import {GraphicsView} from "./GraphicsView";
 import type {CanvasContext} from "./CanvasContext";
 import {CanvasRenderer} from "./CanvasRenderer";
-import type {TypesetViewInit} from "./TypesetView";
 import type {TypesetView} from "./TypesetView";
+import type {TextRunInit} from "./TextRun";
 import {TextRun} from "./TextRun";
-
-/** @public */
-export type AnyTextRunView = TextRunView | TextRun | TextRunViewInit | string;
-
-/** @public */
-export interface TextRunViewInit extends TypesetViewInit {
-  text?: string;
-}
 
 /** @public */
 export class TextRunView extends GraphicsView implements TypesetView {
@@ -67,7 +59,7 @@ export class TextRunView extends GraphicsView implements TypesetView {
                        this.textBaseline.getState(), this.textOrigin.getState(), this.textColor.getState());
   }
 
-  setState(run: TextRun | TextRunViewInit | string, timing?: AnyTiming | boolean): void {
+  setState(run: TextRun | TextRunInit | string, timing?: AnyTiming | boolean): void {
     if (typeof run === "string") {
       this.text(run, timing);
     } else {
@@ -137,16 +129,5 @@ export class TextRunView extends GraphicsView implements TypesetView {
     context.textAlign = contextTextAlign;
     context.textBaseline = contextTextBaseline;
     context.fillStyle = contextFillStyle;
-  }
-
-  override init(init: TextRun | TextRunViewInit | string): void {
-    if (typeof init === "string") {
-      this.text(init);
-    } else {
-      if (!(init instanceof TextRun)) {
-        super.init(init);
-      }
-      this.setState(init);
-    }
   }
 }

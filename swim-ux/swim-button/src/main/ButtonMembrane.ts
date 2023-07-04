@@ -13,15 +13,10 @@
 // limitations under the License.
 
 import {Property} from "@swim/component";
-import type {HtmlViewInit} from "@swim/dom";
 import {HtmlView} from "@swim/dom";
 import type {PositionGestureInput} from "@swim/view";
 import {PositionGesture} from "@swim/view";
 import {ButtonGlow} from "./ButtonGlow";
-
-/** @public */
-export interface ButtonMembraneInit extends HtmlViewInit {
-}
 
 /** @public */
 export class ButtonMembrane extends HtmlView {
@@ -90,8 +85,4 @@ export class ButtonMembrane extends HtmlView {
     },
   })
   readonly gesture!: PositionGesture<this, HtmlView>;
-
-  override init(init: ButtonMembraneInit): void {
-    super.init(init);
-  }
 }

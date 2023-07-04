@@ -35,23 +35,10 @@ import {GraphicsRenderer} from "@swim/graphics";
 import type {CanvasCompositeOperation} from "@swim/graphics";
 import {CanvasRenderer} from "@swim/graphics";
 import {WebGLRenderer} from "@swim/graphics";
-import type {GeoViewInit} from "./GeoView";
 import type {GeoViewObserver} from "./GeoView";
 import {GeoView} from "./GeoView";
 import type {GeoRippleOptions} from "./GeoRippleView";
 import {GeoRippleView} from "./GeoRippleView";
-
-/** @public */
-export interface GeoRasterViewInit extends GeoViewInit {
-  geoAnchor?: AnyGeoPoint;
-  viewAnchor?: AnyR2Point;
-  xAlign?: number;
-  yAlign?: number;
-  width?: AnyLength;
-  height?: AnyLength;
-  opacity?: number;
-  compositeOperation?: CanvasCompositeOperation;
-}
 
 /** @public */
 export interface GeoRasterViewObserver<V extends GeoRasterView = GeoRasterView> extends GeoViewObserver<V> {
@@ -334,34 +321,6 @@ export class GeoRasterView extends GeoView {
 
   ripple(options?: GeoRippleOptions): GeoRippleView | null {
     return GeoRippleView.ripple(this, options);
-  }
-
-  override init(init: GeoRasterViewInit): void {
-    super.init(init);
-    if (init.geoAnchor !== void 0) {
-      this.geoAnchor(init.geoAnchor);
-    }
-    if (init.viewAnchor !== void 0) {
-      this.viewAnchor(init.viewAnchor);
-    }
-    if (init.xAlign !== void 0) {
-      this.xAlign(init.xAlign);
-    }
-    if (init.yAlign !== void 0) {
-      this.yAlign(init.yAlign);
-    }
-    if (init.width !== void 0) {
-      this.width(init.width);
-    }
-    if (init.height !== void 0) {
-      this.height(init.height);
-    }
-    if (init.opacity !== void 0) {
-      this.opacity(init.opacity);
-    }
-    if (init.compositeOperation !== void 0) {
-      this.compositeOperation(init.compositeOperation);
-    }
   }
 
   static override readonly MountFlags: ViewFlags = GeoView.MountFlags | View.NeedsComposite;

@@ -18,7 +18,6 @@ import {Creatable} from "@swim/util";
 import {R2Box} from "@swim/math";
 import {Transform} from "@swim/math";
 import type {AnyView} from "@swim/view";
-import type {ViewInit} from "@swim/view";
 import type {ViewFactory} from "@swim/view";
 import type {ViewClass} from "@swim/view";
 import type {ViewObserver} from "@swim/view";
@@ -38,11 +37,6 @@ export interface ViewNode extends Node {
 
 /** @public */
 export type AnyNodeView<V extends NodeView = NodeView> = AnyView<V> | ViewNodeType<V>;
-
-/** @public */
-export interface NodeViewInit extends ViewInit {
-  text?: string;
-}
 
 /** @public */
 export interface NodeViewFactory<V extends NodeView = NodeView, U = AnyNodeView<V>> extends ViewFactory<V, U> {
@@ -609,11 +603,22 @@ export class NodeView extends View {
     this.node.removeEventListener(type, listener, options);
   }
 
-  override init(init: NodeViewInit): void {
-    super.init(init);
-    if (init.text !== void 0) {
-      this.text(init.text);
+  static override fromAny<S extends Class<Instance<S, NodeView>>>(this: S, value: AnyNodeView<InstanceType<S>>): InstanceType<S>;
+  static override fromAny(value: AnyNodeView): NodeView;
+  static override fromAny(value: AnyNodeView): NodeView {
+    if (value === void 0 || value === null) {
+      return value;
+    } else if (value instanceof View) {
+      if (!(value instanceof this)) {
+        throw new TypeError(value + " not an instance of " + this);
+      }
+      return value;
+    } else if (value instanceof Node) {
+      return this.fromNode(value);
+    } else if (Creatable[Symbol.hasInstance](value)) {
+      return value.create();
     }
+    throw new TypeError("" + value);
   }
 
   static fromNode<S extends new (node: Node) => Instance<S, NodeView>>(this: S, node: ViewNodeType<InstanceType<S>>): InstanceType<S>;
@@ -633,25 +638,5 @@ export class NodeView extends View {
       throw new TypeError(view + " not an instance of " + this);
     }
     return view;
-  }
-
-  static override fromAny<S extends Class<Instance<S, NodeView>>>(this: S, value: AnyNodeView<InstanceType<S>>): InstanceType<S>;
-  static override fromAny(value: AnyNodeView): NodeView;
-  static override fromAny(value: AnyNodeView): NodeView {
-    if (value === void 0 || value === null) {
-      return value;
-    } else if (value instanceof View) {
-      if (value instanceof this) {
-        return value;
-      } else {
-        throw new TypeError(value + " not an instance of " + this);
-      }
-    } else if (value instanceof Node) {
-      return this.fromNode(value);
-    } else if (Creatable[Symbol.hasInstance](value)) {
-      return value.create();
-    } else {
-      return this.fromInit(value);
-    }
   }
 }

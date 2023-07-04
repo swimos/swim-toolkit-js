@@ -25,13 +25,8 @@ import type {StyleSheet} from "@swim/dom";
 import {StyleRule} from "@swim/dom";
 import {HtmlView} from "@swim/dom";
 import {StyleView} from "@swim/dom";
-import type {TokenViewInit} from "./TokenView";
 import type {TokenViewObserver} from "./TokenView";
 import {TokenView} from "./TokenView";
-
-/** @public */
-export interface InputTokenViewInit extends TokenViewInit {
-}
 
 /** @public */
 export interface InputTokenViewObserver<V extends InputTokenView = InputTokenView> extends TokenViewObserver<V> {
@@ -168,9 +163,5 @@ export class InputTokenView extends TokenView {
 
   protected didAcceptInput(inputView: HtmlView): void {
     this.callObservers("tokenDidAcceptInput", inputView, this);
-  }
-
-  override init(init: InputTokenViewInit): void {
-    super.init(init);
   }
 }

@@ -22,21 +22,10 @@ import {Look} from "@swim/theme";
 import {ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
 import type {CanvasContext} from "@swim/graphics";
-import type {FillViewInit} from "@swim/graphics";
 import type {FillView} from "@swim/graphics";
-import type {StrokeViewInit} from "@swim/graphics";
 import type {StrokeView} from "@swim/graphics";
-import type {ScatterPlotViewInit} from "./ScatterPlotView";
 import type {ScatterPlotViewObserver} from "./ScatterPlotView";
 import {ScatterPlotView} from "./ScatterPlotView";
-
-/** @public */
-export type AnyBubblePlotView<X = unknown, Y = unknown> = BubblePlotView<X, Y> | BubblePlotViewInit<X, Y>;
-
-/** @public */
-export interface BubblePlotViewInit<X = unknown, Y = unknown> extends ScatterPlotViewInit<X, Y>, FillViewInit, StrokeViewInit {
-  radius?: AnyLength;
-}
 
 /** @public */
 export interface BubblePlotViewObserver<X = unknown, Y = unknown, V extends BubblePlotView<X, Y> = BubblePlotView<X, Y>> extends ScatterPlotViewObserver<X, Y, V> {
@@ -123,21 +112,5 @@ export class BubblePlotView<X = unknown, Y = unknown> extends ScatterPlotView<X,
     context.fillStyle = contextFillStyle;
     context.lineWidth = contextLineWidth;
     context.strokeStyle = contextStrokeStyle;
-  }
-
-  override init(init: BubblePlotViewInit<X, Y>): void {
-    super.init(init);
-    if (init.radius !== void 0) {
-      this.radius(init.radius);
-    }
-    if (init.fill !== void 0) {
-      this.fill(init.fill);
-    }
-    if (init.stroke !== void 0) {
-      this.stroke(init.stroke);
-    }
-    if (init.strokeWidth !== void 0) {
-      this.strokeWidth(init.strokeWidth);
-    }
   }
 }

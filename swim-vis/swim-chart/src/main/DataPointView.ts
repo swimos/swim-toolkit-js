@@ -14,8 +14,6 @@
 
 import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
-import type {Instance} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import {Animator} from "@swim/component";
@@ -28,10 +26,8 @@ import {Font} from "@swim/style";
 import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
-import type {AnyView} from "@swim/view";
 import {View} from "@swim/view";
 import {ViewRef} from "@swim/view";
-import type {GraphicsViewInit} from "@swim/graphics";
 import type {GraphicsViewObserver} from "@swim/graphics";
 import {GraphicsView} from "@swim/graphics";
 import type {CanvasContext} from "@swim/graphics";
@@ -44,30 +40,6 @@ export type DataPointCategory = "flat" | "increasing" | "decreasing" | "maxima" 
 
 /** @public */
 export type DataPointLabelPlacement = "auto" | "above" | "middle" | "below";
-
-/** @public */
-export type AnyDataPointView<X = unknown, Y = unknown> = DataPointView<X, Y> | DataPointViewInit<X, Y>;
-
-/** @public */
-export interface DataPointViewInit<X = unknown, Y = unknown> extends GraphicsViewInit {
-  x: X;
-  y: Y;
-  y2?: Y;
-  radius?: AnyLength;
-  hitRadius?: number;
-
-  color?: AnyColor;
-  opacity?: number;
-
-  font?: AnyFont;
-  textColor?: AnyColor;
-
-  category?: DataPointCategory;
-
-  labelPadding?: AnyLength;
-  labelPlacement?: DataPointLabelPlacement;
-  label?: GraphicsView | string;
-}
 
 /** @public */
 export interface DataPointViewObserver<X = unknown, Y = unknown, V extends DataPointView<X, Y> = DataPointView<X, Y>> extends GraphicsViewObserver<V> {
@@ -85,17 +57,23 @@ export interface DataPointViewObserver<X = unknown, Y = unknown, V extends DataP
 
   viewWillAttachLabel?(labelView: GraphicsView, view: V): void;
 
-  viewDidDetachLabel?(labelView: GraphicsView | null, view: V): void;
+  viewDidDetachLabel?(labelView: GraphicsView, view: V): void;
 }
 
 /** @public */
 export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
-  constructor() {
+  constructor(x?: X, y?: Y) {
     super();
     this.xCoord = NaN;
     this.yCoord = NaN;
     this.y2Coord = void 0;
     this.gradientStop = false;
+    if (x !== void 0) {
+      this.x.setState(x);
+    }
+    if (y !== void 0) {
+      this.y.setState(y);
+    }
   }
 
   declare readonly observerType?: Class<DataPointViewObserver<X, Y>>;
@@ -234,54 +212,6 @@ export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
     return Property.dummy();
   }
 
-  setState(point: DataPointViewInit<X, Y>, timing?: AnyTiming | boolean): void {
-    if (point.x !== void 0) {
-      this.x(point.x, timing);
-    }
-    if (point.y !== void 0) {
-      this.y(point.y, timing);
-    }
-    if (point.y2 !== void 0) {
-      this.y2(point.y2, timing);
-    }
-    if (point.radius !== void 0) {
-      this.radius(point.radius, timing);
-    }
-    if (point.hitRadius !== void 0) {
-      this.hitRadius(point.hitRadius);
-    }
-
-    if (point.color !== void 0) {
-      this.color(point.color, timing);
-    }
-    if (point.opacity !== void 0) {
-      this.opacity(point.opacity, timing);
-    }
-
-    if (point.font !== void 0) {
-      this.font(point.font, timing);
-    }
-    if (point.textColor !== void 0) {
-      this.textColor(point.textColor, timing);
-    }
-
-    if (point.category !== void 0) {
-      this.category(point.category);
-    }
-
-    if (point.labelPadding !== void 0) {
-      this.labelPadding(point.labelPadding, timing);
-    }
-    if (point.labelPlacement !== void 0) {
-      this.labelPlacement(point.labelPlacement);
-    }
-    if (typeof point.label === "string") {
-      this.label.setText(point.label);
-    } else if (point.label !== void 0) {
-      this.label.setView(point.label);
-    }
-  }
-
   /** @internal */
   readonly gradientStop: boolean;
 
@@ -362,16 +292,5 @@ export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
       return this;
     }
     return null;
-  }
-
-  override init(init: DataPointViewInit<X, Y>): void {
-    super.init(init);
-    this.setState(init);
-  }
-
-  static override fromAny<X, Y>(value: AnyDataPointView<X, Y>): DataPointView<X, Y>;
-  static override fromAny<S extends Class<Instance<S, View>>>(this: S, value: AnyView<InstanceType<S>>): InstanceType<S>;
-  static override fromAny<S extends Class<Instance<S, View>>>(this: S, value: AnyView<InstanceType<S>>): InstanceType<S> {
-    return super.fromAny(value as any) as InstanceType<S>;
   }
 }

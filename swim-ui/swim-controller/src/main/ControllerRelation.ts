@@ -342,9 +342,8 @@ export const ControllerRelation = (function (_super: typeof Fastener) {
     const controllerType = this.controllerType;
     if (controllerType !== void 0) {
       return controllerType.fromAny(value);
-    } else {
-      return Controller.fromAny(value) as C;
     }
+    return Controller.fromAny(value) as C;
   };
 
   ControllerRelation.prototype.consume = function (this: ControllerRelation, consumer: Consumer): void {

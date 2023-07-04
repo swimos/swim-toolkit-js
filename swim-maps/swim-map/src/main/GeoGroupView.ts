@@ -35,7 +35,6 @@ import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
 import {ViewSet} from "@swim/view";
-import type {GeoViewInit} from "./GeoView";
 import type {GeoViewObserver} from "./GeoView";
 import {GeoView} from "./GeoView";
 import type {GeoRippleOptions} from "./GeoRippleView";
@@ -43,11 +42,6 @@ import {GeoRippleView} from "./GeoRippleView";
 import type {GeoPathView} from "./GeoPathView";
 import {GeoLineView} from "./GeoLineView";
 import {GeoAreaView} from "./GeoAreaView";
-
-/** @public */
-export interface GeoGroupViewInit extends GeoViewInit {
-  geoGroup?: GeoGroup;
-}
 
 /** @public */
 export interface GeoGroupViewObserver<V extends GeoGroupView = GeoGroupView> extends GeoViewObserver<V> {
@@ -228,12 +222,5 @@ export class GeoGroupView extends GeoView {
 
   ripple(options?: GeoRippleOptions): GeoRippleView | null {
     return GeoRippleView.ripple(this, options);
-  }
-
-  override init(init: GeoGroupViewInit): void {
-    super.init(init);
-    if (init.geoGroup !== void 0) {
-      this.geoGroup(init.geoGroup);
-    }
   }
 }

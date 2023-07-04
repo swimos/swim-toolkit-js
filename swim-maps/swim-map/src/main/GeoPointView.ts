@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import {Animator} from "@swim/component";
@@ -22,8 +21,7 @@ import {Length} from "@swim/math";
 import type {AnyR2Point} from "@swim/math";
 import {R2Point} from "@swim/math";
 import {R2Box} from "@swim/math";
-import {AnyGeoPoint} from "@swim/geo";
-import {GeoPointTuple} from "@swim/geo";
+import type {AnyGeoPoint} from "@swim/geo";
 import {GeoPoint} from "@swim/geo";
 import type {AnyFont} from "@swim/style";
 import {Font} from "@swim/style";
@@ -38,7 +36,6 @@ import {TypesetView} from "@swim/graphics";
 import {TextRunView} from "@swim/graphics";
 import type {CanvasContext} from "@swim/graphics";
 import {CanvasRenderer} from "@swim/graphics";
-import type {GeoViewInit} from "./GeoView";
 import type {GeoViewObserver} from "./GeoView";
 import {GeoView} from "./GeoView";
 import type {GeoRippleOptions} from "./GeoRippleView";
@@ -46,32 +43,6 @@ import {GeoRippleView} from "./GeoRippleView";
 
 /** @public */
 export type GeoPointLabelPlacement = "auto" | "top" | "right" | "bottom" | "left";
-
-/** @public */
-export type AnyGeoPointView = GeoPointView | GeoPointViewInit | AnyGeoPoint;
-
-/** @public */
-export interface GeoPointViewInit extends GeoViewInit {
-  lng?: number;
-  lat?: number;
-  x?: number;
-  y?: number;
-
-  radius?: AnyLength;
-
-  hitRadius?: number;
-
-  color?: AnyColor;
-  opacity?: number;
-
-  labelPadding?: AnyLength;
-  labelPlacement?: GeoPointLabelPlacement;
-
-  font?: AnyFont;
-  textColor?: AnyColor;
-
-  label?: GraphicsView | string;
-}
 
 /** @public */
 export interface GeoPointViewObserver<V extends GeoPointView = GeoPointView> extends GeoViewObserver<V> {
@@ -152,59 +123,6 @@ export class GeoPointView extends GeoView {
 
   isGradientStop(): boolean {
     return this.color.value !== null || this.opacity.value !== void 0;
-  }
-
-  setState(point: AnyGeoPointView, timing?: AnyTiming | boolean): void {
-    let init: GeoPointViewInit;
-    if (point instanceof GeoPointView) {
-      init = point.toAny();
-    } else if (point instanceof GeoPoint) {
-      init = point.toAny();
-    } else if (GeoPointTuple[Symbol.hasInstance](point)) {
-      init = {lng: point[0], lat: point[1]};
-    } else {
-      init = point;
-    }
-    if (init.lng !== void 0 && init.lat !== void 0) {
-      this.geoPoint(new GeoPoint(init.lng, init.lat), timing);
-    } else if (init.x !== void 0 && init.y !== void 0) {
-      this.viewPoint(new R2Point(init.x, init.y), timing);
-    }
-
-    if (init.radius !== void 0) {
-      this.radius(init.radius, timing);
-    }
-
-    if (init.hitRadius !== void 0) {
-      this.hitRadius(init.hitRadius);
-    }
-
-    if (init.color !== void 0) {
-      this.color(init.color, timing);
-    }
-    if (init.opacity !== void 0) {
-      this.opacity(init.opacity, timing);
-    }
-
-    if (init.labelPadding !== void 0) {
-      this.labelPadding(init.labelPadding, timing);
-    }
-    if (init.labelPlacement !== void 0) {
-      this.labelPlacement(init.labelPlacement);
-    }
-
-    if (init.font !== void 0) {
-      this.font(init.font, timing);
-    }
-    if (init.textColor !== void 0) {
-      this.textColor(init.textColor, timing);
-    }
-
-    if (typeof init.label === "string") {
-      this.label.setText(init.label);
-    } else if (init.label !== void 0) {
-      this.label.setView(init.label);
-    }
   }
 
   protected override needsProcess(processFlags: ViewFlags): ViewFlags {
@@ -295,43 +213,6 @@ export class GeoPointView extends GeoView {
 
   ripple(options?: GeoRippleOptions): GeoRippleView | null {
     return GeoRippleView.ripple(this, options);
-  }
-
-  toAny(): GeoPointViewInit {
-    const init: GeoPointViewInit = {};
-    init.lng = this.geoPoint.value.lng;
-    init.lat = this.geoPoint.value.lat;
-    if (!this.viewPoint.hasAffinity(Affinity.Intrinsic)) {
-      init.x = this.viewPoint.value.x;
-      init.y = this.viewPoint.value.y;
-    }
-    if (this.radius.value !== null) {
-      init.radius = this.radius.value;
-    }
-    if (this.hitRadius.value !== void 0) {
-      init.hitRadius = this.hitRadius.value;
-    }
-    if (this.color.value !== null) {
-      init.color = this.color.value;
-    }
-    if (this.opacity.value !== void 0) {
-      init.opacity = this.opacity.value;
-    }
-    if (this.labelPadding.value !== null) {
-      init.labelPadding = this.labelPadding.value;
-    }
-    if (this.labelPlacement.value !== void 0) {
-      init.labelPlacement = this.labelPlacement.value;
-    }
-    return init;
-  }
-
-  override init(init: AnyGeoPoint | GeoPointViewInit): void {
-    if (init instanceof GeoPoint || AnyGeoPoint[Symbol.hasInstance](init)) {
-      this.setState(init);
-    } else {
-      super.init(init as GeoPointViewInit);
-    }
   }
 }
 Object.defineProperty(GeoPointView.prototype, "viewBounds", {

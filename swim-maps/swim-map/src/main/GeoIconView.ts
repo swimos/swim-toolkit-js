@@ -38,24 +38,13 @@ import {Graphics} from "@swim/graphics";
 import type {GraphicsView} from "@swim/graphics";
 import {Icon} from "@swim/graphics";
 import {FilledIcon} from "@swim/graphics";
-import type {IconViewInit} from "@swim/graphics";
-import {IconView} from "@swim/graphics";
+import type {IconView} from "@swim/graphics";
 import {IconGraphicsAnimator} from "@swim/graphics";
 import {CanvasRenderer} from "@swim/graphics";
-import type {GeoViewInit} from "./GeoView";
 import type {GeoViewObserver} from "./GeoView";
 import {GeoView} from "./GeoView";
 import type {GeoRippleOptions} from "./GeoRippleView";
 import {GeoRippleView} from "./GeoRippleView";
-
-/** @public */
-export type AnyGeoIconView = GeoIconView | GeoIconViewInit;
-
-/** @public */
-export interface GeoIconViewInit extends GeoViewInit, IconViewInit {
-  geoCenter?: AnyGeoPoint;
-  viewCenter?: AnyR2Point;
-}
 
 /** @public */
 export interface GeoIconViewObserver<V extends GeoIconView = GeoIconView> extends GeoViewObserver<V> {
@@ -353,17 +342,6 @@ export class GeoIconView extends GeoView implements IconView {
     if (sprite !== null) {
       this.sprite = null;
       sprite.release();
-    }
-  }
-
-  override init(init: GeoIconViewInit): void {
-    super.init(init);
-    IconView.init(this, init);
-    if (init.geoCenter !== void 0) {
-      this.geoCenter(init.geoCenter);
-    }
-    if (init.viewCenter !== void 0) {
-      this.viewCenter(init.viewCenter);
     }
   }
 

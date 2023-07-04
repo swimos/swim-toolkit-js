@@ -22,20 +22,13 @@ import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
 import type {GraphicsView} from "@swim/graphics";
-import type {StrokeViewInit} from "@swim/graphics";
 import type {StrokeView} from "@swim/graphics";
 import type {PaintingContext} from "@swim/graphics";
 import {PaintingRenderer} from "@swim/graphics";
 import type {CanvasContext} from "@swim/graphics";
 import {CanvasRenderer} from "@swim/graphics";
-import type {GeoPathViewInit} from "./GeoPathView";
 import type {GeoPathViewObserver} from "./GeoPathView";
 import {GeoPathView} from "./GeoPathView";
-
-/** @public */
-export interface GeoLineViewInit extends GeoPathViewInit, StrokeViewInit {
-  hitWidth?: number;
-}
 
 /** @public */
 export interface GeoLineViewObserver<V extends GeoLineView = GeoLineView> extends GeoPathViewObserver<V> {
@@ -143,18 +136,5 @@ export class GeoLineView extends GeoPathView implements StrokeView {
     context.lineWidth = contextLineWidth;
 
     return pointInStroke ? this : null;
-  }
-
-  override init(init: GeoLineViewInit): void {
-    super.init(init);
-    if (init.stroke !== void 0) {
-      this.stroke(init.stroke);
-    }
-    if (init.strokeWidth !== void 0) {
-      this.strokeWidth(init.strokeWidth);
-    }
-    if (init.hitWidth !== void 0) {
-      this.hitWidth(init.hitWidth);
-    }
   }
 }

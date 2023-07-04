@@ -41,10 +41,14 @@ export interface DataPointTraitObserver<X = unknown, Y = unknown, T extends Data
 
 /** @public */
 export class DataPointTrait<X = unknown, Y = unknown> extends Trait {
-  constructor(x: X, y: Y) {
+  constructor(x?: X, y?: Y) {
     super();
-    this.x.setValue(x);
-    this.y.setValue(y);
+    if (x !== void 0) {
+      this.x.setValue(x);
+    }
+    if (y !== void 0) {
+      this.y.setValue(y);
+    }
   }
 
   declare readonly observerType?: Class<DataPointTraitObserver<X, Y>>;

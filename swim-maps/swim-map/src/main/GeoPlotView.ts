@@ -14,7 +14,6 @@
 
 import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import type {AnyLength} from "@swim/math";
@@ -32,32 +31,16 @@ import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
 import type {GraphicsView} from "@swim/graphics";
-import type {StrokeViewInit} from "@swim/graphics";
 import type {StrokeView} from "@swim/graphics";
 import type {PaintingContext} from "@swim/graphics";
 import {PaintingRenderer} from "@swim/graphics";
 import type {CanvasContext} from "@swim/graphics";
 import {CanvasRenderer} from "@swim/graphics";
-import type {GeoViewInit} from "./GeoView";
 import type {GeoViewObserver} from "./GeoView";
 import {GeoView} from "./GeoView";
 import type {GeoRippleOptions} from "./GeoRippleView";
 import {GeoRippleView} from "./GeoRippleView";
-import type {AnyGeoPointView} from "./GeoPointView";
 import {GeoPointView} from "./GeoPointView";
-
-/** @public */
-export type AnyGeoPlotView = GeoPlotView | GeoPlotViewInit;
-
-/** @public */
-export interface GeoPlotViewInit extends GeoViewInit, StrokeViewInit {
-  points?: ReadonlyArray<AnyGeoPointView>;
-
-  hitWidth?: number;
-
-  font?: AnyFont;
-  textColor?: AnyColor;
-}
 
 /** @public */
 export interface GeoPlotViewObserver<V extends GeoPlotView = GeoPlotView> extends GeoViewObserver<V> {
@@ -78,93 +61,24 @@ export class GeoPlotView extends GeoView implements StrokeView {
 
   declare readonly observerType?: Class<GeoPlotViewObserver>;
 
-  points(): ReadonlyArray<GeoPointView>;
-  points(points: ReadonlyArray<AnyGeoPointView>, timing?: AnyTiming | boolean): this;
-  points(points?: ReadonlyArray<AnyGeoPointView>, timing?: AnyTiming | boolean): ReadonlyArray<GeoPointView> | this {
-    let child: View | null;
-    if (points === void 0) {
-      const points: GeoPointView[] = [];
-      child = this.firstChild;
-      while (child !== null) {
-        if (child instanceof GeoPointView) {
-          points.push(child);
-        }
-        child = child.nextSibling;
-      }
-      return points;
-    }
-
-    const oldGeoBounds = this.geoBounds;
-    let lngMin = Infinity;
-    let latMin = Infinity;
-    let lngMax = -Infinity;
-    let latMax = -Infinity;
-    let lngMid = 0;
-    let latMid = 0;
-    let invalid = false;
-    let i = 0;
-    child = this.firstChild;
-    while (child !== null && i < points.length) {
-      if (child instanceof GeoPointView) {
-        const point = points[i]!;
-        child.setState(point);
-        const {lng, lat} = child.geoPoint.getValue();
-        lngMid += lng;
-        latMid += lat;
-        lngMin = Math.min(lngMin, lng);
-        latMin = Math.min(latMin, lat);
-        lngMax = Math.max(lng, lngMax);
-        latMax = Math.max(lat, latMax);
-        invalid = invalid || !isFinite(lng) || !isFinite(lat);
-        i += 1;
-      }
-    }
-    while (i < points.length) {
-      const point = GeoPointView.fromAny(points[i]!);
-      this.appendChild(point);
-      const {lng, lat} = point.geoPoint.getValue();
-      lngMid += lng;
-      latMid += lat;
-      lngMin = Math.min(lngMin, lng);
-      latMin = Math.min(latMin, lat);
-      lngMax = Math.max(lng, lngMax);
-      latMax = Math.max(lat, latMax);
-      invalid = invalid || !isFinite(lng) || !isFinite(lat);
-      i += 1;
-    }
+  points(): readonly GeoPointView[] {
+    const points: GeoPointView[] = [];
+    let child = this.firstChild;
     while (child !== null) {
-      const next = child.nextSibling;
       if (child instanceof GeoPointView) {
-        this.removeChild(child);
+        points.push(child);
       }
-      child = next;
+      child = child.nextSibling;
     }
-    if (invalid || i === 0) {
-      this.geoCentroid.setValue(GeoPoint.origin(), Affinity.Intrinsic);
-      (this as Mutable<this>).geoBounds = GeoBox.undefined();
-    } else {
-      lngMid /= i;
-      latMid /= i;
-      this.geoCentroid.setValue(new GeoPoint(lngMid, latMid), Affinity.Intrinsic);
-      (this as Mutable<this>).geoBounds = new GeoBox(lngMin, latMin, lngMax, latMax);
-    }
-    const newGeoBounds = this.geoBounds;
-    if (!oldGeoBounds.equals(newGeoBounds)) {
-      this.willSetGeoBounds(newGeoBounds, oldGeoBounds);
-      this.onSetGeoBounds(newGeoBounds, oldGeoBounds);
-      this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
-    }
-    return this;
+    return points;
   }
 
-  appendPoint(point: AnyGeoPointView, key?: string): GeoPointView {
-    point = GeoPointView.fromAny(point);
+  appendPoint(point: GeoPointView, key?: string): GeoPointView {
     this.appendChild(point, key);
     return point;
   }
 
-  setPoint(key: string, point: AnyGeoPointView): GeoPointView {
-    point = GeoPointView.fromAny(point);
+  setPoint(key: string, point: GeoPointView): GeoPointView {
     this.setChild(key, point);
     return point;
   }
@@ -445,28 +359,5 @@ export class GeoPlotView extends GeoView implements StrokeView {
 
   ripple(options?: GeoRippleOptions): GeoRippleView | null {
     return GeoRippleView.ripple(this, options);
-  }
-
-  override init(init: GeoPlotViewInit): void {
-    super.init(init);
-    if (init.stroke !== void 0) {
-      this.stroke(init.stroke);
-    }
-    if (init.strokeWidth !== void 0) {
-      this.strokeWidth(init.strokeWidth);
-    }
-    if (init.hitWidth !== void 0) {
-      this.hitWidth(init.hitWidth);
-    }
-    if (init.font !== void 0) {
-      this.font(init.font);
-    }
-    if (init.textColor !== void 0) {
-      this.textColor(init.textColor);
-    }
-    const points = init.points;
-    if (points !== void 0) {
-      this.points(points);
-    }
   }
 }

@@ -19,7 +19,6 @@ import {Provider} from "@swim/component";
 import {R2Box} from "@swim/math";
 import {Transform} from "@swim/math";
 import type {Color} from "@swim/style";
-import type {ViewInit} from "@swim/view";
 import type {ViewFlags} from "@swim/view";
 import type {ViewObserver} from "@swim/view";
 import {View} from "@swim/view";
@@ -56,11 +55,6 @@ export interface GraphicsViewEventMap {
   "touchmove": TouchEvent;
   "touchstart": TouchEvent;
   "wheel": WheelEvent;
-}
-
-/** @public */
-export interface GraphicsViewInit extends ViewInit {
-  hidden?: boolean;
 }
 
 /** @public */
@@ -397,13 +391,6 @@ export class GraphicsView extends View {
       return !event.cancelBubble;
     }
     return next.dispatchEvent(event);
-  }
-
-  override init(init: GraphicsViewInit): void {
-    super.init(init);
-    if (init.hidden !== void 0) {
-      this.setHidden(init.hidden);
-    }
   }
 
   static override readonly UncullFlags: ViewFlags = View.UncullFlags | View.NeedsRender;

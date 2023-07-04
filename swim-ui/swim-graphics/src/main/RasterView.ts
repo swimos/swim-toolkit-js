@@ -22,17 +22,10 @@ import {View} from "@swim/view";
 import type {AnyGraphicsRenderer} from "./GraphicsRenderer";
 import type {GraphicsRendererType} from "./GraphicsRenderer";
 import {GraphicsRenderer} from "./GraphicsRenderer";
-import type {GraphicsViewInit} from "./GraphicsView";
 import {GraphicsView} from "./GraphicsView";
 import {WebGLRenderer} from "./WebGLRenderer";
 import type {CanvasCompositeOperation} from "./CanvasContext";
 import {CanvasRenderer} from "./CanvasRenderer";
-
-/** @public */
-export interface RasterViewInit extends GraphicsViewInit {
-  opacity?: number;
-  compositeOperation?: CanvasCompositeOperation;
-}
 
 /** @public */
 export class RasterView extends GraphicsView {
@@ -220,16 +213,6 @@ export class RasterView extends GraphicsView {
         context.globalAlpha = globalAlpha;
         context.globalCompositeOperation = globalCompositeOperation;
       }
-    }
-  }
-
-  override init(init: RasterViewInit): void {
-    super.init(init);
-    if (init.opacity !== void 0) {
-      this.opacity(init.opacity);
-    }
-    if (init.compositeOperation !== void 0) {
-      this.compositeOperation(init.compositeOperation);
     }
   }
 

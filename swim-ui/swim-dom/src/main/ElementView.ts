@@ -30,7 +30,6 @@ import type {ViewportService} from "@swim/view";
 import type {StyleContext} from "./StyleContext";
 import type {ViewNodeType} from "./NodeView";
 import type {AnyNodeView} from "./NodeView";
-import type {NodeViewInit} from "./NodeView";
 import type {NodeViewFactory} from "./NodeView";
 import type {NodeViewClass} from "./NodeView";
 import type {NodeViewConstructor} from "./NodeView";
@@ -50,12 +49,6 @@ export interface ViewElement extends Element, ElementCSSInlineStyle {
 
 /** @public */
 export type AnyElementView<V extends ElementView = ElementView> = AnyNodeView<V>;
-
-/** @public */
-export interface ElementViewInit extends NodeViewInit {
-  id?: string;
-  classList?: string[];
-}
 
 /** @public */
 export interface ElementViewFactory<V extends ElementView = ElementView, U = AnyElementView<V>> extends NodeViewFactory<V, U> {
@@ -469,16 +462,6 @@ export class ElementView extends NodeView implements StyleContext {
     }
   }
 
-  override init(init: ElementViewInit): void {
-    super.init(init);
-    if (init.id !== void 0) {
-      this.id(init.id);
-    }
-    if (init.classList !== void 0) {
-      this.addClass(...init.classList);
-    }
-  }
-
   /** @internal */
   static readonly tag?: string;
 
@@ -495,21 +478,24 @@ export class ElementView extends NodeView implements StyleContext {
     return this.fromTag(tag);
   }
 
-  static fromTag<S extends Class<Instance<S, ElementView>>>(this: S, tag: string, namespace?: string): InstanceType<S>;
-  static fromTag(tag: string, namespace?: string): ElementView;
-  static fromTag(tag: string, namespace?: string): ElementView {
-    if (namespace === void 0) {
-      if (tag === "svg") {
-        namespace = SvgView.namespace;
+  static override fromAny<S extends Class<Instance<S, ElementView>>>(this: S, value: AnyElementView<InstanceType<S>>): InstanceType<S>;
+  static override fromAny(value: AnyElementView | string): ElementView;
+  static override fromAny(value: AnyElementView | string): ElementView {
+    if (value === void 0 || value === null) {
+      return value;
+    } else if (value instanceof View) {
+      if (!(value instanceof this)) {
+        throw new TypeError(value + " not an instance of " + this);
       }
+      return value;
+    } else if (value instanceof Node) {
+      return this.fromNode(value);
+    } else if (typeof value === "string") {
+      return this.fromTag(value);
+    } else if (Creatable[Symbol.hasInstance](value)) {
+      return this.create();
     }
-    let node: Element;
-    if (namespace !== void 0) {
-      node = document.createElementNS(namespace, tag);
-    } else {
-      node = document.createElement(tag);
-    }
-    return this.fromNode(node);
+    throw new TypeError("" + value);
   }
 
   static override fromNode<S extends new (node: Element) => Instance<S, ElementView>>(this: S, node: ViewNodeType<InstanceType<S>>): InstanceType<S>;
@@ -531,25 +517,20 @@ export class ElementView extends NodeView implements StyleContext {
     return view;
   }
 
-  static override fromAny<S extends Class<Instance<S, ElementView>>>(this: S, value: AnyElementView<InstanceType<S>>): InstanceType<S>;
-  static override fromAny(value: AnyElementView | string): ElementView;
-  static override fromAny(value: AnyElementView | string): ElementView {
-    if (value === void 0 || value === null) {
-      return value;
-    } else if (value instanceof View) {
-      if (value instanceof this) {
-        return value;
-      } else {
-        throw new TypeError(value + " not an instance of " + this);
+  static fromTag<S extends Class<Instance<S, ElementView>>>(this: S, tag: string, namespace?: string): InstanceType<S>;
+  static fromTag(tag: string, namespace?: string): ElementView;
+  static fromTag(tag: string, namespace?: string): ElementView {
+    if (namespace === void 0) {
+      if (tag === "svg") {
+        namespace = SvgView.namespace;
       }
-    } else if (value instanceof Node) {
-      return this.fromNode(value);
-    } else if (typeof value === "string") {
-      return this.fromTag(value);
-    } else if (Creatable[Symbol.hasInstance](value)) {
-      return value.create();
-    } else {
-      return this.fromInit(value);
     }
+    let node: Element;
+    if (namespace !== void 0) {
+      node = document.createElementNS(namespace, tag);
+    } else {
+      node = document.createElement(tag);
+    }
+    return this.fromNode(node);
   }
 }

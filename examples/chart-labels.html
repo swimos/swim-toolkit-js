@@ -19,25 +19,25 @@ const bodyView = swim.HtmlView.fromNode(document.body);
 
 const containerView = bodyView.appendChild("div").position("relative").width("90%").height("90%").touchAction("none").userSelect("none");
 
-const canvasView = swim.CanvasView.create()
-    .wheelEventsEnabled(true)
-    .mouseEventsEnabled(true)
-    .pointerEventsEnabled(true)
-    .touchEventsEnabled(true)
-    .touchAction("manipulation");
+const canvasView = swim.CanvasView.create();
+canvasView.wheelEventsEnabled(true);
+canvasView.mouseEventsEnabled(true);
+canvasView.pointerEventsEnabled(true);
+canvasView.touchEventsEnabled(true);
+canvasView.touchAction("manipulation");
 
-const chartView = canvasView.appendChild(swim.ChartView)
-    .bottomAxis(true)
-    .leftAxis(true)
-    //.xRangePadding([2, 2])
-    //.yRangePadding([2, 2])
-    .fitAspectRatio(1)
-    .domainTracking(true)
-    .xScaleGestures(true)
-    .font("12px sans-serif");
+const chartView = canvasView.appendChild(swim.ChartView);
+const bottomAxisView = chartView.bottomAxis.insertView();
+const leftAxisView = chartView.leftAxis.insertView();
+
+//chartView.xRangePadding([2, 2]);
+//chartView.yRangePadding([2, 2]);
+chartView.fitAspectRatio(1);
+chartView.domainTracking(true);
+chartView.xScaleGestures(true);
+chartView.font("12px sans-serif");
 
 const graphView = chartView.graph.insertView();
-
 const plotView = graphView.appendChild(swim.LinePlotView)
     .hitMode("domain")
     .strokeWidth(2);
@@ -59,13 +59,10 @@ for (let i = 0, n = cycles * samples; i <= n; i += 1) {
   const x = i * 2 * Math.PI / samples;
   const y = Math.round(1000 * Math.sin(x)) / 1000;
   const opacity = i === 0 ? 0.75 : i === n ? 0.25 : void 0;
-  plotView.insertDataPoint({
-    x: x,
-    y: y,
-    opacity: opacity,
-    labelPadding: 2,
-    labelPlacement: y > 0 ? "above" : y < 0 ? "below" : "middle",
-  });
+  const dataPointView = plotView.insertDataPoint(new swim.DataPointView(x, y));
+  dataPointView.opacity.setState(opacity);
+  dataPointView.labelPadding.setState(2);
+  dataPointView.labelPlacement.setValue(y > 0 ? "above" : y < 0 ? "below" : "middle");
 }
 
 containerView.appendChild(canvasView);

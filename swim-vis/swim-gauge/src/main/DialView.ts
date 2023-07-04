@@ -32,7 +32,6 @@ import {Look} from "@swim/theme";
 import {ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
 import {ViewRef} from "@swim/view";
-import type {GraphicsViewInit} from "@swim/graphics";
 import type {GraphicsViewObserver} from "@swim/graphics";
 import {GraphicsView} from "@swim/graphics";
 import type {CanvasContext} from "@swim/graphics";
@@ -44,35 +43,6 @@ import {TextRunView} from "@swim/graphics";
 
 /** @public */
 export type DialViewArrangement = "auto" | "manual";
-
-/** @public */
-export type AnyDialView = DialView | DialViewInit;
-
-/** @public */
-export interface DialViewInit extends GraphicsViewInit {
-  value?: number;
-  limit?: number;
-  center?: AnyR2Point;
-  innerRadius?: AnyLength;
-  outerRadius?: AnyLength;
-  startAngle?: AnyAngle;
-  sweepAngle?: AnyAngle;
-  cornerRadius?: AnyLength;
-  dialColor?: AnyColor;
-  meterColor?: AnyColor;
-  labelPadding?: AnyLength;
-  tickAlign?: number;
-  tickRadius?: AnyLength;
-  tickLength?: AnyLength;
-  tickWidth?: AnyLength;
-  tickPadding?: AnyLength;
-  tickColor?: AnyColor;
-  font?: AnyFont;
-  textColor?: AnyColor;
-  arrangement?: DialViewArrangement;
-  label?: GraphicsView | string;
-  legend?: GraphicsView | string;
-}
 
 /** @public */
 export interface DialViewObserver<V extends DialView = DialView> extends GraphicsViewObserver<V> {
@@ -399,79 +369,5 @@ export class DialView extends GraphicsView {
       return this;
     }
     return null;
-  }
-
-  override init(init: DialViewInit): void {
-    super.init(init);
-    if (init.value !== void 0) {
-      this.value(init.value);
-    }
-    if (init.limit !== void 0) {
-      this.limit(init.limit);
-    }
-    if (init.center !== void 0) {
-      this.center(init.center);
-    }
-    if (init.innerRadius !== void 0) {
-      this.innerRadius(init.innerRadius);
-    }
-    if (init.outerRadius !== void 0) {
-      this.outerRadius(init.outerRadius);
-    }
-    if (init.startAngle !== void 0) {
-      this.startAngle(init.startAngle);
-    }
-    if (init.sweepAngle !== void 0) {
-      this.sweepAngle(init.sweepAngle);
-    }
-    if (init.cornerRadius !== void 0) {
-      this.cornerRadius(init.cornerRadius);
-    }
-    if (init.dialColor !== void 0) {
-      this.dialColor(init.dialColor);
-    }
-    if (init.meterColor !== void 0) {
-      this.meterColor(init.meterColor);
-    }
-    if (init.labelPadding !== void 0) {
-      this.labelPadding(init.labelPadding);
-    }
-    if (init.tickAlign !== void 0) {
-      this.tickAlign(init.tickAlign);
-    }
-    if (init.tickRadius !== void 0) {
-      this.tickRadius(init.tickRadius);
-    }
-    if (init.tickLength !== void 0) {
-      this.tickLength(init.tickLength);
-    }
-    if (init.tickWidth !== void 0) {
-      this.tickWidth(init.tickWidth);
-    }
-    if (init.tickPadding !== void 0) {
-      this.tickPadding(init.tickPadding);
-    }
-    if (init.tickColor !== void 0) {
-      this.tickColor(init.tickColor);
-    }
-    if (init.font !== void 0) {
-      this.font(init.font);
-    }
-    if (init.textColor !== void 0) {
-      this.textColor(init.textColor);
-    }
-    if (init.arrangement !== void 0) {
-      this.arrangement(init.arrangement);
-    }
-    if (typeof init.label === "string") {
-      this.label.setText(init.label);
-    } else if (init.label !== void 0) {
-      this.label.setView(init.label);
-    }
-    if (typeof init.legend === "string") {
-      this.legend.setText(init.legend);
-    } else if (init.legend !== void 0) {
-      this.legend.setView(init.legend);
-    }
   }
 }

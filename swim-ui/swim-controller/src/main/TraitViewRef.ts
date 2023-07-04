@@ -616,9 +616,8 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
     const traitType = this.traitType;
     if (traitType !== void 0) {
       return traitType.fromAny(value);
-    } else {
-      return Trait.fromAny(value) as T;
     }
+    return Trait.fromAny(value) as T;
   };
 
   TraitViewRef.prototype.getView = function <V extends View>(this: TraitViewRef<unknown, Trait, V>): V {
@@ -895,9 +894,8 @@ export const TraitViewRef = (function (_super: typeof Fastener) {
     const viewType = this.viewType;
     if (viewType !== void 0) {
       return viewType.fromAny(value);
-    } else {
-      return View.fromAny(value) as V;
     }
+    return View.fromAny(value) as V;
   };
 
   TraitViewRef.prototype.consume = function (this: TraitViewRef, consumer: Consumer): void {

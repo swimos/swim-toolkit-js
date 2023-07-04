@@ -369,9 +369,8 @@ export const TraitRelation = (function (_super: typeof Fastener) {
     const traitType = this.traitType;
     if (traitType !== void 0) {
       return traitType.fromAny(value);
-    } else {
-      return Trait.fromAny(value) as T;
     }
+    return Trait.fromAny(value) as T;
   };
 
   TraitRelation.prototype.consume = function (this: TraitRelation, consumer: Consumer): void {

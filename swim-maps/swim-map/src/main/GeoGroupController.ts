@@ -39,12 +39,6 @@ export interface GeoGroupControllerObserver<C extends GeoGroupController = GeoGr
   controllerDidDetachGeoView?(geoView: GeoGroupView, controller: C): void;
 
   controllerDidSetGeoGroup?(geoGroup: GeoGroup | null, controller: C): void;
-
-  controllerDidSetFill?(fill: ColorOrLook | null, controller: C): void;
-
-  controllerDidSetStroke?(stroke: ColorOrLook | null, controller: C): void;
-
-  controllerDidSetStrokeWidth?(strokeWidth: Length | null, controller: C): void;
 }
 
 /** @public */
@@ -179,15 +173,6 @@ export class GeoGroupController extends GeoController {
     },
     viewDidSetGeoGroup(geoGroup: GeoGroup | null): void {
       this.owner.callObservers("controllerDidSetGeoGroup", geoGroup, this.owner);
-    },
-    viewDidSetFill(fill: ColorOrLook | null): void {
-      this.owner.callObservers("controllerDidSetFill", fill, this.owner);
-    },
-    viewDidSetStroke(stroke: ColorOrLook | null): void {
-      this.owner.callObservers("controllerDidSetStroke", stroke, this.owner);
-    },
-    viewDidSetStrokeWidth(strokeWidth: Length | null): void {
-      this.owner.callObservers("controllerDidSetStrokeWidth", strokeWidth, this.owner);
     },
   })
   override readonly geo!: TraitViewRef<this, GeoGroupTrait, GeoGroupView> & GeoController["geo"] & Observes<GeoGroupTrait> & Observes<GeoGroupView>;

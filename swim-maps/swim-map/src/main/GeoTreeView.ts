@@ -24,14 +24,8 @@ import {View} from "@swim/view";
 import type {GraphicsView} from "@swim/graphics";
 import type {PaintingContext} from "@swim/graphics";
 import {PaintingRenderer} from "@swim/graphics";
-import type {GeoViewInit} from "./GeoView";
 import {GeoView} from "./GeoView";
 import {GeoTree} from "./GeoTree";
-
-/** @public */
-export interface GeoTreeViewInit extends GeoViewInit {
-  geoTreeColor?: AnyColor;
-}
 
 /** @public */
 export class GeoTreeView extends GeoView {
@@ -242,12 +236,5 @@ export class GeoTreeView extends GeoView {
       }
     }
     return hit;
-  }
-
-  override init(init: GeoTreeViewInit): void {
-    super.init(init);
-    if (init.geoTreeColor !== void 0) {
-      this.geoTreeColor(init.geoTreeColor);
-    }
   }
 }

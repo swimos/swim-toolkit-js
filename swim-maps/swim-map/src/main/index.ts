@@ -20,7 +20,6 @@ export {GeoPerspective} from "./GeoPerspective";
 
 export {GeoViewport} from "./GeoViewport";
 
-export type {GeoViewInit} from "./GeoView";
 export type {GeoViewObserver} from "./GeoView";
 export {GeoView} from "./GeoView";
 
@@ -46,7 +45,6 @@ export {GeoRippleView} from "./GeoRippleView";
 
 // Raster
 
-export type {GeoRasterViewInit} from "./GeoRasterView";
 export type {GeoRasterViewObserver} from "./GeoRasterView";
 export {GeoRasterView} from "./GeoRasterView";
 
@@ -54,7 +52,6 @@ export {GeoRasterView} from "./GeoRasterView";
 
 export {GeoTree} from "./GeoTree";
 
-export type {GeoTreeViewInit} from "./GeoTreeView";
 export {GeoTreeView} from "./GeoTreeView";
 
 // Tile
@@ -69,27 +66,20 @@ export {GeoTileController} from "./GeoTileController";
 
 // Shape
 
-export type {AnyGeoCircleView} from "./GeoCircleView";
-export type {GeoCircleViewInit} from "./GeoCircleView";
 export type {GeoCircleViewObserver} from "./GeoCircleView";
 export {GeoCircleView} from "./GeoCircleView";
 
-export type {AnyGeoArcView} from "./GeoArcView";
-export type {GeoArcViewInit} from "./GeoArcView";
 export type {GeoArcViewObserver} from "./GeoArcView";
 export {GeoArcView} from "./GeoArcView";
 
 // Path
 
-export type {GeoPathViewInit} from "./GeoPathView";
 export type {GeoPathViewObserver} from "./GeoPathView";
 export {GeoPathView} from "./GeoPathView";
 
-export type {GeoLineViewInit} from "./GeoLineView";
 export type {GeoLineViewObserver} from "./GeoLineView";
 export {GeoLineView} from "./GeoLineView";
 
-export type {GeoAreaViewInit} from "./GeoAreaView";
 export type {GeoAreaViewObserver} from "./GeoAreaView";
 export {GeoAreaView} from "./GeoAreaView";
 
@@ -114,20 +104,14 @@ export {GeoAreaController} from "./GeoAreaController";
 // Plot
 
 export type {GeoPointLabelPlacement} from "./GeoPointView";
-export type {AnyGeoPointView} from "./GeoPointView";
-export type {GeoPointViewInit} from "./GeoPointView";
 export type {GeoPointViewObserver} from "./GeoPointView";
 export {GeoPointView} from "./GeoPointView";
 
-export type {AnyGeoPlotView} from "./GeoPlotView";
-export type {GeoPlotViewInit} from "./GeoPlotView";
 export type {GeoPlotViewObserver} from "./GeoPlotView";
 export {GeoPlotView} from "./GeoPlotView";
 
 // Icon
 
-export type {AnyGeoIconView} from "./GeoIconView";
-export type {GeoIconViewInit} from "./GeoIconView";
 export type {GeoIconViewObserver} from "./GeoIconView";
 export {GeoIconView} from "./GeoIconView";
 
@@ -139,7 +123,6 @@ export {GeoIconController} from "./GeoIconController";
 
 // Group
 
-export type {GeoGroupViewInit} from "./GeoGroupView";
 export type {GeoGroupViewObserver} from "./GeoGroupView";
 export {GeoGroupView} from "./GeoGroupView";
 

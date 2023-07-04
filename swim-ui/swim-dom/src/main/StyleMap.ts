@@ -20,7 +20,6 @@ import type {AnyTiming} from "@swim/util";
 import type {Affinity} from "@swim/component";
 import type {FastenerDecorator} from "@swim/component";
 import {Fastener} from "@swim/component";
-import {Property} from "@swim/component";
 import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
 import type {AnyTransform} from "@swim/math";
@@ -68,11 +67,6 @@ import type {VerticalAlign} from "./csstypes";
 import type {Visibility} from "./csstypes";
 import type {WhiteSpace} from "./csstypes";
 import type {StyleContext} from "./StyleContext";
-
-/** @public */
-export type StyleMapInit = {
-  [K in keyof StyleMap as StyleMap[K] extends Property<any, any, any> ? K : never]?: StyleMap[K] extends Property<any, infer T, infer U> ? T | U : never;
-};
 
 /** @public */
 export interface StyleMap extends StyleContext {
@@ -286,9 +280,6 @@ export interface StyleMap extends StyleContext {
 export const StyleMap = (function () {
   const StyleMap = {} as {
     /** @internal */
-    init(map: StyleMap, init: StyleMapInit): void;
-
-    /** @internal */
     defineField<K extends keyof StyleMap>(constructor: Proto<StyleMap>, name: K, decorators: StyleMap[K] extends StyleAnimator<any, any, any> ? FastenerDecorator<StyleMap[K]>[] : never,
                                           fieldInitializers: {[name: PropertyKey]: Function[]}, instanceInitializers: Function[]): void;
 
@@ -304,15 +295,6 @@ export const StyleMap = (function () {
 
     /** @internal */
     pctHeightUnit(node: Node | undefined): number;
-  };
-
-  StyleMap.init = function (map: StyleMap, init: StyleMapInit): void {
-    for (const key in init) {
-      const property = map[key as keyof StyleMap];
-      if (property instanceof Property) {
-        property(init[key as keyof StyleMapInit] as any);
-      }
-    }
   };
 
   StyleMap.defineField = function <K extends keyof StyleMap>(constructor: Proto<StyleMap>, name: K, decorators: StyleMap[K] extends StyleAnimator<any, any, any> ? FastenerDecorator<StyleMap[K]>[] : never,

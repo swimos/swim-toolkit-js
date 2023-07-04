@@ -25,19 +25,13 @@ import type {ThemeMatrix} from "@swim/theme";
 import {ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
 import {Graphics} from "./Graphics";
-import type {GraphicsViewInit} from "./GraphicsView";
 import {GraphicsView} from "./GraphicsView";
 import {PaintingRenderer} from "./PaintingRenderer";
 import {CanvasRenderer} from "./CanvasRenderer";
 import {Icon} from "./Icon";
 import {FilledIcon} from "./FilledIcon";
-import type {IconViewInit} from "./IconView";
-import {IconView} from "./IconView";
+import type {IconView} from "./IconView";
 import {IconGraphicsAnimator} from "./IconView";
-
-/** @public */
-export interface GraphicsIconViewInit extends GraphicsViewInit, IconViewInit {
-}
 
 /** @public */
 export class GraphicsIconView extends GraphicsView implements IconView {
@@ -131,11 +125,6 @@ export class GraphicsIconView extends GraphicsView implements IconView {
     //  }
     //}
     return null;
-  }
-
-  override init(init: GraphicsIconViewInit): void {
-    super.init(init);
-    IconView.init(this, init);
   }
 }
 Object.defineProperty(GraphicsIconView.prototype, "viewBounds", {

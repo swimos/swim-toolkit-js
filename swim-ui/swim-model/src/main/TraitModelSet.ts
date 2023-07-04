@@ -381,9 +381,8 @@ export const TraitModelSet = (function (_super: typeof ModelSet) {
     const traitType = this.traitType;
     if (traitType !== void 0) {
       return traitType.fromAny(value);
-    } else {
-      return Trait.fromAny(value) as T;
     }
+    return Trait.fromAny(value) as T;
   };
 
   TraitModelSet.prototype.detectModelTrait = function <T extends Trait, M extends Model>(this: TraitModelSet<unknown, T, M>, model: Model): T | null {

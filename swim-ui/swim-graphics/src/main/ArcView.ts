@@ -31,19 +31,10 @@ import type {PaintingContext} from "./PaintingContext";
 import {PaintingRenderer} from "./PaintingRenderer";
 import type {CanvasContext} from "./CanvasContext";
 import {CanvasRenderer} from "./CanvasRenderer";
-import type {FillViewInit} from "./FillView";
 import type {FillView} from "./FillView";
-import type {StrokeViewInit} from "./StrokeView";
 import type {StrokeView} from "./StrokeView";
 import type {ArcInit} from "./Arc";
 import {Arc} from "./Arc";
-
-/** @public */
-export type AnyArcView = ArcView | Arc | ArcViewInit;
-
-/** @public */
-export interface ArcViewInit extends FillViewInit, StrokeViewInit, ArcInit {
-}
 
 /** @public */
 export class ArcView extends GraphicsView implements FillView, StrokeView {
@@ -98,7 +89,7 @@ export class ArcView extends GraphicsView implements FillView, StrokeView {
                    this.padRadius.state, this.cornerRadius.state);
   }
 
-  setState(arc: Arc | ArcViewInit, timing?: AnyTiming | boolean): void {
+  setState(arc: Arc | ArcInit, timing?: AnyTiming | boolean): void {
     if (arc instanceof Arc) {
       arc = arc.toAny();
     }
@@ -125,15 +116,6 @@ export class ArcView extends GraphicsView implements FillView, StrokeView {
     }
     if (arc.cornerRadius !== void 0) {
       this.cornerRadius(arc.cornerRadius, timing);
-    }
-    if (arc.fill !== void 0) {
-      this.fill(arc.fill, timing);
-    }
-    if (arc.stroke !== void 0) {
-      this.stroke(arc.stroke, timing);
-    }
-    if (arc.strokeWidth !== void 0) {
-      this.strokeWidth(arc.strokeWidth, timing);
     }
   }
 
@@ -237,19 +219,6 @@ export class ArcView extends GraphicsView implements FillView, StrokeView {
     context.lineWidth = contextLineWidth;
 
     return pointInStroke ? this : null;
-  }
-
-  override init(init: Arc | ArcViewInit): void {
-    if (!(init instanceof Arc)) {
-      super.init(init);
-    }
-    this.setState(init);
-  }
-
-  static fromArc(arc: Arc): ArcView {
-    const view = new ArcView();
-    view.setState(arc);
-    return view;
   }
 }
 Object.defineProperty(ArcView.prototype, "viewBounds", {
