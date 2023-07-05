@@ -28,6 +28,7 @@ import type {ConstraintSolver} from "@swim/constraint";
 import type {ThemeAnimatorDescriptor} from "./ThemeAnimator";
 import type {ThemeAnimatorClass} from "./ThemeAnimator";
 import {ThemeAnimator} from "./ThemeAnimator";
+import type {Look} from "./Look";
 
 /** @public */
 export interface ThemeConstraintAnimatorDescriptor<T = unknown, U = T> extends ThemeAnimatorDescriptor<T, U> {
@@ -50,7 +51,7 @@ export interface ThemeConstraintAnimatorClass<A extends ThemeConstraintAnimator<
 }
 
 /** @public */
-export interface ThemeConstraintAnimator<O = unknown, T = unknown, U = T> extends ThemeAnimator<O, T, U>, ConstraintVariable {
+export interface ThemeConstraintAnimator<O = unknown, T = unknown, U = T, I = Look<NonNullable<T>, any> | T> extends ThemeAnimator<O, T, U, I>, ConstraintVariable {
   /** @override */
   get descriptorType(): Proto<ThemeConstraintAnimatorDescriptor<T, U>>;
 

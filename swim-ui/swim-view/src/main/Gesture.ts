@@ -425,7 +425,11 @@ export const Gesture = (function (_super: typeof Fastener) {
           return gesture!.owner;
         }
       } as G;
-      delete (gesture as Partial<Mutable<G>>).name; // don't clobber prototype name
+      Object.defineProperty(gesture, "name", {
+        value: this.prototype.name,
+        enumerable: true,
+        configurable: true,
+      });
       Object.setPrototypeOf(gesture, this.prototype);
     }
     gesture = _super.construct.call(this, gesture, owner) as G;

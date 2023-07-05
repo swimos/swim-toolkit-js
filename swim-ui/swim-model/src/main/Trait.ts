@@ -1152,7 +1152,7 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
     return FastenerContext.tryFastener(this, fastenerName);
   }
 
-  getFastener<F extends Fastener<any>>(fastenerName: PropertyKey, fastenerType: Proto<F>, contextType?: Proto<unknown> | null): F | null {
+  getFastener<F extends Fastener>(fastenerName: PropertyKey, fastenerType: Proto<F>, contextType?: Proto<unknown> | null): F | null {
     if (contextType !== void 0 && contextType !== null && !(this instanceof contextType)) {
       return null;
     }
@@ -1164,7 +1164,7 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
   }
 
   /** @override */
-  getParentFastener<F extends Fastener<any>>(fastenerName: string, fastenerType: Proto<F>, contextType?: Proto<unknown> | null): F | null {
+  getParentFastener<F extends Fastener>(fastenerName: string, fastenerType: Proto<F>, contextType?: Proto<unknown> | null): F | null {
     let parent = this.model;
     if (parent === null) {
       return null;

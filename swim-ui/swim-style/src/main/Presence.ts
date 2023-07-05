@@ -285,7 +285,7 @@ export const PresenceInterpolator = (function (_super: typeof Interpolator) {
 })(Interpolator);
 
 /** @public */
-export interface PresenceAnimator<O = unknown, T extends Presence | null | undefined = Presence | null | undefined, U extends AnyPresence | null | undefined = AnyPresence | T> extends Animator<O, T, U> {
+export interface PresenceAnimator<O = unknown, T extends Presence | null | undefined = Presence | null | undefined, U extends AnyPresence | null | undefined = AnyPresence | T, I = T> extends Animator<O, T, U, I> {
   get phase(): number | undefined;
 
   getPhase(): number;

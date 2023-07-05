@@ -37,7 +37,7 @@ export interface ThemeAnimatorClass<A extends ThemeAnimator<any, any, any> = The
 }
 
 /** @public */
-export interface ThemeAnimator<O = unknown, T = unknown, U = T> extends Animator<O, T, U> {
+export interface ThemeAnimator<O = unknown, T = unknown, U = T, I = Look<NonNullable<T>, any> | T> extends Animator<O, T, U, I> {
   /** @override */
   get descriptorType(): Proto<ThemeAnimatorDescriptor<T, U>>;
 
@@ -45,7 +45,7 @@ export interface ThemeAnimator<O = unknown, T = unknown, U = T> extends Animator
   onSetAffinity(newAffinity: Affinity, oldAffinity: Affinity): void;
 
   /** @protected @override */
-  onDerive(inlet: Property<unknown, T>): void;
+  onDerive(inlet: Property<any, I, any, any>): void;
 
   get inletLook(): Look<T, any> | null;
 
@@ -97,11 +97,16 @@ export const ThemeAnimator = (function (_super: typeof Animator) {
     _super.prototype.onSetAffinity.call(this, newAffinity, oldAffinity);
   };
 
-  ThemeAnimator.prototype.onDerive = function <T>(this: ThemeAnimator<unknown, T>, inlet: Property<any, T>): void {
+  ThemeAnimator.prototype.onDerive = function <T, I>(this: ThemeAnimator<any, T, any, any>, inlet: Property<any, I, any, any>): void {
     if (inlet instanceof ThemeAnimator) {
       this.setLook(inlet.look, inlet.timing, Affinity.Reflexive);
     } else {
-      this.setLook(null, Affinity.Reflexive);
+      const inletValue = inlet.getOutletValue(this);
+      if (inletValue instanceof Look) {
+        this.setLook(inletValue, Affinity.Reflexive);
+      } else {
+        this.setLook(null, Affinity.Reflexive);
+      }
     }
     if (this.look === null) {
       _super.prototype.onDerive.call(this, inlet);

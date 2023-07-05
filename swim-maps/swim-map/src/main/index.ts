@@ -66,6 +66,15 @@ export {GeoTileController} from "./GeoTileController";
 
 // Shape
 
+export type {GeoShapeViewObserver} from "./GeoShapeView";
+export {GeoShapeView} from "./GeoShapeView";
+
+export type {GeoShapeTraitObserver} from "./GeoShapeTrait";
+export {GeoShapeTrait} from "./GeoShapeTrait";
+
+export type {GeoShapeControllerObserver} from "./GeoShapeController";
+export {GeoShapeController} from "./GeoShapeController";
+
 export type {GeoCircleViewObserver} from "./GeoCircleView";
 export {GeoCircleView} from "./GeoCircleView";
 

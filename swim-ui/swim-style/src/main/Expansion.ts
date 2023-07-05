@@ -285,7 +285,7 @@ export const ExpansionInterpolator = (function (_super: typeof Interpolator) {
 })(Interpolator);
 
 /** @public */
-export interface ExpansionAnimator<O = unknown, T extends Expansion | null | undefined = Expansion | null | undefined, U extends AnyExpansion | null | undefined = AnyExpansion | T> extends Animator<O, T, U> {
+export interface ExpansionAnimator<O = unknown, T extends Expansion | null | undefined = Expansion | null | undefined, U extends AnyExpansion | null | undefined = AnyExpansion | T, I = T> extends Animator<O, T, U, I> {
   get phase(): number | undefined;
 
   getPhase(): number;

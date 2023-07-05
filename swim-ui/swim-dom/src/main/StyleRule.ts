@@ -132,7 +132,7 @@ export interface StyleRule<O = unknown> extends CssRule<O, CSSStyleRule>, Fasten
   applyStyles(): void;
 
   /** @override */
-  getParentFastener<F extends Fastener<any>>(fastenerName: string, fastenerType: Proto<F>, contextType?: Proto<unknown>): F | null;
+  getParentFastener<F extends Fastener>(fastenerName: string, fastenerType: Proto<F>, contextType?: Proto<unknown>): F | null;
 
   /** @override */
   attachFastener(fastener: Fastener): void;
@@ -369,7 +369,7 @@ export const StyleRule = (function (_super: typeof CssRule) {
     }
   };
 
-  StyleRule.prototype.getParentFastener = function <F extends Fastener<any>>(this: StyleRule, fastenerName: string, fastenerType: Proto<F>, contextType?: Proto<unknown>): F | null {
+  StyleRule.prototype.getParentFastener = function <F extends Fastener>(this: StyleRule, fastenerName: string, fastenerType: Proto<F>, contextType?: Proto<unknown>): F | null {
     return null;
   };
 

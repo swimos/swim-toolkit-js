@@ -26,7 +26,7 @@ import type {View} from "@swim/view";
 import {ScaledView} from "./"; // forward import
 
 /** @public */
-export interface ContinuousScaleAnimator<O extends View = View, X = unknown, Y = unknown, T extends ContinuousScale<X, Y> | null | undefined = ContinuousScale<X, Y> | null, U extends ContinuousScale<X, Y> | string | null | undefined = ContinuousScale<X, Y> | string | T> extends Animator<O, T, U> {
+export interface ContinuousScaleAnimator<O extends View = View, X = unknown, Y = unknown, T extends ContinuousScale<X, Y> | null | undefined = ContinuousScale<X, Y> | null, U extends ContinuousScale<X, Y> | string | null | undefined = ContinuousScale<X, Y> | string | T, I = T> extends Animator<O, T, U, I> {
   setScale(domain: Domain<X> | string, range: Range<Y>, timing?: AnyTiming | boolean | null): void;
   setScale(xMin: X, xMax: X, yMin: Y, yMax: Y, timing?: AnyTiming | boolean | null): void;
 

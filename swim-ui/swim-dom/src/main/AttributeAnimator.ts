@@ -22,6 +22,7 @@ import {Color} from "@swim/style";
 import type {ThemeAnimatorDescriptor} from "@swim/theme";
 import type {ThemeAnimatorClass} from "@swim/theme";
 import {ThemeAnimator} from "@swim/theme";
+import type {Look} from "@swim/theme";
 import {ElementView} from "./"; // forward import
 
 /** @public */
@@ -35,7 +36,7 @@ export interface AttributeAnimatorClass<A extends AttributeAnimator<any, any, an
 }
 
 /** @public */
-export interface AttributeAnimator<O = unknown, T = unknown, U = T> extends ThemeAnimator<O, T, U> {
+export interface AttributeAnimator<O = unknown, T = unknown, U = T, I = Look<NonNullable<T>, any> | T> extends ThemeAnimator<O, T, U, I> {
   /** @override */
   get descriptorType(): Proto<AttributeAnimatorDescriptor<T, U>>;
 

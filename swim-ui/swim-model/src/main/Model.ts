@@ -429,7 +429,7 @@ export class Model extends Component<Model> implements Consumable, WarpRef {
     super.didUnmount();
   }
 
-  getTraitFastener<F extends Fastener<any>>(fastenerName: PropertyKey, fastenerType: Proto<F>, contextType?: Proto<unknown> | null): F | null {
+  getTraitFastener<F extends Fastener>(fastenerName: PropertyKey, fastenerType: Proto<F>, contextType?: Proto<unknown> | null): F | null {
     let trait = this.firstTrait;
     while (trait !== null) {
       const fastener = trait.getFastener(fastenerName, fastenerType, contextType);

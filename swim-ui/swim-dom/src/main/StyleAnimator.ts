@@ -33,6 +33,7 @@ import {BoxShadow} from "@swim/style";
 import type {ThemeAnimatorDescriptor} from "@swim/theme";
 import type {ThemeAnimatorClass} from "@swim/theme";
 import {ThemeAnimator} from "@swim/theme";
+import type {Look} from "@swim/theme";
 import {StyleContext} from "./"; // forward import
 
 /** @public */
@@ -46,7 +47,7 @@ export interface StyleAnimatorClass<A extends StyleAnimator<any, any, any> = Sty
 }
 
 /** @public */
-export interface StyleAnimator<O = unknown, T = unknown, U = T> extends ThemeAnimator<O, T, U> {
+export interface StyleAnimator<O = unknown, T = unknown, U = T, I = Look<NonNullable<T>, any> | T> extends ThemeAnimator<O, T, U, I> {
   /** @override */
   get descriptorType(): Proto<StyleAnimatorDescriptor<T, U>>;
 
