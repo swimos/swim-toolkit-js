@@ -81,35 +81,6 @@ export {GeoCircleView} from "./GeoCircleView";
 export type {GeoArcViewObserver} from "./GeoArcView";
 export {GeoArcView} from "./GeoArcView";
 
-// Path
-
-export type {GeoPathViewObserver} from "./GeoPathView";
-export {GeoPathView} from "./GeoPathView";
-
-export type {GeoLineViewObserver} from "./GeoLineView";
-export {GeoLineView} from "./GeoLineView";
-
-export type {GeoAreaViewObserver} from "./GeoAreaView";
-export {GeoAreaView} from "./GeoAreaView";
-
-export type {GeoPathTraitObserver} from "./GeoPathTrait";
-export {GeoPathTrait} from "./GeoPathTrait";
-
-export type {GeoLineTraitObserver} from "./GeoLineTrait";
-export {GeoLineTrait} from "./GeoLineTrait";
-
-export type {GeoAreaTraitObserver} from "./GeoAreaTrait";
-export {GeoAreaTrait} from "./GeoAreaTrait";
-
-export type {GeoPathControllerObserver} from "./GeoPathController";
-export {GeoPathController} from "./GeoPathController";
-
-export type {GeoLineControllerObserver} from "./GeoLineController";
-export {GeoLineController} from "./GeoLineController";
-
-export type {GeoAreaControllerObserver} from "./GeoAreaController";
-export {GeoAreaController} from "./GeoAreaController";
-
 // Plot
 
 export type {GeoPointLabelPlacement} from "./GeoPointView";
@@ -129,17 +100,6 @@ export {GeoIconTrait} from "./GeoIconTrait";
 
 export type {GeoIconControllerObserver} from "./GeoIconController";
 export {GeoIconController} from "./GeoIconController";
-
-// Group
-
-export type {GeoGroupViewObserver} from "./GeoGroupView";
-export {GeoGroupView} from "./GeoGroupView";
-
-export type {GeoGroupTraitObserver} from "./GeoGroupTrait";
-export {GeoGroupTrait} from "./GeoGroupTrait";
-
-export type {GeoGroupControllerObserver} from "./GeoGroupController";
-export {GeoGroupController} from "./GeoGroupController";
 
 // Map
 

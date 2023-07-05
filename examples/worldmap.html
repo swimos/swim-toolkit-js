@@ -23,7 +23,8 @@ function addGeoShapes(shapes, mapView) {
       const layerView = mapView.appendChild(swim.GeoView);
       addGeoShapes(shape.shapes, layerView)
     } else if (shape instanceof swim.GeoPath) {
-      const shapeView = mapView.appendChild(swim.GeoAreaView).geoPath(shape);
+      const shapeView = mapView.appendChild(swim.GeoShapeView);
+      shapeView.geoShape.setState(shape);
       shapeView.fill.setLook(swim.Look.maskColor);
       shapeView.addEventListener("pointerenter", function (event) {
         shapeView.modifyMood(swim.Feel.default, [[swim.Feel.hovering, 1]], shapeView.getLook(swim.Look.timing));

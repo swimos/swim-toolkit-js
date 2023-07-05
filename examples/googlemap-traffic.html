@@ -97,11 +97,11 @@ function linkIntersection(intersectionId, node, intersectionLayerView, intersect
           if (approachView === undefined) {
             const points = item.get("coords").toAny();
             points.push(points[0]); // close path
-            const approachView = new swim.GeoAreaView()
-              .geoPath(points)
-              .fill(swim.Color.transparent())
-              .stroke(swim.Color.transparent())
-              .strokeWidth(3);
+            const approachView = new swim.GeoShapeView();
+            approachView.geoShape.setState(points);
+            approachView.fill.setState(swim.Color.transparent());
+            approachView.stroke.setState(swim.Color.transparent());
+            approachView.strokeWidth.setState(3);
             approachView.addEventListener("pointerenter", function (event) {
               approachView.stroke("#ffffff", timing);
             });
