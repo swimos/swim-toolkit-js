@@ -269,7 +269,7 @@ export class Controller extends Component<Controller> implements Consumable, War
     this.callObservers("controllerWillMount", this);
   }
 
-  protected override onMount(): void {
+  protected override didMount(): void {
     // subsume super
     this.requestUpdate(this, this.flags & Controller.UpdateMask, false);
     this.requireUpdate(this.mountFlags);
@@ -283,9 +283,7 @@ export class Controller extends Component<Controller> implements Consumable, War
     if (this.consumers !== null && this.consumers.size !== 0) {
       this.startConsuming();
     }
-  }
 
-  protected override didMount(): void {
     this.callObservers("controllerDidMount", this);
     super.didMount();
   }
@@ -293,11 +291,8 @@ export class Controller extends Component<Controller> implements Consumable, War
   protected override willUnmount(): void {
     super.willUnmount();
     this.callObservers("controllerWillUnmount", this);
-  }
 
-  protected override onUnmount(): void {
     this.stopConsuming();
-    super.onUnmount();
   }
 
   protected override didUnmount(): void {

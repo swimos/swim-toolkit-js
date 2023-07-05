@@ -380,7 +380,7 @@ export class Model extends Component<Model> implements Consumable, WarpRef {
     this.callObservers("modelWillMount", this);
   }
 
-  protected override onMount(): void {
+  protected override didMount(): void {
     // subsume super
     this.requestUpdate(this, this.flags & Model.UpdateMask, false);
     this.requireUpdate(this.mountFlags);
@@ -394,9 +394,7 @@ export class Model extends Component<Model> implements Consumable, WarpRef {
     if (this.consumers !== null && this.consumers.size !== 0) {
       this.startConsuming();
     }
-  }
 
-  protected override didMount(): void {
     this.callObservers("modelDidMount", this);
     super.didMount();
   }
@@ -417,11 +415,8 @@ export class Model extends Component<Model> implements Consumable, WarpRef {
   protected override willUnmount(): void {
     super.willUnmount();
     this.callObservers("modelWillUnmount", this);
-  }
 
-  protected override onUnmount(): void {
     this.stopConsuming();
-    super.onUnmount();
   }
 
   protected override didUnmount(): void {

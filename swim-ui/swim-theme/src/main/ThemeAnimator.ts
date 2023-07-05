@@ -238,6 +238,13 @@ export const ThemeAnimator = (function (_super: typeof Animator) {
     const inlet = this.inlet;
     if (inlet instanceof ThemeAnimator) {
       this.setLook(inlet.look, inlet.timing, Affinity.Reflexive);
+    } else if (inlet !== null) {
+      const inletValue = inlet.getOutletValue(this);
+      if (inletValue instanceof Look) {
+        this.setLook(inletValue, Affinity.Reflexive);
+      } else {
+        this.setLook(null, Affinity.Reflexive);
+      }
     } else {
       this.setLook(null, Affinity.Reflexive);
     }

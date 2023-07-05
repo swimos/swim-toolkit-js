@@ -159,10 +159,10 @@ export interface StyleRule<O = unknown> extends CssRule<O, CSSStyleRule>, Fasten
   recohere(t: number): void
 
   /** @protected @override */
-  onMount(): void;
+  didMount(): void;
 
   /** @protected @override */
-  onUnmount(): void;
+  willUnmount(): void;
 }
 
 /** @public */
@@ -449,17 +449,17 @@ export const StyleRule = (function (_super: typeof CssRule) {
     }
   };
 
-  StyleRule.prototype.onMount = function (this: StyleRule): void {
-    _super.prototype.onMount.call(this);
+  StyleRule.prototype.didMount = function (this: StyleRule): void {
     this.mountFasteners();
     if (this.css !== null) {
       this.applyStyles();
     }
+    _super.prototype.didMount.call(this);
   };
 
-  StyleRule.prototype.onUnmount = function (this: StyleRule): void {
+  StyleRule.prototype.willUnmount = function (this: StyleRule): void {
+    _super.prototype.willUnmount.call(this);
     this.unmountFasteners();
-    _super.prototype.onUnmount.call(this);
   };
 
   (StyleRule as Mutable<typeof StyleRule>).fieldInitializers = {};

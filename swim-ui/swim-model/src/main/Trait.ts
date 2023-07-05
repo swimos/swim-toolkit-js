@@ -945,6 +945,10 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
   }
 
   protected onMount(): void {
+    // hook
+  }
+
+  protected didMount(): void {
     this.requireUpdate(this.mountFlags);
 
     if (this.decoherent !== null && this.decoherent.length !== 0) {
@@ -956,9 +960,7 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
     if (this.consumers !== null && this.consumers.size !== 0) {
       this.startConsuming();
     }
-  }
 
-  protected didMount(): void {
     this.callObservers("traitDidMount", this);
   }
 
@@ -975,11 +977,13 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
 
   protected willUnmount(): void {
     this.callObservers("traitWillUnmount", this);
+
+    this.stopConsuming();
+    this.unmountFasteners();
   }
 
   protected onUnmount(): void {
-    this.stopConsuming();
-    this.unmountFasteners();
+    // hook
   }
 
   protected didUnmount(): void {

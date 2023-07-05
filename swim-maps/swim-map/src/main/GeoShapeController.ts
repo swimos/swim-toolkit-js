@@ -82,6 +82,7 @@ export class GeoShapeController extends GeoController {
       super.deinitTrait(geoTrait);
     },
     viewType: GeoShapeView,
+    observesView: true,
     initView(geoView: GeoShapeView): void {
       super.initView(geoView);
       geoView.geoShape.bindInlet(this.owner.geoShape);

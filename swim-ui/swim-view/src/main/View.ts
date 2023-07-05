@@ -474,7 +474,8 @@ export class View extends Component<View> implements ConstraintScope, Constraint
     }
   }
 
-  protected override onMount(): void {
+  protected didMountObservers: Set<Required<Pick<ViewObserver, "viewDidMount">>> | null;
+  protected override didMount(): void {
     // subsume super
     this.requestUpdate(this, this.flags & View.UpdateMask, false);
     this.requireUpdate(this.mountFlags);
@@ -484,10 +485,7 @@ export class View extends Component<View> implements ConstraintScope, Constraint
     }
 
     this.mountFasteners();
-  }
 
-  protected didMountObservers: Set<Required<Pick<ViewObserver, "viewDidMount">>> | null;
-  protected override didMount(): void {
     this.activateLayout();
     const observers = this.didMountObservers;
     if (observers !== null) {
