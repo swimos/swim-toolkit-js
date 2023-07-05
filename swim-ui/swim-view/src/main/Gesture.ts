@@ -243,8 +243,7 @@ export const Gesture = (function (_super: typeof Fastener) {
     const oldView = this.view;
     if (oldView === newView) {
       return oldView;
-    }
-    if (oldView !== null) {
+    } else if (oldView !== null) {
       (this as Mutable<typeof this>).view = null;
       this.willDetachView(oldView);
       this.onDetachView(oldView);

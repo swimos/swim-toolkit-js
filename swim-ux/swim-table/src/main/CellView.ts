@@ -66,12 +66,11 @@ export class CellView extends HtmlView {
 
   didPress(input: PositionGestureInput, event: Event | null): void {
     this.callObservers("viewDidPress", input, event, this);
-    const hyperlink = this.hyperlink.value;
-    if (hyperlink === null || input.defaultPrevented) {
-      return;
+    const hyperlink = Property.tryValue(this, "hyperlink");
+    if (hyperlink !== null && !input.defaultPrevented) {
+      input.preventDefault();
+      hyperlink.activate(event);
     }
-    input.preventDefault();
-    hyperlink.activate(event);
   }
 
   didLongPress(input: PositionGestureInput): void {

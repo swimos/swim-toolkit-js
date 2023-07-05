@@ -18,8 +18,6 @@ import type {Observes} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import {Animator} from "@swim/component";
-import type {AnyLength} from "@swim/math";
-import {Length} from "@swim/math";
 import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import type {AnyFocus} from "@swim/style";
@@ -37,8 +35,11 @@ import type {PositionGestureInput} from "@swim/view";
 import {PositionGesture} from "@swim/view";
 import type {HtmlView} from "@swim/dom";
 import {Graphics} from "@swim/graphics";
+import type {AnyIconLayout} from "@swim/graphics";
+import {IconLayout} from "@swim/graphics";
 import {Icon} from "@swim/graphics";
 import {FilledIcon} from "@swim/graphics";
+import type {IconView} from "@swim/graphics";
 import {IconGraphicsAnimator} from "@swim/graphics";
 import {SvgIconView} from "@swim/graphics";
 import {ButtonGlow} from "@swim/button";
@@ -51,7 +52,7 @@ export interface ButtonToolViewObserver<V extends ButtonToolView = ButtonToolVie
 }
 
 /** @public */
-export class ButtonToolView extends ToolView {
+export class ButtonToolView extends ToolView implements IconView {
   protected override initTool(): void {
     super.initTool();
     this.addClass("tool-button");
@@ -72,15 +73,11 @@ export class ButtonToolView extends ToolView {
   @Animator({valueType: Number, value: 0.5, updateFlags: View.NeedsLayout})
   override readonly xAlign!: Animator<this, number>;
 
-  @Animator({valueType: Number, value: 0.5, updateFlags: View.NeedsLayout})
-  readonly yAlign!: Animator<this, number>;
+  /** @override */
+  @Animator({valueType: IconLayout, value: null, updateFlags: View.NeedsLayout})
+  readonly iconLayout!: Animator<this, IconLayout | null, AnyIconLayout | null>;
 
-  @ThemeAnimator({valueType: Length, value: null, updateFlags: View.NeedsLayout})
-  readonly iconWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
-
-  @ThemeAnimator({valueType: Length, value: null, updateFlags: View.NeedsLayout})
-  readonly iconHeight!: ThemeAnimator<this, Length | null, AnyLength | null>;
-
+  /** @override */
   @ThemeAnimator({
     valueType: Color,
     value: null,
@@ -98,6 +95,7 @@ export class ButtonToolView extends ToolView {
     return ThemeAnimator.dummy();
   }
 
+  /** @override */
   @ThemeAnimator({
     extends: IconGraphicsAnimator,
     valueType: Graphics,
@@ -118,10 +116,7 @@ export class ButtonToolView extends ToolView {
     },
     initView(svgView: SvgIconView): void {
       svgView.setStyle("position", "absolute");
-      svgView.xAlign.setInherits(true);
-      svgView.yAlign.setInherits(true);
-      svgView.iconWidth.setInherits(true);
-      svgView.iconHeight.setInherits(true);
+      svgView.iconLayout.setInherits(true);
       svgView.iconColor.setInherits(true);
       svgView.graphics.setInherits(true);
     },
@@ -158,18 +153,17 @@ export class ButtonToolView extends ToolView {
 
   protected layoutTool(): void {
     const svgView = this.svg.view;
-    if (svgView !== null && (svgView.width.hasAffinity(Affinity.Intrinsic)
-                          || svgView.height.hasAffinity(Affinity.Intrinsic)
-                          || svgView.viewBox.hasAffinity(Affinity.Intrinsic))) {
-      let viewWidth: Length | number | null = this.width.value;
-      viewWidth = viewWidth instanceof Length ? viewWidth.pxValue() : this.node.offsetWidth;
-      let viewHeight: Length | number | null = this.height.value;
-      viewHeight = viewHeight instanceof Length ? viewHeight.pxValue() : this.node.offsetHeight;
-      svgView.width.setState(viewWidth, Affinity.Intrinsic);
-      svgView.height.setState(viewHeight, Affinity.Intrinsic);
-      svgView.viewBox.setState("0 0 " + viewWidth + " " + viewHeight, Affinity.Intrinsic);
-      this.effectiveWidth.setValue(viewWidth);
+    if (svgView === null || !svgView.width.hasAffinity(Affinity.Intrinsic)
+                         && !svgView.height.hasAffinity(Affinity.Intrinsic)
+                         && !svgView.viewBox.hasAffinity(Affinity.Intrinsic)) {
+      return;
     }
+    const viewWidth = this.width.pxValue();
+    const viewHeight = this.height.pxValue();
+    svgView.width.setState(viewWidth, Affinity.Intrinsic);
+    svgView.height.setState(viewHeight, Affinity.Intrinsic);
+    svgView.viewBox.setState("0 0 " + viewWidth + " " + viewHeight, Affinity.Intrinsic);
+    this.effectiveWidth.setValue(viewWidth);
   }
 
   @Property({valueType: Boolean, value: true, inherits: true})

@@ -15,8 +15,6 @@
 import type {Timing} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Animator} from "@swim/component";
-import type {AnyLength} from "@swim/math";
-import {Length} from "@swim/math";
 import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import type {MoodVector} from "@swim/theme";
@@ -27,6 +25,8 @@ import {View} from "@swim/view";
 import {ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {Graphics} from "./Graphics";
+import type {AnyIconLayout} from "./IconLayout";
+import {IconLayout} from "./IconLayout";
 import {Icon} from "./Icon";
 import {FilledIcon} from "./FilledIcon";
 import type {IconView} from "./IconView";
@@ -44,18 +44,11 @@ export class HtmlIconView extends HtmlView implements IconView {
     this.position.setState("relative", Affinity.Intrinsic);
   }
 
-  @Animator({valueType: Number, value: 0.5, updateFlags: View.NeedsLayout})
-  readonly xAlign!: Animator<this, number>;
+  /** @override */
+  @Animator({valueType: IconLayout, value: null, updateFlags: View.NeedsLayout})
+  readonly iconLayout!: Animator<this, IconLayout | null, AnyIconLayout | null>;
 
-  @Animator({valueType: Number, value: 0.5, updateFlags: View.NeedsLayout})
-  readonly yAlign!: Animator<this, number>;
-
-  @ThemeAnimator({valueType: Length, value: null, updateFlags: View.NeedsLayout})
-  readonly iconWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
-
-  @ThemeAnimator({valueType: Length, value: null, updateFlags: View.NeedsLayout})
-  readonly iconHeight!: ThemeAnimator<this, Length | null, AnyLength | null>;
-
+  /** @override */
   @ThemeAnimator({
     valueType: Color,
     value: null,
@@ -73,6 +66,7 @@ export class HtmlIconView extends HtmlView implements IconView {
     return ThemeAnimator.dummy();
   }
 
+  /** @override */
   @ThemeAnimator({
     extends: IconGraphicsAnimator,
     valueType: Graphics,
@@ -90,10 +84,7 @@ export class HtmlIconView extends HtmlView implements IconView {
     },
     initView(svgView: SvgIconView): void {
       svgView.setStyle("position", "absolute");
-      svgView.xAlign.setInherits(true);
-      svgView.yAlign.setInherits(true);
-      svgView.iconWidth.setInherits(true);
-      svgView.iconHeight.setInherits(true);
+      svgView.iconLayout.setInherits(true);
       svgView.iconColor.setInherits(true);
       svgView.graphics.setInherits(true);
     },
@@ -135,10 +126,8 @@ export class HtmlIconView extends HtmlView implements IconView {
                          && !svgView.viewBox.hasAffinity(Affinity.Intrinsic)) {
       return;
     }
-    let viewWidth: Length | number | null = this.width.value;
-    viewWidth = viewWidth instanceof Length ? viewWidth.pxValue() : this.node.offsetWidth;
-    let viewHeight: Length | number | null = this.height.value;
-    viewHeight = viewHeight instanceof Length ? viewHeight.pxValue() : this.node.offsetHeight;
+    const viewWidth = this.width.pxValue();
+    const viewHeight = this.height.pxValue();
     svgView.width.setState(viewWidth, Affinity.Intrinsic);
     svgView.height.setState(viewHeight, Affinity.Intrinsic);
     svgView.viewBox.setState("0 0 " + viewWidth + " " + viewHeight, Affinity.Intrinsic);

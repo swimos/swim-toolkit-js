@@ -19,7 +19,6 @@ import {Timing} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import {EventHandler} from "@swim/component";
-import {Length} from "@swim/math";
 import type {AnyPresence} from "@swim/style";
 import {Presence} from "@swim/style";
 import {PresenceAnimator} from "@swim/style";
@@ -269,10 +268,7 @@ export class ButtonStack extends HtmlView implements ModalView {
     let y: number;
     if (buttonView !== null) {
       buttonView.zIndex.setState(childCount, Affinity.Intrinsic);
-      const buttonHeight = buttonView !== null ? buttonView.height.value : void 0;
-      y = buttonHeight instanceof Length
-        ? buttonHeight.pxValue()
-        : buttonView.node.offsetHeight;
+      y = buttonView.height.pxValue();
     } else {
       y = 0;
     }
@@ -288,10 +284,7 @@ export class ButtonStack extends HtmlView implements ModalView {
           stackHeight += itemSpacing;
           y += itemSpacing;
         }
-        const itemHeight = childView.height.value;
-        const dy = itemHeight instanceof Length
-                 ? itemHeight.pxValue()
-                 : childView.node.offsetHeight;
+        const dy = childView.height.pxValue();
         childView.display.setState(phase === 0 ? "none" : "flex", Affinity.Intrinsic);
         childView.bottom.setState(phase * y, Affinity.Intrinsic);
         childView.zIndex.setState(zIndex, Affinity.Intrinsic);

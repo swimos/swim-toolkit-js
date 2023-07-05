@@ -13,16 +13,18 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
-import {Timing} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Affinity} from "@swim/component";
-import type {GeoPoint} from "@swim/geo";
-import {Look} from "@swim/theme";
-import {Mood} from "@swim/theme";
-import type {Graphics} from "@swim/graphics";
-import type {IconLayout} from "@swim/graphics";
+import {Property} from "@swim/component";
+import type {AnyGeoPoint} from "@swim/geo";
+import {GeoPoint} from "@swim/geo";
+import type {PositionGestureInput} from "@swim/view";
+import {Graphics} from "@swim/graphics";
+import type {AnyIconLayout} from "@swim/graphics";
+import {IconLayout} from "@swim/graphics";
 import {TraitViewRef} from "@swim/controller";
+import type {AnyHyperlink} from "@swim/controller";
+import {Hyperlink} from "@swim/controller";
 import type {GeoControllerObserver} from "./GeoController";
 import {GeoController} from "./GeoController";
 import {GeoIconView} from "./GeoIconView";
@@ -40,106 +42,71 @@ export interface GeoIconControllerObserver<C extends GeoIconController = GeoIcon
 
   controllerDidSetGeoCenter?(geoCenter: GeoPoint | null, controller: C): void;
 
-  controllerDidSetGraphics?(graphics: Graphics | null, controller: C): void;
+  controllerDidEnterGeoView?(geoView: GeoIconView, controller: C): void;
+
+  controllerDidLeaveGeoView?(geoView: GeoIconView, controller: C): void;
+
+  controllerDidPressGeoView?(input: PositionGestureInput, event: Event | null, geoView: GeoIconView, controller: C): void;
+
+  controllerDidLongPressGeoView?(input: PositionGestureInput, geoView: GeoIconView, controller: C): void;
 }
 
 /** @public */
 export class GeoIconController extends GeoController {
   declare readonly observerType?: Class<GeoIconControllerObserver>;
 
-  protected setGeoCenter(geoCenter: GeoPoint | null, geoTrait: GeoIconTrait, timing?: AnyTiming | boolean): void {
-    const geoView = this.geo.view;
-    if (geoView === null) {
-      return;
-    } else if (timing === void 0 || timing === true) {
-      timing = this.geoTiming.value;
-      if (timing === true) {
-        timing = geoView.getLook(Look.timing, Mood.ambient);
-      }
-    } else {
-      timing = Timing.fromAny(timing);
-    }
-    geoView.geoCenter.setState(geoCenter, timing, Affinity.Intrinsic);
-  }
-
-  protected setIconLayout(iconLayout: IconLayout | null, geoTrait: GeoIconTrait, timing?: AnyTiming | boolean): void {
-    const geoView = this.geo.view;
-    if (geoView === null || iconLayout === null) {
-      return;
-    } else if (timing === void 0 || timing === true) {
-      timing = this.geoTiming.value;
-      if (timing === true) {
-        timing = geoView.getLook(Look.timing, Mood.ambient);
-      }
-    } else {
-      timing = Timing.fromAny(timing);
-    }
-    geoView.iconWidth.setState(iconLayout.iconWidth, timing, Affinity.Intrinsic);
-    geoView.iconHeight.setState(iconLayout.iconHeight, timing, Affinity.Intrinsic);
-    if (iconLayout.xAlign !== void 0) {
-      geoView.xAlign.setState(iconLayout.xAlign, timing, Affinity.Intrinsic);
-    }
-    if (iconLayout.yAlign !== void 0) {
-      geoView.yAlign.setState(iconLayout.yAlign, timing, Affinity.Intrinsic);
-    }
-  }
-
-  protected setGraphics(graphics: Graphics | null, geoTrait: GeoIconTrait, timing?: AnyTiming | boolean): void {
-    const geoView = this.geo.view;
-    if (geoView === null) {
-      return;
-    } else if (timing === void 0 || timing === true) {
-      timing = this.geoTiming.value;
-      if (timing === true) {
-        timing = geoView.getLook(Look.timing, Mood.ambient);
-      }
-    } else {
-      timing = Timing.fromAny(timing);
-    }
-    geoView.graphics.setState(graphics, timing, Affinity.Intrinsic);
-  }
-
   @TraitViewRef({
     extends: true,
     traitType: GeoIconTrait,
-    observesTrait: true,
     initTrait(geoTrait: GeoIconTrait): void {
       super.initTrait(geoTrait);
-      const geoView = this.view;
-      if (geoView === null) {
-        return;
-      }
-      this.owner.setGeoCenter(geoTrait.geoCenter.value, geoTrait);
-      this.owner.setIconLayout(geoTrait.iconLayout.value, geoTrait);
-      this.owner.setGraphics(geoTrait.graphics.value, geoTrait);
+      this.owner.geoCenter.bindInlet(geoTrait.geoCenter);
+      this.owner.iconLayout.bindInlet(geoTrait.iconLayout);
+      this.owner.graphics.bindInlet(geoTrait.graphics);
     },
-    traitDidSetGeoCenter(geoCenter: GeoPoint | null, geoTrait: GeoIconTrait): void {
-      this.owner.setGeoCenter(geoCenter, geoTrait);
-    },
-    traitDidSetIconLayout(iconLayout: IconLayout, geoTrait: GeoIconTrait): void {
-      this.owner.setIconLayout(iconLayout, geoTrait);
-    },
-    traitDidSetGraphics(graphics: Graphics | null, geoTrait: GeoIconTrait): void {
-      this.owner.setGraphics(graphics, geoTrait);
+    deinitTrait(geoTrait: GeoIconTrait): void {
+      this.owner.geoCenter.unbindInlet(geoTrait.geoCenter);
+      this.owner.iconLayout.unbindInlet(geoTrait.iconLayout);
+      this.owner.graphics.unbindInlet(geoTrait.graphics);
+      super.deinitTrait(geoTrait);
     },
     viewType: GeoIconView,
     observesView: true,
     initView(geoView: GeoIconView): void {
       super.initView(geoView);
-      const geoTrait = this.trait;
-      if (geoTrait === null) {
-        return;
-      }
-      this.owner.setGeoCenter(geoTrait.geoCenter.value, geoTrait);
-      this.owner.setIconLayout(geoTrait.iconLayout.value, geoTrait);
-      this.owner.setGraphics(geoTrait.graphics.value, geoTrait);
+      geoView.geoCenter.bindInlet(this.owner.geoCenter);
+      geoView.iconLayout.bindInlet(this.owner.iconLayout);
+      geoView.graphics.bindInlet(this.owner.graphics);
+      geoView.hyperlink.bindInlet(this.owner.hyperlink);
     },
-    viewDidSetGeoCenter(geoCenter: GeoPoint | null): void {
-      this.owner.callObservers("controllerDidSetGeoCenter", geoCenter, this.owner);
-    },
-    viewDidSetGraphics(graphics: Graphics | null): void {
-      this.owner.callObservers("controllerDidSetGraphics", graphics, this.owner);
+    deinitView(geoView: GeoIconView): void {
+      geoView.geoCenter.unbindInlet(this.owner.geoCenter);
+      geoView.iconLayout.unbindInlet(this.owner.iconLayout);
+      geoView.graphics.unbindInlet(this.owner.graphics);
+      geoView.hyperlink.unbindInlet(this.owner.hyperlink);
+      super.deinitView(geoView);
     },
   })
-  override readonly geo!: TraitViewRef<this, GeoIconTrait, GeoIconView> & GeoController["geo"] & Observes<GeoIconTrait> & Observes<GeoIconView>;
+  override readonly geo!: TraitViewRef<this, GeoIconTrait, GeoIconView> & GeoController["geo"] & Observes<GeoIconView>;
+
+  @Property({
+    valueType: GeoPoint,
+    value: null,
+    didSetValue(geoCenter: GeoPoint | null): void {
+      this.owner.callObservers("controllerDidSetGeoCenter", geoCenter, this.owner);
+      this.owner.geoPerspective.setValue(geoCenter, Affinity.Intrinsic);
+    },
+  })
+  readonly geoCenter!: Property<this, GeoPoint | null, AnyGeoPoint | null>;
+
+  @Property({valueType: IconLayout, value: null})
+  readonly iconLayout!: Property<this, IconLayout | null, AnyIconLayout | null>;
+
+  @Property({valueType: Graphics, value: null})
+  readonly graphics!: Property<this, Graphics | null>;
+
+  @Property({valueType: Hyperlink, value: null})
+  get hyperlink(): Property<this, Hyperlink | null, AnyHyperlink | null> {
+    return Property.dummy();
+  }
 }

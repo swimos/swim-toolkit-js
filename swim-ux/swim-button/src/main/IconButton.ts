@@ -20,8 +20,6 @@ import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import {Animator} from "@swim/component";
 import {EventHandler} from "@swim/component";
-import type {AnyLength} from "@swim/math";
-import {Length} from "@swim/math";
 import {Angle} from "@swim/math";
 import {Transform} from "@swim/math";
 import type {AnyColor} from "@swim/style";
@@ -38,6 +36,8 @@ import {PositionGesture} from "@swim/view";
 import type {HtmlViewObserver} from "@swim/dom";
 import type {HtmlView} from "@swim/dom";
 import {Graphics} from "@swim/graphics";
+import type {AnyIconLayout} from "@swim/graphics";
+import {IconLayout} from "@swim/graphics";
 import {Icon} from "@swim/graphics";
 import {FilledIcon} from "@swim/graphics";
 import type {IconView} from "@swim/graphics";
@@ -78,18 +78,17 @@ export class IconButton extends ButtonMembrane implements IconView {
     this.modifyTheme(Feel.default, [[Feel.translucent, 1]]);
   }
 
-  @Animator({valueType: Number, value: 0.5, updateFlags: View.NeedsLayout})
-  readonly xAlign!: Animator<this, number>;
+  /** @override */
+  @Animator({
+    valueType: IconLayout,
+    initValue(): IconLayout | null {
+      return IconLayout.of(24, 24);
+    },
+    updateFlags: View.NeedsLayout
+  })
+  readonly iconLayout!: Animator<this, IconLayout | null, AnyIconLayout | null>;
 
-  @Animator({valueType: Number, value: 0.5, updateFlags: View.NeedsLayout})
-  readonly yAlign!: Animator<this, number>;
-
-  @ThemeAnimator({valueType: Length, value: Length.px(24), updateFlags: View.NeedsLayout})
-  readonly iconWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
-
-  @ThemeAnimator({valueType: Length, value: Length.px(24), updateFlags: View.NeedsLayout})
-  readonly iconHeight!: ThemeAnimator<this, Length | null, AnyLength | null>;
-
+  /** @override */
   @ThemeAnimator({
     valueType: Color,
     value: null,
@@ -108,6 +107,7 @@ export class IconButton extends ButtonMembrane implements IconView {
   })
   readonly iconColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
+  /** @override */
   @ThemeAnimator({
     extends: IconGraphicsAnimator,
     valueType: Graphics,
@@ -129,10 +129,8 @@ export class IconButton extends ButtonMembrane implements IconView {
       }
     },
     viewWillLayout(iconView: SvgIconView): void {
-      let viewWidth: Length | number | null = this.owner.width.value;
-      viewWidth = viewWidth instanceof Length ? viewWidth.pxValue() : this.owner.node.offsetWidth;
-      let viewHeight: Length | number | null = this.owner.height.value;
-      viewHeight = viewHeight instanceof Length ? viewHeight.pxValue() : this.owner.node.offsetHeight;
+      const viewWidth = this.owner.width.pxValue();
+      const viewHeight = this.owner.height.pxValue();
       iconView.width.setState(viewWidth, Affinity.Intrinsic);
       iconView.height.setState(viewHeight, Affinity.Intrinsic);
       iconView.viewBox.setState("0 0 " + viewWidth + " " + viewHeight, Affinity.Intrinsic);
@@ -150,10 +148,7 @@ export class IconButton extends ButtonMembrane implements IconView {
       iconView.opacity.setState(0, Affinity.Intrinsic);
       iconView.cssTransform.setState(Transform.rotate(Angle.deg(-90)), Affinity.Intrinsic);
       iconView.pointerEvents.setState("none", Affinity.Intrinsic);
-      iconView.xAlign.setInherits(true);
-      iconView.yAlign.setInherits(true);
-      iconView.iconWidth.setInherits(true);
-      iconView.iconHeight.setInherits(true);
+      iconView.iconLayout.setInherits(true);
       iconView.iconColor.setInherits(true);
       return iconView;
     },

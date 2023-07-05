@@ -37,6 +37,8 @@ import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
+import type {PositionGestureInput} from "@swim/view";
+import {PositionGesture} from "@swim/view";
 import type {GraphicsView} from "@swim/graphics";
 import type {FillView} from "@swim/graphics";
 import type {StrokeView} from "@swim/graphics";
@@ -44,6 +46,8 @@ import type {PaintingContext} from "@swim/graphics";
 import {PaintingRenderer} from "@swim/graphics";
 import type {CanvasContext} from "@swim/graphics";
 import {CanvasRenderer} from "@swim/graphics";
+import type {AnyHyperlink} from "@swim/controller";
+import {Hyperlink} from "@swim/controller";
 import type {GeoViewObserver} from "./GeoView";
 import {GeoView} from "./GeoView";
 import type {GeoRippleOptions} from "./GeoRippleView";
@@ -52,6 +56,14 @@ import {GeoRippleView} from "./GeoRippleView";
 /** @public */
 export interface GeoShapeViewObserver<V extends GeoShapeView = GeoShapeView> extends GeoViewObserver<V> {
   viewDidSetGeoShape?(geoShape: GeoShape | null, view: V): void;
+
+  viewDidEnter?(view: V): void;
+
+  viewDidLeave?(view: V): void;
+
+  viewDidPress?(input: PositionGestureInput, event: Event | null, view: V): void;
+
+  viewDidLongPress?(input: PositionGestureInput, view: V): void;
 }
 
 /** @public */
@@ -305,6 +317,60 @@ export class GeoShapeView extends GeoView implements FillView, StrokeView {
     context.lineWidth = contextLineWidth;
 
     return pointInStroke ? this : null;
+  }
+
+  @Property({valueType: Hyperlink, value: null})
+  get hyperlink(): Property<this, Hyperlink | null, AnyHyperlink | null> {
+    return Property.dummy();
+  }
+
+  @PositionGesture({
+    bindsOwner: true,
+    didMovePress(input: PositionGestureInput, event: Event | null): void {
+      const dx = input.x - input.x0;
+      const dy = input.y - input.y0;
+      if (dx * dx + dy * dy > 4 * 4) {
+        this.cancelPress(input, event);
+      }
+    },
+    didStartHovering(): void {
+      this.owner.callObservers("viewDidEnter", this.owner);
+    },
+    didStopHovering(): void {
+      this.owner.callObservers("viewDidLeave", this.owner);
+    },
+    didPress(input: PositionGestureInput, event: Event | null): void {
+      if (input.defaultPrevented) {
+        return;
+      }
+      this.owner.didPress(input, event);
+    },
+    didLongPress(input: PositionGestureInput): void {
+      if (input.defaultPrevented) {
+        return;
+      }
+      this.owner.didLongPress(input);
+    },
+  })
+  readonly gesture!: PositionGesture<this, GeoShapeView>;
+
+  didPress(input: PositionGestureInput, event: Event | null): void {
+    if (input.defaultPrevented) {
+      return;
+    }
+    this.callObservers("viewDidPress", input, event, this);
+    const hyperlink = this.hyperlink.value;
+    if (hyperlink !== null && !input.defaultPrevented) {
+      input.preventDefault();
+      hyperlink.activate(event);
+    }
+  }
+
+  didLongPress(input: PositionGestureInput): void {
+    if (input.defaultPrevented) {
+      return;
+    }
+    this.callObservers("viewDidLongPress", input, this);
   }
 
   protected override updateGeoBounds(): void {

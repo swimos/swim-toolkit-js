@@ -220,9 +220,8 @@ export class NavBarController extends BarController {
       const toolController = new ButtonToolController();
       const toolLayout = ToolLayout.create(this.viewKey!, 0, 0, 48);
       toolController.layout.setValue(toolLayout);
-      const toolView = toolController.tool.attachView()!;
-      toolView.iconWidth.setState(24, Affinity.Intrinsic);
-      toolView.iconHeight.setState(24, Affinity.Intrinsic);
+      const toolView = toolController.tool.attachView();
+      toolView.iconLayout.setState({width: 24, height: 24}, Affinity.Intrinsic);
       toolView.graphics.setState(this.owner.closeIcon, Affinity.Intrinsic);
       return toolController;
     },
@@ -247,9 +246,8 @@ export class NavBarController extends BarController {
       const toolController = new ButtonToolController();
       const toolLayout = ToolLayout.create(this.viewKey!, 0, 0, 48);
       toolController.layout.setValue(toolLayout);
-      const toolView = toolController.tool.attachView()!;
-      toolView.iconWidth.setState(24, Affinity.Intrinsic);
-      toolView.iconHeight.setState(24, Affinity.Intrinsic);
+      const toolView = toolController.tool.attachView();
+      toolView.iconLayout.setState({width: 24, height: 24}, Affinity.Intrinsic);
       toolView.graphics.setState(this.owner.backIcon, Affinity.Intrinsic);
       return toolController;
     },
@@ -274,9 +272,8 @@ export class NavBarController extends BarController {
       const toolController = new ButtonToolController();
       const toolLayout = ToolLayout.create(this.viewKey!, 0, 0, 48);
       toolController.layout.setValue(toolLayout);
-      const toolView = toolController.tool.attachView()!;
-      toolView.iconWidth.setState(24, Affinity.Intrinsic);
-      toolView.iconHeight.setState(24, Affinity.Intrinsic);
+      const toolView = toolController.tool.attachView();
+      toolView.iconLayout.setState({width: 24, height: 24}, Affinity.Intrinsic);
       toolView.graphics.setState(this.owner.searchIcon, Affinity.Intrinsic);
       return toolController;
     },

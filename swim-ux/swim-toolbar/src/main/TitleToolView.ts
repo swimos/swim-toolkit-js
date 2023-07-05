@@ -85,8 +85,7 @@ export class TitleToolView extends ToolView {
   protected layoutTool(): void {
     const contentView = this.content.view;
     if (contentView !== null) {
-      let contentWidth: Length | number | null = contentView.width.value;
-      contentWidth = contentWidth instanceof Length ? contentWidth.pxValue() : contentView.node.offsetWidth;
+      const contentWidth = contentView.width.pxValue();
       let toolWidth: Length | number | null = this.width.value;
       toolWidth = toolWidth instanceof Length ? toolWidth.pxValue() : 0;
       const excessWidth = toolWidth - contentWidth;

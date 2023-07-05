@@ -133,7 +133,7 @@ const ExampleTileTrait = (function () {
       let featureTrait = featureModel !== null ? featureModel.getTrait(swim.GeoIconTrait) : null;
       if (featureTrait === null) {
         featureTrait = new swim.GeoIconTrait()
-          .iconLayout({iconWidth: 16, iconHeight: 16})
+          .iconLayout({width: 16, height: 16})
           .graphics(vehicleIcon);
         this.owner.features.insertTrait(void 0, featureTrait, void 0, featureId);
         featureModel = featureTrait.model;

@@ -80,7 +80,7 @@ layerModel.setTrait("layer", layerTrait);
 function addFeature(featureId, layerModel) {
   const featureModel = new swim.Model();
   const featureTrait = new swim.GeoIconTrait()
-    .iconLayout({iconWidth: 16, iconHeight: 16})
+    .iconLayout({width: 16, height: 16})
     .graphics(swim.CircleIcon.create());
   featureModel.setTrait("feature", featureTrait);
   layerModel.appendChild(featureModel, "feature" + featureId);
@@ -89,7 +89,7 @@ function addFeature(featureId, layerModel) {
     const lat = Math.random() * 120 - 60;
     featureTrait.geoCenter.setValue([lng, lat]);
     //const iconSize = 8 + 16 * Math.random();
-    //featureTrait.iconLayout.setValue({iconWidth: iconSize, iconHeight: iconSize});
+    //featureTrait.iconLayout.setValue({width: iconSize, height: iconSize});
   }, 1000);
 }
 const featureCount = 32;

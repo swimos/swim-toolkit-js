@@ -133,9 +133,8 @@ export class AppBarController extends BarController {
       const toolController = new ButtonToolController();
       const toolLayout = ToolLayout.create(this.viewKey!, 0, 0, 48);
       toolController.layout.setValue(toolLayout);
-      const toolView = toolController.tool.attachView()!;
-      toolView.iconWidth.setState(24, Affinity.Intrinsic);
-      toolView.iconHeight.setState(24, Affinity.Intrinsic);
+      const toolView = toolController.tool.attachView();
+      toolView.iconLayout.setState({width: 24, height: 24}, Affinity.Intrinsic);
       if (this.owner.fullScreen.value) {
         toolView.graphics.setState(this.owner.menuIcon, Affinity.Intrinsic);
       } else {
@@ -164,9 +163,8 @@ export class AppBarController extends BarController {
       const toolController = new ButtonToolController();
       const toolLayout = ToolLayout.create(this.viewKey!, 0, 0, 48);
       toolController.layout.setValue(toolLayout);
-      const toolView = toolController.tool.attachView()!;
-      toolView.iconWidth.setState(24, Affinity.Intrinsic);
-      toolView.iconHeight.setState(24, Affinity.Intrinsic);
+      const toolView = toolController.tool.attachView();
+      toolView.iconLayout.setState({width: 24, height: 24}, Affinity.Intrinsic);
       toolView.graphics.setState(this.owner.actionIcon, Affinity.Intrinsic);
       return toolController;
     },

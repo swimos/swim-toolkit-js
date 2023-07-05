@@ -45,8 +45,7 @@ const icon = swim.EnclosedIcon.embossed(swim.PolygonIcon.create(6), swim.VectorI
 
 const iconView = swim.HtmlIconView.create()
   .flexGrow(1)
-  .iconWidth("50%")
-  .iconHeight("50%")
+  .iconLayout({width: "50%", height: "50%"})
   .graphics(icon);
 iconView.modifyMood(swim.Feel.default, [[swim.Feel.primary, 1]]);
 bodyView.appendChild(iconView);

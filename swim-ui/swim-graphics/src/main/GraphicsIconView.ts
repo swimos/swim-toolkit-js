@@ -15,8 +15,6 @@
 import type {Timing} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Animator} from "@swim/component";
-import type {AnyLength} from "@swim/math";
-import {Length} from "@swim/math";
 import {R2Box} from "@swim/math";
 import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
@@ -28,6 +26,8 @@ import {Graphics} from "./Graphics";
 import {GraphicsView} from "./GraphicsView";
 import {PaintingRenderer} from "./PaintingRenderer";
 import {CanvasRenderer} from "./CanvasRenderer";
+import type {AnyIconLayout} from "./IconLayout";
+import {IconLayout} from "./IconLayout";
 import {Icon} from "./Icon";
 import {FilledIcon} from "./FilledIcon";
 import type {IconView} from "./IconView";
@@ -35,18 +35,11 @@ import {IconGraphicsAnimator} from "./IconView";
 
 /** @public */
 export class GraphicsIconView extends GraphicsView implements IconView {
-  @Animator({valueType: Number, value: 0.5, updateFlags: View.NeedsRender})
-  readonly xAlign!: Animator<this, number>;
+  /** @override */
+  @Animator({valueType: IconLayout, value: null, updateFlags: View.NeedsRender})
+  readonly iconLayout!: Animator<this, IconLayout | null, AnyIconLayout | null>;
 
-  @Animator({valueType: Number, value: 0.5, updateFlags: View.NeedsRender})
-  readonly yAlign!: Animator<this, number>;
-
-  @ThemeAnimator({valueType: Length, value: null, updateFlags: View.NeedsRender})
-  readonly iconWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
-
-  @ThemeAnimator({valueType: Length, value: null, updateFlags: View.NeedsRender})
-  readonly iconHeight!: ThemeAnimator<this, Length | null, AnyLength | null>;
-
+  /** @override */
   @ThemeAnimator({
     valueType: Color,
     value: null,
@@ -64,6 +57,7 @@ export class GraphicsIconView extends GraphicsView implements IconView {
     return ThemeAnimator.dummy();
   }
 
+  /** @override */
   @ThemeAnimator({
     extends: IconGraphicsAnimator,
     valueType: Graphics,
@@ -133,12 +127,13 @@ Object.defineProperty(GraphicsIconView.prototype, "viewBounds", {
     const viewWidth = viewFrame.width;
     const viewHeight = viewFrame.height;
     const viewSize = Math.min(viewWidth, viewHeight);
-    let iconWidth: Length | number | null = this.iconWidth.value;
-    iconWidth = iconWidth instanceof Length ? iconWidth.pxValue(viewSize) : viewSize;
-    let iconHeight: Length | number | null = this.iconHeight.value;
-    iconHeight = iconHeight instanceof Length ? iconHeight.pxValue(viewSize) : viewSize;
-    const x = viewFrame.x + (viewWidth - iconWidth) * this.xAlign.getValue();
-    const y = viewFrame.y + (viewHeight - iconHeight) * this.yAlign.getValue();
+    const iconLayout = this.iconLayout.value;
+    const iconWidth = iconLayout !== null ? iconLayout.width.pxValue(viewSize) : viewSize;
+    const iconHeight = iconLayout !== null ? iconLayout.height.pxValue(viewSize) : viewSize;
+    const xAlign = iconLayout !== null ? iconLayout.xAlign : 0.5;
+    const yAlign = iconLayout !== null ? iconLayout.yAlign : 0.5;
+    const x = viewFrame.x + (viewWidth - iconWidth) * xAlign;
+    const y = viewFrame.y + (viewHeight - iconHeight) * yAlign;
     return new R2Box(x, y, x + iconWidth, y + iconHeight);
   },
   configurable: true,

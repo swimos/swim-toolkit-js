@@ -82,8 +82,7 @@ require([
         //vehicleView = new swim.GeoCircleView().geoCenter([lng, lat]).radius(5);
         vehicleView = new swim.GeoIconView()
             .geoCenter([lng, lat])
-            .iconWidth(14)
-            .iconHeight(14)
+            .iconLayout({width: 14, height: 14})
             .graphics(vehicleIcon);
         vehicleView.iconColor.setLook(swim.Look.accentColor);
         layerView.setChild(key, vehicleView);

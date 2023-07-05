@@ -15,8 +15,6 @@
 import type {Timing} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Animator} from "@swim/component";
-import type {AnyLength} from "@swim/math";
-import {Length} from "@swim/math";
 import {R2Box} from "@swim/math";
 import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
@@ -29,6 +27,8 @@ import {SvgView} from "@swim/dom";
 import {Graphics} from "./Graphics";
 import {SvgContext} from "./SvgContext";
 import {SvgRenderer} from "./SvgRenderer";
+import type {AnyIconLayout} from "./IconLayout";
+import {IconLayout} from "./IconLayout";
 import {Icon} from "./Icon";
 import {FilledIcon} from "./FilledIcon";
 import type {IconView} from "./IconView";
@@ -36,22 +36,11 @@ import {IconGraphicsAnimator} from "./IconView";
 
 /** @public */
 export class SvgIconView extends SvgView implements IconView {
-  constructor(node: SVGElement) {
-    super(node);
-  }
+  /** @override */
+  @Animator({valueType: IconLayout, value: null, updateFlags: View.NeedsLayout})
+  readonly iconLayout!: Animator<this, IconLayout | null, AnyIconLayout | null>;
 
-  @Animator({valueType: Number, value: 0.5, updateFlags: View.NeedsLayout})
-  readonly xAlign!: Animator<this, number>;
-
-  @Animator({valueType: Number, value: 0.5, updateFlags: View.NeedsLayout})
-  readonly yAlign!: Animator<this, number>;
-
-  @ThemeAnimator({valueType: Length, value: null, updateFlags: View.NeedsLayout})
-  readonly iconWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
-
-  @ThemeAnimator({valueType: Length, value: null, updateFlags: View.NeedsLayout})
-  readonly iconHeight!: ThemeAnimator<this, Length | null, AnyLength | null>;
-
+  /** @override */
   @ThemeAnimator({
     valueType: Color,
     value: null,
@@ -69,6 +58,7 @@ export class SvgIconView extends SvgView implements IconView {
     return ThemeAnimator.dummy();
   }
 
+  /** @override */
   @ThemeAnimator({
     extends: IconGraphicsAnimator,
     valueType: Graphics,
@@ -133,12 +123,13 @@ export class SvgIconView extends SvgView implements IconView {
     const viewWidth = viewBox.width;
     const viewHeight = viewBox.height;
     const viewSize = Math.min(viewWidth, viewHeight);
-    let iconWidth: Length | number | null = this.iconWidth.value;
-    iconWidth = iconWidth instanceof Length ? iconWidth.pxValue(viewSize) : viewSize;
-    let iconHeight: Length | number | null = this.iconHeight.value;
-    iconHeight = iconHeight instanceof Length ? iconHeight.pxValue(viewSize) : viewSize;
-    const x = viewBox.x + (viewWidth - iconWidth) * this.xAlign.getValue();
-    const y = viewBox.y + (viewHeight - iconHeight) * this.yAlign.getValue();
+    const iconLayout = this.iconLayout.value;
+    const iconWidth = iconLayout !== null ? iconLayout.width.pxValue(viewSize) : viewSize;
+    const iconHeight = iconLayout !== null ? iconLayout.height.pxValue(viewSize) : viewSize;
+    const xAlign = iconLayout !== null ? iconLayout.xAlign : 0.5;
+    const yAlign = iconLayout !== null ? iconLayout.yAlign : 0.5;
+    const x = viewBox.x + (viewWidth - iconWidth) * xAlign;
+    const y = viewBox.y + (viewHeight - iconHeight) * yAlign;
     return new R2Box(x, y, x + iconWidth, y + iconHeight);
   }
 

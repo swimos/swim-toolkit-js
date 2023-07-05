@@ -16,9 +16,8 @@ import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
 import type {Timing} from "@swim/util";
 import {Affinity} from "@swim/component";
+import {Property} from "@swim/component";
 import {Animator} from "@swim/component";
-import type {AnyLength} from "@swim/math";
-import {Length} from "@swim/math";
 import type {AnyR2Point} from "@swim/math";
 import {R2Point} from "@swim/math";
 import {R2Segment} from "@swim/math";
@@ -33,14 +32,20 @@ import type {ThemeMatrix} from "@swim/theme";
 import {ThemeAnimator} from "@swim/theme";
 import type {ViewFlags} from "@swim/view";
 import {View} from "@swim/view";
+import type {PositionGestureInput} from "@swim/view";
+import {PositionGesture} from "@swim/view";
 import type {Sprite} from "@swim/graphics";
 import {Graphics} from "@swim/graphics";
 import type {GraphicsView} from "@swim/graphics";
+import type {AnyIconLayout} from "@swim/graphics";
+import {IconLayout} from "@swim/graphics";
 import {Icon} from "@swim/graphics";
 import {FilledIcon} from "@swim/graphics";
 import type {IconView} from "@swim/graphics";
 import {IconGraphicsAnimator} from "@swim/graphics";
 import {CanvasRenderer} from "@swim/graphics";
+import type {AnyHyperlink} from "@swim/controller";
+import {Hyperlink} from "@swim/controller";
 import type {GeoViewObserver} from "./GeoView";
 import {GeoView} from "./GeoView";
 import type {GeoRippleOptions} from "./GeoRippleView";
@@ -51,6 +56,14 @@ export interface GeoIconViewObserver<V extends GeoIconView = GeoIconView> extend
   viewDidSetGeoCenter?(geoCenter: GeoPoint | null, view: V): void;
 
   viewDidSetGraphics?(graphics: Graphics | null, view: V): void;
+
+  viewDidEnter?(view: V): void;
+
+  viewDidLeave?(view: V): void;
+
+  viewDidPress?(input: PositionGestureInput, event: Event | null, view: V): void;
+
+  viewDidLongPress?(input: PositionGestureInput, view: V): void;
 }
 
 /** @public */
@@ -90,38 +103,15 @@ export class GeoIconView extends GeoView implements IconView {
   @Animator({valueType: R2Point, value: R2Point.undefined(), updateFlags: View.NeedsComposite})
   readonly viewCenter!: Animator<this, R2Point | null, AnyR2Point | null>;
 
+  /** @override */
   @Animator({
-    valueType: Number,
-    value: 0.5,
-    updateFlags: View.NeedsProject | View.NeedsRender | View.NeedsRasterize | View.NeedsComposite,
-  })
-  get xAlign(): Animator<this, number> {
-    return Animator.dummy();
-  }
-
-  @Animator({
-    valueType: Number,
-    value: 0.5,
-    updateFlags: View.NeedsProject | View.NeedsRender | View.NeedsRasterize | View.NeedsComposite,
-  })
-  get yAlign(): Animator<this, number> {
-    return Animator.dummy();
-  }
-
-  @ThemeAnimator({
-    valueType: Length,
+    valueType: IconLayout,
     value: null,
     updateFlags: View.NeedsProject | View.NeedsRender | View.NeedsRasterize | View.NeedsComposite,
   })
-  readonly iconWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
+  readonly iconLayout!: Animator<this, IconLayout | null, AnyIconLayout | null>;
 
-  @ThemeAnimator({
-    valueType: Length,
-    value: null,
-    updateFlags: View.NeedsProject | View.NeedsRender | View.NeedsRasterize | View.NeedsComposite,
-  })
-  readonly iconHeight!: ThemeAnimator<this, Length | null, AnyLength | null>;
-
+  /** @override */
   @ThemeAnimator({
     valueType: Color,
     value: null,
@@ -139,6 +129,7 @@ export class GeoIconView extends GeoView implements IconView {
     return ThemeAnimator.dummy();
   }
 
+  /** @override */
   @ThemeAnimator({
     extends: IconGraphicsAnimator,
     valueType: Graphics,
@@ -260,6 +251,60 @@ export class GeoIconView extends GeoView implements IconView {
     // nop
   }
 
+  @Property({valueType: Hyperlink, value: null})
+  get hyperlink(): Property<this, Hyperlink | null, AnyHyperlink | null> {
+    return Property.dummy();
+  }
+
+  @PositionGesture({
+    bindsOwner: true,
+    didMovePress(input: PositionGestureInput, event: Event | null): void {
+      const dx = input.x - input.x0;
+      const dy = input.y - input.y0;
+      if (dx * dx + dy * dy > 4 * 4) {
+        this.cancelPress(input, event);
+      }
+    },
+    didStartHovering(): void {
+      this.owner.callObservers("viewDidEnter", this.owner);
+    },
+    didStopHovering(): void {
+      this.owner.callObservers("viewDidLeave", this.owner);
+    },
+    didPress(input: PositionGestureInput, event: Event | null): void {
+      if (input.defaultPrevented) {
+        return;
+      }
+      this.owner.didPress(input, event);
+    },
+    didLongPress(input: PositionGestureInput): void {
+      if (input.defaultPrevented) {
+        return;
+      }
+      this.owner.didLongPress(input);
+    },
+  })
+  readonly gesture!: PositionGesture<this, GeoIconView>;
+
+  didPress(input: PositionGestureInput, event: Event | null): void {
+    if (input.defaultPrevented) {
+      return;
+    }
+    this.callObservers("viewDidPress", input, event, this);
+    const hyperlink = this.hyperlink.value;
+    if (hyperlink !== null && !input.defaultPrevented) {
+      input.preventDefault();
+      hyperlink.activate(event);
+    }
+  }
+
+  didLongPress(input: PositionGestureInput): void {
+    if (input.defaultPrevented) {
+      return;
+    }
+    this.callObservers("viewDidLongPress", input, this);
+  }
+
   protected override updateGeoBounds(): void {
     // nop
   }
@@ -274,12 +319,11 @@ export class GeoIconView extends GeoView implements IconView {
       viewFrame = this.viewFrame;
     }
     const viewSize = Math.min(viewFrame.width, viewFrame.height);
-    let iconWidth: Length | number | null = this.iconWidth.value;
-    iconWidth = iconWidth instanceof Length ? iconWidth.pxValue(viewSize) : viewSize;
-    let iconHeight: Length | number | null = this.iconHeight.value;
-    iconHeight = iconHeight instanceof Length ? iconHeight.pxValue(viewSize) : viewSize;
-    const xAlign = Animator.tryValue(this, "xAlign");
-    const yAlign = Animator.tryValue(this, "yAlign");
+    const iconLayout = this.iconLayout.value;
+    const iconWidth = iconLayout !== null ? iconLayout.width.pxValue(viewSize) : viewSize;
+    const iconHeight = iconLayout !== null ? iconLayout.height.pxValue(viewSize) : viewSize;
+    const xAlign = iconLayout !== null ? iconLayout.xAlign : 0.5;
+    const yAlign = iconLayout !== null ? iconLayout.yAlign : 0.5;
     const x = viewCenter.x - iconWidth * xAlign;
     const y = viewCenter.y - iconHeight * yAlign;
     return new R2Box(x, y, x + iconWidth, y + iconHeight);
@@ -292,15 +336,14 @@ export class GeoIconView extends GeoView implements IconView {
     }
     const viewFrame = this.viewFrame;
     const viewSize = Math.min(viewFrame.width, viewFrame.height);
+    const iconLayout = this.iconLayout.value;
+    const iconWidth = iconLayout !== null ? iconLayout.width.pxValue(viewSize) : viewSize;
+    const iconHeight = iconLayout !== null ? iconLayout.height.pxValue(viewSize) : viewSize;
+    const xAlign = iconLayout !== null ? iconLayout.xAlign : 0.5;
+    const yAlign = iconLayout !== null ? iconLayout.yAlign : 0.5;
     const inversePageTransform = this.pageTransform.inverse();
     const px = inversePageTransform.transformX(viewCenter.x, viewCenter.y);
     const py = inversePageTransform.transformY(viewCenter.x, viewCenter.y);
-    let iconWidth: Length | number | null = this.iconWidth.value;
-    iconWidth = iconWidth instanceof Length ? iconWidth.pxValue(viewSize) : viewSize;
-    let iconHeight: Length | number | null = this.iconHeight.value;
-    iconHeight = iconHeight instanceof Length ? iconHeight.pxValue(viewSize) : viewSize;
-    const xAlign = Animator.tryValue(this, "xAlign");
-    const yAlign = Animator.tryValue(this, "yAlign");
     const x = px - iconWidth * xAlign;
     const y = py - iconHeight * yAlign;
     return new R2Box(x, y, x + iconWidth, y + iconHeight);

@@ -352,8 +352,7 @@ export class SheetController extends Controller {
       const toolLayout = ToolLayout.create("", 0, 0, 36);
       handleController.layout.setValue(toolLayout);
       const handleView = handleController.tool.attachView();
-      handleView.iconWidth.setState(24, Affinity.Intrinsic);
-      handleView.iconHeight.setState(24, Affinity.Intrinsic);
+      handleView.iconLayout.setState({width: 24, height: 24}, Affinity.Intrinsic);
       return handleController;
     },
   })

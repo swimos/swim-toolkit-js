@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
+import type {Observes} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import type {AnyLength} from "@swim/math";
@@ -25,7 +26,10 @@ import {NumberLook} from "@swim/theme";
 import type {AnyColorOrLook} from "@swim/theme";
 import type {ColorOrLook} from "@swim/theme";
 import {ColorLook} from "@swim/theme";
+import type {PositionGestureInput} from "@swim/view";
 import {TraitViewRef} from "@swim/controller";
+import type {AnyHyperlink} from "@swim/controller";
+import {Hyperlink} from "@swim/controller";
 import {GeoShapeView} from "./GeoShapeView";
 import {GeoShapeTrait} from "./GeoShapeTrait";
 import type {GeoControllerObserver} from "./GeoController";
@@ -42,6 +46,14 @@ export interface GeoShapeControllerObserver<C extends GeoShapeController = GeoSh
   controllerDidDetachGeoView?(geoView: GeoShapeView, controller: C): void;
 
   controllerDidSetGeoShape?(geoShape: GeoShape | null, controller: C): void;
+
+  controllerDidEnterGeoView?(geoView: GeoShapeView, controller: C): void;
+
+  controllerDidLeaveGeoView?(geoView: GeoShapeView, controller: C): void;
+
+  controllerDidPressGeoView?(input: PositionGestureInput, event: Event | null, geoView: GeoShapeView, controller: C): void;
+
+  controllerDidLongPressGeoView?(input: PositionGestureInput, geoView: GeoShapeView, controller: C): void;
 }
 
 /** @public */
@@ -78,6 +90,7 @@ export class GeoShapeController extends GeoController {
       geoView.stroke.bindInlet(this.owner.stroke);
       geoView.strokeOpacity.bindInlet(this.owner.strokeOpacity);
       geoView.strokeWidth.bindInlet(this.owner.strokeWidth);
+      geoView.hyperlink.bindInlet(this.owner.hyperlink);
     },
     deinitView(geoView: GeoShapeView): void {
       geoView.geoShape.unbindInlet(this.owner.geoShape);
@@ -86,10 +99,23 @@ export class GeoShapeController extends GeoController {
       geoView.stroke.unbindInlet(this.owner.stroke);
       geoView.strokeOpacity.unbindInlet(this.owner.strokeOpacity);
       geoView.strokeWidth.unbindInlet(this.owner.strokeWidth);
+      geoView.hyperlink.unbindInlet(this.owner.hyperlink);
       super.deinitView(geoView);
     },
+    viewDidEnter(geoView: GeoShapeView): void {
+      this.owner.callObservers("controllerDidEnterGeoView", geoView, this.owner);
+    },
+    viewDidLeave(geoView: GeoShapeView): void {
+      this.owner.callObservers("controllerDidLeaveGeoView", geoView, this.owner);
+    },
+    viewDidPress(input: PositionGestureInput, event: Event | null, geoView: GeoShapeView): void {
+      this.owner.callObservers("controllerDidPressGeoView", input, event, geoView, this.owner);
+    },
+    viewDidLongPress(input: PositionGestureInput, geoView: GeoShapeView): void {
+      this.owner.callObservers("controllerDidLongPressGeoView", input, geoView, this.owner);
+    },
   })
-  override readonly geo!: TraitViewRef<this, GeoShapeTrait, GeoShapeView> & GeoController["geo"];
+  override readonly geo!: TraitViewRef<this, GeoShapeTrait, GeoShapeView> & GeoController["geo"] & Observes<GeoShapeView>;
 
   @Property({
     valueType: GeoShape,
@@ -115,4 +141,9 @@ export class GeoShapeController extends GeoController {
 
   @Property({valueType: Length, value: null})
   readonly strokeWidth!: Property<this, Length | null, AnyLength | null>;
+
+  @Property({valueType: Hyperlink, value: null})
+  get hyperlink(): Property<this, Hyperlink | null, AnyHyperlink | null> {
+    return Property.dummy();
+  }
 }

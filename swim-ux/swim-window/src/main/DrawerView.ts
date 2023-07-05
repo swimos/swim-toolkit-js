@@ -248,10 +248,7 @@ export class DrawerView extends HtmlView implements ModalView {
     this.right.setState(Length.zero(), Affinity.Intrinsic);
     this.bottom.setState(null, Affinity.Intrinsic);
 
-    let height: Length | null = this.height.value;
-    if (height === null) {
-      height = Length.px(this.node.offsetHeight);
-    }
+    const height = this.height.getCssValue();
     this.top.setState(height.times(presencePhase - 1), Affinity.Intrinsic);
 
     this.effectiveWidth.setValue(this.width.value);
@@ -283,10 +280,7 @@ export class DrawerView extends HtmlView implements ModalView {
       const expandedWidth = this.expandedWidth.getValue();
       width = collapsedWidth.times(1 - stretchPhase).plus(expandedWidth.times(stretchPhase));
     } else {
-      width = this.width.value;
-      if (width === null) {
-        width = Length.px(this.node.offsetWidth);
-      }
+      width = this.width.getCssValue();
     }
     this.width.setState(width, Affinity.Intrinsic);
     this.right.setState(width.times(presencePhase - 1), Affinity.Intrinsic);
@@ -310,10 +304,7 @@ export class DrawerView extends HtmlView implements ModalView {
     this.right.setState(Length.zero(), Affinity.Intrinsic);
     this.top.setState(null, Affinity.Intrinsic);
 
-    let height: Length | null = this.height.value;
-    if (height === null) {
-      height = Length.px(this.node.offsetHeight);
-    }
+    const height = this.height.getCssValue();
     this.bottom.setState(height.times(presencePhase - 1), Affinity.Intrinsic);
 
     this.effectiveWidth.setValue(this.width.value, Affinity.Intrinsic);
@@ -345,10 +336,7 @@ export class DrawerView extends HtmlView implements ModalView {
       const expandedWidth = this.expandedWidth.getValue();
       width = collapsedWidth.times(1 - stretchPhase).plus(expandedWidth.times(stretchPhase));
     } else {
-      width = this.width.value;
-      if (width === null) {
-        width = Length.px(this.node.offsetWidth);
-      }
+      width = this.width.getCssValue();
     }
     this.width.setState(width, Affinity.Intrinsic);
     this.left.setState(width.times(presencePhase - 1), Affinity.Intrinsic);

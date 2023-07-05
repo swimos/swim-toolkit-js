@@ -16,8 +16,6 @@ import type {Class} from "@swim/util";
 import type {Timing} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Animator} from "@swim/component";
-import type {AnyLength} from "@swim/math";
-import {Length} from "@swim/math";
 import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import type {MoodVector} from "@swim/theme";
@@ -27,8 +25,11 @@ import type {ViewFlags} from "@swim/view";
 import {View} from "@swim/view";
 import {ViewRef} from "@swim/view";
 import {Graphics} from "@swim/graphics";
+import type {AnyIconLayout} from "@swim/graphics";
+import {IconLayout} from "@swim/graphics";
 import {Icon} from "@swim/graphics";
 import {FilledIcon} from "@swim/graphics";
+import type {IconView} from "@swim/graphics";
 import {IconGraphicsAnimator} from "@swim/graphics";
 import {SvgIconView} from "@swim/graphics";
 import type {CellViewObserver} from "./CellView";
@@ -40,7 +41,7 @@ export interface IconCellViewObserver<V extends IconCellView = IconCellView> ext
 }
 
 /** @public */
-export class IconCellView extends CellView {
+export class IconCellView extends CellView implements IconView {
   protected override initCell(): void {
     super.initCell();
     this.addClass("cell-icon");
@@ -48,18 +49,11 @@ export class IconCellView extends CellView {
 
   declare readonly observerType?: Class<IconCellViewObserver>;
 
-  @Animator({valueType: Number, value: 0.5, updateFlags: View.NeedsLayout})
-  readonly xAlign!: Animator<this, number>;
+  /** @override */
+  @Animator({valueType: IconLayout, value: null, updateFlags: View.NeedsLayout})
+  readonly iconLayout!: Animator<this, IconLayout | null, AnyIconLayout | null>;
 
-  @Animator({valueType: Number, value: 0.5, updateFlags: View.NeedsLayout})
-  readonly yAlign!: Animator<this, number>;
-
-  @ThemeAnimator({valueType: Length, value: null, updateFlags: View.NeedsLayout})
-  readonly iconWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
-
-  @ThemeAnimator({valueType: Length, value: null, updateFlags: View.NeedsLayout})
-  readonly iconHeight!: ThemeAnimator<this, Length | null, AnyLength | null>;
-
+  /** @override */
   @ThemeAnimator({
     valueType: Color,
     value: null,
@@ -77,6 +71,7 @@ export class IconCellView extends CellView {
     return ThemeAnimator.dummy();
   }
 
+  /** @override */
   @ThemeAnimator({
     extends: IconGraphicsAnimator,
     valueType: Graphics,
@@ -97,10 +92,7 @@ export class IconCellView extends CellView {
     },
     initView(svgView: SvgIconView): void {
       svgView.setStyle("position", "absolute");
-      svgView.xAlign.setInherits(true);
-      svgView.yAlign.setInherits(true);
-      svgView.iconWidth.setInherits(true);
-      svgView.iconHeight.setInherits(true);
+      svgView.iconLayout.setInherits(true);
       svgView.iconColor.setInherits(true);
       svgView.graphics.setInherits(true);
     },
@@ -137,16 +129,15 @@ export class IconCellView extends CellView {
 
   protected layoutIcon(): void {
     const svgView = this.svg.view;
-    if (svgView !== null && (svgView.width.hasAffinity(Affinity.Intrinsic)
-                          || svgView.height.hasAffinity(Affinity.Intrinsic)
-                          || svgView.viewBox.hasAffinity(Affinity.Intrinsic))) {
-      let viewWidth: Length | number | null = this.width.value;
-      viewWidth = viewWidth instanceof Length ? viewWidth.pxValue() : this.node.offsetWidth;
-      let viewHeight: Length | number | null = this.height.value;
-      viewHeight = viewHeight instanceof Length ? viewHeight.pxValue() : this.node.offsetHeight;
-      svgView.width.setState(viewWidth, Affinity.Intrinsic);
-      svgView.height.setState(viewHeight, Affinity.Intrinsic);
-      svgView.viewBox.setState("0 0 " + viewWidth + " " + viewHeight, Affinity.Intrinsic);
+    if (svgView === null || !svgView.width.hasAffinity(Affinity.Intrinsic)
+                         && !svgView.height.hasAffinity(Affinity.Intrinsic)
+                         && !svgView.viewBox.hasAffinity(Affinity.Intrinsic)) {
+      return;
     }
+    const viewWidth = this.width.pxValue();
+    const viewHeight = this.height.pxValue();
+    svgView.width.setState(viewWidth, Affinity.Intrinsic);
+    svgView.height.setState(viewHeight, Affinity.Intrinsic);
+    svgView.viewBox.setState("0 0 " + viewWidth + " " + viewHeight, Affinity.Intrinsic);
   }
 }

@@ -72,12 +72,11 @@ export class CellController extends Controller {
     },
     viewDidPress(input: PositionGestureInput, event: Event | null, cellView: CellView): void {
       this.owner.callObservers("controllerDidPressCellView", input, event, cellView, this.owner);
-      const hyperlink = this.owner.hyperlink.value;
-      if (hyperlink === null || input.defaultPrevented) {
-        return;
+      const hyperlink = Property.tryValue(this.owner, "hyperlink");
+      if (hyperlink !== null && !input.defaultPrevented) {
+        input.preventDefault();
+        hyperlink.activate(event);
       }
-      input.preventDefault();
-      hyperlink.activate(event);
     },
     viewDidLongPress(input: PositionGestureInput, cellView: CellView): void {
       this.owner.callObservers("controllerDidLongPressCellView", input, cellView, this.owner);

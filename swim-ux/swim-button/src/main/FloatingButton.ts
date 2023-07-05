@@ -113,8 +113,7 @@ export class FloatingButton extends ButtonMembrane {
       iconView.opacity.setState(0, Affinity.Intrinsic);
       iconView.transform.setState(Transform.rotate(Angle.deg(-90)), Affinity.Intrinsic);
       iconView.pointerEvents.setState("none", Affinity.Intrinsic);
-      iconView.iconWidth.setState(24, Affinity.Intrinsic);
-      iconView.iconHeight.setState(24, Affinity.Intrinsic);
+      iconView.iconLayout.setState({width: 24, height: 24}, Affinity.Intrinsic);
       iconView.iconColor.setAffinity(Affinity.Extrinsic);
       return iconView;
     },

@@ -14,25 +14,19 @@
 
 import type {FastenerClass} from "@swim/component";
 import type {Animator} from "@swim/component";
-import type {AnyLength} from "@swim/math";
-import type {Length} from "@swim/math";
 import type {AnyColor} from "@swim/style";
 import type {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
 import {Graphics} from "./Graphics";
+import type {AnyIconLayout} from "./IconLayout";
+import type {IconLayout} from "./IconLayout";
 import {Icon} from "./Icon";
 import {FilledIcon} from "./FilledIcon";
 
 /** @public */
 export interface IconView extends View {
-  readonly xAlign: Animator<this, number>;
-
-  readonly yAlign: Animator<this, number>;
-
-  readonly iconWidth: ThemeAnimator<this, Length | null, AnyLength | null>;
-
-  readonly iconHeight: ThemeAnimator<this, Length | null, AnyLength | null>;
+  readonly iconLayout: Animator<this, IconLayout | null, AnyIconLayout | null>;
 
   readonly iconColor: ThemeAnimator<this, Color | null, AnyColor | null>;
 
@@ -43,10 +37,7 @@ export interface IconView extends View {
 export const IconView = {
   [Symbol.hasInstance](instance: unknown): instance is IconView {
     return instance instanceof View
-        && "xAlign" in instance
-        && "yAlign" in instance
-        && "iconWidth" in instance
-        && "iconHeight" in instance
+        && "iconLayout" in instance
         && "iconColor" in instance
         && "graphics" in instance;
   },
