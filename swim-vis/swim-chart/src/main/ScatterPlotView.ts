@@ -18,16 +18,14 @@ import {Equals} from "@swim/util";
 import {Values} from "@swim/util";
 import type {Domain} from "@swim/util";
 import type {Range} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import {LinearRange} from "@swim/util";
 import type {ContinuousScale} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import type {R2Box} from "@swim/math";
-import type {AnyFont} from "@swim/style";
 import {Font} from "@swim/style";
-import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
 import type {ViewFlags} from "@swim/view";
@@ -67,10 +65,10 @@ export abstract class ScatterPlotView<X = unknown, Y = unknown> extends Graphics
   readonly opacity!: ThemeAnimator<this, number | undefined>;
 
   @ThemeAnimator({valueType: Font, value: null, inherits: true})
-  readonly font!: ThemeAnimator<this, Font | null, AnyFont | null>;
+  readonly font!: ThemeAnimator<this, Font | null>;
 
   @ThemeAnimator({valueType: Color, value: null, inherits: true})
-  readonly textColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly textColor!: ThemeAnimator<this, Color | null>;
 
   /** @override */
   @ContinuousScaleAnimator({
@@ -98,10 +96,10 @@ export abstract class ScatterPlotView<X = unknown, Y = unknown> extends Graphics
 
   /** @override */
   xDomain(): Domain<X> | null;
-  xDomain(xDomain: Domain<X> | string | null, timing?: AnyTiming | boolean): this;
-  xDomain(xMin: X, xMax: X, timing?: AnyTiming | boolean): this;
-  xDomain(xMin?: Domain<X> | X | string | null, xMax?: X | AnyTiming | boolean,
-          timing?: AnyTiming | boolean): Domain<X> | null | this {
+  xDomain(xDomain: Domain<X> | string | null, timing?: TimingLike | boolean): this;
+  xDomain(xMin: X, xMax: X, timing?: TimingLike | boolean): this;
+  xDomain(xMin?: Domain<X> | X | string | null, xMax?: X | TimingLike | boolean,
+          timing?: TimingLike | boolean): Domain<X> | null | this {
     if (arguments.length === 0) {
       const xScale = this.xScale.value;
       return xScale !== null ? xScale.domain : null;
@@ -113,10 +111,10 @@ export abstract class ScatterPlotView<X = unknown, Y = unknown> extends Graphics
 
   /** @override */
   yDomain(): Domain<Y> | null;
-  yDomain(yDomain: Domain<Y> | string | null, timing?: AnyTiming | boolean): this;
-  yDomain(yMin: Y, yMax: Y, timing: AnyTiming | boolean): this;
-  yDomain(yMin?: Domain<Y> | Y | string | null, yMax?: Y | AnyTiming | boolean,
-          timing?: AnyTiming | boolean): Domain<Y> | null | this {
+  yDomain(yDomain: Domain<Y> | string | null, timing?: TimingLike | boolean): this;
+  yDomain(yMin: Y, yMax: Y, timing: TimingLike | boolean): this;
+  yDomain(yMin?: Domain<Y> | Y | string | null, yMax?: Y | TimingLike | boolean,
+          timing?: TimingLike | boolean): Domain<Y> | null | this {
     if (arguments.length === 0) {
       const yScale = this.yScale.value;
       return yScale !== null ? yScale.domain : null;

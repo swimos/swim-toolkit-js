@@ -19,10 +19,10 @@ import type {Feel} from "./Feel";
 
 /** @public */
 export interface ThemeContext {
-  getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel> | null): T | undefined;
+  getLook<T>(look: Look<T>, mood?: MoodVector<Feel> | null): T | undefined;
 
-  getLookOr<T, E>(look: Look<T, unknown>, elseValue: E): T | E;
-  getLookOr<T, E>(look: Look<T, unknown>, mood: MoodVector<Feel> | null, elseValue: E): T | E;
+  getLookOr<T, E>(look: Look<T>, elseValue: E): T | E;
+  getLookOr<T, E>(look: Look<T>, mood: MoodVector<Feel> | null, elseValue: E): T | E;
 }
 
 /** @public */

@@ -14,6 +14,7 @@
 
 import type {Uninitable} from "@swim/util";
 import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
 import {Lazy} from "@swim/util";
 import type {Equals} from "@swim/util";
 import type {Equivalent} from "@swim/util";
@@ -34,7 +35,7 @@ import {Value} from "@swim/structure";
 import {Attr} from "@swim/structure";
 import {Record} from "@swim/structure";
 import {Form} from "@swim/structure";
-import type {AnyLength} from "@swim/math";
+import type {LengthLike} from "@swim/math";
 import {Length} from "@swim/math";
 import {LengthParser} from "@swim/math";
 
@@ -73,7 +74,7 @@ export type FontStretch = "normal"
                         | "ultra-expanded";
 
 /** @public */
-export type AnyFontSize = AnyLength | FontSize;
+export type FontSizeLike = LengthLike | FontSize;
 
 /** @public */
 export type FontSize = Length
@@ -89,7 +90,7 @@ export type FontSize = Length
 
 /** @public */
 export const FontSize = {
-  fromAny<T extends AnyFontSize | null | undefined>(value: T): FontSize | Uninitable<T> {
+  fromLike<T extends FontSizeLike | null | undefined>(value: T): FontSize | Uninitable<T> {
     if (value === void 0 || value === null) {
       return value as FontSize | Uninitable<T>;
     } else if (typeof value === "string"
@@ -98,13 +99,13 @@ export const FontSize = {
          || value === "xx-large" || value === "xx-small")) {
       return value as FontSize;
     }
-    return Length.fromAny(value);
+    return Length.fromLike(value);
   },
 
   fromValue(value: Value): FontSize | null {
     const string = value.stringValue(null);
     if (string !== null) {
-      return FontSize.fromAny(string);
+      return FontSize.fromLike(string);
     }
     const size = Length.form().cast(value);
     return size !== void 0 ? size : null;
@@ -112,26 +113,26 @@ export const FontSize = {
 };
 
 /** @public */
-export type AnyLineHeight = AnyLength | LineHeight;
+export type LineHeightLike = LengthLike | LineHeight;
 
 /** @public */
 export type LineHeight = Length | "normal";
 
 /** @public */
 export const LineHeight = {
-  fromAny<T extends AnyLineHeight | null | undefined>(value: T): LineHeight | Uninitable<T> {
+  fromLike<T extends LineHeightLike | null | undefined>(value: T): LineHeight | Uninitable<T> {
     if (value === void 0 || value === null) {
       return value as LineHeight | Uninitable<T>;
     } else if (typeof value === "string" && value === "normal") {
       return value as LineHeight;
     }
-    return Length.fromAny(value);
+    return Length.fromLike(value);
   },
 
   fromValue(value: Value): LineHeight | null {
     const string = value.stringValue(null);
     if (string !== null) {
-      return LineHeight.fromAny(string);
+      return LineHeight.fromLike(string);
     }
     const height = Length.form().cast(value);
     return height !== void 0 ? height : null;
@@ -208,11 +209,11 @@ export const FontFamily = {
 };
 
 /** @public */
-export type AnyFont = Font | FontInit | string;
+export type FontLike = Font | FontInit | string;
 
 /** @public */
-export const AnyFont = {
-  [Symbol.hasInstance](instance: unknown): instance is AnyFont {
+export const FontLike = {
+  [Symbol.hasInstance](instance: unknown): instance is FontLike {
     return instance instanceof Font
         || FontInit[Symbol.hasInstance](instance);
   },
@@ -224,8 +225,8 @@ export interface FontInit {
   variant?: FontVariant;
   weight?: FontWeight;
   stretch?: FontStretch;
-  size?: AnyFontSize | null;
-  height?: AnyLineHeight | null;
+  size?: FontSizeLike | null;
+  height?: LineHeightLike | null;
   family: FontFamily | FontFamily[];
 }
 
@@ -241,7 +242,7 @@ export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
   constructor(style: FontStyle | undefined, variant: FontVariant | undefined,
               weight: FontWeight | undefined, stretch: FontStretch | undefined,
               size: FontSize | null, height: LineHeight | null,
-              family: FontFamily | ReadonlyArray<FontFamily>) {
+              family: FontFamily | readonly FontFamily[]) {
     this.style = style;
     this.variant = variant;
     this.weight = weight;
@@ -251,6 +252,8 @@ export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
     this.family = family;
     this.stringValue = void 0;
   }
+
+  declare readonly likeType?: Proto<FontInit | string>;
 
   readonly style: FontStyle | undefined;
 
@@ -294,8 +297,8 @@ export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
 
   readonly size: FontSize | null;
 
-  withSize(size: AnyFontSize | null): Font{
-    size = FontSize.fromAny(size);
+  withSize(size: FontSizeLike | null): Font{
+    size = FontSize.fromLike(size);
     if (Values.equal(size, this.size)) {
       return this;
     }
@@ -305,8 +308,8 @@ export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
 
   readonly height: LineHeight | null;
 
-  withHeight(height: AnyLineHeight | null): Font {
-    height = LineHeight.fromAny(height);
+  withHeight(height: LineHeightLike | null): Font {
+    height = LineHeight.fromLike(height);
     if (Values.equal(height, this.height)) {
       return this;
     }
@@ -314,9 +317,9 @@ export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
                     this.size, height as LineHeight | null, this.family);
   }
 
-  readonly family: FontFamily | ReadonlyArray<FontFamily>;
+  readonly family: FontFamily | readonly FontFamily[];
 
-  withFamily(family: FontFamily | ReadonlyArray<FontFamily>): Font {
+  withFamily(family: FontFamily | readonly FontFamily[]): Font {
     if (Array.isArray(family) && family.length === 1) {
       family = family[0];
     }
@@ -327,7 +330,7 @@ export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
                     this.size, this.height, family);
   }
 
-  toAny(): FontInit {
+  toLike(): FontInit {
     return {
       style: this.style,
       variant: this.variant,
@@ -469,43 +472,43 @@ export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
     return s;
   }
 
-  static style(style: FontStyle | undefined, family: FontFamily | ReadonlyArray<FontFamily>): Font {
+  static style(style: FontStyle | undefined, family: FontFamily | readonly FontFamily[]): Font {
     if (Array.isArray(family) && family.length === 1) {
       family = family[0];
     }
     return new Font(style, void 0, void 0, void 0, null, null, family);
   }
 
-  static variant(variant: FontVariant | undefined, family: FontFamily | ReadonlyArray<FontFamily>): Font {
+  static variant(variant: FontVariant | undefined, family: FontFamily | readonly FontFamily[]): Font {
     if (Array.isArray(family) && family.length === 1) {
       family = family[0];
     }
     return new Font(void 0, variant, void 0, void 0, null, null, family);
   }
 
-  static weight(weight: FontWeight | undefined, family: FontFamily | ReadonlyArray<FontFamily>): Font {
+  static weight(weight: FontWeight | undefined, family: FontFamily | readonly FontFamily[]): Font {
     if (Array.isArray(family) && family.length === 1) {
       family = family[0];
     }
     return new Font(void 0, void 0, weight, void 0, null, null, family);
   }
 
-  static stretch(stretch: FontStretch | undefined, family: FontFamily | ReadonlyArray<FontFamily>): Font {
+  static stretch(stretch: FontStretch | undefined, family: FontFamily | readonly FontFamily[]): Font {
     if (Array.isArray(family) && family.length === 1) {
       family = family[0];
     }
     return new Font(void 0, void 0, void 0, stretch, null, null, family);
   }
 
-  static size(size: AnyFontSize | null, family: FontFamily | ReadonlyArray<FontFamily>): Font {
-    size = size !== null ? FontSize.fromAny(size) : null;
+  static size(size: FontSizeLike | null, family: FontFamily | readonly FontFamily[]): Font {
+    size = size !== null ? FontSize.fromLike(size) : null;
     if (Array.isArray(family) && family.length === 1) {
       family = family[0];
     }
     return new Font(void 0, void 0, void 0, void 0, size as FontSize | null, null, family);
   }
 
-  static family(family: FontFamily | ReadonlyArray<FontFamily>): Font {
+  static family(family: FontFamily | readonly FontFamily[]): Font {
     if (Array.isArray(family) && family.length === 1) {
       family = family[0];
     }
@@ -514,10 +517,10 @@ export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
 
   static create(style: FontStyle | undefined, variant: FontVariant | undefined,
                 weight: FontWeight | undefined, stretch: FontStretch | undefined,
-                size: AnyFontSize | null | undefined, height: AnyLineHeight | null | undefined,
-                family: FontFamily | ReadonlyArray<FontFamily>): Font {
-    size = size !== void 0 && size !== null ? FontSize.fromAny(size) : null;
-    height = height !== void 0 && height !== null ? LineHeight.fromAny(height) : null;
+                size: FontSizeLike | null | undefined, height: LineHeightLike | null | undefined,
+                family: FontFamily | readonly FontFamily[]): Font {
+    size = size !== void 0 && size !== null ? FontSize.fromLike(size) : null;
+    height = height !== void 0 && height !== null ? LineHeight.fromLike(height) : null;
     if (Array.isArray(family) && family.length === 1) {
       family = family[0];
     }
@@ -525,12 +528,9 @@ export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
                     height as LineHeight | null, family);
   }
 
-  static fromAny(value: AnyFont): Font;
-  static fromAny(value: AnyFont | null): Font | null;
-  static fromAny(value: AnyFont | null | undefined): Font | null | undefined;
-  static fromAny(value: AnyFont | null | undefined): Font | null | undefined {
+  static fromLike<T extends FontLike | null | undefined>(value: T): Font | Uninitable<T> {
     if (value === void 0 || value === null || value instanceof Font) {
-      return value;
+      return value as Font | Uninitable<T>;
     } else if (typeof value === "object" && value !== null) {
       return Font.fromInit(value);
     } else if (typeof value === "string") {
@@ -580,7 +580,7 @@ export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
   }
 
   @Lazy
-  static form(): Form<Font, AnyFont> {
+  static form(): Form<Font, FontLike> {
     return new FontForm(void 0);
   }
 }
@@ -600,7 +600,7 @@ export interface FontInterpolator extends Interpolator<Font> {
   /** @internal */
   readonly heightInterpolator: Interpolator<LineHeight | null>;
   /** @internal */
-  readonly familyInterpolator: Interpolator<FontFamily | ReadonlyArray<FontFamily>>;
+  readonly familyInterpolator: Interpolator<FontFamily | readonly FontFamily[]>;
 
   get 0(): Font;
 
@@ -688,26 +688,27 @@ export const FontInterpolator = (function (_super: typeof Interpolator) {
 })(Interpolator);
 
 /** @internal */
-export class FontForm extends Form<Font, AnyFont> {
+export class FontForm extends Form<Font, FontLike> {
   constructor(unit: Font | undefined) {
     super();
     Object.defineProperty(this, "unit", {
       value: unit,
       enumerable: true,
+      configurable: true,
     });
   }
 
-  override readonly unit!: Font | undefined;
+  override readonly unit: Font | undefined;
 
-  override withUnit(unit: Font | undefined): Form<Font, AnyFont> {
+  override withUnit(unit: Font | undefined): Form<Font, FontLike> {
     if (unit === this.unit) {
       return this;
     }
     return new FontForm(unit);
   }
 
-  override mold(font: AnyFont): Item {
-    font = Font.fromAny(font);
+  override mold(font: FontLike): Item {
+    font = Font.fromLike(font);
     const header = Record.create(7);
     if (font.style !== void 0) {
       header.slot("style", font.style);

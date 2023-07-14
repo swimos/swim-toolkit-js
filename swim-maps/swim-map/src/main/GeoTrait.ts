@@ -16,7 +16,6 @@ import type {Class} from "@swim/util";
 import {Property} from "@swim/component";
 import type {TraitObserver} from "@swim/model";
 import {Trait} from "@swim/model";
-import type {AnyGeoPerspective} from "./GeoPerspective";
 import {GeoPerspective} from "./GeoPerspective";
 import {GeoController} from "./"; // forward import
 
@@ -36,7 +35,7 @@ export abstract class GeoTrait extends Trait {
       this.owner.callObservers("traitDidSetGeoPerspective", geoPerspective, this.owner);
     },
   })
-  readonly geoPerspective!: Property<this, GeoPerspective | null, AnyGeoPerspective | null>;
+  readonly geoPerspective!: Property<this, GeoPerspective | null>;
 
   createGeoController(): GeoController {
     return new GeoController();

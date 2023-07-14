@@ -45,7 +45,7 @@ export class SelectionService extends Service {
 
   declare readonly observerType?: Class<SelectionServiceObserver>;
 
-  readonly selections: ReadonlyArray<Model>;
+  readonly selections: readonly Model[];
 
   isSelected(model: Model): boolean {
     return this.selections.indexOf(model) >= 0;

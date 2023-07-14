@@ -29,7 +29,7 @@ export type {GraphicsEventHandler} from "./GraphicsEvent";
 
 export type {GraphicsContext} from "./GraphicsContext";
 
-export type {AnyGraphicsRenderer} from "./GraphicsRenderer";
+export type {GraphicsRendererLike} from "./GraphicsRenderer";
 export type {GraphicsRendererType} from "./GraphicsRenderer";
 export {GraphicsRenderer} from "./GraphicsRenderer";
 
@@ -88,13 +88,13 @@ export {FillView} from "./FillView";
 
 export {StrokeView} from "./StrokeView";
 
-export type {AnyRect} from "./Rect";
+export type {RectLike} from "./Rect";
 export type {RectInit} from "./Rect";
 export {Rect} from "./Rect";
 
 export {RectView} from "./RectView";
 
-export type {AnyArc} from "./Arc";
+export type {ArcLike} from "./Arc";
 export type {ArcInit} from "./Arc";
 export {Arc} from "./Arc";
 
@@ -104,7 +104,7 @@ export {ArcView} from "./ArcView";
 
 export {TypesetView} from "./TypesetView";
 
-export type {AnyTextRun} from "./TextRun";
+export type {TextRunLike} from "./TextRun";
 export type {TextRunInit} from "./TextRun";
 export {TextRun} from "./TextRun";
 
@@ -112,7 +112,7 @@ export {TextRunView} from "./TextRunView";
 
 // Icon
 
-export {AnyIconLayout} from "./IconLayout";
+export {IconLayoutLike} from "./IconLayout";
 export {IconLayoutInit} from "./IconLayout";
 export {IconLayout} from "./IconLayout";
 export {IconLayoutInterpolator} from "./IconLayout";

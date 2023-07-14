@@ -28,25 +28,25 @@ const canvasView = swim.CanvasView.create()
 const gaugeView = canvasView.appendChild(swim.GaugeView).font("14px sans-serif");
 gaugeView.title.setText("Gauge").font("20px sans-serif");
 
-const dial0View = gaugeView.appendChild(swim.DialView, "dial0")
-    .arrangement("manual")
-    .innerRadius(swim.Length.pct(30))
-    .outerRadius(swim.Length.pct(35));
+const dial0View = gaugeView.appendChild(swim.DialView, "dial0");
+dial0View.arrangement.setValue("manual");
+dial0View.innerRadius.setState(swim.Length.pct(30));
+dial0View.outerRadius.setState(swim.Length.pct(35));
 dial0View.dialColor.setLook(swim.Look.etchColor);
 
-const dial1View = gaugeView.appendChild(swim.DialView, "dial1")
-    .arrangement("manual")
-    .innerRadius(swim.Length.pct(35))
-    .outerRadius(swim.Length.pct(40));
+const dial1View = gaugeView.appendChild(swim.DialView, "dial1");
+dial1View.arrangement.setValue("manual");
+dial1View.innerRadius.setState(swim.Length.pct(35));
+dial1View.outerRadius.setState(swim.Length.pct(40));
 dial1View.modifyMood(swim.Feel.default, [[swim.Feel.contrasted, -0.6]]);
 dial1View.dialColor.setLook(swim.Look.etchColor);
 
-const ringView = gaugeView.appendChild(swim.DialView, "ring")
-    .value(0.33)
-    .arrangement("manual")
-    .innerRadius(swim.Length.pct(30))
-    .outerRadius(swim.Length.pct(40))
-    .dialColor(swim.Color.transparent());
+const ringView = gaugeView.appendChild(swim.DialView, "ring");
+ringView.value.setState(0.33);
+ringView.arrangement.setValue("manual");
+ringView.innerRadius.setState(swim.Length.pct(30));
+ringView.outerRadius.setState(swim.Length.pct(40));
+ringView.dialColor.setState(swim.Color.transparent());
 ringView.addEventListener("pointerenter", function (event) {
   ringView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, 1]], true);
 });
@@ -57,7 +57,7 @@ ringView.legend.setText("Legend");
 
 setInterval(function () {
   const timing = swim.Easing.linear.withDuration(1000);
-  ringView.value(Math.random(), timing);
+  ringView.value.setState(Math.random(), timing);
 }, 1000);
 
 containerView.appendChild(canvasView);

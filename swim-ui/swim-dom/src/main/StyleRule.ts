@@ -15,17 +15,18 @@
 import {__runInitializers} from "tslib";
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import {Objects} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import {Timing} from "@swim/util";
 import {FastenerContext} from "@swim/component";
 import {Fastener} from "@swim/component";
-import type {AnyConstraintExpression} from "@swim/constraint";
+import type {ConstraintExpressionLike} from "@swim/constraint";
 import type {ConstraintVariable} from "@swim/constraint";
 import type {ConstraintProperty} from "@swim/constraint";
 import type {ConstraintRelation} from "@swim/constraint";
-import type {AnyConstraintStrength} from "@swim/constraint";
+import type {ConstraintStrengthLike} from "@swim/constraint";
 import type {Constraint} from "@swim/constraint";
-import type {ConstraintScope} from "@swim/constraint";
+import {ConstraintScope} from "@swim/constraint";
 import {ToStyleString} from "@swim/style";
 import {ToCssValue} from "@swim/style";
 import {Look} from "@swim/theme";
@@ -42,12 +43,12 @@ import type {CssRuleClass} from "./CssRule";
 import {CssRule} from "./CssRule";
 
 /** @public */
-export interface StyleRuleDescriptor extends CssRuleDescriptor<CSSStyleRule> {
+export interface StyleRuleDescriptor<R> extends CssRuleDescriptor<R, CSSStyleRule> {
   extends?: Proto<StyleRule<any>> | boolean | null;
 }
 
 /** @public */
-export interface StyleRuleClass<F extends StyleRule<any> = StyleRule<any>> extends CssRuleClass<F> {
+export interface StyleRuleClass<F extends StyleRule<any> = StyleRule> extends CssRuleClass<F> {
   /** @internal */
   readonly fieldInitializers: {[name: PropertyKey]: Function[]};
   /** @internal */
@@ -55,9 +56,9 @@ export interface StyleRuleClass<F extends StyleRule<any> = StyleRule<any>> exten
 }
 
 /** @public */
-export interface StyleRule<O = unknown> extends CssRule<O, CSSStyleRule>, FastenerContext, ConstraintScope, ThemeContext, StyleMap {
+export interface StyleRule<R = any> extends CssRule<R, CSSStyleRule>, FastenerContext, ConstraintScope, ThemeContext, StyleMap {
   /** @override */
-  get descriptorType(): Proto<StyleRuleDescriptor>;
+  get descriptorType(): Proto<StyleRuleDescriptor<R>>;
 
   /** @override */
   get fastenerType(): Proto<StyleRule<any>>;
@@ -75,7 +76,7 @@ export interface StyleRule<O = unknown> extends CssRule<O, CSSStyleRule>, Fasten
   get selector(): string;
 
   /** @override */
-  getStyle(propertyNames: string | ReadonlyArray<string>): CSSStyleValue | string | undefined;
+  getStyle(propertyNames: string | readonly string[]): CSSStyleValue | string | undefined;
 
   /** @override */
   setStyle(propertyName: string, value: unknown, priority?: string): this;
@@ -90,8 +91,8 @@ export interface StyleRule<O = unknown> extends CssRule<O, CSSStyleRule>, Fasten
   didSetStyle(propertyName: string, value: unknown, priority: string | undefined): void;
 
   /** @override */
-  constraint(lhs: AnyConstraintExpression, relation: ConstraintRelation,
-             rhs?: AnyConstraintExpression, strength?: AnyConstraintStrength): Constraint;
+  constraint(lhs: ConstraintExpressionLike, relation: ConstraintRelation,
+             rhs?: ConstraintExpressionLike, strength?: ConstraintStrengthLike): Constraint;
 
   /** @override */
   hasConstraint(constraint: Constraint): boolean;
@@ -103,7 +104,7 @@ export interface StyleRule<O = unknown> extends CssRule<O, CSSStyleRule>, Fasten
   removeConstraint(constraint: Constraint): void;
 
   /** @override */
-  constraintVariable(name: string, value?: number, strength?: AnyConstraintStrength): ConstraintProperty<unknown, number>;
+  constraintVariable(name: string, value?: number, strength?: ConstraintStrengthLike): ConstraintProperty<any, number>;
 
   /** @override */
   hasConstraintVariable(variable: ConstraintVariable): boolean;
@@ -118,21 +119,24 @@ export interface StyleRule<O = unknown> extends CssRule<O, CSSStyleRule>, Fasten
   setConstraintVariable(constraintVariable: ConstraintVariable, state: number): void;
 
   /** @override */
-  getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel> | null): T | undefined;
+  getLook<T>(look: Look<T>, mood?: MoodVector<Feel> | null): T | undefined;
 
   /** @override */
-  getLookOr<T, E>(look: Look<T, unknown>, elseValue: E): T | E;
+  getLookOr<T, E>(look: Look<T>, elseValue: E): T | E;
   /** @override */
-  getLookOr<T, E>(look: Look<T, unknown>, mood: MoodVector<Feel> | null, elseValue: E): T | E;
+  getLookOr<T, E>(look: Look<T>, mood: MoodVector<Feel> | null, elseValue: E): T | E;
 
   /** @override */
-  applyTheme(theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean | null): void;
+  applyTheme(theme: ThemeMatrix, mood: MoodVector, timing?: TimingLike | boolean | null): void;
 
   /** @internal */
   applyStyles(): void;
 
   /** @override */
-  getParentFastener<F extends Fastener>(fastenerName: string, fastenerType: Proto<F>, contextType?: Proto<unknown>): F | null;
+  getFastener<F extends Fastener>(fastenerName: PropertyKey, fastenerType?: Proto<F>, contextType?: Proto<any> | null): F | null;
+
+  /** @override */
+  getParentFastener<F extends Fastener>(fastenerName: string, fastenerType?: Proto<F>, contextType?: Proto<any>): F | null;
 
   /** @override */
   attachFastener(fastener: Fastener): void;
@@ -147,10 +151,19 @@ export interface StyleRule<O = unknown> extends CssRule<O, CSSStyleRule>, Fasten
   requireUpdate(updateFlags: number): void;
 
   /** @internal */
+  readonly coherentTime: number;
+
+  /** @internal */
   readonly decoherent: readonly Fastener[] | null;
+
+  /** @internal */
+  readonly recohering: readonly Fastener[] | null;
 
   /** @override */
   decohereFastener(fastener: Fastener): void;
+
+  /** @internal @protected */
+  enqueueFastener(fastener: Fastener): void;
 
   /** @internal @protected */
   recohereFasteners(t: number): void
@@ -166,46 +179,41 @@ export interface StyleRule<O = unknown> extends CssRule<O, CSSStyleRule>, Fasten
 }
 
 /** @public */
-export const StyleRule = (function (_super: typeof CssRule) {
-  const StyleRule = _super.extend("StyleRule", {}) as StyleRuleClass;
+export const StyleRule = (<R, F extends StyleRule<any>>() => CssRule.extend<StyleRule<R>, StyleRuleClass<F>>("StyleRule", {
+  get fastenerType(): Proto<StyleRule<any>> {
+    return StyleRule;
+  },
 
-  Object.defineProperty(StyleRule.prototype, "fastenerType", {
-    value: StyleRule,
-    enumerable: true,
-    configurable: true,
-  });
+  selector: "*",
 
-  StyleRule.prototype.transformInletCss = function (this: StyleRule, inletCss: CSSStyleSheet | CSSRule | null): CSSStyleRule | null {
+  transformInletCss(inletCss: CSSStyleSheet | CSSRule | null): CSSStyleRule | null {
+    if (inletCss !== null) {
+      (inletCss as any).RANDOM_MARKER_ID = Math.random();
+    }
     if (inletCss instanceof CSSStyleRule) {
       return inletCss;
     } else if (inletCss instanceof CSSStyleSheet || inletCss instanceof CSSGroupingRule) {
       return this.createRule(inletCss);
     }
     return null;
-  };
+  },
 
-  StyleRule.prototype.createRule = function (this: StyleRule, inletCss: CSSStyleSheet | CSSGroupingRule): CSSStyleRule | null {
+  createRule(inletCss: CSSStyleSheet | CSSGroupingRule): CSSStyleRule | null {
     const index = inletCss.insertRule(this.cssText);
     const rule = inletCss.cssRules.item(index);
     if (!(rule instanceof CSSStyleRule)) {
       throw new TypeError("not a style rule: " + rule);
     }
     return rule;
-  };
+  },
 
-  Object.defineProperty(StyleRule.prototype, "selector", {
-    value: "*",
-    enumerable: true,
-    configurable: true,
-  });
-
-  StyleRule.prototype.onAttachCss = function (this: StyleRule, css: CSSStyleRule): void {
+  onAttachCss(css: CSSStyleRule): void {
     if (this.mounted) {
       this.applyStyles();
     }
-  };
+  },
 
-  StyleRule.prototype.getStyle = function (this: StyleRule, propertyNames: string | ReadonlyArray<string>): CSSStyleValue | string | undefined {
+  getStyle(propertyNames: string | readonly string[]): CSSStyleValue | string | undefined {
     const css = this.css;
     if (css === null) {
       return void 0;
@@ -234,9 +242,9 @@ export const StyleRule = (function (_super: typeof CssRule) {
       }
     }
     return "";
-  };
+  },
 
-  StyleRule.prototype.setStyle = function (this: StyleRule, propertyName: string, value: unknown, priority?: string): StyleRule {
+  setStyle(propertyName: string, value: unknown, priority?: string): StyleRule {
     const css = this.css;
     if (css === null) {
       return this;
@@ -269,66 +277,93 @@ export const StyleRule = (function (_super: typeof CssRule) {
     this.onSetStyle(propertyName, value, priority);
     this.didSetStyle(propertyName, value, priority);
     return this;
-  };
+  },
 
-  StyleRule.prototype.willSetStyle = function (this: StyleRule, propertyName: string, value: unknown, priority: string | undefined): void {
+  willSetStyle(propertyName: string, value: unknown, priority: string | undefined): void {
     // hook
-  };
+  },
 
-  StyleRule.prototype.onSetStyle = function (this: StyleRule, propertyName: string, value: unknown, priority: string | undefined): void {
+  onSetStyle(propertyName: string, value: unknown, priority: string | undefined): void {
     // hook
-  };
+  },
 
-  StyleRule.prototype.didSetStyle = function (this: StyleRule, propertyName: string, value: unknown, priority: string | undefined): void {
+  didSetStyle(propertyName: string, value: unknown, priority: string | undefined): void {
     // hook
-  };
+  },
 
-  StyleRule.prototype.constraint = function (this: StyleRule<ConstraintScope>, lhs: AnyConstraintExpression, relation: ConstraintRelation,
-                                             rhs?: AnyConstraintExpression, strength?: AnyConstraintStrength): Constraint {
+  constraint(lhs: ConstraintExpressionLike, relation: ConstraintRelation,
+             rhs?: ConstraintExpressionLike, strength?: ConstraintStrengthLike): Constraint {
+    if (!ConstraintScope[Symbol.hasInstance](this.owner)) {
+      throw new Error("no constraint scope");
+    }
     return this.owner.constraint(lhs, relation, rhs, strength);
-  };
+  },
 
-  StyleRule.prototype.hasConstraint = function (this: StyleRule<ConstraintScope>, constraint: Constraint): boolean {
+  hasConstraint(constraint: Constraint): boolean {
+    if (!ConstraintScope[Symbol.hasInstance](this.owner)) {
+      throw new Error("no constraint scope");
+    }
     return this.owner.hasConstraint(constraint);
-  };
+  },
 
-  StyleRule.prototype.addConstraint = function (this: StyleRule<ConstraintScope>, constraint: Constraint): void {
+  addConstraint(constraint: Constraint): void {
+    if (!ConstraintScope[Symbol.hasInstance](this.owner)) {
+      throw new Error("no constraint scope");
+    }
     this.owner.addConstraint(constraint);
-  };
+  },
 
-  StyleRule.prototype.removeConstraint = function (this: StyleRule<ConstraintScope>, constraint: Constraint): void {
+  removeConstraint(constraint: Constraint): void {
+    if (!ConstraintScope[Symbol.hasInstance](this.owner)) {
+      throw new Error("no constraint scope");
+    }
     this.owner.removeConstraint(constraint);
-  };
+  },
 
-  StyleRule.prototype.constraintVariable = function (this: StyleRule<ConstraintScope>, name: string, value?: number, strength?: AnyConstraintStrength): ConstraintProperty<unknown, number> {
+  constraintVariable(name: string, value?: number, strength?: ConstraintStrengthLike): ConstraintProperty<any, number> {
+    if (!ConstraintScope[Symbol.hasInstance](this.owner)) {
+      throw new Error("no constraint scope");
+    }
     return this.owner.constraintVariable(name, value, strength);
-  };
+  },
 
-  StyleRule.prototype.hasConstraintVariable = function (this: StyleRule<ConstraintScope>, constraintVariable: ConstraintVariable): boolean {
+  hasConstraintVariable(constraintVariable: ConstraintVariable): boolean {
+    if (!ConstraintScope[Symbol.hasInstance](this.owner)) {
+      throw new Error("no constraint scope");
+    }
     return this.owner.hasConstraintVariable(constraintVariable);
-  };
+  },
 
-  StyleRule.prototype.addConstraintVariable = function (this: StyleRule<ConstraintScope>, constraintVariable: ConstraintVariable): void {
+  addConstraintVariable(constraintVariable: ConstraintVariable): void {
+    if (!ConstraintScope[Symbol.hasInstance](this.owner)) {
+      throw new Error("no constraint scope");
+    }
     this.owner.addConstraintVariable(constraintVariable);
-  };
+  },
 
-  StyleRule.prototype.removeConstraintVariable = function (this: StyleRule<ConstraintScope>, constraintVariable: ConstraintVariable): void {
+  removeConstraintVariable(constraintVariable: ConstraintVariable): void {
+    if (!ConstraintScope[Symbol.hasInstance](this.owner)) {
+      throw new Error("no constraint scope");
+    }
     this.owner.removeConstraintVariable(constraintVariable);
-  };
+  },
 
-  StyleRule.prototype.setConstraintVariable = function (this: StyleRule<ConstraintScope>, constraintVariable: ConstraintVariable, state: number): void {
+  setConstraintVariable(constraintVariable: ConstraintVariable, state: number): void {
+    if (!ConstraintScope[Symbol.hasInstance](this.owner)) {
+      throw new Error("no constraint scope");
+    }
     this.owner.setConstraintVariable(constraintVariable, state);
-  };
+  },
 
-  StyleRule.prototype.getLook = function <T>(this: StyleRule, look: Look<T, unknown>, mood?: MoodVector<Feel> | null): T | undefined {
+  getLook<T>(look: Look<T>, mood?: MoodVector<Feel> | null): T | undefined {
     const themeContext = this.owner;
     if (!ThemeContext[Symbol.hasInstance](themeContext)) {
       return void 0;
     }
     return themeContext.getLook(look, mood);
-  };
+  },
 
-  StyleRule.prototype.getLookOr = function <T, E>(this: StyleRule, look: Look<T, unknown>, mood: MoodVector<Feel> | null | E, elseValue?: E): T | E {
+  getLookOr<T, E>(look: Look<T>, mood: MoodVector<Feel> | null | E, elseValue?: E): T | E {
     const themeContext = this.owner;
     if (ThemeContext[Symbol.hasInstance](themeContext)) {
       if (arguments.length === 2) {
@@ -338,16 +373,15 @@ export const StyleRule = (function (_super: typeof CssRule) {
       }
     } else if (arguments.length === 2) {
       return mood as E;
-    } else {
-      return elseValue!;
     }
-  };
+    return elseValue!;
+  },
 
-  StyleRule.prototype.applyTheme = function (this: StyleRule, theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean | null): void {
+  applyTheme(theme: ThemeMatrix, mood: MoodVector, timing?: TimingLike | boolean | null): void {
     if (timing === void 0 || timing === null || timing === true) {
       timing = theme.getOr(Look.timing, Mood.ambient, false);
     } else {
-      timing = Timing.fromAny(timing);
+      timing = Timing.fromLike(timing);
     }
     const fastenerSlots = FastenerContext.getFastenerSlots(this);
     for (let i = 0; i < fastenerSlots.length; i += 1) {
@@ -356,10 +390,10 @@ export const StyleRule = (function (_super: typeof CssRule) {
         fastener.applyTheme(theme, mood, timing);
       }
     }
-    _super.prototype.applyTheme.call(this, theme, mood, timing);
-  };
+    super.applyTheme(theme, mood, timing);
+  },
 
-  StyleRule.prototype.applyStyles = function(this: StyleRule): void {
+  applyStyles(): void {
     const fastenerSlots = FastenerContext.getFastenerSlots(this);
     for (let i = 0; i < fastenerSlots.length; i += 1) {
       const fastener = this[fastenerSlots[i]!];
@@ -367,19 +401,30 @@ export const StyleRule = (function (_super: typeof CssRule) {
         fastener.applyStyle(fastener.value, fastener.priority);
       }
     }
-  };
+  },
 
-  StyleRule.prototype.getParentFastener = function <F extends Fastener>(this: StyleRule, fastenerName: string, fastenerType: Proto<F>, contextType?: Proto<unknown>): F | null {
+  getFastener<F extends Fastener>(fastenerName: PropertyKey, fastenerType?: Proto<F>, contextType?: Proto<any> | null): F | null {
+    if (contextType !== void 0 && contextType !== null && !(this instanceof contextType)) {
+      return null;
+    }
+    const fastener = (this as any)[fastenerName] as F | null | undefined;
+    if (fastener === void 0 || (fastenerType !== void 0 && fastenerType !== null && !(fastener instanceof fastenerType))) {
+      return null;
+    }
+    return fastener;
+  },
+
+  getParentFastener<F extends Fastener>(fastenerName: string, fastenerType?: Proto<F>, contextType?: Proto<any>): F | null {
     return null;
-  };
+  },
 
-  StyleRule.prototype.attachFastener = function (this: StyleRule, fastener: Fastener): void {
+  attachFastener(fastener: Fastener): void {
     if (this.mounted) {
       fastener.mount();
     }
-  };
+  },
 
-  StyleRule.prototype.mountFasteners = function (this: StyleRule): void {
+  mountFasteners(): void {
     const fastenerSlots = FastenerContext.getFastenerSlots(this);
     for (let i = 0; i < fastenerSlots.length; i += 1) {
       const fastener = this[fastenerSlots[i]!];
@@ -387,9 +432,9 @@ export const StyleRule = (function (_super: typeof CssRule) {
         fastener.mount();
       }
     }
-  };
+  },
 
-  StyleRule.prototype.unmountFasteners = function (this: StyleRule): void {
+  unmountFasteners(): void {
     const fastenerSlots = FastenerContext.getFastenerSlots(this);
     for (let i = 0; i < fastenerSlots.length; i += 1) {
       const fastener = this[fastenerSlots[i]!];
@@ -397,49 +442,55 @@ export const StyleRule = (function (_super: typeof CssRule) {
         fastener.unmount();
       }
     }
-  };
+  },
 
-  StyleRule.prototype.requireUpdate = function (this: StyleRule, updateFlags: number): void {
-    const owner = this.owner;
-    if (owner === null || typeof owner !== "object" && typeof owner !== "function"
-        || !("requireUpdate" in owner)) {
+  requireUpdate(updateFlags: number): void {
+    if (Objects.hasAllKeys<FastenerContext>(this.owner, "requireUpdate")) {
+      this.owner.requireUpdate!(updateFlags);
+    }
+  },
+
+  decohereFastener(fastener: Fastener): void {
+    const recohering = this.recohering as Fastener[] | null;
+    if (recohering !== null && fastener.coherentTime !== this.coherentTime) {
+      recohering.push(fastener);
       return;
     }
-    (owner as FastenerContext).requireUpdate!(updateFlags);
-  };
+    this.enqueueFastener(fastener);
+  },
 
-  StyleRule.prototype.decohereFastener = function (this: StyleRule, fastener: Fastener): void {
+  enqueueFastener(fastener: Fastener): void {
     let decoherent = this.decoherent as Fastener[] | null;
     if (decoherent === null) {
       decoherent = [];
       (this as Mutable<typeof this>).decoherent = decoherent;
     }
     decoherent.push(fastener);
+    this.decohere();
+  },
 
-    if ((this.flags & Fastener.DecoherentFlag) === 0) {
-      this.setCoherent(false);
-      this.decohere();
-    }
-  };
-
-  StyleRule.prototype.recohereFasteners = function (this: StyleRule, t: number): void {
+  recohereFasteners(t: number): void {
     const decoherent = this.decoherent;
-    if (decoherent === null) {
+    if (decoherent === null || decoherent.length === 0) {
       return;
+    } else if (t === void 0) {
+      t = performance.now();
     }
-    const decoherentCount = decoherent.length;
-    if (decoherentCount === 0) {
-      return;
-    }
+    (this as Mutable<typeof this>).coherentTime = t;
     (this as Mutable<typeof this>).decoherent = null;
-    for (let i = 0; i < decoherentCount; i += 1) {
-      const fastener = decoherent[i]!;
-      fastener.recohere(t);
+    (this as Mutable<typeof this>).recohering = decoherent;
+    try {
+      for (let i = 0; i < decoherent.length; i += 1) {
+        const fastener = decoherent[i]!;
+        fastener.recohere(t);
+      }
+    } finally {
+      (this as Mutable<typeof this>).recohering = null;
     }
-  };
+  },
 
-  StyleRule.prototype.recohere = function (this: StyleRule, t: number): void {
-    _super.prototype.recohere.call(this, t);
+  recohere(t: number): void {
+    super.recohere(t);
     this.recohereFasteners(t);
     if (this.decoherent === null || this.decoherent.length === 0) {
       this.setCoherent(true);
@@ -447,34 +498,35 @@ export const StyleRule = (function (_super: typeof CssRule) {
       this.setCoherent(false);
       this.decohere();
     }
-  };
+  },
 
-  StyleRule.prototype.didMount = function (this: StyleRule): void {
+  didMount(): void {
     this.mountFasteners();
     if (this.css !== null) {
       this.applyStyles();
     }
-    _super.prototype.didMount.call(this);
-  };
+    super.didMount();
+  },
 
-  StyleRule.prototype.willUnmount = function (this: StyleRule): void {
-    _super.prototype.willUnmount.call(this);
+  willUnmount(): void {
+    super.willUnmount();
     this.unmountFasteners();
-  };
-
-  (StyleRule as Mutable<typeof StyleRule>).fieldInitializers = {};
-  (StyleRule as Mutable<typeof StyleRule>).instanceInitializers = [];
-  StyleMap.define(StyleRule, StyleRule.fieldInitializers, StyleRule.instanceInitializers);
-
-  StyleRule.construct = function <F extends StyleRule<any>>(fastener: F | null, owner: F extends StyleRule<infer O> ? O : never): F {
-    fastener = _super.construct.call(this, fastener, owner) as F;
+  },
+},
+{
+  construct(fastener: F | null, owner: F extends Fastener<infer R, any, any> ? R : never): F {
+    fastener = super.construct(fastener, owner) as F;
+    (fastener as Mutable<typeof fastener>).coherentTime = 0;
     (fastener as Mutable<typeof fastener>).decoherent = null;
+    (fastener as Mutable<typeof fastener>).recohering = null;
     __runInitializers(fastener, StyleRule.instanceInitializers);
     for (const key in StyleRule.fieldInitializers) {
       (fastener as any)[key] = __runInitializers(fastener, StyleRule.fieldInitializers[key]!, void 0);
     }
     return fastener;
-  };
+  },
 
-  return StyleRule;
-})(CssRule);
+  fieldInitializers: {},
+  instanceInitializers: [],
+}))();
+StyleMap.define(StyleRule, StyleRule.fieldInitializers, StyleRule.instanceInitializers);

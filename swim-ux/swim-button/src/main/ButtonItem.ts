@@ -14,7 +14,6 @@
 
 import type {Timing} from "@swim/util";
 import {Affinity} from "@swim/component";
-import type {AnyPresence} from "@swim/style";
 import type {Presence} from "@swim/style";
 import {PresenceAnimator} from "@swim/style";
 import {Look} from "@swim/theme";
@@ -64,7 +63,7 @@ export class ButtonItem extends HtmlView {
   }
 
   @PresenceAnimator({inherits: true})
-  readonly presence!: PresenceAnimator<this, Presence | undefined, AnyPresence | undefined>;
+  readonly presence!: PresenceAnimator<this, Presence | undefined>;
 
   protected override onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);

@@ -29,7 +29,7 @@ const gaugeView = canvasView.appendChild(swim.GaugeView).font("14px sans-serif")
 gaugeView.title.setText("Gauge").font("20px sans-serif");
 
 const dialView = gaugeView.appendChild(swim.DialView)
-dialView.value(0.33);
+dialView.value.setState(0.33);
 dialView.addEventListener("pointerenter", function (event) {
   dialView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, 1]], true);
 });
@@ -40,7 +40,7 @@ dialView.legend.setText("Legend");
 
 setInterval(function () {
   const timing = swim.Easing.linear.withDuration(1000);
-  dialView.value(Math.random(), timing);
+  dialView.value.setState(Math.random(), timing);
 }, 1000);
 
 containerView.appendChild(canvasView);

@@ -14,7 +14,7 @@
 
 // Geo
 
-export {AnyGeoPerspective} from "./GeoPerspective";
+export {GeoPerspectiveLike} from "./GeoPerspective";
 export {GeoPerspectiveInit} from "./GeoPerspective";
 export {GeoPerspective} from "./GeoPerspective";
 
@@ -28,6 +28,17 @@ export {GeoTrait} from "./GeoTrait";
 
 export type {GeoControllerObserver} from "./GeoController";
 export {GeoController} from "./GeoController";
+
+// Feature
+
+export type {GeoFeatureViewObserver} from "./GeoFeatureView";
+export {GeoFeatureView} from "./GeoFeatureView";
+
+export type {GeoFeatureTraitObserver} from "./GeoFeatureTrait";
+export {GeoFeatureTrait} from "./GeoFeatureTrait";
+
+export type {GeoFeatureControllerObserver} from "./GeoFeatureController";
+export {GeoFeatureController} from "./GeoFeatureController";
 
 // Layer
 

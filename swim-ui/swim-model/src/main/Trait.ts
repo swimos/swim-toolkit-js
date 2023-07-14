@@ -19,7 +19,8 @@ import type {Proto} from "@swim/util";
 import {Murmur3} from "@swim/util";
 import type {HashCode} from "@swim/util";
 import type {Comparator} from "@swim/util";
-import type {FromAny} from "@swim/util";
+import type {LikeType} from "@swim/util";
+import type {FromLike} from "@swim/util";
 import {Creatable} from "@swim/util";
 import type {Observes} from "@swim/util";
 import type {Observable} from "@swim/util";
@@ -29,26 +30,22 @@ import type {Observer} from "@swim/util";
 import type {Consumer} from "@swim/util";
 import type {Consumable} from "@swim/util";
 import {FastenerContext} from "@swim/component";
+import type {FastenerTemplate} from "@swim/component";
 import {Fastener} from "@swim/component";
 import {Property} from "@swim/component";
-import type {AnyValue} from "@swim/structure";
+import type {ValueLike} from "@swim/structure";
 import {Value} from "@swim/structure";
-import type {AnyUri} from "@swim/uri";
+import type {UriLike} from "@swim/uri";
 import {Uri} from "@swim/uri";
 import type {WarpDownlinkModel} from "@swim/client";
 import {WarpDownlink} from "@swim/client";
-import type {EventDownlinkDescriptor} from "@swim/client";
 import {EventDownlink} from "@swim/client";
-import type {ValueDownlinkDescriptor} from "@swim/client";
 import {ValueDownlink} from "@swim/client";
-import type {ListDownlinkDescriptor} from "@swim/client";
 import {ListDownlink} from "@swim/client";
-import type {MapDownlinkDescriptor} from "@swim/client";
 import {MapDownlink} from "@swim/client";
 import {WarpRef} from "@swim/client";
 import {WarpClient} from "@swim/client";
 import type {ModelFlags} from "./Model";
-import type {AnyModel} from "./Model";
 import {Model} from "./Model";
 import {ModelRelation} from "./ModelRelation";
 import {TraitRelation} from "./"; // forward import
@@ -57,19 +54,16 @@ import {TraitRelation} from "./"; // forward import
 export type TraitFlags = number;
 
 /** @public */
-export type AnyTrait<T extends Trait = Trait> = T | TraitFactory<T>;
-
-/** @public */
-export interface TraitFactory<T extends Trait = Trait, U = AnyTrait<T>> extends Creatable<T>, FromAny<T, U> {
+export interface TraitFactory<T extends Trait = Trait> extends Creatable<T>, FromLike<T> {
 }
 
 /** @public */
-export interface TraitClass<T extends Trait = Trait, U = AnyTrait<T>> extends Function, TraitFactory<T, U> {
+export interface TraitClass<T extends Trait = Trait> extends Function, TraitFactory<T> {
   readonly prototype: T;
 }
 
 /** @public */
-export interface TraitConstructor<T extends Trait = Trait, U = AnyTrait<T>> extends TraitClass<T, U> {
+export interface TraitConstructor<T extends Trait = Trait> extends TraitClass<T> {
   new(): T;
 }
 
@@ -157,12 +151,16 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
     this.model = null;
     this.nextTrait = null;
     this.previousTrait = null;
+    this.coherentTime = 0;
     this.decoherent = null;
+    this.recohering = null;
     this.observers = null;
     this.consumers = null;
   }
 
   declare readonly observerType?: Class<TraitObserver>;
+
+  declare readonly likeType?: Proto<Creatable<Trait>>;
 
   /** @internal */
   readonly uid: string;
@@ -357,10 +355,9 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
     return model !== null ? model.getChild(key, childType) : null;
   }
 
-  setChild<M extends Model>(key: string, newChild: M): Model | null;
-  setChild<F extends Class<Instance<F, Model>> & Creatable<Instance<F, Model>>>(key: string, factory: F): Model | null;
-  setChild(key: string, newChild: AnyModel | null): Model | null;
-  setChild(key: string, newChild: AnyModel | null): Model | null {
+  setChild<F extends Class<Instance<F, Model>> & Creatable<Instance<F, Model>>>(key: string, newChildFactory: F): Model | null;
+  setChild(key: string, newChild: Model | LikeType<Model> | null): Model | null;
+  setChild(key: string, newChild: Model | LikeType<Model> | null): Model | null {
     const model = this.model;
     if (model === null) {
       throw new Error("no model");
@@ -368,10 +365,10 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
     return model.setChild(key, newChild);
   }
 
-  appendChild<M extends Model>(child: M, key?: string): M;
-  appendChild<F extends Class<Instance<F, Model>> & Creatable<Instance<F, Model>>>(factory: F, key?: string): InstanceType<F>;
-  appendChild(child: AnyModel, key?: string): Model;
-  appendChild(child: AnyModel, key?: string): Model {
+  appendChild<F extends Class<Instance<F, Model>> & Creatable<Instance<F, Model>>>(childFactory: F, key?: string): InstanceType<F>;
+  appendChild<M extends Model>(child: M | LikeType<M>, key?: string): M;
+  appendChild(child: Model | LikeType<Model>, key?: string): Model;
+  appendChild(child: Model | LikeType<Model>, key?: string): Model {
     const model = this.model;
     if (model === null) {
       throw new Error("no model");
@@ -379,10 +376,10 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
     return model.appendChild(child, key);
   }
 
-  prependChild<M extends Model>(child: M, key?: string): M;
-  prependChild<F extends Class<Instance<F, Model>> & Creatable<Instance<F, Model>>>(factory: F, key?: string): InstanceType<F>;
-  prependChild(child: AnyModel, key?: string): Model;
-  prependChild(child: AnyModel, key?: string): Model {
+  prependChild<F extends Class<Instance<F, Model>> & Creatable<Instance<F, Model>>>(childFactory: F, key?: string): InstanceType<F>;
+  prependChild<M extends Model>(child: M | LikeType<M>, key?: string): M;
+  prependChild(child: Model | LikeType<Model>, key?: string): Model;
+  prependChild(child: Model | LikeType<Model>, key?: string): Model {
     const model = this.model;
     if (model === null) {
       throw new Error("no model");
@@ -390,10 +387,10 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
     return model.prependChild(child, key);
   }
 
-  insertChild<M extends Model>(child: M, target: Model | null, key?: string): M;
-  insertChild<F extends Class<Instance<F, Model>> & Creatable<Instance<F, Model>>>(factory: F, target: Model | null, key?: string): InstanceType<F>;
-  insertChild(child: AnyModel, target: Model | null, key?: string): Model;
-  insertChild(child: AnyModel, target: Model | null, key?: string): Model {
+  insertChild<F extends Class<Instance<F, Model>> & Creatable<Instance<F, Model>>>(childFactory: F, target: Model | null, key?: string): InstanceType<F>;
+  insertChild<M extends Model>(child: M | LikeType<M>, target: Model | null, key?: string): M;
+  insertChild(child: Model | LikeType<Model>, target: Model | null, key?: string): Model;
+  insertChild(child: Model | LikeType<Model>, target: Model | null, key?: string): Model {
     const model = this.model;
     if (model === null) {
       throw new Error("no model");
@@ -410,8 +407,9 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
   }
 
   replaceChild<M extends Model>(newChild: Model, oldChild: M): M;
-  replaceChild<M extends Model>(newChild: AnyModel, oldChild: M): M;
-  replaceChild(newChild: AnyModel, oldChild: Model): Model {
+  replaceChild<M extends Model>(newChild: Model | LikeType<Model>, oldChild: M): M;
+  replaceChild(newChild: Model | LikeType<Model>, oldChild: Model): Model;
+  replaceChild(newChild: Model | LikeType<Model>, oldChild: Model): Model {
     const model = this.model;
     if (model === null) {
       throw new Error("no model");
@@ -545,9 +543,9 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
     return model !== null ? model.forEachTrait(callback, thisArg) : void 0;
   }
 
-  findTrait<F extends Class<Trait>>(key: string | undefined, traitClass: F): InstanceType<F> | null;
-  findTrait(key: string | undefined, traitClass: Class<Trait> | undefined): Trait | null;
-  findTrait(key: string | undefined, traitClass: Class<Trait> | undefined): Trait | null {
+  findTrait<F extends Class<Trait>>(key: string | undefined, traitClass: F | null | undefined): InstanceType<F> | null;
+  findTrait(key: string | undefined, traitClass: Class<Trait> | null | undefined): Trait | null;
+  findTrait(key: string | undefined, traitClass: Class<Trait> | null | undefined): Trait | null {
     const model = this.model;
     return model !== null ? model.findTrait(key, traitClass) : null;
   }
@@ -560,10 +558,9 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
     return model !== null ? model.getTrait(key as string, traitClass) : null;
   }
 
-  setTrait<T extends Trait>(key: string, newTrait: T): Trait | null;
-  setTrait<F extends Class<Instance<F, Trait>> & Creatable<Instance<F, Trait>>>(key: string, factory: F): Trait | null;
-  setTrait(key: string, newTrait: AnyTrait | null): Trait | null;
-  setTrait(key: string, newTrait: AnyTrait | null): Trait | null {
+  setTrait<F extends Class<Instance<F, Trait>> & Creatable<Instance<F, Trait>>>(key: string, newChildFactory: F): Trait | null;
+  setTrait(key: string, newTrait: Trait | LikeType<Trait> | null): Trait | null;
+  setTrait(key: string, newTrait: Trait | LikeType<Trait> | null): Trait | null {
     const model = this.model;
     if (model === null) {
       throw new Error("no model");
@@ -571,10 +568,10 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
     return model.setTrait(key, newTrait);
   }
 
-  appendTrait<T extends Trait>(trait: T, key?: string): T;
-  appendTrait<F extends Class<Instance<F, Trait>> & Creatable<Instance<F, Trait>>>(factory: F, key?: string): InstanceType<F>;
-  appendTrait(trait: AnyTrait, key?: string): Trait;
-  appendTrait(trait: AnyTrait, key?: string): Trait {
+  appendTrait<F extends Class<Instance<F, Trait>> & Creatable<Instance<F, Trait>>>(childFactory: F, key?: string): InstanceType<F>;
+  appendTrait<T extends Trait>(trait: T | LikeType<T>, key?: string): T;
+  appendTrait(trait: Trait | LikeType<Trait>, key?: string): Trait;
+  appendTrait(trait: Trait | LikeType<Trait>, key?: string): Trait {
     const model = this.model;
     if (model === null) {
       throw new Error("no model");
@@ -582,10 +579,10 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
     return model.appendTrait(trait, key);
   }
 
-  prependTrait<T extends Trait>(trait: T, key?: string): T;
-  prependTrait<F extends Class<Instance<F, Trait>> & Creatable<Instance<F, Trait>>>(factory: F, key?: string): InstanceType<F>;
-  prependTrait(trait: AnyTrait, key?: string): Trait;
-  prependTrait(trait: AnyTrait, key?: string): Trait {
+  prependTrait<F extends Class<Instance<F, Trait>> & Creatable<Instance<F, Trait>>>(childFactory: F, key?: string): InstanceType<F>;
+  prependTrait<T extends Trait>(trait: T | LikeType<T>, key?: string): T;
+  prependTrait(trait: Trait | LikeType<Trait>, key?: string): Trait;
+  prependTrait(trait: Trait | LikeType<Trait>, key?: string): Trait {
     const model = this.model;
     if (model === null) {
       throw new Error("no model");
@@ -593,10 +590,10 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
     return model.prependTrait(trait, key);
   }
 
-  insertTrait<T extends Trait>(trait: T, target: Trait | null, key?: string): T;
-  insertTrait<F extends Class<Instance<F, Trait>> & Creatable<Instance<F, Trait>>>(factory: F, target: Trait | null, key?: string): InstanceType<F>;
-  insertTrait(trait: AnyTrait, target: Trait | null, key?: string): Trait;
-  insertTrait(trait: AnyTrait, target: Trait | null, key?: string): Trait {
+  insertTrait<F extends Class<Instance<F, Trait>> & Creatable<Instance<F, Trait>>>(childFactory: F, target: Trait | null, key?: string): InstanceType<F>;
+  insertTrait<T extends Trait>(trait: T | LikeType<T>, target: Trait | null, key?: string): T;
+  insertTrait(trait: Trait | LikeType<Trait>, target: Trait | null, key?: string): Trait;
+  insertTrait(trait: Trait | LikeType<Trait>, target: Trait | null, key?: string): Trait {
     const model = this.model;
     if (model === null) {
       throw new Error("no model");
@@ -604,9 +601,10 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
     return model.insertTrait(trait, target, key);
   }
 
-  replaceTraitt<T extends Trait>(newTrait: Trait, oldTrait: T): T;
-  replaceTraitt<T extends Trait>(newTrait: AnyTrait, oldTrait: T): T;
-  replaceTraitt(newTrait: AnyTrait, oldTrait: Trait): Trait {
+  replaceTrait<F extends Class<Instance<F, Trait>> & Creatable<Instance<F, Trait>>>(newChildFactory: F, oldTrait: Trait): Trait;
+  replaceTrait<T extends Trait>(newTrait: Trait | LikeType<Trait>, oldTrait: T): T;
+  replaceTrait(newTrait: Trait | LikeType<Trait>, oldTrait: Trait): Trait;
+  replaceTrait(newTrait: Trait | LikeType<Trait>, oldTrait: Trait): Trait {
     const model = this.model;
     if (model === null) {
       throw new Error("no model");
@@ -696,7 +694,7 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
     },
     updateFlags: Model.NeedsReconcile,
   })
-  get hostUri(): Property<this, Uri | null, AnyUri | null> {
+  get hostUri(): Property<this, Uri | null> {
     return Property.dummy();
   }
 
@@ -710,7 +708,7 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
     },
     updateFlags: Model.NeedsReconcile,
   })
-  get nodeUri(): Property<this, Uri | null, AnyUri | null> {
+  get nodeUri(): Property<this, Uri | null> {
     return Property.dummy();
   }
 
@@ -724,12 +722,12 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
     },
     updateFlags: Model.NeedsReconcile,
   })
-  get laneUri(): Property<this, Uri | null, AnyUri | null> {
+  get laneUri(): Property<this, Uri | null> {
     return Property.dummy();
   }
 
   /** @override */
-  downlink(template?: ThisType<EventDownlink<this>> & EventDownlinkDescriptor & Partial<Omit<EventDownlink<this>, keyof EventDownlinkDescriptor>>): EventDownlink<this> {
+  downlink(template?: FastenerTemplate<EventDownlink<WarpRef>>): EventDownlink<WarpRef> {
     let downlinkClass = EventDownlink;
     if (template !== void 0) {
       downlinkClass = downlinkClass.define("downlink", template) as typeof EventDownlink;
@@ -738,7 +736,7 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
   }
 
   /** @override */
-  downlinkValue<V = Value, VU = V extends Value ? AnyValue : V>(template?: ThisType<ValueDownlink<this, V, VU>> & ValueDownlinkDescriptor<V, VU> & Partial<Omit<ValueDownlink<this, V, VU>, keyof ValueDownlinkDescriptor<V, VU>>>): ValueDownlink<this, V, VU> {
+  downlinkValue<V = Value>(template?: FastenerTemplate<ValueDownlink<WarpRef, V>>): ValueDownlink<WarpRef, V> {
     let downlinkClass = ValueDownlink;
     if (template !== void 0) {
       downlinkClass = downlinkClass.define("downlinkValue", template) as typeof ValueDownlink;
@@ -747,7 +745,7 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
   }
 
   /** @override */
-  downlinkList<V = Value, VU = V extends Value ? AnyValue : V>(template?: ThisType<ListDownlink<this, V, VU>> & ListDownlinkDescriptor<V, VU> & Partial<Omit<ListDownlink<this, V, VU>, keyof ListDownlinkDescriptor<V, VU>>>): ListDownlink<this, V, VU> {
+  downlinkList<V = Value>(template?: FastenerTemplate<ListDownlink<WarpRef, V>>): ListDownlink<WarpRef, V> {
     let downlinkClass = ListDownlink;
     if (template !== void 0) {
       downlinkClass = downlinkClass.define("downlinkList", template) as typeof ListDownlink;
@@ -756,7 +754,7 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
   }
 
   /** @override */
-  downlinkMap<K = Value, V = Value, KU = K extends Value ? AnyValue : K, VU = V extends Value ? AnyValue : V>(template?: ThisType<MapDownlink<this, K, V, KU, VU>> & MapDownlinkDescriptor<K, V, KU, VU> & Partial<Omit<MapDownlink<this, K, V, KU, VU>, keyof MapDownlinkDescriptor<K, V, KU, VU>>>): MapDownlink<this, K, V, KU, VU> {
+  downlinkMap<K = Value, V = Value>(template?: FastenerTemplate<MapDownlink<WarpRef, K, V>>): MapDownlink<WarpRef, K, V> {
     let downlinkClass = MapDownlink;
     if (template !== void 0) {
       downlinkClass = downlinkClass.define("downlinkMap", template) as typeof MapDownlink;
@@ -765,34 +763,34 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
   }
 
   /** @override */
-  command(hostUri: AnyUri, nodeUri: AnyUri, laneUri: AnyUri, body: AnyValue): void;
+  command(hostUri: UriLike, nodeUri: UriLike, laneUri: UriLike, body: ValueLike): void;
   /** @override */
-  command(nodeUri: AnyUri, laneUri: AnyUri, body: AnyValue): void;
+  command(nodeUri: UriLike, laneUri: UriLike, body: ValueLike): void;
   /** @override */
-  command(laneUri: AnyUri, body: AnyValue): void;
+  command(laneUri: UriLike, body: ValueLike): void;
   /** @override */
-  command(body: AnyValue): void;
-  command(hostUri: AnyUri | AnyValue, nodeUri?: AnyUri | AnyValue, laneUri?: AnyUri | AnyValue, body?: AnyValue): void {
+  command(body: ValueLike): void;
+  command(hostUri: UriLike | ValueLike, nodeUri?: UriLike | ValueLike, laneUri?: UriLike | ValueLike, body?: ValueLike): void {
     if (nodeUri === void 0) {
-      body = Value.fromAny(hostUri as AnyValue);
+      body = Value.fromLike(hostUri as ValueLike);
       laneUri = this.laneUri.getValue();
       nodeUri = this.nodeUri.getValue();
       hostUri = this.hostUri.value;
     } else if (laneUri === void 0) {
-      body = Value.fromAny(nodeUri as AnyValue);
-      laneUri = Uri.fromAny(hostUri as AnyUri);
+      body = Value.fromLike(nodeUri as ValueLike);
+      laneUri = Uri.fromLike(hostUri as UriLike);
       nodeUri = this.nodeUri.getValue();
       hostUri = this.hostUri.value;
     } else if (body === void 0) {
-      body = Value.fromAny(laneUri as AnyValue);
-      laneUri = Uri.fromAny(nodeUri as AnyUri);
-      nodeUri = Uri.fromAny(hostUri as AnyUri);
+      body = Value.fromLike(laneUri as ValueLike);
+      laneUri = Uri.fromLike(nodeUri as UriLike);
+      nodeUri = Uri.fromLike(hostUri as UriLike);
       hostUri = this.hostUri.value;
     } else {
-      body = Value.fromAny(body);
-      laneUri = Uri.fromAny(laneUri as AnyUri);
-      nodeUri = Uri.fromAny(nodeUri as AnyUri);
-      hostUri = Uri.fromAny(hostUri as AnyUri);
+      body = Value.fromLike(body);
+      laneUri = Uri.fromLike(laneUri as UriLike);
+      nodeUri = Uri.fromLike(nodeUri as UriLike);
+      hostUri = Uri.fromLike(hostUri as UriLike);
     }
     if (hostUri === null) {
       hostUri = nodeUri.endpoint();
@@ -803,24 +801,24 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
   }
 
   /** @override */
-  authenticate(hostUri: AnyUri, credentials: AnyValue): void;
+  authenticate(hostUri: UriLike, credentials: ValueLike): void;
   /** @override */
-  authenticate(credentials: AnyValue): void;
-  authenticate(hostUri: AnyUri | AnyValue, credentials?: AnyValue): void {
+  authenticate(credentials: ValueLike): void;
+  authenticate(hostUri: UriLike | ValueLike, credentials?: ValueLike): void {
     if (credentials === void 0) {
-      credentials = Value.fromAny(hostUri as AnyValue);
+      credentials = Value.fromLike(hostUri as ValueLike);
       hostUri = this.hostUri.getValue();
     } else {
-      credentials = Value.fromAny(credentials);
-      hostUri = Uri.fromAny(hostUri as AnyUri);
+      credentials = Value.fromLike(credentials);
+      hostUri = Uri.fromLike(hostUri as UriLike);
     }
     const warpRef = this.warpRef.value;
     warpRef.authenticate(hostUri, credentials);
   }
 
   /** @override */
-  hostRef(hostUri: AnyUri): WarpRef {
-    hostUri = Uri.fromAny(hostUri);
+  hostRef(hostUri: UriLike): WarpRef {
+    hostUri = Uri.fromLike(hostUri);
     const childRef = new Model();
     childRef.hostUri.setValue(hostUri);
     this.appendChild(childRef);
@@ -828,12 +826,12 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
   }
 
   /** @override */
-  nodeRef(hostUri: AnyUri, nodeUri: AnyUri): WarpRef;
+  nodeRef(hostUri: UriLike, nodeUri: UriLike): WarpRef;
   /** @override */
-  nodeRef(nodeUri: AnyUri): WarpRef;
-  nodeRef(hostUri: AnyUri | undefined, nodeUri?: AnyUri): WarpRef {
+  nodeRef(nodeUri: UriLike): WarpRef;
+  nodeRef(hostUri: UriLike | undefined, nodeUri?: UriLike): WarpRef {
     if (nodeUri === void 0) {
-      nodeUri = Uri.fromAny(hostUri as AnyUri);
+      nodeUri = Uri.fromLike(hostUri as UriLike);
       hostUri = nodeUri.endpoint();
       if (hostUri.isDefined()) {
         nodeUri = hostUri.unresolve(nodeUri);
@@ -841,8 +839,8 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
         hostUri = void 0;
       }
     } else {
-      nodeUri = Uri.fromAny(nodeUri);
-      hostUri = Uri.fromAny(hostUri as AnyUri);
+      nodeUri = Uri.fromLike(nodeUri);
+      hostUri = Uri.fromLike(hostUri as UriLike);
     }
     const childRef = new Model();
     if (hostUri !== void 0) {
@@ -856,19 +854,19 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
   }
 
   /** @override */
-  laneRef(hostUri: AnyUri, nodeUri: AnyUri, laneUri: AnyUri): WarpRef;
+  laneRef(hostUri: UriLike, nodeUri: UriLike, laneUri: UriLike): WarpRef;
   /** @override */
-  laneRef(nodeUri: AnyUri, laneUri: AnyUri): WarpRef;
+  laneRef(nodeUri: UriLike, laneUri: UriLike): WarpRef;
   /** @override */
-  laneRef(laneUri: AnyUri): WarpRef;
-  laneRef(hostUri: AnyUri | undefined, nodeUri?: AnyUri, laneUri?: AnyUri): WarpRef {
+  laneRef(laneUri: UriLike): WarpRef;
+  laneRef(hostUri: UriLike | undefined, nodeUri?: UriLike, laneUri?: UriLike): WarpRef {
     if (nodeUri === void 0) {
-      laneUri = Uri.fromAny(hostUri as AnyUri);
+      laneUri = Uri.fromLike(hostUri as UriLike);
       nodeUri = void 0;
       hostUri = void 0;
     } else if (laneUri === void 0) {
-      laneUri = Uri.fromAny(nodeUri);
-      nodeUri = Uri.fromAny(hostUri as AnyUri);
+      laneUri = Uri.fromLike(nodeUri);
+      nodeUri = Uri.fromLike(hostUri as UriLike);
       hostUri = nodeUri.endpoint();
       if (hostUri.isDefined()) {
         nodeUri = hostUri.unresolve(nodeUri);
@@ -876,9 +874,9 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
         hostUri = void 0;
       }
     } else {
-      laneUri = Uri.fromAny(laneUri);
-      nodeUri = Uri.fromAny(nodeUri);
-      hostUri = Uri.fromAny(hostUri as AnyUri);
+      laneUri = Uri.fromLike(laneUri);
+      nodeUri = Uri.fromLike(nodeUri);
+      hostUri = Uri.fromLike(hostUri as UriLike);
     }
     const childRef = new Model();
     if (hostUri !== void 0) {
@@ -1156,7 +1154,7 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
     return FastenerContext.tryFastener(this, fastenerName);
   }
 
-  getFastener<F extends Fastener>(fastenerName: PropertyKey, fastenerType: Proto<F>, contextType?: Proto<unknown> | null): F | null {
+  getFastener<F extends Fastener>(fastenerName: PropertyKey, fastenerType?: Proto<F>, contextType?: Proto<any> | null): F | null {
     if (contextType !== void 0 && contextType !== null && !(this instanceof contextType)) {
       return null;
     }
@@ -1168,7 +1166,7 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
   }
 
   /** @override */
-  getParentFastener<F extends Fastener>(fastenerName: string, fastenerType: Proto<F>, contextType?: Proto<unknown> | null): F | null {
+  getParentFastener<F extends Fastener>(fastenerName: string, fastenerType?: Proto<F>, contextType?: Proto<any> | null): F | null {
     let parent = this.model;
     if (parent === null) {
       return null;
@@ -1367,10 +1365,25 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
   }
 
   /** @internal */
-  readonly decoherent: ReadonlyArray<Fastener> | null;
+  readonly coherentTime: number;
 
   /** @internal */
+  readonly decoherent: readonly Fastener[] | null;
+
+  /** @internal */
+  readonly recohering: readonly Fastener[] | null;
+
+  /** @override */
   decohereFastener(fastener: Fastener): void {
+    const recohering = this.recohering as Fastener[] | null;
+    if (recohering !== null && fastener.coherentTime !== this.coherentTime) {
+      recohering.push(fastener);
+      return;
+    }
+    this.enqueueFastener(fastener);
+  }
+
+  protected enqueueFastener(fastener: Fastener): void {
     let decoherent = this.decoherent as Fastener[] | null;
     if (decoherent === null) {
       decoherent = [];
@@ -1387,51 +1400,55 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
   /** @internal */
   recohereFasteners(t?: number): void {
     const decoherent = this.decoherent;
-    if (decoherent === null) {
-      return;
-    }
-    const decoherentCount = decoherent.length;
-    if (decoherentCount === 0) {
+    if (decoherent === null || decoherent.length === 0) {
       return;
     } else if (t === void 0) {
       t = performance.now();
     }
+    (this as Mutable<this>).coherentTime = t;
     (this as Mutable<this>).decoherent = null;
-    for (let i = 0; i < decoherentCount; i += 1) {
-      const fastener = decoherent[i]!;
-      if (!(fastener instanceof WarpDownlink)) {
-        fastener.recohere(t);
-      } else {
-        this.decohereFastener(fastener);
+    (this as Mutable<this>).recohering = decoherent;
+    try {
+      for (let i = 0; i < decoherent.length; i += 1) {
+        const fastener = decoherent[i]!;
+        if (!(fastener instanceof WarpDownlink)) {
+          fastener.recohere(t);
+        } else {
+          this.enqueueFastener(fastener);
+        }
       }
+    } finally {
+      (this as Mutable<this>).recohering = null;
     }
   }
 
   /** @internal */
   recohereDownlinks(t: number): void {
     const decoherent = this.decoherent;
-    if (decoherent === null) {
-      return;
-    }
-    const decoherentCount = decoherent.length;
-    if (decoherentCount === 0) {
+    if (decoherent === null || decoherent.length === 0) {
       return;
     }
     let coherentDownlinkProps = false;
+    (this as Mutable<this>).coherentTime = t;
     (this as Mutable<this>).decoherent = null;
-    for (let i = 0; i < decoherentCount; i += 1) {
-      const fastener = decoherent[i]!;
-      if (fastener instanceof WarpDownlink) {
-        if (!coherentDownlinkProps) {
-          coherentDownlinkProps = true;
-          this.hostUri.recohere(t);
-          this.nodeUri.recohere(t);
-          this.laneUri.recohere(t);
+    (this as Mutable<this>).recohering = decoherent;
+    try {
+      for (let i = 0; i < decoherent.length; i += 1) {
+        const fastener = decoherent[i]!;
+        if (fastener instanceof WarpDownlink) {
+          if (!coherentDownlinkProps) {
+            coherentDownlinkProps = true;
+            this.hostUri.recohere(t);
+            this.nodeUri.recohere(t);
+            this.laneUri.recohere(t);
+          }
+          fastener.recohere(t);
+        } else {
+          this.enqueueFastener(fastener);
         }
-        fastener.recohere(t);
-      } else {
-        this.decohereFastener(fastener);
       }
+    } finally {
+      (this as Mutable<this>).recohering = null;
     }
   }
 
@@ -1668,14 +1685,14 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
     return new this();
   }
 
-  static fromAny<S extends Class<Instance<S, Trait>>>(this: S, value: AnyTrait<InstanceType<S>>): InstanceType<S> {
+  static fromLike<S extends Class<Instance<S, Trait>>>(this: S, value: InstanceType<S> | LikeType<InstanceType<S>>): InstanceType<S> {
     if (value === void 0 || value === null) {
-      return value;
+      return value as InstanceType<S>;
     } else if (value instanceof Trait) {
       if (!((value as Trait) instanceof this)) {
         throw new TypeError(value + " not an instance of " + this);
       }
-      return value;
+      return value as InstanceType<S>;
     } else if (Creatable[Symbol.hasInstance](value)) {
       return (value as Creatable<InstanceType<S>>).create();
     }

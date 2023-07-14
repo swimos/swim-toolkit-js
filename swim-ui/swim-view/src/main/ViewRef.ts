@@ -14,122 +14,65 @@
 
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
+import type {LikeType} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {FastenerContext} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
 import {Fastener} from "@swim/component";
-import type {AnyConstraintExpression} from "@swim/constraint";
+import type {ConstraintExpressionLike} from "@swim/constraint";
 import {ConstraintExpression} from "@swim/constraint";
 import type {ConstraintVariable} from "@swim/constraint";
 import {ConstraintProperty} from "@swim/constraint";
 import type {ConstraintRelation} from "@swim/constraint";
-import type {AnyConstraintStrength} from "@swim/constraint";
+import type {ConstraintStrengthLike} from "@swim/constraint";
 import {ConstraintStrength} from "@swim/constraint";
 import {Constraint} from "@swim/constraint";
-import type {ConstraintScope} from "@swim/constraint";
-import type {ConstraintContext} from "@swim/constraint";
-import type {AnyView} from "./View";
+import {ConstraintScope} from "@swim/constraint";
+import {ConstraintContext} from "@swim/constraint";
 import type {View} from "./View";
 import type {ViewRelationDescriptor} from "./ViewRelation";
 import type {ViewRelationClass} from "./ViewRelation";
 import {ViewRelation} from "./ViewRelation";
 
 /** @public */
-export interface ViewRefDescriptor<V extends View = View> extends ViewRelationDescriptor<V> {
+export interface ViewRefDescriptor<R, V extends View> extends ViewRelationDescriptor<R, V> {
   extends?: Proto<ViewRef<any, any>> | boolean | null;
   viewKey?: string | boolean;
 }
 
 /** @public */
 export interface ViewRefClass<F extends ViewRef<any, any> = ViewRef<any, any>> extends ViewRelationClass<F> {
-  tryView<O, K extends keyof O, F extends O[K] = O[K]>(owner: O, fastenerName: K): F extends ViewRef<any, infer V> ? V | null : null;
+  tryView<R, K extends keyof R, F extends R[K] = R[K]>(owner: R, fastenerName: K): F extends {readonly view: infer V | null} ? V | null : null;
 }
 
 /** @public */
-export interface ViewRef<O = unknown, V extends View = View> extends ViewRelation<O, V>, ConstraintScope, ConstraintContext {
-  (): V | null;
-  (view: AnyView<V> | null, target?: View | null, key?: string): O;
-
+export interface ViewRef<R = any, V extends View = View> extends ViewRelation<R, V>, ConstraintScope, ConstraintContext {
   /** @override */
-  get descriptorType(): Proto<ViewRefDescriptor<V>>;
+  get descriptorType(): Proto<ViewRefDescriptor<R, V>>;
 
   /** @override */
   get fastenerType(): Proto<ViewRef<any, any>>;
 
-  /** @internal @override */
-  setDerived(derived: boolean, inlet: ViewRef<unknown, V>): void;
-
-  /** @protected @override */
-  willDerive(inlet: ViewRef<unknown, V>): void;
-
-  /** @protected @override */
-  onDerive(inlet: ViewRef<unknown, V>): void;
-
-  /** @protected @override */
-  didDerive(inlet: ViewRef<unknown, V>): void;
-
-  /** @protected @override */
-  willUnderive(inlet: ViewRef<unknown, V>): void;
-
-  /** @protected @override */
-  onUnderive(inlet: ViewRef<unknown, V>): void;
-
-  /** @protected @override */
-  didUnderive(inlet: ViewRef<unknown, V>): void;
-
   /** @override */
-  get parent(): ViewRef<unknown, V> | null;
-
-  /** @override */
-  readonly inlet: ViewRef<unknown, V> | null;
-
-  /** @override */
-  bindInlet(inlet: ViewRef<unknown, V>): void;
-
-  /** @protected @override */
-  willBindInlet(inlet: ViewRef<unknown, V>): void;
-
-  /** @protected @override */
-  onBindInlet(inlet: ViewRef<unknown, V>): void;
-
-  /** @protected @override */
-  didBindInlet(inlet: ViewRef<unknown, V>): void;
-
-  /** @protected @override */
-  willUnbindInlet(inlet: ViewRef<unknown, V>): void;
-
-  /** @protected @override */
-  onUnbindInlet(inlet: ViewRef<unknown, V>): void;
-
-  /** @protected @override */
-  didUnbindInlet(inlet: ViewRef<unknown, V>): void;
-
-  /** @internal @override */
-  readonly outlets: ReadonlyArray<ViewRef<unknown, V>> | null;
-
-  /** @internal @override */
-  attachOutlet(outlet: ViewRef<unknown, V>): void;
-
-  /** @internal @override */
-  detachOutlet(outlet: ViewRef<unknown, V>): void;
+  get parent(): ViewRef<any, V> | null;
 
   get inletView(): V | null;
 
   getInletView(): V;
 
-  /** @internal */
-  readonly viewKey?: string; // optional prototype property
+  get viewKey(): string | undefined;
 
   readonly view: V | null;
 
   getView(): V;
 
-  setView(view: AnyView<V> | null, target?: View | null, key?: string): V | null;
+  setView(view: V | LikeType<V> | null, target?: View | null, key?: string): V | null;
 
-  attachView(view?: AnyView<V>, target?: View | null): V;
+  attachView(view?: V | LikeType<V>, target?: View | null): V;
 
   detachView(): V | null;
 
-  insertView(parent?: View | null, view?: AnyView<V>, target?: View | null, key?: string): V;
+  insertView(parent?: View | null, view?: V | LikeType<V>, target?: View | null, key?: string): V;
 
   removeView(): V | null;
 
@@ -144,16 +87,10 @@ export interface ViewRef<O = unknown, V extends View = View> extends ViewRelatio
   /** @override */
   detectView(view: View): V | null;
 
-  /** @internal @protected */
-  decohereOutlets(): void;
-
-  /** @internal @protected */
-  decohereOutlet(outlet: ViewRef<unknown, V>): void;
-
   /** @override */
   recohere(t: number): void;
 
-  constraint(lhs: AnyConstraintExpression, relation: ConstraintRelation, rhs?: AnyConstraintExpression, strength?: AnyConstraintStrength): Constraint;
+  constraint(lhs: ConstraintExpressionLike, relation: ConstraintRelation, rhs?: ConstraintExpressionLike, strength?: ConstraintStrengthLike): Constraint;
 
   /** @internal */
   readonly constraints: ReadonlySet<Constraint> | null;
@@ -174,7 +111,7 @@ export interface ViewRef<O = unknown, V extends View = View> extends ViewRelatio
   deactivateConstraint(constraint: Constraint): void;
 
   /** @override */
-  constraintVariable(name: string, value?: number, strength?: AnyConstraintStrength): ConstraintProperty<unknown, number>;
+  constraintVariable(name: string, value?: number, strength?: ConstraintStrengthLike): ConstraintProperty<any, number>;
 
   /** @internal */
   readonly constraintVariables: ReadonlySet<ConstraintVariable> | null;
@@ -211,34 +148,17 @@ export interface ViewRef<O = unknown, V extends View = View> extends ViewRelatio
 }
 
 /** @public */
-export const ViewRef = (function (_super: typeof ViewRelation) {
-  const ViewRef = _super.extend("ViewRef", {}) as ViewRefClass;
+export const ViewRef = (<R, V extends View, F extends ViewRef<any, any>>() => ViewRelation.extend<ViewRef<R, V>, ViewRefClass<F>>("ViewRef", {
+  get fastenerType(): Proto<ViewRef<any, any>> {
+    return ViewRef;
+  },
 
-  Object.defineProperty(ViewRef.prototype, "fastenerType", {
-    value: ViewRef,
-    enumerable: true,
-    configurable: true,
-  });
+  get inletView(): V | null {
+    const inlet = this.inlet;
+    return inlet instanceof ViewRef ? inlet.view : null;
+  },
 
-  ViewRef.prototype.onDerive = function (this: ViewRef, inlet: ViewRef): void {
-    const inletView = inlet.view;
-    if (inletView !== null) {
-      this.attachView(inletView);
-    } else {
-      this.detachView();
-    }
-  };
-
-  Object.defineProperty(ViewRef.prototype, "inletView", {
-    get: function <V extends View>(this: ViewRef<unknown, V>): V | null {
-      const inlet = this.inlet;
-      return inlet !== null ? inlet.view : null;
-    },
-    enumerable: true,
-    configurable: true,
-  });
-
-  ViewRef.prototype.getInletView = function <V extends View>(this: ViewRef<unknown, V>): V {
+  getInletView(): V {
     const inletView = this.inletView;
     if (inletView === void 0 || inletView === null) {
       let message = inletView + " ";
@@ -250,9 +170,11 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
       throw new TypeError(message);
     }
     return inletView;
-  };
+  },
 
-  ViewRef.prototype.getView = function <V extends View>(this: ViewRef<unknown, V>): V {
+  viewKey: void 0,
+
+  getView(): V {
     const view = this.view;
     if (view === null) {
       let message = view + " ";
@@ -264,19 +186,18 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
       throw new TypeError(message);
     }
     return view;
-  };
+  },
 
-  ViewRef.prototype.setView = function <V extends View>(this: ViewRef<unknown, V>, newView: AnyView<V> | null, target?: View | null, key?: string): V | null {
+  setView(newView: V | LikeType<V> | null, target?: View | null, key?: string): V | null {
     if (newView !== null) {
-      newView = this.fromAny(newView);
-    }
-    if (target === void 0) {
-      target = null;
+      newView = this.fromLike(newView);
     }
     let oldView = this.view;
     if (oldView === newView) {
       this.setCoherent(true);
       return oldView;
+    } else if (target === void 0) {
+      target = null;
     }
     let parent: View | null;
     if (this.binds && (parent = this.parentView, parent !== null)) {
@@ -315,59 +236,60 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
     this.setCoherent(true);
     this.decohereOutlets();
     return oldView;
-  };
+  },
 
-  ViewRef.prototype.attachView = function <V extends View>(this: ViewRef<unknown, V>, newView?: AnyView<V>, target?: View | null): V {
+  attachView(newView?: V | LikeType<V>, target?: View | null): V {
     const oldView = this.view;
     if (newView !== void 0 && newView !== null) {
-      newView = this.fromAny(newView);
+      newView = this.fromLike(newView);
     } else if (oldView === null) {
       newView = this.createView();
     } else {
       newView = oldView;
     }
-    if (oldView !== newView) {
-      if (target === void 0) {
-        target = null;
-      }
-      if (oldView !== null) {
-        this.deactivateLayout();
-        (this as Mutable<typeof this>).view = null;
-        this.willDetachView(oldView);
-        this.onDetachView(oldView);
-        this.deinitView(oldView);
-        this.didDetachView(oldView);
-      }
-      (this as Mutable<typeof this>).view = newView;
-      this.willAttachView(newView, target);
-      this.onAttachView(newView, target);
-      this.initView(newView);
-      this.didAttachView(newView, target);
-      this.setCoherent(true);
-      this.decohereOutlets();
+    if (target === void 0) {
+      target = null;
     }
-    return newView;
-  };
-
-  ViewRef.prototype.detachView = function <V extends View>(this: ViewRef<unknown, V>): V | null {
-    const oldView = this.view;
-    if (oldView !== null) {
+    if (oldView === newView) {
+      return newView;
+    } else if (oldView !== null) {
       this.deactivateLayout();
       (this as Mutable<typeof this>).view = null;
       this.willDetachView(oldView);
       this.onDetachView(oldView);
       this.deinitView(oldView);
       this.didDetachView(oldView);
-      this.setCoherent(true);
-      this.decohereOutlets();
     }
-    return oldView;
-  };
+    (this as Mutable<typeof this>).view = newView;
+    this.willAttachView(newView, target);
+    this.onAttachView(newView, target);
+    this.initView(newView);
+    this.didAttachView(newView, target);
+    this.setCoherent(true);
+    this.decohereOutlets();
+    return newView;
+  },
 
-  ViewRef.prototype.insertView = function <V extends View>(this: ViewRef<unknown, V>, parent?: View | null, newView?: AnyView<V>, target?: View | null, key?: string): V {
+  detachView(): V | null {
+    const oldView = this.view;
+    if (oldView === null) {
+      return null;
+    }
+    this.deactivateLayout();
+    (this as Mutable<typeof this>).view = null;
+    this.willDetachView(oldView);
+    this.onDetachView(oldView);
+    this.deinitView(oldView);
+    this.didDetachView(oldView);
+    this.setCoherent(true);
+    this.decohereOutlets();
+    return oldView;
+  },
+
+  insertView(parent?: View | null, newView?: V | LikeType<V>, target?: View | null, key?: string): V {
     let oldView = this.view;
     if (newView !== void 0 && newView !== null) {
-      newView = this.fromAny(newView);
+      newView = this.fromLike(newView);
     } else if (oldView === null) {
       newView = this.createView();
     } else {
@@ -376,61 +298,64 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
     if (parent === void 0) {
       parent = null;
     }
-    if (this.binds || oldView !== newView || newView.parent === null || parent !== null || key !== void 0) {
-      if (parent === null) {
-        parent = this.parentView;
-      }
-      if (target === void 0) {
-        target = null;
-      }
-      if (key === void 0) {
-        key = this.viewKey;
-      }
-      if (parent !== null && (newView.parent !== parent || newView.key !== key)) {
-        this.insertChild(parent, newView, target, key);
-      }
-      oldView = this.view;
-      if (oldView !== newView) {
-        if (oldView !== null) {
-          this.deactivateLayout();
-          (this as Mutable<typeof this>).view = null;
-          this.willDetachView(oldView);
-          this.onDetachView(oldView);
-          this.deinitView(oldView);
-          this.didDetachView(oldView);
-          if (this.binds && parent !== null && oldView.parent === parent) {
-            oldView.remove();
-          }
-        }
-        (this as Mutable<typeof this>).view = newView;
-        this.willAttachView(newView, target);
-        this.onAttachView(newView, target);
-        this.initView(newView);
-        this.didAttachView(newView, target);
-        this.setCoherent(true);
-        this.decohereOutlets();
+    if (!this.binds && oldView === newView && newView.parent !== null && parent === null && key === void 0) {
+      return newView;
+    }
+    if (parent === null) {
+      parent = this.parentView;
+    }
+    if (target === void 0) {
+      target = null;
+    }
+    if (key === void 0) {
+      key = this.viewKey;
+    }
+    if (parent !== null && (newView.parent !== parent || newView.key !== key)) {
+      this.insertChild(parent, newView, target, key);
+    }
+    oldView = this.view;
+    if (oldView === newView) {
+      return newView;
+    } else if (oldView !== null) {
+      this.deactivateLayout();
+      (this as Mutable<typeof this>).view = null;
+      this.willDetachView(oldView);
+      this.onDetachView(oldView);
+      this.deinitView(oldView);
+      this.didDetachView(oldView);
+      if (this.binds && parent !== null && oldView.parent === parent) {
+        oldView.remove();
       }
     }
+    (this as Mutable<typeof this>).view = newView;
+    this.willAttachView(newView, target);
+    this.onAttachView(newView, target);
+    this.initView(newView);
+    this.didAttachView(newView, target);
+    this.setCoherent(true);
+    this.decohereOutlets();
     return newView;
-  };
+  },
 
-  ViewRef.prototype.removeView = function <V extends View>(this: ViewRef<unknown, V>): V | null {
+  removeView(): V | null {
     const view = this.view;
-    if (view !== null) {
-      view.remove();
+    if (view === null) {
+      return null;
     }
+    view.remove();
     return view;
-  };
+  },
 
-  ViewRef.prototype.deleteView = function <V extends View>(this: ViewRef<unknown, V>): V | null {
+  deleteView(): V | null {
     const view = this.detachView();
-    if (view !== null) {
-      view.remove();
+    if (view === null) {
+      return null;
     }
+    view.remove();
     return view;
-  };
+  },
 
-  ViewRef.prototype.bindView = function <V extends View>(this: ViewRef<unknown, V>, view: View, target: View | null): void {
+  bindView(view: View, target: View | null): void {
     if (!this.binds || this.view !== null) {
       return;
     }
@@ -445,9 +370,9 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
     this.didAttachView(newView, target);
     this.setCoherent(true);
     this.decohereOutlets();
-  };
+  },
 
-  ViewRef.prototype.unbindView = function <V extends View>(this: ViewRef<unknown, V>, view: View): void {
+  unbindView(view: View): void {
     if (!this.binds) {
       return;
     }
@@ -463,60 +388,52 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
     this.didDetachView(oldView);
     this.setCoherent(true);
     this.decohereOutlets();
-  };
+  },
 
-  ViewRef.prototype.detectView = function <V extends View>(this: ViewRef<unknown, V>, view: View): V | null {
-    const viewKey = this.viewKey;
-    if (viewKey !== void 0 && viewKey === view.key) {
+  detectView(view: View): V | null {
+    const key = this.viewKey;
+    if (key !== void 0 && key === view.key) {
       return view as V;
     }
     return null;
-  };
+  },
 
-  ViewRef.prototype.decohereOutlets = function (this: ViewRef): void {
-    const outlets = this.outlets;
-    for (let i = 0, n = outlets !== null ? outlets.length : 0; i < n; i += 1) {
-      this.decohereOutlet(outlets![i]!);
+  recohere(t: number): void {
+    this.setCoherentTime(t);
+    const inlets = this.inlet;
+    if (inlets instanceof ViewRef) {
+      this.setDerived((this.flags & Affinity.Mask) <= Math.min(inlets.flags & Affinity.Mask, Affinity.Intrinsic));
+      if ((this.flags & Fastener.DerivedFlag) !== 0) {
+        this.setView(inlets.view);
+      }
+    } else {
+      this.setDerived(false);
     }
-  };
+  },
 
-  ViewRef.prototype.decohereOutlet = function (this: ViewRef, outlet: ViewRef): void {
-    if ((outlet.flags & Fastener.DerivedFlag) === 0 && Math.min(this.flags & Affinity.Mask, Affinity.Intrinsic) >= (outlet.flags & Affinity.Mask)) {
-      outlet.setDerived(true, this);
-    } else if ((outlet.flags & Fastener.DerivedFlag) !== 0 && (outlet.flags & Fastener.DecoherentFlag) === 0) {
-      outlet.setCoherent(false);
-      outlet.decohere();
+  constraint(lhs: ConstraintExpressionLike, relation: ConstraintRelation, rhs?: ConstraintExpressionLike, strength?: ConstraintStrengthLike): Constraint {
+    if (!ConstraintScope[Symbol.hasInstance](this.owner)) {
+      throw new Error("no constraint scope");
     }
-  };
-
-  ViewRef.prototype.recohere = function (this: ViewRef, t: number): void {
-    let inlet: ViewRef | null;
-    if ((this.flags & Fastener.DerivedFlag) === 0 || (inlet = this.inlet) === null) {
-      return;
-    }
-    this.setView(inlet.view);
-  };
-
-  ViewRef.prototype.constraint = function (this: ViewRef<ConstraintScope & ConstraintContext, View>, lhs: AnyConstraintExpression, relation: ConstraintRelation, rhs?: AnyConstraintExpression, strength?: AnyConstraintStrength): Constraint {
-    lhs = ConstraintExpression.fromAny(lhs);
-    rhs = ConstraintExpression.fromAny(rhs);
+    lhs = ConstraintExpression.fromLike(lhs);
+    rhs = ConstraintExpression.fromLike(rhs);
     const expression = rhs !== void 0 ? lhs.minus(rhs) : lhs;
     if (strength === void 0) {
       strength = ConstraintStrength.Required;
     } else {
-      strength = ConstraintStrength.fromAny(strength);
+      strength = ConstraintStrength.fromLike(strength);
     }
     const constraint = new Constraint(this.owner, expression, relation, strength);
     this.addConstraint(constraint);
     return constraint;
-  };
+  },
 
-  ViewRef.prototype.hasConstraint = function (this: ViewRef, constraint: Constraint): boolean {
+  hasConstraint(constraint: Constraint): boolean {
     const constraints = this.constraints;
     return constraints !== null && constraints.has(constraint);
-  };
+  },
 
-  ViewRef.prototype.addConstraint = function (this: ViewRef, constraint: Constraint): void {
+  addConstraint(constraint: Constraint): void {
     let constraints = this.constraints as Set<Constraint> | null;
     if (constraints === null) {
       constraints = new Set<Constraint>();
@@ -526,31 +443,37 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
     }
     constraints.add(constraint);
     this.activateConstraint(constraint);
-  };
+  },
 
-  ViewRef.prototype.removeConstraint = function (this: ViewRef, constraint: Constraint): void {
+  removeConstraint(constraint: Constraint): void {
     const constraints = this.constraints as Set<Constraint> | null;
     if (constraints === null || !constraints.has(constraint)) {
       return;
     }
     this.deactivateConstraint(constraint);
     constraints.delete(constraint);
-  };
+  },
 
-  ViewRef.prototype.activateConstraint = function (this: ViewRef<ConstraintContext, View>, constraint: Constraint): void {
+  activateConstraint(constraint: Constraint): void {
+    if (!ConstraintContext[Symbol.hasInstance](this.owner)) {
+      throw new Error("no constraint context");
+    }
     this.owner.activateConstraint(constraint);
-  };
+  },
 
-  ViewRef.prototype.deactivateConstraint = function (this: ViewRef<ConstraintContext, View>, constraint: Constraint): void {
+  deactivateConstraint(constraint: Constraint): void {
+    if (!ConstraintContext[Symbol.hasInstance](this.owner)) {
+      throw new Error("no constraint context");
+    }
     this.owner.deactivateConstraint(constraint);
-  };
+  },
 
-  ViewRef.prototype.constraintVariable = function (this: ViewRef, name: string, value?: number, strength?: AnyConstraintStrength): ConstraintProperty<unknown, number> {
+  constraintVariable(name: string, value?: number, strength?: ConstraintStrengthLike): ConstraintProperty<unknown, number> {
     if (value === void 0) {
       value = 0;
     }
     if (strength !== void 0) {
-      strength = ConstraintStrength.fromAny(strength);
+      strength = ConstraintStrength.fromLike(strength);
     } else {
       strength = ConstraintStrength.Strong;
     }
@@ -566,14 +489,14 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
     property.setStrength(strength);
     property.mount();
     return property;
-  };
+  },
 
-  ViewRef.prototype.hasConstraintVariable = function (this: ViewRef, constraintVariable: ConstraintVariable): boolean {
+  hasConstraintVariable(constraintVariable: ConstraintVariable): boolean {
     const constraintVariables = this.constraintVariables;
     return constraintVariables !== null && constraintVariables.has(constraintVariable);
-  };
+  },
 
-  ViewRef.prototype.addConstraintVariable = function (this: ViewRef, constraintVariable: ConstraintVariable): void {
+  addConstraintVariable(constraintVariable: ConstraintVariable): void {
     let constraintVariables = this.constraintVariables as Set<ConstraintVariable> | null;
     if (constraintVariables === null) {
       constraintVariables = new Set<ConstraintVariable>();
@@ -583,30 +506,42 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
     }
     constraintVariables.add(constraintVariable);
     this.activateConstraintVariable(constraintVariable);
-  };
+  },
 
-  ViewRef.prototype.removeConstraintVariable = function (this: ViewRef, constraintVariable: ConstraintVariable): void {
+  removeConstraintVariable(constraintVariable: ConstraintVariable): void {
     const constraintVariables = this.constraintVariables as Set<ConstraintVariable> | null;
     if (constraintVariables === null || !constraintVariables.has(constraintVariable)) {
       return;
     }
     this.deactivateConstraintVariable(constraintVariable);
     constraintVariables.delete(constraintVariable);
-  };
+  },
 
-  ViewRef.prototype.activateConstraintVariable = function (this: ViewRef<ConstraintContext, View>, constraintVariable: ConstraintVariable): void {
+  activateConstraintVariable(constraintVariable: ConstraintVariable): void {
+    if (!ConstraintContext[Symbol.hasInstance](this.owner)) {
+      throw new Error("no constraint context");
+    }
     this.owner.activateConstraintVariable(constraintVariable);
-  };
+  },
 
-  ViewRef.prototype.deactivateConstraintVariable = function (this: ViewRef<ConstraintContext, View>, constraintVariable: ConstraintVariable): void {
+  deactivateConstraintVariable(constraintVariable: ConstraintVariable): void {
+    if (!ConstraintContext[Symbol.hasInstance](this.owner)) {
+      throw new Error("no constraint context");
+    }
     this.owner.deactivateConstraintVariable(constraintVariable);
-  };
+  },
 
-  ViewRef.prototype.setConstraintVariable = function (this: ViewRef<ConstraintContext, View>, constraintVariable: ConstraintVariable, state: number): void {
+  setConstraintVariable(constraintVariable: ConstraintVariable, state: number): void {
+    if (!ConstraintContext[Symbol.hasInstance](this.owner)) {
+      throw new Error("no constraint context");
+    }
     this.owner.setConstraintVariable(constraintVariable, state);
-  };
+  },
 
-  ViewRef.prototype.activateLayout = function (this: ViewRef<ConstraintContext, View>): void {
+  activateLayout(): void {
+    if (!ConstraintContext[Symbol.hasInstance](this.owner)) {
+      return;
+    }
     const constraintVariables = this.constraintVariables;
     if (constraintVariables !== null) {
       for (const constraintVariable of constraintVariables) {
@@ -619,9 +554,12 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
         this.owner.activateConstraint(constraint);
       }
     }
-  };
+  },
 
-  ViewRef.prototype.deactivateLayout = function (this: ViewRef<ConstraintContext, View>): void {
+  deactivateLayout(): void {
+    if (!ConstraintContext[Symbol.hasInstance](this.owner)) {
+      return;
+    }
     const constraints = this.constraints;
     if (constraints !== null) {
       for (const constraint of constraints) {
@@ -634,71 +572,48 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
         this.owner.deactivateConstraintVariable(constraintVariable);
       }
     }
-  };
+  },
 
-  ViewRef.prototype.onMount = function (this: ViewRef): void {
-    _super.prototype.onMount.call(this);
+  onMount(): void {
+    super.onMount();
     this.activateLayout();
-  };
+  },
 
-  ViewRef.prototype.onUnmount = function (this: ViewRef): void {
+  onUnmount(): void {
     this.deactivateLayout();
-    _super.prototype.onUnmount.call(this);
-  };
-
-  ViewRef.tryView = function <O, K extends keyof O, F extends O[K]>(owner: O, fastenerName: K): F extends ViewRef<any, infer V> ? V | null : null {
+    super.onUnmount();
+  },
+},
+{
+  tryView<R, K extends keyof R, F extends R[K]>(owner: R, fastenerName: K): F extends {readonly view: infer V | null} ? V | null : null {
     const viewRef = FastenerContext.tryFastener(owner, fastenerName) as ViewRef | null;
     if (viewRef !== null) {
       return viewRef.view as any;
     }
     return null as any;
-  };
+  },
 
-  ViewRef.construct = function <F extends ViewRef<any, any>>(fastener: F | null, owner: F extends ViewRef<infer O, any> ? O : never): F {
-    if (fastener === null) {
-      fastener = function (view?: F extends ViewRef<any, infer V> ? AnyView<V> : never, target?: View | null, key?: string): F extends ViewRef<infer O, infer V> ? V | O | null : never {
-        if (view === void 0) {
-          return fastener!.view;
-        } else {
-          fastener!.setView(view, target, key);
-          return fastener!.owner;
-        }
-      } as F;
-      Object.defineProperty(fastener, "name", {
-        value: this.prototype.name,
-        enumerable: true,
-        configurable: true,
-      });
-      Object.setPrototypeOf(fastener, this.prototype);
-    }
-    fastener = _super.construct.call(this, fastener, owner) as F;
+  construct(fastener: F | null, owner: F extends Fastener<infer R, any, any> ? R : never): F {
+    fastener = super.construct(fastener, owner) as F;
     (fastener as Mutable<typeof fastener>).constraints = null;
     (fastener as Mutable<typeof fastener>).constraintVariables = null;
     (fastener as Mutable<typeof fastener>).view = null;
     return fastener;
-  };
+  },
 
-  ViewRef.refine = function (fastenerClass: ViewRefClass<any>): void {
-    _super.refine.call(this, fastenerClass);
+  refine(fastenerClass: FastenerClass<ViewRef<any, any>>): void {
+    super.refine(fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 
-    if (Object.prototype.hasOwnProperty.call(fastenerPrototype, "viewKey")) {
-      const viewKey = fastenerPrototype.viewKey as string | boolean | undefined;
-      if (viewKey === true) {
-        Object.defineProperty(fastenerPrototype, "viewKey", {
-          value: fastenerClass.name,
-          enumerable: true,
-          configurable: true,
-        });
-      } else if (viewKey === false) {
-        Object.defineProperty(fastenerPrototype, "viewKey", {
-          value: void 0,
-          enumerable: true,
-          configurable: true,
-        });
+    const viewKeyDescriptor = Object.getOwnPropertyDescriptor(fastenerPrototype, "viewKey");
+    if (viewKeyDescriptor !== void 0 && "value" in viewKeyDescriptor) {
+      if (viewKeyDescriptor.value === true) {
+        viewKeyDescriptor.value = fastenerClass.name;
+        Object.defineProperty(fastenerPrototype, "viewKey", viewKeyDescriptor);
+      } else if (viewKeyDescriptor.value === false) {
+        viewKeyDescriptor.value = void 0;
+        Object.defineProperty(fastenerPrototype, "viewKey", viewKeyDescriptor);
       }
     }
-  };
-
-  return ViewRef;
-})(ViewRelation);
+  },
+}))();

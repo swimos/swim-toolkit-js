@@ -14,6 +14,8 @@
 
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
+import type {FastenerClass} from "@swim/component";
+import type {Fastener} from "@swim/component";
 import {View} from "./View";
 import type {GestureInputType} from "./Gesture";
 import {GestureInput} from "./Gesture";
@@ -125,27 +127,18 @@ export class MomentumGestureInput extends PositionGestureInput {
 }
 
 /** @public */
-export interface MomentumGestureDescriptor<V extends View = View> extends PositionGestureDescriptor<V> {
+export interface MomentumGestureDescriptor<R, V extends View> extends PositionGestureDescriptor<R, V> {
   extends?: Proto<MomentumGesture<any, any>> | boolean | null;
-  hysteresis?: number;
-  acceleration?: number;
-  velocityMax?: number;
 }
 
 /** @public */
-export interface MomentumGestureClass<F extends MomentumGesture<any, any> = MomentumGesture<any, any>> extends PositionGestureClass<F> {
-  /** @internal */
-  readonly Hysteresis: number;
-  /** @internal */
-  readonly Acceleration: number;
-  /** @internal */
-  readonly VelocityMax: number;
+export interface MomentumGestureClass<G extends MomentumGesture<any, any> = MomentumGesture> extends PositionGestureClass<G> {
 }
 
 /** @public */
-export interface MomentumGesture<O = unknown, V extends View = View> extends PositionGesture<O, V> {
+export interface MomentumGesture<R = any, V extends View = View> extends PositionGesture<R, V> {
   /** @override */
-  get descriptorType(): Proto<MomentumGestureDescriptor<V>>;
+  get descriptorType(): Proto<MomentumGestureDescriptor<R, V>>;
 
   /** @internal @override */
   readonly inputs: {readonly [inputId: string]: MomentumGestureInput | undefined};
@@ -322,214 +315,201 @@ export interface MomentumGesture<O = unknown, V extends View = View> extends Pos
 }
 
 /** @public */
-export const MomentumGesture = (function (_super: typeof PositionGesture) {
-  const MomentumGesture = _super.extend("MomentumGesture", {
-    observes: true,
-  }) as MomentumGestureClass;
-
-  MomentumGesture.prototype.createInput = function (this: MomentumGesture, inputId: string, inputType: GestureInputType, isPrimary: boolean,
-                                                    x: number, y: number, t: number): MomentumGestureInput {
+export const MomentumGesture = (<R, V extends View, G extends MomentumGesture<any, any>>() => PositionGesture.extend<MomentumGesture<R, V>, MomentumGestureClass<G>>("MomentumGesture", {
+  createInput(inputId: string, inputType: GestureInputType, isPrimary: boolean,
+              x: number, y: number, t: number): MomentumGestureInput {
     return new MomentumGestureInput(inputId, inputType, isPrimary, x, y, t);
-  };
+  },
 
-  MomentumGesture.prototype.clearInput = function (this: MomentumGesture, input: MomentumGestureInput): void {
+  clearInput(input: MomentumGestureInput): void {
     if (!input.coasting) {
-      _super.prototype.clearInput.call(this, input);
+      super.clearInput(input);
     }
-  };
+  },
 
-  MomentumGesture.prototype.clearInputs = function (this: MomentumGesture): void {
-    _super.prototype.clearInputs.call(this);
+  clearInputs(): void {
+    super.clearInputs();
     (this as Mutable<typeof this>).coastCount = 0;
-  };
+  },
 
-  MomentumGesture.prototype.resetInput = function (this: MomentumGesture, input: MomentumGestureInput): void {
+  resetInput(input: MomentumGestureInput): void {
     if (input.coasting) {
       this.endCoast(input, null);
     }
-    _super.prototype.resetInput.call(this, input);
-  };
+    super.resetInput(input);
+  },
 
-  MomentumGesture.prototype.initHysteresis = function (this: MomentumGesture): number {
-    let hysteresis = (Object.getPrototypeOf(this) as MomentumGesture).hysteresis as number | undefined;
-    if (hysteresis === void 0) {
-      hysteresis = MomentumGesture.Hysteresis;
-    }
-    return hysteresis;
-  };
+  hysteresis: 67,
 
-  MomentumGesture.prototype.initAcceleration = function (this: MomentumGesture): number {
-    let acceleration = (Object.getPrototypeOf(this) as MomentumGesture).acceleration as number | undefined;
-    if (acceleration === void 0) {
-      acceleration = MomentumGesture.Acceleration;
-    }
-    return acceleration;
-  };
+  initHysteresis(): number {
+    return (Object.getPrototypeOf(this) as MomentumGesture).hysteresis;
+  },
 
-  MomentumGesture.prototype.initVelocityMax = function (this: MomentumGesture): number {
-    let velocityMax = (Object.getPrototypeOf(this) as MomentumGesture).velocityMax as number | undefined;
-    if (velocityMax === void 0) {
-      velocityMax = MomentumGesture.VelocityMax;
-    }
-    return velocityMax;
-  };
+  acceleration: 0.00175,
 
-  MomentumGesture.prototype.viewWillAnimate = function (this: MomentumGesture, view: View): void {
+  initAcceleration(): number {
+    return (Object.getPrototypeOf(this) as MomentumGesture).acceleration;
+  },
+
+  velocityMax: 1.75,
+
+  initVelocityMax(): number {
+    return (Object.getPrototypeOf(this) as MomentumGesture).velocityMax;
+  },
+
+  viewWillAnimate(view: View): void {
     this.doCoast(view.updateTime);
-  };
+  },
 
-  MomentumGesture.prototype.interrupt = function (this: MomentumGesture, event: Event | null): void {
+  interrupt(event: Event | null): void {
     const inputs = this.inputs;
     for (const inputId in inputs) {
       const input = inputs[inputId]!;
       this.endCoast(input, event);
     }
-  };
+  },
 
-  MomentumGesture.prototype.cancel = function (this: MomentumGesture, event: Event | null): void {
+  cancel(event: Event | null): void {
     const inputs = this.inputs;
     for (const inputId in inputs) {
       const input = inputs[inputId]!;
       this.endPress(input, event);
       this.endCoast(input, event);
     }
-  };
+  },
 
-  MomentumGesture.prototype.startInteracting = function (this: MomentumGesture): void {
+  startInteracting(): void {
     this.willStartInteracting();
     this.onStartInteracting();
     this.didStartInteracting();
-  };
+  },
 
-  MomentumGesture.prototype.willStartInteracting = function (this: MomentumGesture): void {
+  willStartInteracting(): void {
     // hook
-  };
+  },
 
-  MomentumGesture.prototype.onStartInteracting = function (this: MomentumGesture): void {
+  onStartInteracting(): void {
     // hook
-  };
+  },
 
-  MomentumGesture.prototype.didStartInteracting = function (this: MomentumGesture): void {
+  didStartInteracting(): void {
     // hook
-  };
+  },
 
-  MomentumGesture.prototype.stopInteracting = function (this: MomentumGesture): void {
+  stopInteracting(): void {
     this.willStopInteracting();
     this.onStopInteracting();
     this.didStopInteracting();
-  };
+  },
 
-  MomentumGesture.prototype.willStopInteracting = function (this: MomentumGesture): void {
+  willStopInteracting(): void {
     // hook
-  };
+  },
 
-  MomentumGesture.prototype.onStopInteracting = function (this: MomentumGesture): void {
+  onStopInteracting(): void {
     // hook
-  };
+  },
 
-  MomentumGesture.prototype.didStopInteracting = function (this: MomentumGesture): void {
+  didStopInteracting(): void {
     // hook
-  };
+  },
 
-  MomentumGesture.prototype.onStartPressing = function (this: MomentumGesture): void {
-    _super.prototype.onStartPressing.call(this);
+  onStartPressing(): void {
+    super.onStartPressing();
     if (this.coastCount === 0) {
       this.startInteracting();
     }
-  };
+  },
 
-  MomentumGesture.prototype.onStopPressing = function (this: MomentumGesture): void {
-    _super.prototype.onStopPressing.call(this);
+  onStopPressing(): void {
+    super.onStopPressing();
     if (this.coastCount === 0) {
       this.stopInteracting();
     }
-  };
+  },
 
-  MomentumGesture.prototype.beginPress = function (this: MomentumGesture, input: MomentumGestureInput, event: Event | null): void {
-    _super.prototype.beginPress.call(this, input, event);
+  beginPress(input: MomentumGestureInput, event: Event | null): void {
+    super.beginPress(input, event);
     this.interrupt(event);
-  };
+  },
 
-  MomentumGesture.prototype.onBeginPress = function (this: MomentumGesture, input: MomentumGestureInput, event: Event | null): void {
-    _super.prototype.onBeginPress.call(this, input, event);
+  onBeginPress(input: MomentumGestureInput, event: Event | null): void {
+    super.onBeginPress(input, event);
     input.updatePosition(this.hysteresis);
     input.deriveVelocity(this.velocityMax);
-  };
+  },
 
-  MomentumGesture.prototype.onMovePress = function (this: MomentumGesture, input: MomentumGestureInput, event: Event | null): void {
-    _super.prototype.onMovePress.call(this, input, event);
+  onMovePress(input: MomentumGestureInput, event: Event | null): void {
+    super.onMovePress(input, event);
     input.updatePosition(this.hysteresis);
     input.deriveVelocity(this.velocityMax);
-  };
+  },
 
-  MomentumGesture.prototype.willEndPress = function (this: MomentumGesture, input: MomentumGestureInput, event: Event | null): void {
-    _super.prototype.willEndPress.call(this, input, event);
+  willEndPress(input: MomentumGestureInput, event: Event | null): void {
+    super.willEndPress(input, event);
     this.beginCoast(input, event);
-  };
+  },
 
-  MomentumGesture.prototype.onEndPress = function (this: MomentumGesture, input: MomentumGestureInput, event: Event | null): void {
-    _super.prototype.onEndPress.call(this, input, event);
+  onEndPress(input: MomentumGestureInput, event: Event | null): void {
+    super.onEndPress(input, event);
     input.updatePosition(this.hysteresis);
     input.deriveVelocity(this.velocityMax);
-  };
+  },
 
-  MomentumGesture.prototype.onCancelPress = function (this: MomentumGesture, input: MomentumGestureInput, event: Event | null): void {
-    _super.prototype.onCancelPress.call(this, input, event);
+  onCancelPress(input: MomentumGestureInput, event: Event | null): void {
+    super.onCancelPress(input, event);
     input.updatePosition(this.hysteresis);
     input.deriveVelocity(this.velocityMax);
-  };
+  },
 
-  Object.defineProperty(MomentumGesture.prototype, "coasting", {
-    get(this: MomentumGesture): boolean {
-      return this.coastCount !== 0;
-    },
-    configurable: true,
-  });
+  get coasting(): boolean {
+    return this.coastCount !== 0;
+  },
 
-  MomentumGesture.prototype.startCoasting = function (this: MomentumGesture): void {
+  startCoasting(): void {
     this.willStartCoasting();
     this.onStartCoasting();
     this.didStartCoasting();
-  };
+  },
 
-  MomentumGesture.prototype.willStartCoasting = function (this: MomentumGesture): void {
+  willStartCoasting(): void {
     // hook
-  };
+  },
 
-  MomentumGesture.prototype.onStartCoasting = function (this: MomentumGesture): void {
+  onStartCoasting(): void {
     if (this.pressCount === 0) {
       this.startInteracting();
     }
     if (this.view !== null) {
       this.view.requireUpdate(View.NeedsAnimate);
     }
-  };
+  },
 
-  MomentumGesture.prototype.didStartCoasting = function (this: MomentumGesture): void {
+  didStartCoasting(): void {
     // hook
-  };
+  },
 
-  MomentumGesture.prototype.stopCoasting = function (this: MomentumGesture): void {
+  stopCoasting(): void {
     this.willStopCoasting();
     this.onStopCoasting();
     this.didStopCoasting();
-  };
+  },
 
-  MomentumGesture.prototype.willStopCoasting = function (this: MomentumGesture): void {
+  willStopCoasting(): void {
     // hook
-  };
+  },
 
-  MomentumGesture.prototype.onStopCoasting = function (this: MomentumGesture): void {
+  onStopCoasting(): void {
     if (this.pressCount === 0) {
       this.stopInteracting();
     }
-  };
+  },
 
-  MomentumGesture.prototype.didStopCoasting = function (this: MomentumGesture): void {
+  didStopCoasting(): void {
     // hook
-  };
+  },
 
-  MomentumGesture.prototype.beginCoast = function (this: MomentumGesture, input: MomentumGestureInput, event: Event | null): void {
+  beginCoast(input: MomentumGestureInput, event: Event | null): void {
     if (input.coasting || (input.vx === 0 && input.vy === 0)) {
       return;
     }
@@ -556,26 +536,26 @@ export const MomentumGesture = (function (_super: typeof PositionGesture) {
     if (this.coastCount === 1) {
       this.startCoasting();
     }
-  };
+  },
 
-  MomentumGesture.prototype.willBeginCoast = function (this: MomentumGesture, input: MomentumGestureInput, event: Event | null): boolean | void {
+  willBeginCoast(input: MomentumGestureInput, event: Event | null): boolean | void {
     // hook
-  };
+  },
 
-  MomentumGesture.prototype.onBeginCoast = function (this: MomentumGesture, input: MomentumGestureInput, event: Event | null): void {
+  onBeginCoast(input: MomentumGestureInput, event: Event | null): void {
     input.x0 = input.x;
     input.y0 = input.y;
     input.t0 = input.t;
     input.dx = 0;
     input.dy = 0;
     input.dt = 0;
-  };
+  },
 
-  MomentumGesture.prototype.didBeginCoast = function (this: MomentumGesture, input: MomentumGestureInput, event: Event | null): void {
+  didBeginCoast(input: MomentumGestureInput, event: Event | null): void {
     // hook
-  };
+  },
 
-  MomentumGesture.prototype.endCoast = function (this: MomentumGesture, input: MomentumGestureInput, event: Event | null): void {
+  endCoast(input: MomentumGestureInput, event: Event | null): void {
     if (!input.coasting) {
       return;
     }
@@ -588,21 +568,21 @@ export const MomentumGesture = (function (_super: typeof PositionGesture) {
       this.stopCoasting();
     }
     this.clearInput(input);
-  };
+  },
 
-  MomentumGesture.prototype.willEndCoast = function (this: MomentumGesture, input: MomentumGestureInput, event: Event | null): void {
+  willEndCoast(input: MomentumGestureInput, event: Event | null): void {
     // hook
-  };
+  },
 
-  MomentumGesture.prototype.onEndCoast = function (this: MomentumGesture, input: MomentumGestureInput, event: Event | null): void {
+  onEndCoast(input: MomentumGestureInput, event: Event | null): void {
     // hook
-  };
+  },
 
-  MomentumGesture.prototype.didEndCoast = function (this: MomentumGesture, input: MomentumGestureInput, event: Event | null): void {
+  didEndCoast(input: MomentumGestureInput, event: Event | null): void {
     // hook
-  };
+  },
 
-  MomentumGesture.prototype.doCoast = function (this: MomentumGesture, t: number): void {
+  doCoast(t: number): void {
     if (this.coastCount === 0) {
       return;
     }
@@ -620,21 +600,21 @@ export const MomentumGesture = (function (_super: typeof PositionGesture) {
     if (this.coastCount !== 0 && this.view !== null) {
       this.view.requireUpdate(View.NeedsAnimate);
     }
-  };
+  },
 
-  MomentumGesture.prototype.willCoast = function (this: MomentumGesture): void {
+  willCoast(): void {
     // hook
-  };
+  },
 
-  MomentumGesture.prototype.onCoast = function (this: MomentumGesture): void {
+  onCoast(): void {
     // hook
-  };
+  },
 
-  MomentumGesture.prototype.didCoast = function (this: MomentumGesture): void {
+  didCoast(): void {
     // hook
-  };
+  },
 
-  MomentumGesture.prototype.integrate = function (this: MomentumGesture, t: number): void {
+  integrate(t: number): void {
     const inputs = this.inputs;
     for (const inputId in inputs) {
       const input = inputs[inputId]!;
@@ -642,47 +622,42 @@ export const MomentumGesture = (function (_super: typeof PositionGesture) {
         input.integrateVelocity(t);
       }
     }
-  };
-
-  MomentumGesture.construct = function <G extends MomentumGesture<any, any>>(gesture: G | null, owner: G extends MomentumGesture<infer O, any> ? O : never): G {
-    gesture = _super.construct.call(this, gesture, owner) as G;
+  },
+},
+{
+  construct(gesture: G | null, owner: G extends Fastener<infer R, any, any> ? R : never): G {
+    gesture = super.construct(gesture, owner) as G;
     (gesture as Mutable<typeof gesture>).coastCount = 0;
     gesture.hysteresis = gesture.initHysteresis();
     gesture.acceleration = gesture.initAcceleration();
     gesture.velocityMax = gesture.initVelocityMax();
     return gesture;
-  };
+  },
 
-  MomentumGesture.specialize = function (template: MomentumGestureDescriptor<any>): MomentumGestureClass {
-    let superClass = template.extends as MomentumGestureClass | null | undefined;
+  specialize(template: G extends {readonly descriptorType?: Proto<infer D>} ? D : never): FastenerClass<G> {
+    let superClass = template.extends as FastenerClass<G> | null | undefined;
     if (superClass === void 0 || superClass === null) {
       const method = template.method;
       if (method === "pointer") {
-        superClass = PointerMomentumGesture;
+        superClass = PointerMomentumGesture as unknown as FastenerClass<G>;
       } else if (method === "touch") {
-        superClass = TouchMomentumGesture;
+        superClass = TouchMomentumGesture as unknown as FastenerClass<G>;
       } else if (method === "mouse") {
-        superClass = MouseMomentumGesture;
+        superClass = MouseMomentumGesture as unknown as FastenerClass<G>;
       } else if (typeof PointerEvent !== "undefined") {
-        superClass = PointerMomentumGesture;
+        superClass = PointerMomentumGesture as unknown as FastenerClass<G>;
       } else if (typeof TouchEvent !== "undefined") {
-        superClass = TouchMomentumGesture;
+        superClass = TouchMomentumGesture as unknown as FastenerClass<G>;
       } else {
-        superClass = MouseMomentumGesture;
+        superClass = MouseMomentumGesture as unknown as FastenerClass<G>;
       }
     }
     return superClass;
-  };
-
-  (MomentumGesture as Mutable<typeof MomentumGesture>).Hysteresis = 67;
-  (MomentumGesture as Mutable<typeof MomentumGesture>).Acceleration = 0.00175;
-  (MomentumGesture as Mutable<typeof MomentumGesture>).VelocityMax = 1.75;
-
-  return MomentumGesture;
-})(PositionGesture);
+  },
+}))();
 
 /** @internal */
-export interface PointerMomentumGesture<O = unknown, V extends View = View> extends MomentumGesture<O, V> {
+export interface PointerMomentumGesture<R = any, V extends View = View> extends MomentumGesture<R, V> {
   /** @internal @protected @override */
   attachHoverEvents(view: V): void;
 
@@ -721,36 +696,34 @@ export interface PointerMomentumGesture<O = unknown, V extends View = View> exte
 }
 
 /** @internal */
-export const PointerMomentumGesture = (function (_super: typeof MomentumGesture) {
-  const PointerMomentumGesture = _super.extend("PointerMomentumGesture", {}) as MomentumGestureClass<PointerMomentumGesture<any, any>>;
-
-  PointerMomentumGesture.prototype.attachHoverEvents = function (this: PointerMomentumGesture, view: View): void {
+export const PointerMomentumGesture = (<R, V extends View, G extends PointerMomentumGesture<any, any>>() => MomentumGesture.extend<PointerMomentumGesture<R, V>, MomentumGestureClass<G>>("PointerMomentumGesture", {
+  attachHoverEvents(view: V): void {
     view.addEventListener("pointerenter", this.onPointerEnter as EventListener);
     view.addEventListener("pointerleave", this.onPointerLeave as EventListener);
     view.addEventListener("pointerdown", this.onPointerDown as EventListener);
-  };
+  },
 
-  PointerMomentumGesture.prototype.detachHoverEvents = function (this: PointerMomentumGesture, view: View): void {
+  detachHoverEvents(view: V): void {
     view.removeEventListener("pointerenter", this.onPointerEnter as EventListener);
     view.removeEventListener("pointerleave", this.onPointerLeave as EventListener);
     view.removeEventListener("pointerdown", this.onPointerDown as EventListener);
-  };
+  },
 
-  PointerMomentumGesture.prototype.attachPressEvents = function (this: PointerMomentumGesture, view: View): void {
+  attachPressEvents(view: V): void {
     document.body.addEventListener("pointermove", this.onPointerMove);
     document.body.addEventListener("pointerup", this.onPointerUp);
     document.body.addEventListener("pointercancel", this.onPointerCancel);
     document.body.addEventListener("pointerleave", this.onPointerLeaveDocument);
-  };
+  },
 
-  PointerMomentumGesture.prototype.detachPressEvents = function (this: PointerMomentumGesture, view: View): void {
+  detachPressEvents(view: V): void {
     document.body.removeEventListener("pointermove", this.onPointerMove);
     document.body.removeEventListener("pointerup", this.onPointerUp);
     document.body.removeEventListener("pointercancel", this.onPointerCancel);
     document.body.removeEventListener("pointerleave", this.onPointerLeaveDocument);
-  };
+  },
 
-  PointerMomentumGesture.prototype.updateInput = function (this: PointerMomentumGesture, input: MomentumGestureInput, event: PointerEvent): void {
+  updateInput(input: MomentumGestureInput, event: PointerEvent): void {
     input.target = event.target;
     input.button = event.button;
     input.buttons = event.buttons;
@@ -773,30 +746,33 @@ export const PointerMomentumGesture = (function (_super: typeof MomentumGesture)
     input.twist = event.twist;
     input.pressure = event.pressure;
     input.tangentialPressure = event.tangentialPressure;
-  };
+  },
 
-  PointerMomentumGesture.prototype.onPointerEnter = function (this: PointerMomentumGesture, event: PointerEvent): void {
-    if (event.pointerType === "mouse" && event.buttons === 0) {
-      const input = this.getOrCreateInput(event.pointerId, GestureInput.pointerInputType(event.pointerType),
-                                          event.isPrimary, event.clientX, event.clientY, event.timeStamp);
-      this.updateInput(input, event);
-      if (!input.hovering) {
-        this.beginHover(input, event);
-      }
+  onPointerEnter(event: PointerEvent): void {
+    if (event.pointerType !== "mouse" || event.buttons !== 0) {
+      return;
     }
-  };
-
-  PointerMomentumGesture.prototype.onPointerLeave = function (this: PointerMomentumGesture, event: PointerEvent): void {
-    if (event.pointerType === "mouse") {
-      const input = this.getInput(event.pointerId);
-      if (input !== null) {
-        this.updateInput(input, event);
-        this.endHover(input, event);
-      }
+    const input = this.getOrCreateInput(event.pointerId, GestureInput.pointerInputType(event.pointerType),
+                                        event.isPrimary, event.clientX, event.clientY, event.timeStamp);
+    this.updateInput(input, event);
+    if (!input.hovering) {
+      this.beginHover(input, event);
     }
-  };
+  },
 
-  PointerMomentumGesture.prototype.onPointerDown = function (this: PointerMomentumGesture, event: PointerEvent): void {
+  onPointerLeave(event: PointerEvent): void {
+    if (event.pointerType !== "mouse") {
+      return;
+    }
+    const input = this.getInput(event.pointerId);
+    if (input === null) {
+      return;
+    }
+    this.updateInput(input, event);
+    this.endHover(input, event);
+  },
+
+  onPointerDown(event: PointerEvent): void {
     const input = this.getOrCreateInput(event.pointerId, GestureInput.pointerInputType(event.pointerType),
                                         event.isPrimary, event.clientX, event.clientY, event.timeStamp);
     this.updateInput(input, event);
@@ -806,46 +782,51 @@ export const PointerMomentumGesture = (function (_super: typeof MomentumGesture)
     if (event.pointerType === "mouse" && event.button !== 0) {
       this.cancelPress(input, event);
     }
-  };
+  },
 
-  PointerMomentumGesture.prototype.onPointerMove = function (this: PointerMomentumGesture, event: PointerEvent): void {
+  onPointerMove(event: PointerEvent): void {
     const input = this.getInput(event.pointerId);
-    if (input !== null) {
-      this.updateInput(input, event);
-      this.movePress(input, event);
+    if (input === null) {
+      return;
     }
-  };
+    this.updateInput(input, event);
+    this.movePress(input, event);
+  },
 
-  PointerMomentumGesture.prototype.onPointerUp = function (this: PointerMomentumGesture, event: PointerEvent): void {
+  onPointerUp(event: PointerEvent): void {
     const input = this.getInput(event.pointerId);
-    if (input !== null) {
-      this.updateInput(input, event);
-      this.endPress(input, event);
-      if (!input.defaultPrevented && event.button === 0) {
-        this.press(input, event);
-      }
+    if (input === null) {
+      return;
     }
-  };
+    this.updateInput(input, event);
+    this.endPress(input, event);
+    if (!input.defaultPrevented && event.button === 0) {
+      this.press(input, event);
+    }
+  },
 
-  PointerMomentumGesture.prototype.onPointerCancel = function (this: PointerMomentumGesture, event: PointerEvent): void {
+  onPointerCancel(event: PointerEvent): void {
     const input = this.getInput(event.pointerId);
-    if (input !== null) {
-      this.updateInput(input, event);
-      this.cancelPress(input, event);
+    if (input === null) {
+      return;
     }
-  };
+    this.updateInput(input, event);
+    this.cancelPress(input, event);
+  },
 
-  PointerMomentumGesture.prototype.onPointerLeaveDocument = function (this: PointerMomentumGesture, event: PointerEvent): void {
+  onPointerLeaveDocument(event: PointerEvent): void {
     const input = this.getInput(event.pointerId);
-    if (input !== null) {
-      this.updateInput(input, event);
-      this.cancelPress(input, event);
-      this.endHover(input, event);
+    if (input === null) {
+      return;
     }
-  };
-
-  PointerMomentumGesture.construct = function <G extends PointerMomentumGesture<any, any>>(gesture: G | null, owner: G extends MomentumGesture<infer O, any> ? O : never): G {
-    gesture = _super.construct.call(this, gesture, owner) as G;
+    this.updateInput(input, event);
+    this.cancelPress(input, event);
+    this.endHover(input, event);
+  },
+},
+{
+  construct(gesture: G | null, owner: G extends Fastener<infer R, any, any> ? R : never): G {
+    gesture = super.construct(gesture, owner) as G;
     gesture.onPointerEnter = gesture.onPointerEnter.bind(gesture);
     gesture.onPointerLeave = gesture.onPointerLeave.bind(gesture);
     gesture.onPointerDown = gesture.onPointerDown.bind(gesture);
@@ -854,13 +835,11 @@ export const PointerMomentumGesture = (function (_super: typeof MomentumGesture)
     gesture.onPointerCancel = gesture.onPointerCancel.bind(gesture);
     gesture.onPointerLeaveDocument = gesture.onPointerLeaveDocument.bind(gesture);
     return gesture;
-  };
-
-  return PointerMomentumGesture;
-})(MomentumGesture);
+  },
+}))();
 
 /** @internal */
-export interface TouchMomentumGesture<O = unknown, V extends View = View> extends MomentumGesture<O, V> {
+export interface TouchMomentumGesture<R = any, V extends View = View> extends MomentumGesture<R, V> {
   /** @internal @protected @override */
   attachHoverEvents(view: V): void;
 
@@ -890,30 +869,28 @@ export interface TouchMomentumGesture<O = unknown, V extends View = View> extend
 }
 
 /** @internal */
-export const TouchMomentumGesture = (function (_super: typeof MomentumGesture) {
-  const TouchMomentumGesture = _super.extend("TouchMomentumGesture", {}) as MomentumGestureClass<TouchMomentumGesture<any, any>>;
-
-  TouchMomentumGesture.prototype.attachHoverEvents = function (this: TouchMomentumGesture, view: View): void {
+export const TouchMomentumGesture = (<R, V extends View, G extends TouchMomentumGesture<any, any>>() => MomentumGesture.extend<TouchMomentumGesture<R, V>, MomentumGestureClass<G>>("TouchMomentumGesture", {
+  attachHoverEvents(view: V): void {
     view.addEventListener("touchstart", this.onTouchStart as EventListener);
-  };
+  },
 
-  TouchMomentumGesture.prototype.detachHoverEvents = function (this: TouchMomentumGesture, view: View): void {
+  detachHoverEvents(view: V): void {
     view.removeEventListener("touchstart", this.onTouchStart as EventListener);
-  };
+  },
 
-  TouchMomentumGesture.prototype.attachPressEvents = function (this: TouchMomentumGesture, view: View): void {
+  attachPressEvents(view: V): void {
     view.addEventListener("touchmove", this.onTouchMove as EventListener);
     view.addEventListener("touchend", this.onTouchEnd as EventListener);
     view.addEventListener("touchcancel", this.onTouchCancel as EventListener);
-  };
+  },
 
-  TouchMomentumGesture.prototype.detachPressEvents = function (this: TouchMomentumGesture, view: View): void {
+  detachPressEvents(view: V): void {
     view.removeEventListener("touchmove", this.onTouchMove as EventListener);
     view.removeEventListener("touchend", this.onTouchEnd as EventListener);
     view.removeEventListener("touchcancel", this.onTouchCancel as EventListener);
-  };
+  },
 
-  TouchMomentumGesture.prototype.updateInput = function (this: TouchMomentumGesture, input: MomentumGestureInput, event: TouchEvent, touch: Touch): void {
+  updateInput(input: MomentumGestureInput, event: TouchEvent, touch: Touch): void {
     input.target = touch.target;
     input.altKey = event.altKey;
     input.ctrlKey = event.ctrlKey;
@@ -926,9 +903,9 @@ export const TouchMomentumGesture = (function (_super: typeof MomentumGesture) {
     input.x = touch.clientX;
     input.y = touch.clientY;
     input.t = event.timeStamp;
-  };
+  },
 
-  TouchMomentumGesture.prototype.onTouchStart = function (this: TouchMomentumGesture, event: TouchEvent): void {
+  onTouchStart(event: TouchEvent): void {
     const touches = event.targetTouches;
     for (let i = 0; i < touches.length; i += 1) {
       const touch = touches[i]!;
@@ -938,63 +915,65 @@ export const TouchMomentumGesture = (function (_super: typeof MomentumGesture) {
         this.beginPress(input, event);
       }
     }
-  };
+  },
 
-  TouchMomentumGesture.prototype.onTouchMove = function (this: TouchMomentumGesture, event: TouchEvent): void {
+  onTouchMove(event: TouchEvent): void {
     const touches = event.changedTouches;
     for (let i = 0; i < touches.length; i += 1) {
       const touch = touches[i]!;
       const input = this.getInput(touch.identifier);
-      if (input !== null) {
-        this.updateInput(input, event, touch);
-        this.movePress(input, event);
+      if (input === null) {
+        continue;
       }
+      this.updateInput(input, event, touch);
+      this.movePress(input, event);
     }
-  };
+  },
 
-  TouchMomentumGesture.prototype.onTouchEnd = function (this: TouchMomentumGesture, event: TouchEvent): void {
+  onTouchEnd(event: TouchEvent): void {
     const touches = event.changedTouches;
     for (let i = 0; i < touches.length; i += 1) {
       const touch = touches[i]!;
       const input = this.getInput(touch.identifier);
-      if (input !== null) {
-        this.updateInput(input, event, touch);
-        this.endPress(input, event);
-        if (!input.defaultPrevented) {
-          this.press(input, event);
-        }
-        this.endHover(input, event);
+      if (input === null) {
+        continue;
       }
+      this.updateInput(input, event, touch);
+      this.endPress(input, event);
+      if (!input.defaultPrevented) {
+        this.press(input, event);
+      }
+      this.endHover(input, event);
     }
-  };
+  },
 
-  TouchMomentumGesture.prototype.onTouchCancel = function (this: TouchMomentumGesture, event: TouchEvent): void {
+  onTouchCancel(event: TouchEvent): void {
     const touches = event.changedTouches;
     for (let i = 0; i < touches.length; i += 1) {
       const touch = touches[i]!;
       const input = this.getInput(touch.identifier);
-      if (input !== null) {
-        this.updateInput(input, event, touch);
-        this.cancelPress(input, event);
-        this.endHover(input, event);
+      if (input === null) {
+        continue;
       }
+      this.updateInput(input, event, touch);
+      this.cancelPress(input, event);
+      this.endHover(input, event);
     }
-  };
-
-  TouchMomentumGesture.construct = function <G extends TouchMomentumGesture<any, any>>(gesture: G | null, owner: G extends MomentumGesture<infer O, any> ? O : never): G {
-    gesture = _super.construct.call(this, gesture, owner) as G;
+  },
+},
+{
+  construct(gesture: G | null, owner: G extends Fastener<infer R, any, any> ? R : never): G {
+    gesture = super.construct(gesture, owner) as G;
     gesture.onTouchStart = gesture.onTouchStart.bind(gesture);
     gesture.onTouchMove = gesture.onTouchMove.bind(gesture);
     gesture.onTouchEnd = gesture.onTouchEnd.bind(gesture);
     gesture.onTouchCancel = gesture.onTouchCancel.bind(gesture);
     return gesture;
-  };
-
-  return TouchMomentumGesture;
-})(MomentumGesture);
+  },
+}))();
 
 /** @internal */
-export interface MouseMomentumGesture<O = unknown, V extends View = View> extends MomentumGesture<O, V> {
+export interface MouseMomentumGesture<R = any, V extends View = View> extends MomentumGesture<R, V> {
   /** @internal @protected @override */
   attachHoverEvents(view: V): void;
 
@@ -1030,34 +1009,32 @@ export interface MouseMomentumGesture<O = unknown, V extends View = View> extend
 }
 
 /** @internal */
-export const MouseMomentumGesture = (function (_super: typeof MomentumGesture) {
-  const MouseMomentumGesture = _super.extend("MouseMomentumGesture", {}) as MomentumGestureClass<MouseMomentumGesture<any, any>>;
-
-  MouseMomentumGesture.prototype.attachHoverEvents = function (this: MouseMomentumGesture, view: View): void {
+export const MouseMomentumGesture = (<R, V extends View, G extends MouseMomentumGesture<any, any>>() => MomentumGesture.extend<MouseMomentumGesture<R, V>, MomentumGestureClass<G>>("MouseMomentumGesture", {
+  attachHoverEvents(view: V): void {
     view.addEventListener("mouseenter", this.onMouseEnter as EventListener);
     view.addEventListener("mouseleave", this.onMouseLeave as EventListener);
     view.addEventListener("mousedown", this.onMouseDown as EventListener);
-  };
+  },
 
-  MouseMomentumGesture.prototype.detachHoverEvents = function (this: MouseMomentumGesture, view: View): void {
+  detachHoverEvents(view: V): void {
     view.removeEventListener("mouseenter", this.onMouseEnter as EventListener);
     view.removeEventListener("mouseleave", this.onMouseLeave as EventListener);
     view.removeEventListener("mousedown", this.onMouseDown as EventListener);
-  };
+  },
 
-  MouseMomentumGesture.prototype.attachPressEvents = function (this: MouseMomentumGesture, view: View): void {
+  attachPressEvents(view: V): void {
     document.body.addEventListener("mousemove", this.onMouseMove);
     document.body.addEventListener("mouseup", this.onMouseUp);
     document.body.addEventListener("mouseleave", this.onMouseLeaveDocument);
-  };
+  },
 
-  MouseMomentumGesture.prototype.detachPressEvents = function (this: MouseMomentumGesture, view: View): void {
+  detachPressEvents(view: V): void {
     document.body.removeEventListener("mousemove", this.onMouseMove);
     document.body.removeEventListener("mouseup", this.onMouseUp);
     document.body.removeEventListener("mouseleave", this.onMouseLeaveDocument);
-  };
+  },
 
-  MouseMomentumGesture.prototype.updateInput = function (this: MouseMomentumGesture, input: MomentumGestureInput, event: MouseEvent): void {
+  updateInput(input: MomentumGestureInput, event: MouseEvent): void {
     input.target = event.target;
     input.button = event.button;
     input.buttons = event.buttons;
@@ -1072,27 +1049,29 @@ export const MouseMomentumGesture = (function (_super: typeof MomentumGesture) {
     input.x = event.clientX;
     input.y = event.clientY;
     input.t = event.timeStamp;
-  };
+  },
 
-  MouseMomentumGesture.prototype.onMouseEnter = function (this: MouseMomentumGesture, event: MouseEvent): void {
-    if (event.buttons === 0) {
-      const input = this.getOrCreateInput("mouse", "mouse", true, event.clientX, event.clientY, event.timeStamp);
-      this.updateInput(input, event);
-      if (!input.hovering) {
-        this.beginHover(input, event);
-      }
+  onMouseEnter(event: MouseEvent): void {
+    if (event.buttons !== 0) {
+      return;
     }
-  };
+    const input = this.getOrCreateInput("mouse", "mouse", true, event.clientX, event.clientY, event.timeStamp);
+    this.updateInput(input, event);
+    if (!input.hovering) {
+      this.beginHover(input, event);
+    }
+  },
 
-  MouseMomentumGesture.prototype.onMouseLeave = function (this: MouseMomentumGesture, event: MouseEvent): void {
+  onMouseLeave(event: MouseEvent): void {
     const input = this.getInput("mouse");
-    if (input !== null) {
-      this.updateInput(input, event);
-      this.endHover(input, event);
+    if (input === null) {
+      return;
     }
-  };
+    this.updateInput(input, event);
+    this.endHover(input, event);
+  },
 
-  MouseMomentumGesture.prototype.onMouseDown = function (this: MouseMomentumGesture, event: MouseEvent): void {
+  onMouseDown(event: MouseEvent): void {
     const input = this.getOrCreateInput("mouse", "mouse", true, event.clientX, event.clientY, event.timeStamp);
     this.updateInput(input, event);
     if (!input.pressing) {
@@ -1101,38 +1080,42 @@ export const MouseMomentumGesture = (function (_super: typeof MomentumGesture) {
     if (event.button !== 0) {
       this.cancelPress(input, event);
     }
-  };
+  },
 
-  MouseMomentumGesture.prototype.onMouseMove = function (this: MouseMomentumGesture, event: MouseEvent): void {
+  onMouseMove(event: MouseEvent): void {
     const input = this.getInput("mouse");
-    if (input !== null) {
-      this.updateInput(input, event);
-      this.movePress(input, event);
+    if (input === null) {
+      return;
     }
-  };
+    this.updateInput(input, event);
+    this.movePress(input, event);
+  },
 
-  MouseMomentumGesture.prototype.onMouseUp = function (this: MouseMomentumGesture, event: MouseEvent): void {
+  onMouseUp(event: MouseEvent): void {
     const input = this.getInput("mouse");
-    if (input !== null) {
-      this.updateInput(input, event);
-      this.endPress(input, event);
-      if (!input.defaultPrevented && event.button === 0) {
-        this.press(input, event);
-      }
+    if (input === null) {
+      return;
     }
-  };
+    this.updateInput(input, event);
+    this.endPress(input, event);
+    if (!input.defaultPrevented && event.button === 0) {
+      this.press(input, event);
+    }
+  },
 
-  MouseMomentumGesture.prototype.onMouseLeaveDocument = function (this: MouseMomentumGesture, event: MouseEvent): void {
+  onMouseLeaveDocument(event: MouseEvent): void {
     const input = this.getInput("mouse");
-    if (input !== null) {
-      this.updateInput(input, event);
-      this.cancelPress(input, event);
-      this.endHover(input, event);
+    if (input === null) {
+      return;
     }
-  };
-
-  MouseMomentumGesture.construct = function <G extends MouseMomentumGesture<any, any>>(gesture: G | null, owner: G extends MomentumGesture<infer O, any> ? O : never): G {
-    gesture = _super.construct.call(this, gesture, owner) as G;
+    this.updateInput(input, event);
+    this.cancelPress(input, event);
+    this.endHover(input, event);
+  },
+},
+{
+  construct(gesture: G | null, owner: G extends Fastener<infer R, any, any> ? R : never): G {
+    gesture = super.construct(gesture, owner) as G;
     gesture.onMouseEnter = gesture.onMouseEnter.bind(gesture);
     gesture.onMouseLeave = gesture.onMouseLeave.bind(gesture);
     gesture.onMouseDown = gesture.onMouseDown.bind(gesture);
@@ -1140,7 +1123,5 @@ export const MouseMomentumGesture = (function (_super: typeof MomentumGesture) {
     gesture.onMouseUp = gesture.onMouseUp.bind(gesture);
     gesture.onMouseLeaveDocument = gesture.onMouseLeaveDocument.bind(gesture);
     return gesture;
-  };
-
-  return MouseMomentumGesture;
-})(MomentumGesture);
+  },
+}))();

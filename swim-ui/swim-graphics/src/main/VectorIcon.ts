@@ -20,7 +20,7 @@ import {Interpolator} from "@swim/util";
 import type {Output} from "@swim/codec";
 import type {Debug} from "@swim/codec";
 import {Format} from "@swim/codec";
-import type {AnyR2Path} from "@swim/math";
+import type {R2PathLike} from "@swim/math";
 import {R2Path} from "@swim/math";
 import type {R2Box} from "@swim/math";
 import {Transform} from "@swim/math";
@@ -211,9 +211,9 @@ export class VectorIcon extends FilledIcon implements Interpolate<VectorIcon>, E
     return Format.debug(this);
   }
 
-  static create(width: number, height: number, path: AnyR2Path,
+  static create(width: number, height: number, path: R2PathLike,
                 fillRule?: PaintingFillRule): VectorIcon {
-    path = R2Path.fromAny(path);
+    path = R2Path.fromLike(path);
     if (width !== 1 || height !== 1) {
       path = path.transform(Transform.scale(1 / width, 1 / height));
     }

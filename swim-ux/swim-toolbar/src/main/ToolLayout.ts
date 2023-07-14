@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
 import {Equals} from "@swim/util";
 import {Equivalent} from "@swim/util";
 import type {Interpolate} from "@swim/util";
@@ -21,32 +22,32 @@ import {StepInterpolator} from "@swim/util";
 import type {Output} from "@swim/codec";
 import type {Debug} from "@swim/codec";
 import {Format} from "@swim/codec";
-import type {AnyLength} from "@swim/math";
+import type {LengthLike} from "@swim/math";
 import {Length} from "@swim/math";
 import {PxLength} from "@swim/math";
-import type {AnyPresence} from "@swim/style";
+import type {PresenceLike} from "@swim/style";
 import {Presence} from "@swim/style";
 
 /** @public */
-export type AnyToolLayout = ToolLayout | ToolLayoutInit;
+export type ToolLayoutLike = ToolLayout | ToolLayoutInit;
 
 /** @public */
 export interface ToolLayoutInit {
   key?: string;
   grow?: number;
   shrink?: number;
-  basis?: AnyLength;
+  basis?: LengthLike;
   align?: number;
   inAlign?: number;
   outAlign?: number;
   overlap?: string | undefined;
-  overpad?: AnyLength;
-  presence?: AnyPresence;
-  inPresence?: AnyPresence | null;
-  outPresence?: AnyPresence | null;
-  width?: AnyLength | null;
-  left?: AnyLength | null;
-  right?: AnyLength | null;
+  overpad?: LengthLike;
+  presence?: PresenceLike;
+  inPresence?: PresenceLike | null;
+  outPresence?: PresenceLike | null;
+  width?: LengthLike | null;
+  left?: LengthLike | null;
+  right?: LengthLike | null;
 }
 
 /** @public */
@@ -73,6 +74,8 @@ export class ToolLayout implements Interpolate<ToolLayout>, Equals, Equivalent, 
     this.right = right;
   }
 
+  declare readonly likeType?: Proto<ToolLayoutInit>;
+
   readonly key: string;
 
   withKey(key: string): ToolLayout {
@@ -88,9 +91,9 @@ export class ToolLayout implements Interpolate<ToolLayout>, Equals, Equivalent, 
 
   readonly basis: Length;
 
-  withFlex(grow: number, shrink: number, basis?: AnyLength): ToolLayout {
+  withFlex(grow: number, shrink: number, basis?: LengthLike): ToolLayout {
     if (basis !== void 0) {
-      basis = Length.fromAny(basis);
+      basis = Length.fromLike(basis);
     } else {
       basis = this.basis;
     }
@@ -130,8 +133,8 @@ export class ToolLayout implements Interpolate<ToolLayout>, Equals, Equivalent, 
 
   readonly overpad: Length;
 
-  withOverpad(overpad: AnyLength): ToolLayout {
-    overpad = Length.fromAny(overpad);
+  withOverpad(overpad: LengthLike): ToolLayout {
+    overpad = Length.fromLike(overpad);
     return this.copy(this.key, this.grow, this.shrink, this.basis, this.align,
                      this.inAlign, this.outAlign, this.overlap, overpad,
                      this.presence, this.inPresence, this.outPresence,
@@ -144,23 +147,23 @@ export class ToolLayout implements Interpolate<ToolLayout>, Equals, Equivalent, 
 
   readonly outPresence: Presence | null;
 
-  withPresence(presence: AnyPresence, inPresence?: AnyPresence | null, outPresence?: AnyPresence | null): ToolLayout;
-  withPresence(presence: AnyPresence | undefined, inPresence: AnyPresence | null | undefined, outPresence: AnyPresence | null | undefined): ToolLayout;
-  withPresence(presence: AnyPresence | undefined, inPresence?: AnyPresence | null, outPresence?: AnyPresence | null): ToolLayout {
+  withPresence(presence: PresenceLike, inPresence?: PresenceLike | null, outPresence?: PresenceLike | null): ToolLayout;
+  withPresence(presence: PresenceLike | undefined, inPresence: PresenceLike | null | undefined, outPresence: PresenceLike | null | undefined): ToolLayout;
+  withPresence(presence: PresenceLike | undefined, inPresence?: PresenceLike | null, outPresence?: PresenceLike | null): ToolLayout {
     if (presence === void 0) {
       presence = this.presence;
     } else {
-      presence = Presence.fromAny(presence);
+      presence = Presence.fromLike(presence);
     }
     if (inPresence === void 0) {
       inPresence = this.inPresence;
     } else {
-      inPresence = Presence.fromAny(inPresence);
+      inPresence = Presence.fromLike(inPresence);
     }
     if (outPresence === void 0) {
       outPresence = this.outPresence;
     } else {
-      outPresence = Presence.fromAny(outPresence);
+      outPresence = Presence.fromLike(outPresence);
     }
     return this.copy(this.key, this.grow, this.shrink, this.basis, this.align,
                      this.inAlign, this.outAlign, this.overlap, this.overpad,
@@ -174,15 +177,15 @@ export class ToolLayout implements Interpolate<ToolLayout>, Equals, Equivalent, 
 
   readonly right: Length | null;
 
-  resized(width: AnyLength | null, left: AnyLength | null, right: AnyLength | null): ToolLayout {
+  resized(width: LengthLike | null, left: LengthLike | null, right: LengthLike | null): ToolLayout {
     if (width !== null) {
-      width = Length.fromAny(width);
+      width = Length.fromLike(width);
     }
     if (left !== null) {
-      left = Length.fromAny(left);
+      left = Length.fromLike(left);
     }
     if (right !== null) {
-      right = Length.fromAny(right);
+      right = Length.fromLike(right);
     }
     return this.copy(this.key, this.grow, this.shrink, this.basis, this.align,
                      this.inAlign, this.outAlign, this.overlap, this.overpad,
@@ -280,11 +283,11 @@ export class ToolLayout implements Interpolate<ToolLayout>, Equals, Equivalent, 
     return Format.debug(this);
   }
 
-  static create(key: string, grow?: number, shrink?: number, basis?: AnyLength,
+  static create(key: string, grow?: number, shrink?: number, basis?: LengthLike,
                 align?: number, inAlign?: number, outAlign?: number,
-                overlap?: string | undefined, overpad?: AnyLength,
-                presence?: AnyPresence, inPresence?: AnyPresence | null,
-                outPresence?: AnyPresence | null): ToolLayout {
+                overlap?: string | undefined, overpad?: LengthLike,
+                presence?: PresenceLike, inPresence?: PresenceLike | null,
+                outPresence?: PresenceLike | null): ToolLayout {
     if (grow === void 0) {
       grow = 0;
     }
@@ -292,7 +295,7 @@ export class ToolLayout implements Interpolate<ToolLayout>, Equals, Equivalent, 
       shrink = 1;
     }
     if (basis !== void 0) {
-      basis = Length.fromAny(basis);
+      basis = Length.fromLike(basis);
     } else {
       basis = Length.zero();
     }
@@ -306,31 +309,31 @@ export class ToolLayout implements Interpolate<ToolLayout>, Equals, Equivalent, 
       outAlign = align;
     }
     if (overpad !== void 0) {
-      overpad = Length.fromAny(overpad);
+      overpad = Length.fromLike(overpad);
     } else {
       overpad = Length.zero();
     }
     if (presence !== void 0) {
-      presence = Presence.fromAny(presence);
+      presence = Presence.fromLike(presence);
     } else {
       presence = Presence.presented();
     }
     if (inPresence === void 0) {
       inPresence = Presence.dismissed();
     } else {
-      inPresence = Presence.fromAny(inPresence);
+      inPresence = Presence.fromLike(inPresence);
     }
     if (outPresence === void 0) {
       outPresence = Presence.dismissed();
     } else {
-      outPresence = Presence.fromAny(outPresence);
+      outPresence = Presence.fromLike(outPresence);
     }
     return new ToolLayout(key, grow, shrink, basis, align, inAlign, outAlign,
                           overlap, overpad, presence, inPresence, outPresence,
                           null, null, null);
   }
 
-  static fromAny(value: AnyToolLayout): ToolLayout {
+  static fromLike(value: ToolLayoutLike): ToolLayout {
     if (value === void 0 || value === null || value instanceof ToolLayout) {
       return value;
     } else if (typeof value === "object" && value !== null) {
@@ -354,7 +357,7 @@ export class ToolLayout implements Interpolate<ToolLayout>, Equals, Equivalent, 
     }
     let basis = init.basis;
     if (basis !== void 0) {
-      basis = Length.fromAny(basis);
+      basis = Length.fromLike(basis);
     } else {
       basis = Length.zero();
     }
@@ -373,13 +376,13 @@ export class ToolLayout implements Interpolate<ToolLayout>, Equals, Equivalent, 
     const overlap = init.overlap;
     let overpad = init.overpad;
     if (overpad !== void 0) {
-      overpad = Length.fromAny(overpad);
+      overpad = Length.fromLike(overpad);
     } else {
       overpad = Length.zero();
     }
     let presence = init.presence;
     if (presence !== void 0) {
-      presence = Presence.fromAny(presence);
+      presence = Presence.fromLike(presence);
     } else {
       presence = Presence.presented();
     }
@@ -387,29 +390,29 @@ export class ToolLayout implements Interpolate<ToolLayout>, Equals, Equivalent, 
     if (inPresence === void 0) {
       inPresence = Presence.presented();
     } else {
-      inPresence = Presence.fromAny(inPresence);
+      inPresence = Presence.fromLike(inPresence);
     }
     let outPresence = init.outPresence;
     if (outPresence === void 0) {
       outPresence = Presence.presented();
     } else {
-      outPresence = Presence.fromAny(outPresence);
+      outPresence = Presence.fromLike(outPresence);
     }
     let width = init.width;
     if (width !== void 0 && width !== null) {
-      width = Length.fromAny(width);
+      width = Length.fromLike(width);
     } else {
       width = null;
     }
     let left = init.left;
     if (left !== void 0 && left !== null) {
-      left = Length.fromAny(left);
+      left = Length.fromLike(left);
     } else {
       left = null;
     }
     let right = init.right;
     if (right !== void 0 && right !== null) {
-      right = Length.fromAny(right);
+      right = Length.fromLike(right);
     } else {
       right = null;
     }

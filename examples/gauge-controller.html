@@ -42,12 +42,12 @@ const ExampleGaugeController = (function () {
     extends: true,
     initView(gaugeView) {
       super.initView(gaugeView);
-      gaugeView.innerRadius(swim.Length.pct(25))
-               .startAngle(swim.Angle.rad(3 * Math.PI / 4))
-               .sweepAngle(swim.Angle.rad(3 * Math.PI / 2))
-               .cornerRadius(0)
-               .tickAlign(1)
-               .font("14px sans-serif");
+      gaugeView.innerRadius.setState(swim.Length.pct(25));
+      gaugeView.startAngle.setState(swim.Angle.rad(3 * Math.PI / 4));
+      gaugeView.sweepAngle.setState(swim.Angle.rad(3 * Math.PI / 2));
+      gaugeView.cornerRadius.setState(0);
+      gaugeView.tickAlign.setState(1);
+      gaugeView.font.setState("14px sans-serif");
     },
   })], {kind: "field", name: "gauge", static: false, private: false, access: {has: obj => "gauge" in obj, get: obj => obj.gauge, set: (obj, value) => { obj.gauge = value; }}}, gaugeInitializers, instanceInitializers);
   __esDecorate(null, null, [swim.TraitViewControllerSet({

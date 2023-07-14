@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import type {Uninitable} from "@swim/util";
+import type {Proto} from "@swim/util";
 import {Lazy} from "@swim/util";
 import {Arrays} from "@swim/util";
 import type {Equals} from "@swim/util";
@@ -22,24 +23,26 @@ import {Format} from "@swim/codec";
 import type {Feel} from "./Feel";
 
 /** @public */
-export type AnyLookVector<T> = LookVector<T> | LookVectorArray<T>;
+export type LookVectorInit<T> = LookVector<T> | LookVectorArray<T>;
 
 /** @public */
-export type LookVectorArray<T> = ReadonlyArray<[Feel, T]>;
+export type LookVectorArray<T> = readonly [Feel, T][];
 
 /** @public */
-export type LookVectorUpdates<T> = ReadonlyArray<[Feel, T | undefined]>;
+export type LookVectorUpdates<T> = readonly [Feel, T | undefined][];
 
 /** @public */
 export class LookVector<T> implements Equals, Debug {
-  constructor(array: ReadonlyArray<[Feel, T]>,
+  constructor(array: readonly [Feel, T][],
               index: {readonly [name: string]: number | undefined}) {
     this.array = array;
     this.index = index;
   }
 
+  declare readonly likeType?: Proto<LookVectorArray<T>>;
+
   /** @internal */
-  readonly array: ReadonlyArray<[Feel, T]>;
+  readonly array: readonly [Feel, T][];
 
   /** @internal */
   readonly index: {readonly [name: string]: number | undefined};
@@ -142,7 +145,7 @@ export class LookVector<T> implements Equals, Debug {
     return this.copy(newArray, newIndex);
   }
 
-  protected copy(array: ReadonlyArray<[Feel, T]>,
+  protected copy(array: readonly [Feel, T][],
                  index?: {readonly [name: string]: number | undefined}): LookVector<T> {
     return LookVector.fromArray(array, index);
   }
@@ -202,7 +205,7 @@ export class LookVector<T> implements Equals, Debug {
     return new LookVector(feels, LookVector.index(feels));
   }
 
-  static fromAny<T, V extends AnyLookVector<T> | null | undefined>(value: V): LookVector<T> | Uninitable<V> {
+  static fromLike<T, V extends LookVectorInit<T> | null | undefined>(value: V): LookVector<T> | Uninitable<V> {
     if (value === void 0 || value === null || value instanceof LookVector) {
       return value as LookVector<T> | Uninitable<V>;
     } else if (Array.isArray(value)) {
@@ -211,7 +214,7 @@ export class LookVector<T> implements Equals, Debug {
     throw new TypeError("" + value);
   }
 
-  static fromArray<T>(array: ReadonlyArray<[Feel, T]>,
+  static fromArray<T>(array: readonly [Feel, T][],
                       index?: {[name: string]: number | undefined}): LookVector<T> {
     if (index === void 0) {
       index = LookVector.index(array);
@@ -220,7 +223,7 @@ export class LookVector<T> implements Equals, Debug {
   }
 
   /** @internal */
-  static index<T>(array: ReadonlyArray<[Feel, T]>): {readonly [name: string]: number | undefined} {
+  static index<T>(array: readonly [Feel, T][]): {readonly [name: string]: number | undefined} {
     const index: {[name: string]: number | undefined} = {};
     for (let i = 0, n = array.length; i < n; i += 1) {
       const entry = array[i]!;

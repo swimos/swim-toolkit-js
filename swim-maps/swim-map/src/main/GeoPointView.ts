@@ -16,16 +16,11 @@ import type {Class} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import {Animator} from "@swim/component";
-import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
-import type {AnyR2Point} from "@swim/math";
 import {R2Point} from "@swim/math";
 import {R2Box} from "@swim/math";
-import type {AnyGeoPoint} from "@swim/geo";
 import {GeoPoint} from "@swim/geo";
-import type {AnyFont} from "@swim/style";
 import {Font} from "@swim/style";
-import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
 import type {ViewFlags} from "@swim/view";
@@ -66,28 +61,28 @@ export class GeoPointView extends GeoView {
       this.owner.callObservers("viewDidSetGeoPoint", newGeoPoint, this.owner);
     },
   })
-  readonly geoPoint!: Animator<this, GeoPoint, AnyGeoPoint>;
+  readonly geoPoint!: Animator<this, GeoPoint>;
 
   @Animator({valueType: R2Point, value: R2Point.origin()})
-  readonly viewPoint!: Animator<this, R2Point, AnyR2Point>;
+  readonly viewPoint!: Animator<this, R2Point>;
 
   @ThemeAnimator({valueType: Length, value: null})
-  readonly radius!: ThemeAnimator<this, Length | null, AnyLength | null>;
+  readonly radius!: ThemeAnimator<this, Length | null>;
 
   @ThemeAnimator({valueType: Color, value: null})
-  readonly color!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly color!: ThemeAnimator<this, Color | null>;
 
   @ThemeAnimator({valueType: Number})
   readonly opacity!: ThemeAnimator<this, number | undefined>;
 
   @ThemeAnimator({valueType: Length, value: null})
-  readonly labelPadding!: ThemeAnimator<this, Length | null, AnyLength | null>;
+  readonly labelPadding!: ThemeAnimator<this, Length | null>;
 
   @ThemeAnimator({valueType: Font, value: null, inherits: true})
-  readonly font!: ThemeAnimator<this, Font | null, AnyFont | null>;
+  readonly font!: ThemeAnimator<this, Font | null>;
 
   @ThemeAnimator({valueType: Color, value: null, inherits: true})
-  readonly textColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly textColor!: ThemeAnimator<this, Color | null>;
 
   @Property({valueType: Number})
   readonly hitRadius!: Property<this, number | undefined>;

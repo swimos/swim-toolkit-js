@@ -13,23 +13,21 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
+import type {Proto} from "@swim/util";
 import type {Instance} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import type {LikeType} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import {Creatable} from "@swim/util";
-import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
-import type {AnyTransform} from "@swim/math";
 import {Transform} from "@swim/math";
 import type {FontStyle} from "@swim/style";
 import type {FontVariant} from "@swim/style";
 import type {FontWeight} from "@swim/style";
 import type {FontStretch} from "@swim/style";
 import {FontFamily} from "@swim/style";
-import type {AnyFont} from "@swim/style";
+import type {FontLike} from "@swim/style";
 import {Font} from "@swim/style";
-import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
-import type {AnyView} from "@swim/view";
 import {View} from "@swim/view";
 import {AttributeAnimator} from "./AttributeAnimator";
 import {StyleAnimator} from "./StyleAnimator";
@@ -42,7 +40,6 @@ import type {SvgPointerEvents} from "./csstypes";
 import type {TextAnchor} from "./csstypes";
 import type {TouchAction} from "./csstypes";
 import type {ViewNodeType} from "./NodeView";
-import type {AnyElementView} from "./ElementView";
 import type {ElementViewFactory} from "./ElementView";
 import type {ElementViewClass} from "./ElementView";
 import type {ElementViewConstructor} from "./ElementView";
@@ -53,9 +50,6 @@ import {ElementView} from "./ElementView";
 export interface ViewSvg extends SVGElement {
   view?: SvgView;
 }
-
-/** @public */
-export type AnySvgView<V extends SvgView = SvgView> = AnyElementView<V> | keyof SvgViewTagMap;
 
 /** @public */
 export interface SvgViewTagMap {
@@ -131,17 +125,17 @@ export interface SvgViewTagMap {
 }
 
 /** @public */
-export interface SvgViewFactory<V extends SvgView = SvgView, U = AnySvgView<V>> extends ElementViewFactory<V, U> {
+export interface SvgViewFactory<V extends SvgView = SvgView> extends ElementViewFactory<V> {
 }
 
 /** @public */
-export interface SvgViewClass<V extends SvgView = SvgView, U = AnySvgView<V>> extends ElementViewClass<V, U>, SvgViewFactory<V, U> {
+export interface SvgViewClass<V extends SvgView = SvgView> extends ElementViewClass<V>, SvgViewFactory<V> {
   readonly tag: string;
   readonly namespace: string;
 }
 
 /** @public */
-export interface SvgViewConstructor<V extends SvgView = SvgView, U = AnySvgView<V>> extends ElementViewConstructor<V, U>, SvgViewClass<V, U> {
+export interface SvgViewConstructor<V extends SvgView = SvgView> extends ElementViewConstructor<V>, SvgViewClass<V> {
   readonly tag: string;
   readonly namespace: string;
 }
@@ -156,56 +150,59 @@ export class SvgView extends ElementView {
     super(node);
   }
 
+  /** @override */
+  declare readonly likeType?: Proto<{create?(): SvgView} | (Element & {create?(): SvgView}) | (keyof SvgViewTagMap & {create?(): SvgView})>;
+
   declare readonly observerType?: Class<SvgViewObserver>;
 
   declare readonly node: SVGElement;
 
-  override setChild<V extends View>(key: string, newChild: V): View | null;
-  override setChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(key: string, factory: F): View | null;
-  override setChild(key: string, newChild: AnyView | Node | keyof SvgViewTagMap | null): View | null;
-  override setChild(key: string, newChild: AnyView | Node | keyof SvgViewTagMap | null): View | null {
+  override setChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(key: string, newChildFactory: F): View | null;
+  override setChild(key: string, newChild: View | LikeType<SvgView> | null): View | null;
+  override setChild(key: string, newChild: View | LikeType<SvgView> | null): View | null {
     if (typeof newChild === "string") {
       newChild = SvgView.fromTag(newChild);
     }
     return super.setChild(key, newChild);
   }
 
-  override appendChild<V extends View>(child: V, key?: string): V;
-  override appendChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(factory: F, key?: string): InstanceType<F>;
+  override appendChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(childFactory: F, key?: string): InstanceType<F>;
+  override appendChild<V extends View>(child: V | LikeType<V>, key?: string): V;
   override appendChild<K extends keyof SvgViewTagMap>(tag: K, key?: string): SvgViewTagMap[K];
-  override appendChild(child: AnyView | Node | keyof SvgViewTagMap, key?: string): View;
-  override appendChild(child: AnyView | Node | keyof SvgViewTagMap, key?: string): View {
+  override appendChild(child: View | LikeType<SvgView>, key?: string): View;
+  override appendChild(child: View | LikeType<SvgView>, key?: string): View {
     if (typeof child === "string") {
       child = SvgView.fromTag(child);
     }
     return super.appendChild(child, key);
   }
 
-  override prependChild<V extends View>(child: V, key?: string): V;
-  override prependChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(factory: F, key?: string): InstanceType<F>;
+  override prependChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(childFactory: F, key?: string): InstanceType<F>;
+  override prependChild<V extends View>(child: V | LikeType<V>, key?: string): V;
   override prependChild<K extends keyof SvgViewTagMap>(tag: K, key?: string): SvgViewTagMap[K];
-  override prependChild(child: AnyView | Node | keyof SvgViewTagMap, key?: string): View;
-  override prependChild(child: AnyView | Node | keyof SvgViewTagMap, key?: string): View {
+  override prependChild(child: View | LikeType<SvgView>, key?: string): View;
+  override prependChild(child: View | LikeType<SvgView>, key?: string): View {
     if (typeof child === "string") {
       child = SvgView.fromTag(child);
     }
     return super.prependChild(child, key);
   }
 
-  override insertChild<V extends View>(child: V, target: View | Node | null, key?: string): V;
-  override insertChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(factory: F, target: View | Node | null, key?: string): InstanceType<F>;
+  override insertChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(childFactory: F, target: View | Node | null, key?: string): InstanceType<F>;
+  override insertChild<V extends View>(child: V | LikeType<V>, target: View | Node | null, key?: string): V;
   override insertChild<K extends keyof SvgViewTagMap>(tag: K, target: View | Node | null, key?: string): SvgViewTagMap[K];
-  override insertChild(child: AnyView | Node | keyof SvgViewTagMap, target: View | Node | null, key?: string): View;
-  override insertChild(child: AnyView | Node | keyof SvgViewTagMap, target: View | Node | null, key?: string): View {
+  override insertChild(child: View | LikeType<SvgView>, target: View | Node | null, key?: string): View;
+  override insertChild(child: View | LikeType<SvgView>, target: View | Node | null, key?: string): View {
     if (typeof child === "string") {
       child = SvgView.fromTag(child);
     }
     return super.insertChild(child, target, key);
   }
 
-  override replaceChild<V extends View>(newChild: View, oldChild: V): V;
-  override replaceChild<V extends View>(newChild: AnyView | Node | keyof SvgViewTagMap, oldChild: V): V;
-  override replaceChild(newChild: AnyView | Node | keyof SvgViewTagMap, oldChild: View): View {
+  override replaceChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(newChildFactory: F, oldChild: View): View;
+  override replaceChild<V extends View>(newChild: View | LikeType<SvgView>, oldChild: V): V;
+  override replaceChild(newChild: View | LikeType<SvgView>, oldChild: View): View;
+  override replaceChild(newChild: View | LikeType<SvgView>, oldChild: View): View {
     if (typeof newChild === "string") {
       newChild = SvgView.fromTag(newChild);
     }
@@ -243,12 +240,12 @@ export class SvgView extends ElementView {
   }
 
   @AttributeAnimator({attributeName: "dx", valueType: Length, value: null})
-  get dx(): AttributeAnimator<this, Length | null, AnyLength | null> {
+  get dx(): AttributeAnimator<this, Length | null> {
     return AttributeAnimator.dummy();
   }
 
   @AttributeAnimator({attributeName: "dy", valueType: Length, value: null})
-  get dy(): AttributeAnimator<this, Length | null, AnyLength | null> {
+  get dy(): AttributeAnimator<this, Length | null> {
     return AttributeAnimator.dummy();
   }
 
@@ -258,7 +255,7 @@ export class SvgView extends ElementView {
   }
 
   @AttributeAnimator({attributeName: "fill", valueType: Color, value: null})
-  get fill(): AttributeAnimator<this, Color | null, AnyColor | null> {
+  get fill(): AttributeAnimator<this, Color | null> {
     return AttributeAnimator.dummy();
   }
 
@@ -273,7 +270,7 @@ export class SvgView extends ElementView {
   }
 
   @AttributeAnimator({attributeName: "flood-color", valueType: Color, value: null})
-  get floodColor(): AttributeAnimator<this, Color | null, AnyColor | null> {
+  get floodColor(): AttributeAnimator<this, Color | null> {
     return AttributeAnimator.dummy();
   }
 
@@ -283,7 +280,7 @@ export class SvgView extends ElementView {
   }
 
   @AttributeAnimator({attributeName: "height", valueType: Length, value: null})
-  get height(): AttributeAnimator<this, Length | null, AnyLength | null> {
+  get height(): AttributeAnimator<this, Length | null> {
     return AttributeAnimator.dummy();
   }
 
@@ -343,7 +340,7 @@ export class SvgView extends ElementView {
   }
 
   @AttributeAnimator({attributeName: "stroke", valueType: Color, value: null})
-  get stroke(): AttributeAnimator<this, Color | null, AnyColor | null> {
+  get stroke(): AttributeAnimator<this, Color | null> {
     return AttributeAnimator.dummy();
   }
 
@@ -388,12 +385,12 @@ export class SvgView extends ElementView {
   }
 
   @AttributeAnimator({attributeName: "textLength", valueType: Length, value: null})
-  get textLength(): AttributeAnimator<this, Length | null, AnyLength | null> {
+  get textLength(): AttributeAnimator<this, Length | null> {
     return AttributeAnimator.dummy();
   }
 
   @AttributeAnimator({attributeName: "transform", valueType: Transform, value: null})
-  get transform(): AttributeAnimator<this, Transform | null, AnyTransform | null> {
+  get transform(): AttributeAnimator<this, Transform | null> {
     return AttributeAnimator.dummy();
   }
 
@@ -413,7 +410,7 @@ export class SvgView extends ElementView {
   }
 
   @AttributeAnimator({attributeName: "width", valueType: Length, value: null})
-  get width(): AttributeAnimator<this, Length | null, AnyLength | null> {
+  get width(): AttributeAnimator<this, Length | null> {
     return AttributeAnimator.dummy();
   }
 
@@ -448,7 +445,7 @@ export class SvgView extends ElementView {
   }
 
   @StyleAnimator({propertyNames: "transform", valueType: Transform, value: null})
-  get cssTransform(): StyleAnimator<this, Transform | null, AnyTransform | null> {
+  get cssTransform(): StyleAnimator<this, Transform | null> {
     return StyleAnimator.dummy();
   }
 
@@ -458,8 +455,8 @@ export class SvgView extends ElementView {
   }
 
   font(): Font | null;
-  font(value: AnyFont | null, timing?: AnyTiming | boolean): this;
-  font(value?: AnyFont | null, timing?: AnyTiming | boolean): Font | null | this {
+  font(value: FontLike | null, timing?: TimingLike | boolean): this;
+  font(value?: FontLike | null, timing?: TimingLike | boolean): Font | null | this {
     if (value === void 0) {
       const style = this.fontStyle.value;
       const variant = this.fontVariant.value;
@@ -473,7 +470,7 @@ export class SvgView extends ElementView {
       }
       return Font.create(style, variant, weight, stretch, size, height, family);
     } if (value !== null) {
-      value = Font.fromAny(value);
+      value = Font.fromLike(value);
       if (value.style !== void 0) {
         this.fontStyle.setState(value.style, timing);
       }
@@ -506,12 +503,12 @@ export class SvgView extends ElementView {
   }
 
   @StyleAnimator({propertyNames: "font-family", valueType: FontFamily})
-  get fontFamily(): StyleAnimator<this, FontFamily | FontFamily[] | undefined, FontFamily | ReadonlyArray<FontFamily> | undefined> {
+  get fontFamily(): StyleAnimator<this, FontFamily | readonly FontFamily[] | undefined> {
     return StyleAnimator.dummy();
   }
 
   @StyleAnimator({propertyNames: "font-size", valueType: Length, value: null})
-  get fontSize(): StyleAnimator<this, Length | null, AnyLength | null> {
+  get fontSize(): StyleAnimator<this, Length | null> {
     return StyleAnimator.dummy();
   }
 
@@ -536,7 +533,7 @@ export class SvgView extends ElementView {
   }
 
   @StyleAnimator({propertyNames: "line-height", valueType: Length, value: null})
-  get lineHeight(): StyleAnimator<this, Length | null, AnyLength | null> {
+  get lineHeight(): StyleAnimator<this, Length | null> {
     return StyleAnimator.dummy();
   }
 
@@ -572,22 +569,20 @@ export class SvgView extends ElementView {
     return this.fromTag(this.tag);
   }
 
-  static override fromAny<S extends Class<Instance<S, SvgView>>>(this: S, value: AnySvgView<InstanceType<S>>): InstanceType<S>;
-  static override fromAny(value: AnySvgView | string): SvgView;
-  static override fromAny(value: AnySvgView | string): SvgView {
+  static override fromLike<S extends Class<Instance<S, View>>>(this: S, value: InstanceType<S> | LikeType<InstanceType<S>>): InstanceType<S> {
     if (value === void 0 || value === null) {
-      return value;
+      return value as InstanceType<S>;
     } else if (value instanceof View) {
       if (!(value instanceof this)) {
         throw new TypeError(value + " not an instance of " + this);
       }
       return value;
-    } else if (value instanceof Node) {
-      return this.fromNode(value);
-    } else if (typeof value === "string") {
-      return this.fromTag(value);
+    } else if (value instanceof SVGElement) {
+      return (this as unknown as typeof SvgView).fromNode(value) as InstanceType<S>;
     } else if (Creatable[Symbol.hasInstance](value)) {
-      return this.create();
+      return (value as Creatable<InstanceType<S>>).create();
+    } else if (typeof value === "string") {
+      return (this as unknown as typeof SvgView).fromTag(value) as InstanceType<S>;
     }
     throw new TypeError("" + value);
   }
@@ -642,8 +637,8 @@ export class SvgViewTagFactory<V extends SvgView> implements SvgViewFactory<V> {
     return this.fromTag(this.tag);
   }
 
-  fromAny(value: AnySvgView<V>): V {
-    return this.factory.fromAny(value);
+  fromLike(value: V | LikeType<V>): V {
+    return this.factory.fromLike(value);
   }
 
   fromNode(node: ViewNodeType<V>): V {

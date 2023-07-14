@@ -14,7 +14,7 @@
 
 import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import {R2Box} from "@swim/math";
@@ -23,7 +23,7 @@ import {View} from "@swim/view";
 import {ViewRef} from "@swim/view";
 import type {HtmlView} from "@swim/dom";
 import type {CanvasView} from "@swim/graphics";
-import type {AnyGeoPerspective} from "./GeoPerspective";
+import type {GeoPerspectiveLike} from "./GeoPerspective";
 import type {GeoViewport} from "./GeoViewport";
 import type {MapViewObserver} from "./MapView";
 import {MapView} from "./MapView";
@@ -66,7 +66,7 @@ export class WorldMapView extends MapView {
     super.willProcess(processFlags);
   }
 
-  override moveTo(geoPerspective: AnyGeoPerspective, timing?: AnyTiming | boolean): void {
+  override moveTo(geoPerspective: GeoPerspectiveLike, timing?: TimingLike | boolean): void {
     // nop
   }
 

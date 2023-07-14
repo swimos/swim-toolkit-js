@@ -16,7 +16,6 @@ import type {Class} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
-import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
 import type {Model} from "@swim/model";
 import type {TraitObserver} from "@swim/model";
@@ -24,7 +23,6 @@ import {Trait} from "@swim/model";
 import {TraitRef} from "@swim/model";
 import {TraitSet} from "@swim/model";
 import type {ColLayout} from "./ColLayout";
-import type {AnyTableLayout} from "./TableLayout";
 import {TableLayout} from "./TableLayout";
 import {RowTrait} from "./RowTrait";
 import {ColTrait} from "./ColTrait";
@@ -77,7 +75,7 @@ export class TableTrait extends Trait {
       this.owner.callObservers("traitDidSetTableLayout", layout, this.owner);
     },
   })
-  readonly layout!: Property<this, TableLayout | null, AnyTableLayout | null>;
+  readonly layout!: Property<this, TableLayout | null>;
 
   @Property({
     valueType: Length,
@@ -86,7 +84,7 @@ export class TableTrait extends Trait {
       this.owner.updateLayout();
     },
   })
-  readonly colSpacing!: Property<this, Length | null, AnyLength | null>;
+  readonly colSpacing!: Property<this, Length | null>;
 
   @TraitRef({
     traitType: HeaderTrait,

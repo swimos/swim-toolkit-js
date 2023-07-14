@@ -85,13 +85,12 @@ export class ViewportService extends Service {
 
   @EventTimer({
     delay: 33,
-    type: ["resize", "scroll"],
+    eventType: ["resize", "scroll"],
     initTarget(): EventTarget | null {
       if (typeof window !== "undefined") {
         return window;
-      } else {
-        return null;
       }
+      return null;
     },
     handle(event: Event): void {
       this.owner.layoutViewport.update();
@@ -147,13 +146,12 @@ export class ViewportService extends Service {
 
   @EventTimer({
     delay: 33,
-    type: "resize",
+    eventType: "resize",
     initTarget(): EventTarget | null {
       if (typeof window !== "undefined" && window.visualViewport !== void 0) {
         return window.visualViewport;
-      } else {
-        return null;
       }
+      return null;
     },
     handle(event: Event): void {
       this.owner.visualViewport.update();
@@ -239,13 +237,12 @@ export class ViewportService extends Service {
   };
 
   @EventHandler({
-    type: "change",
+    eventType: "change",
     initTarget(): EventTarget | null {
       if (typeof window !== "undefined") {
         return window.matchMedia("(orientation: landscape)");
-      } else {
-        return null;
       }
+      return null;
     },
     handle(event: MediaQueryListEvent): void {
       this.owner.orientation.update();
@@ -285,13 +282,12 @@ export class ViewportService extends Service {
   };
 
   @EventHandler({
-    type: "change",
+    eventType: "change",
     initTarget(): EventTarget | null {
       if (typeof window !== "undefined") {
         return window.matchMedia("(prefers-color-scheme: dark)");
-      } else {
-        return null;
       }
+      return null;
     },
     handle(event: MediaQueryListEvent): void {
       this.owner.colorScheme.update();
@@ -333,13 +329,12 @@ export class ViewportService extends Service {
 
   @EventTimer({
     delay: 100, // work around safe area not available on standalone load
-    type: "load",
+    eventType: "load",
     initTarget(): EventTarget | null {
       if (typeof window !== "undefined") {
         return window;
-      } else {
-        return null;
       }
+      return null;
     },
     handle(event: Event): void {
       this.owner.layoutViewport.update();

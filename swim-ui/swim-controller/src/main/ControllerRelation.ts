@@ -14,6 +14,7 @@
 
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
+import type {LikeType} from "@swim/util";
 import type {Observes} from "@swim/util";
 import type {Consumer} from "@swim/util";
 import type {Consumable} from "@swim/util";
@@ -21,17 +22,12 @@ import type {FastenerFlags} from "@swim/component";
 import type {FastenerDescriptor} from "@swim/component";
 import type {FastenerClass} from "@swim/component";
 import {Fastener} from "@swim/component";
-import type {AnyController} from "./Controller";
 import type {ControllerFactory} from "./Controller";
 import {Controller} from "./Controller";
 
 /** @public */
-export interface ControllerRelationDescriptor<C extends Controller = Controller> extends FastenerDescriptor {
+export interface ControllerRelationDescriptor<R, C extends Controller> extends FastenerDescriptor<R> {
   extends?: Proto<ControllerRelation<any, any>> | boolean | null;
-  controllerType?: ControllerFactory<C>;
-  binds?: boolean;
-  consumed?: boolean;
-  observes?: boolean;
 }
 
 /** @public */
@@ -46,78 +42,33 @@ export interface ControllerRelationClass<F extends ControllerRelation<any, any> 
 }
 
 /** @public */
-export interface ControllerRelation<O = unknown, C extends Controller = Controller> extends Fastener<O>, Consumable {
+export interface ControllerRelation<R = any, C extends Controller = Controller> extends Fastener<R>, Consumable {
   /** @override */
-  get descriptorType(): Proto<ControllerRelationDescriptor<C>>;
+  get descriptorType(): Proto<ControllerRelationDescriptor<R, C>>;
 
   /** @override */
   get fastenerType(): Proto<ControllerRelation<any, any>>;
 
-  /** @protected */
-  readonly consumed?: boolean; // optional prototype property
+  get consumed(): boolean;
 
-  /** @internal */
-  readonly observes?: boolean; // optional prototype property
+  get controllerType(): ControllerFactory<C> | null;
 
-  /** @internal @override */
-  setDerived(derived: boolean, inlet: ControllerRelation<unknown, C>): void;
-
-  /** @protected @override */
-  willDerive(inlet: ControllerRelation<unknown, C>): void;
-
-  /** @protected @override */
-  onDerive(inlet: ControllerRelation<unknown, C>): void;
-
-  /** @protected @override */
-  didDerive(inlet: ControllerRelation<unknown, C>): void;
-
-  /** @protected @override */
-  willUnderive(inlet: ControllerRelation<unknown, C>): void;
-
-  /** @protected @override */
-  onUnderive(inlet: ControllerRelation<unknown, C>): void;
-
-  /** @protected @override */
-  didUnderive(inlet: ControllerRelation<unknown, C>): void;
+  get observes(): boolean;
 
   /** @override */
-  get parent(): ControllerRelation<unknown, C> | null;
-
-  /** @override */
-  readonly inlet: ControllerRelation<unknown, C> | null;
-
-  /** @override */
-  bindInlet(inlet: ControllerRelation<unknown, C>): void;
-
-  /** @protected @override */
-  willBindInlet(inlet: ControllerRelation<unknown, C>): void;
-
-  /** @protected @override */
-  onBindInlet(inlet: ControllerRelation<unknown, C>): void;
-
-  /** @protected @override */
-  didBindInlet(inlet: ControllerRelation<unknown, C>): void;
-
-  /** @protected @override */
-  willUnbindInlet(inlet: ControllerRelation<unknown, C>): void;
-
-  /** @protected @override */
-  onUnbindInlet(inlet: ControllerRelation<unknown, C>): void;
-
-  /** @protected @override */
-  didUnbindInlet(inlet: ControllerRelation<unknown, C>): void;
+  get parent(): ControllerRelation<any, C> | null;
 
   /** @internal */
-  readonly outlets: ReadonlyArray<ControllerRelation<unknown, C>> | null;
+  readonly outlets: ReadonlySet<Fastener<any, any, any>> | null;
 
   /** @internal @override */
-  attachOutlet(outlet: ControllerRelation<unknown, C>): void;
+  attachOutlet(outlet: Fastener<any, any, any>): void;
 
   /** @internal @override */
-  detachOutlet(outlet: ControllerRelation<unknown, C>): void;
+  detachOutlet(outlet: Fastener<any, any, any>): void;
 
-  /** @internal */
-  readonly controllerType?: ControllerFactory<C>; // optional prototype property
+  /** @internal @protected */
+  decohereOutlets(): void;
 
   /** @protected */
   initController(controller: C): void;
@@ -143,10 +94,9 @@ export interface ControllerRelation<O = unknown, C extends Controller = Controll
   /** @protected */
   didDetachController(controller: C): void;
 
-  /** @internal @protected */
   get parentController(): Controller | null;
 
-  /** @internal @protected */
+  /** @protected */
   insertChild(parent: Controller, child: C, target: Controller | null, key: string | undefined): void;
 
   /** @internal */
@@ -159,8 +109,8 @@ export interface ControllerRelation<O = unknown, C extends Controller = Controll
 
   createController(): C;
 
-  /** @internal @protected */
-  fromAny(value: AnyController<C>): C;
+  /** @protected */
+  fromLike(value: C | LikeType<C>): C;
 
   /** @internal */
   readonly consumers: ReadonlySet<Consumer> | null;
@@ -223,111 +173,115 @@ export interface ControllerRelation<O = unknown, C extends Controller = Controll
 }
 
 /** @public */
-export const ControllerRelation = (function (_super: typeof Fastener) {
-  const ControllerRelation = _super.extend("ControllerRelation", {}) as ControllerRelationClass;
+export const ControllerRelation = (<R, C extends Controller, F extends ControllerRelation<any, any>>() => Fastener.extend<ControllerRelation<R, C>, ControllerRelationClass<F>>("ControllerRelation", {
+  get fastenerType(): Proto<ControllerRelation<any, any>> {
+    return ControllerRelation;
+  },
 
-  Object.defineProperty(ControllerRelation.prototype, "fastenerType", {
-    value: ControllerRelation,
-    enumerable: true,
-    configurable: true,
-  });
+  consumed: false,
 
-  ControllerRelation.prototype.attachOutlet = function <C extends Controller>(this: ControllerRelation<unknown, C>, outlet: ControllerRelation<unknown, C>): void {
-    let outlets = this.outlets as ControllerRelation<unknown, C>[] | null;
+  controllerType: null,
+
+  observes: false,
+
+  attachOutlet(outlet: Fastener<any, any, any>): void {
+    let outlets = this.outlets as Set<Fastener<any, any, any>> | null;
     if (outlets === null) {
-      outlets = [];
+      outlets = new Set<Fastener<any, any, any>>();
       (this as Mutable<typeof this>).outlets = outlets;
     }
-    outlets.push(outlet);
-  };
+    outlets.add(outlet);
+  },
 
-  ControllerRelation.prototype.detachOutlet = function <C extends Controller>(this: ControllerRelation<unknown, C>, outlet: ControllerRelation<unknown, C>): void {
-    const outlets = this.outlets as ControllerRelation<unknown, C>[] | null;
+  detachOutlet(outlet: Fastener<any, any, any>): void {
+    const outlets = this.outlets as Set<Fastener<any, any, any>> | null;
     if (outlets === null) {
       return;
     }
-    const index = outlets.indexOf(outlet);
-    if (index < 0) {
+    outlets.delete(outlet);
+  },
+
+  decohereOutlets(): void {
+    const outlets = this.outlets;
+    if (outlets === null) {
       return;
     }
-    outlets.splice(index, 1);
-  };
+    for (const outlet of outlets) {
+      outlet.decohere(this);
+    }
+  },
 
-  ControllerRelation.prototype.initController = function <C extends Controller>(this: ControllerRelation<unknown, C>, controller: C): void {
+  initController(controller: C): void {
     // hook
-  };
+  },
 
-  ControllerRelation.prototype.willAttachController = function <C extends Controller>(this: ControllerRelation<unknown, C>, controller: C, target: Controller | null): void {
+  willAttachController(controller: C, target: Controller | null): void {
     // hook
-  };
+  },
 
-  ControllerRelation.prototype.onAttachController = function <C extends Controller>(this: ControllerRelation<unknown, C>, controller: C, target: Controller | null): void {
+  onAttachController(controller: C, target: Controller | null): void {
     if (this.observes === true) {
       controller.observe(this as Observes<C>);
     }
     if ((this.flags & ControllerRelation.ConsumingFlag) !== 0) {
       controller.consume(this);
     }
-  };
+  },
 
-  ControllerRelation.prototype.didAttachController = function <C extends Controller>(this: ControllerRelation<unknown, C>, controller: C, target: Controller | null): void {
+  didAttachController(controller: C, target: Controller | null): void {
     // hook
-  };
+  },
 
-  ControllerRelation.prototype.deinitController = function <C extends Controller>(this: ControllerRelation<unknown, C>, controller: C): void {
+  deinitController(controller: C): void {
     // hook
-  };
+  },
 
-  ControllerRelation.prototype.willDetachController = function <C extends Controller>(this: ControllerRelation<unknown, C>, controller: C): void {
+  willDetachController(controller: C): void {
     // hook
-  };
+  },
 
-  ControllerRelation.prototype.onDetachController = function <C extends Controller>(this: ControllerRelation<unknown, C>, controller: C): void {
+  onDetachController(controller: C): void {
     if ((this.flags & ControllerRelation.ConsumingFlag) !== 0) {
       controller.unconsume(this);
     }
     if (this.observes === true) {
       controller.unobserve(this as Observes<C>);
     }
-  };
+  },
 
-  ControllerRelation.prototype.didDetachController = function <C extends Controller>(this: ControllerRelation<unknown, C>, controller: C): void {
+  didDetachController(controller: C): void {
     // hook
-  };
+  },
 
-  Object.defineProperty(ControllerRelation.prototype, "parentController", {
-    get(this: ControllerRelation): Controller | null {
-      const owner = this.owner;
-      return owner instanceof Controller ? owner : null;
-    },
-    enumerable: true,
-    configurable: true,
-  });
+  get parentController(): Controller | null {
+    const owner = this.owner;
+    return owner instanceof Controller ? owner : null;
+  },
 
-  ControllerRelation.prototype.insertChild = function <C extends Controller>(this: ControllerRelation<unknown, C>, parent: Controller, child: C, target: Controller | null, key: string | undefined): void {
+  insertChild(parent: Controller, child: C, target: Controller | null, key: string | undefined): void {
     parent.insertChild(child, target, key);
-  };
+  },
 
-  ControllerRelation.prototype.bindController = function <C extends Controller>(this: ControllerRelation<unknown, C>, controller: Controller, target: Controller | null): void {
+  bindController(controller: Controller, target: Controller | null): void {
     // hook
-  };
+  },
 
-  ControllerRelation.prototype.unbindController = function <C extends Controller>(this: ControllerRelation<unknown, C>, controller: Controller): void {
+  unbindController(controller: Controller): void {
     // hook
-  };
+  },
 
-  ControllerRelation.prototype.detectController = function <C extends Controller>(this: ControllerRelation<unknown, C>, controller: Controller): C | null {
+  detectController(controller: Controller): C | null {
     return null;
-  };
+  },
 
-  ControllerRelation.prototype.createController = function <C extends Controller>(this: ControllerRelation<unknown, C>): C {
+  createController(): C {
     let controller: C | undefined;
     const controllerType = this.controllerType;
-    if (controllerType !== void 0) {
+    if (controllerType !== null) {
       controller = controllerType.create();
     }
     if (controller === void 0 || controller === null) {
-      let message = "Unable to create ";
+      let message = "unable to create ";
       const name = this.name.toString();
       if (name.length !== 0) {
         message += name + " ";
@@ -336,17 +290,17 @@ export const ControllerRelation = (function (_super: typeof Fastener) {
       throw new Error(message);
     }
     return controller;
-  };
+  },
 
-  ControllerRelation.prototype.fromAny = function <C extends Controller>(this: ControllerRelation<unknown, C>, value: AnyController<C>): C {
+  fromLike(value: C | LikeType<C>): C {
     const controllerType = this.controllerType;
-    if (controllerType !== void 0) {
-      return controllerType.fromAny(value);
+    if (controllerType !== null) {
+      return controllerType.fromLike(value);
     }
-    return Controller.fromAny(value) as C;
-  };
+    return Controller.fromLike(value) as C;
+  },
 
-  ControllerRelation.prototype.consume = function (this: ControllerRelation, consumer: Consumer): void {
+  consume(consumer: Consumer): void {
     let consumers = this.consumers as Set<Consumer> | null;
     if (consumers === null) {
       consumers = new Set<Consumer>();
@@ -361,21 +315,21 @@ export const ControllerRelation = (function (_super: typeof Fastener) {
     if (consumers.size === 1 && this.mounted) {
       this.startConsuming();
     }
-  };
+  },
 
-  ControllerRelation.prototype.willConsume = function (this: ControllerRelation, consumer: Consumer): void {
+  willConsume(consumer: Consumer): void {
     // hook
-  };
+  },
 
-  ControllerRelation.prototype.onConsume = function (this: ControllerRelation, consumer: Consumer): void {
+  onConsume(consumer: Consumer): void {
     // hook
-  };
+  },
 
-  ControllerRelation.prototype.didConsume = function (this: ControllerRelation, consumer: Consumer): void {
+  didConsume(consumer: Consumer): void {
     // hook
-  };
+  },
 
-  ControllerRelation.prototype.unconsume = function (this: ControllerRelation, consumer: Consumer): void {
+  unconsume(consumer: Consumer): void {
     const consumers = this.consumers as Set<Consumer> | null;
     if (consumers === null || !consumers.has(consumer)) {
       return;
@@ -387,29 +341,25 @@ export const ControllerRelation = (function (_super: typeof Fastener) {
     if (consumers.size === 0) {
       this.stopConsuming();
     }
-  };
+  },
 
-  ControllerRelation.prototype.willUnconsume = function (this: ControllerRelation, consumer: Consumer): void {
+  willUnconsume(consumer: Consumer): void {
     // hook
-  };
+  },
 
-  ControllerRelation.prototype.onUnconsume = function (this: ControllerRelation, consumer: Consumer): void {
+  onUnconsume(consumer: Consumer): void {
     // hook
-  };
+  },
 
-  ControllerRelation.prototype.didUnconsume = function (this: ControllerRelation, consumer: Consumer): void {
+  didUnconsume(consumer: Consumer): void {
     // hook
-  };
+  },
 
-  Object.defineProperty(ControllerRelation.prototype, "consuming", {
-    get(this: ControllerRelation): boolean {
-      return (this.flags & ControllerRelation.ConsumingFlag) !== 0;
-    },
-    enumerable: true,
-    configurable: true,
-  });
+  get consuming(): boolean {
+    return (this.flags & ControllerRelation.ConsumingFlag) !== 0;
+  },
 
-  ControllerRelation.prototype.startConsuming = function (this: ControllerRelation): void {
+  startConsuming(): void {
     if ((this.flags & ControllerRelation.ConsumingFlag) !== 0) {
       return;
     }
@@ -417,21 +367,21 @@ export const ControllerRelation = (function (_super: typeof Fastener) {
     this.setFlags(this.flags | ControllerRelation.ConsumingFlag);
     this.onStartConsuming();
     this.didStartConsuming();
-  };
+  },
 
-  ControllerRelation.prototype.willStartConsuming = function (this: ControllerRelation): void {
+  willStartConsuming(): void {
     // hook
-  };
+  },
 
-  ControllerRelation.prototype.onStartConsuming = function (this: ControllerRelation): void {
+  onStartConsuming(): void {
     // hook
-  };
+  },
 
-  ControllerRelation.prototype.didStartConsuming = function (this: ControllerRelation): void {
+  didStartConsuming(): void {
     // hook
-  };
+  },
 
-  ControllerRelation.prototype.stopConsuming = function (this: ControllerRelation): void {
+  stopConsuming(): void {
     if ((this.flags & ControllerRelation.ConsumingFlag) === 0) {
       return;
     }
@@ -439,43 +389,42 @@ export const ControllerRelation = (function (_super: typeof Fastener) {
     this.setFlags(this.flags & ~ControllerRelation.ConsumingFlag);
     this.onStopConsuming();
     this.didStopConsuming();
-  };
+  },
 
-  ControllerRelation.prototype.willStopConsuming = function (this: ControllerRelation): void {
+  willStopConsuming(): void {
     // hook
-  };
+  },
 
-  ControllerRelation.prototype.onStopConsuming = function (this: ControllerRelation): void {
+  onStopConsuming(): void {
     // hook
-  };
+  },
 
-  ControllerRelation.prototype.didStopConsuming = function (this: ControllerRelation): void {
+  didStopConsuming(): void {
     // hook
-  };
+  },
 
-  ControllerRelation.prototype.onMount = function (this: ControllerRelation): void {
-    _super.prototype.onMount.call(this);
+  onMount(): void {
+    super.onMount();
     if (this.consumers !== null && this.consumers.size !== 0) {
       this.startConsuming();
     }
-  };
+  },
 
-  ControllerRelation.prototype.onUnmount = function (this: ControllerRelation): void {
-    _super.prototype.onUnmount.call(this);
+  onUnmount(): void {
+    super.onUnmount();
     this.stopConsuming();
-  };
-
-  ControllerRelation.construct = function <F extends ControllerRelation<any, any>>(fastener: F | null, owner: F extends ControllerRelation<infer O, any> ? O : never): F {
-    fastener = _super.construct.call(this, fastener, owner) as F;
+  },
+},
+{
+  construct(fastener: F | null, owner: F extends Fastener<infer R, any, any> ? R : never): F {
+    fastener = super.construct(fastener, owner) as F;
     (fastener as Mutable<typeof fastener>).outlets = null;
     (fastener as Mutable<typeof fastener>).consumers = null;
     return fastener;
-  };
+  },
 
-  (ControllerRelation as Mutable<typeof ControllerRelation>).ConsumingFlag = 1 << (_super.FlagShift + 0);
+  ConsumingFlag: 1 << (Fastener.FlagShift + 0),
 
-  (ControllerRelation as Mutable<typeof ControllerRelation>).FlagShift = _super.FlagShift + 1;
-  (ControllerRelation as Mutable<typeof ControllerRelation>).FlagMask = (1 << ControllerRelation.FlagShift) - 1;
-
-  return ControllerRelation;
-})(Fastener);
+  FlagShift: Fastener.FlagShift + 1,
+  FlagMask: (1 << (Fastener.FlagShift + 1)) - 1,
+}))();

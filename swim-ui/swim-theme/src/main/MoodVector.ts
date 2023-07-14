@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import type {Uninitable} from "@swim/util";
+import type {Proto} from "@swim/util";
 import {Lazy} from "@swim/util";
 import {Arrays} from "@swim/util";
 import type {Equals} from "@swim/util";
@@ -23,24 +24,26 @@ import type {Feel} from "./Feel";
 import type {Mood} from "./Mood";
 
 /** @public */
-export type AnyMoodVector<M extends Mood = Feel> = MoodVector<M> | MoodVectorArray<M>;
+export type MoodVectorLike<M extends Mood = Feel> = MoodVector<M> | MoodVectorArray<M>;
 
 /** @public */
-export type MoodVectorArray<M extends Mood = Feel> = ReadonlyArray<[M, number]>;
+export type MoodVectorArray<M extends Mood = Feel> = readonly [M, number][];
 
 /** @public */
-export type MoodVectorUpdates<M extends Mood = Feel> = ReadonlyArray<[M, number | undefined]>;
+export type MoodVectorUpdates<M extends Mood = Feel> = readonly [M, number | undefined][];
 
 /** @public */
 export class MoodVector<M extends Mood = Feel> implements Equals, Debug {
-  constructor(array: ReadonlyArray<[M, number]>,
+  constructor(array: readonly [M, number][],
               index: {readonly [name: string]: number | undefined}) {
     this.array = array;
     this.index = index;
   }
 
+  declare readonly likeType?: Proto<MoodVectorArray<M>>;
+
   /** @internal */
-  readonly array: ReadonlyArray<[M, number]>;
+  readonly array: readonly [M, number][];
 
   /** @internal */
   readonly index: {readonly [name: string]: number | undefined};
@@ -227,7 +230,7 @@ export class MoodVector<M extends Mood = Feel> implements Equals, Debug {
     return combination;
   }
 
-  protected copy(array: ReadonlyArray<[M, number]>,
+  protected copy(array: readonly [M, number][],
                  index?: {readonly [name: string]: number | undefined}): MoodVector<M> {
     return MoodVector.fromArray(array, index);
   }
@@ -287,7 +290,7 @@ export class MoodVector<M extends Mood = Feel> implements Equals, Debug {
     return new MoodVector(keys, MoodVector.index(keys));
   }
 
-  static fromAny<M extends Mood, V extends AnyMoodVector<M> | null | undefined>(value: V): MoodVector<M> | Uninitable<V> {
+  static fromLike<M extends Mood, V extends MoodVectorLike<M> | null | undefined>(value: V): MoodVector<M> | Uninitable<V> {
     if (value === void 0 || value === null || value instanceof MoodVector) {
       return value as MoodVector<M> | Uninitable<V>;
     } else if (Array.isArray(value)) {
@@ -296,7 +299,7 @@ export class MoodVector<M extends Mood = Feel> implements Equals, Debug {
     throw new TypeError("" + value);
   }
 
-  static fromArray<M extends Mood>(array: ReadonlyArray<[M, number]>,
+  static fromArray<M extends Mood>(array: readonly [M, number][],
                                    index?: {[name: string]: number | undefined}): MoodVector<M> {
     if (index === void 0) {
       index = MoodVector.index(array);
@@ -305,7 +308,7 @@ export class MoodVector<M extends Mood = Feel> implements Equals, Debug {
   }
 
   /** @internal */
-  static index<M extends Mood>(array: ReadonlyArray<[M, unknown]>): {readonly [name: string]: number | undefined} {
+  static index<M extends Mood>(array: readonly [M, unknown][]): {readonly [name: string]: number | undefined} {
     const index: {[name: string]: number | undefined} = {};
     for (let i = 0, n = array.length; i < n; i += 1) {
       const entry = array[i]!;

@@ -17,9 +17,7 @@ import type {Instance} from "@swim/util";
 import type {Creatable} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
-import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
-import type {AnyExpansion} from "@swim/style";
 import type {Expansion} from "@swim/style";
 import {ExpansionAnimator} from "@swim/style";
 import {Look} from "@swim/theme";
@@ -32,7 +30,6 @@ import {PositionGesture} from "@swim/view";
 import type {ViewNode} from "@swim/dom";
 import type {HtmlViewObserver} from "@swim/dom";
 import {HtmlView} from "@swim/dom";
-import type {AnyTableLayout} from "./TableLayout";
 import {TableLayout} from "./TableLayout";
 import {ColView} from "./ColView";
 
@@ -64,19 +61,19 @@ export class HeaderView extends HtmlView {
   declare readonly observerType?: Class<HeaderViewObserver>;
 
   @Property({valueType: TableLayout, value: null, inherits: true, updateFlags: View.NeedsLayout})
-  readonly layout!: Property<this, TableLayout | null, AnyTableLayout | null>;
+  readonly layout!: Property<this, TableLayout | null>;
 
   @Property({valueType: Number, value: 0, inherits: true, updateFlags: View.NeedsLayout})
   readonly depth!: Property<this, number>;
 
   @ThemeConstraintAnimator({valueType: Length, value: null, inherits: true, updateFlags: View.NeedsLayout})
-  readonly rowSpacing!: ThemeConstraintAnimator<this, Length | null, AnyLength | null>;
+  readonly rowSpacing!: ThemeConstraintAnimator<this, Length | null>;
 
   @ThemeConstraintAnimator({valueType: Length, value: null, inherits: true, updateFlags: View.NeedsLayout})
-  readonly rowHeight!: ThemeConstraintAnimator<this, Length | null, AnyLength | null>;
+  readonly rowHeight!: ThemeConstraintAnimator<this, Length | null>;
 
   @ExpansionAnimator({value: null, inherits: true, updateFlags: View.NeedsLayout})
-  readonly stretch!: ExpansionAnimator<this, Expansion | null, AnyExpansion | null>;
+  readonly stretch!: ExpansionAnimator<this, Expansion | null>;
 
   getCol<F extends Class<ColView>>(key: string, colViewClass: F): InstanceType<F> | null;
   getCol(key: string): ColView | null;

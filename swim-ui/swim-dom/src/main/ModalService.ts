@@ -61,15 +61,16 @@ export class ModalService extends Service {
   @ViewSet({
     observes: true,
     get parentView(): ElementView | null {
-      let parentView = this.owner.matte.view;
-      if (parentView === null) {
-        const bodyNode = document.body as ViewElement;
-        const bodyView = bodyNode.view;
-        if (bodyView !== void 0) {
-          parentView = bodyView;
-        }
+      const parentView = this.owner.matte.view;
+      if (parentView !== null) {
+        return parentView;
       }
-      return parentView;
+      const bodyNode = document.body as ViewElement;
+      const bodyView = bodyNode.view;
+      if (bodyView === void 0) {
+        return null;
+      }
+      return bodyView;
     },
     insertChild(parent: View, child: ElementView, target: View | null, key: string | undefined): void {
       super.insertChild(parent, child, target, key);
@@ -160,15 +161,16 @@ export class ModalService extends Service {
     valueType: Number,
     value: 0,
     update(): void {
-      if (this.hasAffinity(Affinity.Intrinsic)) {
-        let modality = 0;
-        const modalViews = this.owner.modals.views;
-        for (const viewId in modalViews) {
-          const modalView = modalViews[viewId]!;
-          modality = Math.min(Math.max(modality, modalView.modality.value), 1);
-        }
-        this.setValue(modality, Affinity.Intrinsic);
+      if (!this.hasAffinity(Affinity.Intrinsic)) {
+        return;
       }
+      let modality = 0;
+      const modalViews = this.owner.modals.views;
+      for (const viewId in modalViews) {
+        const modalView = modalViews[viewId]!;
+        modality = Math.min(Math.max(modality, modalView.modality.value), 1);
+      }
+      this.setValue(modality, Affinity.Intrinsic);
     },
     didSetValue(newModality: number, oldModality: number): void {
       this.owner.callObservers("serviceDidSetModality", newModality, oldModality, this.owner);
@@ -180,14 +182,8 @@ export class ModalService extends Service {
   };
 
   @EventHandler({
-    type: "click",
-    initTarget(): EventTarget | null {
-      if (typeof document !== "undefined") {
-        return document;
-      } else {
-        return null;
-      }
-    },
+    eventType: "click",
+    target: typeof document !== "undefined" ? document : null,
     handle(event: Event): void {
       this.owner.displaceModals();
     },

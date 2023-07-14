@@ -14,6 +14,7 @@
 
 import type {Uninitable} from "@swim/util";
 import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
 import {Equals} from "@swim/util";
 import {Equivalent} from "@swim/util";
 import {Objects} from "@swim/util";
@@ -23,19 +24,19 @@ import {Diagnostic} from "@swim/codec";
 import type {Input} from "@swim/codec";
 import {Parser} from "@swim/codec";
 import {Unicode} from "@swim/codec";
-import {AnyLength} from "@swim/math";
+import {LengthLike} from "@swim/math";
 import {Length} from "@swim/math";
 import {LengthParser} from "@swim/math";
-import {AnyColor} from "./Color";
+import {ColorLike} from "./Color";
 import {Color} from "./Color";
 import {ColorParser} from "./Color";
 
 /** @public */
-export type AnyColorStop = ColorStop | ColorStopInit | ColorStopTuple | string;
+export type ColorStopLike = ColorStop | ColorStopInit | ColorStopTuple | string;
 
 /** @public */
-export const AnyColorStop = {
-  [Symbol.hasInstance](instance: unknown): instance is AnyColorStop {
+export const ColorStopLike = {
+  [Symbol.hasInstance](instance: unknown): instance is ColorStopLike {
     return instance instanceof ColorStop
         || ColorStopInit[Symbol.hasInstance](instance)
         || ColorStopTuple[Symbol.hasInstance](instance)
@@ -45,9 +46,9 @@ export const AnyColorStop = {
 
 /** @public */
 export interface ColorStopInit {
-  color: AnyColor;
-  stop?: AnyLength;
-  hint?: AnyLength;
+  color: ColorLike;
+  stop?: LengthLike;
+  hint?: LengthLike;
 }
 
 /** @public */
@@ -58,14 +59,14 @@ export const ColorStopInit = {
 };
 
 /** @public */
-export type ColorStopTuple = [AnyColor, AnyLength | null];
+export type ColorStopTuple = [ColorLike, LengthLike | null];
 
 /** @public */
 export const ColorStopTuple = {
   [Symbol.hasInstance](instance: unknown): instance is ColorStopTuple {
     return Array.isArray(instance) && instance.length === 2
-        && AnyColor[Symbol.hasInstance](instance[0])
-        && (instance[1] === null || AnyLength[Symbol.hasInstance](instance[1]));
+        && ColorLike[Symbol.hasInstance](instance[0])
+        && (instance[1] === null || LengthLike[Symbol.hasInstance](instance[1]));
   },
 };
 
@@ -77,24 +78,26 @@ export class ColorStop implements Interpolate<ColorStop>, Equals, Equivalent {
     this.hint = hint;
   }
 
+  declare readonly likeType?: Proto<ColorStopInit | ColorStopTuple | string>;
+
   readonly color: Color;
 
-  withColor(color: AnyColor): ColorStop {
-    color = Color.fromAny(color);
+  withColor(color: ColorLike): ColorStop {
+    color = Color.fromLike(color);
     return new ColorStop(color, this.stop, this.hint);
   }
 
   readonly stop: Length | null;
 
-  withStop(stop: AnyLength | null): ColorStop {
-    stop = Length.fromAny(stop, "%");
+  withStop(stop: LengthLike | null): ColorStop {
+    stop = Length.fromLike(stop, "%");
     return new ColorStop(this.color, stop, this.hint);
   }
 
   readonly hint: Length | null;
 
-  withHint(hint: AnyLength | null): ColorStop {
-    hint = Length.fromAny(hint, "%");
+  withHint(hint: LengthLike | null): ColorStop {
+    hint = Length.fromLike(hint, "%");
     return new ColorStop(this.color, this.stop, hint);
   }
 
@@ -147,15 +150,15 @@ export class ColorStop implements Interpolate<ColorStop>, Equals, Equivalent {
     return s;
   }
 
-  static create(color: AnyColor, stop: AnyLength | null = null,
-                hint: AnyLength | null = null): ColorStop {
-    color = Color.fromAny(color);
-    stop = Length.fromAny(stop, "%");
-    hint = Length.fromAny(hint, "%");
+  static create(color: ColorLike, stop: LengthLike | null = null,
+                hint: LengthLike | null = null): ColorStop {
+    color = Color.fromLike(color);
+    stop = Length.fromLike(stop, "%");
+    hint = Length.fromLike(hint, "%");
     return new ColorStop(color, stop, hint);
   }
 
-  static fromAny<T extends AnyColorStop | null | undefined>(value: T): ColorStop | Uninitable<T> {
+  static fromLike<T extends ColorStopLike | null | undefined>(value: T): ColorStop | Uninitable<T> {
     if (value === void 0 || value === null || value instanceof ColorStop) {
       return value as ColorStop | Uninitable<T>;
     } else if (typeof value === "string") {
@@ -169,15 +172,15 @@ export class ColorStop implements Interpolate<ColorStop>, Equals, Equivalent {
   }
 
   static fromInit(init: ColorStopInit): ColorStop {
-    const color = Color.fromAny(init.color);
-    const stop = init.stop !== void 0 ? Length.fromAny(init.stop, "%") : null;
-    const hint = init.hint !== void 0 ? Length.fromAny(init.hint, "%") : null;
+    const color = Color.fromLike(init.color);
+    const stop = init.stop !== void 0 ? Length.fromLike(init.stop, "%") : null;
+    const hint = init.hint !== void 0 ? Length.fromLike(init.hint, "%") : null;
     return new ColorStop(color, stop, hint);
   }
 
   static fromTuple(value: ColorStopTuple): ColorStop {
-    const color = Color.fromAny(value[0]);
-    const stop = Length.fromAny(value[1], "%");
+    const color = Color.fromLike(value[0]);
+    const stop = Length.fromLike(value[1], "%");
     return new ColorStop(color, stop, null);
   }
 
@@ -469,11 +472,11 @@ export class ColorStopParser extends Parser<ColorStop> {
 
 /** @internal */
 export class ColorStopListParser extends Parser<ColorStop[]> {
-  private readonly stops: ReadonlyArray<ColorStop> | undefined;
+  private readonly stops: readonly ColorStop[] | undefined;
   private readonly stopParser: Parser<ColorStop> | undefined;
   private readonly step: number | undefined;
 
-  constructor(stops?: ReadonlyArray<ColorStop>, stopParser?: Parser<ColorStop>, step?: number) {
+  constructor(stops?: readonly ColorStop[], stopParser?: Parser<ColorStop>, step?: number) {
     super();
     this.stops = stops;
     this.stopParser = stopParser;

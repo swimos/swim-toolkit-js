@@ -13,17 +13,14 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import {Timing} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import {ConstraintProperty} from "@swim/constraint";
-import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
-import type {AnyPresence} from "@swim/style";
 import {Presence} from "@swim/style";
 import {PresenceAnimator} from "@swim/style";
-import type {AnyExpansion} from "@swim/style";
 import {Expansion} from "@swim/style";
 import {ExpansionAnimator} from "@swim/style";
 import {Look} from "@swim/theme";
@@ -83,10 +80,10 @@ export class DrawerView extends HtmlView implements ModalView {
   }
 
   @ThemeConstraintAnimator({valueType: Length, value: Length.px(60)})
-  readonly collapsedWidth!: ThemeConstraintAnimator<this, Length, AnyLength>;
+  readonly collapsedWidth!: ThemeConstraintAnimator<this, Length>;
 
   @ThemeConstraintAnimator({valueType: Length, value: Length.px(200)})
-  readonly expandedWidth!: ThemeConstraintAnimator<this, Length, AnyLength>;
+  readonly expandedWidth!: ThemeConstraintAnimator<this, Length>;
 
   @ConstraintProperty({
     valueType: Length,
@@ -98,7 +95,7 @@ export class DrawerView extends HtmlView implements ModalView {
       return value !== null ? value.pxValue() : 0;
     },
   })
-  readonly effectiveWidth!: ConstraintProperty<this, Length | null, AnyLength | null>;
+  readonly effectiveWidth!: ConstraintProperty<this, Length | null>;
 
   @ConstraintProperty({
     valueType: Length,
@@ -110,7 +107,7 @@ export class DrawerView extends HtmlView implements ModalView {
       return value !== null ? value.pxValue() : 0;
     },
   })
-  readonly effectiveHeight!: ConstraintProperty<this, Length | null, AnyLength | null>;
+  readonly effectiveHeight!: ConstraintProperty<this, Length | null>;
 
   isHorizontal(): boolean {
     return this.placement.value === "top" || this.placement.value === "bottom";
@@ -154,7 +151,7 @@ export class DrawerView extends HtmlView implements ModalView {
       this.owner.callObservers("viewDidDismiss", this.owner);
     },
   })
-  readonly presence!: PresenceAnimator<this, Presence, AnyPresence>;
+  readonly presence!: PresenceAnimator<this, Presence>;
 
   @ExpansionAnimator({
     value: Expansion.expanded(),
@@ -177,7 +174,7 @@ export class DrawerView extends HtmlView implements ModalView {
       this.owner.callObservers("viewDidCollapse", this.owner);
     },
   })
-  readonly stretch!: ExpansionAnimator<this, Expansion, AnyExpansion>;
+  readonly stretch!: ExpansionAnimator<this, Expansion>;
 
   @Property({
     extends: true,
@@ -355,47 +352,47 @@ export class DrawerView extends HtmlView implements ModalView {
   })
   readonly modality!: Property<this, number>;
 
-  present(timing?: AnyTiming | boolean): void {
+  present(timing?: TimingLike | boolean): void {
     if (timing === void 0 || timing === true) {
       timing = this.getLookOr(Look.timing, false);
     } else {
-      timing = Timing.fromAny(timing);
+      timing = Timing.fromLike(timing);
     }
     this.presence.present(timing);
   }
 
-  dismiss(timing?: AnyTiming | boolean): void {
+  dismiss(timing?: TimingLike | boolean): void {
     if (timing === void 0 || timing === true) {
       timing = this.getLookOr(Look.timing, false);
     } else {
-      timing = Timing.fromAny(timing);
+      timing = Timing.fromLike(timing);
     }
     this.presence.dismiss(timing);
   }
 
-  expand(timing?: AnyTiming | boolean): void {
+  expand(timing?: TimingLike | boolean): void {
     if (timing === void 0 || timing === true) {
       timing = this.getLookOr(Look.timing, false);
     } else {
-      timing = Timing.fromAny(timing);
+      timing = Timing.fromLike(timing);
     }
     this.stretch.expand(timing);
   }
 
-  collapse(timing?: AnyTiming | boolean): void {
+  collapse(timing?: TimingLike | boolean): void {
     if (timing === void 0 || timing === true) {
       timing = this.getLookOr(Look.timing, false);
     } else {
-      timing = Timing.fromAny(timing);
+      timing = Timing.fromLike(timing);
     }
     this.stretch.collapse(timing);
   }
 
-  toggle(timing?: AnyTiming | boolean): void {
+  toggle(timing?: TimingLike | boolean): void {
     if (timing === void 0 || timing === true) {
       timing = this.getLookOr(Look.timing, false);
     } else {
-      timing = Timing.fromAny(timing);
+      timing = Timing.fromLike(timing);
     }
     if (this.viewIdiom === "mobile" || this.isHorizontal()) {
       if (this.presence.presented) {

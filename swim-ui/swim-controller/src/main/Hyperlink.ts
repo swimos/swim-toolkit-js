@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Uninitable} from "@swim/util";
+import type {Proto} from "@swim/util";
 import {Objects} from "@swim/util";
 import type {Equals} from "@swim/util";
 import type {Output} from "@swim/codec";
@@ -21,13 +23,15 @@ import type {HistoryStateInit} from "./HistoryState";
 import {HistoryService} from "./HistoryService";
 
 /** @public */
-export type AnyHyperlink = Hyperlink | HyperlinkInit | string;
+export type HyperlinkLike = Hyperlink | HyperlinkInit | string;
 
 /** @public */
 export type HyperlinkInit = HistoryHyperlinkInit | LocationHyperlinkInit;
 
 /** @public */
 export abstract class Hyperlink implements Equals, Debug {
+  declare readonly likeType?: Proto<HyperlinkInit | string>;
+
   abstract readonly state: Readonly<HistoryStateInit> | null;
 
   abstract readonly href: string | undefined;
@@ -55,11 +59,9 @@ export abstract class Hyperlink implements Equals, Debug {
     return new LocationHyperlink(href, title);
   }
 
-  static fromAny(hyperlink: AnyHyperlink): Hyperlink;
-  static fromAny(hyperlink: AnyHyperlink | null | undefined): Hyperlink | null | undefined;
-  static fromAny(hyperlink: AnyHyperlink | null | undefined): Hyperlink | null | undefined {
+  static fromLike<T extends HyperlinkLike | null | undefined>(hyperlink: T): Hyperlink | Uninitable<T> {
     if (hyperlink === void 0 || hyperlink === null || hyperlink instanceof Hyperlink) {
-      return hyperlink;
+      return hyperlink as Hyperlink | Uninitable<T>;
     } else if (typeof hyperlink === "string") {
       return new LocationHyperlink(hyperlink, void 0);
     } else if (!("state" in hyperlink) && !("href" in hyperlink)) {

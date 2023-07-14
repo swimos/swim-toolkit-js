@@ -19,10 +19,8 @@ import type {Creatable} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
-import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
 import {R2Box} from "@swim/math";
-import type {AnyExpansion} from "@swim/style";
 import {Expansion} from "@swim/style";
 import {ExpansionAnimator} from "@swim/style";
 import {Look} from "@swim/theme";
@@ -35,7 +33,6 @@ import {ViewSet} from "@swim/view";
 import type {PositionGestureInput} from "@swim/view";
 import type {HtmlViewObserver} from "@swim/dom";
 import {HtmlView} from "@swim/dom";
-import type {AnyTableLayout} from "./TableLayout";
 import {TableLayout} from "./TableLayout";
 import type {LeafView} from "./LeafView";
 import {RowView} from "./RowView";
@@ -110,7 +107,7 @@ export class TableView extends HtmlView {
   declare readonly observerType?: Class<TableViewObserver>;
 
   @Property({valueType: TableLayout, value: null, inherits: true, updateFlags: View.NeedsLayout})
-  readonly layout!: Property<this, TableLayout | null, AnyTableLayout | null>;
+  readonly layout!: Property<this, TableLayout | null>;
 
   @Property({
     valueType: Number,
@@ -124,10 +121,10 @@ export class TableView extends HtmlView {
   readonly depth!: Property<this, number>;
 
   @ThemeConstraintAnimator({valueType: Length, value: Length.zero(), inherits: true, updateFlags: View.NeedsLayout})
-  readonly rowSpacing!: ThemeConstraintAnimator<this, Length, AnyLength>;
+  readonly rowSpacing!: ThemeConstraintAnimator<this, Length>;
 
   @ThemeConstraintAnimator({valueType: Length, value: Length.px(24), inherits: true, updateFlags: View.NeedsLayout})
-  readonly rowHeight!: ThemeConstraintAnimator<this, Length, AnyLength>;
+  readonly rowHeight!: ThemeConstraintAnimator<this, Length>;
 
   @Property({valueType: Boolean, value: false, inherits: true})
   readonly hovers!: Property<this, boolean>;
@@ -166,19 +163,19 @@ export class TableView extends HtmlView {
       }
     },
   })
-  readonly expansion!: ExpansionAnimator<this, Expansion, AnyExpansion>;
+  readonly expansion!: ExpansionAnimator<this, Expansion>;
 
   @ExpansionAnimator({value: Expansion.expanded(), inherits: true})
-  readonly expanding!: ExpansionAnimator<this, Expansion | null, AnyExpansion | null>;
+  readonly expanding!: ExpansionAnimator<this, Expansion | null>;
 
   @ExpansionAnimator({value: null, inherits: true})
-  readonly disclosure!: ExpansionAnimator<this, Expansion | null, AnyExpansion | null>;
+  readonly disclosure!: ExpansionAnimator<this, Expansion | null>;
 
   @ExpansionAnimator({value: Expansion.expanded(), inherits: true})
-  readonly disclosing!: ExpansionAnimator<this, Expansion | null, AnyExpansion | null>;
+  readonly disclosing!: ExpansionAnimator<this, Expansion | null>;
 
   @ExpansionAnimator({value: null, inherits: true, updateFlags: View.NeedsLayout})
-  readonly stretch!: ExpansionAnimator<this, Expansion | null, AnyExpansion | null>;
+  readonly stretch!: ExpansionAnimator<this, Expansion | null>;
 
   @ViewRef({
     viewType: HeaderView,
@@ -304,7 +301,7 @@ export class TableView extends HtmlView {
   readonly rows!: ViewSet<this, RowView> & Observes<RowView>;
 
   /** @internal */
-  readonly visibleViews: ReadonlyArray<View>;
+  readonly visibleViews: readonly View[];
 
   @Property({
     valueType: R2Box,

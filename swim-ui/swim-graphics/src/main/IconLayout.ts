@@ -14,6 +14,7 @@
 
 import type {Uninitable} from "@swim/util";
 import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
 import {Murmur3} from "@swim/util";
 import {Numbers} from "@swim/util";
 import {Constructors} from "@swim/util";
@@ -25,15 +26,15 @@ import {Interpolator} from "@swim/util";
 import type {Output} from "@swim/codec";
 import type {Debug} from "@swim/codec";
 import {Format} from "@swim/codec";
-import type {AnyLength} from "@swim/math";
+import type {LengthLike} from "@swim/math";
 import {Length} from "@swim/math";
 
 /** @public */
-export type AnyIconLayout = IconLayout | IconLayoutInit;
+export type IconLayoutLike = IconLayout | IconLayoutInit;
 
 /** @public */
-export const AnyIconLayout = {
-  [Symbol.hasInstance](instance: unknown): instance is AnyIconLayout {
+export const IconLayoutLike = {
+  [Symbol.hasInstance](instance: unknown): instance is IconLayoutLike {
     return instance instanceof IconLayout
         || IconLayoutInit[Symbol.hasInstance](instance);
   },
@@ -42,9 +43,9 @@ export const AnyIconLayout = {
 /** @public */
 export interface IconLayoutInit {
   /** @internal */
-  typeid?: "IconLayoutInit";
-  width: AnyLength;
-  height: AnyLength;
+  readonly typeid?: "IconLayoutInit";
+  width: LengthLike;
+  height: LengthLike;
   xAlign?: number;
   yAlign?: number;
 }
@@ -66,12 +67,14 @@ export class IconLayout implements Interpolate<IconLayout>, Equivalent, HashCode
   }
 
   /** @internal */
-  declare typeid?: "IconLayout";
+  declare readonly typeid?: "IconLayout";
+
+  declare readonly likeType?: Proto<IconLayoutInit>;
 
   readonly width: Length;
 
-  withWidth(width: AnyLength): IconLayout {
-    width = Length.fromAny(width);
+  withWidth(width: LengthLike): IconLayout {
+    width = Length.fromLike(width);
     if (width.equals(this.width)) {
       return this;
     }
@@ -80,17 +83,17 @@ export class IconLayout implements Interpolate<IconLayout>, Equivalent, HashCode
 
   readonly height: Length;
 
-  withHeight(height: AnyLength): IconLayout {
-    height = Length.fromAny(height);
+  withHeight(height: LengthLike): IconLayout {
+    height = Length.fromLike(height);
     if (height.equals(this.height)) {
       return this;
     }
     return this.copy(this.width, height, this.xAlign, this.yAlign);
   }
 
-  withSize(width: AnyLength, height: AnyLength): IconLayout {
-    width = Length.fromAny(width);
-    height = Length.fromAny(height);
+  withSize(width: LengthLike, height: LengthLike): IconLayout {
+    width = Length.fromLike(width);
+    height = Length.fromLike(height);
     if (width.equals(this.width) && height.equals(this.height)) {
       return this;
     }
@@ -122,7 +125,7 @@ export class IconLayout implements Interpolate<IconLayout>, Equivalent, HashCode
     return this.copy(this.width, this.height, xAlign, yAlign);
   }
 
-  toAny(): IconLayoutInit {
+  toLike(): IconLayoutInit {
     return {
       width: this.width,
       height: this.height,
@@ -189,9 +192,9 @@ export class IconLayout implements Interpolate<IconLayout>, Equivalent, HashCode
     return Format.debug(this);
   }
 
-  static of(width: AnyLength, height: AnyLength, xAlign?: number, yAlign?: number): IconLayout {
-    width = Length.fromAny(width);
-    height = Length.fromAny(height);
+  static of(width: LengthLike, height: LengthLike, xAlign?: number, yAlign?: number): IconLayout {
+    width = Length.fromLike(width);
+    height = Length.fromLike(height);
     if (xAlign === void 0) {
       xAlign = 0.5;
     }
@@ -201,7 +204,7 @@ export class IconLayout implements Interpolate<IconLayout>, Equivalent, HashCode
     return new IconLayout(width, height, xAlign, yAlign);
   }
 
-  static fromAny<T extends AnyIconLayout | null | undefined>(value: T): IconLayout | Uninitable<T> {
+  static fromLike<T extends IconLayoutLike | null | undefined>(value: T): IconLayout | Uninitable<T> {
     if (value === void 0 || value === null || value instanceof IconLayout) {
       return value as IconLayout | Uninitable<T>;
     } else if (IconLayoutInit[Symbol.hasInstance](value)) {
@@ -211,8 +214,8 @@ export class IconLayout implements Interpolate<IconLayout>, Equivalent, HashCode
   }
 
   static fromInit(init: IconLayoutInit): IconLayout {
-    const width = Length.fromAny(init.width);
-    const height = Length.fromAny(init.height);
+    const width = Length.fromLike(init.width);
+    const height = Length.fromLike(init.height);
     let xAlign = init.xAlign;
     let yAlign = init.yAlign;
     if (xAlign === void 0) {

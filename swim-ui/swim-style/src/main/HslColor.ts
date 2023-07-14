@@ -14,6 +14,7 @@
 
 import type {Uninitable} from "@swim/util";
 import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
 import {Lazy} from "@swim/util";
 import {Murmur3} from "@swim/util";
 import {Numbers} from "@swim/util";
@@ -27,21 +28,21 @@ import {Parser} from "@swim/codec";
 import {Unicode} from "@swim/codec";
 import type {Item} from "@swim/structure";
 import {Value} from "@swim/structure";
-import type {AnyAngle} from "@swim/math";
+import type {AngleLike} from "@swim/math";
 import {Angle} from "@swim/math";
 import {AngleParser} from "@swim/math";
-import type {AnyColor} from "./Color";
+import type {ColorLike} from "./Color";
 import {Color} from "./Color";
 import type {ColorChannel} from "./Color";
 import {ColorChannelParser} from "./Color";
 import {RgbColor} from "./RgbColor";
 
 /** @public */
-export type AnyHslColor = HslColor | HslColorInit | string;
+export type HslColorLike = HslColor | HslColorInit | string;
 
 /** @public */
-export const AnyHslColor = {
-  [Symbol.hasInstance](instance: unknown): instance is AnyHslColor {
+export const HslColorLike = {
+  [Symbol.hasInstance](instance: unknown): instance is HslColorLike {
     return instance instanceof HslColor
         || HslColorInit[Symbol.hasInstance](instance)
         || typeof instance === "string";
@@ -50,7 +51,7 @@ export const AnyHslColor = {
 
 /** @public */
 export interface HslColorInit {
-  readonly h: AnyAngle;
+  readonly h: AngleLike;
   readonly s: number;
   readonly l: number;
   readonly a?: number;
@@ -73,6 +74,9 @@ export class HslColor extends Color {
     this.a = a;
     this.stringValue = void 0;
   }
+
+  /** @override */
+  declare readonly likeType?: Proto<HslColorInit | string>;
 
   override isDefined(): boolean {
     return isFinite(this.h) && isFinite(this.s)
@@ -102,8 +106,8 @@ export class HslColor extends Color {
     return this.l;
   }
 
-  override plus(that: AnyColor): HslColor {
-    that = Color.fromAny(that).hsl();
+  override plus(that: ColorLike): HslColor {
+    that = Color.fromLike(that).hsl();
     return new HslColor(this.h + (that as HslColor).h, this.s + (that as HslColor).s,
                         this.l + (that as HslColor).l, this.a + (that as HslColor).a);
   }
@@ -112,8 +116,8 @@ export class HslColor extends Color {
     return new HslColor(this.h * scalar, this.s * scalar, this.l * scalar, this.a * scalar);
   }
 
-  override combine(that: AnyColor, scalar: number = 1): HslColor {
-    that = Color.fromAny(that).hsl();
+  override combine(that: ColorLike, scalar: number = 1): HslColor {
+    that = Color.fromLike(that).hsl();
     return new HslColor(this.h + (that as HslColor).h * scalar, this.s + (that as HslColor).s * scalar,
                         this.l + (that as HslColor).l * scalar, this.a + (that as HslColor).a * scalar);
   }
@@ -249,9 +253,9 @@ export class HslColor extends Color {
     return new HslColor(0, 1, 1, alpha);
   }
 
-  static override fromAny<T extends AnyHslColor | null | undefined>(value: T): HslColor | Uninitable<T>;
-  static override fromAny<T extends AnyColor | null | undefined>(value: T): never;
-  static override fromAny<T extends AnyHslColor | null | undefined>(value: T): HslColor | Uninitable<T> {
+  static override fromLike<T extends HslColorLike | null | undefined>(value: T): HslColor | Uninitable<T>;
+  static override fromLike<T extends ColorLike | null | undefined>(value: T): never;
+  static override fromLike<T extends HslColorLike | null | undefined>(value: T): HslColor | Uninitable<T> {
     if (value === void 0 || value === null || value instanceof HslColor) {
       return value as HslColor | Uninitable<T>;
     } else if (typeof value === "string") {
@@ -263,7 +267,7 @@ export class HslColor extends Color {
   }
 
   static override fromInit(value: HslColorInit): HslColor {
-    const h = typeof value.h === "number" ? value.h : Angle.fromAny(value.h).degValue();
+    const h = typeof value.h === "number" ? value.h : Angle.fromLike(value.h).degValue();
     return new HslColor(h, value.s, value.l, value.a);
   }
 

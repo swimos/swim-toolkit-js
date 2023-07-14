@@ -16,7 +16,6 @@ import type {Timing} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Animator} from "@swim/component";
 import {R2Box} from "@swim/math";
-import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import type {MoodVector} from "@swim/theme";
 import type {ThemeMatrix} from "@swim/theme";
@@ -26,10 +25,8 @@ import {Graphics} from "./Graphics";
 import {GraphicsView} from "./GraphicsView";
 import {PaintingRenderer} from "./PaintingRenderer";
 import {CanvasRenderer} from "./CanvasRenderer";
-import type {AnyIconLayout} from "./IconLayout";
 import {IconLayout} from "./IconLayout";
 import {Icon} from "./Icon";
-import {FilledIcon} from "./FilledIcon";
 import type {IconView} from "./IconView";
 import {IconGraphicsAnimator} from "./IconView";
 
@@ -37,7 +34,7 @@ import {IconGraphicsAnimator} from "./IconView";
 export class GraphicsIconView extends GraphicsView implements IconView {
   /** @override */
   @Animator({valueType: IconLayout, value: null, updateFlags: View.NeedsRender})
-  readonly iconLayout!: Animator<this, IconLayout | null, AnyIconLayout | null>;
+  readonly iconLayout!: Animator<this, IconLayout | null>;
 
   /** @override */
   @ThemeAnimator({
@@ -45,15 +42,11 @@ export class GraphicsIconView extends GraphicsView implements IconView {
     value: null,
     updateFlags: View.NeedsRender,
     didSetState(iconColor: Color | null): void {
-      const oldGraphics = this.owner.graphics.value;
-      if (oldGraphics instanceof FilledIcon) {
-        const newGraphics = oldGraphics.withFillColor(iconColor);
-        const timing = this.timing !== null ? this.timing : false;
-        this.owner.graphics.setState(newGraphics, timing, Affinity.Reflexive);
-      }
+      const timing = this.timing !== null ? this.timing : false;
+      this.owner.graphics.setState(this.owner.graphics.state, timing, Affinity.Reflexive);
     },
   })
-  get iconColor(): ThemeAnimator<this, Color | null, AnyColor | null> {
+  get iconColor(): ThemeAnimator<this, Color | null> {
     return ThemeAnimator.dummy();
   }
 

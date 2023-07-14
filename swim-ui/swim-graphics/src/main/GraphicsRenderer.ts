@@ -12,12 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Proto} from "@swim/util";
+
 /** @public */
-export type AnyGraphicsRenderer = GraphicsRenderer | GraphicsRendererType;
+export type GraphicsRendererLike = GraphicsRenderer | GraphicsRendererType;
 
 /** @public */
 export type GraphicsRendererType = "canvas" | "webgl";
 
 /** @public */
 export abstract class GraphicsRenderer {
+  declare likeType?: Proto<GraphicsRendererType>;
 }

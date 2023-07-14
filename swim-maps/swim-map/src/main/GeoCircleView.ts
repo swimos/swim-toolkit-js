@@ -17,18 +17,14 @@ import type {Class} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import {Animator} from "@swim/component";
-import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
-import type {AnyR2Point} from "@swim/math";
 import {R2Point} from "@swim/math";
 import {R2Segment} from "@swim/math";
 import {R2Box} from "@swim/math";
 import {R2Circle} from "@swim/math";
 import type {Transform} from "@swim/math";
-import type {AnyGeoPoint} from "@swim/geo";
 import {GeoPoint} from "@swim/geo";
 import {GeoBox} from "@swim/geo";
-import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
@@ -77,22 +73,22 @@ export class GeoCircleView extends GeoView implements FillView, StrokeView {
       this.owner.callObservers("viewDidSetGeoCenter", newGeoCenter, this.owner);
     },
   })
-  readonly geoCenter!: Animator<this, GeoPoint | null, AnyGeoPoint | null>;
+  readonly geoCenter!: Animator<this, GeoPoint | null>;
 
   @Animator({valueType: R2Point, value: R2Point.undefined(), updateFlags: View.NeedsRender})
-  readonly viewCenter!: Animator<this, R2Point | null, AnyR2Point | null>;
+  readonly viewCenter!: Animator<this, R2Point | null>;
 
   @ThemeAnimator({valueType: Length, value: Length.zero(), updateFlags: View.NeedsRender})
-  readonly radius!: ThemeAnimator<this, Length, AnyLength>;
+  readonly radius!: ThemeAnimator<this, Length>;
 
   @ThemeAnimator({valueType: Color, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly fill!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly fill!: ThemeAnimator<this, Color | null>;
 
   @ThemeAnimator({valueType: Color, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly stroke!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly stroke!: ThemeAnimator<this, Color | null>;
 
   @ThemeAnimator({valueType: Length, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly strokeWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
+  readonly strokeWidth!: ThemeAnimator<this, Length | null>;
 
   @Property({valueType: Number})
   readonly hitRadius!: Property<this, number | undefined>;

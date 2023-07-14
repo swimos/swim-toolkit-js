@@ -12,26 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {AnyR2Point} from "@swim/math";
 import type {R2Point} from "@swim/math";
-import type {AnyFont} from "@swim/style";
 import type {Font} from "@swim/style";
-import type {AnyColor} from "@swim/style";
 import type {Color} from "@swim/style";
 import type {ThemeAnimator} from "@swim/theme";
 import {GraphicsView} from "./GraphicsView";
 
 /** @public */
 export interface TypesetView extends GraphicsView {
-  readonly font: ThemeAnimator<this, Font | null, AnyFont | null>;
+  readonly font: ThemeAnimator<this, Font | null>;
 
   readonly textAlign: ThemeAnimator<this, CanvasTextAlign | undefined>;
 
   readonly textBaseline: ThemeAnimator<this, CanvasTextBaseline | undefined>;
 
-  readonly textOrigin: ThemeAnimator<this, R2Point | null, AnyR2Point | null>;
+  readonly textOrigin: ThemeAnimator<this, R2Point | null>;
 
-  readonly textColor: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly textColor: ThemeAnimator<this, Color | null>;
 }
 
 /** @public */

@@ -18,13 +18,13 @@ export type {FontStyle} from "./Font";
 export type {FontVariant} from "./Font";
 export type {FontWeight} from "./Font";
 export type {FontStretch} from "./Font";
-export type {AnyFontSize} from "./Font";
+export type {FontSizeLike} from "./Font";
 export {FontSize} from "./Font";
-export type {AnyLineHeight} from "./Font";
+export type {LineHeightLike} from "./Font";
 export {LineHeight} from "./Font";
 export type {GenericFamily} from "./Font";
 export {FontFamily} from "./Font";
-export {AnyFont} from "./Font";
+export {FontLike} from "./Font";
 export {FontInit} from "./Font";
 export {Font} from "./Font";
 export {FontInterpolator} from "./Font";
@@ -33,7 +33,7 @@ export {FontParser} from "./Font";
 
 // Color
 
-export {AnyColor} from "./Color";
+export {ColorLike} from "./Color";
 export {ColorInit} from "./Color";
 export {Color} from "./Color";
 export {ColorForm} from "./Color";
@@ -41,14 +41,14 @@ export {ColorParser} from "./Color";
 export {ColorChannel} from "./Color";
 export {ColorChannelParser} from "./Color";
 
-export {AnyRgbColor} from "./RgbColor";
+export {RgbColorLike} from "./RgbColor";
 export {RgbColorInit} from "./RgbColor";
 export {RgbColor} from "./RgbColor";
 export {RgbColorInterpolator} from "./RgbColor";
 export {RgbColorParser} from "./RgbColor";
 export {HexColorParser} from "./RgbColor";
 
-export {AnyHslColor} from "./HslColor";
+export {HslColorLike} from "./HslColor";
 export {HslColorInit} from "./HslColor";
 export {HslColor} from "./HslColor";
 export {HslColorInterpolator} from "./HslColor";
@@ -56,7 +56,7 @@ export {HslColorParser} from "./HslColor";
 
 // Gradient
 
-export {AnyColorStop} from "./ColorStop";
+export {ColorStopLike} from "./ColorStop";
 export {ColorStopInit} from "./ColorStop";
 export {ColorStopTuple} from "./ColorStop";
 export {ColorStop} from "./ColorStop";
@@ -64,11 +64,11 @@ export {ColorStopInterpolator} from "./ColorStop";
 export {ColorStopParser} from "./ColorStop";
 export {ColorStopListParser} from "./ColorStop";
 
-export type {AnyLinearGradientAngle} from "./LinearGradient";
+export type {LinearGradientAngleLike} from "./LinearGradient";
 export type {LinearGradientAngle} from "./LinearGradient";
 export type {LinearGradientCorner} from "./LinearGradient";
 export type {LinearGradientSide} from "./LinearGradient";
-export {AnyLinearGradient} from "./LinearGradient";
+export {LinearGradientLike} from "./LinearGradient";
 export {LinearGradientInit} from "./LinearGradient";
 export {LinearGradient} from "./LinearGradient";
 export {LinearGradientInterpolator} from "./LinearGradient";
@@ -77,7 +77,7 @@ export {LinearGradientParser} from "./LinearGradient";
 
 // Shadow
 
-export {AnyBoxShadow} from "./BoxShadow";
+export {BoxShadowLike} from "./BoxShadow";
 export {BoxShadowInit} from "./BoxShadow";
 export {BoxShadow} from "./BoxShadow";
 export {BoxShadowInterpolator} from "./BoxShadow";
@@ -86,7 +86,7 @@ export {BoxShadowParser} from "./BoxShadow";
 
 // Value
 
-export type {AnyStyleValue} from "./StyleValue";
+export type {StyleValueLike} from "./StyleValue";
 export {StyleValue} from "./StyleValue";
 export {StyleValueForm} from "./StyleValue";
 export {StyleValueParser} from "./StyleValue";
@@ -97,7 +97,7 @@ export {ToCssValue} from "./ToCssValue";
 
 // Focus
 
-export {AnyFocus} from "./Focus";
+export {FocusLike} from "./Focus";
 export {FocusInit} from "./Focus";
 export {Focus} from "./Focus";
 export {FocusInterpolator} from "./Focus";
@@ -105,7 +105,7 @@ export {FocusAnimator} from "./Focus";
 
 // Presence
 
-export {AnyPresence} from "./Presence";
+export {PresenceLike} from "./Presence";
 export {PresenceInit} from "./Presence";
 export {Presence} from "./Presence";
 export {PresenceInterpolator} from "./Presence";
@@ -113,7 +113,7 @@ export {PresenceAnimator} from "./Presence";
 
 // Expansion
 
-export {AnyExpansion} from "./Expansion";
+export {ExpansionLike} from "./Expansion";
 export {ExpansionInit} from "./Expansion";
 export {Expansion} from "./Expansion";
 export {ExpansionInterpolator} from "./Expansion";

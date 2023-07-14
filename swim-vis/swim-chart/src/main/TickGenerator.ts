@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {AnyDomain} from "@swim/util";
+import type {DomainLike} from "@swim/util";
 import type {Domain} from "@swim/util";
 import {LinearDomain} from "@swim/util";
 import type {ContinuousScale} from "@swim/util";
 import {LinearScale} from "@swim/util";
 import {BTree} from "@swim/collections";
 import type {TimeZone} from "@swim/time";
-import type {AnyDateTime} from "@swim/time";
+import type {DateTimeLike} from "@swim/time";
 import {DateTime} from "@swim/time";
 import {TimeDomain} from "@swim/time";
 import {DateTimeFormat} from "@swim/time";
@@ -73,7 +73,7 @@ export abstract class TickGenerator<D> {
   abstract count(n: number): this;
 
   abstract domain(): Domain<D>;
-  abstract domain(xs: AnyDomain<D>): this;
+  abstract domain(xs: DomainLike<D>): this;
   abstract domain(x0: D, x1: D): this;
 
   abstract generate(): D[];
@@ -141,14 +141,14 @@ export class NumberTickGenerator extends TickGenerator<number> {
   }
 
   override domain(): Domain<number>;
-  override domain(xs: AnyDomain<number>): this;
+  override domain(xs: DomainLike<number>): this;
   override domain(x0: number, x1: number): this;
-  override domain(x0?: AnyDomain<number> | number, x1?: number): Domain<number> | this {
+  override domain(x0?: DomainLike<number> | number, x1?: number): Domain<number> | this {
     if (x0 === void 0) {
       return LinearDomain(this.x0, this.x0 + this.dx);
     } else if (x1 === void 0) {
-      this.x0 = (x0 as AnyDomain<number>)[0];
-      this.dx = (x0 as AnyDomain<number>)[1] - this.x0;
+      this.x0 = (x0 as DomainLike<number>)[0];
+      this.dx = (x0 as DomainLike<number>)[1] - this.x0;
       return this;
     } else {
       this.x0 = x0 as number;
@@ -221,10 +221,10 @@ export class TimeTickGenerator extends TickGenerator<DateTime> {
   /** @internal */
   protected n: number;
 
-  constructor(t0: AnyDateTime, t1: AnyDateTime, n: number, zone?: TimeZone) {
+  constructor(t0: DateTimeLike, t1: DateTimeLike, n: number, zone?: TimeZone) {
     super();
-    const d0 = DateTime.fromAny(t0);
-    const d1 = DateTime.fromAny(t1);
+    const d0 = DateTime.fromLike(t0);
+    const d1 = DateTime.fromLike(t1);
     this.t0 = d0.time;
     this.dt = d1.time - this.t0;
     this.zone = zone !== void 0 ? zone : d0.zone;
@@ -243,21 +243,21 @@ export class TimeTickGenerator extends TickGenerator<DateTime> {
   }
 
   override domain(): Domain<DateTime>;
-  override domain(ts: AnyDomain<DateTime>): this;
-  override domain(d0: AnyDateTime, d1: AnyDateTime): this;
-  override domain(d0?: AnyDomain<DateTime> | AnyDateTime,
-                  d1?: AnyDateTime): Domain<DateTime> | this {
+  override domain(ts: DomainLike<DateTime>): this;
+  override domain(d0: DateTimeLike, d1: DateTimeLike): this;
+  override domain(d0?: DomainLike<DateTime> | DateTimeLike,
+                  d1?: DateTimeLike): Domain<DateTime> | this {
     if (d0 === void 0) {
       return TimeDomain(new DateTime(this.t0, this.zone), new DateTime(this.t0 + this.dt, this.zone));
     } else {
       if (d1 === void 0) {
-        d1 = (d0 as AnyDomain<DateTime>)[1];
-        d0 = (d0 as AnyDomain<DateTime>)[0];
+        d1 = (d0 as DomainLike<DateTime>)[1];
+        d0 = (d0 as DomainLike<DateTime>)[0];
       } else {
-        d0 = d0 as AnyDateTime;
+        d0 = d0 as DateTimeLike;
       }
-      d0 = DateTime.fromAny(d0);
-      d1 = DateTime.fromAny(d1);
+      d0 = DateTime.fromLike(d0);
+      d1 = DateTime.fromLike(d1);
       this.t0 = d0.time;
       this.dt = d1.time - this.t0;
       return this;

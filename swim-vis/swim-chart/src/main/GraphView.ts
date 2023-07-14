@@ -14,9 +14,7 @@
 
 import type {Class} from "@swim/util";
 import type {R2Box} from "@swim/math";
-import type {AnyFont} from "@swim/style";
 import {Font} from "@swim/style";
-import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
 import type {GraphicsView} from "@swim/graphics";
@@ -34,10 +32,10 @@ export class GraphView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
   declare readonly observerType?: Class<GraphViewObserver<X, Y>>;
 
   @ThemeAnimator({valueType: Font, value: null, inherits: true})
-  readonly font!: ThemeAnimator<this, Font | null, AnyFont | null>;
+  readonly font!: ThemeAnimator<this, Font | null>;
 
   @ThemeAnimator({valueType: Color, value: null, inherits: true})
-  readonly textColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly textColor!: ThemeAnimator<this, Color | null>;
 
   protected override willRender(): void {
     super.willRender();

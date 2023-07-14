@@ -15,7 +15,6 @@
 // Model
 
 export type {ModelFlags} from "./Model";
-export type {AnyModel} from "./Model";
 export type {ModelFactory} from "./Model";
 export type {ModelClass} from "./Model";
 export type {ModelConstructor} from "./Model";
@@ -37,7 +36,6 @@ export {ModelSet} from "./ModelSet";
 // Trait
 
 export type {TraitFlags} from "./Trait";
-export type {AnyTrait} from "./Trait";
 export type {TraitFactory} from "./Trait";
 export type {TraitClass} from "./Trait";
 export type {TraitConstructor} from "./Trait";

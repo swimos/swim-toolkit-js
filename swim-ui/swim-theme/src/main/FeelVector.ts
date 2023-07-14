@@ -13,10 +13,12 @@
 // limitations under the License.
 
 import type {Uninitable} from "@swim/util";
+import type {Proto} from "@swim/util";
 import {Lazy} from "@swim/util";
 import type {Mutable} from "@swim/util";
 import {Arrays} from "@swim/util";
 import type {Equals} from "@swim/util";
+import type {LikeType} from "@swim/util";
 import type {Interpolate} from "@swim/util";
 import {Interpolator} from "@swim/util";
 import type {Output} from "@swim/codec";
@@ -25,24 +27,26 @@ import {Format} from "@swim/codec";
 import type {Look} from "./Look";
 
 /** @public */
-export type AnyFeelVector = FeelVector | FeelVectorArray;
+export type FeelVectorLike = FeelVector | FeelVectorArray;
 
 /** @public */
-export type FeelVectorArray = ReadonlyArray<[Look<unknown>, unknown]>;
+export type FeelVectorArray = readonly [Look<unknown>, unknown][];
 
 /** @public */
-export type FeelVectorUpdates = ReadonlyArray<[Look<unknown>, unknown | undefined]>;
+export type FeelVectorUpdates = readonly [Look<unknown>, unknown | undefined][];
 
 /** @public */
 export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
-  constructor(array: ReadonlyArray<[Look<unknown>, unknown]>,
+  constructor(array: readonly [Look<unknown>, unknown][],
               index: {readonly [name: string]: number | undefined}) {
     this.array = array;
     this.index = index;
   }
 
+  declare readonly likeType?: Proto<FeelVectorArray>;
+
   /** @internal */
-  readonly array: ReadonlyArray<[Look<unknown>, unknown]>;
+  readonly array: readonly [Look<unknown>, unknown][];
 
   /** @internal */
   readonly index: {readonly [name: string]: number | undefined};
@@ -64,10 +68,10 @@ export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
     return this.index[look] !== void 0;
   }
 
-  get<T>(look: Look<T, any>): T | undefined;
+  get<T>(look: Look<T>): T | undefined;
   get(name: string): unknown | undefined;
   get(index: number): unknown | undefined;
-  get<T>(look: Look<T, any> | string | number | undefined): T | unknown | undefined {
+  get<T>(look: Look<T> | string | number | undefined): T | unknown | undefined {
     if (typeof look === "object" && look !== null || typeof look === "function") {
       look = look.name;
     }
@@ -78,10 +82,10 @@ export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
     return entry !== void 0 ? entry[1] : void 0;
   }
 
-  getOr<T, E>(look: Look<T, any>, elseValue: E): T | E;
+  getOr<T, E>(look: Look<T>, elseValue: E): T | E;
   getOr(name: string, elseValue: unknown): unknown;
   getOr(index: number, elseValue: unknown): unknown;
-  getOr<T, E>(look: Look<T, any> | string | number | undefined, elseValue: E): T | unknown | E {
+  getOr<T, E>(look: Look<T> | string | number | undefined, elseValue: E): T | unknown | E {
     if (typeof look === "object" && look !== null || typeof look === "function") {
       look = look.name;
     }
@@ -92,7 +96,7 @@ export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
     return entry !== void 0 ? entry[1] : elseValue;
   }
 
-  updated<T, U = T>(look: Look<T, U>, value: T | U | undefined): FeelVector;
+  updated<T>(look: Look<T>, value: T | LikeType<T> | undefined): FeelVector;
   updated(updates: FeelVectorUpdates): FeelVector;
   updated(updates: FeelVectorUpdates | Look<unknown>, value?: unknown | undefined): FeelVector {
     let look: Look<unknown>;
@@ -212,7 +216,7 @@ export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
     return this.copy(newArray, this.index);
   }
 
-  protected copy(array: ReadonlyArray<[Look<unknown>, unknown]>,
+  protected copy(array: readonly [Look<unknown>, unknown][],
                  index?: {readonly [name: string]: number | undefined}): FeelVector {
     return FeelVector.fromArray(array, index);
   }
@@ -290,7 +294,7 @@ export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
     return new FeelVector(array, index);
   }
 
-  static fromAny<V extends AnyFeelVector | null | undefined>(value: V): FeelVector | Uninitable<V> {
+  static fromLike<V extends FeelVectorLike | null | undefined>(value: V): FeelVector | Uninitable<V> {
     if (value === void 0 || value === null || value instanceof FeelVector) {
       return value as FeelVector | Uninitable<V>;
     } else if (Array.isArray(value)) {
@@ -299,7 +303,7 @@ export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
     throw new TypeError("" + value);
   }
 
-  static fromArray(array: ReadonlyArray<[Look<unknown>, unknown]>,
+  static fromArray(array: readonly [Look<unknown>, unknown][],
                    index?: {readonly [name: string]: number | undefined}): FeelVector {
     if (index === void 0) {
       index = FeelVector.index(array);
@@ -308,7 +312,7 @@ export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
   }
 
   /** @internal */
-  static index<T>(array: ReadonlyArray<[Look<T>, T]>): {readonly [name: string]: number | undefined} {
+  static index<T>(array: readonly [Look<T>, T][]): {readonly [name: string]: number | undefined} {
     const index: {[name: string]: number | undefined} = {};
     for (let i = 0, n = array.length; i < n; i += 1) {
       const entry = array[i]!;
@@ -321,7 +325,7 @@ export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
 /** @internal */
 export interface FeelVectorInterpolator extends Interpolator<FeelVector> {
   /** @internal */
-  readonly interpolators: ReadonlyArray<[Look<unknown>, Interpolator<unknown>]>;
+  readonly interpolators: readonly [Look<unknown>, Interpolator<unknown>][];
   /** @internal */
   readonly index: {readonly [name: string]: number | undefined};
 

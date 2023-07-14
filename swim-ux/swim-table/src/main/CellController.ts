@@ -19,7 +19,6 @@ import type {PositionGestureInput} from "@swim/view";
 import type {ControllerObserver} from "@swim/controller";
 import {Controller} from "@swim/controller";
 import {TraitViewRef} from "@swim/controller";
-import type {AnyHyperlink} from "@swim/controller";
 import {Hyperlink} from "@swim/controller";
 import {CellView} from "./CellView";
 import {CellTrait} from "./CellTrait";
@@ -44,7 +43,7 @@ export class CellController extends Controller {
   declare readonly observerType?: Class<CellControllerObserver>;
 
   @Property({valueType: Hyperlink, value: null})
-  get hyperlink(): Property<this, Hyperlink | null, AnyHyperlink | null> {
+  get hyperlink(): Property<this, Hyperlink | null> {
     return Property.dummy();
   }
 
@@ -52,6 +51,12 @@ export class CellController extends Controller {
     traitType: CellTrait,
     willAttachTrait(cellTrait: CellTrait): void {
       this.owner.callObservers("controllerWillAttachCellTrait", cellTrait, this.owner);
+    },
+    initTrait(cellTrait: CellTrait): void {
+      this.owner.hyperlink.bindInlet(cellTrait.hyperlink);
+    },
+    deinitTrait(cellTrait: CellTrait): void {
+      this.owner.hyperlink.unbindInlet(cellTrait.hyperlink);
     },
     didDetachTrait(cellTrait: CellTrait): void {
       this.owner.callObservers("controllerDidDetachCellTrait", cellTrait, this.owner);

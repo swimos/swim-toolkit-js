@@ -17,10 +17,11 @@ import type {Class} from "@swim/util";
 import type {Instance} from "@swim/util";
 import {Equals} from "@swim/util";
 import {Values} from "@swim/util";
+import type {LikeType} from "@swim/util";
 import type {Creatable} from "@swim/util";
 import type {Domain} from "@swim/util";
 import type {Range} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import {LinearRange} from "@swim/util";
 import type {ContinuousScale} from "@swim/util";
 import type {Observes} from "@swim/util";
@@ -28,13 +29,10 @@ import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import {BTree} from "@swim/collections";
 import type {R2Box} from "@swim/math";
-import type {AnyFont} from "@swim/style";
 import {Font} from "@swim/style";
-import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
 import type {ViewFlags} from "@swim/view";
-import type {AnyView} from "@swim/view";
 import {View} from "@swim/view";
 import {ViewSet} from "@swim/view";
 import {GraphicsView} from "@swim/graphics";
@@ -77,10 +75,10 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
   readonly opacity!: ThemeAnimator<this, number | undefined>;
 
   @ThemeAnimator({valueType: Font, value: null, inherits: true})
-  readonly font!: ThemeAnimator<this, Font | null, AnyFont | null>;
+  readonly font!: ThemeAnimator<this, Font | null>;
 
   @ThemeAnimator({valueType: Color, value: null, inherits: true})
-  readonly textColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly textColor!: ThemeAnimator<this, Color | null>;
 
   @Property({valueType: String, value: "domain"})
   readonly hitMode!: Property<this, SeriesPlotHitMode>;
@@ -111,10 +109,10 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
 
   /** @override */
   xDomain(): Domain<X> | null;
-  xDomain(xDomain: Domain<X> | string | null, timing?: AnyTiming | boolean): this;
-  xDomain(xMin: X, xMax: X, timing: AnyTiming | boolean): this;
-  xDomain(xMin?: Domain<X> | X | string | null, xMax?: X | AnyTiming | boolean,
-          timing?: AnyTiming | boolean): Domain<X> | null | this {
+  xDomain(xDomain: Domain<X> | string | null, timing?: TimingLike | boolean): this;
+  xDomain(xMin: X, xMax: X, timing: TimingLike | boolean): this;
+  xDomain(xMin?: Domain<X> | X | string | null, xMax?: X | TimingLike | boolean,
+          timing?: TimingLike | boolean): Domain<X> | null | this {
     if (arguments.length === 0) {
       const xScale = this.xScale.value;
       return xScale !== null ? xScale.domain : null;
@@ -126,10 +124,10 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
 
   /** @override */
   yDomain(): Domain<Y> | null;
-  yDomain(yDomain: Domain<Y> | string | null, timing?: AnyTiming | boolean): this;
-  yDomain(yMin: Y, yMax: Y, timing: AnyTiming | boolean): this;
-  yDomain(yMin?: Domain<Y> | Y | string | null, yMax?: Y | AnyTiming | boolean,
-          timing?: AnyTiming | boolean): Domain<Y> | null | this {
+  yDomain(yDomain: Domain<Y> | string | null, timing?: TimingLike | boolean): this;
+  yDomain(yMin: Y, yMax: Y, timing: TimingLike | boolean): this;
+  yDomain(yMin?: Domain<Y> | Y | string | null, yMax?: Y | TimingLike | boolean,
+          timing?: TimingLike | boolean): Domain<Y> | null | this {
     if (arguments.length === 0) {
       const yScale = this.yScale.value;
       return yScale !== null ? yScale.domain : null;
@@ -389,12 +387,11 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
     return dataPointView;
   }
 
-  override setChild<V extends View>(key: string, newChild: V): View | null;
-  override setChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(key: string, factory: F): View | null;
-  override setChild(key: string, newChild: AnyView | null): View | null;
-  override setChild(key: string, newChild: AnyView | null): View | null {
+  override setChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(key: string, newChildFactory: F): View | null;
+  override setChild(key: string, newChild: View | LikeType<View> | null): View | null;
+  override setChild(key: string, newChild: View | LikeType<View> | null): View | null {
     if (newChild !== null) {
-      newChild = View.fromAny(newChild);
+      newChild = View.fromLike(newChild);
     }
     if (newChild instanceof DataPointView) {
       const target = this.dataPointViews.nextValue(newChild.x.state) ?? null;
@@ -405,11 +402,11 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
     return super.setChild(key, newChild) as View | null;
   }
 
-  override appendChild<V extends View>(child: V, key?: string): V;
-  override appendChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(factory: F, key?: string): InstanceType<F>;
-  override appendChild(child: AnyView, key?: string): View;
-  override appendChild(child: AnyView, key?: string): View {
-    child = View.fromAny(child);
+  override appendChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(childFactory: F, key?: string): InstanceType<F>;
+  override appendChild<V extends View>(child: V | LikeType<V>, key?: string): V;
+  override appendChild(child: View | LikeType<View>, key?: string): View;
+  override appendChild(child: View | LikeType<View>, key?: string): View {
+    child = View.fromLike(child);
     if (child instanceof DataPointView) {
       const target = this.dataPointViews.nextValue(child.x.state) ?? null;
       return super.insertChild(child, target, key);
@@ -417,11 +414,11 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
     return super.appendChild(child, key);
   }
 
-  override prependChild<V extends View>(child: V, key?: string): V;
-  override prependChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(factory: F, key?: string): InstanceType<F>;
-  override prependChild(child: AnyView, key?: string): View;
-  override prependChild(child: AnyView, key?: string): View {
-    child = View.fromAny(child);
+  override prependChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(childFactory: F, key?: string): InstanceType<F>;
+  override prependChild<V extends View>(child: V | LikeType<V>, key?: string): V;
+  override prependChild(child: View | LikeType<View>, key?: string): View;
+  override prependChild(child: View | LikeType<View>, key?: string): View {
+    child = View.fromLike(child);
     if (child instanceof DataPointView) {
       const target = this.dataPointViews.nextValue(child.x.state) ?? null;
       return super.insertChild(child, target, key);
@@ -429,11 +426,11 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
     return super.prependChild(child, key);
   }
 
-  override insertChild<V extends View>(child: V, target: View | null, key?: string): V;
-  override insertChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(factory: F, target: View | null, key?: string): InstanceType<F>;
-  override insertChild(child: AnyView, target: View | null, key?: string): View;
-  override insertChild(child: AnyView, target: View | null, key?: string): View {
-    child = View.fromAny(child);
+  override insertChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(childFactory: F, target: View | null, key?: string): InstanceType<F>;
+  override insertChild<V extends View>(child: V | LikeType<V>, target: View | null, key?: string): V;
+  override insertChild(child: View | LikeType<View>, target: View | null, key?: string): View;
+  override insertChild(child: View | LikeType<View>, target: View | null, key?: string): View {
+    child = View.fromLike(child);
     if (child instanceof DataPointView && target === null) {
       target = this.dataPointViews.nextValue(child.x.state) ?? null;
     }

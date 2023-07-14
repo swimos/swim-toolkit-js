@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import {Timing} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Affinity} from "@swim/component";
@@ -22,7 +22,6 @@ import {Animator} from "@swim/component";
 import {EventHandler} from "@swim/component";
 import {Angle} from "@swim/math";
 import {Transform} from "@swim/math";
-import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import {Look} from "@swim/theme";
 import {Feel} from "@swim/theme";
@@ -36,10 +35,8 @@ import {PositionGesture} from "@swim/view";
 import type {HtmlViewObserver} from "@swim/dom";
 import type {HtmlView} from "@swim/dom";
 import {Graphics} from "@swim/graphics";
-import type {AnyIconLayout} from "@swim/graphics";
 import {IconLayout} from "@swim/graphics";
 import {Icon} from "@swim/graphics";
-import {FilledIcon} from "@swim/graphics";
 import type {IconView} from "@swim/graphics";
 import {IconGraphicsAnimator} from "@swim/graphics";
 import {SvgIconView} from "@swim/graphics";
@@ -86,7 +83,7 @@ export class IconButton extends ButtonMembrane implements IconView {
     },
     updateFlags: View.NeedsLayout
   })
-  readonly iconLayout!: Animator<this, IconLayout | null, AnyIconLayout | null>;
+  readonly iconLayout!: Animator<this, IconLayout | null>;
 
   /** @override */
   @ThemeAnimator({
@@ -94,18 +91,11 @@ export class IconButton extends ButtonMembrane implements IconView {
     value: null,
     updateFlags: View.NeedsLayout,
     didSetState(iconColor: Color | null): void {
-      if (iconColor === null) {
-        return;
-      }
-      const oldGraphics = this.owner.graphics.value;
-      if (oldGraphics instanceof FilledIcon) {
-        const newGraphics = oldGraphics.withFillColor(iconColor);
-        const timing = this.timing !== null ? this.timing : false;
-        this.owner.graphics.setState(newGraphics, timing, Affinity.Reflexive);
-      }
+      const timing = this.timing !== null ? this.timing : false;
+      this.owner.graphics.setState(this.owner.graphics.state, timing, Affinity.Reflexive);
     },
   })
-  readonly iconColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly iconColor!: ThemeAnimator<this, Color | null>;
 
   /** @override */
   @ThemeAnimator({
@@ -152,13 +142,13 @@ export class IconButton extends ButtonMembrane implements IconView {
       iconView.iconColor.setInherits(true);
       return iconView;
     },
-    push(icon: Graphics, timing?: AnyTiming | boolean): SvgIconView {
+    push(icon: Graphics, timing?: TimingLike | boolean): SvgIconView {
       if (timing === void 0 && this.owner.icons.viewCount === 0) {
         timing = false;
       } else if (timing === void 0 || timing === true) {
         timing = this.owner.getLookOr(Look.timing, false);
       } else {
-        timing = Timing.fromAny(timing);
+        timing = Timing.fromLike(timing);
       }
 
       const oldIconView = this.view;
@@ -180,11 +170,11 @@ export class IconButton extends ButtonMembrane implements IconView {
 
       return newIconView;
     },
-    pop(timing?: AnyTiming | boolean): SvgIconView | null {
+    pop(timing?: TimingLike | boolean): SvgIconView | null {
       if (timing === void 0 || timing === true) {
         timing = this.owner.getLookOr(Look.timing, false);
       } else {
-        timing = Timing.fromAny(timing);
+        timing = Timing.fromLike(timing);
       }
 
       const oldIconView = this.view;
@@ -217,8 +207,8 @@ export class IconButton extends ButtonMembrane implements IconView {
     },
   })
   readonly icon!: ViewRef<this, SvgIconView> & {
-    push(icon: Graphics, timing?: AnyTiming | boolean): SvgIconView;
-    pop(timing?: AnyTiming | boolean): SvgIconView | null;
+    push(icon: Graphics, timing?: TimingLike | boolean): SvgIconView;
+    pop(timing?: TimingLike | boolean): SvgIconView | null;
   };
 
   @Property({valueType: Boolean, value: true})
@@ -250,7 +240,7 @@ export class IconButton extends ButtonMembrane implements IconView {
   override readonly gesture!: PositionGesture<this, HtmlView>;
 
   @EventHandler({
-    type: "click",
+    eventType: "click",
     handle(event: MouseEvent): void {
       event.stopPropagation();
       this.owner.callObservers("buttonDidPress", this.owner);

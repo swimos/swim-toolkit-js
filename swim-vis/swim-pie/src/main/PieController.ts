@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
 import {Timing} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Property} from "@swim/component";
@@ -157,7 +156,7 @@ export class PieController extends Controller {
   readonly title!: ViewRef<this, GraphicsView>;
 
   @Property({valueType: Timing, value: true})
-  get sliceTiming(): Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined> {
+  get sliceTiming(): Property<this, Timing | boolean | undefined> {
     return Property.dummy();
   }
 

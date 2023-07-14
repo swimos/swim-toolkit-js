@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
 import {Timing} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Property} from "@swim/component";
@@ -172,7 +171,7 @@ export class GaugeController extends Controller {
   readonly title!: ViewRef<this, GraphicsView>;
 
   @Property({valueType: Timing, value: true})
-  get dialTiming(): Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined> {
+  get dialTiming(): Property<this, Timing | boolean | undefined> {
     return Property.dummy();
   }
 

@@ -70,7 +70,7 @@ export class SpriteSheet {
 
   readonly spriteHeight: number;
 
-  readonly sprites: ReadonlyArray<Sprite>;
+  readonly sprites: readonly Sprite[];
 
   /** @internal */
   readonly freeSprites: Sprite[];

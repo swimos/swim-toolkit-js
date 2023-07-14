@@ -14,7 +14,7 @@
 
 import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import {Timing} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
@@ -24,7 +24,7 @@ import {View} from "@swim/view";
 import {ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import type {CanvasView} from "@swim/graphics";
-import type {AnyGeoPerspective} from "@swim/map";
+import type {GeoPerspectiveLike} from "@swim/map";
 import {GeoPerspective} from "@swim/map";
 import type {GeoViewport} from "@swim/map";
 import type {MapViewObserver} from "@swim/map";
@@ -92,13 +92,13 @@ export class LeafletView extends MapView {
     this.didMoveMap();
   }
 
-  override moveTo(geoPerspective: AnyGeoPerspective, timing?: AnyTiming | boolean): void {
+  override moveTo(geoPerspective: GeoPerspectiveLike, timing?: TimingLike | boolean): void {
     const geoViewport = this.geoViewport.value;
     if (geoViewport === null) {
       return;
     }
 
-    geoPerspective = GeoPerspective.fromAny(geoPerspective);
+    geoPerspective = GeoPerspective.fromLike(geoPerspective);
     const options: L.ZoomPanOptions = {};
 
     let geoCenter = geoPerspective.geoCenter;
@@ -111,7 +111,7 @@ export class LeafletView extends MapView {
     if (timing === void 0 || timing === true) {
       timing = this.getLookOr(Look.timing, Mood.ambient, false);
     } else {
-      timing = Timing.fromAny(timing);
+      timing = Timing.fromLike(timing);
     }
     if (timing instanceof Timing) {
       options.animate = true;

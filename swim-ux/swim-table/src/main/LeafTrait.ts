@@ -15,10 +15,12 @@
 import type {Class} from "@swim/util";
 import type {Instance} from "@swim/util";
 import type {Creatable} from "@swim/util";
+import {Property} from "@swim/component";
 import type {Model} from "@swim/model";
 import type {TraitObserver} from "@swim/model";
 import {Trait} from "@swim/model";
 import {TraitSet} from "@swim/model";
+import {Hyperlink} from "@swim/controller";
 import {CellTrait} from "./CellTrait";
 
 /** @public */
@@ -31,6 +33,11 @@ export interface LeafTraitObserver<T extends LeafTrait = LeafTrait> extends Trai
 /** @public */
 export class LeafTrait extends Trait {
   declare readonly observerType?: Class<LeafTraitObserver>;
+
+  @Property({valueType: Hyperlink, value: null})
+  get hyperlink(): Property<this, Hyperlink | null> {
+    return Property.dummy();
+  }
 
   getCell<F extends Class<CellTrait>>(key: string, cellTraitClass: F): InstanceType<F> | null;
   getCell(key: string): CellTrait | null;

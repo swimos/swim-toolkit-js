@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import type {Equals} from "@swim/util";
-import type {AnyR2Point} from "@swim/math";
+import type {R2PointLike} from "@swim/math";
 import {R2Point} from "@swim/math";
-import type {AnyGeoPoint} from "@swim/geo";
+import type {GeoPointLike} from "@swim/geo";
 import {GeoPoint} from "@swim/geo";
 import {GeoBox} from "@swim/geo";
 import type {GeoViewport} from "@swim/map";
@@ -44,9 +44,9 @@ export class MapboxViewport implements GeoViewport, Equals {
 
   readonly tilt: number;
 
-  project(geoPoint: AnyGeoPoint): R2Point;
+  project(geoPoint: GeoPointLike): R2Point;
   project(lng: number, lat: number): R2Point;
-  project(lng: AnyGeoPoint | number, lat?: number): R2Point {
+  project(lng: GeoPointLike | number, lat?: number): R2Point {
     let geoPoint: mapboxgl.LngLatLike;
     if (typeof lng === "number") {
       geoPoint = new mapboxgl.LngLat(lng, lat!);
@@ -57,9 +57,9 @@ export class MapboxViewport implements GeoViewport, Equals {
     return new R2Point(point.x, point.y);
   }
 
-  unproject(viewPoint: AnyR2Point): GeoPoint;
+  unproject(viewPoint: R2PointLike): GeoPoint;
   unproject(x: number, y: number): GeoPoint;
-  unproject(x: AnyR2Point | number, y?: number): GeoPoint {
+  unproject(x: R2PointLike | number, y?: number): GeoPoint {
     let viewPoint: mapboxgl.PointLike;
     if (typeof x === "number") {
       viewPoint = new mapboxgl.Point(x, y!);

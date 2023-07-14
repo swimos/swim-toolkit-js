@@ -15,7 +15,6 @@
 import type {Class} from "@swim/util";
 import {Animator} from "@swim/component";
 import {ConstraintProperty} from "@swim/constraint";
-import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
 import {View} from "@swim/view";
 import type {PositionGestureInput} from "@swim/view";
@@ -46,5 +45,5 @@ export class ToolView extends HtmlView {
   readonly xAlign!: Animator<this, number>;
 
   @ConstraintProperty({valueType: Length, value: null})
-  readonly effectiveWidth!: ConstraintProperty<this, Length | null, AnyLength | null>;
+  readonly effectiveWidth!: ConstraintProperty<this, Length | null>;
 }

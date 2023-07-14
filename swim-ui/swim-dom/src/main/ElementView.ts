@@ -13,7 +13,9 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
+import type {Proto} from "@swim/util";
 import type {Instance} from "@swim/util";
+import type {LikeType} from "@swim/util";
 import {Creatable} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Affinity} from "@swim/component";
@@ -29,7 +31,6 @@ import type {ViewportColorScheme} from "@swim/view";
 import type {ViewportService} from "@swim/view";
 import type {StyleContext} from "./StyleContext";
 import type {ViewNodeType} from "./NodeView";
-import type {AnyNodeView} from "./NodeView";
 import type {NodeViewFactory} from "./NodeView";
 import type {NodeViewClass} from "./NodeView";
 import type {NodeViewConstructor} from "./NodeView";
@@ -48,21 +49,18 @@ export interface ViewElement extends Element, ElementCSSInlineStyle {
 }
 
 /** @public */
-export type AnyElementView<V extends ElementView = ElementView> = AnyNodeView<V>;
-
-/** @public */
-export interface ElementViewFactory<V extends ElementView = ElementView, U = AnyElementView<V>> extends NodeViewFactory<V, U> {
+export interface ElementViewFactory<V extends ElementView = ElementView> extends NodeViewFactory<V> {
   fromTag(tag: string): V;
 }
 
 /** @public */
-export interface ElementViewClass<V extends ElementView = ElementView, U = AnyElementView<V>> extends NodeViewClass<V, U>, ElementViewFactory<V, U> {
+export interface ElementViewClass<V extends ElementView = ElementView> extends NodeViewClass<V>, ElementViewFactory<V> {
   readonly tag?: string;
   readonly namespace?: string;
 }
 
 /** @public */
-export interface ElementViewConstructor<V extends ElementView = ElementView, U = AnyElementView<V>> extends NodeViewConstructor<V, U>, ElementViewClass<V, U> {
+export interface ElementViewConstructor<V extends ElementView = ElementView> extends NodeViewConstructor<V>, ElementViewClass<V> {
 }
 
 /** @public */
@@ -85,6 +83,9 @@ export class ElementView extends NodeView implements StyleContext {
     this.willSetStyleObservers = null;
     this.didSetStyleObservers = null;
   }
+
+  /** @override */
+  declare readonly likeType?: Proto<{create?(): ElementView} | (Element & {create?(): ElementView}) | (string & {create?(): ElementView})>;
 
   declare readonly observerType?: Class<ElementViewObserver>;
 
@@ -225,7 +226,7 @@ export class ElementView extends NodeView implements StyleContext {
     }
   }
 
-  getStyle(propertyNames: string | ReadonlyArray<string>): CSSStyleValue | string | undefined {
+  getStyle(propertyNames: string | readonly string[]): CSSStyleValue | string | undefined {
     if (typeof CSSStyleValue !== "undefined") { // CSS Typed OM support
       const style = this.node.attributeStyleMap;
       if (typeof propertyNames === "string") {
@@ -478,22 +479,20 @@ export class ElementView extends NodeView implements StyleContext {
     return this.fromTag(tag);
   }
 
-  static override fromAny<S extends Class<Instance<S, ElementView>>>(this: S, value: AnyElementView<InstanceType<S>>): InstanceType<S>;
-  static override fromAny(value: AnyElementView | string): ElementView;
-  static override fromAny(value: AnyElementView | string): ElementView {
+  static override fromLike<S extends Class<Instance<S, View>>>(this: S, value: InstanceType<S> | LikeType<InstanceType<S>>): InstanceType<S> {
     if (value === void 0 || value === null) {
-      return value;
+      return value as InstanceType<S>;
     } else if (value instanceof View) {
       if (!(value instanceof this)) {
         throw new TypeError(value + " not an instance of " + this);
       }
       return value;
-    } else if (value instanceof Node) {
-      return this.fromNode(value);
-    } else if (typeof value === "string") {
-      return this.fromTag(value);
+    } else if (value instanceof Element) {
+      return (this as unknown as typeof ElementView).fromNode(value) as InstanceType<S>;
     } else if (Creatable[Symbol.hasInstance](value)) {
-      return this.create();
+      return (value as Creatable<InstanceType<S>>).create();
+    } else if (typeof value === "string") {
+      return (this as unknown as typeof ElementView).fromTag(value) as InstanceType<S>;
     }
     throw new TypeError("" + value);
   }

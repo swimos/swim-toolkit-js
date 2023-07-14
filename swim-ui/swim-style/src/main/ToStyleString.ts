@@ -25,7 +25,6 @@ export function ToStyleString(value: unknown): string {
     } else {
       return value.toString();
     }
-  } else {
-    return "" + value;
   }
+  return "" + value;
 }

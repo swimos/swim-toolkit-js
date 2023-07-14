@@ -16,16 +16,11 @@ import type {Class} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Animator} from "@swim/component";
-import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
-import type {AnyAngle} from "@swim/math";
 import {Angle} from "@swim/math";
-import type {AnyR2Point} from "@swim/math";
 import {R2Point} from "@swim/math";
 import type {R2Box} from "@swim/math";
-import type {AnyFont} from "@swim/style";
 import {Font} from "@swim/style";
-import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import {Look} from "@swim/theme";
 import {ThemeAnimator} from "@swim/theme";
@@ -57,58 +52,58 @@ export class GaugeView extends GraphicsView {
   readonly limit!: Animator<this, number>;
 
   @Animator({valueType: R2Point, value: R2Point.origin(), updateFlags: View.NeedsLayout})
-  readonly center!: Animator<this, R2Point, AnyR2Point>;
+  readonly center!: Animator<this, R2Point>;
 
   @ThemeAnimator({valueType: Length, value: Length.pct(30), updateFlags: View.NeedsLayout})
-  readonly innerRadius!: ThemeAnimator<this, Length, AnyLength>;
+  readonly innerRadius!: ThemeAnimator<this, Length>;
 
   @ThemeAnimator({valueType: Length, value: Length.pct(40), updateFlags: View.NeedsLayout})
-  readonly outerRadius!: ThemeAnimator<this, Length, AnyLength>;
+  readonly outerRadius!: ThemeAnimator<this, Length>;
 
   @ThemeAnimator({valueType: Angle, value: Angle.rad(-Math.PI / 2), updateFlags: View.NeedsLayout})
-  readonly startAngle!: ThemeAnimator<this, Angle, AnyAngle>;
+  readonly startAngle!: ThemeAnimator<this, Angle>;
 
   @ThemeAnimator({valueType: Angle, value: Angle.rad(2 * Math.PI), updateFlags: View.NeedsLayout})
-  readonly sweepAngle!: ThemeAnimator<this, Angle, AnyAngle>;
+  readonly sweepAngle!: ThemeAnimator<this, Angle>;
 
   @ThemeAnimator({valueType: Length, value: Length.pct(50)})
-  readonly cornerRadius!: ThemeAnimator<this, Length, AnyLength>;
+  readonly cornerRadius!: ThemeAnimator<this, Length>;
 
   @ThemeAnimator({valueType: Length, value: Length.px(1), updateFlags: View.NeedsLayout})
-  readonly dialSpacing!: ThemeAnimator<this, Length, AnyLength>;
+  readonly dialSpacing!: ThemeAnimator<this, Length>;
 
   @ThemeAnimator({valueType: Color, value: null, look: Look.etchColor})
-  readonly dialColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly dialColor!: ThemeAnimator<this, Color | null>;
 
   @ThemeAnimator({valueType: Color, value: null, look: Look.accentColor})
-  readonly meterColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly meterColor!: ThemeAnimator<this, Color | null>;
 
   @ThemeAnimator({valueType: Length, value: Length.pct(50)})
-  readonly labelPadding!: ThemeAnimator<this, Length, AnyLength>;
+  readonly labelPadding!: ThemeAnimator<this, Length>;
 
   @ThemeAnimator({valueType: Number, value: 1})
   readonly tickAlign!: ThemeAnimator<this, number>;
 
   @ThemeAnimator({valueType: Length, value: Length.pct(45)})
-  readonly tickRadius!: ThemeAnimator<this, Length, AnyLength>;
+  readonly tickRadius!: ThemeAnimator<this, Length>;
 
   @ThemeAnimator({valueType: Length, value: Length.pct(50)})
-  readonly tickLength!: ThemeAnimator<this, Length, AnyLength>;
+  readonly tickLength!: ThemeAnimator<this, Length>;
 
   @ThemeAnimator({valueType: Length, value: Length.px(1)})
-  readonly tickWidth!: ThemeAnimator<this, Length, AnyLength>;
+  readonly tickWidth!: ThemeAnimator<this, Length>;
 
   @ThemeAnimator({valueType: Length, value: Length.px(2)})
-  readonly tickPadding!: ThemeAnimator<this, Length, AnyLength>;
+  readonly tickPadding!: ThemeAnimator<this, Length>;
 
   @ThemeAnimator({valueType: Color, value: null, look: Look.legendColor})
-  readonly tickColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly tickColor!: ThemeAnimator<this, Color | null>;
 
   @ThemeAnimator({valueType: Font, value: null, inherits: true})
-  readonly font!: ThemeAnimator<this, Font | null, AnyFont | null>;
+  readonly font!: ThemeAnimator<this, Font | null>;
 
   @ThemeAnimator({valueType: Color, value: null, look: Look.legendColor})
-  readonly textColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly textColor!: ThemeAnimator<this, Color | null>;
 
   @ViewRef({
     viewType: TextRunView,

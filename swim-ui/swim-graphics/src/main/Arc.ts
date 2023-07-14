@@ -17,11 +17,11 @@ import {Equals} from "@swim/util";
 import type {Output} from "@swim/codec";
 import type {Debug} from "@swim/codec";
 import {Format} from "@swim/codec";
-import type {AnyLength} from "@swim/math";
+import type {LengthLike} from "@swim/math";
 import {Length} from "@swim/math";
-import type {AnyAngle} from "@swim/math";
+import type {AngleLike} from "@swim/math";
 import {Angle} from "@swim/math";
-import type {AnyR2Point} from "@swim/math";
+import type {R2PointLike} from "@swim/math";
 import {R2Point} from "@swim/math";
 import type {R2Box} from "@swim/math";
 import type {GraphicsRenderer} from "./GraphicsRenderer";
@@ -31,18 +31,18 @@ import {PathContext} from "./PathContext";
 import {PathRenderer} from "./PathRenderer";
 
 /** @public */
-export type AnyArc = Arc | ArcInit;
+export type ArcLike = Arc | ArcInit;
 
 /** @public */
 export interface ArcInit {
   center?: R2Point;
-  innerRadius?: AnyLength;
-  outerRadius?: AnyLength;
-  startAngle?: AnyAngle;
-  sweepAngle?: AnyAngle;
-  padAngle?: AnyAngle;
-  padRadius?: AnyLength | null;
-  cornerRadius?: AnyLength;
+  innerRadius?: LengthLike;
+  outerRadius?: LengthLike;
+  startAngle?: AngleLike;
+  sweepAngle?: AngleLike;
+  padAngle?: AngleLike;
+  padRadius?: LengthLike | null;
+  cornerRadius?: LengthLike;
 }
 
 /** @public */
@@ -61,8 +61,8 @@ export class Arc implements Graphics, Equals, Debug {
 
   readonly center: R2Point;
 
-  withCenter(center: AnyR2Point): Arc {
-    center = R2Point.fromAny(center);
+  withCenter(center: R2PointLike): Arc {
+    center = R2Point.fromLike(center);
     if (this.center.equals(center)) {
       return this;
     }
@@ -72,8 +72,8 @@ export class Arc implements Graphics, Equals, Debug {
 
   readonly innerRadius: Length;
 
-  withInnerRadius(innerRadius: AnyLength): Arc {
-    innerRadius = Length.fromAny(innerRadius);
+  withInnerRadius(innerRadius: LengthLike): Arc {
+    innerRadius = Length.fromLike(innerRadius);
     if (this.innerRadius.equals(innerRadius)) {
       return this;
     }
@@ -83,8 +83,8 @@ export class Arc implements Graphics, Equals, Debug {
 
   readonly outerRadius: Length;
 
-  withOuterRadius(outerRadius: AnyLength): Arc {
-    outerRadius = Length.fromAny(outerRadius);
+  withOuterRadius(outerRadius: LengthLike): Arc {
+    outerRadius = Length.fromLike(outerRadius);
     if (this.outerRadius.equals(outerRadius)) {
       return this;
     }
@@ -94,8 +94,8 @@ export class Arc implements Graphics, Equals, Debug {
 
   readonly startAngle: Angle;
 
-  withStartAngle(startAngle: AnyAngle): Arc {
-    startAngle = Angle.fromAny(startAngle);
+  withStartAngle(startAngle: AngleLike): Arc {
+    startAngle = Angle.fromLike(startAngle);
     if (this.startAngle.equals(startAngle)) {
       return this;
     }
@@ -105,8 +105,8 @@ export class Arc implements Graphics, Equals, Debug {
 
   readonly sweepAngle: Angle;
 
-  withSweepAngle(sweepAngle: AnyAngle): Arc {
-    sweepAngle = Angle.fromAny(sweepAngle);
+  withSweepAngle(sweepAngle: AngleLike): Arc {
+    sweepAngle = Angle.fromLike(sweepAngle);
     if (this.sweepAngle.equals(sweepAngle)) {
       return this;
     }
@@ -116,8 +116,8 @@ export class Arc implements Graphics, Equals, Debug {
 
   readonly padAngle: Angle;
 
-  withPadAngle(padAngle: AnyAngle): Arc {
-    padAngle = Angle.fromAny(padAngle);
+  withPadAngle(padAngle: AngleLike): Arc {
+    padAngle = Angle.fromLike(padAngle);
     if (this.padAngle.equals(padAngle)) {
       return this;
     }
@@ -127,9 +127,9 @@ export class Arc implements Graphics, Equals, Debug {
 
   readonly padRadius: Length | null;
 
-  withPadRadius(padRadius: AnyLength | null): Arc {
+  withPadRadius(padRadius: LengthLike | null): Arc {
     if (padRadius !== null) {
-      padRadius = Length.fromAny(padRadius);
+      padRadius = Length.fromLike(padRadius);
     }
     if (Equals(this.padRadius, padRadius)) {
       return this;
@@ -140,8 +140,8 @@ export class Arc implements Graphics, Equals, Debug {
 
   readonly cornerRadius: Length;
 
-  withCornerRadius(cornerRadius: AnyLength): Arc {
-    cornerRadius = Length.fromAny(cornerRadius);
+  withCornerRadius(cornerRadius: LengthLike): Arc {
+    cornerRadius = Length.fromLike(cornerRadius);
     if (this.cornerRadius.equals(cornerRadius)) {
       return this;
     }
@@ -328,7 +328,7 @@ export class Arc implements Graphics, Equals, Debug {
     return new Arc(center, innerRadius, outerRadius, startAngle, sweepAngle, padAngle, padRadius, cornerRadius);
   }
 
-  toAny(): ArcInit {
+  toLike(): ArcInit {
     return {
       center: this.center,
       innerRadius: this.innerRadius,
@@ -390,27 +390,27 @@ export class Arc implements Graphics, Equals, Debug {
     return Format.debug(this);
   }
 
-  static create(center: AnyR2Point = R2Point.origin(),
-                innerRadius: AnyLength = Length.zero(),
-                outerRadius: AnyLength = Length.zero(),
-                startAngle: AnyAngle = Angle.zero(),
-                sweepAngle: AnyAngle = Angle.zero(),
-                padAngle: AnyAngle = Angle.zero(),
-                padRadius: AnyLength | null = null,
-                cornerRadius: AnyLength = Length.zero()): Arc {
-    center = R2Point.fromAny(center);
-    innerRadius = Length.fromAny(innerRadius);
-    outerRadius = Length.fromAny(outerRadius);
-    startAngle = Angle.fromAny(startAngle);
-    sweepAngle = Angle.fromAny(sweepAngle);
-    padAngle = Angle.fromAny(padAngle);
-    padRadius = padRadius !== null ? Length.fromAny(padRadius) : null;
-    cornerRadius = Length.fromAny(cornerRadius);
+  static create(center: R2PointLike = R2Point.origin(),
+                innerRadius: LengthLike = Length.zero(),
+                outerRadius: LengthLike = Length.zero(),
+                startAngle: AngleLike = Angle.zero(),
+                sweepAngle: AngleLike = Angle.zero(),
+                padAngle: AngleLike = Angle.zero(),
+                padRadius: LengthLike | null = null,
+                cornerRadius: LengthLike = Length.zero()): Arc {
+    center = R2Point.fromLike(center);
+    innerRadius = Length.fromLike(innerRadius);
+    outerRadius = Length.fromLike(outerRadius);
+    startAngle = Angle.fromLike(startAngle);
+    sweepAngle = Angle.fromLike(sweepAngle);
+    padAngle = Angle.fromLike(padAngle);
+    padRadius = padRadius !== null ? Length.fromLike(padRadius) : null;
+    cornerRadius = Length.fromLike(cornerRadius);
     return new Arc(center, innerRadius, outerRadius, startAngle,
                    sweepAngle, padAngle, padRadius, cornerRadius);
   }
 
-  static fromAny<T extends AnyArc | null | undefined>(value: T): Arc | Uninitable<T> {
+  static fromLike<T extends ArcLike | null | undefined>(value: T): Arc | Uninitable<T> {
     if (value === void 0 || value === null || value instanceof Arc) {
       return value as Arc | Uninitable<T>;
     } else if (typeof value === "object") {

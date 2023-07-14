@@ -17,13 +17,10 @@ import type {Class} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import {Animator} from "@swim/component";
-import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
 import {R2Point} from "@swim/math";
 import type {R2Box} from "@swim/math";
-import type {AnyFont} from "@swim/style";
 import {Font} from "@swim/style";
-import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
@@ -129,7 +126,7 @@ export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
       this.owner.callObservers("viewDidSetRadius", radius, this.owner);
     },
   })
-  get radius(): ThemeAnimator<this, Length | null, AnyLength | null> {
+  get radius(): ThemeAnimator<this, Length | null> {
     return ThemeAnimator.dummy();
   }
 
@@ -146,7 +143,7 @@ export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
       this.owner.callObservers("viewDidSetColor", color, this.owner);
     },
   })
-  get color(): ThemeAnimator<this, Color | null, AnyColor | null> {
+  get color(): ThemeAnimator<this, Color | null> {
     return ThemeAnimator.dummy();
   }
 
@@ -162,12 +159,12 @@ export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
   }
 
   @ThemeAnimator({valueType: Font, inherits: true})
-  get font(): ThemeAnimator<this, Font | undefined, AnyFont | undefined> {
+  get font(): ThemeAnimator<this, Font | undefined> {
     return ThemeAnimator.dummy();
   }
 
   @ThemeAnimator({valueType: Color, inherits: true})
-  get textColor(): ThemeAnimator<this, Color | undefined, AnyColor | undefined> {
+  get textColor(): ThemeAnimator<this, Color | undefined> {
     return ThemeAnimator.dummy();
   }
 
@@ -177,7 +174,7 @@ export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
   }
 
   @ThemeAnimator({valueType: Length, value: Length.zero(), updateFlags: View.NeedsLayout})
-  get labelPadding(): ThemeAnimator<this, Length, AnyLength> {
+  get labelPadding(): ThemeAnimator<this, Length> {
     return ThemeAnimator.dummy();
   }
 

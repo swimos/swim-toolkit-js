@@ -18,7 +18,6 @@ import {Property} from "@swim/component";
 import type {PositionGestureInput} from "@swim/view";
 import type {HtmlViewObserver} from "@swim/dom";
 import {HtmlView} from "@swim/dom";
-import type {AnyHyperlink} from "@swim/controller";
 import {Hyperlink} from "@swim/controller";
 
 /** @public */
@@ -60,7 +59,7 @@ export class CellView extends HtmlView {
       }
     },
   })
-  get hyperlink(): Property<this, Hyperlink | null, AnyHyperlink | null> {
+  get hyperlink(): Property<this, Hyperlink | null> {
     return Property.dummy();
   }
 

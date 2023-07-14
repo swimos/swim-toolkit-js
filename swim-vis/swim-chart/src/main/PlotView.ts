@@ -15,7 +15,7 @@
 import type {Class} from "@swim/util";
 import type {Domain} from "@swim/util";
 import type {Range} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import type {Property} from "@swim/component";
 import type {ThemeAnimator} from "@swim/theme";
 import type {View} from "@swim/view";
@@ -47,13 +47,13 @@ export interface PlotView<X = unknown, Y = unknown> extends GraphicsView, Scaled
 
   /** @override */
   xDomain(): Domain<X> | null;
-  xDomain(xDomain: Domain<X> | null, timing?: AnyTiming | boolean): this;
-  xDomain(xMin: X, xMax: X, timing?: AnyTiming | boolean): this;
+  xDomain(xDomain: Domain<X> | null, timing?: TimingLike | boolean): this;
+  xDomain(xMin: X, xMax: X, timing?: TimingLike | boolean): this;
 
   /** @override */
   yDomain(): Domain<Y> | null;
-  yDomain(yDomain: Domain<Y> | null, timing?: AnyTiming | boolean): this;
-  yDomain(yMin: Y, yMax: Y, timingtimingtiming?: AnyTiming | boolean): this;
+  yDomain(yDomain: Domain<Y> | null, timing?: TimingLike | boolean): this;
+  yDomain(yMin: Y, yMax: Y, timingtimingtiming?: TimingLike | boolean): this;
 
   /** @override */
   xRange(): Range<number> | null;

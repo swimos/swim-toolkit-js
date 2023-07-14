@@ -17,7 +17,7 @@ import type {Equals} from "@swim/util";
 import type {Output} from "@swim/codec";
 import type {Debug} from "@swim/codec";
 import {Format} from "@swim/codec";
-import type {AnyLength} from "@swim/math";
+import type {LengthLike} from "@swim/math";
 import {Length} from "@swim/math";
 import type {R2Box} from "@swim/math";
 import type {Graphics} from "./Graphics";
@@ -27,14 +27,14 @@ import {PathContext} from "./PathContext";
 import {PathRenderer} from "./PathRenderer";
 
 /** @public */
-export type AnyRect = Rect | RectInit;
+export type RectLike = Rect | RectInit;
 
 /** @public */
 export interface RectInit {
-  x: AnyLength;
-  y: AnyLength;
-  width: AnyLength;
-  height: AnyLength;
+  x: LengthLike;
+  y: LengthLike;
+  width: LengthLike;
+  height: LengthLike;
 }
 
 /** @public */
@@ -48,8 +48,8 @@ export class Rect implements Graphics, Equals, Debug {
 
   readonly x: Length;
 
-  withX(x: AnyLength): Rect {
-    x = Length.fromAny(x);
+  withX(x: LengthLike): Rect {
+    x = Length.fromLike(x);
     if (this.x.equals(x)) {
       return this;
     }
@@ -58,8 +58,8 @@ export class Rect implements Graphics, Equals, Debug {
 
   readonly y: Length;
 
-  withY(y: AnyLength): Rect {
-    y = Length.fromAny(y);
+  withY(y: LengthLike): Rect {
+    y = Length.fromLike(y);
     if (this.y.equals(y)) {
       return this;
     }
@@ -68,8 +68,8 @@ export class Rect implements Graphics, Equals, Debug {
 
   readonly width: Length;
 
-  withWidth(width: AnyLength): Rect {
-    width = Length.fromAny(width);
+  withWidth(width: LengthLike): Rect {
+    width = Length.fromLike(width);
     if (this.width.equals(width)) {
       return this;
     }
@@ -78,8 +78,8 @@ export class Rect implements Graphics, Equals, Debug {
 
   readonly height: Length;
 
-  withHeight(height: AnyLength): Rect {
-    height = Length.fromAny(height);
+  withHeight(height: LengthLike): Rect {
+    height = Length.fromLike(height);
     if (this.height.equals(height)) {
       return this;
     }
@@ -112,7 +112,7 @@ export class Rect implements Graphics, Equals, Debug {
     return new Rect(x, y, width, height);
   }
 
-  toAny(): RectInit {
+  toLike(): RectInit {
     return {
       x: this.x,
       y: this.y,
@@ -142,15 +142,15 @@ export class Rect implements Graphics, Equals, Debug {
     return Format.debug(this);
   }
 
-  static create(x: AnyLength, y: AnyLength, width: AnyLength, height: AnyLength): Rect {
-    x = Length.fromAny(x);
-    y = Length.fromAny(y);
-    width = Length.fromAny(width);
-    height = Length.fromAny(height);
+  static create(x: LengthLike, y: LengthLike, width: LengthLike, height: LengthLike): Rect {
+    x = Length.fromLike(x);
+    y = Length.fromLike(y);
+    width = Length.fromLike(width);
+    height = Length.fromLike(height);
     return new Rect(x, y, width, height);
   }
 
-  static fromAny<T extends AnyRect | null | undefined>(value: T): Rect | Uninitable<T> {
+  static fromLike<T extends RectLike | null | undefined>(value: T): Rect | Uninitable<T> {
     if (value === void 0 || value === null || value instanceof Rect) {
       return value as Rect | Uninitable<T>;
     } else if (typeof value === "object") {

@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
 import {Timing} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Property} from "@swim/component";
@@ -96,7 +95,7 @@ export class DataSetController<X = unknown, Y = unknown> extends Controller {
   readonly dataSet!: TraitRef<this, DataSetTrait<X, Y>> & Observes<DataSetTrait<X, Y>>;
 
   @Property({valueType: Timing, value: true})
-  get dataPointTiming(): Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined> {
+  get dataPointTiming(): Property<this, Timing | boolean | undefined> {
     return Property.dummy();
   }
 

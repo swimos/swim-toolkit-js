@@ -13,14 +13,13 @@
 // limitations under the License.
 
 import type {Mutable} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import {Timing} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {EventHandler} from "@swim/component";
 import {Provider} from "@swim/component";
 import type {Service} from "@swim/component";
-import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import {Look} from "@swim/theme";
 import {StyleAnimator} from "@swim/dom";
@@ -75,7 +74,7 @@ export class ScrimView extends HtmlView {
       }
     },
   })
-  override get backgroundColor(): StyleAnimator<this, Color | null, AnyColor | null> {
+  override get backgroundColor(): StyleAnimator<this, Color | null> {
     return StyleAnimator.dummy();
   }
 
@@ -97,12 +96,12 @@ export class ScrimView extends HtmlView {
     }
   }
 
-  show(opacity: number, timing?: AnyTiming | boolean): void {
+  show(opacity: number, timing?: TimingLike | boolean): void {
     if (this.isHidden()) {
       if (timing === void 0 || timing === true) {
         timing = this.getLookOr(Look.timing, false);
       } else {
-        timing = Timing.fromAny(timing);
+        timing = Timing.fromLike(timing);
       }
       this.setDisplayState(ScrimView.ShowState);
       if (timing !== false) {
@@ -126,12 +125,12 @@ export class ScrimView extends HtmlView {
     this.setDisplayState(ScrimView.ShownState);
   }
 
-  hide(timing?: AnyTiming | boolean): void {
+  hide(timing?: TimingLike | boolean): void {
     if (this.isShown()) {
       if (timing === void 0 || timing === true) {
         timing = this.getLookOr(Look.timing, false);
       } else {
-        timing = Timing.fromAny(timing);
+        timing = Timing.fromLike(timing);
       }
       this.setDisplayState(ScrimView.HideState);
       if (timing !== false) {
@@ -187,14 +186,13 @@ export class ScrimView extends HtmlView {
   }
 
   @EventHandler({
-    initType(): string {
+    initEventType(): string {
       if (typeof PointerEvent !== "undefined") {
         return "pointerup";
       } else if (typeof TouchEvent !== "undefined") {
         return "touchend";
-      } else {
-        return "click";
       }
+      return "click";
     },
     handle(event: Event): void {
       const modalService = this.owner.modal.service;
@@ -206,7 +204,7 @@ export class ScrimView extends HtmlView {
   readonly click!: EventHandler<this>;
 
   @EventHandler({
-    type: "click",
+    eventType: "click",
     handle(event: Event): void {
       event.preventDefault();
       event.stopPropagation();

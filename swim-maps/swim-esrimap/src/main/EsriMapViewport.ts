@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {AnyR2Point} from "@swim/math";
+import type {R2PointLike} from "@swim/math";
 import {R2Point} from "@swim/math";
-import type {AnyGeoPoint} from "@swim/geo";
+import type {GeoPointLike} from "@swim/geo";
 import {GeoPoint} from "@swim/geo";
 import {GeoBox} from "@swim/geo";
 import {EsriViewport} from "./EsriViewport";
@@ -28,9 +28,9 @@ export class EsriMapViewport extends EsriViewport {
 
   override readonly map!: __esri.MapView;
 
-  override project(geoPoint: AnyGeoPoint): R2Point;
+  override project(geoPoint: GeoPointLike): R2Point;
   override project(lng: number, lat: number): R2Point;
-  override project(lng: AnyGeoPoint | number, lat?: number): R2Point {
+  override project(lng: GeoPointLike | number, lat?: number): R2Point {
     let geoPoint: __esri.Point;
     if (typeof lng === "number") {
       geoPoint = {x: lng, y: lat!, spatialReference: {wkid: 4326}} as __esri.Point;
@@ -43,9 +43,9 @@ export class EsriMapViewport extends EsriViewport {
     return point !== null ? new R2Point(point.x, point.y) : R2Point.origin();
   }
 
-  override unproject(viewPoint: AnyR2Point): GeoPoint;
+  override unproject(viewPoint: R2PointLike): GeoPoint;
   override unproject(x: number, y: number): GeoPoint;
-  override unproject(x: AnyR2Point | number, y?: number): GeoPoint {
+  override unproject(x: R2PointLike | number, y?: number): GeoPoint {
     let viewPoint: __esri.ScreenPoint;
     if (typeof x === "number") {
       viewPoint = {x: x, y: y!};

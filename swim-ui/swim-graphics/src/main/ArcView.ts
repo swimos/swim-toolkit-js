@@ -12,17 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {AnyTiming} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Animator} from "@swim/component";
-import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
-import type {AnyAngle} from "@swim/math";
 import {Angle} from "@swim/math";
-import type {AnyR2Point} from "@swim/math";
 import {R2Point} from "@swim/math";
 import {R2Box} from "@swim/math";
-import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
@@ -45,37 +41,37 @@ export class ArcView extends GraphicsView implements FillView, StrokeView {
   readonly yAlign!: Animator<this, number>;
 
   @Animator({valueType: R2Point, value: R2Point.origin(), updateFlags: View.NeedsRender})
-  readonly center!: Animator<this, R2Point, AnyR2Point>;
+  readonly center!: Animator<this, R2Point>;
 
   @ThemeAnimator({valueType: Length, value: Length.zero(), updateFlags: View.NeedsRender})
-  readonly innerRadius!: ThemeAnimator<this, Length, AnyLength>;
+  readonly innerRadius!: ThemeAnimator<this, Length>;
 
   @ThemeAnimator({valueType: Length, value: Length.zero(), updateFlags: View.NeedsRender})
-  readonly outerRadius!: ThemeAnimator<this, Length, AnyLength>;
+  readonly outerRadius!: ThemeAnimator<this, Length>;
 
   @ThemeAnimator({valueType: Angle, value: Angle.zero(), updateFlags: View.NeedsRender})
-  readonly startAngle!: ThemeAnimator<this, Angle, AnyAngle>;
+  readonly startAngle!: ThemeAnimator<this, Angle>;
 
   @ThemeAnimator({valueType: Angle, value: Angle.zero(), updateFlags: View.NeedsRender})
-  readonly sweepAngle!: ThemeAnimator<this, Angle, AnyAngle>;
+  readonly sweepAngle!: ThemeAnimator<this, Angle>;
 
   @ThemeAnimator({valueType: Angle, value: Angle.zero(), updateFlags: View.NeedsRender})
-  readonly padAngle!: ThemeAnimator<this, Angle, AnyAngle>;
+  readonly padAngle!: ThemeAnimator<this, Angle>;
 
   @ThemeAnimator({valueType: Length, value: null, updateFlags: View.NeedsRender})
-  readonly padRadius!: ThemeAnimator<this, Length | null, AnyLength | null>;
+  readonly padRadius!: ThemeAnimator<this, Length | null>;
 
   @ThemeAnimator({valueType: Length, value: Length.zero(), updateFlags: View.NeedsRender})
-  readonly cornerRadius!: ThemeAnimator<this, Length, AnyLength>;
+  readonly cornerRadius!: ThemeAnimator<this, Length>;
 
   @ThemeAnimator({valueType: Color, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly fill!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly fill!: ThemeAnimator<this, Color | null>;
 
   @ThemeAnimator({valueType: Color, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly stroke!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly stroke!: ThemeAnimator<this, Color | null>;
 
   @ThemeAnimator({valueType: Length, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly strokeWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
+  readonly strokeWidth!: ThemeAnimator<this, Length | null>;
 
   get value(): Arc {
     return new Arc(this.center.value, this.innerRadius.value, this.outerRadius.value,
@@ -89,9 +85,9 @@ export class ArcView extends GraphicsView implements FillView, StrokeView {
                    this.padRadius.state, this.cornerRadius.state);
   }
 
-  setState(arc: Arc | ArcInit, timing?: AnyTiming | boolean): void {
+  setState(arc: Arc | ArcInit, timing?: TimingLike | boolean): void {
     if (arc instanceof Arc) {
-      arc = arc.toAny();
+      arc = arc.toLike();
     }
     if (arc.center !== void 0) {
       this.center(arc.center, timing);

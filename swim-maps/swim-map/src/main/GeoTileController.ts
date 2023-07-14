@@ -16,17 +16,12 @@ import type {Class} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
-import type {AnyUri} from "@swim/uri";
-import type {Uri} from "@swim/uri";
 import type {GeoTile} from "@swim/geo";
-import type {Trait} from "@swim/model";
-import type {Controller} from "@swim/controller";
 import {TraitViewRef} from "@swim/controller";
 import {TraitViewControllerRef} from "@swim/controller";
 import {TraitViewControllerSet} from "@swim/controller";
 import type {GeoView} from "./GeoView";
-import type {GeoTrait} from "./GeoTrait";
-import {GeoController} from "./GeoController";
+import type {GeoLayerTrait} from "./GeoLayerTrait";
 import type {GeoLayerControllerObserver} from "./GeoLayerController";
 import {GeoLayerController} from "./GeoLayerController";
 import {GeoTileView} from "./GeoTileView";
@@ -38,17 +33,9 @@ export interface GeoTileControllerObserver<C extends GeoTileController = GeoTile
 
   controllerDidDetachGeoTrait?(geoTrait: GeoTileTrait, controller: C): void;
 
-  controllerWillAttachTile?(tileController: GeoTileController, controller: C): void;
+  controllerWillAttachGeoView?(geoView: GeoTileView, controller: C): void;
 
-  controllerDidDetachTile?(tileController: GeoTileController, controller: C): void;
-
-  controllerWillAttachTileTrait?(tileTrait: GeoTrait, tileController: GeoTileController, controller: C): void;
-
-  controllerDidDetachTileTrait?(tileTrait: GeoTrait, tileController: GeoTileController, controller: C): void;
-
-  controllerWillAttachTileView?(tileView: GeoView, tileController: GeoTileController, controller: C): void;
-
-  controllerDidDetachTileView?(tileView: GeoView, tileController: GeoTileController, controller: C): void;
+  controllerDidDetachGeoView?(geoView: GeoTileView, controller: C): void;
 }
 
 /** @public */
@@ -56,10 +43,8 @@ export class GeoTileController extends GeoLayerController {
   constructor(geoTile: GeoTile) {
     super();
     this.geoTile = geoTile;
-    this.minVisibleZoom.setValue(geoTile.z, Affinity.Intrinsic);
-    this.maxVisibleZoom.setValue(geoTile.z + 1, Affinity.Intrinsic);
-    this.minConsumeZoom.setValue(geoTile.z, Affinity.Intrinsic);
-    this.maxConsumeZoom.setValue(geoTile.z + 1, Affinity.Intrinsic);
+    this.visibleRange.setValue([geoTile.z, geoTile.z + 1], Affinity.Intrinsic);
+    this.consumeRange.setValue([geoTile.z, geoTile.z + 1], Affinity.Intrinsic);
   }
 
   declare readonly observerType?: Class<GeoTileControllerObserver>;
@@ -67,187 +52,35 @@ export class GeoTileController extends GeoLayerController {
   readonly geoTile: GeoTile;
 
   @Property({extends: true, inherits: false})
-  override get nodeUri(): Property<this, Uri | null, AnyUri | null> {
+  override get visibleRange(): Property<this, readonly [minZoom: number, maxZoom: number]> & GeoLayerController["visibleRange"] {
     return Property.dummy();
   }
 
-  protected override autoConsume(): void {
-    if (!this.mounted) {
-      return;
-    }
-    const geoView = this.geo.view;
-    if (geoView === null) {
-      return;
-    }
-    const geoViewport = geoView.geoViewport.value;
-    if (geoViewport === null) {
-      return;
-    }
-
-    const intersectsViewport = geoViewport.geoFrame.intersects(geoView.geoBounds);
-    const isConsumable = this.minConsumeZoom.value <= geoViewport.zoom
-                      && geoViewport.zoom < this.maxConsumeZoom.value
-                      && intersectsViewport;
-
-    if (intersectsViewport && this.maxConsumeZoom.value <= geoViewport.zoom) {
-      const geoTrait = this.geo.trait;
-      if (geoTrait !== null) {
-        geoTrait.tiles.insert();
-      }
-      this.tiles.insert();
-    } else if (!intersectsViewport || geoViewport.zoom < this.minConsumeZoom.value) {
-      const geoTrait = this.geo.trait;
-      if (geoTrait !== null) {
-        geoTrait.tiles.delete();
-      }
-      this.tiles.delete();
-    }
-
-    if (isConsumable) {
-      this.consume(geoView);
-    } else {
-      this.unconsume(geoView);
-    }
+  @Property({extends: true, inherits: false})
+  override get consumeRange(): Property<this, readonly [minZoom: number, maxZoom: number]> & GeoLayerController["consumeRange"] {
+    return Property.dummy();
   }
 
   @TraitViewRef({
     extends: true,
-    consumed: true,
     traitType: GeoTileTrait,
-    observesTrait: true,
-    initTrait(geoTrait: GeoTileTrait): void {
-      super.initTrait(geoTrait);
-      this.owner.tiles.addTraits(geoTrait.tiles.traits);
-    },
-    deinitTrait(geoTrait: GeoTileTrait): void {
-      this.owner.tiles.deleteTraits(geoTrait.tiles.traits);
-      super.deinitTrait(geoTrait);
-    },
-    traitWillAttachTile(tileTrait: GeoTileTrait, targetTrait: Trait): void {
-      this.owner.tiles.addTrait(tileTrait, targetTrait);
-    },
-    traitDidDetachTile(tileTrait: GeoTileTrait): void {
-      this.owner.tiles.deleteTrait(tileTrait);
-    },
     viewType: GeoTileView,
-    initView(geoView: GeoView): void {
-      const tileControllers = this.owner.tiles.controllers;
-      for (const controllerId in tileControllers) {
-        const tileController = tileControllers[controllerId]!;
-        tileController.geo.insertView(geoView);
-      }
-      super.initView(geoView);
-    },
-    deinitView(geoView: GeoView): void {
-      this.owner.unconsume(geoView);
-      super.deinitView(geoView);
-    },
     createView(): GeoTileView {
       return new GeoTileView(this.owner.geoTile);
     },
   })
-  override readonly geo!: TraitViewRef<this, GeoTileTrait, GeoView> & GeoLayerController["geo"] & Observes<GeoTileTrait>;
+  override readonly geo!: TraitViewRef<this, GeoTileTrait, GeoTileView> & GeoLayerController["geo"] & Observes<GeoTileTrait>;
 
   @TraitViewControllerSet({
     extends: true,
-    detectController(controller: Controller): GeoController | null {
-      return controller instanceof GeoController && !(controller instanceof GeoTileController) ? controller : null;
-    },
-  })
-  override readonly features!: TraitViewControllerSet<this, GeoTrait, GeoView, GeoController> & GeoLayerController["features"];
-
-  @TraitViewControllerSet({
-    get controllerType(): typeof GeoTileController {
-      return GeoTileController;
-    },
-    binds: true,
-    observes: true,
-    get parentView(): GeoView | null {
-      return this.owner.geo.attachView();
-    },
-    getTraitViewRef(tileController: GeoTileController): TraitViewRef<unknown, GeoTileTrait, GeoView> {
-      return tileController.geo;
-    },
-    willAttachController(tileController: GeoTileController): void {
-      this.owner.callObservers("controllerWillAttachTile", tileController, this.owner);
-    },
-    didAttachController(tileController: GeoTileController): void {
-      const tileTrait = tileController.geo.trait;
-      if (tileTrait !== null) {
-        this.attachTileTrait(tileTrait, tileController);
-      }
-      const tileView = tileController.geo.attachView();
-      this.attachTileView(tileView, tileController);
-    },
-    willDetachController(tileController: GeoTileController): void {
-      const tileView = tileController.geo.view;
-      if (tileView !== null) {
-        this.detachTileView(tileView, tileController);
-      }
-      const tileTrait = tileController.geo.trait;
-      if (tileTrait !== null) {
-        this.detachTileTrait(tileTrait, tileController);
-      }
-    },
-    didDetachController(tileController: GeoTileController): void {
-      this.owner.callObservers("controllerDidDetachTile", tileController, this.owner);
-    },
-    controllerWillAttachGeoTrait(tileTrait: GeoTileTrait, tileController: GeoTileController): void {
-      this.owner.callObservers("controllerWillAttachTileTrait", tileTrait, tileController, this.owner);
-      this.attachTileTrait(tileTrait, tileController);
-    },
-    controllerDidDetachGeoTrait(tileTrait: GeoTileTrait, tileController: GeoTileController): void {
-      this.detachTileTrait(tileTrait, tileController);
-      this.owner.callObservers("controllerDidDetachTileTrait", tileTrait, tileController, this.owner);
-    },
-    attachTileTrait(tileTrait: GeoTileTrait, tileController: GeoTileController): void {
-      // hook
-    },
-    detachTileTrait(tileTrait: GeoTileTrait, tileController: GeoTileController): void {
-      this.deleteController(tileController);
-    },
-    controllerWillAttachGeoView(tileView: GeoView, tileController: GeoTileController): void {
-      this.owner.callObservers("controllerWillAttachTileView", tileView, tileController, this.owner);
-      this.attachTileView(tileView, tileController);
-    },
-    controllerDidDetachGeoView(tileView: GeoView, tileController: GeoTileController): void {
-      this.detachTileView(tileView, tileController);
-      this.owner.callObservers("controllerDidDetachTileView", tileView, tileController, this.owner);
-    },
-    attachTileView(tileView: GeoView, tileController: GeoTileController): void {
-      const geoView = this.owner.geo.attachView();
-      tileController.geo.insertView(geoView);
-    },
-    detachTileView(tileView: GeoView, tileController: GeoTileController): void {
-      tileView.remove();
-    },
-    createController(tileTrait?: GeoTileTrait): GeoTileController {
-      if (tileTrait !== void 0) {
-        return this.owner.createTileController(tileTrait.geoTile, tileTrait);
+    createController(layerTrait?: GeoLayerTrait): GeoLayerController {
+      if (layerTrait instanceof GeoTileTrait) {
+        return this.owner.createTileController(layerTrait.geoTile, layerTrait);
       }
       return super.createController();
     },
-    insert(): void {
-      this.owner.southWest.insertController();
-      this.owner.northWest.insertController();
-      this.owner.southEast.insertController();
-      this.owner.northEast.insertController();
-    },
-    delete(): void {
-      this.owner.southWest.deleteController();
-      this.owner.northWest.deleteController();
-      this.owner.southEast.deleteController();
-      this.owner.northEast.deleteController();
-    },
   })
-  readonly tiles!: TraitViewControllerSet<this, GeoTileTrait, GeoView, GeoTileController> & Observes<GeoTileController> & {
-    attachTileTrait(tileTrait: GeoTileTrait, tileController: GeoTileController): void;
-    detachTileTrait(tileTrait: GeoTileTrait, tileController: GeoTileController): void;
-    attachTileView(tileView: GeoView, tileController: GeoTileController): void;
-    detachTileView(tileView: GeoView, tileController: GeoTileController): void;
-    insert(): void;
-    delete(): void;
-  };
+  override readonly layers!: TraitViewControllerSet<this, GeoLayerTrait, GeoView, GeoLayerController> & GeoLayerController["layers"];
 
   @TraitViewControllerRef({
     get controllerType(): typeof GeoTileController {
@@ -325,8 +158,17 @@ export class GeoTileController extends GeoLayerController {
     return new (this.constructor as typeof GeoTileController)(geoTile);
   }
 
-  protected override onStartConsuming(): void {
-    super.onStartConsuming();
-    this.tiles.insert();
+  override consumeLayers(): void {
+    this.southWest.insertController();
+    this.northWest.insertController();
+    this.southEast.insertController();
+    this.northEast.insertController();
+  }
+
+  override unconsumeLayers(): void {
+    this.southWest.deleteController();
+    this.northWest.deleteController();
+    this.southEast.deleteController();
+    this.northEast.deleteController();
   }
 }

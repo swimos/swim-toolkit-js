@@ -79,9 +79,8 @@ export class DomService extends Service {
       return this.materializeElement(parentView, childNode);
     } else if (childNode instanceof Text) {
       return this.materializeText(parentView, childNode);
-    } else {
-      return null;
     }
+    return null;
   }
 
   materializeElement(parentView: NodeView, childNode: Element): ElementView | null {
@@ -127,27 +126,28 @@ export class DomService extends Service {
 
   static bootElement(node: ViewElement): ElementView {
     let view = node.view;
-    if (view === void 0) {
-      let viewClass: typeof ElementView | undefined;
-      const viewClassName = node.getAttribute("swim-app");
-      if (viewClassName !== null && viewClassName !== "") {
-        viewClass = DomService.eval(viewClassName) as typeof ElementView | undefined;
-        if (typeof viewClass !== "function") {
-          throw new TypeError(viewClassName);
-        }
-      }
-      if (viewClass === void 0) {
-        if (node instanceof HTMLElement) {
-          viewClass = HtmlView;
-        } else if (node instanceof SVGElement) {
-          viewClass = SvgView;
-        } else {
-          viewClass = ElementView;
-        }
-      }
-      view = new viewClass(node);
-      viewClass.mount(view);
+    if (view !== void 0) {
+      return view;
     }
+    let viewClass: typeof ElementView | undefined;
+    const viewClassName = node.getAttribute("swim-app");
+    if (viewClassName !== null && viewClassName !== "") {
+      viewClass = DomService.eval(viewClassName) as typeof ElementView | undefined;
+      if (typeof viewClass !== "function") {
+        throw new TypeError(viewClassName);
+      }
+    }
+    if (viewClass === void 0) {
+      if (node instanceof HTMLElement) {
+        viewClass = HtmlView;
+      } else if (node instanceof SVGElement) {
+        viewClass = SvgView;
+      } else {
+        viewClass = ElementView;
+      }
+    }
+    view = new viewClass(node);
+    viewClass.mount(view);
     return view;
   }
 

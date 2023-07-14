@@ -12,39 +12,42 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Arrays} from "@swim/util";
+import type {Proto} from "@swim/util";
 import {Equals} from "@swim/util";
 import type {Equivalent} from "@swim/util";
+import {Arrays} from "@swim/util";
 import type {Output} from "@swim/codec";
 import type {Debug} from "@swim/codec";
 import {Format} from "@swim/codec";
-import type {AnyLength} from "@swim/math";
+import type {LengthLike} from "@swim/math";
 import {Length} from "@swim/math";
-import type {AnyColLayout} from "./ColLayout";
+import type {ColLayoutLike} from "./ColLayout";
 import {ColLayout} from "./ColLayout";
 
 /** @public */
-export type AnyTableLayout = TableLayout | TableLayoutInit;
+export type TableLayoutLike = TableLayout | TableLayoutInit;
 
 /** @public */
 export interface TableLayoutInit {
-  width?: AnyLength | null;
-  left?: AnyLength | null;
-  right?: AnyLength | null;
-  colSpacing?: AnyLength | null;
-  cols: AnyColLayout[];
+  width?: LengthLike | null;
+  left?: LengthLike | null;
+  right?: LengthLike | null;
+  colSpacing?: LengthLike | null;
+  cols: ColLayoutLike[];
 }
 
 /** @public */
 export class TableLayout implements Equals, Equivalent, Debug {
   constructor(width: Length | null, left: Length | null, right: Length | null,
-              colSpacing: Length | null, cols: ReadonlyArray<ColLayout>) {
+              colSpacing: Length | null, cols: readonly ColLayout[]) {
     this.width = width;
     this.left = left;
     this.right = right;
     this.colSpacing = colSpacing;
     this.cols = cols;
   }
+
+  declare readonly likeType?: Proto<TableLayoutInit>;
 
   readonly width: Length | null;
 
@@ -54,7 +57,7 @@ export class TableLayout implements Equals, Equivalent, Debug {
 
   readonly colSpacing: Length | null;
 
-  readonly cols: ReadonlyArray<ColLayout>;
+  readonly cols: readonly ColLayout[];
 
   getCol(key: string): ColLayout | null {
     const cols = this.cols;
@@ -67,23 +70,23 @@ export class TableLayout implements Equals, Equivalent, Debug {
     return null;
   }
 
-  resized(width: AnyLength, left?: AnyLength | null, right?: AnyLength | null,
-          colSpacing?: AnyLength | null): TableLayout {
-    width = Length.fromAny(width);
+  resized(width: LengthLike, left?: LengthLike | null, right?: LengthLike | null,
+          colSpacing?: LengthLike | null): TableLayout {
+    width = Length.fromLike(width);
     if (left === void 0) {
       left = this.left;
     } else if (left !== null) {
-      left = Length.fromAny(left);
+      left = Length.fromLike(left);
     }
     if (right === void 0) {
       right = this.right;
     } else if (right !== null) {
-      right = Length.fromAny(right);
+      right = Length.fromLike(right);
     }
     if (colSpacing === void 0) {
       colSpacing = this.colSpacing;
     } else if (colSpacing !== null) {
-      colSpacing = Length.fromAny(colSpacing);
+      colSpacing = Length.fromLike(colSpacing);
     }
     if (Equals(this.width, width) && Equals(this.left, left) &&
         Equals(this.right, right) && Equals(this.colSpacing, colSpacing)) {
@@ -255,20 +258,20 @@ export class TableLayout implements Equals, Equivalent, Debug {
     return Format.debug(this);
   }
 
-  static of(...tableCols: AnyColLayout[]): TableLayout {
+  static of(...tableCols: ColLayoutLike[]): TableLayout {
     const n = tableCols.length;
     const cols = new Array<ColLayout>(n);
     for (let i = 0; i < n; i += 1) {
-      cols[i] = ColLayout.fromAny(tableCols[i]!);
+      cols[i] = ColLayout.fromLike(tableCols[i]!);
     }
     return new TableLayout(null, null, null, null, cols);
   }
 
-  static create(cols: ReadonlyArray<ColLayout>): TableLayout {
+  static create(cols: readonly ColLayout[]): TableLayout {
     return new TableLayout(null, null, null, null, cols);
   }
 
-  static fromAny(value: AnyTableLayout): TableLayout {
+  static fromLike(value: TableLayoutLike): TableLayout {
     if (value === void 0 || value === null || value instanceof TableLayout) {
       return value;
     } else if (typeof value === "object" && value !== null) {
@@ -280,32 +283,32 @@ export class TableLayout implements Equals, Equivalent, Debug {
   static fromInit(init: TableLayoutInit): TableLayout {
     let width = init.width;
     if (width !== void 0 && width !== null) {
-      width = Length.fromAny(width);
+      width = Length.fromLike(width);
     } else {
       width = null;
     }
     let left = init.left;
     if (left !== void 0 && left !== null) {
-      left = Length.fromAny(left);
+      left = Length.fromLike(left);
     } else {
       left = null;
     }
     let right = init.right;
     if (right !== void 0 && right !== null) {
-      right = Length.fromAny(right);
+      right = Length.fromLike(right);
     } else {
       right = null;
     }
     let colSpacing = init.colSpacing;
     if (colSpacing !== void 0 && colSpacing !== null) {
-      colSpacing = Length.fromAny(colSpacing);
+      colSpacing = Length.fromLike(colSpacing);
     } else {
       colSpacing = null;
     }
     const colCount = init.cols.length;
     const cols = new Array<ColLayout>(colCount);
     for (let i = 0; i < colCount; i += 1) {
-      cols[i] = ColLayout.fromAny(init.cols[i]!);
+      cols[i] = ColLayout.fromLike(init.cols[i]!);
     }
     return new TableLayout(width, left, right, colSpacing, cols);
   }

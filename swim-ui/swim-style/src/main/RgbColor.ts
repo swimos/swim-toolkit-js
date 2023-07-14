@@ -14,6 +14,7 @@
 
 import type {Uninitable} from "@swim/util";
 import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
 import {Lazy} from "@swim/util";
 import {Murmur3} from "@swim/util";
 import {Numbers} from "@swim/util";
@@ -28,18 +29,18 @@ import {Base16} from "@swim/codec";
 import {Unicode} from "@swim/codec";
 import type {Item} from "@swim/structure";
 import {Value} from "@swim/structure";
-import type {AnyColor} from "./Color";
+import type {ColorLike} from "./Color";
 import {Color} from "./Color";
 import type {ColorChannel} from "./Color";
 import {ColorChannelParser} from "./Color";
 import {HslColor} from "./"; // forward import
 
 /** @public */
-export type AnyRgbColor = RgbColor | RgbColorInit | string;
+export type RgbColorLike = RgbColor | RgbColorInit | string;
 
 /** @public */
-export const AnyRgbColor = {
-  [Symbol.hasInstance](instance: unknown): instance is AnyRgbColor {
+export const RgbColorLike = {
+  [Symbol.hasInstance](instance: unknown): instance is RgbColorLike {
     return instance instanceof RgbColor
         || RgbColorInit[Symbol.hasInstance](instance)
         || typeof instance === "string";
@@ -71,6 +72,9 @@ export class RgbColor extends Color {
     this.a = a;
     this.stringValue = void 0;
   }
+
+  /** @override */
+  declare readonly likeType?: Proto<RgbColorInit | string>;
 
   override isDefined(): boolean {
     return isFinite(this.r) && isFinite(this.g)
@@ -105,8 +109,8 @@ export class RgbColor extends Color {
     return (max + min) / 2;
   }
 
-  override plus(that: AnyColor): RgbColor {
-    that = Color.fromAny(that).rgb();
+  override plus(that: ColorLike): RgbColor {
+    that = Color.fromLike(that).rgb();
     return new RgbColor(this.r + (that as RgbColor).r, this.g + (that as RgbColor).g,
                         this.b + (that as RgbColor).b, this.a + (that as RgbColor).a);
   }
@@ -115,8 +119,8 @@ export class RgbColor extends Color {
     return new RgbColor(this.r * scalar, this.g * scalar, this.b * scalar, this.a * scalar);
   }
 
-  override combine(that: AnyColor, scalar: number = 1): Color {
-    that = Color.fromAny(that).rgb();
+  override combine(that: ColorLike, scalar: number = 1): Color {
+    that = Color.fromLike(that).rgb();
     return new RgbColor(this.r + (that as RgbColor).r * scalar, this.g + (that as RgbColor).g * scalar,
                         this.b + (that as RgbColor).b * scalar, this.a + (that as RgbColor).a * scalar);
   }
@@ -275,9 +279,9 @@ export class RgbColor extends Color {
     return new RgbColor(255, 255, 255, alpha);
   }
 
-  static override fromAny<T extends AnyRgbColor | null | undefined>(value: T): RgbColor | Uninitable<T>;
-  static override fromAny<T extends AnyColor | null | undefined>(value: T): never;
-  static override fromAny<T extends AnyRgbColor | null | undefined>(value: T): RgbColor | Uninitable<T> {
+  static override fromLike<T extends RgbColorLike | null | undefined>(value: T): RgbColor | Uninitable<T>;
+  static override fromLike<T extends ColorLike | null | undefined>(value: T): never;
+  static override fromLike<T extends RgbColorLike | null | undefined>(value: T): RgbColor | Uninitable<T> {
     if (value === void 0 || value === null || value instanceof RgbColor) {
       return value as RgbColor | Uninitable<T>;
     } else if (typeof value === "string") {

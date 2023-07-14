@@ -15,28 +15,24 @@
 import type {Class} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
-import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
-import type {AnyGeoShape} from "@swim/geo";
 import {GeoShape} from "@swim/geo";
-import type {AnyNumberOrLook} from "@swim/theme";
 import type {NumberOrLook} from "@swim/theme";
 import {NumberLook} from "@swim/theme";
-import type {AnyColorOrLook} from "@swim/theme";
 import type {ColorOrLook} from "@swim/theme";
 import {ColorLook} from "@swim/theme";
-import type {GeoTraitObserver} from "./GeoTrait";
-import {GeoTrait} from "./GeoTrait";
-import type {GeoController} from "./GeoController";
+import type {GeoFeatureTraitObserver} from "./GeoFeatureTrait";
+import {GeoFeatureTrait} from "./GeoFeatureTrait";
+import type {GeoFeatureController} from "./GeoFeatureController";
 import {GeoShapeController} from "./"; // forward import
 
 /** @public */
-export interface GeoShapeTraitObserver<T extends GeoShapeTrait = GeoShapeTrait> extends GeoTraitObserver<T> {
+export interface GeoShapeTraitObserver<T extends GeoShapeTrait = GeoShapeTrait> extends GeoFeatureTraitObserver<T> {
   traitDidSetGeoShape?(geoShape: GeoShape | null, trait: T): void;
 }
 
 /** @public */
-export class GeoShapeTrait extends GeoTrait {
+export class GeoShapeTrait extends GeoFeatureTrait {
   declare readonly observerType?: Class<GeoShapeTraitObserver>;
 
   @Property({
@@ -47,24 +43,24 @@ export class GeoShapeTrait extends GeoTrait {
       this.owner.geoPerspective.setValue(geoShape, Affinity.Intrinsic);
     },
   })
-  readonly geoShape!: Property<this, GeoShape | null, AnyGeoShape | null>;
+  readonly geoShape!: Property<this, GeoShape | null>;
 
   @Property({valueType: ColorLook, value: null})
-  readonly fill!: Property<this, ColorOrLook | null, AnyColorOrLook | null>;
+  readonly fill!: Property<this, ColorOrLook | null>;
 
   @Property({valueType: NumberLook})
-  readonly fillOpacity!: Property<this, NumberOrLook | undefined, AnyNumberOrLook | undefined>;
+  readonly fillOpacity!: Property<this, NumberOrLook | undefined>;
 
   @Property({valueType: ColorLook, value: null})
-  readonly stroke!: Property<this, ColorOrLook | null, AnyColorOrLook | null>;
+  readonly stroke!: Property<this, ColorOrLook | null>;
 
   @Property({valueType: NumberLook})
-  readonly strokeOpacity!: Property<this, NumberOrLook | undefined, AnyNumberOrLook | undefined>;
+  readonly strokeOpacity!: Property<this, NumberOrLook | undefined>;
 
   @Property({valueType: Length, value: null})
-  readonly strokeWidth!: Property<this, Length | null, AnyLength | null>;
+  readonly strokeWidth!: Property<this, Length | null>;
 
-  override createGeoController(): GeoController {
+  override createGeoController(): GeoFeatureController {
     return new GeoShapeController();
   }
 }

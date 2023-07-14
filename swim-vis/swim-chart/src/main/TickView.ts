@@ -17,12 +17,9 @@ import type {Class} from "@swim/util";
 import type {Timing} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Animator} from "@swim/component";
-import type {AnyR2Point} from "@swim/math";
 import {R2Point} from "@swim/math";
 import type {R2Box} from "@swim/math";
-import type {AnyFont} from "@swim/style";
 import {Font} from "@swim/style";
-import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
@@ -81,13 +78,13 @@ export abstract class TickView<D = unknown> extends GraphicsView {
   readonly tickState: TickState;
 
   @Animator({valueType: R2Point, value: R2Point.origin(), updateFlags: View.NeedsRender})
-  readonly anchor!: Animator<this, R2Point, AnyR2Point>;
+  readonly anchor!: Animator<this, R2Point>;
 
   @ThemeAnimator({valueType: Number, value: 1, updateFlags: View.NeedsRender})
   readonly opacity!: ThemeAnimator<this, number>;
 
   @ThemeAnimator({valueType: Color, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly tickMarkColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly tickMarkColor!: ThemeAnimator<this, Color | null>;
 
   @ThemeAnimator({valueType: Number, value: 1, inherits: true, updateFlags: View.NeedsRender})
   readonly tickMarkWidth!: ThemeAnimator<this, number>;
@@ -99,16 +96,16 @@ export abstract class TickView<D = unknown> extends GraphicsView {
   readonly tickLabelPadding!: ThemeAnimator<this, number>;
 
   @ThemeAnimator({valueType: Color, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly gridLineColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly gridLineColor!: ThemeAnimator<this, Color | null>;
 
   @ThemeAnimator({valueType: Number, value: 0, inherits: true, updateFlags: View.NeedsRender})
   readonly gridLineWidth!: ThemeAnimator<this, number>;
 
   @ThemeAnimator({valueType: Font, value: null, inherits: true})
-  readonly font!: ThemeAnimator<this, Font | null, AnyFont | null>;
+  readonly font!: ThemeAnimator<this, Font | null>;
 
   @ThemeAnimator({valueType: Color, value: null, inherits: true})
-  readonly textColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly textColor!: ThemeAnimator<this, Color | null>;
 
   @ViewRef({
     viewType: TextRunView,

@@ -13,32 +13,34 @@
 // limitations under the License.
 
 import type {Uninitable} from "@swim/util";
+import type {Proto} from "@swim/util";
 import {Objects} from "@swim/util";
-import type {AnyGeoPoint} from "@swim/geo";
+import type {GeoPointLike} from "@swim/geo";
 import {GeoShape} from "@swim/geo";
 import {GeoPoint} from "@swim/geo";
-import {AnyGeoBox} from "@swim/geo";
+import {GeoBoxLike} from "@swim/geo";
+import {GeoBoxInit} from "@swim/geo";
 import {GeoBox} from "@swim/geo";
 
 /** @public */
-export type AnyGeoPerspective = GeoPerspective | GeoShape | GeoPerspectiveInit | AnyGeoBox;
+export type GeoPerspectiveLike = GeoPerspective | GeoShape | GeoPerspectiveInit | GeoBoxInit;
 
 /** @public */
-export const AnyGeoPerspective = {
-  [Symbol.hasInstance](instance: unknown): instance is AnyGeoPerspective {
+export const GeoPerspectiveLike = {
+  [Symbol.hasInstance](instance: unknown): instance is GeoPerspectiveLike {
     return GeoPerspective[Symbol.hasInstance](instance)
         || instance instanceof GeoShape
         || GeoPerspectiveInit[Symbol.hasInstance](instance)
-        || AnyGeoBox[Symbol.hasInstance](instance);
+        || GeoBoxInit[Symbol.hasInstance](instance);
   },
 };
 
 /** @public */
 export interface GeoPerspectiveInit {
   /** @internal */
-  typeid?: "GeoPerspectivInite";
-  geoFrame?: AnyGeoBox | null;
-  geoCenter?: AnyGeoPoint | null;
+  readonly typeid?: "GeoPerspectivInite";
+  geoFrame?: GeoBoxLike | null;
+  geoCenter?: GeoPointLike | null;
   zoom?: number;
   heading?: number;
   tilt?: number;
@@ -54,7 +56,9 @@ export const GeoPerspectiveInit = {
 /** @public */
 export interface GeoPerspective {
   /** @internal */
-  typeid?: "GeoPerspective";
+  readonly typeid?: "GeoPerspective";
+
+  readonly likeType?: Proto<GeoShape | GeoPerspectiveInit | GeoBoxInit>;
 
   readonly geoFrame: GeoBox | null;
 
@@ -69,12 +73,12 @@ export interface GeoPerspective {
 
 /** @public */
 export const GeoPerspective = {
-  fromAny<T extends AnyGeoPerspective | null | undefined>(value: T): GeoPerspective | Uninitable<T> {
+  fromLike<T extends GeoPerspectiveLike | null | undefined>(value: T): GeoPerspective | Uninitable<T> {
     if (value === void 0 || value === null || GeoPerspective[Symbol.hasInstance](value)) {
       return value as GeoPerspective | Uninitable<T>;
-    } else if (value instanceof GeoShape || AnyGeoBox[Symbol.hasInstance](value)) {
+    } else if (value instanceof GeoShape || GeoBoxLike[Symbol.hasInstance](value)) {
       return {
-        geoFrame: GeoBox.fromAny(value),
+        geoFrame: GeoBox.fromLike(value),
         geoCenter: null,
         zoom: void 0,
         heading: void 0,
@@ -83,9 +87,9 @@ export const GeoPerspective = {
     }
     return {
       geoFrame: value.geoFrame !== void 0 && value.geoFrame !== null
-              ? GeoBox.fromAny(value.geoFrame) : null,
+              ? GeoBox.fromLike(value.geoFrame) : null,
       geoCenter: value.geoCenter !== void 0 && value.geoCenter !== null
-               ? GeoPoint.fromAny(value.geoCenter) : null,
+               ? GeoPoint.fromLike(value.geoCenter) : null,
       zoom: value.zoom,
       heading: value.heading,
       tilt: value.tilt,

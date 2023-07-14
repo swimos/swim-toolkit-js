@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import {Timing} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Affinity} from "@swim/component";
@@ -60,7 +60,7 @@ export class LinePlotController<X = unknown, Y = unknown> extends SeriesPlotCont
   })
   override readonly dataPoints!: TraitViewControllerSet<this, DataPointTrait<X, Y>, DataPointView<X, Y>, DataPointController<X, Y>> & SeriesPlotController<X, Y>["dataPoints"];
 
-  protected setStroke(stroke: ColorOrLook | null, timing?: AnyTiming | boolean): void {
+  protected setStroke(stroke: ColorOrLook | null, timing?: TimingLike | boolean): void {
     const plotView = this.plot.view;
     if (plotView !== null) {
       if (timing === void 0 || timing === true) {
@@ -69,7 +69,7 @@ export class LinePlotController<X = unknown, Y = unknown> extends SeriesPlotCont
           timing = plotView.getLook(Look.timing, Mood.ambient);
         }
       } else {
-        timing = Timing.fromAny(timing);
+        timing = Timing.fromLike(timing);
       }
       if (stroke instanceof Look) {
         plotView.stroke.setLook(stroke, timing, Affinity.Intrinsic);
@@ -79,7 +79,7 @@ export class LinePlotController<X = unknown, Y = unknown> extends SeriesPlotCont
     }
   }
 
-  protected setStrokeWidth(strokeWidth: Length | null, timing?: AnyTiming | boolean): void {
+  protected setStrokeWidth(strokeWidth: Length | null, timing?: TimingLike | boolean): void {
     const plotView = this.plot.view;
     if (plotView !== null) {
       if (timing === void 0 || timing === true) {
@@ -88,7 +88,7 @@ export class LinePlotController<X = unknown, Y = unknown> extends SeriesPlotCont
           timing = plotView.getLook(Look.timing, Mood.ambient);
         }
       } else {
-        timing = Timing.fromAny(timing);
+        timing = Timing.fromLike(timing);
       }
       plotView.strokeWidth.setState(strokeWidth, timing, Affinity.Intrinsic);
     }

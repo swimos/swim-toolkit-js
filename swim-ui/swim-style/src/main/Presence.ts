@@ -14,6 +14,7 @@
 
 import type {Uninitable} from "@swim/util";
 import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
 import {Lazy} from "@swim/util";
 import {Murmur3} from "@swim/util";
 import type {Equivalent} from "@swim/util";
@@ -21,7 +22,8 @@ import type {HashCode} from "@swim/util";
 import {Numbers} from "@swim/util";
 import {Constructors} from "@swim/util";
 import {Objects} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import type {LikeType} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import type {Interpolate} from "@swim/util";
 import {Interpolator} from "@swim/util";
 import type {Output} from "@swim/codec";
@@ -32,11 +34,11 @@ import type {AnimatorClass} from "@swim/component";
 import {Animator} from "@swim/component";
 
 /** @public */
-export type AnyPresence = Presence | PresenceInit | boolean;
+export type PresenceLike = Presence | PresenceInit | boolean;
 
 /** @public */
-export const AnyPresence = {
-  [Symbol.hasInstance](instance: unknown): instance is AnyPresence {
+export const PresenceLike = {
+  [Symbol.hasInstance](instance: unknown): instance is PresenceLike {
     return instance instanceof Presence
         || PresenceInit[Symbol.hasInstance](instance)
         || typeof instance === "boolean";
@@ -46,7 +48,7 @@ export const AnyPresence = {
 /** @public */
 export interface PresenceInit {
   /** @internal */
-  typeid?: "PresenceInit";
+  readonly typeid?: "PresenceInit";
   readonly phase: number;
   readonly direction: number;
 }
@@ -66,7 +68,9 @@ export class Presence implements Interpolate<Presence>, HashCode, Equivalent, De
   }
 
   /** @internal */
-  declare typeid?: "Presence";
+  declare readonly typeid?: "Presence";
+
+  declare likeType?: Proto<PresenceInit | boolean>;
 
   readonly phase: number;
 
@@ -239,7 +243,7 @@ export class Presence implements Interpolate<Presence>, HashCode, Equivalent, De
     return new Presence(phase, direction);
   }
 
-  static fromAny<T extends AnyPresence | null | undefined>(value: T): Presence | Uninitable<T> {
+  static fromLike<T extends PresenceLike | null | undefined>(value: T): Presence | Uninitable<T> {
     if (value === void 0 || value === null || value instanceof Presence) {
       return value as Presence | Uninitable<T>;
     } else if (PresenceInit[Symbol.hasInstance](value)) {
@@ -285,20 +289,20 @@ export const PresenceInterpolator = (function (_super: typeof Interpolator) {
 })(Interpolator);
 
 /** @public */
-export interface PresenceAnimator<O = unknown, T extends Presence | null | undefined = Presence | null | undefined, U extends AnyPresence | null | undefined = AnyPresence | T, I = T> extends Animator<O, T, U, I> {
+export interface PresenceAnimator<R = any, T extends Presence | null | undefined = Presence | null | undefined, I extends any[] = [T]> extends Animator<R, T, I> {
   get phase(): number | undefined;
 
   getPhase(): number;
 
   getPhaseOr<E>(elsePhase: E): number | E;
 
-  setPhase(newPhase: number, timingOrAffinity: Affinity | AnyTiming | boolean | null | undefined): void;
-  setPhase(newPhase: number, timing?: AnyTiming | boolean | null, affinity?: Affinity): void;
+  setPhase(newPhase: number, timingOrAffinity: Affinity | TimingLike | boolean | null | undefined): void;
+  setPhase(newPhase: number, timing?: TimingLike | boolean | null, affinity?: Affinity): void;
 
   get direction(): number;
 
-  setDirection(newDirection: number, timingOrAffinity: Affinity | AnyTiming | boolean | null | undefined): void;
-  setDirection(newDirection: number, timing?: AnyTiming | boolean | null, affinity?: Affinity): void;
+  setDirection(newDirection: number, timingOrAffinity: Affinity | TimingLike | boolean | null | undefined): void;
+  setDirection(newDirection: number, timing?: TimingLike | boolean | null, affinity?: Affinity): void;
 
   get dismissed(): boolean;
 
@@ -308,17 +312,19 @@ export interface PresenceAnimator<O = unknown, T extends Presence | null | undef
 
   get dismissing(): boolean;
 
-  present(timingOrAffinity: Affinity | AnyTiming | boolean | null | undefined): void;
-  present(timing?: AnyTiming | boolean | null, affinity?: Affinity): void;
+  present(timingOrAffinity: Affinity | TimingLike | boolean | null | undefined): void;
+  present(timing?: TimingLike | boolean | null, affinity?: Affinity): void;
 
-  dismiss(timingOrAffinity: Affinity | AnyTiming | boolean | null | undefined): void;
-  dismiss(timing?: AnyTiming | boolean | null, affinity?: Affinity): void;
+  dismiss(timingOrAffinity: Affinity | TimingLike | boolean | null | undefined): void;
+  dismiss(timing?: TimingLike | boolean | null, affinity?: Affinity): void;
 
-  toggle(timingOrAffinity: Affinity | AnyTiming | boolean | null | undefined): void;
-  toggle(timing?: AnyTiming | boolean | null, affinity?: Affinity): void;
+  toggle(timingOrAffinity: Affinity | TimingLike | boolean | null | undefined): void;
+  toggle(timing?: TimingLike | boolean | null, affinity?: Affinity): void;
 
-  setState(newState: T | U, timingOrAffinity: Affinity | AnyTiming | boolean | null | undefined): void;
-  setState(newState: T | U, timing?: AnyTiming | boolean | null, affinity?: Affinity): void;
+  /** @override */
+  setState(newState: T | LikeType<T>, timingOrAffinity: Affinity | TimingLike | boolean | null | undefined): void;
+  /** @override */
+  setState(newState: T | LikeType<T>, timing?: TimingLike | boolean | null, affinity?: Affinity): void;
 
   /** @override @protected */
   onSetValue(newValue: T, oldValue: T): void;
@@ -337,134 +343,108 @@ export interface PresenceAnimator<O = unknown, T extends Presence | null | undef
 
   /** @override */
   equalValues(newValue: T, oldValue: T | undefined): boolean;
-
-  /** @override */
-  fromAny(value: T | U): T;
 }
 
 /** @public */
-export const PresenceAnimator = (function (_super: typeof Animator) {
-  const PresenceAnimator = _super.extend("PresenceAnimator", {
-    valueType: Presence,
-  }) as AnimatorClass<PresenceAnimator<any, any, any>>;
+export const PresenceAnimator = (<R, T extends Presence | null | undefined, I extends any[], A extends PresenceAnimator<any, any, any>>() => Animator.extend<PresenceAnimator<R, T, I>, AnimatorClass<A>>("PresenceAnimator", {
+  valueType: Presence,
 
-  Object.defineProperty(PresenceAnimator.prototype, "phase", {
-    get(this: PresenceAnimator): number | undefined {
-      const value = this.value;
-      return value !== void 0 && value !== null ? value.phase : void 0;
-    },
-    configurable: true,
-  });
-
-  PresenceAnimator.prototype.getPhase = function (this: PresenceAnimator): number {
-    return this.getValue().phase;
-  };
-
-  PresenceAnimator.prototype.getPhaseOr = function <E>(this: PresenceAnimator, elsePhase: E): number | E {
+  get phase(): number | undefined {
     const value = this.value;
-    if (value !== void 0 && value !== null) {
-      return value.phase;
-    } else {
+    return value !== void 0 && value !== null ? value.phase : void 0;
+  },
+
+  getPhase(): number {
+    return this.getValue().phase;
+  },
+
+  getPhaseOr<E>(elsePhase: E): number | E {
+    const value = this.value;
+    if (value === void 0 || value === null) {
       return elsePhase;
     }
-  };
+    return value.phase;
+  },
 
-  PresenceAnimator.prototype.setPhase = function (this: PresenceAnimator, newPhase: number, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
+  setPhase(newPhase: number, timing?: Affinity | TimingLike | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue === void 0 || oldValue === null) {
       return;
-    }
-    if (typeof timing === "number") {
+    } else if (typeof timing === "number") {
       affinity = timing;
       timing = void 0;
     }
-    this.setState(oldValue.withPhase(newPhase), timing, affinity);
-  };
+    this.setState(oldValue.withPhase(newPhase) as T, timing, affinity);
+  },
 
-  Object.defineProperty(PresenceAnimator.prototype, "direction", {
-    get(this: PresenceAnimator): number {
-      const value = this.value;
-      return value !== void 0 && value !== null ? value.direction : 0;
-    },
-    configurable: true,
-  });
+  get direction(): number {
+    const value = this.value;
+    return value !== void 0 && value !== null ? value.direction : 0;
+  },
 
-  PresenceAnimator.prototype.setDirection = function (this: PresenceAnimator, newDirection: number, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
+  setDirection(newDirection: number, timing?: Affinity | TimingLike | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue === void 0 || oldValue === null) {
       return;
-    }
-    if (typeof timing === "number") {
+    } else if (typeof timing === "number") {
       affinity = timing;
       timing = void 0;
     }
-    this.setState(oldValue.withDirection(newDirection), timing, affinity);
-  };
+    this.setState(oldValue.withDirection(newDirection) as T, timing, affinity);
+  },
 
-  Object.defineProperty(PresenceAnimator.prototype, "dismissed", {
-    get(this: PresenceAnimator): boolean {
-      const value = this.value;
-      return value !== void 0 && value !== null && value.dismissed;
-    },
-    configurable: true,
-  });
+  get dismissed(): boolean {
+    const value = this.value;
+    return value !== void 0 && value !== null && value.dismissed;
+  },
 
-  Object.defineProperty(PresenceAnimator.prototype, "presented", {
-    get(this: PresenceAnimator): boolean {
-      const value = this.value;
-      return value !== void 0 && value !== null && value.presented;
-    },
-    configurable: true,
-  });
+  get presented(): boolean {
+    const value = this.value;
+    return value !== void 0 && value !== null && value.presented;
+  },
 
-  Object.defineProperty(PresenceAnimator.prototype, "presenting", {
-    get(this: PresenceAnimator): boolean {
-      const value = this.value;
-      return value !== void 0 && value !== null && value.presenting;
-    },
-    configurable: true,
-  });
+  get presenting(): boolean {
+    const value = this.value;
+    return value !== void 0 && value !== null && value.presenting;
+  },
 
-  Object.defineProperty(PresenceAnimator.prototype, "dismissing", {
-    get(this: PresenceAnimator): boolean {
-      const value = this.value;
-      return value !== void 0 && value !== null && value.dismissing;
-    },
-    configurable: true,
-  });
+  get dismissing(): boolean {
+    const value = this.value;
+    return value !== void 0 && value !== null && value.dismissing;
+  },
 
-  PresenceAnimator.prototype.present = function (this: PresenceAnimator, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
+  present(timing?: Affinity | TimingLike | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue !== void 0 && oldValue !== null) {
       if (oldValue.presented) {
         return;
       }
-      this.setValue(oldValue.asPresenting(), Affinity.Reflexive);
+      this.setValue(oldValue.asPresenting() as T, Affinity.Reflexive);
     }
-    this.setState(Presence.presented(), timing as any, affinity);
-  };
+    this.setState(Presence.presented() as T, timing as any, affinity);
+  },
 
-  PresenceAnimator.prototype.dismiss = function (this: PresenceAnimator, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
+  dismiss(timing?: Affinity | TimingLike | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue !== void 0 && oldValue !== null) {
       if (oldValue.dismissed) {
         return;
       }
-      this.setValue(oldValue.asDismissing(), Affinity.Reflexive);
+      this.setValue(oldValue.asDismissing() as T, Affinity.Reflexive);
     }
-    this.setState(Presence.dismissed(), timing as any, affinity);
-  };
+    this.setState(Presence.dismissed() as T, timing as any, affinity);
+  },
 
-  PresenceAnimator.prototype.toggle = function (this: PresenceAnimator, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
+  toggle(timing?: Affinity | TimingLike | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue === void 0 || oldValue === null) {
       return;
     }
-    this.setValue(oldValue.asToggling(), Affinity.Reflexive);
-    this.setState(oldValue.asToggled(), timing as any, affinity);
-  };
+    this.setValue(oldValue.asToggling() as T, Affinity.Reflexive);
+    this.setState(oldValue.asToggled() as T, timing as any, affinity);
+  },
 
-  PresenceAnimator.prototype.setState = function (this: PresenceAnimator, newState: AnyPresence | null | undefined, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
+  setState(newState: PresenceLike | null | undefined, timing?: Affinity | TimingLike | boolean | null, affinity?: Affinity): void {
     if (typeof timing === "number") {
       affinity = timing;
       timing = void 0;
@@ -476,15 +456,15 @@ export const PresenceAnimator = (function (_super: typeof Animator) {
       const oldValue = this.value;
       const newValue = newState ? Presence.presented() : Presence.dismissed();
       if (oldValue !== void 0 && oldValue !== null && !oldValue.equals(newValue)) {
-        this.setValue(newState ? oldValue.asPresenting() : oldValue.asDismissing(), Affinity.Reflexive);
+        this.setValue(newState ? oldValue.asPresenting() as T : oldValue.asDismissing() as T, Affinity.Reflexive);
       }
       newState = newValue;
     }
-    _super.prototype.setState.call(this, newState, timing, affinity);
-  };
+    super.setState(newState, timing, affinity);
+  },
 
-  PresenceAnimator.prototype.onSetValue = function (this: PresenceAnimator, newValue: Presence | null | undefined, oldValue: Presence | null | undefined): void {
-    _super.prototype.onSetValue.call(this, newValue, oldValue);
+  onSetValue(newValue: Presence | null | undefined, oldValue: Presence | null | undefined): void {
+    super.onSetValue(newValue, oldValue);
     if (newValue === void 0 || newValue === null || oldValue === void 0 || oldValue === null) {
       return;
     } else if (newValue.presenting && !oldValue.presenting) {
@@ -496,35 +476,28 @@ export const PresenceAnimator = (function (_super: typeof Animator) {
     } else if (newValue.dismissed && !oldValue.dismissed) {
       this.didDismiss();
     }
-  };
+  },
 
-  PresenceAnimator.prototype.willPresent = function (this: PresenceAnimator): void {
+  willPresent(): void {
     // hook
-  };
+  },
 
-  PresenceAnimator.prototype.didPresent = function (this: PresenceAnimator): void {
+  didPresent(): void {
     // hook
-  };
+  },
 
-  PresenceAnimator.prototype.willDismiss = function (this: PresenceAnimator): void {
+  willDismiss(): void {
     // hook
-  };
+  },
 
-  PresenceAnimator.prototype.didDismiss = function (this: PresenceAnimator): void {
+  didDismiss(): void {
     // hook
-  };
+  },
 
-  PresenceAnimator.prototype.fromAny = function (this: PresenceAnimator, value: AnyPresence | null | undefined): Presence | null | undefined {
-    return value !== void 0 && value !== null ? Presence.fromAny(value) : null;
-  };
-
-  PresenceAnimator.prototype.equalValues = function (this: PresenceAnimator, newValue: Presence | null | undefined, oldState: Presence | null | undefined): boolean {
+  equalValues(newValue: Presence | null | undefined, oldState: Presence | null | undefined): boolean {
     if (newValue !== void 0 && newValue !== null) {
       return newValue.equals(oldState);
-    } else {
-      return newValue === oldState;
     }
-  };
-
-  return PresenceAnimator;
-})(Animator);
+    return newValue === oldState;
+  },
+}))();

@@ -20,7 +20,6 @@ import type {PositionGestureInput} from "@swim/view";
 import type {ControllerObserver} from "@swim/controller";
 import {Controller} from "@swim/controller";
 import {TraitViewRef} from "@swim/controller";
-import type {AnyToolLayout} from "./ToolLayout";
 import {ToolLayout} from "./ToolLayout";
 import {ToolView} from "./ToolView";
 
@@ -66,5 +65,5 @@ export class ToolController extends Controller {
       this.owner.callObservers("controllerDidSetToolLayout", toolLayout, this.owner);
     },
   })
-  readonly layout!: Property<this, ToolLayout | null, AnyToolLayout | null>;
+  readonly layout!: Property<this, ToolLayout | null>;
 }

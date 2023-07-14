@@ -14,8 +14,10 @@
 
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
+import type {LikeType} from "@swim/util";
 import type {Observes} from "@swim/util";
-import type {AnyView} from "@swim/view";
+import type {FastenerClass} from "@swim/component";
+import type {Fastener} from "@swim/component";
 import type {ViewFactory} from "@swim/view";
 import {View} from "@swim/view";
 import type {Controller} from "./Controller";
@@ -24,11 +26,9 @@ import type {ControllerRefClass} from "./ControllerRef";
 import {ControllerRef} from "./ControllerRef";
 
 /** @public */
-export interface ViewControllerRefDescriptor<V extends View = View, C extends Controller = Controller> extends ControllerRefDescriptor<C> {
+export interface ViewControllerRefDescriptor<R, V extends View, C extends Controller> extends ControllerRefDescriptor<R, C> {
   extends?: Proto<ViewControllerRef<any, any, any>> | boolean | null;
-  viewType?: ViewFactory<V>;
   viewKey?: string | boolean;
-  observesView?: boolean;
 }
 
 /** @public */
@@ -36,23 +36,23 @@ export interface ViewControllerRefClass<F extends ViewControllerRef<any, any, an
 }
 
 /** @public */
-export interface ViewControllerRef<O = unknown, V extends View = View, C extends Controller = Controller> extends ControllerRef<O, C> {
+export interface ViewControllerRef<R = any, V extends View = View, C extends Controller = Controller> extends ControllerRef<R, C> {
   /** @override */
-  get descriptorType(): Proto<ViewControllerRefDescriptor<V, C>>;
+  get descriptorType(): Proto<ViewControllerRefDescriptor<R, V, C>>;
 
-  /** @internal */
-  readonly viewType?: ViewFactory<V>; // optional prototype property
+  get viewType(): ViewFactory<V> | null;
 
-  /** @internal */
-  readonly viewKey?: string; // optional prototype property
+  get viewKey(): string | undefined;
+
+  get observesView(): boolean;
 
   readonly view: V | null;
 
   getView(): V;
 
-  setView(view: AnyView<V> | null, targetView?: View | null, controllerKey?: string): V | null;
+  setView(view: V | LikeType<V> | null, targetView?: View | null, controllerKey?: string): V | null;
 
-  attachView(view?: AnyView<V>, targetView?: View | null): V;
+  attachView(view?: V | LikeType<V>, targetView?: View | null): V;
 
   /** @protected */
   initView(view: V): void;
@@ -80,7 +80,7 @@ export interface ViewControllerRef<O = unknown, V extends View = View, C extends
   /** @protected */
   didDetachView(view: V): void;
 
-  insertView(controller?: C | null, view?: AnyView<V>, targetView?: View | null, controllerKey?: string): V;
+  insertView(controller?: C | null, view?: V | LikeType<V>, targetView?: View | null, controllerKey?: string): V;
 
   removeView(): V | null;
 
@@ -88,11 +88,8 @@ export interface ViewControllerRef<O = unknown, V extends View = View, C extends
 
   createView(): V;
 
-  /** @internal */
-  readonly observesView?: boolean; // optional prototype property
-
   /** @protected */
-  fromAnyView(value: AnyView<V>): V;
+  fromLikeView(value: V | LikeType<V>): V;
 
   /** @protected */
   detectControllerView(controller: Controller): V | null;
@@ -111,10 +108,14 @@ export interface ViewControllerRef<O = unknown, V extends View = View, C extends
 }
 
 /** @public */
-export const ViewControllerRef = (function (_super: typeof ControllerRef) {
-  const ViewControllerRef = _super.extend("ViewControllerRef", {}) as ViewControllerRefClass;
+export const ViewControllerRef = (<R, V extends View, C extends Controller, F extends ViewControllerRef<any, any, any>>() => ControllerRef.extend<ViewControllerRef<R, V, C>, ViewControllerRefClass<F>>("ViewControllerRef", {
+  viewType: null,
 
-  ViewControllerRef.prototype.getView = function <V extends View, C extends Controller>(this: ViewControllerRef<unknown, V, C>): V {
+  viewKey: void 0,
+
+  observesView: false,
+
+  getView(): V {
     const view = this.view;
     if (view === null) {
       let message = view + " ";
@@ -126,18 +127,17 @@ export const ViewControllerRef = (function (_super: typeof ControllerRef) {
       throw new TypeError(message);
     }
     return view;
-  };
+  },
 
-  ViewControllerRef.prototype.setView = function <V extends View, C extends Controller>(this: ViewControllerRef<unknown, V, C>, newView: AnyView<V> | null, targetView?: View | null, controllerKey?: string): V | null {
-    if (targetView === void 0) {
-      targetView = null;
-    }
+  setView(newView: V | LikeType<V> | null, targetView?: View | null, controllerKey?: string): V | null {
     if (newView !== null) {
-      newView = this.fromAnyView(newView);
+      newView = this.fromLikeView(newView);
     }
     let oldView = this.view;
     if (oldView === newView) {
       return oldView;
+    } else if (targetView === void 0) {
+      targetView = null;
     }
     let controller = this.controller;
     if (controller === null && newView !== null) {
@@ -174,15 +174,12 @@ export const ViewControllerRef = (function (_super: typeof ControllerRef) {
       this.didAttachView(newView, targetView);
     }
     return oldView;
-  };
+  },
 
-  ViewControllerRef.prototype.attachView = function <V extends View, C extends Controller>(this: ViewControllerRef<unknown, V, C>, newView?: AnyView<V>, targetView?: View | null): V {
-    if (targetView === void 0) {
-      targetView = null;
-    }
+  attachView(newView?: V | LikeType<V>, targetView?: View | null): V {
     let oldView = this.view;
     if (newView !== void 0 && newView !== null) {
-      newView = this.fromAnyView(newView);
+      newView = this.fromLikeView(newView);
     } else if (oldView === null) {
       newView = this.createView();
     } else {
@@ -194,138 +191,145 @@ export const ViewControllerRef = (function (_super: typeof ControllerRef) {
       this.attachController(controller);
       oldView = this.view;
     }
-    if (oldView !== newView) {
-      if (oldView !== null) {
-        (this as Mutable<typeof this>).view = null;
-        this.willDetachView(oldView);
-        this.onDetachView(oldView);
-        this.deinitView(oldView);
-        this.didDetachView(oldView);
-      }
-      (this as Mutable<typeof this>).view = newView;
-      this.willAttachView(newView, targetView);
-      this.onAttachView(newView, targetView);
-      this.initView(newView);
-      this.didAttachView(newView, targetView);
+    if (targetView === void 0) {
+      targetView = null;
     }
-    return newView;
-  };
-
-  ViewControllerRef.prototype.initView = function <V extends View, C extends Controller>(this: ViewControllerRef<unknown, V, C>, view: V): void {
-    // hook
-  };
-
-  ViewControllerRef.prototype.willAttachView = function <V extends View, C extends Controller>(this: ViewControllerRef<unknown, V, C>, view: V, targetView: View | null): void {
-    // hook
-  };
-
-  ViewControllerRef.prototype.onAttachView = function <V extends View, C extends Controller>(this: ViewControllerRef<unknown, V, C>, view: V, targetView: View | null): void {
-    if (this.observesView === true) {
-      view.observe(this as Observes<V>);
-    }
-  };
-
-  ViewControllerRef.prototype.didAttachView = function <V extends View, C extends Controller>(this: ViewControllerRef<unknown, V, C>, view: V, targetView: View | null): void {
-    // hook
-  };
-
-  ViewControllerRef.prototype.detachView = function <V extends View, C extends Controller>(this: ViewControllerRef<unknown, V, C>): V | null {
-    const oldView = this.view;
-    if (oldView !== null) {
+    if (oldView === newView) {
+      return newView;
+    } else if (oldView !== null) {
       (this as Mutable<typeof this>).view = null;
       this.willDetachView(oldView);
       this.onDetachView(oldView);
       this.deinitView(oldView);
       this.didDetachView(oldView);
     }
+    (this as Mutable<typeof this>).view = newView;
+    this.willAttachView(newView, targetView);
+    this.onAttachView(newView, targetView);
+    this.initView(newView);
+    this.didAttachView(newView, targetView);
+    return newView;
+  },
+
+  initView(view: V): void {
+    // hook
+  },
+
+  willAttachView(view: V, targetView: View | null): void {
+    // hook
+  },
+
+  onAttachView(view: V, targetView: View | null): void {
+    if (this.observesView) {
+      view.observe(this as Observes<V>);
+    }
+  },
+
+  didAttachView(view: V, targetView: View | null): void {
+    // hook
+  },
+
+  detachView(): V | null {
+    const oldView = this.view;
+    if (oldView === null) {
+      return null;
+    }
+    (this as Mutable<typeof this>).view = null;
+    this.willDetachView(oldView);
+    this.onDetachView(oldView);
+    this.deinitView(oldView);
+    this.didDetachView(oldView);
     return oldView;
-  };
+  },
 
-  ViewControllerRef.prototype.deinitView = function <V extends View, C extends Controller>(this: ViewControllerRef<unknown, V, C>, view: V): void {
+  deinitView(view: V): void {
     // hook
-  };
+  },
 
-  ViewControllerRef.prototype.willDetachView = function <V extends View, C extends Controller>(this: ViewControllerRef<unknown, V, C>, view: V): void {
+  willDetachView(view: V): void {
     // hook
-  };
+  },
 
-  ViewControllerRef.prototype.onDetachView = function <V extends View, C extends Controller>(this: ViewControllerRef<unknown, V, C>, view: V): void {
-    if (this.observesView === true) {
+  onDetachView(view: V): void {
+    if (this.observesView) {
       view.unobserve(this as Observes<V>);
     }
-  };
+  },
 
-  ViewControllerRef.prototype.didDetachView = function <V extends View, C extends Controller>(this: ViewControllerRef<unknown, V, C>, view: V): void {
+  didDetachView(view: V): void {
     // hook
-  };
+  },
 
-  ViewControllerRef.prototype.insertView = function <V extends View, C extends Controller>(this: ViewControllerRef<unknown, V, C>, controller?: C | null, newView?: AnyView<V>, targetView?: View | null, controllerKey?: string): V {
-    if (controller === void 0) {
-      controller = null;
-    }
+  insertView(controller?: C | null, newView?: V | LikeType<V>, targetView?: View | null, controllerKey?: string): V {
     let oldView = this.view;
     if (newView !== void 0 && newView !== null) {
-      newView = this.fromAnyView(newView);
+      newView = this.fromLikeView(newView);
     } else if (oldView === null) {
       newView = this.createView();
     } else {
       newView = oldView;
     }
-    if (oldView !== newView || controller !== null) {
-      if (targetView === void 0) {
-        targetView = null;
-      }
-      if (controller === null) {
-        controller = this.createController(newView);
-        this.insertController(null, controller);
-      }
-      if (controller !== null) {
-        this.insertControllerView(controller, newView, targetView, this.viewKey);
-      }
-      oldView = this.view;
-      if (oldView !== newView) {
-        if (oldView !== null) {
-          (this as Mutable<typeof this>).view = null;
-          this.willDetachView(oldView);
-          this.onDetachView(oldView);
-          this.deinitView(oldView);
-          this.didDetachView(oldView);
-          oldView.remove();
-        }
-        (this as Mutable<typeof this>).view = newView;
-        this.willAttachView(newView, targetView);
-        this.onAttachView(newView, targetView);
-        this.initView(newView);
-        this.didAttachView(newView, targetView);
-      }
+    if (controller === void 0) {
+      controller = null;
     }
+    if (oldView === newView && controller === null) {
+      return newView;
+    }
+    if (controller === null) {
+      controller = this.createController(newView);
+      this.insertController(null, controller);
+    }
+    if (targetView === void 0) {
+      targetView = null;
+    }
+    if (controller !== null) {
+      this.insertControllerView(controller, newView, targetView, this.viewKey);
+    }
+    oldView = this.view;
+    if (oldView === newView) {
+      return newView;
+    } else if (oldView !== null) {
+      (this as Mutable<typeof this>).view = null;
+      this.willDetachView(oldView);
+      this.onDetachView(oldView);
+      this.deinitView(oldView);
+      this.didDetachView(oldView);
+      oldView.remove();
+    }
+    (this as Mutable<typeof this>).view = newView;
+    this.willAttachView(newView, targetView);
+    this.onAttachView(newView, targetView);
+    this.initView(newView);
+    this.didAttachView(newView, targetView);
     return newView;
-  };
+  },
 
-  ViewControllerRef.prototype.removeView = function <V extends View, C extends Controller>(this: ViewControllerRef<unknown, V, C>): V | null {
+  removeView(): V | null {
     const view = this.view;
-    if (view !== null) {
-      view.remove();
+    if (view === null) {
+      return null;
     }
+    view.remove();
     return view;
-  };
+  },
 
-  ViewControllerRef.prototype.deleteView = function <V extends View, C extends Controller>(this: ViewControllerRef<unknown, V, C>): V | null {
+  deleteView(): V | null {
     const view = this.detachView();
-    if (view !== null) {
-      view.remove();
+    if (view === null) {
+      return null;
     }
+    view.remove();
     return view;
-  };
+  },
 
-  ViewControllerRef.prototype.createView = function <V extends View, C extends Controller>(this: ViewControllerRef<unknown, V, C>): V {
+  createView(): V {
     let view: V | undefined;
     const viewType = this.viewType;
-    if (viewType !== void 0) {
+    if (viewType !== null) {
       view = viewType.create();
     }
     if (view === void 0 || view === null) {
-      let message = "Unable to create ";
+      let message = "unable to create ";
       const name = this.name.toString();
       if (name.length !== 0) {
         message += name + " ";
@@ -334,77 +338,70 @@ export const ViewControllerRef = (function (_super: typeof ControllerRef) {
       throw new Error(message);
     }
     return view;
-  };
+  },
 
-  ViewControllerRef.prototype.fromAnyView = function <V extends View, C extends Controller>(this: ViewControllerRef<unknown, V, C>, value: AnyView<V>): V {
+  fromLikeView(value: V | LikeType<V>): V {
     const viewType = this.viewType;
-    if (viewType !== void 0) {
-      return viewType.fromAny(value);
+    if (viewType !== null) {
+      return viewType.fromLike(value);
     }
-    return View.fromAny(value) as V;
-  };
+    return View.fromLike(value) as V;
+  },
 
-  ViewControllerRef.prototype.detectControllerView = function <V extends View, C extends Controller>(this: ViewControllerRef<unknown, V, C>, controller: Controller): V | null {
+  detectControllerView(controller: Controller): V | null {
     return null; // hook
-  };
+  },
 
-  ViewControllerRef.prototype.insertControllerView = function <V extends View, C extends Controller>(this: ViewControllerRef<unknown, V, C>, controller: C, view: V, targetView: View | null, viewKey: string | undefined): void {
+  insertControllerView(controller: C, view: V, targetView: View | null, viewKey: string | undefined): void {
     // hook
-  };
+  },
 
-  ViewControllerRef.prototype.onAttachController = function <V extends View, C extends Controller>(this: ViewControllerRef<unknown, V, C>, controller: C, targetController: Controller | null): void {
+  onAttachController(controller: C, targetController: Controller | null): void {
     const view = this.detectControllerView(controller);
     if (view !== null) {
       const targetView = targetController !== null ? this.detectControllerView(targetController) : null;
       this.attachView(view, targetView);
     }
-    _super.prototype.onAttachController.call(this, controller, targetController);
-  };
+    super.onAttachController(controller, targetController);
+  },
 
-  ViewControllerRef.prototype.onDetachController = function <V extends View, C extends Controller>(this: ViewControllerRef<unknown, V, C>, controller: C): void {
-    _super.prototype.onDetachController.call(this, controller);
+  onDetachController(controller: C): void {
+    super.onDetachController(controller);
     const view = this.detectControllerView(controller);
     if (view !== null && view === this.view) {
       this.detachView();
     }
-  };
+  },
 
-  ViewControllerRef.prototype.createController = function <V extends View, C extends Controller>(this: ViewControllerRef<unknown, V, C>, view?: V): C {
-    const controller = _super.prototype.createController.call(this) as C;
+  createController(view?: V): C {
+    const controller = super.createController() as C;
     if (view === void 0) {
       view = this.createView();
     }
     this.insertControllerView(controller, view, null, this.viewKey);
     return controller;
-  };
-
-  ViewControllerRef.construct = function <F extends ViewControllerRef<any, any, any>>(fastener: F | null, owner: F extends ViewControllerRef<infer O, any, any> ? O : never): F {
-    fastener = _super.construct.call(this, fastener, owner) as F;
+  },
+},
+{
+  construct(fastener: F | null, owner: F extends Fastener<infer R, any, any> ? R : never): F {
+    fastener = super.construct(fastener, owner) as F;
     (fastener as Mutable<typeof fastener>).view = null;
     return fastener;
-  };
+  },
 
-  ViewControllerRef.refine = function (fastenerClass: ViewControllerRefClass<any>): void {
-    _super.refine.call(this, fastenerClass);
+  refine(fastenerClass: FastenerClass<ViewControllerRef<any, any, any>>): void {
+    super.refine(fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 
-    if (Object.prototype.hasOwnProperty.call(fastenerPrototype, "viewKey")) {
-      const viewKey = fastenerPrototype.viewKey as string | boolean | undefined;
-      if (viewKey === true) {
-        Object.defineProperty(fastenerPrototype, "viewKey", {
-          value: fastenerClass.name,
-          enumerable: true,
-          configurable: true,
-        });
-      } else if (viewKey === false) {
-        Object.defineProperty(fastenerPrototype, "viewKey", {
-          value: void 0,
-          enumerable: true,
-          configurable: true,
-        });
+    const viewKeyDescriptor = Object.getOwnPropertyDescriptor(fastenerPrototype, "viewKey");
+    if (viewKeyDescriptor !== void 0 && "value" in viewKeyDescriptor) {
+      if (viewKeyDescriptor.value === true) {
+        viewKeyDescriptor.value = fastenerClass.name;
+        Object.defineProperty(fastenerPrototype, "viewKey", viewKeyDescriptor);
+      } else if (viewKeyDescriptor.value === false) {
+        viewKeyDescriptor.value = void 0;
+        Object.defineProperty(fastenerPrototype, "viewKey", viewKeyDescriptor);
       }
     }
-  };
-
-  return ViewControllerRef;
-})(ControllerRef);
+  },
+}))();

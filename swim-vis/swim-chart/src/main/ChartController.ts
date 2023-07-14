@@ -230,7 +230,7 @@ export class ChartController<X = unknown, Y = unknown> extends GraphController<X
     getTraitViewRef(controller: AxisController<X>): TraitViewRef<unknown, AxisTrait<X>, AxisView<X>> {
       return controller.axis;
     },
-    willAttachController(topAxisController: AxisController<X> ): void {
+    willAttachController(topAxisController: AxisController<X>): void {
       this.owner.callObservers("controllerWillAttachTopAxis", topAxisController, this.owner);
     },
     didAttachController(topAxisController: AxisController<X>): void {

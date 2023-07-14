@@ -116,8 +116,8 @@ export class WebStorageService extends StorageService {
   }
 
   @EventHandler({
-    type: "storage",
-    target: window,
+    eventType: "storage",
+    target: typeof window !== "undefined" ? window : null,
     handle(event: StorageEvent): void {
       if (event.storageArea !== this.owner.storageArea) {
         return;

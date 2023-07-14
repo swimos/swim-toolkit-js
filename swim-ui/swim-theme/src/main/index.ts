@@ -14,14 +14,14 @@
 
 // Look
 
-export type {AnyLookVector} from "./LookVector";
+export type {LookVectorInit} from "./LookVector";
 export type {LookVectorArray} from "./LookVector";
 export type {LookVectorUpdates} from "./LookVector";
 export {LookVector} from "./LookVector";
 
 // Feel
 
-export type {AnyFeelVector} from "./FeelVector";
+export type {FeelVectorLike} from "./FeelVector";
 export type {FeelVectorArray} from "./FeelVector";
 export type {FeelVectorUpdates} from "./FeelVector";
 export {FeelVector} from "./FeelVector";
@@ -29,7 +29,7 @@ export {FeelVectorInterpolator} from "./FeelVector";
 
 // Mood
 
-export type {AnyMoodVector} from "./MoodVector";
+export type {MoodVectorLike} from "./MoodVector";
 export type {MoodVectorArray} from "./MoodVector";
 export type {MoodVectorUpdates} from "./MoodVector";
 export {MoodVector} from "./MoodVector";
@@ -53,22 +53,22 @@ export {ThemeConstraintAnimator} from "./ThemeConstraintAnimator";
 // Builtin
 
 export {Look} from "./Look";
-export type {AnyNumberOrLook} from "./Look";
+export type {NumberOrLookLike} from "./Look";
 export type {NumberOrLook} from "./Look";
 export {NumberLook} from "./Look";
-export type {AnyLengthOrLook} from "./Look";
+export type {LengthOrLookLike} from "./Look";
 export type {LengthOrLook} from "./Look";
 export {LengthLook} from "./Look";
-export type {AnyColorOrLook} from "./Look";
+export type {ColorOrLookLike} from "./Look";
 export type {ColorOrLook} from "./Look";
 export {ColorLook} from "./Look";
-export type {AnyFontOrLook} from "./Look";
+export type {FontOrLookLike} from "./Look";
 export type {FontOrLook} from "./Look";
 export {FontLook} from "./Look";
-export type {AnyShadowOrLook} from "./Look";
+export type {ShadowOrLookLike} from "./Look";
 export type {ShadowOrLook} from "./Look";
 export {ShadowLook} from "./Look";
-export type {AnyTimingOrLook} from "./Look";
+export type {TimingOrLookLike} from "./Look";
 export type {TimingOrLook} from "./Look";
 export {TimingLook} from "./Look";
 

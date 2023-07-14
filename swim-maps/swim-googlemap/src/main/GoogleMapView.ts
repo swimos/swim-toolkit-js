@@ -16,7 +16,7 @@ import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
 import {Lazy} from "@swim/util";
 import {Equivalent} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import type {ViewFlags} from "@swim/view";
@@ -26,7 +26,7 @@ import type {ViewHtml} from "@swim/dom";
 import {HtmlView} from "@swim/dom";
 import type {CanvasView} from "@swim/graphics";
 import type {GeoViewport} from "@swim/map";
-import type {AnyGeoPerspective} from "@swim/map";
+import type {GeoPerspectiveLike} from "@swim/map";
 import {GeoPerspective} from "@swim/map";
 import type {MapViewObserver} from "@swim/map";
 import {MapView} from "@swim/map";
@@ -122,13 +122,13 @@ export class GoogleMapView extends MapView {
     this.requireUpdate(View.NeedsProject);
   }
 
-  override moveTo(geoPerspective: AnyGeoPerspective, timing?: AnyTiming | boolean): void {
+  override moveTo(geoPerspective: GeoPerspectiveLike, timing?: TimingLike | boolean): void {
     const geoViewport = this.geoViewport.value;
     if (geoViewport === null) {
       return;
     }
 
-    geoPerspective = GeoPerspective.fromAny(geoPerspective);
+    geoPerspective = GeoPerspective.fromLike(geoPerspective);
 
     const geoCenter = geoPerspective.geoCenter;
     if (geoCenter !== null && !geoViewport.geoCenter.equivalentTo(geoCenter, 1e-5)) {

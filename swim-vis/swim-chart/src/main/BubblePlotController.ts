@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import {Timing} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Affinity} from "@swim/component";
@@ -60,7 +60,7 @@ export class BubblePlotController<X = unknown, Y = unknown> extends ScatterPlotC
   })
   override readonly dataPoints!: TraitViewControllerSet<this, DataPointTrait<X, Y>, DataPointView<X, Y>, DataPointController<X, Y>> & ScatterPlotController<X, Y>["dataPoints"];
 
-  protected setRadius(radius: Length | null, timing?: AnyTiming | boolean): void {
+  protected setRadius(radius: Length | null, timing?: TimingLike | boolean): void {
     const plotView = this.plot.view;
     if (plotView !== null) {
       if (timing === void 0 || timing === true) {
@@ -69,13 +69,13 @@ export class BubblePlotController<X = unknown, Y = unknown> extends ScatterPlotC
           timing = plotView.getLook(Look.timing, Mood.ambient);
         }
       } else {
-        timing = Timing.fromAny(timing);
+        timing = Timing.fromLike(timing);
       }
       plotView.radius.setState(radius, timing, Affinity.Intrinsic);
     }
   }
 
-  protected setFill(fill: ColorOrLook | null, timing?: AnyTiming | boolean): void {
+  protected setFill(fill: ColorOrLook | null, timing?: TimingLike | boolean): void {
     const plotView = this.plot.view;
     if (plotView !== null) {
       if (timing === void 0 || timing === true) {
@@ -84,7 +84,7 @@ export class BubblePlotController<X = unknown, Y = unknown> extends ScatterPlotC
           timing = plotView.getLook(Look.timing, Mood.ambient);
         }
       } else {
-        timing = Timing.fromAny(timing);
+        timing = Timing.fromLike(timing);
       }
       if (fill instanceof Look) {
         plotView.fill.setLook(fill, timing, Affinity.Intrinsic);

@@ -104,7 +104,7 @@ require([
             const approachKey = intersectionId + "-" + approachId;
             let approachView = approaches[approachId];
             if (approachView === undefined) {
-              const points = item.get("coords").toAny();
+              const points = item.get("coords").toLike();
               points.push(points[0]); // close path
               const approachView = new swim.GeoShapeView();
               approachView.geoShape.setState(points);
@@ -124,7 +124,7 @@ require([
                 phaseApproaches.push(approachView);
                 phases[phaseId] = phaseApproaches;
               }
-              const detectorId = item.get("detector").toAny();
+              const detectorId = item.get("detector").toLike();
               if (detectorId) {
                 const detectorApproaches = detectors[detectorId] || [];
                 detectorApproaches.push(approachView);

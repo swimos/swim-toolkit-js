@@ -14,12 +14,11 @@
 
 import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
-import type {Instance} from "@swim/util";
 import {Lazy} from "@swim/util";
-import type {FromAny} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import type {FromLike} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import {Timing} from "@swim/util";
-import {Creatable} from "@swim/util";
+import type {Creatable} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {FastenerContext} from "@swim/component";
@@ -30,12 +29,12 @@ import {Provider} from "@swim/component";
 import type {ComponentFlags} from "@swim/component";
 import type {ComponentObserver} from "@swim/component";
 import {Component} from "@swim/component";
-import type {AnyConstraintExpression} from "@swim/constraint";
+import type {ConstraintExpressionLike} from "@swim/constraint";
 import {ConstraintExpression} from "@swim/constraint";
 import type {ConstraintVariable} from "@swim/constraint";
 import {ConstraintProperty} from "@swim/constraint";
 import type {ConstraintRelation} from "@swim/constraint";
-import type {AnyConstraintStrength} from "@swim/constraint";
+import type {ConstraintStrengthLike} from "@swim/constraint";
 import {ConstraintStrength} from "@swim/constraint";
 import {Constraint} from "@swim/constraint";
 import type {ConstraintScope} from "@swim/constraint";
@@ -99,19 +98,16 @@ export const ViewInsets = {
 export type ViewFlags = ComponentFlags;
 
 /** @public */
-export type AnyView<V extends View = View> = V | ViewFactory<V>;
-
-/** @public */
-export interface ViewFactory<V extends View = View, U = AnyView<V>> extends Creatable<V>, FromAny<V, U> {
+export interface ViewFactory<V extends View = View> extends Creatable<V>, FromLike<V> {
 }
 
 /** @public */
-export interface ViewClass<V extends View = View, U = AnyView<V>> extends Function, ViewFactory<V, U> {
+export interface ViewClass<V extends View = View> extends Function, ViewFactory<V> {
   readonly prototype: V;
 }
 
 /** @public */
-export interface ViewConstructor<V extends View = View, U = AnyView<V>> extends ViewClass<V, U> {
+export interface ViewConstructor<V extends View = View> extends ViewClass<V> {
   new(): V;
 }
 
@@ -242,11 +238,11 @@ export class View extends Component<View> implements ConstraintScope, Constraint
     this.didCompositeObservers = null;
   }
 
+  declare readonly observerType?: Class<ViewObserver>;
+
   override get componentType(): Class<View> {
     return View;
   }
-
-  declare readonly observerType?: Class<ViewObserver>;
 
   /** @internal */
   override attachParent(parent: View, nextSibling: View | null): void {
@@ -328,51 +324,6 @@ export class View extends Component<View> implements ConstraintScope, Constraint
         observer.viewDidDetachParent(parent, this);
       }
     }
-  }
-
-  override setChild<V extends View>(key: string, newChild: V): View | null;
-  override setChild<F extends Class<Instance<F, View>> & Creatable<InstanceType<F>>>(key: string, factory: F): View | null;
-  override setChild(key: string, newChild: AnyView | null): View | null;
-  override setChild(key: string, newChild: AnyView | null): View | null {
-    if (newChild !== null) {
-      newChild = View.fromAny(newChild);
-    }
-    return super.setChild(key, newChild) as View | null;
-  }
-
-  override appendChild<V extends View>(child: V, key?: string): V;
-  override appendChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(factory: F, key?: string): InstanceType<F>;
-  override appendChild(child: AnyView, key?: string): View;
-  override appendChild(child: AnyView, key?: string): View {
-    child = View.fromAny(child);
-    return super.appendChild(child, key);
-  }
-
-  override prependChild<V extends View>(child: V, key?: string): V;
-  override prependChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(factory: F, key?: string): InstanceType<F>;
-  override prependChild(child: AnyView, key?: string): View;
-  override prependChild(child: AnyView, key?: string): View {
-    child = View.fromAny(child);
-    return super.prependChild(child, key);
-  }
-
-  override insertChild<V extends View>(child: V, target: View | null, key?: string): V;
-  override insertChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(factory: F, target: View | null, key?: string): InstanceType<F>;
-  override insertChild(child: AnyView, target: View | null, key?: string): View;
-  override insertChild(child: AnyView, target: View | null, key?: string): View {
-    child = View.fromAny(child);
-    return super.insertChild(child, target, key);
-  }
-
-  override reinsertChild(child: View, target: View | null): void {
-    super.reinsertChild(child, target);
-  }
-
-  override replaceChild<V extends View>(newChild: View, oldChild: V): V;
-  override replaceChild<V extends View>(newChild: AnyView, oldChild: V): V;
-  override replaceChild(newChild: AnyView, oldChild: View): View {
-    newChild = View.fromAny(newChild);
-    return super.replaceChild(newChild, oldChild);
   }
 
   /** @internal */
@@ -916,7 +867,7 @@ export class View extends Component<View> implements ConstraintScope, Constraint
         this.willProject();
       }
 
-      this.onProcess(cascadeFlags, );
+      this.onProcess(cascadeFlags);
       if ((cascadeFlags & View.NeedsResize) !== 0) {
         this.onResize();
       }
@@ -1385,7 +1336,7 @@ export class View extends Component<View> implements ConstraintScope, Constraint
     init(): void {
       this.timing = void 0;
     },
-    transformInletValue(superMood: MoodVector | null): MoodVector | null {
+    deriveValue(superMood: MoodVector | null): MoodVector | null {
       if (superMood !== null) {
         const moodModifierProperty = this.owner.moodModifier;
         const moodModifier = moodModifierProperty instanceof Property ? moodModifierProperty.value : null;
@@ -1405,7 +1356,7 @@ export class View extends Component<View> implements ConstraintScope, Constraint
   })
   readonly mood!: Property<this, MoodVector | null> & {
     /** @internal */
-    timing: AnyTiming | boolean | undefined,
+    timing: TimingLike | boolean | undefined,
   };
 
   @Property({
@@ -1416,7 +1367,7 @@ export class View extends Component<View> implements ConstraintScope, Constraint
     init(): void {
       this.timing = void 0;
     },
-    transformInletValue(superTheme: ThemeMatrix | null): ThemeMatrix | null {
+    deriveValue(superTheme: ThemeMatrix | null): ThemeMatrix | null {
       if (superTheme !== null) {
         const themeModifierProperty = this.owner.themeModifier;
         const themeModifier = themeModifierProperty instanceof Property ? themeModifierProperty.value : null;
@@ -1436,11 +1387,11 @@ export class View extends Component<View> implements ConstraintScope, Constraint
   })
   readonly theme!: Property<this, ThemeMatrix | null> & {
     /** @internal */
-    timing: AnyTiming | boolean | undefined,
+    timing: TimingLike | boolean | undefined,
   };
 
   /** @override */
-  getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel> | null): T | undefined {
+  getLook<T>(look: Look<T>, mood?: MoodVector<Feel> | null): T | undefined {
     const theme = this.theme.value;
     let value: T | undefined;
     if (theme !== null) {
@@ -1455,10 +1406,10 @@ export class View extends Component<View> implements ConstraintScope, Constraint
   }
 
   /** @override */
-  getLookOr<T, E>(look: Look<T, unknown>, elseValue: E): T | E;
+  getLookOr<T, E>(look: Look<T>, elseValue: E): T | E;
   /** @override */
-  getLookOr<T, E>(look: Look<T, unknown>, mood: MoodVector<Feel> | null, elseValue: E): T | E;
-  getLookOr<T, E>(look: Look<T, unknown>, mood: MoodVector<Feel> | null | E, elseValue?: E): T | E {
+  getLookOr<T, E>(look: Look<T>, mood: MoodVector<Feel> | null, elseValue: E): T | E;
+  getLookOr<T, E>(look: Look<T>, mood: MoodVector<Feel> | null | E, elseValue?: E): T | E {
     if (arguments.length === 2) {
       elseValue = mood as E;
       mood = null;
@@ -1481,13 +1432,13 @@ export class View extends Component<View> implements ConstraintScope, Constraint
   }
 
   /** @internal */
-  applyTheme(theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean): void {
+  applyTheme(theme: ThemeMatrix, mood: MoodVector, timing?: TimingLike | boolean): void {
     if (timing === void 0 && this.inserting) {
       timing = false;
     } else if (timing === void 0 || timing === true) {
       timing = theme.getOr(Look.timing, Mood.ambient, false);
     } else {
-      timing = Timing.fromAny(timing);
+      timing = Timing.fromLike(timing);
     }
     this.willApplyTheme(theme, mood, timing);
     this.onApplyTheme(theme, mood, timing);
@@ -1539,7 +1490,7 @@ export class View extends Component<View> implements ConstraintScope, Constraint
   })
   readonly moodModifier!: Property<this, MoodMatrix | null>;
 
-  modifyMood(feel: Feel, updates: MoodVectorUpdates<Feel>, timing?: AnyTiming | boolean): void {
+  modifyMood(feel: Feel, updates: MoodVectorUpdates<Feel>, timing?: TimingLike | boolean): void {
     if (!this.moodModifier.hasAffinity(Affinity.Intrinsic)) {
       return;
     }
@@ -1574,9 +1525,9 @@ export class View extends Component<View> implements ConstraintScope, Constraint
   })
   readonly themeModifier!: Property<this, MoodMatrix | null>;
 
-  modifyTheme(feel: Feel, updates: MoodVectorUpdates<Feel>, timing?: AnyTiming | boolean): void;
-  modifyTheme(cols: [feel: Feel, updates: MoodVectorUpdates<Feel> | undefined][], timing?: AnyTiming | boolean): void;
-  modifyTheme(feel: Feel | [feel: Feel, updates: MoodVectorUpdates<Feel> | undefined][], updates?: MoodVectorUpdates<Feel> | AnyTiming | boolean, timing?: AnyTiming | boolean): void {
+  modifyTheme(feel: Feel, updates: MoodVectorUpdates<Feel>, timing?: TimingLike | boolean): void;
+  modifyTheme(cols: [feel: Feel, updates: MoodVectorUpdates<Feel> | undefined][], timing?: TimingLike | boolean): void;
+  modifyTheme(feel: Feel | [feel: Feel, updates: MoodVectorUpdates<Feel> | undefined][], updates?: MoodVectorUpdates<Feel> | TimingLike | boolean, timing?: TimingLike | boolean): void {
     if (!this.themeModifier.hasAffinity(Affinity.Intrinsic)) {
       return;
     }
@@ -1587,7 +1538,7 @@ export class View extends Component<View> implements ConstraintScope, Constraint
     } else {
       newThemeModifier = oldThemeModifier;
       const cols = feel as [feel: Feel, updates: MoodVectorUpdates<Feel> | undefined][];
-      timing = updates as AnyTiming | boolean;
+      timing = updates as TimingLike | boolean;
       updates = void 0;
       for (let i = 0, n = cols.length; i < n; i += 1) {
         [feel, updates] = cols[i]!;
@@ -1620,9 +1571,9 @@ export class View extends Component<View> implements ConstraintScope, Constraint
     super.unbindChildFastener(fastener, child);
   }
 
-  /** @internal @override */
-  override decohereFastener(fastener: Fastener): void {
-    super.decohereFastener(fastener);
+  /** @internal */
+  protected override enqueueFastener(fastener: Fastener): void {
+    super.enqueueFastener(fastener);
     if (fastener instanceof Animator) {
       this.requireUpdate(View.NeedsAnimate);
     } else {
@@ -1633,34 +1584,32 @@ export class View extends Component<View> implements ConstraintScope, Constraint
   /** @internal */
   override recohereFasteners(t?: number): void {
     const decoherent = this.decoherent;
-    if (decoherent === null) {
-      return;
-    }
-    const decoherentCount = decoherent.length;
-    if (decoherentCount === 0) {
+    if (decoherent === null || decoherent.length === 0) {
       return;
     } else if (t === void 0) {
       t = performance.now();
     }
+    (this as Mutable<this>).coherentTime = t;
     (this as Mutable<this>).decoherent = null;
-    for (let i = 0; i < decoherentCount; i += 1) {
-      const fastener = decoherent[i]!;
-      if (!(fastener instanceof Animator)) {
-        fastener.recohere(t);
-      } else {
-        this.decohereFastener(fastener);
+    (this as Mutable<this>).recohering = decoherent;
+    try {
+      for (let i = 0; i < decoherent.length; i += 1) {
+        const fastener = decoherent[i]!;
+        if (!(fastener instanceof Animator)) {
+          fastener.recohere(t);
+        } else {
+          this.enqueueFastener(fastener);
+        }
       }
+    } finally {
+      (this as Mutable<this>).recohering = null;
     }
   }
 
   /** @internal */
   recohereAnimators(t: number): void {
     const decoherent = this.decoherent;
-    if (decoherent === null) {
-      return;
-    }
-    const decoherentCount = decoherent.length;
-    if (decoherentCount === 0) {
+    if (decoherent === null || decoherent.length === 0) {
       return;
     }
     // The passed-in update time parameter is used to ensure that all animators
@@ -1675,27 +1624,33 @@ export class View extends Component<View> implements ConstraintScope, Constraint
     if (now - t >= DisplayerService.MaxProcessInterval) {
       t = now;
     }
+    (this as Mutable<this>).coherentTime = t;
     (this as Mutable<this>).decoherent = null;
-    for (let i = 0; i < decoherentCount; i += 1) {
-      const fastener = decoherent[i]!;
-      if (fastener instanceof Animator) {
-        fastener.recohere(t);
-      } else {
-        this.decohereFastener(fastener);
+    (this as Mutable<this>).recohering = decoherent;
+    try {
+      for (let i = 0; i < decoherent.length; i += 1) {
+        const fastener = decoherent[i]!;
+        if (fastener instanceof Animator) {
+          fastener.recohere(t);
+        } else {
+          this.enqueueFastener(fastener);
+        }
       }
+    } finally {
+      (this as Mutable<this>).recohering = null;
     }
   }
 
   /** @override */
-  constraint(lhs: AnyConstraintExpression, relation: ConstraintRelation,
-             rhs?: AnyConstraintExpression, strength?: AnyConstraintStrength): Constraint {
-    lhs = ConstraintExpression.fromAny(lhs);
-    rhs = ConstraintExpression.fromAny(rhs);
+  constraint(lhs: ConstraintExpressionLike, relation: ConstraintRelation,
+             rhs?: ConstraintExpressionLike, strength?: ConstraintStrengthLike): Constraint {
+    lhs = ConstraintExpression.fromLike(lhs);
+    rhs = ConstraintExpression.fromLike(rhs);
     const expression = rhs !== void 0 ? lhs.minus(rhs) : lhs;
     if (strength === void 0) {
       strength = ConstraintStrength.Required;
     } else {
-      strength = ConstraintStrength.fromAny(strength);
+      strength = ConstraintStrength.fromLike(strength);
     }
     const constraint = new Constraint(this, expression, relation, strength);
     this.addConstraint(constraint);
@@ -1755,12 +1710,12 @@ export class View extends Component<View> implements ConstraintScope, Constraint
   }
 
   /** @override */
-  constraintVariable(name: string, value?: number, strength?: AnyConstraintStrength): ConstraintProperty<unknown, number> {
+  constraintVariable(name: string, value?: number, strength?: ConstraintStrengthLike): ConstraintProperty<unknown, number> {
     if (value === void 0) {
       value = 0;
     }
     if (strength !== void 0) {
-      strength = ConstraintStrength.fromAny(strength);
+      strength = ConstraintStrength.fromLike(strength);
     } else {
       strength = ConstraintStrength.Strong;
     }
@@ -2254,24 +2209,6 @@ export class View extends Component<View> implements ConstraintScope, Constraint
     if (observer.viewDidComposite !== void 0 && this.didCompositeObservers !== null) {
       this.didCompositeObservers.delete(observer as Required<Pick<ViewObserver, "viewDidComposite">>);
     }
-  }
-
-  static override create<S extends new () => InstanceType<S>>(this: S): InstanceType<S> {
-    return new this();
-  }
-
-  static override fromAny<S extends Class<Instance<S, View>>>(this: S, value: AnyView<InstanceType<S>>): InstanceType<S> {
-    if (value === void 0 || value === null) {
-      return value;
-    } else if (value instanceof View) {
-      if (!((value as View) instanceof this)) {
-        throw new TypeError(value + " not an instance of " + this);
-      }
-      return value;
-    } else if (Creatable[Symbol.hasInstance](value)) {
-      return (value as Creatable<InstanceType<S>>).create();
-    }
-    throw new TypeError("" + value);
   }
 
   /** @internal */

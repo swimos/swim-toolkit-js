@@ -14,11 +14,9 @@
 
 import type {Class} from "@swim/util";
 import {Property} from "@swim/component";
-import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
 import type {TraitObserver} from "@swim/model";
 import {Trait} from "@swim/model";
-import type {AnyColorOrLook} from "@swim/theme";
 import type {ColorOrLook} from "@swim/theme";
 import {ColorLook} from "@swim/theme";
 
@@ -83,7 +81,7 @@ export class DataPointTrait<X = unknown, Y = unknown> extends Trait {
       this.owner.callObservers("traitDidSetRadius", radius, this.owner);
     },
   })
-  get radius(): Property<this, Length | null, AnyLength | null> {
+  get radius(): Property<this, Length | null> {
     return Property.dummy();
   }
 
@@ -94,7 +92,7 @@ export class DataPointTrait<X = unknown, Y = unknown> extends Trait {
       this.owner.callObservers("traitDidSetColor", color, this.owner);
     },
   })
-  get color(): Property<this, ColorOrLook | null, AnyColorOrLook | null> {
+  get color(): Property<this, ColorOrLook | null> {
     return Property.dummy();
   }
 

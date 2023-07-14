@@ -25,7 +25,6 @@ import type {ControllerObserver} from "@swim/controller";
 import {Controller} from "@swim/controller";
 import {TraitViewRef} from "@swim/controller";
 import {TraitViewControllerSet} from "@swim/controller";
-import type {AnyHyperlink} from "@swim/controller";
 import {Hyperlink} from "@swim/controller";
 import type {CellView} from "./CellView";
 import {TextCellView} from "./TextCellView";
@@ -90,7 +89,7 @@ export class LeafController extends Controller {
   declare readonly observerType?: Class<LeafControllerObserver>;
 
   @Property({valueType: Hyperlink, value: null})
-  get hyperlink(): Property<this, Hyperlink | null, AnyHyperlink | null> {
+  get hyperlink(): Property<this, Hyperlink | null> {
     return Property.dummy();
   }
 
@@ -102,6 +101,12 @@ export class LeafController extends Controller {
     },
     didAttachTrait(leafTrait: LeafTrait): void {
       this.owner.cells.addTraits(leafTrait.cells.traits);
+    },
+    initTrait(leafTrait: LeafTrait): void {
+      this.owner.hyperlink.bindInlet(leafTrait.hyperlink);
+    },
+    deinitTrait(leafTrait: LeafTrait): void {
+      this.owner.hyperlink.unbindInlet(leafTrait.hyperlink);
     },
     willDetachTrait(leafTrait: LeafTrait): void {
       this.owner.cells.deleteTraits(leafTrait.cells.traits);

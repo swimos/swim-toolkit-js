@@ -14,31 +14,27 @@
 
 import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
-import type {Instance} from "@swim/util";
-import type {FromAny} from "@swim/util";
-import {Creatable} from "@swim/util";
+import type {FromLike} from "@swim/util";
+import type {Creatable} from "@swim/util";
 import type {Consumer} from "@swim/util";
 import type {Consumable} from "@swim/util";
 import {FastenerContext} from "@swim/component";
+import type {FastenerTemplate} from "@swim/component";
 import type {Fastener} from "@swim/component";
 import {Property} from "@swim/component";
 import {Provider} from "@swim/component";
 import type {ComponentFlags} from "@swim/component";
 import type {ComponentObserver} from "@swim/component";
 import {Component} from "@swim/component";
-import type {AnyValue} from "@swim/structure";
+import type {ValueLike} from "@swim/structure";
 import {Value} from "@swim/structure";
-import type {AnyUri} from "@swim/uri";
+import type {UriLike} from "@swim/uri";
 import {Uri} from "@swim/uri";
 import type {WarpDownlinkModel} from "@swim/client";
 import {WarpDownlink} from "@swim/client";
-import type {EventDownlinkDescriptor} from "@swim/client";
 import {EventDownlink} from "@swim/client";
-import type {ValueDownlinkDescriptor} from "@swim/client";
 import {ValueDownlink} from "@swim/client";
-import type {ListDownlinkDescriptor} from "@swim/client";
 import {ListDownlink} from "@swim/client";
-import type {MapDownlinkDescriptor} from "@swim/client";
 import {MapDownlink} from "@swim/client";
 import {WarpRef} from "@swim/client";
 import {WarpClient} from "@swim/client";
@@ -52,19 +48,16 @@ import {ExecutorService} from "./"; // forward import
 export type ControllerFlags = ComponentFlags;
 
 /** @public */
-export type AnyController<C extends Controller = Controller> = C | ControllerFactory<C>;
-
-/** @public */
-export interface ControllerFactory<C extends Controller = Controller, U = AnyController<C>> extends Creatable<C>, FromAny<C, U> {
+export interface ControllerFactory<C extends Controller = Controller> extends Creatable<C>, FromLike<C> {
 }
 
 /** @public */
-export interface ControllerClass<C extends Controller = Controller, U = AnyController<C>> extends Function, ControllerFactory<C, U> {
+export interface ControllerClass<C extends Controller = Controller> extends Function, ControllerFactory<C> {
   readonly prototype: C;
 }
 
 /** @public */
-export interface ControllerConstructor<C extends Controller = Controller, U = AnyController<C>> extends ControllerClass<C, U> {
+export interface ControllerConstructor<C extends Controller = Controller> extends ControllerClass<C> {
   new(): C;
 }
 
@@ -134,11 +127,12 @@ export class Controller extends Component<Controller> implements Consumable, War
     this.consumers = null;
   }
 
+  /** @override */
+  declare readonly observerType?: Class<ControllerObserver>;
+
   override get componentType(): Class<Controller> {
     return Controller;
   }
-
-  declare readonly observerType?: Class<ControllerObserver>;
 
   protected override willAttachParent(parent: Controller): void {
     this.callObservers("controllerWillAttachParent", parent, this);
@@ -162,51 +156,6 @@ export class Controller extends Component<Controller> implements Consumable, War
 
   protected override didDetachParent(parent: Controller): void {
     this.callObservers("controllerDidDetachParent", parent, this);
-  }
-
-  override setChild<C extends Controller>(key: string, newChild: C): Controller | null;
-  override setChild<F extends Class<Instance<F, Controller>> & Creatable<Instance<F, Controller>>>(key: string, factory: F): Controller | null;
-  override setChild(key: string, newChild: AnyController | null): Controller | null;
-  override setChild(key: string, newChild: AnyController | null): Controller | null {
-    if (newChild !== null) {
-      newChild = Controller.fromAny(newChild);
-    }
-    return super.setChild(key, newChild) as Controller | null;
-  }
-
-  override appendChild<C extends Controller>(child: C, key?: string): C;
-  override appendChild<F extends Class<Instance<F, Controller>> & Creatable<Instance<F, Controller>>>(factory: F, key?: string): InstanceType<F>;
-  override appendChild(child: AnyController, key?: string): Controller;
-  override appendChild(child: AnyController, key?: string): Controller {
-    child = Controller.fromAny(child);
-    return super.appendChild(child, key);
-  }
-
-  override prependChild<C extends Controller>(child: C, key?: string): C;
-  override prependChild<F extends Class<Instance<F, Controller>> & Creatable<Instance<F, Controller>>>(factory: F, key?: string): InstanceType<F>;
-  override prependChild(child: AnyController, key?: string): Controller;
-  override prependChild(child: AnyController, key?: string): Controller {
-    child = Controller.fromAny(child);
-    return super.prependChild(child, key);
-  }
-
-  override insertChild<C extends Controller>(child: C, target: Controller | null, key?: string): C;
-  override insertChild<F extends Class<Instance<F, Controller>> & Creatable<Instance<F, Controller>>>(factory: F, target: Controller | null, key?: string): InstanceType<F>;
-  override insertChild(child: AnyController, target: Controller | null, key?: string): Controller;
-  override insertChild(child: AnyController, target: Controller | null, key?: string): Controller {
-    child = Controller.fromAny(child);
-    return super.insertChild(child, target, key);
-  }
-
-  override reinsertChild(child: Controller, target: Controller | null): void {
-    super.reinsertChild(child, target);
-  }
-
-  override replaceChild<C extends Controller>(newChild: Controller, oldChild: C): C;
-  override replaceChild<C extends Controller>(newChild: AnyController, oldChild: C): C;
-  override replaceChild(newChild: AnyController, oldChild: Controller): Controller {
-    newChild = Controller.fromAny(newChild);
-    return super.replaceChild(newChild, oldChild);
   }
 
   protected override willInsertChild(child: Controller, target: Controller | null): void {
@@ -611,35 +560,37 @@ export class Controller extends Component<Controller> implements Consumable, War
     super.unbindChildFastener(fastener, child);
   }
 
-  /** @internal @override */
-  override decohereFastener(fastener: Fastener): void {
-    super.decohereFastener(fastener);
+  /** @internal */
+  protected override enqueueFastener(fastener: Fastener): void {
+    super.enqueueFastener(fastener);
     this.requireUpdate(Controller.NeedsRevise);
   }
 
   /** @internal */
   override recohereFasteners(t?: number): void {
     const decoherent = this.decoherent;
-    if (decoherent === null) {
-      return;
-    }
-    const decoherentCount = decoherent.length;
-    if (decoherentCount === 0) {
+    if (decoherent === null || decoherent.length === 0) {
       return;
     } else if (t === void 0) {
       t = performance.now();
     }
     let coherentDownlinkProps = false;
+    (this as Mutable<this>).coherentTime = t;
     (this as Mutable<this>).decoherent = null;
-    for (let i = 0; i < decoherentCount; i += 1) {
-      const fastener = decoherent[i]!;
-      if (fastener instanceof WarpDownlink && !coherentDownlinkProps) {
-        coherentDownlinkProps = true;
-        this.hostUri.recohere(t);
-        this.nodeUri.recohere(t);
-        this.laneUri.recohere(t);
+    (this as Mutable<this>).recohering = decoherent;
+    try {
+      for (let i = 0; i < decoherent.length; i += 1) {
+        const fastener = decoherent[i]!;
+        if (fastener instanceof WarpDownlink && !coherentDownlinkProps) {
+          coherentDownlinkProps = true;
+          this.hostUri.recohere(t);
+          this.nodeUri.recohere(t);
+          this.laneUri.recohere(t);
+        }
+        fastener.recohere(t);
       }
-      fastener.recohere(t);
+    } finally {
+      (this as Mutable<this>).recohering = null;
     }
   }
 
@@ -827,7 +778,7 @@ export class Controller extends Component<Controller> implements Consumable, War
       return Controller.NeedsRevise;
     },
   })
-  get hostUri(): Property<this, Uri | null, AnyUri | null> {
+  get hostUri(): Property<this, Uri | null> {
     return Property.dummy();
   }
 
@@ -840,7 +791,7 @@ export class Controller extends Component<Controller> implements Consumable, War
       return Controller.NeedsRevise;
     },
   })
-  get nodeUri(): Property<this, Uri | null, AnyUri | null> {
+  get nodeUri(): Property<this, Uri | null> {
     return Property.dummy();
   }
 
@@ -853,12 +804,12 @@ export class Controller extends Component<Controller> implements Consumable, War
       return Controller.NeedsRevise;
     },
   })
-  get laneUri(): Property<this, Uri | null, AnyUri | null> {
+  get laneUri(): Property<this, Uri | null> {
     return Property.dummy();
   }
 
   /** @override */
-  downlink(template?: ThisType<EventDownlink<this>> & EventDownlinkDescriptor & Partial<Omit<EventDownlink<this>, keyof EventDownlinkDescriptor>>): EventDownlink<this> {
+  downlink(template?: FastenerTemplate<EventDownlink<WarpRef>>): EventDownlink<WarpRef> {
     let downlinkClass = EventDownlink;
     if (template !== void 0) {
       downlinkClass = downlinkClass.define("downlink", template) as typeof EventDownlink;
@@ -867,7 +818,7 @@ export class Controller extends Component<Controller> implements Consumable, War
   }
 
   /** @override */
-  downlinkValue<V = Value, VU = V extends Value ? AnyValue : V>(template?: ThisType<ValueDownlink<this, V, VU>> & ValueDownlinkDescriptor<V, VU> & Partial<Omit<ValueDownlink<this, V, VU>, keyof ValueDownlinkDescriptor<V, VU>>>): ValueDownlink<this, V, VU> {
+  downlinkValue<V = Value>(template?: FastenerTemplate<ValueDownlink<WarpRef, V>>): ValueDownlink<WarpRef, V> {
     let downlinkClass = ValueDownlink;
     if (template !== void 0) {
       downlinkClass = downlinkClass.define("downlinkValue", template) as typeof ValueDownlink;
@@ -876,7 +827,7 @@ export class Controller extends Component<Controller> implements Consumable, War
   }
 
   /** @override */
-  downlinkList<V = Value, VU = V extends Value ? AnyValue : V>(template?: ThisType<ListDownlink<this, V, VU>> & ListDownlinkDescriptor<V, VU> & Partial<Omit<ListDownlink<this, V, VU>, keyof ListDownlinkDescriptor<V, VU>>>): ListDownlink<this, V, VU> {
+  downlinkList<V = Value>(template?: FastenerTemplate<ListDownlink<WarpRef, V>>): ListDownlink<WarpRef, V> {
     let downlinkClass = ListDownlink;
     if (template !== void 0) {
       downlinkClass = downlinkClass.define("downlinkList", template) as typeof ListDownlink;
@@ -885,7 +836,7 @@ export class Controller extends Component<Controller> implements Consumable, War
   }
 
   /** @override */
-  downlinkMap<K = Value, V = Value, KU = K extends Value ? AnyValue : K, VU = V extends Value ? AnyValue : V>(template?: ThisType<MapDownlink<this, K, V, KU, VU>> & MapDownlinkDescriptor<K, V, KU, VU> & Partial<Omit<MapDownlink<this, K, V, KU, VU>, keyof MapDownlinkDescriptor<K, V, KU, VU>>>): MapDownlink<this, K, V, KU, VU> {
+  downlinkMap<K = Value, V = Value>(template?: FastenerTemplate<MapDownlink<WarpRef, K, V>>): MapDownlink<WarpRef, K, V> {
     let downlinkClass = MapDownlink;
     if (template !== void 0) {
       downlinkClass = downlinkClass.define("downlinkMap", template) as typeof MapDownlink;
@@ -894,34 +845,34 @@ export class Controller extends Component<Controller> implements Consumable, War
   }
 
   /** @override */
-  command(hostUri: AnyUri, nodeUri: AnyUri, laneUri: AnyUri, body: AnyValue): void;
+  command(hostUri: UriLike, nodeUri: UriLike, laneUri: UriLike, body: ValueLike): void;
   /** @override */
-  command(nodeUri: AnyUri, laneUri: AnyUri, body: AnyValue): void;
+  command(nodeUri: UriLike, laneUri: UriLike, body: ValueLike): void;
   /** @override */
-  command(laneUri: AnyUri, body: AnyValue): void;
+  command(laneUri: UriLike, body: ValueLike): void;
   /** @override */
-  command(body: AnyValue): void;
-  command(hostUri: AnyUri | AnyValue, nodeUri?: AnyUri | AnyValue, laneUri?: AnyUri | AnyValue, body?: AnyValue): void {
+  command(body: ValueLike): void;
+  command(hostUri: UriLike | ValueLike, nodeUri?: UriLike | ValueLike, laneUri?: UriLike | ValueLike, body?: ValueLike): void {
     if (nodeUri === void 0) {
-      body = Value.fromAny(hostUri as AnyValue);
+      body = Value.fromLike(hostUri as ValueLike);
       laneUri = this.laneUri.getValue();
       nodeUri = this.nodeUri.getValue();
       hostUri = this.hostUri.value;
     } else if (laneUri === void 0) {
-      body = Value.fromAny(nodeUri as AnyValue);
-      laneUri = Uri.fromAny(hostUri as AnyUri);
+      body = Value.fromLike(nodeUri as ValueLike);
+      laneUri = Uri.fromLike(hostUri as UriLike);
       nodeUri = this.nodeUri.getValue();
       hostUri = this.hostUri.value;
     } else if (body === void 0) {
-      body = Value.fromAny(laneUri as AnyValue);
-      laneUri = Uri.fromAny(nodeUri as AnyUri);
-      nodeUri = Uri.fromAny(hostUri as AnyUri);
+      body = Value.fromLike(laneUri as ValueLike);
+      laneUri = Uri.fromLike(nodeUri as UriLike);
+      nodeUri = Uri.fromLike(hostUri as UriLike);
       hostUri = this.hostUri.value;
     } else {
-      body = Value.fromAny(body);
-      laneUri = Uri.fromAny(laneUri as AnyUri);
-      nodeUri = Uri.fromAny(nodeUri as AnyUri);
-      hostUri = Uri.fromAny(hostUri as AnyUri);
+      body = Value.fromLike(body);
+      laneUri = Uri.fromLike(laneUri as UriLike);
+      nodeUri = Uri.fromLike(nodeUri as UriLike);
+      hostUri = Uri.fromLike(hostUri as UriLike);
     }
     if (hostUri === null) {
       hostUri = nodeUri.endpoint();
@@ -932,24 +883,24 @@ export class Controller extends Component<Controller> implements Consumable, War
   }
 
   /** @override */
-  authenticate(hostUri: AnyUri, credentials: AnyValue): void;
+  authenticate(hostUri: UriLike, credentials: ValueLike): void;
   /** @override */
-  authenticate(credentials: AnyValue): void;
-  authenticate(hostUri: AnyUri | AnyValue, credentials?: AnyValue): void {
+  authenticate(credentials: ValueLike): void;
+  authenticate(hostUri: UriLike | ValueLike, credentials?: ValueLike): void {
     if (credentials === void 0) {
-      credentials = Value.fromAny(hostUri as AnyValue);
+      credentials = Value.fromLike(hostUri as ValueLike);
       hostUri = this.hostUri.getValue();
     } else {
-      credentials = Value.fromAny(credentials);
-      hostUri = Uri.fromAny(hostUri as AnyUri);
+      credentials = Value.fromLike(credentials);
+      hostUri = Uri.fromLike(hostUri as UriLike);
     }
     const warpRef = this.warpRef.value;
     warpRef.authenticate(hostUri, credentials);
   }
 
   /** @override */
-  hostRef(hostUri: AnyUri): WarpRef {
-    hostUri = Uri.fromAny(hostUri);
+  hostRef(hostUri: UriLike): WarpRef {
+    hostUri = Uri.fromLike(hostUri);
     const childRef = new Controller();
     childRef.hostUri.setValue(hostUri);
     this.appendChild(childRef);
@@ -957,12 +908,12 @@ export class Controller extends Component<Controller> implements Consumable, War
   }
 
   /** @override */
-  nodeRef(hostUri: AnyUri, nodeUri: AnyUri): WarpRef;
+  nodeRef(hostUri: UriLike, nodeUri: UriLike): WarpRef;
   /** @override */
-  nodeRef(nodeUri: AnyUri): WarpRef;
-  nodeRef(hostUri: AnyUri | undefined, nodeUri?: AnyUri): WarpRef {
+  nodeRef(nodeUri: UriLike): WarpRef;
+  nodeRef(hostUri: UriLike | undefined, nodeUri?: UriLike): WarpRef {
     if (nodeUri === void 0) {
-      nodeUri = Uri.fromAny(hostUri as AnyUri);
+      nodeUri = Uri.fromLike(hostUri as UriLike);
       hostUri = nodeUri.endpoint();
       if (hostUri.isDefined()) {
         nodeUri = hostUri.unresolve(nodeUri);
@@ -970,8 +921,8 @@ export class Controller extends Component<Controller> implements Consumable, War
         hostUri = void 0;
       }
     } else {
-      nodeUri = Uri.fromAny(nodeUri);
-      hostUri = Uri.fromAny(hostUri as AnyUri);
+      nodeUri = Uri.fromLike(nodeUri);
+      hostUri = Uri.fromLike(hostUri as UriLike);
     }
     const childRef = new Controller();
     if (hostUri !== void 0) {
@@ -985,19 +936,19 @@ export class Controller extends Component<Controller> implements Consumable, War
   }
 
   /** @override */
-  laneRef(hostUri: AnyUri, nodeUri: AnyUri, laneUri: AnyUri): WarpRef;
+  laneRef(hostUri: UriLike, nodeUri: UriLike, laneUri: UriLike): WarpRef;
   /** @override */
-  laneRef(nodeUri: AnyUri, laneUri: AnyUri): WarpRef;
+  laneRef(nodeUri: UriLike, laneUri: UriLike): WarpRef;
   /** @override */
-  laneRef(laneUri: AnyUri): WarpRef;
-  laneRef(hostUri: AnyUri | undefined, nodeUri?: AnyUri, laneUri?: AnyUri): WarpRef {
+  laneRef(laneUri: UriLike): WarpRef;
+  laneRef(hostUri: UriLike | undefined, nodeUri?: UriLike, laneUri?: UriLike): WarpRef {
     if (nodeUri === void 0) {
-      laneUri = Uri.fromAny(hostUri as AnyUri);
+      laneUri = Uri.fromLike(hostUri as UriLike);
       nodeUri = void 0;
       hostUri = void 0;
     } else if (laneUri === void 0) {
-      laneUri = Uri.fromAny(nodeUri);
-      nodeUri = Uri.fromAny(hostUri as AnyUri);
+      laneUri = Uri.fromLike(nodeUri);
+      nodeUri = Uri.fromLike(hostUri as UriLike);
       hostUri = nodeUri.endpoint();
       if (hostUri.isDefined()) {
         nodeUri = hostUri.unresolve(nodeUri);
@@ -1005,9 +956,9 @@ export class Controller extends Component<Controller> implements Consumable, War
         hostUri = void 0;
       }
     } else {
-      laneUri = Uri.fromAny(laneUri);
-      nodeUri = Uri.fromAny(nodeUri);
-      hostUri = Uri.fromAny(hostUri as AnyUri);
+      laneUri = Uri.fromLike(laneUri);
+      nodeUri = Uri.fromLike(nodeUri);
+      hostUri = Uri.fromLike(hostUri as UriLike);
     }
     const childRef = new Controller();
     if (hostUri !== void 0) {
@@ -1050,24 +1001,6 @@ export class Controller extends Component<Controller> implements Consumable, War
   })
   get warpRef(): Property<this, WarpRef> {
     return Property.dummy();
-  }
-
-  static override create<S extends new () => InstanceType<S>>(this: S): InstanceType<S> {
-    return new this();
-  }
-
-  static override fromAny<S extends Class<Instance<S, Controller>>>(this: S, value: AnyController<InstanceType<S>>): InstanceType<S> {
-    if (value === void 0 || value === null) {
-      return value;
-    } else if (value instanceof Controller) {
-      if (!((value as Controller) instanceof this)) {
-        throw new TypeError(value + " not an instance of " + this);
-      }
-      return value;
-    } else if (Creatable[Symbol.hasInstance](value)) {
-      return (value as Creatable<InstanceType<S>>).create();
-    }
-    throw new TypeError("" + value);
   }
 
   /** @internal */

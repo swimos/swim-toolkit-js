@@ -13,10 +13,11 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
+import type {Proto} from "@swim/util";
 import type {Instance} from "@swim/util";
+import type {LikeType} from "@swim/util";
 import {Creatable} from "@swim/util";
 import {View} from "@swim/view";
-import type {AnyNodeView} from "./NodeView";
 import type {NodeViewConstructor} from "./NodeView";
 import type {NodeViewObserver} from "./NodeView";
 import {NodeView} from "./NodeView";
@@ -27,10 +28,7 @@ export interface ViewText extends Text {
 }
 
 /** @public */
-export type AnyTextView<V extends TextView = TextView> = AnyNodeView<V> | string;
-
-/** @public */
-export interface TextViewConstructor<V extends TextView = TextView, U = AnyTextView<V>> extends NodeViewConstructor<V, U> {
+export interface TextViewConstructor<V extends TextView = TextView> extends NodeViewConstructor<V> {
   new(node: Text): V;
 }
 
@@ -43,6 +41,9 @@ export class TextView extends NodeView {
   constructor(node: Text) {
     super(node);
   }
+
+  /** @override */
+  declare readonly likeType?: Proto<{create?(): TextView} | (Text & {create?(): TextView}) | (string & {create?(): TextView})>;
 
   declare readonly observerType?: Class<TextViewObserver>;
 
@@ -58,22 +59,20 @@ export class TextView extends NodeView {
     return new this(node);
   }
 
-  static override fromAny<S extends Class<Instance<S, TextView>>>(this: S, value: AnyTextView<InstanceType<S>>): InstanceType<S>;
-  static override fromAny(value: AnyTextView | string): TextView;
-  static override fromAny(value: AnyTextView | string): TextView {
+  static override fromLike<S extends Class<Instance<S, View>>>(this: S, value: InstanceType<S> | LikeType<InstanceType<S>>): InstanceType<S> {
     if (value === void 0 || value === null) {
-      return value;
+      return value as InstanceType<S>;
     } else if (value instanceof View) {
       if (!(value instanceof this)) {
         throw new TypeError(value + " not an instance of " + this);
       }
       return value;
-    } else if (value instanceof Node) {
-      return this.fromNode(value);
-    } else if (typeof value === "string") {
-      return this.create(value);
+    } else if (value instanceof Text) {
+      return (this as unknown as typeof TextView).fromNode(value) as InstanceType<S>;
     } else if (Creatable[Symbol.hasInstance](value)) {
-      return value.create();
+      return (value as Creatable<InstanceType<S>>).create();
+    } else if (typeof value === "string") {
+      return (this as unknown as typeof TextView).create(value) as InstanceType<S>;
     }
     throw new TypeError("" + value);
   }

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {AnyTiming} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import {Timing} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Affinity} from "@swim/component";
@@ -20,7 +20,6 @@ import {Property} from "@swim/component";
 import {Length} from "@swim/math";
 import {Angle} from "@swim/math";
 import {Transform} from "@swim/math";
-import type {AnyPresence} from "@swim/style";
 import type {Presence} from "@swim/style";
 import {PresenceAnimator} from "@swim/style";
 import {Look} from "@swim/theme";
@@ -117,13 +116,13 @@ export class FloatingButton extends ButtonMembrane {
       iconView.iconColor.setAffinity(Affinity.Extrinsic);
       return iconView;
     },
-    push(icon: Graphics, timing?: AnyTiming | boolean): HtmlIconView {
+    push(icon: Graphics, timing?: TimingLike | boolean): HtmlIconView {
       if (timing === void 0 && this.owner.icons.viewCount === 0) {
         timing = false;
       } else if (timing === void 0 || timing === true) {
         timing = this.owner.getLookOr(Look.timing, false);
       } else {
-        timing = Timing.fromAny(timing);
+        timing = Timing.fromLike(timing);
       }
 
       const oldIconView = this.view;
@@ -145,11 +144,11 @@ export class FloatingButton extends ButtonMembrane {
 
       return newIconView;
     },
-    pop(timing?: AnyTiming | boolean): HtmlIconView | null {
+    pop(timing?: TimingLike | boolean): HtmlIconView | null {
       if (timing === void 0 || timing === true) {
         timing = this.owner.getLookOr(Look.timing, false);
       } else {
-        timing = Timing.fromAny(timing);
+        timing = Timing.fromLike(timing);
       }
 
       const oldIconView = this.view;
@@ -182,14 +181,14 @@ export class FloatingButton extends ButtonMembrane {
     },
   })
   readonly icon!: ViewRef<this, HtmlIconView> & {
-    push(icon: Graphics, timing?: AnyTiming | boolean): HtmlIconView;
-    pop(timing?: AnyTiming | boolean): HtmlIconView | null;
+    push(icon: Graphics, timing?: TimingLike | boolean): HtmlIconView;
+    pop(timing?: TimingLike | boolean): HtmlIconView | null;
   };
 
   @PresenceAnimator({
     inherits: true,
   })
-  readonly presence!: PresenceAnimator<this, Presence | undefined, AnyPresence | undefined>;
+  readonly presence!: PresenceAnimator<this, Presence | undefined>;
 
   @PositionGesture({
     extends: true,

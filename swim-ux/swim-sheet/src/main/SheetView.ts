@@ -13,11 +13,10 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import type {Timing} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
-import type {AnyPresence} from "@swim/style";
 import {Presence} from "@swim/style";
 import {PresenceAnimator} from "@swim/style";
 import {Look} from "@swim/theme";
@@ -111,7 +110,7 @@ export class SheetView extends HtmlView {
       this.owner.callObservers("viewDidDismiss", this.owner);
     },
   })
-  readonly presence!: PresenceAnimator<SheetView, Presence, AnyPresence> & {
+  readonly presence!: PresenceAnimator<SheetView, Presence> & {
     /** @internal */
     pointerEvents: PointerEvents | undefined,
     /** @internal */
@@ -120,11 +119,11 @@ export class SheetView extends HtmlView {
     overflowY: Overflow | undefined,
   };
 
-  present(timing?: AnyTiming | boolean | null): void {
+  present(timing?: TimingLike | boolean | null): void {
     this.presence.present(timing);
   }
 
-  dismiss(timing?: AnyTiming | boolean | null): void {
+  dismiss(timing?: TimingLike | boolean | null): void {
     this.presence.dismiss(timing);
   }
 

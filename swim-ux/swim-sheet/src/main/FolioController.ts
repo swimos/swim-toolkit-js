@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
@@ -546,7 +546,7 @@ export class FolioController extends StackController {
         this.owner.appBar.coverViewDidScroll(coverView, appBarController);
       }
     },
-    present(timing?: AnyTiming | boolean | null): SheetView | null {
+    present(timing?: TimingLike | boolean | null): SheetView | null {
       const coverController = this.controller;
       const coverView = coverController !== null ? coverController.sheet.view : null;
       if (coverView !== null) {
@@ -568,7 +568,7 @@ export class FolioController extends StackController {
     detachCoverTrait(coverTrait: Trait, coverController: SheetController): void;
     attachCoverView(coverView: SheetView, coverController: SheetController): void;
     detachCoverView(coverView: SheetView, coverController: SheetController): void;
-    present(timing?: AnyTiming | boolean | null): SheetView | null;
+    present(timing?: TimingLike | boolean | null): SheetView | null;
   };
 
   @TraitViewControllerSet({

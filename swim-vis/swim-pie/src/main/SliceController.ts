@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import {Timing} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Affinity} from "@swim/component";
@@ -72,7 +72,7 @@ export class SliceController extends Controller {
     }
   }
 
-  protected setValue(value: number, timing?: AnyTiming | boolean): void {
+  protected setValue(value: number, timing?: TimingLike | boolean): void {
     const sliceView = this.slice.view;
     if (sliceView !== null && sliceView.value.hasAffinity(Affinity.Intrinsic)) {
       if (timing === void 0 || timing === true) {
@@ -81,13 +81,13 @@ export class SliceController extends Controller {
           timing = sliceView.getLook(Look.timing, Mood.ambient);
         }
       } else {
-        timing = Timing.fromAny(timing);
+        timing = Timing.fromLike(timing);
       }
       sliceView.value.setState(value, timing, Affinity.Intrinsic);
     }
   }
 
-  protected setSliceColor(sliceColor: ColorOrLook | null, timing?: AnyTiming | boolean): void {
+  protected setSliceColor(sliceColor: ColorOrLook | null, timing?: TimingLike | boolean): void {
     const sliceView = this.slice.view;
     if (sliceView !== null) {
       if (timing === void 0 || timing === true) {
@@ -96,7 +96,7 @@ export class SliceController extends Controller {
           timing = sliceView.getLook(Look.timing, Mood.ambient);
         }
       } else {
-        timing = Timing.fromAny(timing);
+        timing = Timing.fromLike(timing);
       }
       if (sliceColor instanceof Look) {
         sliceView.sliceColor.setLook(sliceColor, timing, Affinity.Intrinsic);
@@ -121,7 +121,7 @@ export class SliceController extends Controller {
   }
 
   @Property({valueType: Timing, inherits: true})
-  get sliceTiming(): Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined> {
+  get sliceTiming(): Property<this, Timing | boolean | undefined> {
     return Property.dummy();
   }
 

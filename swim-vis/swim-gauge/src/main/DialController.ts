@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import {Timing} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Affinity} from "@swim/component";
@@ -74,7 +74,7 @@ export class DialController extends Controller {
     }
   }
 
-  protected setValue(value: number, timing?: AnyTiming | boolean): void {
+  protected setValue(value: number, timing?: TimingLike | boolean): void {
     const dialView = this.dial.view;
     if (dialView !== null && dialView.value.hasAffinity(Affinity.Intrinsic)) {
       if (timing === void 0 || timing === true) {
@@ -83,13 +83,13 @@ export class DialController extends Controller {
           timing = dialView.getLook(Look.timing, Mood.ambient);
         }
       } else {
-        timing = Timing.fromAny(timing);
+        timing = Timing.fromLike(timing);
       }
       dialView.value.setState(value, timing, Affinity.Intrinsic);
     }
   }
 
-  protected setLimit(limit: number, timing?: AnyTiming | boolean): void {
+  protected setLimit(limit: number, timing?: TimingLike | boolean): void {
     const dialView = this.dial.view;
     if (dialView !== null && dialView.limit.hasAffinity(Affinity.Intrinsic)) {
       if (timing === void 0 || timing === true) {
@@ -98,13 +98,13 @@ export class DialController extends Controller {
           timing = dialView.getLook(Look.timing, Mood.ambient);
         }
       } else {
-        timing = Timing.fromAny(timing);
+        timing = Timing.fromLike(timing);
       }
       dialView.limit.setState(limit, timing, Affinity.Intrinsic);
     }
   }
 
-  protected setDialColor(dialColor: ColorOrLook | null, timing?: AnyTiming | boolean): void {
+  protected setDialColor(dialColor: ColorOrLook | null, timing?: TimingLike | boolean): void {
     const dialView = this.dial.view;
     if (dialView !== null) {
       if (timing === void 0 || timing === true) {
@@ -113,7 +113,7 @@ export class DialController extends Controller {
           timing = dialView.getLook(Look.timing, Mood.ambient);
         }
       } else {
-        timing = Timing.fromAny(timing);
+        timing = Timing.fromLike(timing);
       }
       if (dialColor instanceof Look) {
         dialView.dialColor.setLook(dialColor, timing, Affinity.Intrinsic);
@@ -123,7 +123,7 @@ export class DialController extends Controller {
     }
   }
 
-  protected setMeterColor(meterColor: ColorOrLook | null, timing?: AnyTiming | boolean): void {
+  protected setMeterColor(meterColor: ColorOrLook | null, timing?: TimingLike | boolean): void {
     const dialView = this.dial.view;
     if (dialView !== null) {
       if (timing === void 0 || timing === true) {
@@ -132,7 +132,7 @@ export class DialController extends Controller {
           timing = dialView.getLook(Look.timing, Mood.ambient);
         }
       } else {
-        timing = Timing.fromAny(timing);
+        timing = Timing.fromLike(timing);
       }
       if (meterColor instanceof Look) {
         dialView.meterColor.setLook(meterColor, timing, Affinity.Intrinsic);
@@ -157,7 +157,7 @@ export class DialController extends Controller {
   }
 
   @Property({valueType: Timing, inherits: true})
-  get dialTiming(): Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined> {
+  get dialTiming(): Property<this, Timing | boolean | undefined> {
     return Property.dummy();
   }
 

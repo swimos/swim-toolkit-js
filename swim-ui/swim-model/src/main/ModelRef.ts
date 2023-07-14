@@ -14,112 +14,55 @@
 
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
+import type {LikeType} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {FastenerContext} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
 import {Fastener} from "@swim/component";
-import type {AnyModel} from "./Model";
 import type {Model} from "./Model";
 import type {ModelRelationDescriptor} from "./ModelRelation";
 import type {ModelRelationClass} from "./ModelRelation";
 import {ModelRelation} from "./ModelRelation";
 
 /** @public */
-export interface ModelRefDescriptor<M extends Model = Model> extends ModelRelationDescriptor<M> {
+export interface ModelRefDescriptor<R, M extends Model> extends ModelRelationDescriptor<R, M> {
   extends?: Proto<ModelRef<any, any>> | boolean | null;
   modelKey?: string | boolean;
 }
 
 /** @public */
 export interface ModelRefClass<F extends ModelRef<any, any> = ModelRef<any, any>> extends ModelRelationClass<F> {
-  tryModel<O, K extends keyof O, F extends O[K] = O[K]>(owner: O, fastenerName: K): F extends ModelRef<any, infer M> ? M | null : null;
+  tryModel<R, K extends keyof R, F extends R[K] = R[K]>(owner: R, fastenerName: K): F extends {readonly model: infer M | null} ? M | null : null;
 }
 
 /** @public */
-export interface ModelRef<O = unknown, M extends Model = Model> extends ModelRelation<O, M> {
-  (): M | null;
-  (model: AnyModel<M> | null, target?: Model | null, key?: string): O;
-
+export interface ModelRef<R = any, M extends Model = Model> extends ModelRelation<R, M> {
   /** @override */
-  get descriptorType(): Proto<ModelRefDescriptor<M>>;
+  get descriptorType(): Proto<ModelRefDescriptor<R, M>>;
 
   /** @override */
   get fastenerType(): Proto<ModelRef<any, any>>;
 
-  /** @internal @override */
-  setDerived(derived: boolean, inlet: ModelRef<unknown, M>): void;
-
-  /** @protected @override */
-  willDerive(inlet: ModelRef<unknown, M>): void;
-
-  /** @protected @override */
-  onDerive(inlet: ModelRef<unknown, M>): void;
-
-  /** @protected @override */
-  didDerive(inlet: ModelRef<unknown, M>): void;
-
-  /** @protected @override */
-  willUnderive(inlet: ModelRef<unknown, M>): void;
-
-  /** @protected @override */
-  onUnderive(inlet: ModelRef<unknown, M>): void;
-
-  /** @protected @override */
-  didUnderive(inlet: ModelRef<unknown, M>): void;
-
   /** @override */
-  get parent(): ModelRef<unknown, M> | null;
-
-  /** @override */
-  readonly inlet: ModelRef<unknown, M> | null;
-
-  /** @override */
-  bindInlet(inlet: ModelRef<unknown, M>): void;
-
-  /** @protected @override */
-  willBindInlet(inlet: ModelRef<unknown, M>): void;
-
-  /** @protected @override */
-  onBindInlet(inlet: ModelRef<unknown, M>): void;
-
-  /** @protected @override */
-  didBindInlet(inlet: ModelRef<unknown, M>): void;
-
-  /** @protected @override */
-  willUnbindInlet(inlet: ModelRef<unknown, M>): void;
-
-  /** @protected @override */
-  onUnbindInlet(inlet: ModelRef<unknown, M>): void;
-
-  /** @protected @override */
-  didUnbindInlet(inlet: ModelRef<unknown, M>): void;
-
-  /** @internal @override */
-  readonly outlets: ReadonlyArray<ModelRef<unknown, M>> | null;
-
-  /** @internal @override */
-  attachOutlet(outlet: ModelRef<unknown, M>): void;
-
-  /** @internal @override */
-  detachOutlet(outlet: ModelRef<unknown, M>): void;
+  get parent(): ModelRef<any, M> | null;
 
   get inletModel(): M | null;
 
   getInletModel(): M;
 
-  /** @internal */
-  readonly modelKey?: string; // optional prototype property
+  get modelKey(): string | undefined;
 
   readonly model: M | null;
 
   getModel(): M;
 
-  setModel(model: AnyModel<M> | null, target?: Model | null, key?: string): M | null;
+  setModel(model: M | LikeType<M> | null, target?: Model | null, key?: string): M | null;
 
-  attachModel(model?: AnyModel<M>, target?: Model | null): M;
+  attachModel(model?: M | LikeType<M>, target?: Model | null): M;
 
   detachModel(): M | null;
 
-  insertModel(parent?: Model | null, model?: AnyModel<M>, target?: Model | null, key?: string): M;
+  insertModel(parent?: Model | null, model?: M | LikeType<M>, target?: Model | null, key?: string): M;
 
   removeModel(): M | null;
 
@@ -140,45 +83,22 @@ export interface ModelRef<O = unknown, M extends Model = Model> extends ModelRel
   /** @protected @override */
   onStopConsuming(): void;
 
-  /** @internal @protected */
-  decohereOutlets(): void;
-
-  /** @internal @protected */
-  decohereOutlet(outlet: ModelRef<unknown, M>): void;
-
   /** @override */
   recohere(t: number): void;
 }
 
 /** @public */
-export const ModelRef = (function (_super: typeof ModelRelation) {
-  const ModelRef = _super.extend("ModelRef", {}) as ModelRefClass;
+export const ModelRef = (<R, M extends Model, F extends ModelRef<any, any>>() => ModelRelation.extend<ModelRef<R, M>, ModelRefClass<F>>("ModelRef", {
+  get fastenerType(): Proto<ModelRef<any, any>> {
+    return ModelRef;
+  },
 
-  Object.defineProperty(ModelRef.prototype, "fastenerType", {
-    value: ModelRef,
-    enumerable: true,
-    configurable: true,
-  });
+  get inletModel(): M | null {
+    const inlet = this.inlet;
+    return inlet instanceof ModelRef ? inlet.model : null;
+  },
 
-  ModelRef.prototype.onDerive = function (this: ModelRef, inlet: ModelRef): void {
-    const inletModel = inlet.model;
-    if (inletModel !== null) {
-      this.attachModel(inletModel);
-    } else {
-      this.detachModel();
-    }
-  };
-
-  Object.defineProperty(ModelRef.prototype, "inletModel", {
-    get: function <M extends Model>(this: ModelRef<unknown, M>): M | null {
-      const inlet = this.inlet;
-      return inlet !== null ? inlet.model : null;
-    },
-    enumerable: true,
-    configurable: true,
-  });
-
-  ModelRef.prototype.getInletModel = function <M extends Model>(this: ModelRef<unknown, M>): M {
+  getInletModel(): M {
     const inletModel = this.inletModel;
     if (inletModel === void 0 || inletModel === null) {
       let message = inletModel + " ";
@@ -190,9 +110,11 @@ export const ModelRef = (function (_super: typeof ModelRelation) {
       throw new TypeError(message);
     }
     return inletModel;
-  };
+  },
 
-  ModelRef.prototype.getModel = function <M extends Model>(this: ModelRef<unknown, M>): M {
+  modelKey: void 0,
+
+  getModel(): M {
     const model = this.model;
     if (model === null) {
       let message = model + " ";
@@ -204,19 +126,18 @@ export const ModelRef = (function (_super: typeof ModelRelation) {
       throw new TypeError(message);
     }
     return model;
-  };
+  },
 
-  ModelRef.prototype.setModel = function <M extends Model>(this: ModelRef<unknown, M>, newModel: AnyModel<M> | null, target?: Model | null, key?: string): M | null {
+  setModel(newModel: M | LikeType<M> | null, target?: Model | null, key?: string): M | null {
     if (newModel !== null) {
-      newModel = this.fromAny(newModel);
-    }
-    if (target === void 0) {
-      target = null;
+      newModel = this.fromLike(newModel);
     }
     let oldModel = this.model;
     if (oldModel === newModel) {
       this.setCoherent(true);
       return oldModel;
+    } else if (target === void 0) {
+      target = null;
     }
     let parent: Model | null;
     if (this.binds && (parent = this.parentModel, parent !== null)) {
@@ -254,57 +175,58 @@ export const ModelRef = (function (_super: typeof ModelRelation) {
     this.setCoherent(true);
     this.decohereOutlets();
     return oldModel;
-  };
+  },
 
-  ModelRef.prototype.attachModel = function <M extends Model>(this: ModelRef<unknown, M>, newModel?: AnyModel<M>, target?: Model | null): M {
+  attachModel(newModel?: M | LikeType<M>, target?: Model | null): M {
     const oldModel = this.model;
     if (newModel !== void 0 && newModel !== null) {
-      newModel = this.fromAny(newModel);
+      newModel = this.fromLike(newModel);
     } else if (oldModel === null) {
       newModel = this.createModel();
     } else {
       newModel = oldModel;
     }
-    if (oldModel !== newModel) {
-      if (target === void 0) {
-        target = null;
-      }
-      if (oldModel !== null) {
-        (this as Mutable<typeof this>).model = null;
-        this.willDetachModel(oldModel);
-        this.onDetachModel(oldModel);
-        this.deinitModel(oldModel);
-        this.didDetachModel(oldModel);
-      }
-      (this as Mutable<typeof this>).model = newModel;
-      this.willAttachModel(newModel, target);
-      this.onAttachModel(newModel, target);
-      this.initModel(newModel);
-      this.didAttachModel(newModel, target);
-      this.setCoherent(true);
-      this.decohereOutlets();
+    if (target === void 0) {
+      target = null;
     }
-    return newModel;
-  };
-
-  ModelRef.prototype.detachModel = function <M extends Model>(this: ModelRef<unknown, M>): M | null {
-    const oldModel = this.model;
-    if (oldModel !== null) {
+    if (oldModel === newModel) {
+      return newModel;
+    } else if (oldModel !== null) {
       (this as Mutable<typeof this>).model = null;
       this.willDetachModel(oldModel);
       this.onDetachModel(oldModel);
       this.deinitModel(oldModel);
       this.didDetachModel(oldModel);
-      this.setCoherent(true);
-      this.decohereOutlets();
     }
-    return oldModel;
-  };
+    (this as Mutable<typeof this>).model = newModel;
+    this.willAttachModel(newModel, target);
+    this.onAttachModel(newModel, target);
+    this.initModel(newModel);
+    this.didAttachModel(newModel, target);
+    this.setCoherent(true);
+    this.decohereOutlets();
+    return newModel;
+  },
 
-  ModelRef.prototype.insertModel = function <M extends Model>(this: ModelRef<unknown, M>, parent?: Model | null, newModel?: AnyModel<M>, target?: Model | null, key?: string): M {
+  detachModel(): M | null {
+    const oldModel = this.model;
+    if (oldModel === null) {
+      return null;
+    }
+    (this as Mutable<typeof this>).model = null;
+    this.willDetachModel(oldModel);
+    this.onDetachModel(oldModel);
+    this.deinitModel(oldModel);
+    this.didDetachModel(oldModel);
+    this.setCoherent(true);
+    this.decohereOutlets();
+    return oldModel;
+  },
+
+  insertModel(parent?: Model | null, newModel?: M | LikeType<M>, target?: Model | null, key?: string): M {
     let oldModel = this.model;
     if (newModel !== void 0 && newModel !== null) {
-      newModel = this.fromAny(newModel);
+      newModel = this.fromLike(newModel);
     } else if (oldModel === null) {
       newModel = this.createModel();
     } else {
@@ -313,60 +235,63 @@ export const ModelRef = (function (_super: typeof ModelRelation) {
     if (parent === void 0) {
       parent = null;
     }
-    if (this.binds || oldModel !== newModel || newModel.parent === null || parent !== null || key !== void 0) {
-      if (parent === null) {
-        parent = this.parentModel;
-      }
-      if (target === void 0) {
-        target = null;
-      }
-      if (key === void 0) {
-        key = this.modelKey;
-      }
-      if (parent !== null && (newModel.parent !== parent || newModel.key !== key)) {
-        this.insertChild(parent, newModel, target, key);
-      }
-      oldModel = this.model;
-      if (oldModel !== newModel) {
-        if (oldModel !== null) {
-          (this as Mutable<typeof this>).model = null;
-          this.willDetachModel(oldModel);
-          this.onDetachModel(oldModel);
-          this.deinitModel(oldModel);
-          this.didDetachModel(oldModel);
-          if (this.binds && parent !== null && oldModel.parent === parent) {
-            oldModel.remove();
-          }
-        }
-        (this as Mutable<typeof this>).model = newModel;
-        this.willAttachModel(newModel, target);
-        this.onAttachModel(newModel, target);
-        this.initModel(newModel);
-        this.didAttachModel(newModel, target);
-        this.setCoherent(true);
-        this.decohereOutlets();
+    if (!this.binds && oldModel === newModel && newModel.parent !== null && parent === null && key === void 0) {
+      return newModel;
+    }
+    if (parent === null) {
+      parent = this.parentModel;
+    }
+    if (target === void 0) {
+      target = null;
+    }
+    if (key === void 0) {
+      key = this.modelKey;
+    }
+    if (parent !== null && (newModel.parent !== parent || newModel.key !== key)) {
+      this.insertChild(parent, newModel, target, key);
+    }
+    oldModel = this.model;
+    if (oldModel === newModel) {
+      return newModel;
+    } else if (oldModel !== null) {
+      (this as Mutable<typeof this>).model = null;
+      this.willDetachModel(oldModel);
+      this.onDetachModel(oldModel);
+      this.deinitModel(oldModel);
+      this.didDetachModel(oldModel);
+      if (this.binds && parent !== null && oldModel.parent === parent) {
+        oldModel.remove();
       }
     }
+    (this as Mutable<typeof this>).model = newModel;
+    this.willAttachModel(newModel, target);
+    this.onAttachModel(newModel, target);
+    this.initModel(newModel);
+    this.didAttachModel(newModel, target);
+    this.setCoherent(true);
+    this.decohereOutlets();
     return newModel;
-  };
+  },
 
-  ModelRef.prototype.removeModel = function <M extends Model>(this: ModelRef<unknown, M>): M | null {
+  removeModel(): M | null {
     const model = this.model;
-    if (model !== null) {
-      model.remove();
+    if (model === null) {
+      return null;
     }
+    model.remove();
     return model;
-  };
+  },
 
-  ModelRef.prototype.deleteModel = function <M extends Model>(this: ModelRef<unknown, M>): M | null {
+  deleteModel(): M | null {
     const model = this.detachModel();
-    if (model !== null) {
-      model.remove();
+    if (model === null) {
+      return null;
     }
+    model.remove();
     return model;
-  };
+  },
 
-  ModelRef.prototype.bindModel = function <M extends Model>(this: ModelRef<unknown, M>, model: Model, target: Model | null): void {
+  bindModel(model: Model, target: Model | null): void {
     if (!this.binds || this.model !== null) {
       return;
     }
@@ -381,9 +306,9 @@ export const ModelRef = (function (_super: typeof ModelRelation) {
     this.didAttachModel(newModel, target);
     this.setCoherent(true);
     this.decohereOutlets();
-  };
+  },
 
-  ModelRef.prototype.unbindModel = function <M extends Model>(this: ModelRef<unknown, M>, model: Model): void {
+  unbindModel(model: Model): void {
     if (!this.binds) {
       return;
     }
@@ -398,105 +323,71 @@ export const ModelRef = (function (_super: typeof ModelRelation) {
     this.didDetachModel(oldModel);
     this.setCoherent(true);
     this.decohereOutlets();
-  };
+  },
 
-  ModelRef.prototype.detectModel = function <M extends Model>(this: ModelRef<unknown, M>, model: Model): M | null {
+  detectModel(model: Model): M | null {
     const key = this.modelKey;
     if (key !== void 0 && key === model.key) {
       return model as M;
     }
     return null;
-  };
+  },
 
-  ModelRef.prototype.onStartConsuming = function (this: ModelRef): void {
+  onStartConsuming(): void {
     const model = this.model;
     if (model !== null) {
       model.consume(this);
     }
-  };
+  },
 
-  ModelRef.prototype.onStopConsuming = function (this: ModelRef): void {
+  onStopConsuming(): void {
     const model = this.model;
     if (model !== null) {
       model.unconsume(this);
     }
-  };
+  },
 
-  ModelRef.prototype.decohereOutlets = function (this: ModelRef): void {
-    const outlets = this.outlets;
-    for (let i = 0, n = outlets !== null ? outlets.length : 0; i < n; i += 1) {
-      this.decohereOutlet(outlets![i]!);
+  recohere(t: number): void {
+    this.setCoherentTime(t);
+    const inlets = this.inlet;
+    if (inlets instanceof ModelRef) {
+      this.setDerived((this.flags & Affinity.Mask) <= Math.min(inlets.flags & Affinity.Mask, Affinity.Intrinsic));
+      if ((this.flags & Fastener.DerivedFlag) !== 0) {
+        this.setModel(inlets.model);
+      }
+    } else {
+      this.setDerived(false);
     }
-  };
-
-  ModelRef.prototype.decohereOutlet = function (this: ModelRef, outlet: ModelRef): void {
-    if ((outlet.flags & Fastener.DerivedFlag) === 0 && Math.min(this.flags & Affinity.Mask, Affinity.Intrinsic) >= (outlet.flags & Affinity.Mask)) {
-      outlet.setDerived(true, this);
-    } else if ((outlet.flags & Fastener.DerivedFlag) !== 0 && (outlet.flags & Fastener.DecoherentFlag) === 0) {
-      outlet.setCoherent(false);
-      outlet.decohere();
-    }
-  };
-
-  ModelRef.prototype.recohere = function (this: ModelRef, t: number): void {
-    let inlet: ModelRef | null;
-    if ((this.flags & Fastener.DerivedFlag) === 0 || (inlet = this.inlet) === null) {
-      return;
-    }
-    this.setModel(inlet.model);
-  };
-
-  ModelRef.tryModel = function <O, K extends keyof O, F extends O[K]>(owner: O, fastenerName: K): F extends ModelRef<any, infer M> ? M | null : null {
+  },
+},
+{
+  tryModel<R, K extends keyof R, F extends R[K]>(owner: R, fastenerName: K): F extends {readonly model: infer M | null} ? M | null : null {
     const modelRef = FastenerContext.tryFastener(owner, fastenerName) as ModelRef | null;
     if (modelRef !== null) {
       return modelRef.model as any;
     }
     return null as any;
-  };
+  },
 
-  ModelRef.construct = function <F extends ModelRef<any, any>>(fastener: F | null, owner: F extends ModelRef<infer O, any> ? O : never): F {
-    if (fastener === null) {
-      fastener = function (model?: F extends ModelRef<any, infer M> ? AnyModel<M> | null : never, target?: Model | null, key?: string): F extends ModelRef<infer O, infer M> ? M | O | null : never {
-        if (model === void 0) {
-          return fastener!.model;
-        } else {
-          fastener!.setModel(model, target, key);
-          return fastener!.owner;
-        }
-      } as F;
-      Object.defineProperty(fastener, "name", {
-        value: this.prototype.name,
-        enumerable: true,
-        configurable: true,
-      });
-      Object.setPrototypeOf(fastener, this.prototype);
-    }
-    fastener = _super.construct.call(this, fastener, owner) as F;
+  construct(fastener: F | null, owner: F extends Fastener<infer R, any, any> ? R : never): F {
+    fastener = super.construct(fastener, owner) as F;
     (fastener as Mutable<typeof fastener>).model = null;
     return fastener;
-  };
+  },
 
-  ModelRef.refine = function (fastenerClass: ModelRefClass<any>): void {
-    _super.refine.call(this, fastenerClass);
+  refine(fastenerClass: FastenerClass<ModelRef<any, any>>): void {
+    super.refine(fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 
-    if (Object.prototype.hasOwnProperty.call(fastenerPrototype, "modelKey")) {
-      const modelKey = fastenerPrototype.modelKey as string | boolean | undefined;
-      if (modelKey === true) {
-        Object.defineProperty(fastenerPrototype, "modelKey", {
-          value: fastenerClass.name,
-          enumerable: true,
-          configurable: true,
-        });
-      } else if (modelKey === false) {
-        Object.defineProperty(fastenerPrototype, "modelKey", {
-          value: void 0,
-          enumerable: true,
-          configurable: true,
-        });
+    const modelKeyDescriptor = Object.getOwnPropertyDescriptor(fastenerPrototype, "modelKey");
+    if (modelKeyDescriptor !== void 0 && "value" in modelKeyDescriptor) {
+      if (modelKeyDescriptor.value === true) {
+        modelKeyDescriptor.value = fastenerClass.name;
+        Object.defineProperty(fastenerPrototype, "modelKey", modelKeyDescriptor);
+      } else if (modelKeyDescriptor.value === false) {
+        modelKeyDescriptor.value = void 0;
+        Object.defineProperty(fastenerPrototype, "modelKey", modelKeyDescriptor);
       }
     }
-  };
-
-  return ModelRef;
-})(ModelRelation);
+  },
+}))();

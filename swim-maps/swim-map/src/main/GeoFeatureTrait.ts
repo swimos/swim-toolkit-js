@@ -14,25 +14,25 @@
 
 import type {Class} from "@swim/util";
 import {Property} from "@swim/component";
-import type {TraitObserver} from "@swim/model";
-import {Trait} from "@swim/model";
 import {Hyperlink} from "@swim/controller";
-import {CellController} from "./"; // forward import
+import type {GeoTraitObserver} from "./GeoTrait";
+import {GeoTrait} from "./GeoTrait";
+import {GeoFeatureController} from "./"; // forward import
 
 /** @public */
-export interface CellTraitObserver<T extends CellTrait = CellTrait> extends TraitObserver<T> {
+export interface GeoFeatureTraitObserver<T extends GeoFeatureTrait = GeoFeatureTrait> extends GeoTraitObserver<T> {
 }
 
 /** @public */
-export class CellTrait extends Trait {
-  declare readonly observerType?: Class<CellTraitObserver>;
+export class GeoFeatureTrait extends GeoTrait {
+  declare readonly observerType?: Class<GeoFeatureTraitObserver>;
 
   @Property({valueType: Hyperlink, value: null})
   get hyperlink(): Property<this, Hyperlink | null> {
     return Property.dummy();
   }
 
-  createCellController(): CellController {
-    return new CellController();
+  override createGeoController(): GeoFeatureController {
+    return new GeoFeatureController();
   }
 }

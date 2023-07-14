@@ -13,10 +13,9 @@
 // limitations under the License.
 
 import type {Mutable} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import {Timing} from "@swim/util";
 import {Affinity} from "@swim/component";
-import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
 import {Look} from "@swim/theme";
 import type {MoodVector} from "@swim/theme";
@@ -60,7 +59,7 @@ export class ButtonGlow extends HtmlView {
       this.owner.didGlow();
     },
   })
-  override get left(): LengthStyleConstraintAnimator<this, Length | null, AnyLength | null> {
+  override get left(): LengthStyleConstraintAnimator<this, Length | null> {
     return LengthStyleConstraintAnimator.dummy();
   }
 
@@ -107,48 +106,49 @@ export class ButtonGlow extends HtmlView {
     }
   }
 
-  glow(clientX: number, clientY: number, timing?: AnyTiming | boolean, delay: number = 0): void {
-    if (this.glowState === "ready") {
-      this.cancelGlow();
-      if (delay !== 0) {
-        const glow = this.glow.bind(this, clientX, clientY, timing, 0);
-        this.glowTimer = setTimeout(glow, delay) as any;
-      } else {
-        if (timing === void 0 || timing === true) {
-          timing = this.getLookOr(Look.timing, false);
-        } else {
-          timing = Timing.fromAny(timing);
-        }
-        this.willGlow();
-        const offsetParent = this.node.offsetParent;
-        if (offsetParent !== null) {
-          const clientBounds = offsetParent.getBoundingClientRect();
-          const cx = clientX - clientBounds.left;
-          const cy = clientY - clientBounds.top;
-          const rx = Math.max(cx, clientBounds.width - cx);
-          const ry = Math.max(cy, clientBounds.height - cy);
-          const r = Math.sqrt(rx * rx + ry * ry);
-          const highlightColor = this.getLook(Look.highlightColor);
-          const opacity = highlightColor !== void 0 ? highlightColor.alpha() : 0.1;
-          this.opacity.setState(opacity, Affinity.Intrinsic);
-          if (timing !== false) {
-            this.left.setState(cx, Affinity.Intrinsic);
-            this.top.setState(cy, Affinity.Intrinsic);
-            this.left.setState(cx - r, timing, Affinity.Intrinsic);
-            this.top.setState(cy - r, timing, Affinity.Intrinsic);
-            this.width.setState(2 * r, timing, Affinity.Intrinsic);
-            this.height.setState(2 * r, timing, Affinity.Intrinsic);
-          } else {
-            this.left.setState(cx - r, Affinity.Intrinsic);
-            this.top.setState(cy - r, Affinity.Intrinsic);
-            this.width.setState(2 * r, Affinity.Intrinsic);
-            this.height.setState(2 * r, Affinity.Intrinsic);
-            this.didGlow();
-          }
-          (this as Mutable<this>).glowState = "glowing";
-        }
-      }
+  glow(clientX: number, clientY: number, timing?: TimingLike | boolean, delay: number = 0): void {
+    if (this.glowState !== "ready") {
+      return;
     }
+    this.cancelGlow();
+    if (delay !== 0) {
+      const glow = this.glow.bind(this, clientX, clientY, timing, 0);
+      this.glowTimer = setTimeout(glow, delay) as any;
+      return;
+    } else if (timing === void 0 || timing === true) {
+      timing = this.getLookOr(Look.timing, false);
+    } else {
+      timing = Timing.fromLike(timing);
+    }
+    this.willGlow();
+    const offsetParent = this.node.offsetParent;
+    if (offsetParent === null) {
+      return;
+    }
+    const clientBounds = offsetParent.getBoundingClientRect();
+    const cx = clientX - clientBounds.left;
+    const cy = clientY - clientBounds.top;
+    const rx = Math.max(cx, clientBounds.width - cx);
+    const ry = Math.max(cy, clientBounds.height - cy);
+    const r = Math.sqrt(rx * rx + ry * ry);
+    const highlightColor = this.getLook(Look.highlightColor);
+    const opacity = highlightColor !== void 0 ? highlightColor.alpha() : 0.1;
+    this.opacity.setState(opacity, Affinity.Intrinsic);
+    if (timing !== false) {
+      this.left.setState(cx, Affinity.Intrinsic);
+      this.top.setState(cy, Affinity.Intrinsic);
+      this.left.setState(cx - r, timing, Affinity.Intrinsic);
+      this.top.setState(cy - r, timing, Affinity.Intrinsic);
+      this.width.setState(2 * r, timing, Affinity.Intrinsic);
+      this.height.setState(2 * r, timing, Affinity.Intrinsic);
+    } else {
+      this.left.setState(cx - r, Affinity.Intrinsic);
+      this.top.setState(cy - r, Affinity.Intrinsic);
+      this.width.setState(2 * r, Affinity.Intrinsic);
+      this.height.setState(2 * r, Affinity.Intrinsic);
+      this.didGlow();
+    }
+    (this as Mutable<this>).glowState = "glowing";
   }
 
   protected willGlow(): void {
@@ -166,11 +166,11 @@ export class ButtonGlow extends HtmlView {
     }
   }
 
-  pulse(clientX: number, clientY: number, timing?: AnyTiming | boolean): void {
+  pulse(clientX: number, clientY: number, timing?: TimingLike | boolean): void {
     if (timing === void 0 || timing === true) {
       timing = this.getLookOr(Look.timing, false);
     } else {
-      timing = Timing.fromAny(timing);
+      timing = Timing.fromLike(timing);
     }
     if (this.glowState === "ready") {
       this.glow(clientX, clientY, timing);
@@ -195,7 +195,7 @@ export class ButtonGlow extends HtmlView {
     this.remove();
   }
 
-  fade(clientX: number, clientY: number, timing?: AnyTiming | boolean): void {
+  fade(clientX: number, clientY: number, timing?: TimingLike | boolean): void {
     if (this.glowState === "ready") {
       this.cancelGlow();
       this.didFade();
@@ -203,7 +203,7 @@ export class ButtonGlow extends HtmlView {
       if (timing === void 0 || timing === true) {
         timing = this.getLookOr(Look.timing, false);
       } else {
-        timing = Timing.fromAny(timing);
+        timing = Timing.fromLike(timing);
       }
       this.willFade();
       if (timing !== false) {

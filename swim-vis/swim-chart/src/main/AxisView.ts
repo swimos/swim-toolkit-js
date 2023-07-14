@@ -13,19 +13,15 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
 import {Timing} from "@swim/util";
 import {Easing} from "@swim/util";
 import type {ContinuousScale} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import {BTree} from "@swim/collections";
-import type {AnyR2Point} from "@swim/math";
 import {R2Point} from "@swim/math";
 import type {R2Box} from "@swim/math";
-import type {AnyFont} from "@swim/style";
 import {Font} from "@swim/style";
-import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
 import type {ViewFlags} from "@swim/view";
@@ -93,10 +89,10 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   readonly tickGenerator!: Property<this, TickGenerator<D> | true | null>;
 
   @ThemeAnimator({valueType: R2Point, value: R2Point.origin(), updateFlags: View.NeedsLayout | View.NeedsRender})
-  readonly origin!: ThemeAnimator<this, R2Point, AnyR2Point>;
+  readonly origin!: ThemeAnimator<this, R2Point>;
 
   @ThemeAnimator({valueType: Color, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly borderColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly borderColor!: ThemeAnimator<this, Color | null>;
 
   @ThemeAnimator({valueType: Number, value: 1, inherits: true, updateFlags: View.NeedsRender})
   readonly borderWidth!: ThemeAnimator<this, number>;
@@ -108,7 +104,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   readonly tickMarkSpacing!: ThemeAnimator<this, number>;
 
   @ThemeAnimator({valueType: Color, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly tickMarkColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly tickMarkColor!: ThemeAnimator<this, Color | null>;
 
   @ThemeAnimator({valueType: Number, value: 1, inherits: true, updateFlags: View.NeedsRender})
   readonly tickMarkWidth!: ThemeAnimator<this, number>;
@@ -126,19 +122,19 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
       return Easing.cubicOut.withDuration(250);
     },
   })
-  readonly tickTransition!: Property<this, Timing, AnyTiming>;
+  readonly tickTransition!: Property<this, Timing>;
 
   @ThemeAnimator({valueType: Color, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly gridLineColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly gridLineColor!: ThemeAnimator<this, Color | null>;
 
   @ThemeAnimator({valueType: Number, value: 0, inherits: true, updateFlags: View.NeedsRender})
   readonly gridLineWidth!: ThemeAnimator<this, number>;
 
   @ThemeAnimator({valueType: Font, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly font!: ThemeAnimator<this, Font | null, AnyFont | null>;
+  readonly font!: ThemeAnimator<this, Font | null>;
 
   @ThemeAnimator({valueType: Color, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly textColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly textColor!: ThemeAnimator<this, Color | null>;
 
   protected updateTicks(): void {
     const scale = this.scale.value;

@@ -12,13 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {AnyTiming} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import {Animator} from "@swim/component";
-import type {AnyR2Point} from "@swim/math";
 import {R2Point} from "@swim/math";
-import type {AnyFont} from "@swim/style";
 import {Font} from "@swim/style";
-import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
@@ -35,7 +32,7 @@ export class TextRunView extends GraphicsView implements TypesetView {
   readonly text!: Animator<this, string>;
 
   @ThemeAnimator({valueType: Font, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly font!: ThemeAnimator<this, Font | null, AnyFont | null>;
+  readonly font!: ThemeAnimator<this, Font | null>;
 
   @ThemeAnimator({valueType: String, inherits: true, updateFlags: View.NeedsRender})
   readonly textAlign!: ThemeAnimator<this, CanvasTextAlign | undefined>;
@@ -44,10 +41,10 @@ export class TextRunView extends GraphicsView implements TypesetView {
   readonly textBaseline!: ThemeAnimator<this, CanvasTextBaseline | undefined>;
 
   @ThemeAnimator({valueType: R2Point, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly textOrigin!: ThemeAnimator<this, R2Point | null, AnyR2Point | null>;
+  readonly textOrigin!: ThemeAnimator<this, R2Point | null>;
 
   @ThemeAnimator({valueType: Color, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly textColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly textColor!: ThemeAnimator<this, Color | null>;
 
   get value(): TextRun {
     return new TextRun(this.text.getValue(), this.font.getValue(), this.textAlign.getValue(),
@@ -59,12 +56,12 @@ export class TextRunView extends GraphicsView implements TypesetView {
                        this.textBaseline.getState(), this.textOrigin.getState(), this.textColor.getState());
   }
 
-  setState(run: TextRun | TextRunInit | string, timing?: AnyTiming | boolean): void {
+  setState(run: TextRun | TextRunInit | string, timing?: TimingLike | boolean): void {
     if (typeof run === "string") {
       this.text(run, timing);
     } else {
       if (run instanceof TextRun) {
-        run = run.toAny();
+        run = run.toLike();
       }
       if (run.text !== void 0) {
         this.text(run.text, timing);

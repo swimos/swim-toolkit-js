@@ -18,12 +18,9 @@ import type {Creatable} from "@swim/util";
 import type {Timing} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
-import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
-import type {AnyFocus} from "@swim/style";
 import {Focus} from "@swim/style";
 import {FocusAnimator} from "@swim/style";
-import type {AnyExpansion} from "@swim/style";
 import type {Expansion} from "@swim/style";
 import {ExpansionAnimator} from "@swim/style";
 import {Look} from "@swim/theme";
@@ -37,10 +34,8 @@ import {PositionGesture} from "@swim/view";
 import type {ViewNode} from "@swim/dom";
 import type {HtmlViewObserver} from "@swim/dom";
 import {HtmlView} from "@swim/dom";
-import type {AnyHyperlink} from "@swim/controller";
 import {Hyperlink} from "@swim/controller";
 import {ButtonGlow} from "@swim/button";
-import type {AnyTableLayout} from "./TableLayout";
 import {TableLayout} from "./TableLayout";
 import {CellView} from "./CellView";
 
@@ -86,19 +81,19 @@ export class LeafView extends HtmlView {
   declare readonly observerType?: Class<LeafViewObserver>;
 
   @Property({valueType: TableLayout, value: null, inherits: true, updateFlags: View.NeedsLayout})
-  readonly layout!: Property<this, TableLayout | null, AnyTableLayout | null>;
+  readonly layout!: Property<this, TableLayout | null>;
 
   @Property({valueType: Number, value: 0, inherits: true, updateFlags: View.NeedsLayout})
   readonly depth!: Property<this, number>;
 
   @ThemeConstraintAnimator({valueType: Length, value: null, inherits: true, updateFlags: View.NeedsLayout})
-  readonly rowSpacing!: ThemeConstraintAnimator<this, Length | null, AnyLength | null>;
+  readonly rowSpacing!: ThemeConstraintAnimator<this, Length | null>;
 
   @ThemeConstraintAnimator({valueType: Length, value: null, inherits: true, updateFlags: View.NeedsLayout})
-  readonly rowHeight!: ThemeConstraintAnimator<this, Length | null, AnyLength | null>;
+  readonly rowHeight!: ThemeConstraintAnimator<this, Length | null>;
 
   @ExpansionAnimator({value: null, inherits: true, updateFlags: View.NeedsLayout})
-  readonly stretch!: ExpansionAnimator<this, Expansion | null, AnyExpansion | null>;
+  readonly stretch!: ExpansionAnimator<this, Expansion | null>;
 
   @Property({valueType: Boolean, value: false, inherits: true})
   readonly hovers!: Property<this, boolean>;
@@ -117,7 +112,7 @@ export class LeafView extends HtmlView {
                                            [Feel.hovering, 0]], false);
     },
   })
-  readonly hover!: FocusAnimator<this, Focus, AnyFocus>;
+  readonly hover!: FocusAnimator<this, Focus>;
 
   @FocusAnimator({
     value: Focus.unfocused(),
@@ -143,7 +138,7 @@ export class LeafView extends HtmlView {
       this.owner.callObservers("viewDidUnhighlight", this.owner);
     },
   })
-  readonly highlight!: FocusAnimator<this, Focus, AnyFocus>;
+  readonly highlight!: FocusAnimator<this, Focus>;
 
   getCell<F extends Class<CellView>>(key: string, cellViewClass: F): InstanceType<F> | null;
   getCell(key: string): CellView | null;
@@ -274,7 +269,7 @@ export class LeafView extends HtmlView {
       }
     },
   })
-  get hyperlink(): Property<this, Hyperlink | null, AnyHyperlink | null> {
+  get hyperlink(): Property<this, Hyperlink | null> {
     return Property.dummy();
   }
 

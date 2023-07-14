@@ -18,9 +18,7 @@ import type {Observes} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import {Animator} from "@swim/component";
-import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
-import type {AnyFocus} from "@swim/style";
 import {Focus} from "@swim/style";
 import {FocusAnimator} from "@swim/style";
 import {Look} from "@swim/theme";
@@ -35,10 +33,8 @@ import type {PositionGestureInput} from "@swim/view";
 import {PositionGesture} from "@swim/view";
 import type {HtmlView} from "@swim/dom";
 import {Graphics} from "@swim/graphics";
-import type {AnyIconLayout} from "@swim/graphics";
 import {IconLayout} from "@swim/graphics";
 import {Icon} from "@swim/graphics";
-import {FilledIcon} from "@swim/graphics";
 import type {IconView} from "@swim/graphics";
 import {IconGraphicsAnimator} from "@swim/graphics";
 import {SvgIconView} from "@swim/graphics";
@@ -75,7 +71,7 @@ export class ButtonToolView extends ToolView implements IconView {
 
   /** @override */
   @Animator({valueType: IconLayout, value: null, updateFlags: View.NeedsLayout})
-  readonly iconLayout!: Animator<this, IconLayout | null, AnyIconLayout | null>;
+  readonly iconLayout!: Animator<this, IconLayout | null>;
 
   /** @override */
   @ThemeAnimator({
@@ -83,15 +79,11 @@ export class ButtonToolView extends ToolView implements IconView {
     value: null,
     updateFlags: View.NeedsLayout,
     didSetState(iconColor: Color | null): void {
-      const oldGraphics = this.owner.graphics.value;
-      if (oldGraphics instanceof FilledIcon) {
-        const newGraphics = oldGraphics.withFillColor(iconColor);
-        const timing = this.timing !== null ? this.timing : false;
-        this.owner.graphics.setState(newGraphics, timing, Affinity.Reflexive);
-      }
+      const timing = this.timing !== null ? this.timing : false;
+      this.owner.graphics.setState(this.owner.graphics.state, timing, Affinity.Reflexive);
     },
   })
-  get iconColor(): ThemeAnimator<this, Color | null, AnyColor | null> {
+  get iconColor(): ThemeAnimator<this, Color | null> {
     return ThemeAnimator.dummy();
   }
 
@@ -183,7 +175,7 @@ export class ButtonToolView extends ToolView implements IconView {
                                            [Feel.transparent, 1 - this.value.phase]], false);
     },
   })
-  readonly hover!: FocusAnimator<this, Focus, AnyFocus>;
+  readonly hover!: FocusAnimator<this, Focus>;
 
   @Property({valueType: Boolean, value: true, inherits: true})
   readonly glows!: Property<this, boolean>;

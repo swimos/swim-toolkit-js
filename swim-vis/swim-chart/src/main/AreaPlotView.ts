@@ -14,7 +14,6 @@
 
 import type {Class} from "@swim/util";
 import type {R2Box} from "@swim/math";
-import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import {Look} from "@swim/theme";
 import {ThemeAnimator} from "@swim/theme";
@@ -45,7 +44,7 @@ export class AreaPlotView<X = unknown, Y = unknown> extends SeriesPlotView<X, Y>
       this.owner.callObservers("viewDidSetFill", fill, this.owner);
     },
   })
-  readonly fill!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly fill!: ThemeAnimator<this, Color | null>;
 
   protected renderPlot(context: CanvasContext, frame: R2Box): void {
     const opacity = this.opacity.value;

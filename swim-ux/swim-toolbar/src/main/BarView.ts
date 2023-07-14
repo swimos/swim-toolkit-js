@@ -18,7 +18,6 @@ import type {Creatable} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import {Animator} from "@swim/component";
-import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
 import {Feel} from "@swim/theme";
 import {ThemeConstraintAnimator} from "@swim/theme";
@@ -29,7 +28,6 @@ import {ViewSet} from "@swim/view";
 import type {HtmlViewObserver} from "@swim/dom";
 import {HtmlView} from "@swim/dom";
 import type {ToolLayout} from "./ToolLayout";
-import type {AnyBarLayout} from "./BarLayout";
 import {BarLayout} from "./BarLayout";
 import {ToolView} from "./ToolView";
 
@@ -109,7 +107,7 @@ export class BarView extends HtmlView {
       return newLayout;
     },
   })
-  readonly layout!: Animator<this, BarLayout | null, AnyBarLayout | null> & {
+  readonly layout!: Animator<this, BarLayout | null> & {
     resized(layout: BarLayout): BarLayout,
   };
 
@@ -134,13 +132,13 @@ export class BarView extends HtmlView {
       }
     },
   })
-  readonly barHeight!: ThemeConstraintAnimator<this, Length | null, AnyLength | null> & {
+  readonly barHeight!: ThemeConstraintAnimator<this, Length | null> & {
     /** @internal */
     applyEdgeInsets(edgeInsets: ViewInsets): void,
   };
 
   @Property({valueType: Length, value: Length.zero(), updateFlags: View.NeedsResize})
-  readonly toolSpacing!: Property<this, Length | null, AnyLength | null>;
+  readonly toolSpacing!: Property<this, Length | null>;
 
   @Property({
     extends: true,

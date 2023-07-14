@@ -15,7 +15,6 @@
 // Controller
 
 export type {ControllerFlags} from "./Controller";
-export type {AnyController} from "./Controller";
 export type {ControllerFactory} from "./Controller";
 export type {ControllerClass} from "./Controller";
 export type {ControllerConstructor} from "./Controller";
@@ -80,7 +79,7 @@ export {HistoryService} from "./HistoryService";
 
 // Hyperlink
 
-export type {AnyHyperlink} from "./Hyperlink";
+export type {HyperlinkLike} from "./Hyperlink";
 export type {HyperlinkInit} from "./Hyperlink";
 export {Hyperlink} from "./Hyperlink";
 export type {HistoryHyperlinkInit} from "./Hyperlink";

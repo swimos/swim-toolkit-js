@@ -103,8 +103,8 @@ export class HistoryService extends Service {
   }
 
   @EventHandler({
-    type: "popstate",
-    target: window,
+    eventType: "popstate",
+    target: typeof window !== "undefined" ? window : null,
     handle(event: PopStateEvent): void {
       const deltaState: HistoryStateInit = {};
       if (typeof event.state === "object" && event.state !== null) {

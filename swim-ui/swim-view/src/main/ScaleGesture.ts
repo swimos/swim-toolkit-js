@@ -14,9 +14,11 @@
 
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import type {ContinuousScale} from "@swim/util";
 import type {FastenerFlags} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
+import type {Fastener} from "@swim/component";
 import type {R2Box} from "@swim/math";
 import {View} from "./View";
 import type {GestureInputType} from "./Gesture";
@@ -27,7 +29,7 @@ import type {MomentumGestureClass} from "./MomentumGesture";
 import {MomentumGesture} from "./MomentumGesture";
 
 /** @public */
-export class ScaleGestureInput<X = unknown, Y = unknown> extends MomentumGestureInput {
+export class ScaleGestureInput<X = any, Y = any> extends MomentumGestureInput {
   xCoord: X | undefined;
   yCoord: Y | undefined;
   disableX: boolean;
@@ -44,26 +46,14 @@ export class ScaleGestureInput<X = unknown, Y = unknown> extends MomentumGesture
 }
 
 /** @public */
-export type ScaleGestureX<R extends ScaleGesture<any, any, any, any>> =
-  R extends ScaleGesture<any, any, infer X, any> ? X : never;
-
-/** @public */
-export type ScaleGestureY<R extends ScaleGesture<any, any, any, any>> =
-  R extends ScaleGesture<any, any, any, infer Y> ? Y : never;
-
-/** @public */
-export interface ScaleGestureDescriptor<V extends View = View, X = unknown, Y = unknown> extends MomentumGestureDescriptor<V> {
+export interface ScaleGestureDescriptor<R, V extends View, X, Y> extends MomentumGestureDescriptor<R, V> {
   extends?: Proto<ScaleGesture<any, any, any, any>> | boolean | null;
-  distanceMin?: number;
   preserveAspectRatio?: boolean;
   wheel?: boolean;
 }
 
 /** @public */
-export interface ScaleGestureClass<F extends ScaleGesture<any, any, any, any> = ScaleGesture<any, any, any, any>> extends MomentumGestureClass<F> {
-  /** @internal */
-  readonly DistanceMin: number;
-
+export interface ScaleGestureClass<G extends ScaleGesture = ScaleGesture> extends MomentumGestureClass<G> {
   /** @internal */
   readonly PreserveAspectRatioFlag: FastenerFlags;
   /** @internal */
@@ -78,9 +68,9 @@ export interface ScaleGestureClass<F extends ScaleGesture<any, any, any, any> = 
 }
 
 /** @public */
-export interface ScaleGesture<O = unknown, V extends View = View, X = unknown, Y = unknown> extends MomentumGesture<O, V> {
+export interface ScaleGesture<R = any, V extends View = View, X = any, Y = any> extends MomentumGesture<R, V> {
   /** @override */
-  get descriptorType(): Proto<ScaleGestureDescriptor<V, X, Y>>;
+  get descriptorType(): Proto<ScaleGestureDescriptor<R, V, X, Y>>;
 
   /** @internal @override */
   readonly inputs: {readonly [inputId: string]: ScaleGestureInput<X, Y> | undefined};
@@ -114,25 +104,19 @@ export interface ScaleGesture<O = unknown, V extends View = View, X = unknown, Y
    */
   distanceMin: number;
 
-  /** @protected */
-  initPreserveAspectRatio(preserveAspectRatio: boolean): void;
-
   get preserveAspectRatio(): boolean;
   set preserveAspectRatio(preserveAspectRatio: boolean);
-
-  /** @protected */
-  initWheel(wheel: boolean): void;
 
   get wheel(): boolean;
   set wheel(wheel: boolean);
 
   getXScale(): ContinuousScale<X, number> | null;
 
-  setXScale(xScale: ContinuousScale<X, number> | null, timing?: AnyTiming | boolean): void;
+  setXScale(xScale: ContinuousScale<X, number> | null, timing?: TimingLike | boolean): void;
 
   getYScale(): ContinuousScale<Y, number> | null;
 
-  setYScale(yScale: ContinuousScale<Y, number> | null, timing?: AnyTiming | boolean): void;
+  setYScale(yScale: ContinuousScale<Y, number> | null, timing?: TimingLike | boolean): void;
 
   /** @internal */
   clientToRangeX(clientX: number, xScale: ContinuousScale<X, number>, bounds: R2Box): number;
@@ -237,182 +221,153 @@ export interface ScaleGesture<O = unknown, V extends View = View, X = unknown, Y
 }
 
 /** @public */
-export const ScaleGesture = (function (_super: typeof MomentumGesture) {
-  const ScaleGesture = _super.extend("ScaleGesture", {}) as ScaleGestureClass;
-
-  ScaleGesture.prototype.createInput = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>, inputId: string, inputType: GestureInputType, isPrimary: boolean,
+export const ScaleGesture = (<R, V extends View, X, Y, G extends ScaleGesture<any, any, any, any>>() => MomentumGesture.extend<ScaleGesture<R, V, X, Y>, ScaleGestureClass<G>>("ScaleGesture", {
+  createInput(inputId: string, inputType: GestureInputType, isPrimary: boolean,
                                                        x: number, y: number, t: number): ScaleGestureInput<X, Y> {
     return new ScaleGestureInput(inputId, inputType, isPrimary, x, y, t);
-  };
+  },
 
-  ScaleGesture.prototype.clearInputs = function (this: ScaleGesture): void {
-    _super.prototype.clearInputs.call(this);
+  clearInputs(): void {
+    super.clearInputs();
     this.setFlags(this.flags & ~ScaleGesture.NeedsRescale);
-  };
+  },
 
-  ScaleGesture.prototype.initDistanceMin = function (this: ScaleGesture): number {
-    let distanceMin = (Object.getPrototypeOf(this) as ScaleGesture).distanceMin as number | undefined;
-    if (distanceMin === void 0) {
-      distanceMin = ScaleGesture.DistanceMin;
-    }
-    return distanceMin;
-  };
+  distanceMin: 10,
 
-  ScaleGesture.prototype.initPreserveAspectRatio = function (this: ScaleGesture, preserveAspectRatio: boolean): void {
+  initDistanceMin(): number {
+    return (Object.getPrototypeOf(this) as ScaleGesture).distanceMin;
+  },
+
+  get preserveAspectRatio(): boolean {
+    return (this.flags & ScaleGesture.PreserveAspectRatioFlag) !== 0;
+  },
+
+  set preserveAspectRatio(preserveAspectRatio: boolean) {
     if (preserveAspectRatio) {
       this.setFlags(this.flags | ScaleGesture.PreserveAspectRatioFlag);
     } else {
       this.setFlags(this.flags & ~ScaleGesture.PreserveAspectRatioFlag);
     }
-  };
+  },
 
-  Object.defineProperty(ScaleGesture.prototype, "preserveAspectRatio", {
-    get(this: ScaleGesture): boolean {
-      return (this.flags & ScaleGesture.PreserveAspectRatioFlag) !== 0;
-    },
-    set(this: ScaleGesture, preserveAspectRatio: boolean): void {
-      if (preserveAspectRatio) {
-        this.setFlags(this.flags | ScaleGesture.PreserveAspectRatioFlag);
-      } else {
-        this.setFlags(this.flags & ~ScaleGesture.PreserveAspectRatioFlag);
-      }
-    },
-    configurable: true,
-  });
+  get wheel(): boolean {
+    return (this.flags & ScaleGesture.WheelFlag) !== 0;
+  },
 
-  ScaleGesture.prototype.initWheel = function (this: ScaleGesture, wheel: boolean): void {
+  set wheel(wheel: boolean) {
     if (wheel) {
       this.setFlags(this.flags | ScaleGesture.WheelFlag);
     } else {
       this.setFlags(this.flags & ~ScaleGesture.WheelFlag);
     }
-  };
+  },
 
-  Object.defineProperty(ScaleGesture.prototype, "wheel", {
-    get(this: ScaleGesture): boolean {
-      return (this.flags & ScaleGesture.WheelFlag) !== 0;
-    },
-    set(this: ScaleGesture, wheel: boolean): void {
-      if (wheel) {
-        this.setFlags(this.flags | ScaleGesture.WheelFlag);
-      } else {
-        this.setFlags(this.flags & ~ScaleGesture.WheelFlag);
-      }
-    },
-    configurable: true,
-  });
-
-  ScaleGesture.prototype.getXScale = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>): ContinuousScale<X, number> | null {
+  getXScale(): ContinuousScale<X, number> | null {
     return null; // hook
-  };
+  },
 
-  ScaleGesture.prototype.setXScale = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>, xScale: ContinuousScale<X, number> | null, timing?: AnyTiming | boolean): void {
+  setXScale(xScale: ContinuousScale<X, number> | null, timing?: TimingLike | boolean): void {
     // hook
-  };
+  },
 
-  ScaleGesture.prototype.getYScale = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>): ContinuousScale<Y, number> | null {
+  getYScale(): ContinuousScale<Y, number> | null {
     return null; // hook
-  };
+  },
 
-  ScaleGesture.prototype.setYScale = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>, yScale: ContinuousScale<Y, number> | null, timing?: AnyTiming | boolean): void {
+  setYScale(yScale: ContinuousScale<Y, number> | null, timing?: TimingLike | boolean): void {
     // hook
-  };
+  },
 
-  ScaleGesture.prototype.clientToRangeX = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>, clientX: number, xScale: ContinuousScale<X, number>, bounds: R2Box): number {
+  clientToRangeX(clientX: number, xScale: ContinuousScale<X, number>, bounds: R2Box): number {
     const viewX = clientX - bounds.xMin;
     const xRange = xScale.range;
     if (xRange[0] <= xRange[1]) {
       return xRange[0] + viewX;
-    } else {
-      return bounds.xMax + viewX - xRange[0];
     }
-  };
+    return bounds.xMax + viewX - xRange[0];
+  },
 
-  ScaleGesture.prototype.clientToRangeY = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>, clientY: number, yScale: ContinuousScale<Y, number>, bounds: R2Box): number {
+  clientToRangeY(clientY: number, yScale: ContinuousScale<Y, number>, bounds: R2Box): number {
     const viewY = clientY - bounds.yMin;
     const yRange = yScale.range;
     if (yRange[0] <= yRange[1]) {
       return yRange[0] + viewY;
-    } else {
-      return bounds.yMax + viewY - yRange[0];
     }
-  };
+    return bounds.yMax + viewY - yRange[0];
+  },
 
-  ScaleGesture.prototype.unscaleX = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>, clientX: number, xScale: ContinuousScale<X, number>, bounds: R2Box): X {
+  unscaleX(clientX: number, xScale: ContinuousScale<X, number>, bounds: R2Box): X {
     return xScale.inverse(this.clientToRangeX(clientX, xScale, bounds));
-  };
+  },
 
-  ScaleGesture.prototype.unscaleY = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>, clientY: number, yScale: ContinuousScale<Y, number>, bounds: R2Box): Y {
+  unscaleY(clientY: number, yScale: ContinuousScale<Y, number>, bounds: R2Box): Y {
     return yScale.inverse(this.clientToRangeY(clientY, yScale, bounds));
-  };
+  },
 
-  ScaleGesture.prototype.viewWillAnimate = function (this: ScaleGesture, view: View): void {
-    _super.prototype.viewWillAnimate.call(this, view);
+  viewWillAnimate(view: View): void {
+    super.viewWillAnimate(view);
     if ((this.flags & ScaleGesture.NeedsRescale) !== 0) {
       this.rescale();
     }
-  };
+  },
 
-  ScaleGesture.prototype.onBeginPress = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>, input: ScaleGestureInput<X, Y>, event: Event | null): void {
-    _super.prototype.onBeginPress.call(this, input, event);
+  onBeginPress(input: ScaleGestureInput<X, Y>, event: Event | null): void {
+    super.onBeginPress(input, event);
     this.updateInputDomain(input);
     this.view!.requireUpdate(View.NeedsAnimate);
     this.setFlags(this.flags | ScaleGesture.NeedsRescale);
-  };
+  },
 
-  ScaleGesture.prototype.onMovePress = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>, input: ScaleGestureInput<X, Y>, event: Event | null): void {
-    _super.prototype.onMovePress.call(this, input, event);
+  onMovePress(input: ScaleGestureInput<X, Y>, event: Event | null): void {
+    super.onMovePress(input, event);
     this.view!.requireUpdate(View.NeedsAnimate);
     this.setFlags(this.flags | ScaleGesture.NeedsRescale);
-  };
+  },
 
-  ScaleGesture.prototype.onEndPress = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>, input: ScaleGestureInput<X, Y>, event: Event | null): void {
-    _super.prototype.onEndPress.call(this, input, event);
+  onEndPress(input: ScaleGestureInput<X, Y>, event: Event | null): void {
+    super.onEndPress(input, event);
     this.updateInputDomain(input);
     this.view!.requireUpdate(View.NeedsAnimate);
     this.setFlags(this.flags | ScaleGesture.NeedsRescale);
-  };
+  },
 
-  ScaleGesture.prototype.onCancelPress = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>, input: ScaleGestureInput<X, Y>, event: Event | null): void {
-    _super.prototype.onCancelPress.call(this, input, event);
+  onCancelPress(input: ScaleGestureInput<X, Y>, event: Event | null): void {
+    super.onCancelPress(input, event);
     this.updateInputDomain(input);
     this.view!.requireUpdate(View.NeedsAnimate);
     this.setFlags(this.flags | ScaleGesture.NeedsRescale);
-  };
+  },
 
-  ScaleGesture.prototype.beginCoast = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>, input: ScaleGestureInput<X, Y>, event: Event | null): void {
+  beginCoast(input: ScaleGestureInput<X, Y>, event: Event | null): void {
     if (this.coastCount < 2) {
-      _super.prototype.beginCoast.call(this, input, event);
+      super.beginCoast(input, event);
     }
-  };
+  },
 
-  ScaleGesture.prototype.onBeginCoast = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>, input: ScaleGestureInput<X, Y>, event: Event | null): void {
-    _super.prototype.onBeginCoast.call(this, input, event);
+  onBeginCoast(input: ScaleGestureInput<X, Y>, event: Event | null): void {
+    super.onBeginCoast(input, event);
     this.updateInputDomain(input);
     this.conserveMomentum(input);
     this.view!.requireUpdate(View.NeedsAnimate);
     this.setFlags(this.flags | ScaleGesture.NeedsRescale);
-  };
+  },
 
-  ScaleGesture.prototype.onEndCoast = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>, input: ScaleGestureInput<X, Y>, event: Event | null): void {
-    _super.prototype.onEndCoast.call(this, input, event);
+  onEndCoast(input: ScaleGestureInput<X, Y>, event: Event | null): void {
+    super.onEndCoast(input, event);
     input.disableX = false;
     input.disableY = false;
     this.view!.requireUpdate(View.NeedsAnimate);
     this.setFlags(this.flags | ScaleGesture.NeedsRescale);
-  };
+  },
 
-  ScaleGesture.prototype.onCoast = function (this: ScaleGesture): void {
-    _super.prototype.onCoast.call(this);
+  onCoast(): void {
+    super.onCoast();
     this.view!.requireUpdate(View.NeedsAnimate);
     this.setFlags(this.flags | ScaleGesture.NeedsRescale);
-  };
+  },
 
-  ScaleGesture.prototype.updateInputDomain = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>,
-                                                             input: ScaleGestureInput<X, Y>,
-                                                             xScale?: ContinuousScale<X, number> | null,
-                                                             yScale?: ContinuousScale<Y, number> | null,
-                                                             bounds?: R2Box): void {
+  updateInputDomain(input: ScaleGestureInput<X, Y>, xScale?: ContinuousScale<X, number> | null,
+                    yScale?: ContinuousScale<Y, number> | null, bounds?: R2Box): void {
     if (xScale === void 0) {
       xScale = this.getXScale();
     }
@@ -431,48 +386,50 @@ export const ScaleGesture = (function (_super: typeof MomentumGesture) {
       }
       input.yCoord = this.unscaleY(input.y0, yScale, bounds);
     }
-  };
+  },
 
-  ScaleGesture.prototype.neutralizeX = function (this: ScaleGesture): void {
+  neutralizeX(): void {
     const inputs = this.inputs;
     for (const inputId in inputs) {
       const input = inputs[inputId]!;
-      if (input.coasting) {
-        input.disableX = true;
-        input.vx = 0;
-        input.ax = 0;
+      if (!input.coasting) {
+        continue;
       }
+      input.disableX = true;
+      input.vx = 0;
+      input.ax = 0;
     }
-  };
+  },
 
-  ScaleGesture.prototype.neutralizeY = function (this: ScaleGesture): void {
+  neutralizeY(): void {
     const inputs = this.inputs;
     for (const inputId in inputs) {
       const input = inputs[inputId]!;
-      if (input.coasting) {
-        input.disableY = true;
-        input.vy = 0;
-        input.ay = 0;
+      if (!input.coasting) {
+        continue;
       }
+      input.disableY = true;
+      input.vy = 0;
+      input.ay = 0;
     }
-  };
+  },
 
-  ScaleGesture.prototype.rescale = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>): void {
+  rescale(): void {
     let input0: ScaleGestureInput<X, Y> | undefined;
     let input1: ScaleGestureInput<X, Y> | undefined;
     const inputs = this.inputs;
     for (const inputId in inputs) {
       const input = inputs[inputId]!;
-      if (input.pressing || input.coasting) {
-        if (input0 === void 0) {
-          input0 = input;
-        } else if (input1 === void 0) {
-          input1 = input;
-        } else if (input.t0 < input0.t0) {
-          input0 = input;
-        } else if (input.t0 < input1.t0) {
-          input1 = input;
-        }
+      if (!input.pressing && !input.coasting) {
+        continue;
+      } else if (input0 === void 0) {
+        input0 = input;
+      } else if (input1 === void 0) {
+        input1 = input;
+      } else if (input.t0 < input0.t0) {
+        input0 = input;
+      } else if (input.t0 < input1.t0) {
+        input1 = input;
       }
     }
     if (input0 !== void 0) {
@@ -492,14 +449,10 @@ export const ScaleGesture = (function (_super: typeof MomentumGesture) {
       }
     }
     this.setFlags(this.flags & ~ScaleGesture.NeedsRescale);
-  };
+  },
 
-  ScaleGesture.prototype.rescaleRadial = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>,
-                                                         oldXScale: ContinuousScale<X, number>,
-                                                         oldYScale: ContinuousScale<Y, number>,
-                                                         input0: ScaleGestureInput<X, Y>,
-                                                         input1: ScaleGestureInput<X, Y>,
-                                                         bounds: R2Box): void {
+  rescaleRadial(oldXScale: ContinuousScale<X, number>, oldYScale: ContinuousScale<Y, number>,
+                input0: ScaleGestureInput<X, Y>, input1: ScaleGestureInput<X, Y>, bounds: R2Box): void {
     const x0 = input0.xCoord!;
     const y0 = input0.yCoord!;
     const px0 = this.clientToRangeX(input0.x0, oldXScale, bounds);
@@ -680,14 +633,10 @@ export const ScaleGesture = (function (_super: typeof MomentumGesture) {
         input.yCoord = this.unscaleY(input.y0, newYScale, bounds);
       }
     }
-  };
+  },
 
-  ScaleGesture.prototype.rescaleXY = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>,
-                                                     oldXScale: ContinuousScale<X, number>,
-                                                     oldYScale: ContinuousScale<Y, number>,
-                                                     input0: ScaleGestureInput<X, Y>,
-                                                     input1: ScaleGestureInput<X, Y> | undefined,
-                                                     bounds: R2Box): void {
+  rescaleXY(oldXScale: ContinuousScale<X, number>, oldYScale: ContinuousScale<Y, number>,
+            input0: ScaleGestureInput<X, Y>, input1: ScaleGestureInput<X, Y> | undefined, bounds: R2Box): void {
     const x0 = input0.xCoord!;
     const y0 = input0.yCoord!;
     let sx0 = this.clientToRangeX(input0.x, oldXScale, bounds);
@@ -766,13 +715,10 @@ export const ScaleGesture = (function (_super: typeof MomentumGesture) {
         input.yCoord = this.unscaleY(input.y0, newYScale, bounds);
       }
     }
-  };
+  },
 
-  ScaleGesture.prototype.rescaleX = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>,
-                                                    oldXScale: ContinuousScale<X, number>,
-                                                    input0: ScaleGestureInput<X, Y>,
-                                                    input1: ScaleGestureInput<X, Y> | undefined,
-                                                    bounds: R2Box): void {
+  rescaleX(oldXScale: ContinuousScale<X, number>, input0: ScaleGestureInput<X, Y>,
+           input1: ScaleGestureInput<X, Y> | undefined, bounds: R2Box): void {
     const x0 = input0.xCoord!;
     let sx0 = this.clientToRangeX(input0.x, oldXScale, bounds);
     let sx1: number | undefined;
@@ -802,13 +748,10 @@ export const ScaleGesture = (function (_super: typeof MomentumGesture) {
     if (!newXScale.equals(oldXScale)) {
       this.setXScale(newXScale);
     }
-  };
+  },
 
-  ScaleGesture.prototype.rescaleY = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>,
-                                                    oldYScale: ContinuousScale<Y, number>,
-                                                    input0: ScaleGestureInput<X, Y>,
-                                                    input1: ScaleGestureInput<X, Y> | undefined,
-                                                    bounds: R2Box): void {
+  rescaleY(oldYScale: ContinuousScale<Y, number>, input0: ScaleGestureInput<X, Y>,
+           input1: ScaleGestureInput<X, Y> | undefined, bounds: R2Box): void {
     const y0 = input0.yCoord!;
     let sy0 = this.clientToRangeY(input0.y, oldYScale, bounds);
     let sy1: number | undefined;
@@ -838,9 +781,9 @@ export const ScaleGesture = (function (_super: typeof MomentumGesture) {
     if (!newYScale.equals(oldYScale)) {
       this.setYScale(newYScale);
     }
-  };
+  },
 
-  ScaleGesture.prototype.conserveMomentum = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>, input0: ScaleGestureInput<X, Y>): void {
+  conserveMomentum(input0: ScaleGestureInput<X, Y>): void {
     let input1: ScaleGestureInput<X, Y> | undefined;
     const inputs = this.inputs;
     for (const inputId in inputs) {
@@ -865,11 +808,9 @@ export const ScaleGesture = (function (_super: typeof MomentumGesture) {
     } else if (yScale !== null) {
       this.distributeYMomentum(input0, input1);
     }
-  };
+  },
 
-  ScaleGesture.prototype.distributeXYMomentum = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>,
-                                                                input0: ScaleGestureInput<X, Y>,
-                                                                input1: ScaleGestureInput<X, Y>): void {
+  distributeXYMomentum(input0: ScaleGestureInput<X, Y>, input1: ScaleGestureInput<X, Y>): void {
     const vx0 = input0.vx;
     const vy0 = input0.vy;
     const vx1 = input1.vx;
@@ -901,11 +842,9 @@ export const ScaleGesture = (function (_super: typeof MomentumGesture) {
     input0.ay = uay0 * a;
     input1.ax = uax1 * a;
     input1.ay = uay1 * a;
-  };
+  },
 
-  ScaleGesture.prototype.distributeXMomentum = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>,
-                                                               input0: ScaleGestureInput<X, Y>,
-                                                               input1: ScaleGestureInput<X, Y>): void {
+  distributeXMomentum(input0: ScaleGestureInput<X, Y>, input1: ScaleGestureInput<X, Y>): void {
     const vx0 = input0.vx;
     const vx1 = input1.vx;
     const v0 = Math.abs(vx0);
@@ -925,11 +864,9 @@ export const ScaleGesture = (function (_super: typeof MomentumGesture) {
     const a = (a0 + a1) / 2;
     input0.ax = uax0 * a;
     input1.ax = uax1 * a;
-  };
+  },
 
-  ScaleGesture.prototype.distributeYMomentum = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>,
-                                                               input0: ScaleGestureInput<X, Y>,
-                                                               input1: ScaleGestureInput<X, Y>): void {
+  distributeYMomentum(input0: ScaleGestureInput<X, Y>, input1: ScaleGestureInput<X, Y>): void {
     const vy0 = input0.vy;
     const vy1 = input1.vy;
     const v0 = Math.sqrt(vy0);
@@ -949,47 +886,47 @@ export const ScaleGesture = (function (_super: typeof MomentumGesture) {
     const a = (a0 + a1) / 2;
     input0.ay = uay0 * a;
     input1.ay = uay1 * a;
-  };
+  },
 
-  ScaleGesture.prototype.integrate = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>, t: number): void {
+  integrate(t: number): void {
     let coast0: ScaleGestureInput<X, Y> | undefined;
     let coast1: ScaleGestureInput<X, Y> | undefined;
     const inputs = this.inputs;
     for (const inputId in inputs) {
       const input = inputs[inputId]!;
-      if (input.coasting) {
-        if (coast0 === void 0) {
-          coast0 = input;
-        } else if (coast1 === void 0) {
-          coast1 = input;
-          const dx0 = coast1.x - coast0.x;
-          const dy0 = coast1.y - coast0.y;
-          const d0 = Math.sqrt(dx0 * dx0 + dy0 * dy0);
-          coast0.integrateVelocity(t);
-          coast1.integrateVelocity(t);
-          const dx1 = coast1.x - coast0.x;
-          const dy1 = coast1.y - coast0.y;
-          const d1 = Math.sqrt(dx1 * dx1 + dy1 * dy1);
-          const s = d1 / d0;
-          coast0.vx *= s;
-          coast0.vy *= s;
-          coast0.ax *= s;
-          coast0.ay *= s;
-          coast1.vx *= s;
-          coast1.vy *= s;
-          coast1.ax *= s;
-          coast1.ay *= s;
-        } else {
-          input.integrateVelocity(t);
-        }
+      if (!input.coasting) {
+        continue;
+      } else if (coast0 === void 0) {
+        coast0 = input;
+      } else if (coast1 === void 0) {
+        coast1 = input;
+        const dx0 = coast1.x - coast0.x;
+        const dy0 = coast1.y - coast0.y;
+        const d0 = Math.sqrt(dx0 * dx0 + dy0 * dy0);
+        coast0.integrateVelocity(t);
+        coast1.integrateVelocity(t);
+        const dx1 = coast1.x - coast0.x;
+        const dy1 = coast1.y - coast0.y;
+        const d1 = Math.sqrt(dx1 * dx1 + dy1 * dy1);
+        const s = d1 / d0;
+        coast0.vx *= s;
+        coast0.vy *= s;
+        coast0.ax *= s;
+        coast0.ay *= s;
+        coast1.vx *= s;
+        coast1.vy *= s;
+        coast1.ax *= s;
+        coast1.ay *= s;
+      } else {
+        input.integrateVelocity(t);
       }
     }
     if (coast0 !== void 0 && coast1 === void 0) {
       coast0.integrateVelocity(t);
     }
-  };
+  },
 
-  ScaleGesture.prototype.zoom = function <X, Y>(this: ScaleGesture<unknown, View, X, Y>, x: number, y: number, dz: number, event: Event | null): void {
+  zoom(x: number, y: number, dz: number, event: Event | null): void {
     if (dz === 0) {
       return;
     }
@@ -1072,97 +1009,74 @@ export const ScaleGesture = (function (_super: typeof MomentumGesture) {
       this.beginCoast(zoom0, event);
       this.beginCoast(zoom1, event);
     }
-  };
-
-  Object.defineProperty(ScaleGesture.prototype, "observes", {
-    value: true,
-    enumerable: true,
-    configurable: true,
-  });
-
-  ScaleGesture.construct = function <G extends ScaleGesture<any, any, any, any>>(gesture: G | null, owner: G extends ScaleGesture<infer O, any, any, any> ? O : never): G {
-    gesture = _super.construct.call(this, gesture, owner) as G;
-    const flagsInit = gesture.flagsInit;
-    if (flagsInit !== void 0) {
-      gesture.initPreserveAspectRatio((flagsInit & ScaleGesture.PreserveAspectRatioFlag) !== 0);
-      gesture.initWheel((flagsInit & ScaleGesture.WheelFlag) !== 0);
-    }
+  },
+},
+{
+  construct(gesture: G | null, owner: G extends Fastener<infer R, any, any> ? R : never): G {
+    gesture = super.construct(gesture, owner) as G;
     gesture.distanceMin = gesture.initDistanceMin();
     return gesture;
-  };
+  },
 
-  ScaleGesture.specialize = function (template: ScaleGestureDescriptor<any>): ScaleGestureClass {
-    let superClass = template.extends as ScaleGestureClass | null | undefined;
+  specialize(template: G extends {readonly descriptorType?: Proto<infer D>} ? D : never): FastenerClass<G> {
+    let superClass = template.extends as FastenerClass<G> | null | undefined;
     if (superClass === void 0 || superClass === null) {
       const method = template.method;
       if (method === "pointer") {
-        superClass = PointerScaleGesture;
+        superClass = PointerScaleGesture as unknown as FastenerClass<G>;
       } else if (method === "touch") {
-        superClass = TouchScaleGesture;
+        superClass = TouchScaleGesture as unknown as FastenerClass<G>;
       } else if (method === "mouse") {
-        superClass = MouseScaleGesture;
+        superClass = MouseScaleGesture as unknown as FastenerClass<G>;
       } else if (typeof PointerEvent !== "undefined") {
-        superClass = PointerScaleGesture;
+        superClass = PointerScaleGesture as unknown as FastenerClass<G>;
       } else if (typeof TouchEvent !== "undefined") {
-        superClass = TouchScaleGesture;
+        superClass = TouchScaleGesture as unknown as FastenerClass<G>;
       } else {
-        superClass = MouseScaleGesture;
+        superClass = MouseScaleGesture as unknown as FastenerClass<G>;
       }
     }
     return superClass;
-  };
+  },
 
-  ScaleGesture.refine = function (gestureClass: ScaleGestureClass<any>): void {
-    _super.refine.call(this, gestureClass);
+  refine(gestureClass: FastenerClass<ScaleGesture<any, any, any, any>>): void {
+    super.refine(gestureClass);
     const fastenerPrototype = gestureClass.prototype;
-    let flagsInit = fastenerPrototype.flagsInit;
 
+    let flagsInit = fastenerPrototype.flagsInit;
     if (Object.prototype.hasOwnProperty.call(fastenerPrototype, "preserveAspectRatio")) {
-      if (flagsInit === void 0) {
-        flagsInit = 0;
-      }
       if (fastenerPrototype.preserveAspectRatio) {
         flagsInit |= ScaleGesture.PreserveAspectRatioFlag;
       } else {
         flagsInit &= ~ScaleGesture.PreserveAspectRatioFlag;
       }
-      delete (fastenerPrototype as ScaleGestureDescriptor).preserveAspectRatio;
+      delete (fastenerPrototype as ScaleGestureDescriptor<any, any, any, any>).preserveAspectRatio;
     }
-
     if (Object.prototype.hasOwnProperty.call(fastenerPrototype, "wheel")) {
-      if (flagsInit === void 0) {
-        flagsInit = 0;
-      }
       if (fastenerPrototype.wheel) {
         flagsInit |= ScaleGesture.WheelFlag;
       } else {
         flagsInit &= ~ScaleGesture.WheelFlag;
       }
-      delete (fastenerPrototype as ScaleGestureDescriptor).wheel;
+      delete (fastenerPrototype as ScaleGestureDescriptor<any, any, any, any>).wheel;
     }
+    Object.defineProperty(fastenerPrototype, "flagsInit", {
+      value: flagsInit,
+      enumerable: true,
+      configurable: true,
+    });
+  },
 
-    if (flagsInit !== void 0) {
-      Object.defineProperty(fastenerPrototype, "flagsInit", {
-        value: flagsInit,
-        configurable: true,
-      });
-    }
-  };
+  PreserveAspectRatioFlag: 1 << (MomentumGesture.FlagShift + 0),
+  WheelFlag: 1 << (MomentumGesture.FlagShift + 1),
+  NeedsRescale: 1 << (MomentumGesture.FlagShift + 2),
 
-  (ScaleGesture as Mutable<typeof ScaleGesture>).DistanceMin = 10;
-
-  (ScaleGesture as Mutable<typeof ScaleGesture>).PreserveAspectRatioFlag = 1 << (_super.FlagShift + 0);
-  (ScaleGesture as Mutable<typeof ScaleGesture>).WheelFlag = 1 << (_super.FlagShift + 1);
-  (ScaleGesture as Mutable<typeof ScaleGesture>).NeedsRescale = 1 << (_super.FlagShift + 2);
-
-  (ScaleGesture as Mutable<typeof ScaleGesture>).FlagShift = _super.FlagShift + 3;
-  (ScaleGesture as Mutable<typeof ScaleGesture>).FlagMask = (1 << ScaleGesture.FlagShift) - 1;
-
-  return ScaleGesture;
-})(MomentumGesture);
+  FlagShift: MomentumGesture.FlagShift + 3,
+  FlagMask: (1 << (MomentumGesture.FlagShift + 3)) - 1,
+}))();
 
 /** @internal */
-export interface PointerScaleGesture<O = unknown, V extends View = View, X = unknown, Y = unknown> extends ScaleGesture<O, V, X, Y> {
+export interface PointerScaleGesture<R = any, V extends View = View, X = any, Y = any> extends ScaleGesture<R, V, X, Y> {
   /** @internal @protected @override */
   attachHoverEvents(view: V): void;
 
@@ -1204,40 +1118,38 @@ export interface PointerScaleGesture<O = unknown, V extends View = View, X = unk
 }
 
 /** @internal */
-export const PointerScaleGesture = (function (_super: typeof ScaleGesture) {
-  const PointerScaleGesture = _super.extend("PointerScaleGesture", {
-    wheel: true,
-  }) as ScaleGestureClass<PointerScaleGesture<any, any, any, any>>;
+export const PointerScaleGesture = (<R, V extends View, X, Y, G extends PointerScaleGesture<any, any, any, any>>() => ScaleGesture.extend<PointerScaleGesture<R, V, X, Y>, ScaleGestureClass<G>>("PointerScaleGesture", {
+  wheel: true,
 
-  PointerScaleGesture.prototype.attachHoverEvents = function (this: PointerScaleGesture, view: View): void {
+  attachHoverEvents(view: V): void {
     view.addEventListener("pointerenter", this.onPointerEnter as EventListener);
     view.addEventListener("pointerleave", this.onPointerLeave as EventListener);
     view.addEventListener("pointerdown", this.onPointerDown as EventListener);
     view.addEventListener("wheel", this.onWheel as EventListener);
-  };
+  },
 
-  PointerScaleGesture.prototype.detachHoverEvents = function (this: PointerScaleGesture, view: View): void {
+  detachHoverEvents(view: V): void {
     view.removeEventListener("pointerenter", this.onPointerEnter as EventListener);
     view.removeEventListener("pointerleave", this.onPointerLeave as EventListener);
     view.removeEventListener("pointerdown", this.onPointerDown as EventListener);
     view.removeEventListener("wheel", this.onWheel as EventListener);
-  };
+  },
 
-  PointerScaleGesture.prototype.attachPressEvents = function (this: PointerScaleGesture, view: View): void {
+  attachPressEvents(view: V): void {
     document.body.addEventListener("pointermove", this.onPointerMove);
     document.body.addEventListener("pointerup", this.onPointerUp);
     document.body.addEventListener("pointercancel", this.onPointerCancel);
     document.body.addEventListener("pointerleave", this.onPointerLeaveDocument);
-  };
+  },
 
-  PointerScaleGesture.prototype.detachPressEvents = function (this: PointerScaleGesture, view: View): void {
+  detachPressEvents(view: V): void {
     document.body.removeEventListener("pointermove", this.onPointerMove);
     document.body.removeEventListener("pointerup", this.onPointerUp);
     document.body.removeEventListener("pointercancel", this.onPointerCancel);
     document.body.removeEventListener("pointerleave", this.onPointerLeaveDocument);
-  };
+  },
 
-  PointerScaleGesture.prototype.updateInput = function <X, Y>(this: PointerScaleGesture<unknown, View, X, Y>, input: ScaleGestureInput<X, Y>, event: PointerEvent): void {
+  updateInput(input: ScaleGestureInput<X, Y>, event: PointerEvent): void {
     input.target = event.target;
     input.button = event.button;
     input.buttons = event.buttons;
@@ -1260,34 +1172,36 @@ export const PointerScaleGesture = (function (_super: typeof ScaleGesture) {
     input.twist = event.twist;
     input.pressure = event.pressure;
     input.tangentialPressure = event.tangentialPressure;
-  };
+  },
 
-  PointerScaleGesture.prototype.onPointerEnter = function (this: PointerScaleGesture, event: PointerEvent): void {
-    if (event.pointerType === "mouse" && event.buttons === 0) {
-      const input = this.getOrCreateInput(event.pointerId, GestureInput.pointerInputType(event.pointerType),
-                                          event.isPrimary, event.clientX, event.clientY, event.timeStamp);
-      if (!input.coasting) {
-        this.updateInput(input, event);
-      }
-      if (!input.hovering) {
-        this.beginHover(input, event);
-      }
+  onPointerEnter(event: PointerEvent): void {
+    if (event.pointerType !== "mouse" || event.buttons !== 0) {
+      return;
     }
-  };
-
-  PointerScaleGesture.prototype.onPointerLeave = function (this: PointerScaleGesture, event: PointerEvent): void {
-    if (event.pointerType === "mouse") {
-      const input = this.getInput(event.pointerId);
-      if (input !== null) {
-        if (!input.coasting) {
-          this.updateInput(input, event);
-        }
-        this.endHover(input, event);
-      }
+    const input = this.getOrCreateInput(event.pointerId, GestureInput.pointerInputType(event.pointerType),
+                                        event.isPrimary, event.clientX, event.clientY, event.timeStamp);
+    if (!input.coasting) {
+      this.updateInput(input, event);
     }
-  };
+    if (!input.hovering) {
+      this.beginHover(input, event);
+    }
+  },
 
-  PointerScaleGesture.prototype.onPointerDown = function (this: PointerScaleGesture, event: PointerEvent): void {
+  onPointerLeave(event: PointerEvent): void {
+    if (event.pointerType !== "mouse") {
+      return;
+    }
+    const input = this.getInput(event.pointerId);
+    if (input === null) {
+      return;
+    } else if (!input.coasting) {
+      this.updateInput(input, event);
+    }
+    this.endHover(input, event);
+  },
+
+  onPointerDown(event: PointerEvent): void {
     const input = this.getOrCreateInput(event.pointerId, GestureInput.pointerInputType(event.pointerType),
                                         event.isPrimary, event.clientX, event.clientY, event.timeStamp);
     this.updateInput(input, event);
@@ -1297,53 +1211,59 @@ export const PointerScaleGesture = (function (_super: typeof ScaleGesture) {
     if (event.pointerType === "mouse" && event.button !== 0) {
       this.cancelPress(input, event);
     }
-  };
+  },
 
-  PointerScaleGesture.prototype.onPointerMove = function (this: PointerScaleGesture, event: PointerEvent): void {
+  onPointerMove(event: PointerEvent): void {
     const input = this.getInput(event.pointerId);
-    if (input !== null) {
-      this.updateInput(input, event);
-      this.movePress(input, event);
+    if (input === null) {
+      return;
     }
-  };
+    this.updateInput(input, event);
+    this.movePress(input, event);
+  },
 
-  PointerScaleGesture.prototype.onPointerUp = function (this: PointerScaleGesture, event: PointerEvent): void {
+  onPointerUp(event: PointerEvent): void {
     const input = this.getInput(event.pointerId);
-    if (input !== null) {
-      this.updateInput(input, event);
-      this.endPress(input, event);
-      if (!input.defaultPrevented && event.button === 0) {
-        this.press(input, event);
-      }
+    if (input === null) {
+      return;
     }
-  };
+    this.updateInput(input, event);
+    this.endPress(input, event);
+    if (!input.defaultPrevented && event.button === 0) {
+      this.press(input, event);
+    }
+  },
 
-  PointerScaleGesture.prototype.onPointerCancel = function (this: PointerScaleGesture, event: PointerEvent): void {
+  onPointerCancel(event: PointerEvent): void {
     const input = this.getInput(event.pointerId);
-    if (input !== null) {
-      this.updateInput(input, event);
-      this.cancelPress(input, event);
+    if (input === null) {
+      return;
     }
-  };
+    this.updateInput(input, event);
+    this.cancelPress(input, event);
+  },
 
-  PointerScaleGesture.prototype.onPointerLeaveDocument = function (this: PointerScaleGesture, event: PointerEvent): void {
+  onPointerLeaveDocument(event: PointerEvent): void {
     const input = this.getInput(event.pointerId);
-    if (input !== null) {
-      this.updateInput(input, event);
-      this.cancelPress(input, event);
-      this.endHover(input, event);
+    if (input === null) {
+      return;
     }
-  };
+    this.updateInput(input, event);
+    this.cancelPress(input, event);
+    this.endHover(input, event);
+  },
 
-  PointerScaleGesture.prototype.onWheel = function (this: PointerScaleGesture, event: WheelEvent): void {
-    if (this.wheel) {
-      event.preventDefault();
-      this.zoom(event.clientX, event.clientY, event.deltaY, event);
+  onWheel(event: WheelEvent): void {
+    if (!this.wheel) {
+      return;
     }
-  };
-
-  PointerScaleGesture.construct = function <G extends PointerScaleGesture<any, any, any, any>>(gesture: G | null, owner: G extends ScaleGesture<infer O, any, any, any> ? O : never): G {
-    gesture = _super.construct.call(this, gesture, owner) as G;
+    event.preventDefault();
+    this.zoom(event.clientX, event.clientY, event.deltaY, event);
+  },
+},
+{
+  construct(gesture: G | null, owner: G extends Fastener<infer R, any, any> ? R : never): G {
+    gesture = super.construct(gesture, owner) as G;
     gesture.onPointerEnter = gesture.onPointerEnter.bind(gesture);
     gesture.onPointerLeave = gesture.onPointerLeave.bind(gesture);
     gesture.onPointerDown = gesture.onPointerDown.bind(gesture);
@@ -1353,13 +1273,11 @@ export const PointerScaleGesture = (function (_super: typeof ScaleGesture) {
     gesture.onPointerLeaveDocument = gesture.onPointerLeaveDocument.bind(gesture);
     gesture.onWheel = gesture.onWheel.bind(gesture);
     return gesture;
-  };
-
-  return PointerScaleGesture;
-})(ScaleGesture);
+  },
+}))();
 
 /** @internal */
-export interface TouchScaleGesture<O = unknown, V extends View = View, X = unknown, Y = unknown> extends ScaleGesture<O, V, X, Y> {
+export interface TouchScaleGesture<R = any, V extends View = View, X = any, Y = any> extends ScaleGesture<R, V, X, Y> {
   /** @internal @protected @override */
   attachHoverEvents(view: V): void;
 
@@ -1389,30 +1307,28 @@ export interface TouchScaleGesture<O = unknown, V extends View = View, X = unkno
 }
 
 /** @internal */
-export const TouchScaleGesture = (function (_super: typeof ScaleGesture) {
-  const TouchScaleGesture = _super.extend("TouchScaleGesture", {}) as ScaleGestureClass<TouchScaleGesture<any, any, any, any>>;
-
-  TouchScaleGesture.prototype.attachHoverEvents = function (this: TouchScaleGesture, view: View): void {
+export const TouchScaleGesture = (<R, V extends View, X, Y, G extends TouchScaleGesture<any, any, any, any>>() => ScaleGesture.extend<TouchScaleGesture<R, V, X, Y>, ScaleGestureClass<G>>("TouchScaleGesture", {
+  attachHoverEvents(view: V): void {
     view.addEventListener("touchstart", this.onTouchStart as EventListener);
-  };
+  },
 
-  TouchScaleGesture.prototype.detachHoverEvents = function (this: TouchScaleGesture, view: View): void {
+  detachHoverEvents(view: V): void {
     view.removeEventListener("touchstart", this.onTouchStart as EventListener);
-  };
+  },
 
-  TouchScaleGesture.prototype.attachPressEvents = function (this: TouchScaleGesture, view: View): void {
+  attachPressEvents(view: V): void {
     view.addEventListener("touchmove", this.onTouchMove as EventListener);
     view.addEventListener("touchend", this.onTouchEnd as EventListener);
     view.addEventListener("touchcancel", this.onTouchCancel as EventListener);
-  };
+  },
 
-  TouchScaleGesture.prototype.detachPressEvents = function (this: TouchScaleGesture, view: View): void {
+  detachPressEvents(view: V): void {
     view.removeEventListener("touchmove", this.onTouchMove as EventListener);
     view.removeEventListener("touchend", this.onTouchEnd as EventListener);
     view.removeEventListener("touchcancel", this.onTouchCancel as EventListener);
-  };
+  },
 
-  TouchScaleGesture.prototype.updateInput = function <X, Y>(this: TouchScaleGesture<unknown, View, X, Y>, input: ScaleGestureInput<X, Y>, event: TouchEvent, touch: Touch): void {
+  updateInput(input: ScaleGestureInput<X, Y>, event: TouchEvent, touch: Touch): void {
     input.target = touch.target;
     input.altKey = event.altKey;
     input.ctrlKey = event.ctrlKey;
@@ -1425,9 +1341,9 @@ export const TouchScaleGesture = (function (_super: typeof ScaleGesture) {
     input.x = touch.clientX;
     input.y = touch.clientY;
     input.t = event.timeStamp;
-  };
+  },
 
-  TouchScaleGesture.prototype.onTouchStart = function (this: TouchScaleGesture, event: TouchEvent): void {
+  onTouchStart(event: TouchEvent): void {
     const touches = event.targetTouches;
     for (let i = 0; i < touches.length; i += 1) {
       const touch = touches[i]!;
@@ -1438,63 +1354,65 @@ export const TouchScaleGesture = (function (_super: typeof ScaleGesture) {
         this.beginPress(input, event);
       }
     }
-  };
+  },
 
-  TouchScaleGesture.prototype.onTouchMove = function (this: TouchScaleGesture, event: TouchEvent): void {
+  onTouchMove(event: TouchEvent): void {
     const touches = event.changedTouches;
     for (let i = 0; i < touches.length; i += 1) {
       const touch = touches[i]!;
       const input = this.getInput(touch.identifier);
-      if (input !== null) {
-        this.updateInput(input, event, touch);
-        this.movePress(input, event);
+      if (input === null) {
+        continue;
       }
+      this.updateInput(input, event, touch);
+      this.movePress(input, event);
     }
-  };
+  },
 
-  TouchScaleGesture.prototype.onTouchEnd = function (this: TouchScaleGesture, event: TouchEvent): void {
+  onTouchEnd(event: TouchEvent): void {
     const touches = event.changedTouches;
     for (let i = 0; i < touches.length; i += 1) {
       const touch = touches[i]!;
       const input = this.getInput(touch.identifier);
-      if (input !== null) {
-        this.updateInput(input, event, touch);
-        this.endPress(input, event);
-        if (!input.defaultPrevented) {
-          this.press(input, event);
-        }
-        this.endHover(input, event);
+      if (input === null) {
+        continue;
       }
+      this.updateInput(input, event, touch);
+      this.endPress(input, event);
+      if (!input.defaultPrevented) {
+        this.press(input, event);
+      }
+      this.endHover(input, event);
     }
-  };
+  },
 
-  TouchScaleGesture.prototype.onTouchCancel = function (this: TouchScaleGesture, event: TouchEvent): void {
+  onTouchCancel(event: TouchEvent): void {
     const touches = event.changedTouches;
     for (let i = 0; i < touches.length; i += 1) {
       const touch = touches[i]!;
       const input = this.getInput(touch.identifier);
-      if (input !== null) {
-        this.updateInput(input, event, touch);
-        this.cancelPress(input, event);
-        this.endHover(input, event);
+      if (input === null) {
+        continue;
       }
+      this.updateInput(input, event, touch);
+      this.cancelPress(input, event);
+      this.endHover(input, event);
     }
-  };
-
-  TouchScaleGesture.construct = function <G extends TouchScaleGesture<any, any, any, any>>(gesture: G | null, owner: G extends ScaleGesture<infer O, any, any, any> ? O : never): G {
-    gesture = _super.construct.call(this, gesture, owner) as G;
+  },
+},
+{
+  construct(gesture: G | null, owner: G extends Fastener<infer R, any, any> ? R : never): G {
+    gesture = super.construct(gesture, owner) as G;
     gesture.onTouchStart = gesture.onTouchStart.bind(gesture);
     gesture.onTouchMove = gesture.onTouchMove.bind(gesture);
     gesture.onTouchEnd = gesture.onTouchEnd.bind(gesture);
     gesture.onTouchCancel = gesture.onTouchCancel.bind(gesture);
     return gesture;
-  };
-
-  return TouchScaleGesture;
-})(ScaleGesture);
+  },
+}))();
 
 /** @internal */
-export interface MouseScaleGesture<O = unknown, V extends View = View, X = unknown, Y = unknown> extends ScaleGesture<O, V, X, Y> {
+export interface MouseScaleGesture<R = any, V extends View = View, X = any, Y = any> extends ScaleGesture<R, V, X, Y> {
   /** @internal @protected @override */
   attachHoverEvents(view: V): void;
 
@@ -1533,38 +1451,36 @@ export interface MouseScaleGesture<O = unknown, V extends View = View, X = unkno
 }
 
 /** @internal */
-export const MouseScaleGesture = (function (_super: typeof ScaleGesture) {
-  const MouseScaleGesture = _super.extend("MouseScaleGesture", {
-    wheel: true,
-  }) as ScaleGestureClass<MouseScaleGesture<any, any, any, any>>;
+export const MouseScaleGesture = (<R, V extends View, X, Y, G extends MouseScaleGesture<any, any, any, any>>() => ScaleGesture.extend<MouseScaleGesture<R, V, X, Y>, ScaleGestureClass<G>>("MouseScaleGesture", {
+  wheel: true,
 
-  MouseScaleGesture.prototype.attachHoverEvents = function (this: MouseScaleGesture, view: View): void {
+  attachHoverEvents(view: V): void {
     view.addEventListener("mouseenter", this.onMouseEnter as EventListener);
     view.addEventListener("mouseleave", this.onMouseLeave as EventListener);
     view.addEventListener("mousedown", this.onMouseDown as EventListener);
     view.addEventListener("wheel", this.onWheel as EventListener);
-  };
+  },
 
-  MouseScaleGesture.prototype.detachHoverEvents = function (this: MouseScaleGesture, view: View): void {
+  detachHoverEvents(view: V): void {
     view.removeEventListener("mouseenter", this.onMouseEnter as EventListener);
     view.removeEventListener("mouseleave", this.onMouseLeave as EventListener);
     view.removeEventListener("mousedown", this.onMouseDown as EventListener);
     view.removeEventListener("wheel", this.onWheel as EventListener);
-  };
+  },
 
-  MouseScaleGesture.prototype.attachPressEvents = function (this: MouseScaleGesture, view: View): void {
+  attachPressEvents(view: V): void {
     document.body.addEventListener("mousemove", this.onMouseMove);
     document.body.addEventListener("mouseup", this.onMouseUp);
     document.body.addEventListener("mouseleave", this.onMouseLeaveDocument);
-  };
+  },
 
-  MouseScaleGesture.prototype.detachPressEvents = function (this: MouseScaleGesture, view: View): void {
+  detachPressEvents(view: V): void {
     document.body.removeEventListener("mousemove", this.onMouseMove);
     document.body.removeEventListener("mouseup", this.onMouseUp);
     document.body.removeEventListener("mouseleave", this.onMouseLeaveDocument);
-  };
+  },
 
-  MouseScaleGesture.prototype.updateInput = function <X, Y>(this: MouseScaleGesture<unknown, View, X, Y>, input: ScaleGestureInput<X, Y>, event: MouseEvent): void {
+  updateInput(input: ScaleGestureInput<X, Y>, event: MouseEvent): void {
     input.target = event.target;
     input.button = event.button;
     input.buttons = event.buttons;
@@ -1579,32 +1495,33 @@ export const MouseScaleGesture = (function (_super: typeof ScaleGesture) {
     input.x = event.clientX;
     input.y = event.clientY;
     input.t = event.timeStamp;
-  };
+  },
 
-  MouseScaleGesture.prototype.onMouseEnter = function (this: MouseScaleGesture, event: MouseEvent): void {
-    if (event.buttons === 0) {
-      const input = this.getOrCreateInput("mouse", "mouse", true,
-                                          event.clientX, event.clientY, event.timeStamp);
-      if (!input.coasting) {
-        this.updateInput(input, event);
-      }
-      if (!input.hovering) {
-        this.beginHover(input, event);
-      }
+  onMouseEnter(event: MouseEvent): void {
+    if (event.buttons !== 0) {
+      return;
     }
-  };
+    const input = this.getOrCreateInput("mouse", "mouse", true,
+                                        event.clientX, event.clientY, event.timeStamp);
+    if (!input.coasting) {
+      this.updateInput(input, event);
+    }
+    if (!input.hovering) {
+      this.beginHover(input, event);
+    }
+  },
 
-  MouseScaleGesture.prototype.onMouseLeave = function (this: MouseScaleGesture, event: MouseEvent): void {
+  onMouseLeave(event: MouseEvent): void {
     const input = this.getInput("mouse");
-    if (input !== null) {
-      if (!input.coasting) {
-        this.updateInput(input, event);
-      }
-      this.endHover(input, event);
+    if (input === null) {
+      return;
+    } else if (!input.coasting) {
+      this.updateInput(input, event);
     }
-  };
+    this.endHover(input, event);
+  },
 
-  MouseScaleGesture.prototype.onMouseDown = function (this: MouseScaleGesture, event: MouseEvent): void {
+  onMouseDown(event: MouseEvent): void {
     const input = this.getOrCreateInput("mouse", "mouse", true,
                                         event.clientX, event.clientY, event.timeStamp);
     this.updateInput(input, event);
@@ -1614,45 +1531,50 @@ export const MouseScaleGesture = (function (_super: typeof ScaleGesture) {
     if (event.button !== 0) {
       this.cancelPress(input, event);
     }
-  };
+  },
 
-  MouseScaleGesture.prototype.onMouseMove = function (this: MouseScaleGesture, event: MouseEvent): void {
+  onMouseMove(event: MouseEvent): void {
     const input = this.getInput("mouse");
-    if (input !== null) {
-      this.updateInput(input, event);
-      this.movePress(input, event);
+    if (input === null) {
+      return;
     }
-  };
+    this.updateInput(input, event);
+    this.movePress(input, event);
+  },
 
-  MouseScaleGesture.prototype.onMouseUp = function (this: MouseScaleGesture, event: MouseEvent): void {
+  onMouseUp(event: MouseEvent): void {
     const input = this.getInput("mouse");
-    if (input !== null) {
-      this.updateInput(input, event);
-      this.endPress(input, event);
-      if (!input.defaultPrevented && event.button === 0) {
-        this.press(input, event);
-      }
+    if (input === null) {
+      return;
     }
-  };
+    this.updateInput(input, event);
+    this.endPress(input, event);
+    if (!input.defaultPrevented && event.button === 0) {
+      this.press(input, event);
+    }
+  },
 
-  MouseScaleGesture.prototype.onMouseLeaveDocument = function (this: MouseScaleGesture, event: MouseEvent): void {
+  onMouseLeaveDocument(event: MouseEvent): void {
     const input = this.getInput("mouse");
-    if (input !== null) {
-      this.updateInput(input, event);
-      this.cancelPress(input, event);
-      this.endHover(input, event);
+    if (input === null) {
+      return;
     }
-  };
+    this.updateInput(input, event);
+    this.cancelPress(input, event);
+    this.endHover(input, event);
+  },
 
-  MouseScaleGesture.prototype.onWheel = function (this: MouseScaleGesture, event: WheelEvent): void {
-    if (this.wheel) {
-      event.preventDefault();
-      this.zoom(event.clientX, event.clientY, event.deltaY, event);
+  onWheel(event: WheelEvent): void {
+    if (!this.wheel) {
+      return;
     }
-  };
-
-  MouseScaleGesture.construct = function <G extends MouseScaleGesture<any, any, any, any>>(gesture: G | null, owner: G extends ScaleGesture<infer O, any, any, any> ? O : never): G {
-    gesture = _super.construct.call(this, gesture, owner) as G;
+    event.preventDefault();
+    this.zoom(event.clientX, event.clientY, event.deltaY, event);
+  },
+},
+{
+  construct(gesture: G | null, owner: G extends Fastener<infer R, any, any> ? R : never): G {
+    gesture = super.construct(gesture, owner) as G;
     gesture.onMouseEnter = gesture.onMouseEnter.bind(gesture);
     gesture.onMouseLeave = gesture.onMouseLeave.bind(gesture);
     gesture.onMouseDown = gesture.onMouseDown.bind(gesture);
@@ -1661,7 +1583,5 @@ export const MouseScaleGesture = (function (_super: typeof ScaleGesture) {
     gesture.onMouseLeaveDocument = gesture.onMouseLeaveDocument.bind(gesture);
     gesture.onWheel = gesture.onWheel.bind(gesture);
     return gesture;
-  };
-
-  return MouseScaleGesture;
-})(ScaleGesture);
+  },
+}))();

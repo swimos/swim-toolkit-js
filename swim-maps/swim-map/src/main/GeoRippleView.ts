@@ -14,25 +14,23 @@
 
 import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import {Timing} from "@swim/util";
 import {Easing} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Animator} from "@swim/component";
-import type {AnyLength} from "@swim/math";
+import type {LengthLike} from "@swim/math";
 import {Length} from "@swim/math";
-import type {AnyR2Point} from "@swim/math";
 import {R2Point} from "@swim/math";
 import {R2Box} from "@swim/math";
-import type {AnyGeoPoint} from "@swim/geo";
+import type {GeoPointLike} from "@swim/geo";
 import {GeoPoint} from "@swim/geo";
 import {GeoBox} from "@swim/geo";
-import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import {Look} from "@swim/theme";
 import {Mood} from "@swim/theme";
-import type {AnyColorOrLook} from "@swim/theme";
+import type {ColorOrLookLike} from "@swim/theme";
 import {ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
 import {ViewRef} from "@swim/view";
@@ -46,12 +44,12 @@ import {GeoView} from "./GeoView";
 /** @public */
 export interface GeoRippleOptions {
   source?: GeoView | null;
-  center?: AnyGeoPoint | null;
-  width?: AnyLength | null;
-  radius?: AnyLength | null;
-  color?: AnyColorOrLook | null;
+  center?: GeoPointLike | null;
+  width?: LengthLike | null;
+  radius?: LengthLike | null;
+  color?: ColorOrLookLike | null;
   opacity?: number;
-  timing?: AnyTiming | number | boolean;
+  timing?: TimingLike | number | boolean;
 }
 
 /** @public */
@@ -88,7 +86,7 @@ export class GeoRippleView extends GeoView implements StrokeView {
       this.owner.callObservers("viewDidSetGeoCenter", geoCenter, this.owner);
     },
   })
-  readonly geoCenter!: Animator<this, GeoPoint | null, AnyGeoPoint | null>;
+  readonly geoCenter!: Animator<this, GeoPoint | null>;
 
   @Animator({
     valueType: R2Point,
@@ -98,7 +96,7 @@ export class GeoRippleView extends GeoView implements StrokeView {
       this.owner.updateViewBounds();
     },
   })
-  readonly viewCenter!: Animator<this, R2Point | null, AnyR2Point | null>;
+  readonly viewCenter!: Animator<this, R2Point | null>;
 
   @ThemeAnimator({
     valueType: Length,
@@ -109,13 +107,13 @@ export class GeoRippleView extends GeoView implements StrokeView {
       this.owner.remove();
     },
   })
-  readonly radius!: ThemeAnimator<this, Length, AnyLength>;
+  readonly radius!: ThemeAnimator<this, Length>;
 
   @ThemeAnimator({valueType: Color, value: null, look: Look.accentColor, inherits: true, updateFlags: View.NeedsRender})
-  readonly stroke!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly stroke!: ThemeAnimator<this, Color | null>;
 
   @ThemeAnimator({valueType: Length, value: Length.px(1), inherits: true, updateFlags: View.NeedsRender})
-  readonly strokeWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
+  readonly strokeWidth!: ThemeAnimator<this, Length | null>;
 
   @ViewRef({
     observes: true,
@@ -232,19 +230,19 @@ export class GeoRippleView extends GeoView implements StrokeView {
     if (options === void 0 || options.center === void 0 || options.center === null) {
       center = null;
     } else {
-      center = GeoPoint.fromAny(options.center);
+      center = GeoPoint.fromLike(options.center);
     }
     let width: Length | null;
     if (options === void 0 || options.width === void 0 || options.width === null) {
       width = null;
     } else {
-      width = Length.fromAny(options.width);
+      width = Length.fromLike(options.width);
     }
     let radius: Length;
     if (options === void 0 || options.radius === void 0 || options.radius === null) {
       radius = Length.pct(12.5);
     } else {
-      radius = Length.fromAny(options.radius);
+      radius = Length.fromLike(options.radius);
     }
     let color: Color | null;
     if (options === void 0 || options.color === void 0 || options.color === null) {
@@ -252,7 +250,7 @@ export class GeoRippleView extends GeoView implements StrokeView {
     } else if (options.color instanceof Look) {
       color = this.getLookOr(options.color, null);
     } else {
-      color = Color.fromAny(options.color);
+      color = Color.fromLike(options.color);
     }
     let timing: Timing | boolean;
     if (options === void 0 || options.timing === void 0 || options.timing === true) {
@@ -260,7 +258,7 @@ export class GeoRippleView extends GeoView implements StrokeView {
     } else if (typeof options.timing === "number") {
       timing = Easing.linear.withDuration(options.timing);
     } else {
-      timing = Timing.fromAny(options.timing);
+      timing = Timing.fromLike(options.timing);
     }
     const opacity = options !== void 0 ? options.opacity : void 0;
 

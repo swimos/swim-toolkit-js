@@ -13,17 +13,17 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import {Timing} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
-import type {AnyLength} from "@swim/math";
+import type {LengthLike} from "@swim/math";
 import type {Length} from "@swim/math";
 import type {Color} from "@swim/style";
 import {Look} from "@swim/theme";
 import {Mood} from "@swim/theme";
-import type {AnyColorOrLook} from "@swim/theme";
+import type {ColorOrLookLike} from "@swim/theme";
 import type {ColorOrLook} from "@swim/theme";
 import {ViewRef} from "@swim/view";
 import type {GraphicsView} from "@swim/graphics";
@@ -71,7 +71,7 @@ export class DataPointController<X = unknown, Y = unknown> extends Controller {
     }
   }
 
-  protected setX(x: X, timing?: AnyTiming | boolean): void {
+  protected setX(x: X, timing?: TimingLike | boolean): void {
     const dataPointView = this.dataPoint.view;
     if (dataPointView === null) {
       return;
@@ -81,12 +81,12 @@ export class DataPointController<X = unknown, Y = unknown> extends Controller {
         timing = dataPointView.getLook(Look.timing, Mood.ambient);
       }
     } else {
-      timing = Timing.fromAny(timing);
+      timing = Timing.fromLike(timing);
     }
     dataPointView.x.setState(x, timing, Affinity.Intrinsic);
   }
 
-  protected setY(y: Y, timing?: AnyTiming | boolean): void {
+  protected setY(y: Y, timing?: TimingLike | boolean): void {
     const dataPointView = this.dataPoint.view;
     if (dataPointView === null) {
       return;
@@ -96,12 +96,12 @@ export class DataPointController<X = unknown, Y = unknown> extends Controller {
         timing = dataPointView.getLook(Look.timing, Mood.ambient);
       }
     } else {
-      timing = Timing.fromAny(timing);
+      timing = Timing.fromLike(timing);
     }
     dataPointView.y.setState(y, timing, Affinity.Intrinsic);
   }
 
-  protected setY2(y2: Y | undefined, timing?: AnyTiming | boolean): void {
+  protected setY2(y2: Y | undefined, timing?: TimingLike | boolean): void {
     const dataPointView = this.dataPoint.view;
     if (dataPointView === null) {
       return;
@@ -111,12 +111,12 @@ export class DataPointController<X = unknown, Y = unknown> extends Controller {
         timing = dataPointView.getLook(Look.timing, Mood.ambient);
       }
     } else {
-      timing = Timing.fromAny(timing);
+      timing = Timing.fromLike(timing);
     }
     dataPointView.y2.setState(y2, timing, Affinity.Intrinsic);
   }
 
-  protected setRadius(radius: AnyLength | null, timing?: AnyTiming | boolean): void {
+  protected setRadius(radius: LengthLike | null, timing?: TimingLike | boolean): void {
     const dataPointView = this.dataPoint.view;
     if (dataPointView === null) {
       return;
@@ -126,12 +126,12 @@ export class DataPointController<X = unknown, Y = unknown> extends Controller {
         timing = dataPointView.getLook(Look.timing, Mood.ambient);
       }
     } else {
-      timing = Timing.fromAny(timing);
+      timing = Timing.fromLike(timing);
     }
     dataPointView.radius.setState(radius, timing, Affinity.Intrinsic);
   }
 
-  protected setColor(color: AnyColorOrLook | null, timing?: AnyTiming | boolean): void {
+  protected setColor(color: ColorOrLookLike | null, timing?: TimingLike | boolean): void {
     const dataPointView = this.dataPoint.view;
     if (dataPointView === null) {
       return;
@@ -141,7 +141,7 @@ export class DataPointController<X = unknown, Y = unknown> extends Controller {
         timing = dataPointView.getLook(Look.timing, Mood.ambient);
       }
     } else {
-      timing = Timing.fromAny(timing);
+      timing = Timing.fromLike(timing);
     }
     if (color instanceof Look) {
       dataPointView.color.setLook(color, timing, Affinity.Intrinsic);
@@ -150,7 +150,7 @@ export class DataPointController<X = unknown, Y = unknown> extends Controller {
     }
   }
 
-  protected setOpacity(opacity: number | undefined, timing?: AnyTiming | boolean): void {
+  protected setOpacity(opacity: number | undefined, timing?: TimingLike | boolean): void {
     const dataPointView = this.dataPoint.view;
     if (dataPointView === null) {
       return;
@@ -160,7 +160,7 @@ export class DataPointController<X = unknown, Y = unknown> extends Controller {
         timing = dataPointView.getLook(Look.timing, Mood.ambient);
       }
     } else {
-      timing = Timing.fromAny(timing);
+      timing = Timing.fromLike(timing);
     }
     dataPointView.opacity.setState(opacity, timing, Affinity.Intrinsic);
   }
@@ -174,7 +174,7 @@ export class DataPointController<X = unknown, Y = unknown> extends Controller {
   }
 
   @Property({valueType: Timing, inherits: true})
-  get dataPointTiming(): Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined> {
+  get dataPointTiming(): Property<this, Timing | boolean | undefined> {
     return Property.dummy();
   }
 

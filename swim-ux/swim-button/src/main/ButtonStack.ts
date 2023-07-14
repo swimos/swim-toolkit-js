@@ -14,12 +14,11 @@
 
 import {Lazy} from "@swim/util";
 import type {Class} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import {Timing} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import {EventHandler} from "@swim/component";
-import type {AnyPresence} from "@swim/style";
 import {Presence} from "@swim/style";
 import {PresenceAnimator} from "@swim/style";
 import {Look} from "@swim/theme";
@@ -169,7 +168,7 @@ export class ButtonStack extends HtmlView implements ModalView {
       this.owner.callObservers("viewDidDismiss", this.owner);
     },
   })
-  readonly presence!: PresenceAnimator<this, Presence, AnyPresence>;
+  readonly presence!: PresenceAnimator<this, Presence>;
 
   /** @override */
   @Property({
@@ -235,7 +234,7 @@ export class ButtonStack extends HtmlView implements ModalView {
   readonly gesture!: PositionGesture<this, HtmlView>;
 
   @EventHandler({
-    type: "click",
+    eventType: "click",
     handle(event: MouseEvent): void {
       if (event.target === this.owner.button.view?.node) {
         event.stopPropagation();
@@ -245,7 +244,7 @@ export class ButtonStack extends HtmlView implements ModalView {
   readonly click!: EventHandler<this>;
 
   @EventHandler({
-    type: "contextmenu",
+    eventType: "contextmenu",
     handle(event: MouseEvent): void {
       event.preventDefault();
     },
@@ -297,12 +296,12 @@ export class ButtonStack extends HtmlView implements ModalView {
     this.stackHeight.setValue(stackHeight);
   }
 
-  show(timing?: AnyTiming | boolean): void {
+  show(timing?: TimingLike | boolean): void {
     if (this.opacity.state !== 1) {
       if (timing === void 0 || timing === true) {
         timing = this.getLookOr(Look.timing, false);
       } else {
-        timing = Timing.fromAny(timing);
+        timing = Timing.fromLike(timing);
       }
       this.willShowStack();
       if (timing !== false) {
@@ -324,12 +323,12 @@ export class ButtonStack extends HtmlView implements ModalView {
     this.callObservers("buttonStackDidShow", this);
   }
 
-  hide(timing?: AnyTiming | boolean): void {
+  hide(timing?: TimingLike | boolean): void {
     if (this.opacity.state !== 0) {
       if (timing === void 0 || timing === true) {
         timing = this.getLookOr(Look.timing, false);
       } else {
-        timing = Timing.fromAny(timing);
+        timing = Timing.fromLike(timing);
       }
       this.willHideStack();
       if (timing !== false) {

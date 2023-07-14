@@ -14,7 +14,7 @@
 
 import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import {Timing} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Affinity} from "@swim/component";
@@ -638,12 +638,12 @@ export class TokenView extends HtmlView {
     }
   }
 
-  expand(timing?: AnyTiming | boolean): void {
+  expand(timing?: TimingLike | boolean): void {
     if (this.tokenState !== "expanded" || this.expandedPhase.value !== 1) {
       if (timing === void 0 || timing === true) {
         timing = this.getLookOr(Look.timing, false);
       } else {
-        timing = Timing.fromAny(timing);
+        timing = Timing.fromLike(timing);
       }
       if (this.tokenState !== "expanding") {
         this.willExpand();
@@ -681,12 +681,12 @@ export class TokenView extends HtmlView {
     this.callObservers("tokenDidExpand", this);
   }
 
-  collapse(timing?: AnyTiming | boolean): void {
+  collapse(timing?: TimingLike | boolean): void {
     if (this.tokenState !== "collapsed" || this.expandedPhase.value !== 0) {
       if (timing === void 0 || timing === true) {
         timing = this.getLookOr(Look.timing, false);
       } else {
-        timing = Timing.fromAny(timing);
+        timing = Timing.fromLike(timing);
       }
       if (this.tokenState !== "collapsing") {
         this.willCollapse();
@@ -723,7 +723,7 @@ export class TokenView extends HtmlView {
     this.callObservers("tokenDidCollapse", this);
   }
 
-  toggle(timing?: AnyTiming | boolean): void {
+  toggle(timing?: TimingLike | boolean): void {
     const tokenState = this.tokenState;
     if (tokenState === "collapsed" || tokenState === "collapsing") {
       this.expand(timing);

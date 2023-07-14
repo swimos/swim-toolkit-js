@@ -12,23 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {FastenerClass} from "@swim/component";
 import type {Animator} from "@swim/component";
-import type {AnyColor} from "@swim/style";
 import type {Color} from "@swim/style";
+import type {ThemeAnimatorClass} from "@swim/theme";
 import {ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
 import {Graphics} from "./Graphics";
-import type {AnyIconLayout} from "./IconLayout";
 import type {IconLayout} from "./IconLayout";
 import {Icon} from "./Icon";
 import {FilledIcon} from "./FilledIcon";
 
 /** @public */
 export interface IconView extends View {
-  readonly iconLayout: Animator<this, IconLayout | null, AnyIconLayout | null>;
+  readonly iconLayout: Animator<this, IconLayout | null>;
 
-  readonly iconColor: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly iconColor: ThemeAnimator<this, Color | null>;
 
   readonly graphics: ThemeAnimator<this, Graphics | null>;
 }
@@ -44,27 +42,36 @@ export const IconView = {
 };
 
 /** @internal */
-export const IconGraphicsAnimator = (function (_super: typeof ThemeAnimator) {
-  const IconGraphicsAnimator = _super.extend("IconGraphicsAnimator", {
-    valueType: Graphics,
-  }) as FastenerClass<ThemeAnimator<any, any, any>>;
+export const IconGraphicsAnimator = (<R, A extends ThemeAnimator<any, any, any>>() => ThemeAnimator.extend<ThemeAnimator<R, Graphics | null>, ThemeAnimatorClass<A>>("IconGraphicsAnimator", {
+  valueType: Graphics,
 
-  IconGraphicsAnimator.prototype.transformState = function (this: ThemeAnimator<unknown, Graphics | null>, icon: Graphics | null): Graphics | null {
+  deriveValue(graphics: Graphics | null): Graphics | null {
     const iconView = this.owner;
-    if (IconView[Symbol.hasInstance](iconView) && icon instanceof Icon) {
-      const iconColor = iconView.iconColor.state;
-      if (iconColor !== null && icon instanceof FilledIcon) {
-        icon = icon.withFillColor(iconColor);
-      } else {
-        const theme = iconView.theme.value;
-        const mood = iconView.mood.value;
-        if (theme !== null && mood !== null) {
-          icon = icon.withTheme(theme, mood);
-        }
+    if (!IconView[Symbol.hasInstance](iconView) || !(graphics instanceof Icon)) {
+      return graphics;
+    }
+    const iconColor = iconView.iconColor.state;
+    if (iconColor !== null && graphics instanceof FilledIcon && graphics.fillLook !== iconView.iconColor.look) {
+      graphics = graphics.withFillColor(iconColor);
+    }
+    return graphics;
+  },
+
+  transformState(graphics: Graphics | null): Graphics | null {
+    const iconView = this.owner;
+    if (!IconView[Symbol.hasInstance](iconView) || !(graphics instanceof Icon)) {
+      return graphics;
+    }
+    const iconColor = iconView.iconColor.state;
+    if (iconColor !== null && graphics instanceof FilledIcon) {
+      graphics = graphics.withFillColor(iconColor);
+    } else {
+      const theme = iconView.theme.value;
+      const mood = iconView.mood.value;
+      if (theme !== null && mood !== null) {
+        graphics = graphics.withTheme(theme, mood);
       }
     }
-    return icon;
-  };
-
-  return IconGraphicsAnimator;
-})(ThemeAnimator);
+    return graphics;
+  },
+}))();

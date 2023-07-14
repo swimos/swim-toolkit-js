@@ -28,7 +28,7 @@ import {StyleValue} from "@swim/style";
 export class StyleValueSpec extends Suite {
   @Test
   parseDates(exam: Exam): void {
-    exam.equal(StyleValue.parse("2020-01-01T00:00:00.000Z"), DateTime.fromAny({year: 2020}));
+    exam.equal(StyleValue.parse("2020-01-01T00:00:00.000Z"), DateTime.fromLike({year: 2020}));
   }
 
   @Test

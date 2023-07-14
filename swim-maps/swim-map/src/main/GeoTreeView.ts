@@ -16,7 +16,6 @@ import type {Mutable} from "@swim/util";
 import type {GeoPoint} from "@swim/geo";
 import type {GeoBox} from "@swim/geo";
 import type {GeoProjection} from "@swim/geo";
-import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
 import type {ViewFlags} from "@swim/view";
@@ -113,7 +112,7 @@ export class GeoTreeView extends GeoView {
   }
 
   @ThemeAnimator({valueType: Color, value: null})
-  get geoTreeColor(): ThemeAnimator<this, Color | null, AnyColor | null> {
+  get geoTreeColor(): ThemeAnimator<this, Color | null> {
     return ThemeAnimator.dummy();
   }
 

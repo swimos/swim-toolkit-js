@@ -14,6 +14,7 @@
 
 import type {Uninitable} from "@swim/util";
 import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
 import {Lazy} from "@swim/util";
 import {Murmur3} from "@swim/util";
 import type {Equivalent} from "@swim/util";
@@ -21,7 +22,8 @@ import type {HashCode} from "@swim/util";
 import {Numbers} from "@swim/util";
 import {Constructors} from "@swim/util";
 import {Objects} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import type {LikeType} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import type {Interpolate} from "@swim/util";
 import {Interpolator} from "@swim/util";
 import type {Output} from "@swim/codec";
@@ -32,11 +34,11 @@ import type {AnimatorClass} from "@swim/component";
 import {Animator} from "@swim/component";
 
 /** @public */
-export type AnyExpansion = Expansion | ExpansionInit | boolean;
+export type ExpansionLike = Expansion | ExpansionInit | boolean;
 
 /** @public */
-export const AnyExpansion = {
-  [Symbol.hasInstance](instance: unknown): instance is AnyExpansion {
+export const ExpansionLike = {
+  [Symbol.hasInstance](instance: unknown): instance is ExpansionLike {
     return instance instanceof Expansion
         || ExpansionInit[Symbol.hasInstance](instance)
         || typeof instance === "boolean";
@@ -46,7 +48,7 @@ export const AnyExpansion = {
 /** @public */
 export interface ExpansionInit {
   /** @internal */
-  typeid?: "ExpansionInit";
+  readonly typeid?: "ExpansionInit";
   readonly phase: number;
   readonly direction: number;
 }
@@ -66,7 +68,9 @@ export class Expansion implements Interpolate<Expansion>, HashCode, Equivalent, 
   }
 
   /** @internal */
-  declare typeid?: "Expansion";
+  declare readonly typeid?: "Expansion";
+
+  declare likeType?: Proto<ExpansionInit | boolean>;
 
   readonly phase: number;
 
@@ -239,7 +243,7 @@ export class Expansion implements Interpolate<Expansion>, HashCode, Equivalent, 
     return new Expansion(phase, direction);
   }
 
-  static fromAny<T extends AnyExpansion | null | undefined>(value: T): Expansion | Uninitable<T> {
+  static fromLike<T extends ExpansionLike | null | undefined>(value: T): Expansion | Uninitable<T> {
     if (value === void 0 || value === null || value instanceof Expansion) {
       return value as Expansion | Uninitable<T>;
     } else if (ExpansionInit[Symbol.hasInstance](value)) {
@@ -285,20 +289,20 @@ export const ExpansionInterpolator = (function (_super: typeof Interpolator) {
 })(Interpolator);
 
 /** @public */
-export interface ExpansionAnimator<O = unknown, T extends Expansion | null | undefined = Expansion | null | undefined, U extends AnyExpansion | null | undefined = AnyExpansion | T, I = T> extends Animator<O, T, U, I> {
+export interface ExpansionAnimator<R = any, T extends Expansion | null | undefined = Expansion | null | undefined, I extends any[] = [T]> extends Animator<R, T, I> {
   get phase(): number | undefined;
 
   getPhase(): number;
 
   getPhaseOr<E>(elsePhase: E): number | E;
 
-  setPhase(newPhase: number, timingOrAffinity: Affinity | AnyTiming | boolean | null | undefined): void;
-  setPhase(newPhase: number, timing?: AnyTiming | boolean | null, affinity?: Affinity): void;
+  setPhase(newPhase: number, timingOrAffinity: Affinity | TimingLike | boolean | null | undefined): void;
+  setPhase(newPhase: number, timing?: TimingLike | boolean | null, affinity?: Affinity): void;
 
   get direction(): number;
 
-  setDirection(newDirection: number, timingOrAffinity: Affinity | AnyTiming | boolean | null | undefined): void;
-  setDirection(newDirection: number, timing?: AnyTiming | boolean | null, affinity?: Affinity): void;
+  setDirection(newDirection: number, timingOrAffinity: Affinity | TimingLike | boolean | null | undefined): void;
+  setDirection(newDirection: number, timing?: TimingLike | boolean | null, affinity?: Affinity): void;
 
   get collapsed(): boolean;
 
@@ -308,19 +312,19 @@ export interface ExpansionAnimator<O = unknown, T extends Expansion | null | und
 
   get collapsing(): boolean;
 
-  expand(timingOrAffinity: Affinity | AnyTiming | boolean | null | undefined): void;
-  expand(timing?: AnyTiming | boolean | null, affinity?: Affinity): void;
+  expand(timingOrAffinity: Affinity | TimingLike | boolean | null | undefined): void;
+  expand(timing?: TimingLike | boolean | null, affinity?: Affinity): void;
 
-  collapse(timingOrAffinity: Affinity | AnyTiming | boolean | null | undefined): void;
-  collapse(timing?: AnyTiming | boolean | null, affinity?: Affinity): void;
+  collapse(timingOrAffinity: Affinity | TimingLike | boolean | null | undefined): void;
+  collapse(timing?: TimingLike | boolean | null, affinity?: Affinity): void;
 
-  toggle(timingOrAffinity: Affinity | AnyTiming | boolean | null | undefined): void;
-  toggle(timing?: AnyTiming | boolean | null, affinity?: Affinity): void;
+  toggle(timingOrAffinity: Affinity | TimingLike | boolean | null | undefined): void;
+  toggle(timing?: TimingLike | boolean | null, affinity?: Affinity): void;
 
   /** @override */
-  setState(newState: T | U, timingOrAffinity: Affinity | AnyTiming | boolean | null | undefined): void;
+  setState(newState: T | LikeType<T>, timingOrAffinity: Affinity | TimingLike | boolean | null | undefined): void;
   /** @override */
-  setState(newState: T | U, timing?: AnyTiming | boolean | null, affinity?: Affinity): void;
+  setState(newState: T | LikeType<T>, timing?: TimingLike | boolean | null, affinity?: Affinity): void;
 
   /** @override @protected */
   onSetValue(newValue: T, oldValue: T): void;
@@ -339,134 +343,108 @@ export interface ExpansionAnimator<O = unknown, T extends Expansion | null | und
 
   /** @override */
   equalValues(newValue: T, oldValue: T | undefined): boolean;
-
-  /** @override */
-  fromAny(value: T | U): T;
 }
 
 /** @public */
-export const ExpansionAnimator = (function (_super: typeof Animator) {
-  const ExpansionAnimator = _super.extend("ExpansionAnimator", {
-    valueType: Expansion,
-  }) as AnimatorClass<ExpansionAnimator<any, any, any>>;
+export const ExpansionAnimator = (<R, T extends Expansion | null | undefined, I extends any[], A extends ExpansionAnimator<any, any, any>>() => Animator.extend<ExpansionAnimator<R, T, I>, AnimatorClass<A>>("ExpansionAnimator", {
+  valueType: Expansion,
 
-  Object.defineProperty(ExpansionAnimator.prototype, "phase", {
-    get(this: ExpansionAnimator): number | undefined {
-      const value = this.value;
-      return value !== void 0 && value !== null ? value.phase : void 0;
-    },
-    configurable: true,
-  });
-
-  ExpansionAnimator.prototype.getPhase = function (this: ExpansionAnimator): number {
-    return this.getValue().phase;
-  };
-
-  ExpansionAnimator.prototype.getPhaseOr = function <E>(this: ExpansionAnimator, elsePhase: E): number | E {
+  get phase(): number | undefined {
     const value = this.value;
-    if (value !== void 0 && value !== null) {
-      return value.phase;
-    } else {
+    return value !== void 0 && value !== null ? value.phase : void 0;
+  },
+
+  getPhase(): number {
+    return this.getValue().phase;
+  },
+
+  getPhaseOr<E>(elsePhase: E): number | E {
+    const value = this.value;
+    if (value === void 0 || value === null) {
       return elsePhase;
     }
-  };
+    return value.phase;
+  },
 
-  ExpansionAnimator.prototype.setPhase = function (this: ExpansionAnimator, newPhase: number, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
+  setPhase(newPhase: number, timing?: Affinity | TimingLike | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue === void 0 || oldValue === null) {
       return;
-    }
-    if (typeof timing === "number") {
+    } else if (typeof timing === "number") {
       affinity = timing;
       timing = void 0;
     }
-    this.setState(oldValue.withPhase(newPhase), timing, affinity);
-  };
+    this.setState(oldValue.withPhase(newPhase) as T, timing, affinity);
+  },
 
-  Object.defineProperty(ExpansionAnimator.prototype, "direction", {
-    get(this: ExpansionAnimator): number {
-      const value = this.value;
-      return value !== void 0 && value !== null ? value.direction : 0;
-    },
-    configurable: true,
-  });
+  get direction(): number {
+    const value = this.value;
+    return value !== void 0 && value !== null ? value.direction : 0;
+  },
 
-  ExpansionAnimator.prototype.setDirection = function (this: ExpansionAnimator, newDirection: number, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
+  setDirection(newDirection: number, timing?: Affinity | TimingLike | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue === void 0 || oldValue === null) {
       return;
-    }
-    if (typeof timing === "number") {
+    } else if (typeof timing === "number") {
       affinity = timing;
       timing = void 0;
     }
-    this.setState(oldValue.withDirection(newDirection), timing, affinity);
-  };
+    this.setState(oldValue.withDirection(newDirection) as T, timing, affinity);
+  },
 
-  Object.defineProperty(ExpansionAnimator.prototype, "collapsed", {
-    get(this: ExpansionAnimator): boolean {
-      const value = this.value;
-      return value !== void 0 && value !== null && value.collapsed;
-    },
-    configurable: true,
-  });
+  get collapsed(): boolean {
+    const value = this.value;
+    return value !== void 0 && value !== null && value.collapsed;
+  },
 
-  Object.defineProperty(ExpansionAnimator.prototype, "expanded", {
-    get(this: ExpansionAnimator): boolean {
-      const value = this.value;
-      return value !== void 0 && value !== null && value.expanded;
-    },
-    configurable: true,
-  });
+  get expanded(): boolean {
+    const value = this.value;
+    return value !== void 0 && value !== null && value.expanded;
+  },
 
-  Object.defineProperty(ExpansionAnimator.prototype, "expanding", {
-    get(this: ExpansionAnimator): boolean {
-      const value = this.value;
-      return value !== void 0 && value !== null && value.expanding;
-    },
-    configurable: true,
-  });
+  get expanding(): boolean {
+    const value = this.value;
+    return value !== void 0 && value !== null && value.expanding;
+  },
 
-  Object.defineProperty(ExpansionAnimator.prototype, "collapsing", {
-    get(this: ExpansionAnimator): boolean {
-      const value = this.value;
-      return value !== void 0 && value !== null && value.collapsing;
-    },
-    configurable: true,
-  });
+  get collapsing(): boolean {
+    const value = this.value;
+    return value !== void 0 && value !== null && value.collapsing;
+  },
 
-  ExpansionAnimator.prototype.expand = function (this: ExpansionAnimator, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
+  expand(timing?: Affinity | TimingLike | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue !== void 0 && oldValue !== null) {
       if (oldValue.expanded) {
         return;
       }
-      this.setValue(oldValue.asExpanding(), Affinity.Reflexive);
+      this.setValue(oldValue.asExpanding() as T, Affinity.Reflexive);
     }
-    this.setState(Expansion.expanded(), timing as any, affinity);
-  };
+    this.setState(Expansion.expanded() as T, timing as any, affinity);
+  },
 
-  ExpansionAnimator.prototype.collapse = function (this: ExpansionAnimator, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
+  collapse(timing?: Affinity | TimingLike | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue !== void 0 && oldValue !== null) {
       if (oldValue.collapsed) {
         return;
       }
-      this.setValue(oldValue.asCollapsing(), Affinity.Reflexive);
+      this.setValue(oldValue.asCollapsing() as T, Affinity.Reflexive);
     }
-    this.setState(Expansion.collapsed(), timing as any, affinity);
-  };
+    this.setState(Expansion.collapsed() as T, timing as any, affinity);
+  },
 
-  ExpansionAnimator.prototype.toggle = function (this: ExpansionAnimator, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
+  toggle(timing?: Affinity | TimingLike | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
     if (oldValue === void 0 || oldValue === null) {
       return;
     }
-    this.setValue(oldValue.asToggling(), Affinity.Reflexive);
-    this.setState(oldValue.asToggled(), timing as any, affinity);
-  };
+    this.setValue(oldValue.asToggling() as T, Affinity.Reflexive);
+    this.setState(oldValue.asToggled() as T, timing as any, affinity);
+  },
 
-  ExpansionAnimator.prototype.setState = function (this: ExpansionAnimator, newState: AnyExpansion | null | undefined, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
+  setState(newState: ExpansionLike | null | undefined, timing?: Affinity | TimingLike | boolean | null, affinity?: Affinity): void {
     if (typeof timing === "number") {
       affinity = timing;
       timing = void 0;
@@ -478,15 +456,15 @@ export const ExpansionAnimator = (function (_super: typeof Animator) {
       const oldValue = this.value;
       const newValue = newState ? Expansion.expanded() : Expansion.collapsed();
       if (oldValue !== void 0 && oldValue !== null && !oldValue.equals(newValue)) {
-        this.setValue(newState ? oldValue.asExpanding() : oldValue.asCollapsing(), Affinity.Reflexive);
+        this.setValue(newState ? oldValue.asExpanding() as T : oldValue.asCollapsing() as T, Affinity.Reflexive);
       }
       newState = newValue;
     }
-    _super.prototype.setState.call(this, newState, timing, affinity);
-  };
+    super.setState(newState, timing, affinity);
+  },
 
-  ExpansionAnimator.prototype.onSetValue = function (this: ExpansionAnimator, newValue: Expansion | null | undefined, oldValue: Expansion | null | undefined): void {
-    _super.prototype.onSetValue.call(this, newValue, oldValue);
+  onSetValue(newValue: Expansion | null | undefined, oldValue: Expansion | null | undefined): void {
+    super.onSetValue(newValue, oldValue);
     if (newValue === void 0 || newValue === null || oldValue === void 0 || oldValue === null) {
       return;
     } else if (newValue.expanding && !oldValue.expanding) {
@@ -498,35 +476,28 @@ export const ExpansionAnimator = (function (_super: typeof Animator) {
     } else if (newValue.collapsed && !oldValue.collapsed) {
       this.didCollapse();
     }
-  };
+  },
 
-  ExpansionAnimator.prototype.willExpand = function (this: ExpansionAnimator): void {
+  willExpand(): void {
     // hook
-  };
+  },
 
-  ExpansionAnimator.prototype.didExpand = function (this: ExpansionAnimator): void {
+  didExpand(): void {
     // hook
-  };
+  },
 
-  ExpansionAnimator.prototype.willCollapse = function (this: ExpansionAnimator): void {
+  willCollapse(): void {
     // hook
-  };
+  },
 
-  ExpansionAnimator.prototype.didCollapse = function (this: ExpansionAnimator): void {
+  didCollapse(): void {
     // hook
-  };
+  },
 
-  ExpansionAnimator.prototype.fromAny = function (this: ExpansionAnimator, value: AnyExpansion | null | undefined): Expansion | null | undefined {
-    return value !== void 0 && value !== null ? Expansion.fromAny(value) : null;
-  };
-
-  ExpansionAnimator.prototype.equalValues = function (this: ExpansionAnimator, newValue: Expansion | null | undefined, oldValue: Expansion | null | undefined): boolean {
+  equalValues(newValue: Expansion | null | undefined, oldValue: Expansion | null | undefined): boolean {
     if (newValue !== void 0 && newValue !== null) {
       return newValue.equals(oldValue);
-    } else {
-      return newValue === oldValue;
     }
-  };
-
-  return ExpansionAnimator;
-})(Animator);
+    return newValue === oldValue;
+  },
+}))();

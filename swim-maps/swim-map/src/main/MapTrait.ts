@@ -19,7 +19,6 @@ import type {TraitObserver} from "@swim/model";
 import {Trait} from "@swim/model";
 import {TraitSet} from "@swim/model";
 import {GeoTrait} from "./GeoTrait";
-import type {AnyGeoPerspective} from "./GeoPerspective";
 import {GeoPerspective} from "./GeoPerspective";
 
 /** @public */
@@ -42,7 +41,7 @@ export class MapTrait extends Trait {
       this.owner.callObservers("traitDidSetGeoPerspective", geoPerspective, this.owner);
     },
   })
-  readonly geoPerspective!: Property<this, GeoPerspective | null, AnyGeoPerspective | null>;
+  readonly geoPerspective!: Property<this, GeoPerspective | null>;
 
   @TraitSet({
     traitType: GeoTrait,

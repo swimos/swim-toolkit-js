@@ -17,12 +17,12 @@ import {Equals} from "@swim/util";
 import type {Output} from "@swim/codec";
 import type {Debug} from "@swim/codec";
 import {Format} from "@swim/codec";
-import type {AnyR2Point} from "@swim/math";
+import type {R2PointLike} from "@swim/math";
 import {R2Point} from "@swim/math";
 import type {R2Box} from "@swim/math";
-import type {AnyFont} from "@swim/style";
+import type {FontLike} from "@swim/style";
 import {Font} from "@swim/style";
-import type {AnyColor} from "@swim/style";
+import type {ColorLike} from "@swim/style";
 import {Color} from "@swim/style";
 import type {GraphicsRenderer} from "./GraphicsRenderer";
 import type {Graphics} from "./Graphics";
@@ -30,16 +30,16 @@ import type {CanvasContext} from "./CanvasContext";
 import {CanvasRenderer} from "./CanvasRenderer";
 
 /** @public */
-export type AnyTextRun = TextRun | TextRunInit | string;
+export type TextRunLike = TextRun | TextRunInit | string;
 
 /** @public */
 export interface TextRunInit {
   text: string;
-  font?: AnyFont;
+  font?: FontLike;
   textAlign?: CanvasTextAlign;
   textBaseline?: CanvasTextBaseline;
-  textOrigin?: AnyR2Point;
-  textColor?: AnyColor;
+  textOrigin?: R2PointLike;
+  textColor?: ColorLike;
 }
 
 /** @public */
@@ -67,8 +67,8 @@ export class TextRun implements Graphics, Equals, Debug {
 
   readonly font: Font | null;
 
-  withFont(font: AnyFont | null): TextRun {
-    font = Font.fromAny(font);
+  withFont(font: FontLike | null): TextRun {
+    font = Font.fromLike(font);
     if (this.font === font) {
       return this;
     }
@@ -98,8 +98,8 @@ export class TextRun implements Graphics, Equals, Debug {
 
   readonly textOrigin: R2Point | null;
 
-  withTextOrigin(textOrigin: AnyR2Point | null): TextRun | null {
-    textOrigin = R2Point.fromAny(textOrigin);
+  withTextOrigin(textOrigin: R2PointLike | null): TextRun | null {
+    textOrigin = R2Point.fromLike(textOrigin);
     if (Equals(this.textOrigin, textOrigin)) {
       return this;
     }
@@ -109,8 +109,8 @@ export class TextRun implements Graphics, Equals, Debug {
 
   readonly textColor: Color | null;
 
-  withTextColor(textColor: AnyColor | null): TextRun {
-    textColor = Color.fromAny(textColor);
+  withTextColor(textColor: ColorLike | null): TextRun {
+    textColor = Color.fromLike(textColor);
     if (Equals(this.textColor, textColor)) {
       return this;
     }
@@ -166,7 +166,7 @@ export class TextRun implements Graphics, Equals, Debug {
     return new TextRun(text, font, textAlign, textBaseline, textOrigin, textColor);
   }
 
-  toAny(): TextRunInit {
+  toLike(): TextRunInit {
     const init: TextRunInit = {text: this.text};
     init.text = this.text;
     if (this.font !== null) {
@@ -230,18 +230,18 @@ export class TextRun implements Graphics, Equals, Debug {
   }
 
   static create(text: string,
-                font: AnyFont | null = null,
+                font: FontLike | null = null,
                 textAlign: CanvasTextAlign | null = null,
                 textBaseline: CanvasTextBaseline | null = null,
-                textOrigin: AnyR2Point | null = null,
-                textColor: AnyColor | null = null): TextRun {
-    font = Font.fromAny(font);
-    textOrigin = R2Point.fromAny(textOrigin);
-    textColor = Color.fromAny(textColor);
+                textOrigin: R2PointLike | null = null,
+                textColor: ColorLike | null = null): TextRun {
+    font = Font.fromLike(font);
+    textOrigin = R2Point.fromLike(textOrigin);
+    textColor = Color.fromLike(textColor);
     return new TextRun(text, font, textAlign, textBaseline, textOrigin, textColor);
   }
 
-  static fromAny<T extends AnyTextRun | null | undefined>(value: T): TextRun | Uninitable<T> {
+  static fromLike<T extends TextRunLike | null | undefined>(value: T): TextRun | Uninitable<T> {
     if (value === void 0 || value === null || value instanceof TextRun) {
       return value as TextRun | Uninitable<T>;
     } else if (typeof value === "string") {

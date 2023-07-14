@@ -14,9 +14,7 @@
 
 import type {Class} from "@swim/util";
 import {Property} from "@swim/component";
-import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
-import type {AnyColorOrLook} from "@swim/theme";
 import type {ColorOrLook} from "@swim/theme";
 import {ColorLook} from "@swim/theme";
 import type {ScatterPlotTraitObserver} from "./ScatterPlotTrait";
@@ -42,7 +40,7 @@ export class BubblePlotTrait<X = unknown, Y = unknown> extends ScatterPlotTrait<
       this.owner.callObservers("traitDidSetRadius", radius, this.owner);
     },
   })
-  readonly radius!: Property<this, Length | null, AnyLength | null>;
+  readonly radius!: Property<this, Length | null>;
 
   @Property({
     valueType: ColorLook,
@@ -51,7 +49,7 @@ export class BubblePlotTrait<X = unknown, Y = unknown> extends ScatterPlotTrait<
       this.owner.callObservers("traitDidSetFill", fill, this.owner);
     },
   })
-  readonly fill!: Property<this, ColorOrLook | null, AnyColorOrLook | null>;
+  readonly fill!: Property<this, ColorOrLook | null>;
 
   override createPlotController(): ScatterPlotController<X, Y> {
     return new BubblePlotController<X, Y>();

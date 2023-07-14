@@ -25,8 +25,8 @@ const canvasView = swim.CanvasView.create()
     .touchEventsEnabled(true)
     .touchAction("manipulation");
 
-const pieView = canvasView.appendChild(swim.PieView)
-    .font("14px sans-serif");
+const pieView = canvasView.appendChild(swim.PieView);
+pieView.font.setState("14px sans-serif");
 
 const slice0View = pieView.appendChild(swim.SliceView, "slice0")
 slice0View.value(1);
@@ -54,10 +54,10 @@ slice1View.label.view.textColor.setLook(swim.Look.backgroundColor);
 
 setInterval(function () {
   const timing = swim.Easing.linear.withDuration(1000);
-  slice0View.value(Math.random(), timing)
-            .outerRadius(swim.Length.pct(20 + 10 * Math.random()), timing);
-  slice1View.value(Math.random(), timing)
-            .outerRadius(swim.Length.pct(20 + 10 * Math.random()), timing);
+  slice0View.value.setState(Math.random(), timing);
+  slice0View.outerRadius.setState(swim.Length.pct(20 + 10 * Math.random()), timing);
+  slice1View.value.setState(Math.random(), timing);
+  slice1View.outerRadius.setState(swim.Length.pct(20 + 10 * Math.random()), timing);
 }, 1000);
 
 containerView.appendChild(canvasView);

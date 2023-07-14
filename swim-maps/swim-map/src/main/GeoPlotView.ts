@@ -16,17 +16,12 @@ import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
-import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
-import type {AnyR2Point} from "@swim/math";
 import {R2Point} from "@swim/math";
 import {R2Box} from "@swim/math";
-import type {AnyGeoPoint} from "@swim/geo";
 import {GeoPoint} from "@swim/geo";
 import {GeoBox} from "@swim/geo";
-import type {AnyFont} from "@swim/style";
 import {Font} from "@swim/style";
-import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
@@ -84,22 +79,22 @@ export class GeoPlotView extends GeoView implements StrokeView {
   }
 
   @Property({valueType: GeoPoint, value: GeoPoint.origin()})
-  readonly geoCentroid!: Property<this, GeoPoint, AnyGeoPoint>;
+  readonly geoCentroid!: Property<this, GeoPoint>;
 
   @Property({valueType: R2Point, value: R2Point.origin()})
-  readonly viewCentroid!: Property<this, R2Point, AnyR2Point>;
+  readonly viewCentroid!: Property<this, R2Point>;
 
   @ThemeAnimator({valueType: Color, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly stroke!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly stroke!: ThemeAnimator<this, Color | null>;
 
   @ThemeAnimator({valueType: Length, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly strokeWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
+  readonly strokeWidth!: ThemeAnimator<this, Length | null>;
 
   @ThemeAnimator({valueType: Font, value: null, inherits: true})
-  readonly font!: ThemeAnimator<this, Font | null, AnyFont | null>;
+  readonly font!: ThemeAnimator<this, Font | null>;
 
   @ThemeAnimator({valueType: Color, value: null, inherits: true})
-  readonly textColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly textColor!: ThemeAnimator<this, Color | null>;
 
   @Property({valueType: Number})
   readonly hitWidth!: Property<this, number | undefined>;

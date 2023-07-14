@@ -14,19 +14,21 @@
 
 import type {Uninitable} from "@swim/util";
 import {Numbers} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import type {Like} from "@swim/util";
+import type {LikeType} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import {Timing} from "@swim/util";
 import {Interpolator} from "@swim/util";
 import {NumberInterpolator} from "@swim/util";
-import type {AnyLength} from "@swim/math";
+import type {LengthLike} from "@swim/math";
 import {Length} from "@swim/math";
 import {LengthInterpolator} from "@swim/math";
-import type {AnyFont} from "@swim/style";
+import type {FontLike} from "@swim/style";
 import {Font} from "@swim/style";
 import {FontInterpolator} from "@swim/style";
-import type {AnyColor} from "@swim/style";
+import type {ColorLike} from "@swim/style";
 import {Color} from "@swim/style";
-import type {AnyBoxShadow} from "@swim/style";
+import type {BoxShadowLike} from "@swim/style";
 import {BoxShadow} from "@swim/style";
 import {BoxShadowInterpolator} from "@swim/style";
 import {LookVector} from "./LookVector";
@@ -35,7 +37,7 @@ import type {Feel} from "./Feel";
 import type {Mood} from "./Mood";
 
 /** @public */
-export abstract class Look<T, U = T> implements Mood {
+export abstract class Look<T> implements Mood {
   constructor(name: string) {
     this.name = name;
   }
@@ -142,13 +144,13 @@ export abstract class Look<T, U = T> implements Mood {
 
   abstract between(a: T, b: T): Interpolator<T>;
 
-  abstract coerce(value: T | U): T;
+  abstract coerce(value: T | LikeType<T>): T;
 
   empty(): LookVector<T> {
     return LookVector.empty();
   }
 
-  of(...feels: [Feel, T | U][]): LookVector<T> {
+  of(...feels: [Feel, T | LikeType<T>][]): LookVector<T> {
     const n = feels.length;
     const array = new Array<[Feel, T]>(n);
     const index: {[name: string]: number | undefined} = {};
@@ -160,7 +162,7 @@ export abstract class Look<T, U = T> implements Mood {
     return this.fromArray(array, index);
   }
 
-  fromArray(array: ReadonlyArray<[Feel, T]>,
+  fromArray(array: readonly [Feel, T][],
             index?: {readonly [name: string]: number | undefined}): LookVector<T> {
     return LookVector.fromArray(array, index);
   }
@@ -169,41 +171,41 @@ export abstract class Look<T, U = T> implements Mood {
     return "Look" + "." + this.name;
   }
 
-  static font: Look<Font, AnyFont>; // defined by looks
-  static smallFont: Look<Font, AnyFont>; // defined by looks
-  static largeFont: Look<Font, AnyFont>; // defined by looks
+  static font: Look<Font>; // defined by looks
+  static smallFont: Look<Font>; // defined by looks
+  static largeFont: Look<Font>; // defined by looks
 
-  static textColor: Look<Color, AnyColor>; // defined by looks
-  static iconColor: Look<Color, AnyColor>; // defined by looks
-  static labelColor: Look<Color, AnyColor>; // defined by looks
-  static legendColor: Look<Color, AnyColor>; // defined by looks
-  static placeholderColor: Look<Color, AnyColor>; // defined by looks
-  static highlightColor: Look<Color, AnyColor>; // defined by looks
+  static textColor: Look<Color>; // defined by looks
+  static iconColor: Look<Color>; // defined by looks
+  static labelColor: Look<Color>; // defined by looks
+  static legendColor: Look<Color>; // defined by looks
+  static placeholderColor: Look<Color>; // defined by looks
+  static highlightColor: Look<Color>; // defined by looks
 
-  static statusColor: Look<Color, AnyColor>; // defined by looks
-  static accentColor: Look<Color, AnyColor>; // defined by looks
+  static statusColor: Look<Color>; // defined by looks
+  static accentColor: Look<Color>; // defined by looks
 
-  static backgroundColor: Look<Color, AnyColor>; // defined by looks
-  static selectionColor: Look<Color, AnyColor>; // defined by looks
-  static borderColor: Look<Color, AnyColor>; // defined by looks
-  static focusColor: Look<Color, AnyColor>; // defined by looks
+  static backgroundColor: Look<Color>; // defined by looks
+  static selectionColor: Look<Color>; // defined by looks
+  static borderColor: Look<Color>; // defined by looks
+  static focusColor: Look<Color>; // defined by looks
 
-  static etchColor: Look<Color, AnyColor>; // defined by looks
-  static maskColor: Look<Color, AnyColor>; // defined by looks
-  static tickColor: Look<Color, AnyColor>; // defined by looks
-  static gridColor: Look<Color, AnyColor>; // defined by looks
+  static etchColor: Look<Color>; // defined by looks
+  static maskColor: Look<Color>; // defined by looks
+  static tickColor: Look<Color>; // defined by looks
+  static gridColor: Look<Color>; // defined by looks
 
   static opacity: Look<number>; // defined by looks
-  static shadow: Look<BoxShadow, AnyBoxShadow>; // defined by looks
-  static spacing: Look<Length, AnyLength>; // defined by looks
-  static timing: Look<Timing, AnyTiming>; // defined by looks
+  static shadow: Look<BoxShadow>; // defined by looks
+  static spacing: Look<Length>; // defined by looks
+  static timing: Look<Timing>; // defined by looks
 }
 
 /** @public */
-export type AnyNumberOrLook = Look<number, any> | number | string | boolean;
+export type NumberOrLookLike = Look<number> | number | string | boolean;
 
 /** @public */
-export type NumberOrLook = Look<number, any> | number;
+export type NumberOrLook = Like<Look<number> | number, string | boolean>;
 
 /** @public */
 export class NumberLook extends Look<number> {
@@ -230,22 +232,22 @@ export class NumberLook extends Look<number> {
     return value;
   }
 
-  static fromAny<T extends Look<number> | number | string | boolean | null | undefined>(value: T): Look<number> | number | Uninitable<T> {
+  static fromLike<T extends Look<number> | number | string | boolean | null | undefined>(value: T): Look<number> | number | Uninitable<T> {
     if (value === void 0 || value === null || value instanceof Look) {
       return value as Look<number> | Uninitable<T>;
     }
-    return Numbers.fromAny<number | string | boolean>(value);
+    return Numbers.fromLike<number | string | boolean>(value);
   }
 }
 
 /** @public */
-export type AnyLengthOrLook = Look<Length, any> | AnyLength;
+export type LengthOrLookLike = Look<Length> | LengthLike;
 
 /** @public */
-export type LengthOrLook = Look<Length, any> | Length;
+export type LengthOrLook = Look<Length> | Length;
 
 /** @public */
-export class LengthLook extends Look<Length, AnyLength> {
+export class LengthLook extends Look<Length> {
   override combine(combination: Length | undefined, value: Length, weight?: number): Length {
     if (combination !== void 0) {
       if (weight === void 0 || weight === 1) {
@@ -265,26 +267,26 @@ export class LengthLook extends Look<Length, AnyLength> {
     return LengthInterpolator(a, b);
   }
 
-  override coerce(value: AnyLength): Length {
-    return Length.fromAny(value);
+  override coerce(value: LengthLike): Length {
+    return Length.fromLike(value);
   }
 
-  static fromAny<T extends Look<Length> | AnyLength | null | undefined>(value: T): Look<Length> | Length | Uninitable<T> {
+  static fromLike<T extends Look<Length> | LengthLike | null | undefined>(value: T): Look<Length> | Length | Uninitable<T> {
     if (value === void 0 || value === null || value instanceof Look || value instanceof Length) {
       return value as Look<Length> | Length | Uninitable<T>;
     }
-    return Length.fromAny<AnyLength>(value);
+    return Length.fromLike<LengthLike>(value);
   }
 }
 
 /** @public */
-export type AnyColorOrLook = Look<Color, any> | AnyColor;
+export type ColorOrLookLike = Look<Color> | ColorLike;
 
 /** @public */
-export type ColorOrLook = Look<Color, any> | Color;
+export type ColorOrLook = Look<Color> | Color;
 
 /** @public */
-export class ColorLook extends Look<Color, AnyColor> {
+export class ColorLook extends Look<Color> {
   override combine(combination: Color | undefined, value: Color, weight?: number): Color {
     if (combination !== void 0) {
       if (weight === void 0 || weight === 1) {
@@ -304,26 +306,26 @@ export class ColorLook extends Look<Color, AnyColor> {
     return a.interpolateTo(b);
   }
 
-  override coerce(value: AnyColor): Color {
-    return Color.fromAny(value);
+  override coerce(value: ColorLike): Color {
+    return Color.fromLike(value);
   }
 
-  static fromAny<T extends Look<Color> | AnyColor | null | undefined>(value: T): Look<Color> | Color | Uninitable<T> {
+  static fromLike<T extends Look<Color> | ColorLike | null | undefined>(value: T): Look<Color> | Color | Uninitable<T> {
     if (value === void 0 || value === null || value instanceof Look || value instanceof Color) {
       return value as Look<Color> | Color | Uninitable<T>;
     }
-    return Color.fromAny<AnyColor>(value);
+    return Color.fromLike<ColorLike>(value);
   }
 }
 
 /** @public */
-export type AnyFontOrLook = Look<Font, any> | AnyFont;
+export type FontOrLookLike = Look<Font> | FontLike;
 
 /** @public */
-export type FontOrLook = Look<Font, any> | Font;
+export type FontOrLook = Look<Font> | Font;
 
 /** @public */
-export class FontLook extends Look<Font, AnyFont> {
+export class FontLook extends Look<Font> {
   override combine(combination: Font | undefined, value: Font, weight?: number): Font {
     if (weight === void 0 || weight !== 0) {
       return value;
@@ -337,26 +339,26 @@ export class FontLook extends Look<Font, AnyFont> {
     return FontInterpolator(a, b);
   }
 
-  override coerce(value: AnyFont): Font {
-    return Font.fromAny(value);
+  override coerce(value: FontLike): Font {
+    return Font.fromLike(value);
   }
 
-  static fromAny<T extends Look<Font> | AnyFont | null | undefined>(value: T): Look<Font> | Font | Uninitable<T> {
+  static fromLike<T extends Look<Font> | FontLike | null | undefined>(value: T): Look<Font> | Font | Uninitable<T> {
     if (value === void 0 || value === null || value instanceof Look || value instanceof Font) {
       return value as Look<Font> | Font | Uninitable<T>;
     }
-    return Font.fromAny(value);
+    return Font.fromLike<Font | FontLike>(value);
   }
 }
 
 /** @public */
-export type AnyShadowOrLook = Look<BoxShadow, any> | AnyBoxShadow;
+export type ShadowOrLookLike = Look<BoxShadow> | BoxShadowLike;
 
 /** @public */
-export type ShadowOrLook = Look<BoxShadow, any> | BoxShadow;
+export type ShadowOrLook = Look<BoxShadow> | BoxShadow;
 
 /** @public */
-export class ShadowLook extends Look<BoxShadow, AnyBoxShadow> {
+export class ShadowLook extends Look<BoxShadow> {
   override combine(combination: BoxShadow | undefined, value: BoxShadow, weight?: number): BoxShadow {
     if (weight === void 0 || weight !== 0) {
       return value;
@@ -370,26 +372,26 @@ export class ShadowLook extends Look<BoxShadow, AnyBoxShadow> {
     return BoxShadowInterpolator(a, b);
   }
 
-  override coerce(value: AnyBoxShadow): BoxShadow {
-    return BoxShadow.fromAny(value)!;
+  override coerce(value: BoxShadowLike): BoxShadow {
+    return BoxShadow.fromLike(value)!;
   }
 
-  static fromAny<T extends Look<BoxShadow> | AnyBoxShadow | null | undefined>(value: T): Look<BoxShadow> | BoxShadow | Uninitable<T>{
+  static fromLike<T extends Look<BoxShadow> | BoxShadowLike | null | undefined>(value: T): Look<BoxShadow> | BoxShadow | Uninitable<T>{
     if (value === void 0 || value === null || value instanceof Look || value instanceof BoxShadow) {
       return value as Look<BoxShadow> | BoxShadow | Uninitable<T>;
     }
-    return BoxShadow.fromAny<AnyBoxShadow>(value);
+    return BoxShadow.fromLike<BoxShadowLike>(value);
   }
 }
 
 /** @public */
-export type AnyTimingOrLook = Look<Timing, any> | AnyTiming;
+export type TimingOrLookLike = Look<Timing> | TimingLike;
 
 /** @public */
-export type TimingOrLook = Look<Timing, any> | Timing;
+export type TimingOrLook = Look<Timing> | Timing;
 
 /** @public */
-export class TimingLook extends Look<Timing, AnyTiming> {
+export class TimingLook extends Look<Timing> {
   override combine(combination: Timing | undefined, value: Timing, weight: number): Timing {
     if (weight === void 0 || weight !== 0) {
       return value;
@@ -403,15 +405,15 @@ export class TimingLook extends Look<Timing, AnyTiming> {
     return Interpolator(a, b);
   }
 
-  override coerce(value: AnyTiming): Timing {
-    return Timing.fromAny(value);
+  override coerce(value: TimingLike): Timing {
+    return Timing.fromLike(value);
   }
 
-  static fromAny<T extends Look<Timing> | AnyTiming | null | undefined>(value: T): Look<Timing> | Timing | Uninitable<T> {
+  static fromLike<T extends Look<Timing> | TimingLike | null | undefined>(value: T): Look<Timing> | Timing | Uninitable<T> {
     if (value === void 0 || value === null || value instanceof Look || value instanceof Timing) {
       return value as Look<Timing> | Timing | Uninitable<T>;
     }
-    return Timing.fromAny<AnyTiming>(value);
+    return Timing.fromLike<TimingLike>(value);
   }
 }
 

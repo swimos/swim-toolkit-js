@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import {Property} from "@swim/component";
 import {GeoBox} from "@swim/geo";
 import type {ViewFlags} from "@swim/view";
@@ -21,7 +21,7 @@ import {View} from "@swim/view";
 import {ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {CanvasView} from "@swim/graphics";
-import type {AnyGeoPerspective} from "./GeoPerspective";
+import type {GeoPerspectiveLike} from "./GeoPerspective";
 import type {GeoViewport} from "./GeoViewport";
 import type {GeoViewObserver} from "./GeoView";
 import {GeoView} from "./GeoView";
@@ -57,7 +57,7 @@ export abstract class MapView extends GeoView {
   })
   override readonly geoViewport!: Property<this, GeoViewport | null> & GeoView["geoViewport"];
 
-  abstract moveTo(geoPerspective: AnyGeoPerspective, timing?: AnyTiming | boolean): void;
+  abstract moveTo(geoPerspective: GeoPerspectiveLike, timing?: TimingLike | boolean): void;
 
   @ViewRef({
     viewType: CanvasView,

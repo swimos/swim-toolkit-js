@@ -19,7 +19,7 @@ import {Transform} from "@swim/math";
 import {ThemeConstraintAnimator} from "@swim/theme";
 import type {ViewFlags} from "@swim/view";
 import {View} from "@swim/view";
-import type {AnyGraphicsRenderer} from "./GraphicsRenderer";
+import type {GraphicsRendererLike} from "./GraphicsRenderer";
 import type {GraphicsRendererType} from "./GraphicsRenderer";
 import {GraphicsRenderer} from "./GraphicsRenderer";
 import {GraphicsView} from "./GraphicsView";
@@ -60,14 +60,14 @@ export class RasterView extends GraphicsView {
     extends: true,
     inherits: false,
     updateFlags: View.NeedsRender | View.NeedsComposite,
-    fromAny(renderer: AnyGraphicsRenderer | null): GraphicsRenderer | null {
+    fromLike(renderer: GraphicsRendererLike | null): GraphicsRenderer | null {
       if (typeof renderer === "string") {
         renderer = this.owner.createRenderer(renderer as GraphicsRendererType);
       }
       return renderer;
     },
   })
-  override readonly renderer!: Property<this, GraphicsRenderer | null, AnyGraphicsRenderer | null>;
+  override readonly renderer!: Property<this, GraphicsRenderer | null>;
 
   protected createRenderer(rendererType: GraphicsRendererType = "canvas"): GraphicsRenderer | null {
     if (rendererType === "canvas") {

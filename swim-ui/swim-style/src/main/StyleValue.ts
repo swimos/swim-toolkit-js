@@ -26,48 +26,48 @@ import {Record} from "@swim/structure";
 import {Num} from "@swim/structure";
 import {Bool} from "@swim/structure";
 import {Form} from "@swim/structure";
-import type {AnyLength} from "@swim/math";
+import type {LengthLike} from "@swim/math";
 import {Length} from "@swim/math";
-import type {AnyAngle} from "@swim/math";
+import type {AngleLike} from "@swim/math";
 import {Angle} from "@swim/math";
-import type {AnyTransform} from "@swim/math";
+import type {TransformLike} from "@swim/math";
 import {Transform} from "@swim/math";
 import {TranslateTransformParser} from "@swim/math";
 import {ScaleTransformParser} from "@swim/math";
 import {RotateTransformParser} from "@swim/math";
 import {SkewTransformParser} from "@swim/math";
 import {AffineTransformParser} from "@swim/math";
-import {AnyDateTime} from "@swim/time";
+import {DateTimeLike} from "@swim/time";
 import type {DateTimeInit} from "@swim/time";
 import {DateTime} from "@swim/time";
 import {DateTimeFormat} from "@swim/time";
 import type {FontWeight} from "./Font";
-import {AnyFont} from "./Font";
+import {FontLike} from "./Font";
 import {Font} from "./Font";
 import {FontParser} from "./Font";
-import {AnyColor} from "./Color";
+import {ColorLike} from "./Color";
 import {Color} from "./Color";
 import {RgbColorParser} from "./RgbColor";
 import {HexColorParser} from "./RgbColor";
 import {HslColorParser} from "./HslColor";
-import {AnyLinearGradient} from "./LinearGradient";
+import {LinearGradientLike} from "./LinearGradient";
 import {LinearGradient} from "./LinearGradient";
 import {LinearGradientParser} from "./LinearGradient";
-import {AnyBoxShadow} from "./BoxShadow";
+import {BoxShadowLike} from "./BoxShadow";
 import {BoxShadow} from "./BoxShadow";
 
 /** @public */
-export type AnyStyleValue = AnyDateTime
-                          | AnyAngle
-                          | AnyLength
-                          | AnyFont
-                          | AnyColor
-                          | AnyLinearGradient
-                          | AnyBoxShadow
-                          | AnyTransform
-                          | Interpolator<any>
-                          | number
-                          | boolean;
+export type StyleValueLike = DateTimeLike
+                           | AngleLike
+                           | LengthLike
+                           | FontLike
+                           | ColorLike
+                           | LinearGradientLike
+                           | BoxShadowLike
+                           | TransformLike
+                           | Interpolator<any>
+                           | number
+                           | boolean;
 
 /** @public */
 export type StyleValue = DateTime
@@ -84,7 +84,7 @@ export type StyleValue = DateTime
 
 /** @public */
 export const StyleValue = {
-  fromAny<T extends AnyStyleValue | null | undefined>(value: T): StyleValue | Uninitable<T> {
+  fromLike<T extends StyleValueLike | null | undefined>(value: T): StyleValue | Uninitable<T> {
     if (value === void 0 || value === null
         || value instanceof DateTime
         || value instanceof Angle
@@ -98,16 +98,16 @@ export const StyleValue = {
         || typeof value === "number"
         || typeof value === "boolean") {
       return value as StyleValue | Uninitable<T>;
-    } else if (value instanceof Date || AnyDateTime[Symbol.hasInstance](value)) {
-      return DateTime.fromAny(value);
-    } else if (AnyColor[Symbol.hasInstance](value)) {
-      return Color.fromAny(value);
-    } else if (AnyFont[Symbol.hasInstance](value)) {
-      return Font.fromAny(value);
-    } else if (AnyBoxShadow[Symbol.hasInstance](value)) {
-      return BoxShadow.fromAny(value)!;
-    } else if (AnyLinearGradient[Symbol.hasInstance](value)) {
-      return LinearGradient.fromAny(value)!;
+    } else if (DateTimeLike[Symbol.hasInstance](value)) {
+      return DateTime.fromLike(value);
+    } else if (ColorLike[Symbol.hasInstance](value)) {
+      return Color.fromLike(value);
+    } else if (FontLike[Symbol.hasInstance](value)) {
+      return Font.fromLike(value);
+    } else if (BoxShadowLike[Symbol.hasInstance](value)) {
+      return BoxShadow.fromLike(value)!;
+    } else if (LinearGradientLike[Symbol.hasInstance](value)) {
+      return LinearGradient.fromLike(value)!;
     } else if (typeof value === "string") {
       return StyleValue.parse(value);
     }
@@ -133,35 +133,36 @@ export const StyleValue = {
     return parser.bind();
   },
 
-  form: Lazy(function (): Form<StyleValue, AnyStyleValue> {
+  form: Lazy(function (): Form<StyleValue, StyleValueLike> {
     return new StyleValueForm(void 0);
   }),
 };
 
 /** @internal */
-export class StyleValueForm extends Form<StyleValue, AnyStyleValue> {
+export class StyleValueForm extends Form<StyleValue, StyleValueLike> {
   constructor(unit: StyleValue | undefined) {
     super();
     Object.defineProperty(this, "unit", {
       value: unit,
       enumerable: true,
+      configurable: true,
     });
   }
 
-  override readonly unit!: StyleValue | undefined;
+  override readonly unit: StyleValue | undefined;
 
-  override withUnit(unit: StyleValue | undefined): Form<StyleValue, AnyStyleValue> {
+  override withUnit(unit: StyleValue | undefined): Form<StyleValue, StyleValueLike> {
     if (unit === this.unit) {
       return this;
     }
     return new StyleValueForm(unit);
   }
 
-  override mold(value: AnyStyleValue): Item {
+  override mold(value: StyleValueLike): Item {
     if (value === void 0) {
       return Item.extant();
     }
-    value = StyleValue.fromAny(value);
+    value = StyleValue.fromLike(value);
     if (value instanceof DateTime) {
       return DateTime.form().mold(value);
     } else if (value instanceof Angle) {

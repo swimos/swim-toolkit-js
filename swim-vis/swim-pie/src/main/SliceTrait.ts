@@ -16,7 +16,6 @@ import type {Class} from "@swim/util";
 import {Property} from "@swim/component";
 import type {TraitObserver} from "@swim/model";
 import {Trait} from "@swim/model";
-import type {AnyColorOrLook} from "@swim/theme";
 import type {ColorOrLook} from "@swim/theme";
 import {ColorLook} from "@swim/theme";
 
@@ -51,7 +50,7 @@ export class SliceTrait extends Trait {
       this.owner.callObservers("traitDidSetSliceColor", sliceColor, this.owner);
     },
   })
-  readonly sliceColor!: Property<this, ColorOrLook | null,AnyColorOrLook | null>;
+  readonly sliceColor!: Property<this, ColorOrLook | null>;
 
   formatLabel(value: number): string | undefined {
     return void 0;

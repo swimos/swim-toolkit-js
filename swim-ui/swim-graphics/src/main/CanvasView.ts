@@ -31,7 +31,7 @@ import type {GraphicsPointerEvent} from "./GraphicsEvent";
 import type {GraphicsTouchInit} from "./GraphicsEvent";
 import type {GraphicsTouch} from "./GraphicsEvent";
 import type {GraphicsTouchEvent} from "./GraphicsEvent";
-import type {AnyGraphicsRenderer} from "./GraphicsRenderer";
+import type {GraphicsRendererLike} from "./GraphicsRenderer";
 import type {GraphicsRendererType} from "./GraphicsRenderer";
 import {GraphicsRenderer} from "./GraphicsRenderer";
 import {GraphicsView} from "./GraphicsView";
@@ -168,7 +168,7 @@ export class CanvasView extends HtmlView {
     didSetValue(renderer: GraphicsRenderer | null): void {
       this.owner.resetRenderer();
     },
-    fromAny(renderer: AnyGraphicsRenderer | null): GraphicsRenderer | null {
+    fromLike(renderer: GraphicsRendererLike | null): GraphicsRenderer | null {
       if (typeof renderer === "string") {
         renderer = this.owner.createRenderer(renderer as GraphicsRendererType);
       }

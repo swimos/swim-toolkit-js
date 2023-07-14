@@ -14,8 +14,10 @@
 
 import {__runInitializers} from "tslib";
 import type {Class} from "@swim/util";
+import type {Proto} from "@swim/util";
 import type {Instance} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import type {LikeType} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import type {Timing} from "@swim/util";
 import {Creatable} from "@swim/util";
 import {Affinity} from "@swim/component";
@@ -25,12 +27,10 @@ import {Mood} from "@swim/theme";
 import type {MoodVector} from "@swim/theme";
 import type {ThemeMatrix} from "@swim/theme";
 import type {ViewFlags} from "@swim/view";
-import type {AnyView} from "@swim/view";
 import {View} from "@swim/view";
 import {AttributeAnimator} from "./AttributeAnimator";
 import {StyleMap} from "./StyleMap";
 import type {ViewNodeType} from "./NodeView";
-import type {AnyElementView} from "./ElementView";
 import type {ElementViewFactory} from "./ElementView";
 import type {ElementViewClass} from "./ElementView";
 import type {ElementViewConstructor} from "./ElementView";
@@ -43,9 +43,6 @@ import {SvgView} from "./"; // forward import
 export interface ViewHtml extends HTMLElement {
   view?: HtmlView;
 }
-
-/** @public */
-export type AnyHtmlView<V extends HtmlView = HtmlView> = AnyElementView<V> | keyof HtmlViewTagMap;
 
 /** @public */
 export interface HtmlViewTagMap {
@@ -164,16 +161,16 @@ export interface HtmlViewTagMap {
 }
 
 /** @public */
-export interface HtmlViewFactory<V extends HtmlView = HtmlView, U = AnyHtmlView<V>> extends ElementViewFactory<V, U> {
+export interface HtmlViewFactory<V extends HtmlView = HtmlView> extends ElementViewFactory<V> {
 }
 
 /** @public */
-export interface HtmlViewClass<V extends HtmlView = HtmlView, U = AnyHtmlView<V>> extends ElementViewClass<V, U>, HtmlViewFactory<V, U> {
+export interface HtmlViewClass<V extends HtmlView = HtmlView> extends ElementViewClass<V>, HtmlViewFactory<V> {
   readonly tag: string;
 }
 
 /** @public */
-export interface HtmlViewConstructor<V extends HtmlView = HtmlView, U = AnyHtmlView<V>> extends ElementViewConstructor<V, U>, HtmlViewClass<V, U> {
+export interface HtmlViewConstructor<V extends HtmlView = HtmlView> extends ElementViewConstructor<V>, HtmlViewClass<V> {
   readonly tag: string;
 }
 
@@ -191,56 +188,59 @@ export class HtmlView extends ElementView {
     }
   }
 
+  /** @override */
+  declare readonly likeType?: Proto<{create?(): HtmlView} | (Element & {create?(): HtmlView}) | (keyof HtmlViewTagMap & {create?(): HtmlView})>;
+
   declare readonly observerType?: Class<HtmlViewObserver>;
 
   declare readonly node: HTMLElement;
 
-  override setChild<V extends View>(key: string, newChild: V): View | null;
-  override setChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(key: string, factory: F): View | null;
-  override setChild(key: string, newChild: AnyView | Node | keyof HtmlViewTagMap | null): View | null;
-  override setChild(key: string, newChild: AnyView | Node | keyof HtmlViewTagMap | null): View | null {
+  override setChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(key: string, newChildFactory: F): View | null;
+  override setChild(key: string, newChild: View | LikeType<HtmlView> | null): View | null;
+  override setChild(key: string, newChild: View | LikeType<HtmlView> | null): View | null {
     if (typeof newChild === "string") {
       newChild = HtmlView.fromTag(newChild);
     }
     return super.setChild(key, newChild);
   }
 
-  override appendChild<V extends View>(child: V, key?: string): V;
-  override appendChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(factory: F, key?: string): InstanceType<F>;
+  override appendChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(childFactory: F, key?: string): InstanceType<F>;
+  override appendChild<V extends View>(child: V | LikeType<V>, key?: string): V;
   override appendChild<K extends keyof HtmlViewTagMap>(tag: K, key?: string): HtmlViewTagMap[K];
-  override appendChild(child: AnyView | Node | keyof HtmlViewTagMap, key?: string): View;
-  override appendChild(child: AnyView | Node | keyof HtmlViewTagMap, key?: string): View {
+  override appendChild(child: View | LikeType<HtmlView>, key?: string): View;
+  override appendChild(child: View | LikeType<HtmlView>, key?: string): View {
     if (typeof child === "string") {
       child = HtmlView.fromTag(child);
     }
     return super.appendChild(child, key);
   }
 
-  override prependChild<V extends View>(child: V, key?: string): V;
-  override prependChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(factory: F, key?: string): InstanceType<F>;
+  override prependChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(childFactory: F, key?: string): InstanceType<F>;
+  override prependChild<V extends View>(child: V | LikeType<V>, key?: string): V;
   override prependChild<K extends keyof HtmlViewTagMap>(tag: K, key?: string): HtmlViewTagMap[K];
-  override prependChild(child: AnyView | Node | keyof HtmlViewTagMap, key?: string): View;
-  override prependChild(child: AnyView | Node | keyof HtmlViewTagMap, key?: string): View {
+  override prependChild(child: View | LikeType<HtmlView>, key?: string): View;
+  override prependChild(child: View | LikeType<HtmlView>, key?: string): View {
     if (typeof child === "string") {
       child = HtmlView.fromTag(child);
     }
     return super.prependChild(child, key);
   }
 
-  override insertChild<V extends View>(child: V, target: View | Node | null, key?: string): V;
-  override insertChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(factory: F, target: View | Node | null, key?: string): InstanceType<F>;
+  override insertChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(childFactory: F, target: View | Node | null, key?: string): InstanceType<F>;
+  override insertChild<V extends View>(child: V | LikeType<V>, target: View | Node | null, key?: string): V;
   override insertChild<K extends keyof HtmlViewTagMap>(tag: K, target: View | Node | null, key?: string): HtmlViewTagMap[K];
-  override insertChild(child: AnyView | Node | keyof HtmlViewTagMap, target: View | Node | null, key?: string): View;
-  override insertChild(child: AnyView | Node | keyof HtmlViewTagMap, target: View | Node | null, key?: string): View {
+  override insertChild(child: View | LikeType<HtmlView>, target: View | Node | null, key?: string): View;
+  override insertChild(child: View | LikeType<HtmlView>, target: View | Node | null, key?: string): View {
     if (typeof child === "string") {
       child = HtmlView.fromTag(child);
     }
     return super.insertChild(child, target, key);
   }
 
-  override replaceChild<V extends View>(newChild: View, oldChild: V): V;
-  override replaceChild<V extends View>(newChild: AnyView | Node | keyof HtmlViewTagMap, oldChild: V): V;
-  override replaceChild(newChild: AnyView | Node | keyof HtmlViewTagMap, oldChild: View): View {
+  override replaceChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(newChildFactory: F, oldChild: View): View;
+  override replaceChild<V extends View>(newChild: View | LikeType<HtmlView>, oldChild: V): V;
+  override replaceChild(newChild: View | LikeType<HtmlView>, oldChild: View): View;
+  override replaceChild(newChild: View | LikeType<HtmlView>, oldChild: View): View {
     if (typeof newChild === "string") {
       newChild = HtmlView.fromTag(newChild);
     }
@@ -253,17 +253,17 @@ export class HtmlView extends ElementView {
   }
 
   @AttributeAnimator({attributeName: "checked", valueType: Boolean})
-  get checked(): AttributeAnimator<this, boolean | undefined, boolean | string | undefined> {
+  get checked(): AttributeAnimator<this, boolean | undefined> {
     return AttributeAnimator.dummy();
   }
 
   @AttributeAnimator({attributeName: "colspan", valueType: Number})
-  get colspan(): AttributeAnimator<this, number | undefined, number | string | undefined> {
+  get colspan(): AttributeAnimator<this, number | undefined> {
     return AttributeAnimator.dummy();
   }
 
   @AttributeAnimator({attributeName: "disabled", valueType: Boolean})
-  get disabled(): AttributeAnimator<this, boolean | undefined, boolean | string | undefined> {
+  get disabled(): AttributeAnimator<this, boolean | undefined> {
     return AttributeAnimator.dummy();
   }
 
@@ -278,12 +278,12 @@ export class HtmlView extends ElementView {
   }
 
   @AttributeAnimator({attributeName: "rowspan", valueType: Number})
-  get rowspan(): AttributeAnimator<this, number | undefined, number | string | undefined> {
+  get rowspan(): AttributeAnimator<this, number | undefined> {
     return AttributeAnimator.dummy();
   }
 
   @AttributeAnimator({attributeName: "selected", valueType: Boolean})
-  get selected(): AttributeAnimator<this, boolean | undefined, boolean | string | undefined> {
+  get selected(): AttributeAnimator<this, boolean | undefined> {
     return AttributeAnimator.dummy();
   }
 
@@ -414,22 +414,20 @@ export class HtmlView extends ElementView {
     return this.fromTag(this.tag);
   }
 
-  static override fromAny<S extends Class<Instance<S, HtmlView>>>(this: S, value: AnyHtmlView<InstanceType<S>>): InstanceType<S>;
-  static override fromAny(value: AnyHtmlView | string): HtmlView;
-  static override fromAny(value: AnyHtmlView | string): HtmlView {
+  static override fromLike<S extends Class<Instance<S, View>>>(this: S, value: InstanceType<S> | LikeType<InstanceType<S>>): InstanceType<S> {
     if (value === void 0 || value === null) {
-      return value;
+      return value as InstanceType<S>;
     } else if (value instanceof View) {
       if (!(value instanceof this)) {
         throw new TypeError(value + " not an instance of " + this);
       }
       return value;
-    } else if (value instanceof Node) {
-      return this.fromNode(value);
-    } else if (typeof value === "string") {
-      return this.fromTag(value);
+    } else if (value instanceof HTMLElement) {
+      return (this as unknown as typeof HtmlView).fromNode(value) as InstanceType<S>;
     } else if (Creatable[Symbol.hasInstance](value)) {
-      return this.create();
+      return (value as Creatable<InstanceType<S>>).create();
+    } else if (typeof value === "string") {
+      return (this as unknown as typeof HtmlView).fromTag(value) as InstanceType<S>;
     }
     throw new TypeError("" + value);
   }
@@ -477,7 +475,7 @@ export class HtmlView extends ElementView {
 }
 /** @public */
 export interface HtmlView extends StyleMap {
-  applyTheme(theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean): void;
+  applyTheme(theme: ThemeMatrix, mood: MoodVector, timing?: TimingLike | boolean): void;
   requireUpdate(updateFlags: ViewFlags, immediate?: boolean): void;
 }
 
@@ -499,8 +497,8 @@ export class HtmlViewTagFactory<V extends HtmlView> implements HtmlViewFactory<V
     return this.fromTag(this.tag);
   }
 
-  fromAny(value: AnyHtmlView<V>): V {
-    return this.factory.fromAny(value);
+  fromLike(value: V | LikeType<V>): V {
+    return this.factory.fromLike(value);
   }
 
   fromNode(node: ViewNodeType<V>): V {

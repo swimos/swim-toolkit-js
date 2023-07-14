@@ -25,7 +25,7 @@ export abstract class Feel implements Mood {
 
   readonly name: string;
 
-  abstract combine<T>(look: Look<T, any>, combination: T | undefined,
+  abstract combine<T>(look: Look<T>, combination: T | undefined,
                       value: T, weight?: number): T;
 
   empty(): FeelVector {
@@ -36,7 +36,7 @@ export abstract class Feel implements Mood {
     return FeelVector.of(...looks);
   }
 
-  from(array: ReadonlyArray<[Look<unknown>, unknown]>,
+  from(array: readonly [Look<unknown>, unknown][],
        index?: {readonly [name: string]: number | undefined}): FeelVector {
     return FeelVector.fromArray(array, index);
   }
@@ -78,7 +78,7 @@ export abstract class Feel implements Mood {
 
 /** @public */
 export class InterpolatedFeel extends Feel {
-  override combine<T>(look: Look<T, any>, combination: T | undefined,
+  override combine<T>(look: Look<T>, combination: T | undefined,
                       value: T, weight?: number): T {
     return look.combine(combination, value, weight);
   }
@@ -86,7 +86,7 @@ export class InterpolatedFeel extends Feel {
 
 /** @public */
 export class BrightnessFeel extends Feel {
-  override combine<T>(look: Look<T, any>, combination: T | undefined,
+  override combine<T>(look: Look<T>, combination: T | undefined,
                       value: T, weight?: number): T {
     if (combination instanceof Color && value instanceof Color) {
       const amount = weight === void 0 ? value.alpha() : value.alpha() * weight;
@@ -102,7 +102,7 @@ export class BrightnessFeel extends Feel {
 
 /** @public */
 export class OpacityFeel extends Feel {
-  override combine<T>(look: Look<T, any>, combination: T | undefined,
+  override combine<T>(look: Look<T>, combination: T | undefined,
                       value: T, weight?: number): T {
     if (combination instanceof Color && value instanceof Color) {
       if (weight === void 0) {

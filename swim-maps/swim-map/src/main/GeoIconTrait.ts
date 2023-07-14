@@ -15,18 +15,16 @@
 import type {Class} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
-import type {AnyGeoPoint} from "@swim/geo";
 import {GeoPoint} from "@swim/geo";
 import {Graphics} from "@swim/graphics";
-import type {AnyIconLayout} from "@swim/graphics";
 import {IconLayout} from "@swim/graphics";
-import type {GeoTraitObserver} from "./GeoTrait";
-import {GeoTrait} from "./GeoTrait";
-import type {GeoController} from "./GeoController";
+import type {GeoFeatureTraitObserver} from "./GeoFeatureTrait";
+import {GeoFeatureTrait} from "./GeoFeatureTrait";
+import type {GeoFeatureController} from "./GeoFeatureController";
 import {GeoIconController} from "./"; // forward import
 
 /** @public */
-export interface GeoIconTraitObserver<T extends GeoIconTrait = GeoIconTrait> extends GeoTraitObserver<T> {
+export interface GeoIconTraitObserver<T extends GeoIconTrait = GeoIconTrait> extends GeoFeatureTraitObserver<T> {
   traitDidSetGeoCenter?(geoCenter: GeoPoint | null, trait: T): void;
 
   traitDidSetIconLayout?(iconLayout: IconLayout | null, trait: T): void;
@@ -35,7 +33,7 @@ export interface GeoIconTraitObserver<T extends GeoIconTrait = GeoIconTrait> ext
 }
 
 /** @public */
-export class GeoIconTrait extends GeoTrait {
+export class GeoIconTrait extends GeoFeatureTrait {
   declare readonly observerType?: Class<GeoIconTraitObserver>;
 
   @Property({
@@ -46,7 +44,7 @@ export class GeoIconTrait extends GeoTrait {
       this.owner.geoPerspective.setValue(geoCenter, Affinity.Intrinsic);
     },
   })
-  readonly geoCenter!: Property<this, GeoPoint | null, AnyGeoPoint | null>;
+  readonly geoCenter!: Property<this, GeoPoint | null>;
 
   @Property({
     valueType: IconLayout,
@@ -55,7 +53,7 @@ export class GeoIconTrait extends GeoTrait {
       this.owner.callObservers("traitDidSetIconLayout", iconLayout, this.owner);
     },
   })
-  readonly iconLayout!: Property<this, IconLayout | null, AnyIconLayout | null>;
+  readonly iconLayout!: Property<this, IconLayout | null>;
 
   @Property({
     valueType: Graphics,
@@ -66,7 +64,7 @@ export class GeoIconTrait extends GeoTrait {
   })
   readonly graphics!: Property<this, Graphics | null>;
 
-  override createGeoController(): GeoController {
+  override createGeoController(): GeoFeatureController {
     return new GeoIconController();
   }
 }

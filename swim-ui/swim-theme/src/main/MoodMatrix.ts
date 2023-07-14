@@ -18,7 +18,7 @@ import {Arrays} from "@swim/util";
 import type {Output} from "@swim/codec";
 import type {Debug} from "@swim/codec";
 import {Format} from "@swim/codec";
-import type {AnyMoodVector} from "./MoodVector";
+import type {MoodVectorLike} from "./MoodVector";
 import type {MoodVectorUpdates} from "./MoodVector";
 import {MoodVector} from "./MoodVector";
 import type {Feel} from "./Feel";
@@ -26,9 +26,9 @@ import type {Mood} from "./Mood";
 
 /** @public */
 export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements Equals, Debug {
-  constructor(rowArray: ReadonlyArray<[M, MoodVector<N>]>,
+  constructor(rowArray: readonly [M, MoodVector<N>][],
               rowIndex: {readonly [name: string]: number | undefined},
-              colArray: ReadonlyArray<[N, MoodVector<M>]>,
+              colArray: readonly [N, MoodVector<M>][],
               colIndex: {readonly [name: string]: number | undefined}) {
     this.rowArray = rowArray;
     this.rowIndex = rowIndex;
@@ -37,13 +37,13 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
   }
 
   /** @internal */
-  readonly rowArray: ReadonlyArray<[M, MoodVector<N>]>;
+  readonly rowArray: readonly [M, MoodVector<N>][];
 
   /** @internal */
   readonly rowIndex: {readonly [name: string]: number | undefined};
 
   /** @internal */
-  readonly colArray: ReadonlyArray<[N, MoodVector<M>]>;
+  readonly colArray: readonly [N, MoodVector<M>][];
 
   /** @internal */
   readonly colIndex: {readonly [name: string]: number | undefined};
@@ -313,9 +313,9 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
     return MoodMatrix.fromRowArray(newRowArray, newRowIndex);
   }
 
-  row(rowKey: M, row: AnyMoodVector<N> | undefined): MoodMatrix<M, N> {
+  row(rowKey: M, row: MoodVectorLike<N> | undefined): MoodMatrix<M, N> {
     if (row !== void 0) {
-      row = MoodVector.fromAny(row);
+      row = MoodVector.fromLike(row);
     }
     const oldRowArray = this.rowArray;
     const oldRowIndex = this.rowIndex;
@@ -350,9 +350,9 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
     return this; // nop
   }
 
-  col(colKey: N, col: AnyMoodVector<M> | undefined): MoodMatrix<M, N> {
+  col(colKey: N, col: MoodVectorLike<M> | undefined): MoodMatrix<M, N> {
     if (col !== void 0) {
-      col = MoodVector.fromAny(col);
+      col = MoodVector.fromLike(col);
     }
     const oldColArray = this.colArray;
     const oldColIndex = this.colIndex;
@@ -388,11 +388,11 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
   }
 
   updatedRow(rowKey: M, updates: MoodVectorUpdates<N>,
-             defaultRow?: AnyMoodVector<N>): MoodMatrix<M, N>;
+             defaultRow?: MoodVectorLike<N>): MoodMatrix<M, N>;
   updatedRow(rowKey: M & N, updates: MoodVectorUpdates<M & N>,
-             defaultRow?: AnyMoodVector<N> | boolean): MoodMatrix<M | N, N>
+             defaultRow?: MoodVectorLike<N> | boolean): MoodMatrix<M | N, N>
   updatedRow(rowKey: M & N, updates: MoodVectorUpdates<M & N>,
-             defaultRow?: AnyMoodVector<N> | boolean): MoodMatrix<M | N, N> {
+             defaultRow?: MoodVectorLike<N> | boolean): MoodMatrix<M | N, N> {
     const oldRow = this.getRow(rowKey);
     let newRow = oldRow;
     if (newRow === void 0) {
@@ -404,7 +404,7 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
       if (defaultRow === void 0) {
         defaultRow = MoodVector.empty();
       } else {
-        defaultRow = MoodVector.fromAny(defaultRow);
+        defaultRow = MoodVector.fromLike(defaultRow);
       }
       newRow = defaultRow;
     }
@@ -416,11 +416,11 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
   }
 
   updatedCol(colKey: N, updates: MoodVectorUpdates<M>,
-             defaultCol?: AnyMoodVector<M>): MoodMatrix<M, N>;
+             defaultCol?: MoodVectorLike<M>): MoodMatrix<M, N>;
   updatedCol(colKey: M & N, updates: MoodVectorUpdates<M & N>,
-             defaultCol?: AnyMoodVector<M> | boolean): MoodMatrix<M | N, N>;
+             defaultCol?: MoodVectorLike<M> | boolean): MoodMatrix<M | N, N>;
   updatedCol(colKey: M & N, updates: MoodVectorUpdates<M & N>,
-             defaultCol?: AnyMoodVector<M> | boolean): MoodMatrix<M | N, N> {
+             defaultCol?: MoodVectorLike<M> | boolean): MoodMatrix<M | N, N> {
     const oldCol = this.getCol(colKey);
     let newCol = oldCol;
     if (newCol === void 0) {
@@ -432,7 +432,7 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
       if (defaultCol === void 0) {
         defaultCol = MoodVector.empty();
       } else {
-        defaultCol = MoodVector.fromAny(defaultCol);
+        defaultCol = MoodVector.fromLike(defaultCol);
       }
       newCol = defaultCol;
     }
@@ -481,28 +481,28 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
     return new MoodMatrix(Arrays.empty(), {}, Arrays.empty(), {});
   }
 
-  static forRows<M extends Mood, N extends Mood>(...rows: [M, AnyMoodVector<N>][]): MoodMatrix<M, N> {
+  static forRows<M extends Mood, N extends Mood>(...rows: [M, MoodVectorLike<N>][]): MoodMatrix<M, N> {
     const m = rows.length;
     const rowArray = new Array<[M, MoodVector<N>]>(m);
     for (let i = 0; i < m; i += 1) {
       const [rowKey, row] = rows[i]!;
-      rowArray[i] = [rowKey, MoodVector.fromAny(row)];
+      rowArray[i] = [rowKey, MoodVector.fromLike(row)];
     }
     return this.fromRowArray(rowArray);
   }
 
-  static forCols<M extends Mood, N extends Mood>(...cols: [N, AnyMoodVector<M>][]): MoodMatrix<M, N> {
+  static forCols<M extends Mood, N extends Mood>(...cols: [N, MoodVectorLike<M>][]): MoodMatrix<M, N> {
     const m = cols.length;
     const colArray = new Array<[N, MoodVector<M>]>(m);
     for (let j = 0; j < m; j += 1) {
       const [colKey, col] = cols[j]!;
-      colArray[j] = [colKey, MoodVector.fromAny(col)];
+      colArray[j] = [colKey, MoodVector.fromLike(col)];
     }
     return this.fromColArray(colArray);
   }
 
   static fromRowArray<M extends Mood, N extends Mood>(
-      rowArray: ReadonlyArray<[M, MoodVector<N>]>,
+      rowArray: readonly [M, MoodVector<N>][],
       rowIndex?: {readonly [name: string]: number | undefined}): MoodMatrix<M, N> {
     if (rowIndex === void 0) {
       rowIndex = MoodVector.index(rowArray);
@@ -538,7 +538,7 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
   }
 
   static fromColArray<M extends Mood, N extends Mood>(
-      colArray: ReadonlyArray<[N, MoodVector<M>]>,
+      colArray: readonly [N, MoodVector<M>][],
       colIndex?: {readonly [name: string]: number | undefined}): MoodMatrix<M, N> {
     if (colIndex === void 0) {
       colIndex = MoodVector.index(colArray);

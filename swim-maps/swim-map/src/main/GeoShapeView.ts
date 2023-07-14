@@ -17,28 +17,20 @@ import type {Class} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import {Animator} from "@swim/component";
-import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
-import type {AnyR2Point} from "@swim/math";
 import {R2Point} from "@swim/math";
 import {R2Box} from "@swim/math";
-import type {AnyR2Shape} from "@swim/math";
 import {R2Shape} from "@swim/math";
 import {R2Curve} from "@swim/math";
 import {R2Spline} from "@swim/math";
 import {R2Path} from "@swim/math";
 import {R2Group} from "@swim/math";
-import type {AnyGeoPoint} from "@swim/geo";
 import {GeoPoint} from "@swim/geo";
 import {GeoBox} from "@swim/geo";
-import type {AnyGeoShape} from "@swim/geo";
 import {GeoShape} from "@swim/geo";
-import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
-import type {PositionGestureInput} from "@swim/view";
-import {PositionGesture} from "@swim/view";
 import type {GraphicsView} from "@swim/graphics";
 import type {FillView} from "@swim/graphics";
 import type {StrokeView} from "@swim/graphics";
@@ -46,28 +38,16 @@ import type {PaintingContext} from "@swim/graphics";
 import {PaintingRenderer} from "@swim/graphics";
 import type {CanvasContext} from "@swim/graphics";
 import {CanvasRenderer} from "@swim/graphics";
-import type {AnyHyperlink} from "@swim/controller";
-import {Hyperlink} from "@swim/controller";
-import type {GeoViewObserver} from "./GeoView";
-import {GeoView} from "./GeoView";
-import type {GeoRippleOptions} from "./GeoRippleView";
-import {GeoRippleView} from "./GeoRippleView";
+import type {GeoFeatureViewObserver} from "./GeoFeatureView";
+import {GeoFeatureView} from "./GeoFeatureView";
 
 /** @public */
-export interface GeoShapeViewObserver<V extends GeoShapeView = GeoShapeView> extends GeoViewObserver<V> {
+export interface GeoShapeViewObserver<V extends GeoShapeView = GeoShapeView> extends GeoFeatureViewObserver<V> {
   viewDidSetGeoShape?(geoShape: GeoShape | null, view: V): void;
-
-  viewDidEnter?(view: V): void;
-
-  viewDidLeave?(view: V): void;
-
-  viewDidPress?(input: PositionGestureInput, event: Event | null, view: V): void;
-
-  viewDidLongPress?(input: PositionGestureInput, view: V): void;
 }
 
 /** @public */
-export class GeoShapeView extends GeoView implements FillView, StrokeView {
+export class GeoShapeView extends GeoFeatureView implements FillView, StrokeView {
   constructor() {
     super();
     Object.defineProperty(this, "viewBounds", {
@@ -97,31 +77,31 @@ export class GeoShapeView extends GeoView implements FillView, StrokeView {
       this.owner.callObservers("viewDidSetGeoShape", geoShape, this.owner);
     },
   })
-  readonly geoShape!: Animator<this, GeoShape | null, AnyGeoShape | null>;
+  readonly geoShape!: Animator<this, GeoShape | null>;
 
   @Animator({valueType: R2Shape, value: null})
-  readonly viewShape!: Animator<this, R2Shape | null, AnyR2Shape | null>;
+  readonly viewShape!: Animator<this, R2Shape | null>;
 
   @Animator({valueType: GeoPoint, value: null})
-  readonly geoCentroid!: Animator<this, GeoPoint | null, AnyGeoPoint | null>;
+  readonly geoCentroid!: Animator<this, GeoPoint | null>;
 
   @Animator({valueType: R2Point, value: null})
-  readonly viewCentroid!: Animator<this, R2Point | null, AnyR2Point | null>;
+  readonly viewCentroid!: Animator<this, R2Point | null>;
 
   @ThemeAnimator({valueType: Color, value: null, updateFlags: View.NeedsRender})
-  readonly fill!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly fill!: ThemeAnimator<this, Color | null>;
 
   @ThemeAnimator({valueType: Number, updateFlags: View.NeedsRender})
   readonly fillOpacity!: ThemeAnimator<this, number | undefined>;
 
   @ThemeAnimator({valueType: Color, value: null, updateFlags: View.NeedsRender})
-  readonly stroke!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly stroke!: ThemeAnimator<this, Color | null>;
 
   @ThemeAnimator({valueType: Number, updateFlags: View.NeedsRender})
   readonly strokeOpacity!: ThemeAnimator<this, number | undefined>;
 
   @ThemeAnimator({valueType: Length, value: null, updateFlags: View.NeedsRender})
-  readonly strokeWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
+  readonly strokeWidth!: ThemeAnimator<this, Length | null>;
 
   @Property({valueType: Number})
   readonly strokeHitWidth!: Property<this, number | undefined>;
@@ -175,7 +155,7 @@ export class GeoShapeView extends GeoView implements FillView, StrokeView {
 
     (this as Mutable<this>).viewBounds = viewShape !== null ? viewShape.bounds : this.viewFrame;
 
-    this.cullGeoFrame(geoViewport.geoFrame);
+    //this.cullGeoFrame(geoViewport.geoFrame);
   }
 
   protected override onRender(): void {
@@ -319,60 +299,6 @@ export class GeoShapeView extends GeoView implements FillView, StrokeView {
     return pointInStroke ? this : null;
   }
 
-  @Property({valueType: Hyperlink, value: null})
-  get hyperlink(): Property<this, Hyperlink | null, AnyHyperlink | null> {
-    return Property.dummy();
-  }
-
-  @PositionGesture({
-    bindsOwner: true,
-    didMovePress(input: PositionGestureInput, event: Event | null): void {
-      const dx = input.x - input.x0;
-      const dy = input.y - input.y0;
-      if (dx * dx + dy * dy > 4 * 4) {
-        this.cancelPress(input, event);
-      }
-    },
-    didStartHovering(): void {
-      this.owner.callObservers("viewDidEnter", this.owner);
-    },
-    didStopHovering(): void {
-      this.owner.callObservers("viewDidLeave", this.owner);
-    },
-    didPress(input: PositionGestureInput, event: Event | null): void {
-      if (input.defaultPrevented) {
-        return;
-      }
-      this.owner.didPress(input, event);
-    },
-    didLongPress(input: PositionGestureInput): void {
-      if (input.defaultPrevented) {
-        return;
-      }
-      this.owner.didLongPress(input);
-    },
-  })
-  readonly gesture!: PositionGesture<this, GeoShapeView>;
-
-  didPress(input: PositionGestureInput, event: Event | null): void {
-    if (input.defaultPrevented) {
-      return;
-    }
-    this.callObservers("viewDidPress", input, event, this);
-    const hyperlink = this.hyperlink.value;
-    if (hyperlink !== null && !input.defaultPrevented) {
-      input.preventDefault();
-      hyperlink.activate(event);
-    }
-  }
-
-  didLongPress(input: PositionGestureInput): void {
-    if (input.defaultPrevented) {
-      return;
-    }
-    this.callObservers("viewDidLongPress", input, this);
-  }
-
   protected override updateGeoBounds(): void {
     // nop
   }
@@ -389,8 +315,4 @@ export class GeoShapeView extends GeoView implements FillView, StrokeView {
   }
 
   override readonly viewBounds!: R2Box;
-
-  ripple(options?: GeoRippleOptions): GeoRippleView | null {
-    return GeoRippleView.ripple(this, options);
-  }
 }

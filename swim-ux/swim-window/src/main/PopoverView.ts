@@ -19,13 +19,10 @@ import type {Timing} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
-import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
-import type {AnyR2Box} from "@swim/math";
+import type {R2BoxLike} from "@swim/math";
 import {R2Box} from "@swim/math";
-import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
-import type {AnyPresence} from "@swim/style";
 import {Presence} from "@swim/style";
 import {PresenceAnimator} from "@swim/style";
 import {Look} from "@swim/theme";
@@ -89,18 +86,18 @@ export class PopoverView extends HtmlView implements ModalView {
       this.owner.place();
     },
   })
-  override get backgroundColor(): StyleAnimator<this, Color | null, AnyColor | null> {
+  override get backgroundColor(): StyleAnimator<this, Color | null> {
     return StyleAnimator.dummy();
   }
 
   @ThemeAnimator({valueType: Length, value: Length.zero()})
-  readonly placementGap!: ThemeAnimator<this, Length, AnyLength>;
+  readonly placementGap!: ThemeAnimator<this, Length>;
 
   @ThemeAnimator({valueType: Length, value: Length.px(10)})
-  readonly arrowWidth!: ThemeAnimator<this, Length, AnyLength>;
+  readonly arrowWidth!: ThemeAnimator<this, Length>;
 
   @ThemeAnimator({valueType: Length, value: Length.px(8)})
-  readonly arrowHeight!: ThemeAnimator<this, Length, AnyLength>;
+  readonly arrowHeight!: ThemeAnimator<this, Length>;
 
   @ViewRef({
     observes: true,
@@ -184,7 +181,7 @@ export class PopoverView extends HtmlView implements ModalView {
       this.owner.callObservers("viewDidDismiss", this.owner);
     },
   })
-  readonly presence!: PresenceAnimator<this, Presence, AnyPresence>;
+  readonly presence!: PresenceAnimator<this, Presence>;
 
   /** @override */
   @Property({
@@ -199,9 +196,9 @@ export class PopoverView extends HtmlView implements ModalView {
   /** @internal */
   readonly allowedPlacement: PopoverPlacement[];
 
-  placement(): ReadonlyArray<PopoverPlacement>;
-  placement(placement: ReadonlyArray<PopoverPlacement>): this;
-  placement(placement?: ReadonlyArray<PopoverPlacement>): ReadonlyArray<PopoverPlacement> | this {
+  placement(): readonly PopoverPlacement[];
+  placement(placement: readonly PopoverPlacement[]): this;
+  placement(placement?: readonly PopoverPlacement[]): readonly PopoverPlacement[] | this {
     if (placement === void 0) {
       return this.allowedPlacement;
     } else {
@@ -223,11 +220,11 @@ export class PopoverView extends HtmlView implements ModalView {
     didSetValue(placementFrame: R2Box | null): void {
       this.owner.place();
     },
-    fromAny(value: AnyR2Box | null): R2Box | null {
-      return value !== null ? R2Box.fromAny(value) : null;
+    fromLike(value: R2BoxLike | null): R2Box | null {
+      return value !== null ? R2Box.fromLike(value) : null;
     },
   })
-  readonly placementFrame!: Property<this, R2Box | null, AnyR2Box | null>;
+  readonly placementFrame!: Property<this, R2Box | null>;
 
   @Property({
     valueType: Boolean,
@@ -377,19 +374,15 @@ export class PopoverView extends HtmlView implements ModalView {
     let right: number | null = null;
     let bottom: number | null = null;
 
-    let oldWidth: Length | number | null = this.width.state;
-    oldWidth = oldWidth instanceof Length ? oldWidth.pxValue() : null;
-    let oldHeight: Length | number | null = this.height.state;
-    oldHeight = oldHeight instanceof Length ? oldHeight.pxValue() : null;
-    let width = oldWidth;
-    let height = oldHeight;
+    const oldWidth = this.width.pxValue();
+    const oldHeight = this.height.pxValue();
+    let width: number | null = oldWidth;
+    let height: number | null = oldHeight;
 
-    let oldMaxWidth: Length | number | null = this.maxWidth.state;
-    oldMaxWidth = oldMaxWidth instanceof Length ? oldMaxWidth.pxValue() : null;
-    let oldMaxHeight: Length | number | null = this.maxHeight.state;
-    oldMaxHeight = oldMaxHeight instanceof Length ? oldMaxHeight.pxValue() : null;
-    let maxWidth = oldMaxWidth;
-    let maxHeight = oldMaxHeight;
+    const oldMaxWidth = this.maxWidth.pxState();
+    const oldMaxHeight = this.maxHeight.pxState();
+    let maxWidth: number | null = oldMaxWidth;
+    let maxHeight: number | null = oldMaxHeight;
 
     if (placement === "above") {
       left = Math.round(placementLeft);

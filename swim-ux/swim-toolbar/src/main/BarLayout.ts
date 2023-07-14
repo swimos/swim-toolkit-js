@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import type {Mutable} from "@swim/util";
+import type {Proto} from "@swim/util";
 import {Arrays} from "@swim/util";
 import {Equals} from "@swim/util";
 import type {Equivalent} from "@swim/util";
@@ -21,34 +22,36 @@ import {Interpolator} from "@swim/util";
 import type {Output} from "@swim/codec";
 import type {Debug} from "@swim/codec";
 import {Format} from "@swim/codec";
-import type {AnyLength} from "@swim/math";
+import type {LengthLike} from "@swim/math";
 import {Length} from "@swim/math";
 import {Presence} from "@swim/style";
-import type {AnyToolLayout} from "./ToolLayout";
+import type {ToolLayoutLike} from "./ToolLayout";
 import {ToolLayout} from "./ToolLayout";
 
 /** @public */
-export type AnyBarLayout = BarLayout | BarLayoutInit;
+export type BarLayoutLike = BarLayout | BarLayoutInit;
 
 /** @public */
 export interface BarLayoutInit {
-  width?: AnyLength | null;
-  left?: AnyLength | null;
-  right?: AnyLength | null;
-  spacing?: AnyLength | null;
-  tools: AnyToolLayout[];
+  width?: LengthLike | null;
+  left?: LengthLike | null;
+  right?: LengthLike | null;
+  spacing?: LengthLike | null;
+  tools: ToolLayoutLike[];
 }
 
 /** @public */
 export class BarLayout implements Interpolate<BarLayout>, Equals, Equivalent, Debug {
   constructor(width: Length | null, left: Length | null, right: Length | null,
-              spacing: Length | null, tools: ReadonlyArray<ToolLayout>) {
+              spacing: Length | null, tools: readonly ToolLayout[]) {
     this.width = width;
     this.left = left;
     this.right = right;
     this.spacing = spacing;
     this.tools = tools;
   }
+
+  declare readonly likeType?: Proto<BarLayoutInit>;
 
   readonly width: Length | null;
 
@@ -58,7 +61,7 @@ export class BarLayout implements Interpolate<BarLayout>, Equals, Equivalent, De
 
   readonly spacing: Length | null;
 
-  readonly tools: ReadonlyArray<ToolLayout>;
+  readonly tools: readonly ToolLayout[];
 
   getTool(key: string): ToolLayout | null {
     const tools = this.tools;
@@ -71,23 +74,23 @@ export class BarLayout implements Interpolate<BarLayout>, Equals, Equivalent, De
     return null;
   }
 
-  resized(width: AnyLength, left?: AnyLength | null, right?: AnyLength | null,
-          spacing?: AnyLength | null): BarLayout {
-    width = Length.fromAny(width);
+  resized(width: LengthLike, left?: LengthLike | null, right?: LengthLike | null,
+          spacing?: LengthLike | null): BarLayout {
+    width = Length.fromLike(width);
     if (left === void 0) {
       left = this.left;
     } else if (left !== null) {
-      left = Length.fromAny(left);
+      left = Length.fromLike(left);
     }
     if (right === void 0) {
       right = this.right;
     } else if (right !== null) {
-      right = Length.fromAny(right);
+      right = Length.fromLike(right);
     }
     if (spacing === void 0) {
       spacing = this.spacing;
     } else if (spacing !== null) {
-      spacing = Length.fromAny(spacing);
+      spacing = Length.fromLike(spacing);
     }
 
     if (Equals(this.width, width) && Equals(this.left, left) &&
@@ -219,20 +222,20 @@ export class BarLayout implements Interpolate<BarLayout>, Equals, Equivalent, De
     return Format.debug(this);
   }
 
-  static of(...barTools: AnyToolLayout[]): BarLayout {
+  static of(...barTools: ToolLayoutLike[]): BarLayout {
     const n = barTools.length;
     const tools = new Array<ToolLayout>(n);
     for (let i = 0; i < n; i += 1) {
-      tools[i] = ToolLayout.fromAny(barTools[i]!);
+      tools[i] = ToolLayout.fromLike(barTools[i]!);
     }
     return new BarLayout(null, null, null, null, tools);
   }
 
-  static create(tools: ReadonlyArray<ToolLayout>): BarLayout {
+  static create(tools: readonly ToolLayout[]): BarLayout {
     return new BarLayout(null, null, null, null, tools);
   }
 
-  static fromAny(value: AnyBarLayout): BarLayout {
+  static fromLike(value: BarLayoutLike): BarLayout {
     if (value === void 0 || value === null || value instanceof BarLayout) {
       return value;
     } else if (typeof value === "object" && value !== null) {
@@ -244,32 +247,32 @@ export class BarLayout implements Interpolate<BarLayout>, Equals, Equivalent, De
   static fromInit(init: BarLayoutInit): BarLayout {
     let width = init.width;
     if (width !== void 0 && width !== null) {
-      width = Length.fromAny(width);
+      width = Length.fromLike(width);
     } else {
       width = null;
     }
     let left = init.left;
     if (left !== void 0 && left !== null) {
-      left = Length.fromAny(left);
+      left = Length.fromLike(left);
     } else {
       left = null;
     }
     let right = init.right;
     if (right !== void 0 && right !== null) {
-      right = Length.fromAny(right);
+      right = Length.fromLike(right);
     } else {
       right = null;
     }
     let spacing = init.spacing;
     if (spacing !== void 0 && spacing !== null) {
-      spacing = Length.fromAny(spacing);
+      spacing = Length.fromLike(spacing);
     } else {
       spacing = null;
     }
     const toolCount = init.tools.length;
     const tools = new Array<ToolLayout>(toolCount);
     for (let i = 0; i < toolCount; i += 1) {
-      tools[i] = ToolLayout.fromAny(init.tools[i]!);
+      tools[i] = ToolLayout.fromLike(init.tools[i]!);
     }
     return new BarLayout(width, left, right, spacing, tools);
   }
@@ -286,7 +289,7 @@ export interface BarLayoutInterpolator extends Interpolator<BarLayout> {
   /** @internal */
   readonly spacingInterpolator: Interpolator<Length | null>;
   /** @internal */
-  readonly toolInterpolators: ReadonlyArray<Interpolator<ToolLayout>>;
+  readonly toolInterpolators: readonly Interpolator<ToolLayout>[];
 
   readonly 0: BarLayout;
 

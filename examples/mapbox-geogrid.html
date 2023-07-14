@@ -77,12 +77,12 @@ const ExampleTileController = (function () {
       __runInitializers(this, instanceInitializers);
       this.geo = __runInitializers(this, geoInitializers, this.geo);
       this.tiles = __runInitializers(this, tilesInitializers, this.tiles);
-      // Only consume even zoom level tiles
-      this.maxVisibleZoom.setValue(geoTile.z + 2);
-      if (geoTile.z % 2 === 0) {
-        this.maxConsumeZoom.setValue(geoTile.z + 2);
-      } else {
-        this.maxConsumeZoom.setValue(geoTile.z); // disables auto-consume
+      if (geoTile.z % 2 === 0) { // consume even zoom level tiles
+        this.visibleRange.setValue([geoTile.z, geoTile.z + 2]);
+        this.consumeRange.setValue([geoTile.z, geoTile.z + 2]);
+      } else { // disable auto-consumption of odd zoom level tiles
+        this.visibleRange.setValue([geoTile.z, geoTile.z]);
+        this.consumeRange.setValue([geoTile.z, geoTile.z]);
       }
     }
   }
@@ -127,7 +127,7 @@ const ExampleTileTrait = (function () {
     consumed: true,
     laneUri: "vehicles",
     didUpdate(key, value) {
-      console.log(this.getNodeUri() + " updateVehicle " + key.toAny() + ":", value.toAny());
+      console.log(this.getNodeUri() + " updateVehicle " + key.toLike() + ":", value.toLike());
       const featureId = key.stringValue();
       let featureModel = this.owner.getChild(featureId);
       let featureTrait = featureModel !== null ? featureModel.getTrait(swim.GeoIconTrait) : null;

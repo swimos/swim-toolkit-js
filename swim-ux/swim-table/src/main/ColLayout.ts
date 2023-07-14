@@ -12,32 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Proto} from "@swim/util";
 import {Equals} from "@swim/util";
 import {Equivalent} from "@swim/util";
 import type {Output} from "@swim/codec";
 import type {Debug} from "@swim/codec";
 import {Format} from "@swim/codec";
-import type {AnyLength} from "@swim/math";
+import type {LengthLike} from "@swim/math";
 import {Length} from "@swim/math";
-import type {AnyColorOrLook} from "@swim/theme";
+import type {ColorOrLookLike} from "@swim/theme";
 import type {ColorOrLook} from "@swim/theme";
 import {ColorLook} from "@swim/theme";
 
 /** @public */
-export type AnyColLayout = ColLayout | ColLayoutInit;
+export type ColLayoutLike = ColLayout | ColLayoutInit;
 
 /** @public */
 export interface ColLayoutInit {
   key?: string;
   grow?: number;
   shrink?: number;
-  basis?: AnyLength;
+  basis?: LengthLike;
   optional?: boolean;
   persistent?: boolean;
-  textColor?: AnyColorOrLook | null;
-  width?: AnyLength | null;
-  left?: AnyLength | null;
-  right?: AnyLength | null;
+  textColor?: ColorOrLookLike | null;
+  width?: LengthLike | null;
+  left?: LengthLike | null;
+  right?: LengthLike | null;
   hidden?: boolean;
 }
 
@@ -59,6 +60,8 @@ export class ColLayout implements Equals, Equivalent, Debug {
     this.hidden = hidden;
   }
 
+  declare readonly likeType?: Proto<ColLayoutInit>;
+
   readonly key: string;
 
   withKey(key: string): ColLayout {
@@ -72,9 +75,9 @@ export class ColLayout implements Equals, Equivalent, Debug {
 
   readonly basis: Length;
 
-  withFlex(grow: number, shrink: number, basis?: AnyLength): ColLayout {
+  withFlex(grow: number, shrink: number, basis?: LengthLike): ColLayout {
     if (basis !== void 0) {
-      basis = Length.fromAny(basis);
+      basis = Length.fromLike(basis);
     } else {
       basis = this.basis;
     }
@@ -98,8 +101,8 @@ export class ColLayout implements Equals, Equivalent, Debug {
 
   readonly textColor: ColorOrLook | null;
 
-  withTextColor(textColor: AnyColorOrLook | null): ColLayout {
-    textColor = ColorLook.fromAny(textColor);
+  withTextColor(textColor: ColorOrLookLike | null): ColLayout {
+    textColor = ColorLook.fromLike(textColor);
     return this.copy(this.key, this.grow, this.shrink, this.basis, this.optional, this.persistent,
                      textColor, this.width, this.left, this.right, this.hidden);
   }
@@ -117,16 +120,16 @@ export class ColLayout implements Equals, Equivalent, Debug {
                      this.textColor, this.width, this.left, this.right, hidden);
   }
 
-  resized(width: AnyLength | null, left: AnyLength | null,
-          right: AnyLength | null, hidden?: boolean): ColLayout {
+  resized(width: LengthLike | null, left: LengthLike | null,
+          right: LengthLike | null, hidden?: boolean): ColLayout {
     if (width !== null) {
-      width = Length.fromAny(width);
+      width = Length.fromLike(width);
     }
     if (left !== null) {
-      left = Length.fromAny(left);
+      left = Length.fromLike(left);
     }
     if (right !== null) {
-      right = Length.fromAny(right);
+      right = Length.fromLike(right);
     }
     if (hidden === void 0) {
       hidden = this.hidden;
@@ -195,8 +198,8 @@ export class ColLayout implements Equals, Equivalent, Debug {
     return Format.debug(this);
   }
 
-  static create(key: string, grow?: number, shrink?: number, basis?: AnyLength,
-                optional?: boolean, persistent?: boolean, textColor?: AnyColorOrLook | null): ColLayout {
+  static create(key: string, grow?: number, shrink?: number, basis?: LengthLike,
+                optional?: boolean, persistent?: boolean, textColor?: ColorOrLookLike | null): ColLayout {
     if (grow === void 0) {
       grow = 0;
     }
@@ -204,7 +207,7 @@ export class ColLayout implements Equals, Equivalent, Debug {
       shrink = 1;
     }
     if (basis !== void 0) {
-      basis = Length.fromAny(basis);
+      basis = Length.fromLike(basis);
     } else {
       basis = Length.zero();
     }
@@ -221,13 +224,13 @@ export class ColLayout implements Equals, Equivalent, Debug {
       textColor = null;
     }
     if (textColor !== null) {
-      textColor = ColorLook.fromAny(textColor);
+      textColor = ColorLook.fromLike(textColor);
     }
     return new ColLayout(key, grow, shrink, basis, optional, persistent,
                          textColor, null, null, null, false);
   }
 
-  static fromAny(value: AnyColLayout): ColLayout {
+  static fromLike(value: ColLayoutLike): ColLayout {
     if (value === void 0 || value === null || value instanceof ColLayout) {
       return value;
     } else if (typeof value === "object" && value !== null) {
@@ -251,7 +254,7 @@ export class ColLayout implements Equals, Equivalent, Debug {
     }
     let basis = init.basis;
     if (basis !== void 0) {
-      basis = Length.fromAny(basis);
+      basis = Length.fromLike(basis);
     } else {
       basis = Length.zero();
     }
@@ -268,23 +271,23 @@ export class ColLayout implements Equals, Equivalent, Debug {
       textColor = null;
     }
     if (textColor !== null) {
-      textColor = ColorLook.fromAny(textColor);
+      textColor = ColorLook.fromLike(textColor);
     }
     let width = init.width;
     if (width !== void 0 && width !== null) {
-      width = Length.fromAny(width);
+      width = Length.fromLike(width);
     } else {
       width = null;
     }
     let left = init.left;
     if (left !== void 0 && left !== null) {
-      left = Length.fromAny(left);
+      left = Length.fromLike(left);
     } else {
       left = null;
     }
     let right = init.right;
     if (right !== void 0 && right !== null) {
-      right = Length.fromAny(right);
+      right = Length.fromLike(right);
     } else {
       right = null;
     }

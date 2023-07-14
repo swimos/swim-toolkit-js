@@ -14,7 +14,6 @@
 
 import type {Class} from "@swim/util";
 import {Property} from "@swim/component";
-import type {AnyColorOrLook} from "@swim/theme";
 import type {ColorOrLook} from "@swim/theme";
 import {ColorLook} from "@swim/theme";
 import type {SeriesPlotTraitObserver} from "./SeriesPlotTrait";
@@ -38,7 +37,7 @@ export class AreaPlotTrait<X = unknown, Y = unknown> extends SeriesPlotTrait<X, 
       this.owner.callObservers("traitDidSetFill", fill, this.owner);
     },
   })
-  readonly fill!: Property<this, ColorOrLook | null, AnyColorOrLook | null>;
+  readonly fill!: Property<this, ColorOrLook | null>;
 
   override createPlotController(): SeriesPlotController<X, Y> {
     return new AreaPlotController<X, Y>();

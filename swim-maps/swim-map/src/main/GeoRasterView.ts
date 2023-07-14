@@ -17,19 +17,16 @@ import type {Class} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import {Animator} from "@swim/component";
-import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
-import type {AnyR2Point} from "@swim/math";
 import {R2Point} from "@swim/math";
 import {R2Box} from "@swim/math";
 import {Transform} from "@swim/math";
-import type {AnyGeoPoint} from "@swim/geo";
 import {GeoPoint} from "@swim/geo";
 import {GeoBox} from "@swim/geo";
 import {ThemeAnimator} from "@swim/theme";
 import type {ViewFlags} from "@swim/view";
 import {View} from "@swim/view";
-import type {AnyGraphicsRenderer} from "@swim/graphics";
+import type {GraphicsRendererLike} from "@swim/graphics";
 import type {GraphicsRendererType} from "@swim/graphics";
 import {GraphicsRenderer} from "@swim/graphics";
 import type {CanvasCompositeOperation} from "@swim/graphics";
@@ -70,10 +67,10 @@ export class GeoRasterView extends GeoView {
       this.owner.callObservers("viewDidSetGeoAnchor", newGeoAnchor, this.owner);
     },
   })
-  readonly geoAnchor!: Animator<this, GeoPoint | null, AnyGeoPoint | null>;
+  readonly geoAnchor!: Animator<this, GeoPoint | null>;
 
   @Animator({valueType: R2Point, value: R2Point.undefined()})
-  readonly viewAnchor!: Animator<this, R2Point | null, AnyR2Point | null>;
+  readonly viewAnchor!: Animator<this, R2Point | null>;
 
   @Animator({valueType: Number, value: 0.5, updateFlags: View.NeedsComposite})
   readonly xAlign!: Animator<this, number>;
@@ -82,10 +79,10 @@ export class GeoRasterView extends GeoView {
   readonly yAlign!: Animator<this, number>;
 
   @ThemeAnimator({valueType: Length, value: null, updateFlags: View.NeedsResize | View.NeedsLayout | View.NeedsRender | View.NeedsComposite})
-  readonly width!: ThemeAnimator<this, Length | null, AnyLength | null>;
+  readonly width!: ThemeAnimator<this, Length | null>;
 
   @ThemeAnimator({valueType: Length, value: null, updateFlags: View.NeedsResize | View.NeedsLayout | View.NeedsRender | View.NeedsComposite})
-  readonly height!: ThemeAnimator<this, Length | null, AnyLength | null>;
+  readonly height!: ThemeAnimator<this, Length | null>;
 
   @ThemeAnimator({valueType: Number, value: 1, updateFlags: View.NeedsComposite})
   readonly opacity!: ThemeAnimator<this, number>;
@@ -111,14 +108,14 @@ export class GeoRasterView extends GeoView {
     extends: true,
     inherits: false,
     updateFlags: View.NeedsRender | View.NeedsComposite,
-    fromAny(renderer: AnyGraphicsRenderer | null): GraphicsRenderer | null {
+    fromLike(renderer: GraphicsRendererLike | null): GraphicsRenderer | null {
       if (typeof renderer === "string") {
         renderer = this.owner.createRenderer(renderer as GraphicsRendererType);
       }
       return renderer;
     },
   })
-  override readonly renderer!: Property<this, GraphicsRenderer | null, AnyGraphicsRenderer | null>;
+  override readonly renderer!: Property<this, GraphicsRenderer | null>;
 
   protected createRenderer(rendererType: GraphicsRendererType = "canvas"): GraphicsRenderer | null {
     if (rendererType === "canvas") {

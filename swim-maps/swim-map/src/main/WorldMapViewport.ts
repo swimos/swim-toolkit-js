@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import type {Equals} from "@swim/util";
-import type {AnyR2Point} from "@swim/math";
+import type {R2PointLike} from "@swim/math";
 import type {R2PointInit} from "@swim/math";
 import {R2Point} from "@swim/math";
 import {R2Box} from "@swim/math";
-import type {AnyGeoPoint} from "@swim/geo";
+import type {GeoPointLike} from "@swim/geo";
 import type {GeoPointInit} from "@swim/geo";
 import {GeoPoint} from "@swim/geo";
 import {GeoBox} from "@swim/geo";
@@ -49,10 +49,10 @@ export abstract class WorldMapViewport implements GeoViewport, Equals {
 
   abstract withViewFrame(viewFrame: R2Box): WorldMapViewport;
 
-  abstract project(geoPoint: AnyGeoPoint): R2Point;
+  abstract project(geoPoint: GeoPointLike): R2Point;
   abstract project(lng: number, lat: number): R2Point;
 
-  abstract unproject(viewPoint: AnyR2Point): GeoPoint;
+  abstract unproject(viewPoint: R2PointLike): GeoPoint;
   abstract unproject(x: number, y: number): GeoPoint;
 
   protected canEqual(that: unknown): boolean {
@@ -103,9 +103,9 @@ export class EquirectangularMapViewport extends WorldMapViewport {
     return new EquirectangularMapViewport(viewFrame);
   }
 
-  override project(geoPoint: AnyGeoPoint): R2Point;
+  override project(geoPoint: GeoPointLike): R2Point;
   override project(lng: number, lat: number): R2Point;
-  override project(lng: AnyGeoPoint | number, lat?: number): R2Point {
+  override project(lng: GeoPointLike | number, lat?: number): R2Point {
     if (arguments.length === 1) {
       if (Array.isArray(lng)) {
         lat = lng[1];
@@ -121,9 +121,9 @@ export class EquirectangularMapViewport extends WorldMapViewport {
     return new R2Point(x, y);
   }
 
-  override unproject(viewPoint: AnyR2Point): GeoPoint;
+  override unproject(viewPoint: R2PointLike): GeoPoint;
   override unproject(x: number, y: number): GeoPoint;
-  override unproject(x: AnyR2Point | number, y?: number): GeoPoint {
+  override unproject(x: R2PointLike | number, y?: number): GeoPoint {
     if (arguments.length === 1) {
       if (Array.isArray(x)) {
         y = x[1];

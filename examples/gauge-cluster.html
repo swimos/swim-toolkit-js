@@ -25,11 +25,11 @@ const canvasView = swim.CanvasView.create()
     .touchEventsEnabled(true)
     .touchAction("manipulation");
 
-const gaugeView = canvasView.appendChild(swim.GaugeView)
-    .innerRadius(swim.Length.pct(25))
-    .startAngle(swim.Angle.rad(3 * Math.PI / 4))
-    .sweepAngle(swim.Angle.rad(3 * Math.PI / 2))
-    .font("14px sans-serif");
+const gaugeView = canvasView.appendChild(swim.GaugeView);
+gaugeView.innerRadius.setState(swim.Length.pct(25));
+gaugeView.startAngle.setState(swim.Angle.rad(3 * Math.PI / 4));
+gaugeView.sweepAngle.setState(swim.Angle.rad(3 * Math.PI / 2));
+gaugeView.font.setState("14px sans-serif");
 gaugeView.addEventListener("pointerover", function (event) {
   if (event.targetView instanceof swim.DialView) {
     event.targetView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, 1]], true);
@@ -53,9 +53,9 @@ dial2View.label.setText("label 2");
 
 setInterval(function () {
   const timing = swim.Easing.linear.withDuration(1000);
-  dial0View.value(Math.random(), timing);
-  dial1View.value(Math.random(), timing);
-  dial2View.value(Math.random(), timing);
+  dial0View.value.setState(Math.random(), timing);
+  dial1View.value.setState(Math.random(), timing);
+  dial2View.value.setState(Math.random(), timing);
 }, 1000);
 
 containerView.appendChild(canvasView);

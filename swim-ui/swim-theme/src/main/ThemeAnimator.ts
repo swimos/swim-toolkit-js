@@ -14,10 +14,11 @@
 
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import {Timing} from "@swim/util";
 import {Affinity} from "@swim/component";
-import type {Property} from "@swim/component";
+import {Fastener} from "@swim/component";
+import {Property} from "@swim/component";
 import type {AnimatorClass} from "@swim/component";
 import type {AnimatorDescriptor} from "@swim/component";
 import {Animator} from "@swim/component";
@@ -27,9 +28,8 @@ import {ThemeContext} from "./ThemeContext";
 import {Look} from "./"; // forward import
 
 /** @public */
-export interface ThemeAnimatorDescriptor<T = unknown, U = T> extends AnimatorDescriptor<T, U> {
+export interface ThemeAnimatorDescriptor<R, T> extends AnimatorDescriptor<R, T> {
   extends?: Proto<ThemeAnimator<any, any, any>> | boolean | null;
-  look?: Look<T, any>;
 }
 
 /** @public */
@@ -37,131 +37,105 @@ export interface ThemeAnimatorClass<A extends ThemeAnimator<any, any, any> = The
 }
 
 /** @public */
-export interface ThemeAnimator<O = unknown, T = unknown, U = T, I = Look<NonNullable<T>, any> | T> extends Animator<O, T, U, I> {
+export interface ThemeAnimator<R = any, T = any, I extends any[] = [Look<NonNullable<T>> | T]> extends Animator<R, T, I> {
   /** @override */
-  get descriptorType(): Proto<ThemeAnimatorDescriptor<T, U>>;
+  get descriptorType(): Proto<ThemeAnimatorDescriptor<R, T>>;
 
   /** @protected @override */
   onSetAffinity(newAffinity: Affinity, oldAffinity: Affinity): void;
 
-  /** @protected @override */
-  onDerive(inlet: Property<any, I, any, any>): void;
+  get inletLook(): Look<NonNullable<T>> | null;
 
-  get inletLook(): Look<T, any> | null;
+  getInletLook(): Look<NonNullable<T>>;
 
-  getInletLook(): Look<T, any>;
-
-  getInletLookOr<E>(elseLook: E): Look<T, any> | E;
+  getInletLookOr<E>(elseLook: E): Look<NonNullable<T>> | E;
 
   /** @protected */
-  initLook(): Look<T, any> | null;
+  initLook(): Look<NonNullable<T>> | null;
 
-  readonly look: Look<T, any> | null;
+  readonly look: Look<NonNullable<T>> | null;
 
-  getLook(): Look<T, any>;
+  getLook(): Look<NonNullable<T>>;
 
-  getLookOr<E>(elseLook: E): Look<T, any> | E;
+  getLookOr<E>(elseLook: E): Look<NonNullable<T>> | E;
 
-  setLook(newLook: Look<T, any> | null, timingOrAffinity: Affinity | AnyTiming | boolean | null | undefined): void;
-  setLook(newLook: Look<T, any> | null, timing?: AnyTiming | boolean | null, affinity?: Affinity): void;
-
-  /** @protected */
-  willSetLook(newLook: Look<T, any> | null, oldLook: Look<T, any> | null, timing: Timing | boolean): void;
+  setLook(newLook: Look<NonNullable<T>> | null, timingOrAffinity: Affinity | TimingLike | boolean | null | undefined): void;
+  setLook(newLook: Look<NonNullable<T>> | null, timing?: TimingLike | boolean | null, affinity?: Affinity): void;
 
   /** @protected */
-  onSetLook(newLook: Look<T, any> | null, oldLook: Look<T, any> | null, timing: Timing | boolean): void;
+  willSetLook(newLook: Look<NonNullable<T>> | null, oldLook: Look<NonNullable<T>> | null, timing: Timing | boolean): void;
 
   /** @protected */
-  didSetLook(newLook: Look<T, any> | null, oldLook: Look<T, any> | null, timing: Timing | boolean): void;
+  onSetLook(newLook: Look<NonNullable<T>> | null, oldLook: Look<NonNullable<T>> | null, timing: Timing | boolean): void;
+
+  /** @protected */
+  didSetLook(newLook: Look<NonNullable<T>> | null, oldLook: Look<NonNullable<T>> | null, timing: Timing | boolean): void;
 
   /** @internal */
-  applyLook(look: Look<T, any>, timing: Timing | boolean): void;
+  applyLook(look: Look<NonNullable<T>>, timing: Timing | boolean): void;
 
   applyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void;
 
-  /** @internal @protected @override */
-  tweenInherited(t: number): void;
+  /** @override */
+  recohere(t: number): void;
 
   /** @protected @override */
   onMount(): void;
 }
 
 /** @public */
-export const ThemeAnimator = (function (_super: typeof Animator) {
-  const ThemeAnimator = _super.extend("ThemeAnimator", {}) as ThemeAnimatorClass;
-
-  ThemeAnimator.prototype.onSetAffinity = function (this: ThemeAnimator, newAffinity: Affinity, oldAffinity: Affinity): void {
+export const ThemeAnimator = (<R, T, I extends any[], A extends ThemeAnimator<any, any, any>>() => Animator.extend<ThemeAnimator<R, T, I>, ThemeAnimatorClass<A>>("ThemeAnimator", {
+  onSetAffinity(newAffinity: Affinity, oldAffinity: Affinity): void {
     if (newAffinity > Affinity.Intrinsic) {
       this.setLook(null, newAffinity);
     }
-    _super.prototype.onSetAffinity.call(this, newAffinity, oldAffinity);
-  };
+    super.onSetAffinity(newAffinity, oldAffinity);
+  },
 
-  ThemeAnimator.prototype.onDerive = function <T, I>(this: ThemeAnimator<any, T, any, any>, inlet: Property<any, I, any, any>): void {
-    if (inlet instanceof ThemeAnimator) {
-      this.setLook(inlet.look, inlet.timing, Affinity.Reflexive);
-    } else {
-      const inletValue = inlet.getOutletValue(this);
-      if (inletValue instanceof Look) {
-        this.setLook(inletValue, Affinity.Reflexive);
-      } else {
-        this.setLook(null, Affinity.Reflexive);
-      }
-    }
-    if (this.look === null) {
-      _super.prototype.onDerive.call(this, inlet);
-    }
-  };
+  get inletLook(): Look<NonNullable<T>> | null {
+    const inlet = this.inlet;
+    return inlet instanceof ThemeAnimator ? inlet.look : null;
+  },
 
-  Object.defineProperty(ThemeAnimator.prototype, "inletLook", {
-    get: function <T>(this: ThemeAnimator<unknown, T>): Look<T, any> | null {
-      const inlet = this.inlet;
-      return inlet instanceof ThemeAnimator ? inlet.look : null;
-    },
-    configurable: true,
-  });
-
-  ThemeAnimator.prototype.getInletLook = function <T>(this: ThemeAnimator<unknown, T>): Look<T, any> {
+  getInletLook(): Look<NonNullable<T>> {
     const inletLook = this.inletLook;
     if (inletLook === null) {
       throw new TypeError(inletLook + " " + this.name.toString() + " inlet look");
     }
     return inletLook;
-  };
+  },
 
-  ThemeAnimator.prototype.getInletLookOr = function <T, E>(this: ThemeAnimator<unknown, T>, elseLook: E): Look<T, any> | E {
-    let inletLook: Look<T> | E | null = this.inletLook;
+  getInletLookOr<E>(elseLook: E): Look<NonNullable<T>> | E {
+    const inletLook = this.inletLook;
     if (inletLook === null) {
-      inletLook = elseLook;
+      return elseLook;
     }
     return inletLook;
-  };
+  },
 
-  ThemeAnimator.prototype.initLook = function <T>(this: ThemeAnimator<unknown, T>): Look<T, any> | null {
-    let look = (Object.getPrototypeOf(this) as ThemeAnimator<unknown, T>).look as Look<T, any> | null | undefined;
-    if (look === void 0) {
-      look = null;
-    }
-    return look;
-  };
+  look: null,
 
-  ThemeAnimator.prototype.getLook = function <T>(this: ThemeAnimator<unknown, T>): Look<T, any> {
+  initLook(): Look<NonNullable<T>> | null {
+    return (Object.getPrototypeOf(this) as ThemeAnimator<unknown, T>).look;
+  },
+
+  getLook(): Look<NonNullable<T>> {
     const look = this.look;
     if (look === null) {
       throw new TypeError(look + " " + this.name.toString() + " look");
     }
     return look;
-  };
+  },
 
-  ThemeAnimator.prototype.getLookOr = function <T, E>(this: ThemeAnimator<unknown, T>, elseLook: E): Look<T, any> | E {
-    let look: Look<T> | E | null = this.look;
+  getLookOr<E>(elseLook: E): Look<NonNullable<T>> | E {
+    const look = this.look;
     if (look === null) {
-      look = elseLook;
+      return elseLook;
     }
     return look;
-  };
+  },
 
-  ThemeAnimator.prototype.setLook = function <T>(this: ThemeAnimator<unknown, T>, newLook: Look<T, any> | null, timing?: Affinity | AnyTiming | boolean | null, affinity?: Affinity): void {
+  setLook(newLook: Look<NonNullable<T>> | null, timing?: Affinity | TimingLike | boolean | null, affinity?: Affinity): void {
     if (typeof timing === "number") {
       affinity = timing;
       timing = void 0;
@@ -179,29 +153,29 @@ export const ThemeAnimator = (function (_super: typeof Animator) {
     if (timing === void 0 || timing === null) {
       timing = false;
     } else {
-      timing = Timing.fromAny(timing);
+      timing = Timing.fromLike(timing);
     }
     this.willSetLook(newLook, oldLook, timing);
     (this as Mutable<typeof this>).look = newLook;
     this.onSetLook(newLook, oldLook, timing);
     this.didSetLook(newLook, oldLook, timing);
-  };
+  },
 
-  ThemeAnimator.prototype.willSetLook = function <T>(this: ThemeAnimator<unknown, T>, newLook: Look<T, any> | null, oldLook: Look<T, any> | null, timing: Timing | boolean): void {
+  willSetLook(newLook: Look<NonNullable<T>> | null, oldLook: Look<NonNullable<T>> | null, timing: Timing | boolean): void {
     // hook
-  };
+  },
 
-  ThemeAnimator.prototype.onSetLook = function <T>(this: ThemeAnimator<unknown, T>, newLook: Look<T, any> | null, oldLook: Look<T, any> | null, timing: Timing | boolean): void {
+  onSetLook(newLook: Look<NonNullable<T>> | null, oldLook: Look<NonNullable<T>> | null, timing: Timing | boolean): void {
     if (newLook !== null) {
       this.applyLook(newLook, timing);
     }
-  };
+  },
 
-  ThemeAnimator.prototype.didSetLook = function <T>(this: ThemeAnimator<unknown, T>, newLook: Look<T, any> | null, oldLook: Look<T, any> | null, timing: Timing | boolean): void {
+  didSetLook(newLook: Look<NonNullable<T>> | null, oldLook: Look<NonNullable<T>> | null, timing: Timing | boolean): void {
     // hook
-  };
+  },
 
-  ThemeAnimator.prototype.applyLook = function <T>(this: ThemeAnimator<unknown, T>, look: Look<T, any>, timing: Timing | boolean): void {
+  applyLook(look: Look<NonNullable<T>>, timing: Timing | boolean): void {
     const themeContext = this.owner;
     if (!this.mounted || !ThemeContext[Symbol.hasInstance](themeContext)) {
       return;
@@ -214,9 +188,9 @@ export const ThemeAnimator = (function (_super: typeof Animator) {
       timing = themeContext.getLookOr(Look.timing, true);
     }
     this.setState(state, timing, Affinity.Reflexive);
-  };
+  },
 
-  ThemeAnimator.prototype.applyTheme = function <T>(this: ThemeAnimator<unknown, T>, theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean | undefined): void {
+  applyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean | undefined): void {
     const look = this.look;
     if (look === null) {
       return;
@@ -232,42 +206,53 @@ export const ThemeAnimator = (function (_super: typeof Animator) {
       }
     }
     this.setState(state, timing, Affinity.Reflexive);
-  };
+  },
 
-  ThemeAnimator.prototype.tweenInherited = function <T>(this: ThemeAnimator<unknown, T>, t: number): void {
-    const inlet = this.inlet;
-    if (inlet instanceof ThemeAnimator) {
-      this.setLook(inlet.look, inlet.timing, Affinity.Reflexive);
-    } else if (inlet !== null) {
-      const inletValue = inlet.getOutletValue(this);
-      if (inletValue instanceof Look) {
-        this.setLook(inletValue, Affinity.Reflexive);
-      } else {
-        this.setLook(null, Affinity.Reflexive);
+  recohere(t: number): void {
+    this.setCoherentTime(t);
+    const inlets = this.inlet;
+    if (inlets instanceof Property) {
+      this.setDerived((this.flags & Affinity.Mask) <= Math.min(inlets.flags & Affinity.Mask, Affinity.Intrinsic));
+      if ((this.flags & Fastener.DerivedFlag) !== 0) {
+        if (inlets instanceof ThemeAnimator) {
+          this.setLook(inlets.look, inlets.timing, Affinity.Reflexive);
+        } else if (inlets instanceof Property) {
+          const inletValue = inlets.getOutletValue(this);
+          if (inletValue instanceof Look) {
+            this.setLook(inletValue, Affinity.Reflexive);
+          } else {
+            this.setLook(null, Affinity.Reflexive);
+          }
+        } else {
+          this.setLook(null, Affinity.Reflexive);
+        }
+        if (this.look !== null) {
+          this.tween(t);
+        } else {
+          this.tweenInherited(t);
+        }
+      } else if ((this.flags & Animator.TweeningFlag) !== 0) {
+        this.tween(t);
       }
     } else {
-      this.setLook(null, Affinity.Reflexive);
+      this.setDerived(false);
+      if ((this.flags & Animator.TweeningFlag) !== 0) {
+        this.tween(t);
+      }
     }
-    if (this.look !== null) {
-      _super.prototype.tween.call(this, t);
-    } else {
-      _super.prototype.tweenInherited.call(this, t);
-    }
-  };
+  },
 
-  ThemeAnimator.prototype.onMount = function (this: ThemeAnimator): void {
-    _super.prototype.onMount.call(this);
+  onMount(): void {
+    super.onMount();
     const look = this.look;
     if (look !== null) {
       this.applyLook(look, false);
     }
-  };
-
-  ThemeAnimator.construct = function <A extends ThemeAnimator<any, any>>(animator: A | null, owner: A extends ThemeAnimator<infer O, any, any> ? O : never): A {
-    animator = _super.construct.call(this, animator, owner) as A;
+  },
+}, {
+  construct(animator: A | null, owner: A extends Fastener<infer R, any, any> ? R : never): A {
+    animator = super.construct(animator, owner) as A;
     (animator as Mutable<typeof animator>).look = animator.initLook();
     return animator;
-  };
-
-  return ThemeAnimator;
-})(Animator);
+  },
+}))();

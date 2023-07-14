@@ -27,7 +27,7 @@ export class TestThemeComponent extends Component implements ThemeContext {
   @Property({valueType: ThemeMatrix, value: null, inherits: true})
   readonly theme!: Property<this, ThemeMatrix | null>;
 
-  getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel> | null): T | undefined {
+  getLook<T>(look: Look<T>, mood?: MoodVector<Feel> | null): T | undefined {
     const theme = this.theme.value;
     let value: T | undefined;
     if (theme !== null) {
@@ -41,9 +41,9 @@ export class TestThemeComponent extends Component implements ThemeContext {
     return value;
   }
 
-  getLookOr<T, E>(look: Look<T, unknown>, elseValue: E): T | E;
-  getLookOr<T, E>(look: Look<T, unknown>, mood: MoodVector<Feel> | null, elseValue: E): T | E;
-  getLookOr<T, E>(look: Look<T, unknown>, mood: MoodVector<Feel> | null | E, elseValue?: E): T | E {
+  getLookOr<T, E>(look: Look<T>, elseValue: E): T | E;
+  getLookOr<T, E>(look: Look<T>, mood: MoodVector<Feel> | null, elseValue: E): T | E;
+  getLookOr<T, E>(look: Look<T>, mood: MoodVector<Feel> | null | E, elseValue?: E): T | E {
     if (arguments.length === 2) {
       elseValue = mood as E;
       mood = null;

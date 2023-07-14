@@ -14,9 +14,7 @@
 
 import type {Class} from "@swim/util";
 import {Property} from "@swim/component";
-import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
-import type {AnyColorOrLook} from "@swim/theme";
 import type {ColorOrLook} from "@swim/theme";
 import {ColorLook} from "@swim/theme";
 import type {SeriesPlotTraitObserver} from "./SeriesPlotTrait";
@@ -42,7 +40,7 @@ export class LinePlotTrait<X = unknown, Y = unknown> extends SeriesPlotTrait<X, 
       this.owner.callObservers("traitDidSetStroke", stroke, this.owner);
     },
   })
-  readonly stroke!: Property<this, ColorOrLook | null, AnyColorOrLook | null>;
+  readonly stroke!: Property<this, ColorOrLook | null>;
 
   @Property({
     valueType: Length,
@@ -51,7 +49,7 @@ export class LinePlotTrait<X = unknown, Y = unknown> extends SeriesPlotTrait<X, 
       this.owner.callObservers("traitDidSetStrokeWidth", strokeWidth, this.owner);
     },
   })
-  readonly strokeWidth!: Property<this, Length | null, AnyLength | null>;
+  readonly strokeWidth!: Property<this, Length | null>;
 
   override createPlotController(): SeriesPlotController<X, Y> {
     return new LinePlotController<X, Y>();

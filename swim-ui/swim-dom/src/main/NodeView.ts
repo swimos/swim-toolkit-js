@@ -13,11 +13,12 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
+import type {Proto} from "@swim/util";
 import type {Instance} from "@swim/util";
+import type {LikeType} from "@swim/util";
 import {Creatable} from "@swim/util";
 import {R2Box} from "@swim/math";
 import {Transform} from "@swim/math";
-import type {AnyView} from "@swim/view";
 import type {ViewFactory} from "@swim/view";
 import type {ViewClass} from "@swim/view";
 import type {ViewObserver} from "@swim/view";
@@ -36,19 +37,16 @@ export interface ViewNode extends Node {
 }
 
 /** @public */
-export type AnyNodeView<V extends NodeView = NodeView> = AnyView<V> | ViewNodeType<V>;
-
-/** @public */
-export interface NodeViewFactory<V extends NodeView = NodeView, U = AnyNodeView<V>> extends ViewFactory<V, U> {
+export interface NodeViewFactory<V extends NodeView = NodeView> extends ViewFactory<V> {
   fromNode(node: ViewNodeType<V>): V
 }
 
 /** @public */
-export interface NodeViewClass<V extends NodeView = NodeView, U = AnyNodeView<V>> extends ViewClass<V, U>, NodeViewFactory<V, U> {
+export interface NodeViewClass<V extends NodeView = NodeView> extends ViewClass<V>, NodeViewFactory<V> {
 }
 
 /** @public */
-export interface NodeViewConstructor<V extends NodeView = NodeView, U = AnyNodeView<V>> extends NodeViewClass<V, U> {
+export interface NodeViewConstructor<V extends NodeView = NodeView> extends NodeViewClass<V> {
   new(node: ViewNodeType<V>): V;
 }
 
@@ -64,18 +62,20 @@ export class NodeView extends View {
     (node as ViewNode).view = this;
   }
 
+  /** @override */
+  declare readonly likeType?: Proto<{create?(): NodeView} | (Node & {create?(): NodeView})>;
+
   declare readonly observerType?: Class<NodeViewObserver>;
 
   readonly node: Node;
 
-  override setChild<V extends View>(key: string, newChild: V): View | null;
-  override setChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(key: string, factory: F): View | null;
-  override setChild(key: string, newChild: AnyView | Node | null): View | null;
-  override setChild(key: string, newChild: AnyView | Node | null): View | null {
+  override setChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(key: string, newChildFactory: F): View | null;
+  override setChild(key: string, newChild: View | LikeType<NodeView> | null): View | null;
+  override setChild(key: string, newChild: View | LikeType<NodeView> | null): View | null {
     if (newChild instanceof Node) {
       newChild = NodeView.fromNode(newChild);
     } else if (newChild !== null) {
-      newChild = View.fromAny(newChild);
+      newChild = View.fromLike(newChild);
     }
     const oldChild = this.getChild(key);
     let target: View | null;
@@ -176,14 +176,14 @@ export class NodeView extends View {
     return oldChild;
   }
 
-  override appendChild<V extends View>(child: V, key?: string): V;
-  override appendChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(factory: F, key?: string): InstanceType<F>;
-  override appendChild(child: AnyView | Node, key?: string): View;
-  override appendChild(child: AnyView | Node, key?: string): View {
+  override appendChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(childFactory: F, key?: string): InstanceType<F>;
+  override appendChild<V extends View>(child: V | LikeType<V>, key?: string): V;
+  override appendChild(child: View | LikeType<NodeView>, key?: string): View;
+  override appendChild(child: View | LikeType<NodeView>, key?: string): View {
     if (child instanceof Node) {
       child = NodeView.fromNode(child);
     } else {
-      child = View.fromAny(child);
+      child = View.fromLike(child);
     }
 
     child.remove();
@@ -207,14 +207,14 @@ export class NodeView extends View {
     return child;
   }
 
-  override prependChild<V extends View>(child: V, key?: string): V;
-  override prependChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(factory: F, key?: string): InstanceType<F>;
-  override prependChild(child: AnyView | Node, key?: string): View;
-  override prependChild(child: AnyView | Node, key?: string): View {
+  override prependChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(childFactory: F, key?: string): InstanceType<F>;
+  override prependChild<V extends View>(child: V | LikeType<V>, key?: string): V;
+  override prependChild(child: View | LikeType<NodeView>, key?: string): View;
+  override prependChild(child: View | LikeType<NodeView>, key?: string): View {
     if (child instanceof Node) {
       child = NodeView.fromNode(child);
     } else {
-      child = View.fromAny(child);
+      child = View.fromLike(child);
     }
 
     child.remove();
@@ -239,10 +239,10 @@ export class NodeView extends View {
     return child;
   }
 
-  override insertChild<V extends View>(child: V, target: View | Node | null, key?: string): V;
-  override insertChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(factory: F, target: View | null, key?: string): InstanceType<F>;
-  override insertChild(child: AnyView | Node, target: View | Node | null, key?: string): View;
-  override insertChild(child: AnyView | Node, target: View | Node | null, key?: string): View {
+  override insertChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(childFactory: F, target: View | Node | null, key?: string): InstanceType<F>;
+  override insertChild<V extends View>(child: V | LikeType<V>, target: View | Node | null, key?: string): V;
+  override insertChild(child: View | LikeType<NodeView>, target: View | Node | null, key?: string): View;
+  override insertChild(child: View | LikeType<NodeView>, target: View | Node | null, key?: string): View {
     if (target instanceof View && target.parent !== this || target instanceof Node && target.parentNode !== this.node) {
       target = null;
     }
@@ -250,7 +250,7 @@ export class NodeView extends View {
     if (child instanceof Node) {
       child = NodeView.fromNode(child);
     } else {
-      child = View.fromAny(child);
+      child = View.fromLike(child);
     }
 
     child.remove();
@@ -302,16 +302,15 @@ export class NodeView extends View {
     return child;
   }
 
-  /** @internal */
-  injectChild<V extends NodeView>(child: V, target: View | Node | null, key?: string): V;
-  /** @internal */
-  injectChild(child: AnyNodeView, target: View | Node | null, key?: string): View;
-  injectChild(child: AnyNodeView, target: View | Node | null, key?: string): View {
+  injectChild<F extends Class<Instance<F, NodeView>> & Creatable<Instance<F, NodeView>>>(childFactory: F, target: NodeView | Node | null, key?: string): InstanceType<F>;
+  injectChild<V extends NodeView>(child: V | LikeType<V>, target: NodeView | Node | null, key?: string): V;
+  injectChild(child: NodeView | LikeType<NodeView>, target: NodeView | Node | null, key?: string): NodeView;
+  injectChild(child: NodeView | LikeType<NodeView>, target: NodeView | Node | null, key?: string): NodeView {
     if (target instanceof View && target.parent !== this || target instanceof Node && target.parentNode !== this.node) {
       throw new TypeError("" + target);
     }
 
-    child = NodeView.fromAny(child);
+    child = NodeView.fromLike(child);
 
     if (key !== void 0) {
       this.removeChild(key);
@@ -342,15 +341,16 @@ export class NodeView extends View {
     return child;
   }
 
-  override replaceChild<V extends View>(newChild: View, oldChild: V): V;
-  override replaceChild<V extends View>(newChild: AnyView | Node, oldChild: V): V;
-  override replaceChild(newChild: AnyView | Node, oldChild: View): View {
+  override replaceChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(newChildFactory: F, oldChild: View): View;
+  override replaceChild<V extends View>(newChild: View | LikeType<NodeView>, oldChild: V): V;
+  override replaceChild(newChild: View | LikeType<NodeView>, oldChild: View): View;
+  override replaceChild(newChild: View | LikeType<NodeView>, oldChild: View): View {
     if (oldChild.parent !== this) {
       throw new TypeError("" + oldChild);
     } else if (newChild instanceof Node) {
       newChild = NodeView.fromNode(newChild);
     } else {
-      newChild = View.fromAny(newChild);
+      newChild = View.fromLike(newChild);
     }
     if (newChild === oldChild) {
       return oldChild;
@@ -603,20 +603,18 @@ export class NodeView extends View {
     this.node.removeEventListener(type, listener, options);
   }
 
-  static override fromAny<S extends Class<Instance<S, NodeView>>>(this: S, value: AnyNodeView<InstanceType<S>>): InstanceType<S>;
-  static override fromAny(value: AnyNodeView): NodeView;
-  static override fromAny(value: AnyNodeView): NodeView {
+  static override fromLike<S extends Class<Instance<S, View>>>(this: S, value: InstanceType<S> | LikeType<InstanceType<S>>): InstanceType<S> {
     if (value === void 0 || value === null) {
-      return value;
+      return value as InstanceType<S>;
     } else if (value instanceof View) {
       if (!(value instanceof this)) {
         throw new TypeError(value + " not an instance of " + this);
       }
       return value;
     } else if (value instanceof Node) {
-      return this.fromNode(value);
+      return (this as unknown as typeof NodeView).fromNode(value) as InstanceType<S>;
     } else if (Creatable[Symbol.hasInstance](value)) {
-      return value.create();
+      return (value as Creatable<InstanceType<S>>).create();
     }
     throw new TypeError("" + value);
   }

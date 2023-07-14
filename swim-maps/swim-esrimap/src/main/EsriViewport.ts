@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import type {Equals} from "@swim/util";
-import type {AnyR2Point} from "@swim/math";
+import type {R2PointLike} from "@swim/math";
 import type {R2Point} from "@swim/math";
-import type {AnyGeoPoint} from "@swim/geo";
+import type {GeoPointLike} from "@swim/geo";
 import type {GeoPoint} from "@swim/geo";
 import type {GeoBox} from "@swim/geo";
 import type {GeoViewport} from "@swim/map";
@@ -44,10 +44,10 @@ export abstract class EsriViewport implements GeoViewport, Equals {
 
   readonly tilt: number;
 
-  abstract project(geoPoint: AnyGeoPoint): R2Point;
+  abstract project(geoPoint: GeoPointLike): R2Point;
   abstract project(lng: number, lat: number): R2Point;
 
-  abstract unproject(viewPoint: AnyR2Point): GeoPoint;
+  abstract unproject(viewPoint: R2PointLike): GeoPoint;
   abstract unproject(x: number, y: number): GeoPoint;
 
   equals(that: unknown): boolean {

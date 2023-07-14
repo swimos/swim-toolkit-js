@@ -16,7 +16,6 @@ import type {Class} from "@swim/util";
 import {Property} from "@swim/component";
 import type {TraitObserver} from "@swim/model";
 import {Trait} from "@swim/model";
-import type {AnyColorOrLook} from "@swim/theme";
 import type {ColorOrLook} from "@swim/theme";
 import {ColorLook} from "@swim/theme";
 
@@ -64,7 +63,7 @@ export class DialTrait extends Trait {
       this.owner.callObservers("traitDidSetDialColor", dialColor, this.owner);
     },
   })
-  readonly dialColor!: Property<this, ColorOrLook | null, AnyColorOrLook | null>;
+  readonly dialColor!: Property<this, ColorOrLook | null>;
 
   @Property({
     valueType: ColorLook,
@@ -73,7 +72,7 @@ export class DialTrait extends Trait {
       this.owner.callObservers("traitDidSetMeterColor", meterColor, this.owner);
     },
   })
-  readonly meterColor!: Property<this, ColorOrLook | null, AnyColorOrLook | null>;
+  readonly meterColor!: Property<this, ColorOrLook | null>;
 
   formatLabel(value: number, limit: number): string | undefined {
     return void 0;

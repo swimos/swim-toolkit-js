@@ -13,74 +13,66 @@
 // limitations under the License.
 
 import type {Proto} from "@swim/util";
+import type {Fastener} from "@swim/component";
 import type {CssRuleDescriptor} from "./CssRule";
 import type {CssRuleClass} from "./CssRule";
 import {CssRule} from "./CssRule";
 
 /** @public */
-export interface MediaRuleDescriptor extends CssRuleDescriptor<CSSMediaRule> {
+export interface MediaRuleDescriptor<R> extends CssRuleDescriptor<R, CSSMediaRule> {
   extends?: Proto<MediaRule<any>> | boolean | null;
 }
 
 /** @public */
-export interface MediaRuleClass<F extends MediaRule<any> = MediaRule<any>> extends CssRuleClass<F> {
+export interface MediaRuleClass<F extends MediaRule<any> = MediaRule> extends CssRuleClass<F> {
 }
 
 /** @public */
-export interface MediaRule<O = unknown> extends CssRule<O, CSSMediaRule> {
+export interface MediaRule<R = any> extends CssRule<R, CSSMediaRule> {
   /** @override */
-  get descriptorType(): Proto<MediaRuleDescriptor>;
+  get descriptorType(): Proto<MediaRuleDescriptor<R>>;
 
   /** @override */
   get fastenerType(): Proto<MediaRule<any>>;
+
+  get selector(): string;
 
   /** @override */
   transformInletCss(inletCss: CSSStyleSheet | CSSRule | null): CSSMediaRule | null;
 
   /** @override */
   createRule(inletCss: CSSStyleSheet | CSSGroupingRule): CSSMediaRule | null;
-
-  get selector(): string;
 }
 
 /** @public */
-export const MediaRule = (function (_super: typeof CssRule) {
-  const MediaRule = _super.extend("MediaRule", {}) as MediaRuleClass;
+export const MediaRule = (<R, F extends MediaRule<any>>() => CssRule.extend<MediaRule<R>, MediaRuleClass<F>>("MediaRule", {
+  get fastenerType(): Proto<MediaRule<any>> {
+    return MediaRule;
+  },
 
-  Object.defineProperty(MediaRule.prototype, "fastenerType", {
-    value: MediaRule,
-    enumerable: true,
-    configurable: true,
-  });
+  selector: "@media",
 
-  MediaRule.prototype.transformInletCss = function (this: MediaRule, inletCss: CSSStyleSheet | CSSRule | null): CSSMediaRule | null {
+  transformInletCss(inletCss: CSSStyleSheet | CSSRule | null): CSSMediaRule | null {
     if (inletCss instanceof CSSMediaRule) {
       return inletCss;
     } else if (inletCss instanceof CSSStyleSheet || inletCss instanceof CSSGroupingRule) {
       return this.createRule(inletCss);
     }
     return null;
-  };
+  },
 
-  MediaRule.prototype.createRule = function (this: MediaRule, inletCss: CSSStyleSheet | CSSGroupingRule): CSSMediaRule | null {
+  createRule(inletCss: CSSStyleSheet | CSSGroupingRule): CSSMediaRule | null {
     const index = inletCss.insertRule(this.cssText);
     const rule = inletCss.cssRules.item(index);
     if (!(rule instanceof CSSMediaRule)) {
       throw new TypeError("not a media rule: " + rule);
     }
     return rule;
-  };
-
-  Object.defineProperty(MediaRule.prototype, "selector", {
-    value: "@media",
-    enumerable: true,
-    configurable: true,
-  });
-
-  MediaRule.construct = function <F extends MediaRule<any>>(fastener: F | null, owner: F extends MediaRule<infer O> ? O : never): F {
-    fastener = _super.construct.call(this, fastener, owner) as F;
+  },
+},
+{
+  construct(fastener: F | null, owner: F extends Fastener<infer R, any, any> ? R : never): F {
+    fastener = super.construct(fastener, owner) as F;
     return fastener;
-  };
-
-  return MediaRule;
-})(CssRule);
+  },
+}))();

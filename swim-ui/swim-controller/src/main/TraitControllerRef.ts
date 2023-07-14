@@ -13,6 +13,8 @@
 // limitations under the License.
 
 import type {Proto} from "@swim/util";
+import type {FastenerClass} from "@swim/component";
+import type {Fastener} from "@swim/component";
 import type {TraitFactory} from "@swim/model";
 import type {Trait} from "@swim/model";
 import type {TraitRef} from "@swim/model";
@@ -22,9 +24,8 @@ import type {ControllerRefClass} from "./ControllerRef";
 import {ControllerRef} from "./ControllerRef";
 
 /** @public */
-export interface TraitControllerRefDescriptor<T extends Trait = Trait, C extends Controller = Controller> extends ControllerRefDescriptor<C> {
+export interface TraitControllerRefDescriptor<R, T extends Trait, C extends Controller> extends ControllerRefDescriptor<R, C> {
   extends?: Proto<TraitControllerRef<any, any, any>> | boolean | null;
-  traitType?: TraitFactory<T>;
   traitKey?: string | boolean;
 }
 
@@ -33,18 +34,15 @@ export interface TraitControllerRefClass<F extends TraitControllerRef<any, any, 
 }
 
 /** @public */
-export interface TraitControllerRef<O = unknown, T extends Trait = Trait, C extends Controller = Controller> extends ControllerRef<O, C> {
+export interface TraitControllerRef<R = any, T extends Trait = Trait, C extends Controller = Controller> extends ControllerRef<R, C> {
   /** @override */
-  get descriptorType(): Proto<TraitControllerRefDescriptor<T, C>>;
+  get descriptorType(): Proto<TraitControllerRefDescriptor<R, T, C>>;
 
-  /** @internal */
-  getTraitRef(controller: C): TraitRef<unknown, T>;
+  getTraitRef(controller: C): TraitRef<any, T>;
 
-  /** @internal */
-  readonly traitType?: TraitFactory<T>; // optional prototype property
+  get traitType(): TraitFactory<T> | null;
 
-  /** @internal */
-  readonly traitKey?: string; // optional prototype property
+  get traitKey(): string | undefined;
 
   get trait(): T | null;
 
@@ -98,27 +96,25 @@ export interface TraitControllerRef<O = unknown, T extends Trait = Trait, C exte
 }
 
 /** @public */
-export const TraitControllerRef = (function (_super: typeof ControllerRef) {
-  const TraitControllerRef = _super.extend("TraitControllerRef", {}) as TraitControllerRefClass;
+export const TraitControllerRef = (<R, T extends Trait, C extends Controller, F extends TraitControllerRef<any, any, any>>() => ControllerRef.extend<TraitControllerRef<R, T, C>, TraitControllerRefClass<F>>("TraitControllerRef", {
+  getTraitRef(controller: C): TraitRef<any, T> {
+    throw new Error("missing implementation");
+  },
 
-  TraitControllerRef.prototype.getTraitRef = function <T extends Trait, C extends Controller>(controller: C): TraitRef<unknown, T> {
-    throw new Error("abstract");
-  };
+  traitType: null,
 
-  Object.defineProperty(TraitControllerRef.prototype, "trait", {
-    get: function <T extends Trait>(this: TraitControllerRef<unknown, T, Controller>): T | null {
-      const controller = this.controller;
-      if (controller !== null) {
-        const traitRef = this.getTraitRef(controller);
-        return traitRef.trait;
-      }
+  traitKey: void 0,
+
+  get trait(): T | null {
+    const controller = this.controller;
+    if (controller === null) {
       return null;
-    },
-    enumerable: true,
-    configurable: true,
-  });
+    }
+    const traitRef = this.getTraitRef(controller);
+    return traitRef.trait;
+  },
 
-  TraitControllerRef.prototype.getTrait = function <T extends Trait>(this: TraitControllerRef<unknown, T, Controller>): T {
+  getTrait(): T {
     const trait = this.trait;
     if (trait === null) {
       let message = trait + " ";
@@ -130,9 +126,9 @@ export const TraitControllerRef = (function (_super: typeof ControllerRef) {
       throw new TypeError(message);
     }
     return trait;
-  };
+  },
 
-  TraitControllerRef.prototype.setTrait = function <T extends Trait, C extends Controller>(this: TraitControllerRef<unknown, T, C>, trait: T | null, targetTrait?: Trait | null, key?: string): C | null {
+  setTrait(trait: T | null, targetTrait?: Trait | null, key?: string): C | null {
     let controller = this.controller;
     if (trait !== null) {
       if (controller === null) {
@@ -146,9 +142,9 @@ export const TraitControllerRef = (function (_super: typeof ControllerRef) {
       traitRef.setTrait(null);
     }
     return controller;
-  };
+  },
 
-  TraitControllerRef.prototype.attachTrait = function <T extends Trait, C extends Controller>(this: TraitControllerRef<unknown, T, C>, trait?: T | null, targetTrait?: Trait | null): C {
+  attachTrait(trait?: T | null, targetTrait?: Trait | null): C {
     if (trait === void 0 || trait === null) {
       trait = this.createTrait();
     }
@@ -160,53 +156,53 @@ export const TraitControllerRef = (function (_super: typeof ControllerRef) {
     traitRef.setTrait(trait, targetTrait, this.traitKey);
     this.attachController(controller, null);
     return controller;
-  };
+  },
 
-  TraitControllerRef.prototype.initTrait = function <T extends Trait, C extends Controller>(this: TraitControllerRef<unknown, T, C>, trait: T, controller: C): void {
+  initTrait(trait: T, controller: C): void {
     // hook
-  };
+  },
 
-  TraitControllerRef.prototype.willAttachTrait = function <T extends Trait, C extends Controller>(this: TraitControllerRef<unknown, T, C>, trait: T, targetTrait: Trait | null, controller: C): void {
+  willAttachTrait(trait: T, targetTrait: Trait | null, controller: C): void {
     // hook
-  };
+  },
 
-  TraitControllerRef.prototype.onAttachTrait = function <T extends Trait, C extends Controller>(this: TraitControllerRef<unknown, T, C>, trait: T, targetTrait: Trait | null, controller: C): void {
+  onAttachTrait(trait: T, targetTrait: Trait | null, controller: C): void {
     // hook
-  };
+  },
 
-  TraitControllerRef.prototype.didAttachTrait = function <T extends Trait, C extends Controller>(this: TraitControllerRef<unknown, T, C>, trait: T, targetTrait: Trait | null, controller: C): void {
+  didAttachTrait(trait: T, targetTrait: Trait | null, controller: C): void {
     // hook
-  };
+  },
 
-  TraitControllerRef.prototype.detachTrait = function <T extends Trait, C extends Controller>(this: TraitControllerRef<unknown, T, C>, trait?: T): C | null {
+  detachTrait(trait?: T): C | null {
     const controller = this.controller;
-    if (controller !== null && this.getTraitRef(controller).trait === trait) {
-      this.willDetachTrait(trait, controller);
-      this.onDetachTrait(trait, controller);
-      this.deinitTrait(trait, controller);
-      this.didDetachTrait(trait, controller);
-      return controller;
+    if (controller === null || this.getTraitRef(controller).trait !== trait) {
+      return null;
     }
-    return null;
-  };
+    this.willDetachTrait(trait, controller);
+    this.onDetachTrait(trait, controller);
+    this.deinitTrait(trait, controller);
+    this.didDetachTrait(trait, controller);
+    return controller;
+  },
 
-  TraitControllerRef.prototype.deinitTrait = function <T extends Trait, C extends Controller>(this: TraitControllerRef<unknown, T, C>, trait: T, controller: C): void {
+  deinitTrait(trait: T, controller: C): void {
     // hook
-  };
+  },
 
-  TraitControllerRef.prototype.willDetachTrait = function <T extends Trait, C extends Controller>(this: TraitControllerRef<unknown, T, C>, trait: T, controller: C): void {
+  willDetachTrait(trait: T, controller: C): void {
     // hook
-  };
+  },
 
-  TraitControllerRef.prototype.onDetachTrait = function <T extends Trait, C extends Controller>(this: TraitControllerRef<unknown, T, C>, trait: T, controller: C): void {
+  onDetachTrait(trait: T, controller: C): void {
     // hook
-  };
+  },
 
-  TraitControllerRef.prototype.didDetachTrait = function <T extends Trait, C extends Controller>(this: TraitControllerRef<unknown, T, C>, trait: T, controller: C): void {
+  didDetachTrait(trait: T, controller: C): void {
     // hook
-  };
+  },
 
-  TraitControllerRef.prototype.insertTrait = function <T extends Trait, C extends Controller>(this: TraitControllerRef<unknown, T, C>, parent?: Controller | null, trait?: T, targetTrait?: Trait | null, key?: string): C {
+  insertTrait(parent?: Controller | null, trait?: T, targetTrait?: Trait | null, key?: string): C {
     if (trait === void 0 || trait === null) {
       trait = this.createTrait();
     }
@@ -218,58 +214,60 @@ export const TraitControllerRef = (function (_super: typeof ControllerRef) {
     traitRef.setTrait(trait, targetTrait, this.traitKey);
     this.insertController(parent, controller);
     return controller;
-  };
+  },
 
-  TraitControllerRef.prototype.removeTrait = function <T extends Trait, C extends Controller>(this: TraitControllerRef<unknown, T, C>, trait: T | null): C | null {
+  removeTrait(trait: T | null): C | null {
     const controller = this.controller;
-    if (controller !== null) {
-      const traitRef = this.getTraitRef(controller);
-      if (traitRef.trait === trait) {
-        controller.remove();
-        return controller;
-      }
+    if (controller === null) {
+      return null;
     }
-    return null;
-  };
+    const traitRef = this.getTraitRef(controller);
+    if (traitRef.trait !== trait) {
+      return null;
+    }
+    controller.remove();
+    return controller;
+  },
 
-  TraitControllerRef.prototype.deleteTrait = function <T extends Trait, C extends Controller>(this: TraitControllerRef<unknown, T, C>, trait: T | null): C | null {
+  deleteTrait(trait: T | null): C | null {
     const controller = this.controller;
-    if (controller !== null) {
-      const traitRef = this.getTraitRef(controller);
-      if (traitRef.trait === trait) {
-        controller.remove();
-        this.setController(null);
-        return controller;
-      }
+    if (controller === null) {
+      return null;
     }
-    return null;
-  };
+    const traitRef = this.getTraitRef(controller);
+    if (traitRef.trait !== trait) {
+      return null;
+    }
+    controller.remove();
+    this.setController(null);
+    return controller;
+  },
 
-  TraitControllerRef.prototype.onAttachController = function <T extends Trait, C extends Controller>(this: TraitControllerRef<unknown, T, C>, controller: C, targetController: Controller | null): void {
+  onAttachController(controller: C, targetController: Controller | null): void {
     const trait = this.getTraitRef(controller).trait;
     if (trait !== null) {
       const targetTrait = targetController !== null ? this.getTraitRef(targetController as C).trait : null;
       this.attachTrait(trait, targetTrait);
     }
-    _super.prototype.onAttachController.call(this, controller, targetController);
-  };
+    super.onAttachController(controller, targetController);
+  },
 
-  TraitControllerRef.prototype.onDetachController = function <T extends Trait, C extends Controller>(this: TraitControllerRef<unknown, T, C>, controller: C): void {
-    _super.prototype.onDetachController.call(this, controller);
+  onDetachController(controller: C): void {
+    super.onDetachController(controller);
     const trait = this.getTraitRef(controller).trait;
     if (trait !== null) {
       this.detachTrait(trait);
     }
-  };
+  },
 
-  TraitControllerRef.prototype.createTrait = function <T extends Trait, C extends Controller>(this: TraitControllerRef<unknown, T, C>): T {
+  createTrait(): T {
     let trait: T | undefined;
     const traitType = this.traitType;
-    if (traitType !== void 0) {
+    if (traitType !== null) {
       trait = traitType.create();
     }
     if (trait === void 0 || trait === null) {
-      let message = "Unable to create ";
+      let message = "unable to create ";
       const name = this.name.toString();
       if (name.length !== 0) {
         message += name + " ";
@@ -278,29 +276,27 @@ export const TraitControllerRef = (function (_super: typeof ControllerRef) {
       throw new Error(message);
     }
     return trait;
-  };
+  },
+},
+{
+  construct(fastener: F | null, owner: F extends Fastener<infer R, any, any> ? R : never): F {
+    fastener = super.construct(fastener, owner) as F;
+    return fastener;
+  },
 
-  TraitControllerRef.refine = function (fastenerClass: TraitControllerRefClass<any>): void {
-    _super.refine.call(this, fastenerClass);
+  refine(fastenerClass: FastenerClass<TraitControllerRef<any, any, any>>): void {
+    super.refine(fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 
-    if (Object.prototype.hasOwnProperty.call(fastenerPrototype, "traitKey")) {
-      const traitKey = fastenerPrototype.traitKey as string | boolean | undefined;
-      if (traitKey === true) {
-        Object.defineProperty(fastenerPrototype, "traitKey", {
-          value: fastenerClass.name,
-          enumerable: true,
-          configurable: true,
-        });
-      } else if (traitKey === false) {
-        Object.defineProperty(fastenerPrototype, "traitKey", {
-          value: void 0,
-          enumerable: true,
-          configurable: true,
-        });
+    const traitKeyDescriptor = Object.getOwnPropertyDescriptor(fastenerPrototype, "traitKey");
+    if (traitKeyDescriptor !== void 0 && "value" in traitKeyDescriptor) {
+      if (traitKeyDescriptor.value === true) {
+        traitKeyDescriptor.value = fastenerClass.name;
+        Object.defineProperty(fastenerPrototype, "traitKey", traitKeyDescriptor);
+      } else if (traitKeyDescriptor.value === false) {
+        traitKeyDescriptor.value = void 0;
+        Object.defineProperty(fastenerPrototype, "traitKey", traitKeyDescriptor);
       }
     }
-  };
-
-  return TraitControllerRef;
-})(ControllerRef);
+  },
+}))();

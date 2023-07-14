@@ -16,7 +16,6 @@ import type {Class} from "@swim/util";
 import type {Timing} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Animator} from "@swim/component";
-import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import type {MoodVector} from "@swim/theme";
 import type {ThemeMatrix} from "@swim/theme";
@@ -25,10 +24,8 @@ import type {ViewFlags} from "@swim/view";
 import {View} from "@swim/view";
 import {ViewRef} from "@swim/view";
 import {Graphics} from "@swim/graphics";
-import type {AnyIconLayout} from "@swim/graphics";
 import {IconLayout} from "@swim/graphics";
 import {Icon} from "@swim/graphics";
-import {FilledIcon} from "@swim/graphics";
 import type {IconView} from "@swim/graphics";
 import {IconGraphicsAnimator} from "@swim/graphics";
 import {SvgIconView} from "@swim/graphics";
@@ -51,22 +48,18 @@ export class IconColView extends ColView implements IconView {
 
   /** @override */
   @Animator({valueType: IconLayout, value: null, updateFlags: View.NeedsLayout})
-  readonly iconLayout!: Animator<this, IconLayout | null, AnyIconLayout | null>;
+  readonly iconLayout!: Animator<this, IconLayout | null>;
 
   @ThemeAnimator({
     valueType: Color,
     value: null,
     updateFlags: View.NeedsLayout,
     didSetState(iconColor: Color | null): void {
-      const oldGraphics = this.owner.graphics.value;
-      if (oldGraphics instanceof FilledIcon) {
-        const newGraphics = oldGraphics.withFillColor(iconColor);
-        const timing = this.timing !== null ? this.timing : false;
-        this.owner.graphics.setState(newGraphics, timing, Affinity.Reflexive);
-      }
+      const timing = this.timing !== null ? this.timing : false;
+      this.owner.graphics.setState(this.owner.graphics.state, timing, Affinity.Reflexive);
     },
   })
-  get iconColor(): ThemeAnimator<this, Color | null, AnyColor | null> {
+  get iconColor(): ThemeAnimator<this, Color | null> {
     return ThemeAnimator.dummy();
   }
 

@@ -13,10 +13,10 @@
 // limitations under the License.
 
 import {Lazy} from "@swim/util";
-import type {AnyUri} from "@swim/uri";
+import type {UriLike} from "@swim/uri";
 import {Uri} from "@swim/uri";
 import {UriQuery} from "@swim/uri";
-import type {AnyUriFragment} from "@swim/uri";
+import type {UriFragmentLike} from "@swim/uri";
 import {UriFragment} from "@swim/uri";
 
 /** @public */
@@ -111,8 +111,8 @@ export const HistoryState = {
   },
 
   /** @internal */
-  fromUri(uri: AnyUri): HistoryState {
-    uri = Uri.fromAny(uri);
+  fromUri(uri: UriLike): HistoryState {
+    uri = Uri.fromLike(uri);
     const fragment = uri.fragment;
     if (!fragment.isDefined()) {
       return HistoryState.empty();
@@ -121,8 +121,8 @@ export const HistoryState = {
   },
 
   /** @internal */
-  fromUriFragment(fragment: AnyUriFragment): HistoryState {
-    fragment = UriFragment.fromAny(fragment);
+  fromUriFragment(fragment: UriFragmentLike): HistoryState {
+    fragment = UriFragment.fromLike(fragment);
     let query = fragment.identifier !== void 0
               ? UriQuery.parse(fragment.identifier)
               : UriQuery.undefined();

@@ -16,58 +16,38 @@ import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
 import type {Timing} from "@swim/util";
 import {Affinity} from "@swim/component";
-import {Property} from "@swim/component";
 import {Animator} from "@swim/component";
-import type {AnyR2Point} from "@swim/math";
 import {R2Point} from "@swim/math";
 import {R2Segment} from "@swim/math";
 import {R2Box} from "@swim/math";
-import type {AnyGeoPoint} from "@swim/geo";
 import {GeoPoint} from "@swim/geo";
 import {GeoBox} from "@swim/geo";
-import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import type {MoodVector} from "@swim/theme";
 import type {ThemeMatrix} from "@swim/theme";
 import {ThemeAnimator} from "@swim/theme";
 import type {ViewFlags} from "@swim/view";
 import {View} from "@swim/view";
-import type {PositionGestureInput} from "@swim/view";
-import {PositionGesture} from "@swim/view";
 import type {Sprite} from "@swim/graphics";
 import {Graphics} from "@swim/graphics";
 import type {GraphicsView} from "@swim/graphics";
-import type {AnyIconLayout} from "@swim/graphics";
 import {IconLayout} from "@swim/graphics";
 import {Icon} from "@swim/graphics";
-import {FilledIcon} from "@swim/graphics";
 import type {IconView} from "@swim/graphics";
 import {IconGraphicsAnimator} from "@swim/graphics";
 import {CanvasRenderer} from "@swim/graphics";
-import type {AnyHyperlink} from "@swim/controller";
-import {Hyperlink} from "@swim/controller";
-import type {GeoViewObserver} from "./GeoView";
-import {GeoView} from "./GeoView";
-import type {GeoRippleOptions} from "./GeoRippleView";
-import {GeoRippleView} from "./GeoRippleView";
+import type {GeoFeatureViewObserver} from "./GeoFeatureView";
+import {GeoFeatureView} from "./GeoFeatureView";
 
 /** @public */
-export interface GeoIconViewObserver<V extends GeoIconView = GeoIconView> extends GeoViewObserver<V> {
+export interface GeoIconViewObserver<V extends GeoIconView = GeoIconView> extends GeoFeatureViewObserver<V> {
   viewDidSetGeoCenter?(geoCenter: GeoPoint | null, view: V): void;
 
   viewDidSetGraphics?(graphics: Graphics | null, view: V): void;
-
-  viewDidEnter?(view: V): void;
-
-  viewDidLeave?(view: V): void;
-
-  viewDidPress?(input: PositionGestureInput, event: Event | null, view: V): void;
-
-  viewDidLongPress?(input: PositionGestureInput, view: V): void;
 }
 
 /** @public */
-export class GeoIconView extends GeoView implements IconView {
+export class GeoIconView extends GeoFeatureView implements IconView {
   constructor() {
     super();
     this.sprite = null;
@@ -87,21 +67,21 @@ export class GeoIconView extends GeoView implements IconView {
   @Animator({
     valueType: GeoPoint,
     value: null,
-    didSetState(newGeoCenter: GeoPoint | null, oldGeoCenter: GeoPoint | null): void {
-      this.owner.projectGeoCenter(newGeoCenter);
+    didSetState(geoCenter: GeoPoint | null): void {
+      this.owner.projectGeoCenter(geoCenter);
     },
-    didSetValue(newGeoCenter: GeoPoint | null, oldGeoCenter: GeoPoint | null): void {
-      this.owner.setGeoBounds(newGeoCenter !== null ? newGeoCenter.bounds : GeoBox.undefined());
+    didSetValue(geoCenter: GeoPoint | null): void {
+      this.owner.setGeoBounds(geoCenter !== null ? geoCenter.bounds : GeoBox.undefined());
       if (this.mounted) {
         this.owner.projectIcon();
       }
-      this.owner.callObservers("viewDidSetGeoCenter", newGeoCenter, this.owner);
+      this.owner.callObservers("viewDidSetGeoCenter", geoCenter, this.owner);
     },
   })
-  readonly geoCenter!: Animator<this, GeoPoint | null, AnyGeoPoint | null>;
+  readonly geoCenter!: Animator<this, GeoPoint | null>;
 
   @Animator({valueType: R2Point, value: R2Point.undefined(), updateFlags: View.NeedsComposite})
-  readonly viewCenter!: Animator<this, R2Point | null, AnyR2Point | null>;
+  readonly viewCenter!: Animator<this, R2Point | null>;
 
   /** @override */
   @Animator({
@@ -109,7 +89,7 @@ export class GeoIconView extends GeoView implements IconView {
     value: null,
     updateFlags: View.NeedsProject | View.NeedsRender | View.NeedsRasterize | View.NeedsComposite,
   })
-  readonly iconLayout!: Animator<this, IconLayout | null, AnyIconLayout | null>;
+  readonly iconLayout!: Animator<this, IconLayout | null>;
 
   /** @override */
   @ThemeAnimator({
@@ -117,15 +97,11 @@ export class GeoIconView extends GeoView implements IconView {
     value: null,
     updateFlags: View.NeedsRender | View.NeedsRasterize | View.NeedsComposite,
     didSetState(iconColor: Color | null): void {
-      const oldGraphics = this.owner.graphics.value;
-      if (oldGraphics instanceof FilledIcon) {
-        const newGraphics = oldGraphics.withFillColor(iconColor);
-        const timing = this.timing !== null ? this.timing : false;
-        this.owner.graphics.setState(newGraphics, timing, Affinity.Reflexive);
-      }
+      const timing = this.timing !== null ? this.timing : false;
+      this.owner.graphics.setState(this.owner.graphics.state, timing, Affinity.Reflexive);
     },
   })
-  get iconColor(): ThemeAnimator<this, Color | null, AnyColor | null> {
+  get iconColor(): ThemeAnimator<this, Color | null> {
     return ThemeAnimator.dummy();
   }
 
@@ -135,8 +111,8 @@ export class GeoIconView extends GeoView implements IconView {
     valueType: Graphics,
     value: null,
     updateFlags: View.NeedsRender | View.NeedsRasterize | View.NeedsComposite,
-    didSetValue(newGraphics: Graphics | null, oldGraphics: Graphics | null): void {
-      this.owner.callObservers("viewDidSetGraphics", newGraphics, this.owner);
+    didSetValue(graphics: Graphics | null): void {
+      this.owner.callObservers("viewDidSetGraphics", graphics, this.owner);
     },
   })
   readonly graphics!: ThemeAnimator<this, Graphics | null>;
@@ -251,60 +227,6 @@ export class GeoIconView extends GeoView implements IconView {
     // nop
   }
 
-  @Property({valueType: Hyperlink, value: null})
-  get hyperlink(): Property<this, Hyperlink | null, AnyHyperlink | null> {
-    return Property.dummy();
-  }
-
-  @PositionGesture({
-    bindsOwner: true,
-    didMovePress(input: PositionGestureInput, event: Event | null): void {
-      const dx = input.x - input.x0;
-      const dy = input.y - input.y0;
-      if (dx * dx + dy * dy > 4 * 4) {
-        this.cancelPress(input, event);
-      }
-    },
-    didStartHovering(): void {
-      this.owner.callObservers("viewDidEnter", this.owner);
-    },
-    didStopHovering(): void {
-      this.owner.callObservers("viewDidLeave", this.owner);
-    },
-    didPress(input: PositionGestureInput, event: Event | null): void {
-      if (input.defaultPrevented) {
-        return;
-      }
-      this.owner.didPress(input, event);
-    },
-    didLongPress(input: PositionGestureInput): void {
-      if (input.defaultPrevented) {
-        return;
-      }
-      this.owner.didLongPress(input);
-    },
-  })
-  readonly gesture!: PositionGesture<this, GeoIconView>;
-
-  didPress(input: PositionGestureInput, event: Event | null): void {
-    if (input.defaultPrevented) {
-      return;
-    }
-    this.callObservers("viewDidPress", input, event, this);
-    const hyperlink = this.hyperlink.value;
-    if (hyperlink !== null && !input.defaultPrevented) {
-      input.preventDefault();
-      hyperlink.activate(event);
-    }
-  }
-
-  didLongPress(input: PositionGestureInput): void {
-    if (input.defaultPrevented) {
-      return;
-    }
-    this.callObservers("viewDidLongPress", input, this);
-  }
-
   protected override updateGeoBounds(): void {
     // nop
   }
@@ -375,10 +297,6 @@ export class GeoIconView extends GeoView implements IconView {
     return null;
   }
 
-  ripple(options?: GeoRippleOptions): GeoRippleView | null {
-    return GeoRippleView.ripple(this, options);
-  }
-
   protected override onUnmount(): void {
     super.onUnmount();
     const sprite = this.sprite;
@@ -388,6 +306,6 @@ export class GeoIconView extends GeoView implements IconView {
     }
   }
 
-  static override readonly MountFlags: ViewFlags = GeoView.MountFlags | View.NeedsRasterize;
-  static override readonly UncullFlags: ViewFlags = GeoView.UncullFlags | View.NeedsRasterize;
+  static override readonly MountFlags: ViewFlags = GeoFeatureView.MountFlags | View.NeedsRasterize;
+  static override readonly UncullFlags: ViewFlags = GeoFeatureView.UncullFlags | View.NeedsRasterize;
 }

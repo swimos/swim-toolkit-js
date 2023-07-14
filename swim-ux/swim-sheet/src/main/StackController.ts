@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Property} from "@swim/component";
 import {Affinity} from "@swim/component";
@@ -563,7 +563,7 @@ export class StackController extends Controller {
         this.owner.navBar.frontViewDidScroll(frontView, navBarController);
       }
     },
-    dismiss(timing?: AnyTiming | boolean | null): SheetView | null {
+    dismiss(timing?: TimingLike | boolean | null): SheetView | null {
       const frontView = this.view;
       if (frontView !== null) {
         frontView.dismiss(timing);
@@ -578,6 +578,6 @@ export class StackController extends Controller {
     detachFrontView(frontView: SheetView, frontController: SheetController): void;
     presentFrontView(frontView: SheetView, targetView: SheetView | null, frontController: SheetController): void;
     dismissFrontView(frontView: SheetView, frontController: SheetController): void;
-    dismiss(timing?: AnyTiming | boolean | null): SheetView | null;
+    dismiss(timing?: TimingLike | boolean | null): SheetView | null;
   };
 }

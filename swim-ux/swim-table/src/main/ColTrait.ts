@@ -16,7 +16,6 @@ import type {Class} from "@swim/util";
 import {Property} from "@swim/component";
 import type {TraitObserver} from "@swim/model";
 import {Trait} from "@swim/model";
-import type {AnyColLayout} from "./ColLayout";
 import {ColLayout} from "./ColLayout";
 import {ColController} from "./"; // forward import
 
@@ -36,7 +35,7 @@ export class ColTrait extends Trait {
       this.owner.callObservers("traitDidSetLayout", layout, this.owner);
     },
   })
-  readonly layout!: Property<this, ColLayout | null, AnyColLayout | null>;
+  readonly layout!: Property<this, ColLayout | null>;
 
   createColController(): ColController {
     return new ColController();

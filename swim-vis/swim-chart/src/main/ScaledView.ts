@@ -16,11 +16,12 @@ import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
 import {Equals} from "@swim/util";
 import {Equivalent} from "@swim/util";
+import type {Like} from "@swim/util";
 import {Arrays} from "@swim/util";
 import {Values} from "@swim/util";
 import {Domain} from "@swim/util";
 import type {Range} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import {Timing} from "@swim/util";
 import {Easing} from "@swim/util";
 import {LinearDomain} from "@swim/util";
@@ -134,16 +135,16 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
 
   /** @override */
   xDomain(): Domain<X> | null;
-  xDomain(xDomain: Domain<X> | string | null, timing?: AnyTiming | boolean): this;
-  xDomain(xMin: X, xMax: X, timing?: AnyTiming | boolean): this;
-  xDomain(xMin?: Domain<X> | X | string | null, xMax?: X | AnyTiming | boolean,
-          timing?: AnyTiming | boolean): Domain<X> | null | this {
+  xDomain(xDomain: Domain<X> | string | null, timing?: TimingLike | boolean): this;
+  xDomain(xMin: X, xMax: X, timing?: TimingLike | boolean): this;
+  xDomain(xMin?: Domain<X> | X | string | null, xMax?: X | TimingLike | boolean,
+          timing?: TimingLike | boolean): Domain<X> | null | this {
     if (xMin === void 0) {
       const xScale = this.xScale.value;
       return xScale !== null ? xScale.domain : null;
     } else {
       if (xMin instanceof Domain || typeof xMin === "string") {
-        timing = xMax as AnyTiming | boolean;
+        timing = xMax as TimingLike | boolean;
       }
       if (timing === true) {
         timing = this.rescaleTransition.value;
@@ -168,16 +169,16 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
 
   /** @override */
   yDomain(): Domain<Y> | null;
-  yDomain(yDomain: Domain<Y> | string | null, timing?: AnyTiming | boolean): this;
-  yDomain(yMin: Y, yMax: Y, timing?: AnyTiming | boolean): this;
-  yDomain(yMin?: Domain<Y> | Y | string | null, yMax?: Y | AnyTiming | boolean,
-          timing?: AnyTiming | boolean): Domain<Y> | null | this {
+  yDomain(yDomain: Domain<Y> | string | null, timing?: TimingLike | boolean): this;
+  yDomain(yMin: Y, yMax: Y, timing?: TimingLike | boolean): this;
+  yDomain(yMin?: Domain<Y> | Y | string | null, yMax?: Y | TimingLike | boolean,
+          timing?: TimingLike | boolean): Domain<Y> | null | this {
     if (yMin === void 0) {
       const yScale = this.yScale.value;
       return yScale !== null ? yScale.domain : null;
     } else {
       if (yMin instanceof Domain || typeof yMin === "string") {
-        timing = yMax as AnyTiming | boolean;
+        timing = yMax as TimingLike | boolean;
       }
       if (timing === true) {
         timing = this.rescaleTransition.value;
@@ -537,15 +538,14 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
     equalValues(newFitAlign: readonly [number, number], oldFitAlign: readonly [number, number]): boolean {
       return Arrays.equal(newFitAlign, oldFitAlign);
     },
-    fromAny(value: readonly [number, number] | number): readonly [number, number] {
+    fromLike(value: readonly [number, number] | number): readonly [number, number] {
       if (typeof value === "number") {
         return [value, value];
-      } else {
-        return value;
       }
+      return value;
     },
   })
-  readonly fitAlign!: Property<this, readonly [number, number], readonly [number, number] | number>;
+  readonly fitAlign!: Property<this, Like<readonly [number, number], number>>;
 
   xFitAlign(): number;
   xFitAlign(xFitAlign: number): this;
@@ -710,7 +710,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
       return Easing.linear.withDuration(250);
     },
   })
-  readonly rescaleTransition!: Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined>;
+  readonly rescaleTransition!: Property<this, Timing | boolean | undefined>;
 
   @Property({
     valueType: Timing,
@@ -719,7 +719,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
       return Easing.cubicOut.withDuration(250);
     },
   })
-  readonly reboundTransition!: Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined>;
+  readonly reboundTransition!: Property<this, Timing | boolean | undefined>;
 
   fitX(tween: boolean = false): void {
     this.setScaledFlags(this.scaledFlags | ScaledView.XFitFlag);
@@ -1184,7 +1184,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
         return null;
       }
     },
-    setXScale(xScale: ContinuousScale<X, number> | null, timing?: AnyTiming | boolean): void {
+    setXScale(xScale: ContinuousScale<X, number> | null, timing?: TimingLike | boolean): void {
       if ((this.owner.scaledFlags & ScaledView.XScaleGesturesFlag) !== 0) {
         this.owner.xScale(xScale, timing);
       }
@@ -1196,7 +1196,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
         return null;
       }
     },
-    setYScale(yScale: ContinuousScale<Y, number> | null, timing?: AnyTiming | boolean): void {
+    setYScale(yScale: ContinuousScale<Y, number> | null, timing?: TimingLike | boolean): void {
       if ((this.owner.scaledFlags & ScaledView.YScaleGesturesFlag) !== 0) {
         this.owner.yScale(yScale, timing);
       }

@@ -13,23 +13,24 @@
 // limitations under the License.
 
 import type {Proto} from "@swim/util";
+import type {Fastener} from "@swim/component";
 import type {CssScopeDescriptor} from "./CssScope";
 import type {CssScopeClass} from "./CssScope";
 import {CssScope} from "./CssScope";
 
 /** @public */
-export interface StyleSheetDescriptor extends CssScopeDescriptor<CSSStyleSheet> {
+export interface StyleSheetDescriptor<R> extends CssScopeDescriptor<R, CSSStyleSheet> {
   extends?: Proto<StyleSheet<any>> | boolean | null;
 }
 
 /** @public */
-export interface StyleSheetClass<F extends StyleSheet<any> = StyleSheet<any>> extends CssScopeClass<F> {
+export interface StyleSheetClass<F extends StyleSheet<any> = StyleSheet> extends CssScopeClass<F> {
 }
 
 /** @public */
-export interface StyleSheet<O = unknown> extends CssScope<O, CSSStyleSheet> {
+export interface StyleSheet<R = any> extends CssScope<R, CSSStyleSheet> {
   /** @override */
-  get descriptorType(): Proto<StyleSheetDescriptor>;
+  get descriptorType(): Proto<StyleSheetDescriptor<R>>;
 
   /** @override */
   get fastenerType(): Proto<StyleSheet<any>>;
@@ -39,26 +40,21 @@ export interface StyleSheet<O = unknown> extends CssScope<O, CSSStyleSheet> {
 }
 
 /** @public */
-export const StyleSheet = (function (_super: typeof CssScope) {
-  const StyleSheet = _super.extend("StyleSheet", {}) as StyleSheetClass;
+export const StyleSheet = (<R, F extends StyleSheet<any>>() => CssScope.extend<StyleSheet<R>, StyleSheetClass<F>>("StyleSheet", {
+  get fastenerType(): Proto<StyleSheet<any>> {
+    return StyleSheet;
+  },
 
-  Object.defineProperty(StyleSheet.prototype, "fastenerType", {
-    value: StyleSheet,
-    enumerable: true,
-    configurable: true,
-  });
-
-  StyleSheet.prototype.transformInletCss = function (this: StyleSheet, inletCss: CSSStyleSheet | CSSRule | null): CSSStyleSheet | null {
+  transformInletCss(inletCss: CSSStyleSheet | CSSRule | null): CSSStyleSheet | null {
     if (inletCss instanceof CSSStyleSheet) {
       return inletCss;
     }
     return null;
-  };
-
-  StyleSheet.construct = function <F extends StyleSheet<any>>(fastener: F | null, owner: F extends StyleSheet<infer O> ? O : never): F {
-    fastener = _super.construct.call(this, fastener, owner) as F;
+  },
+},
+{
+  construct(fastener: F | null, owner: F extends Fastener<infer R, any, any> ? R : never): F {
+    fastener = super.construct(fastener, owner) as F;
     return fastener;
-  };
-
-  return StyleSheet;
-})(CssScope);
+  },
+}))();

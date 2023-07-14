@@ -12,12 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {AnyTiming} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import {Animator} from "@swim/component";
-import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
 import {R2Box} from "@swim/math";
-import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
 import {View} from "@swim/view";
@@ -34,25 +32,25 @@ import {Rect} from "./Rect";
 /** @public */
 export class RectView extends GraphicsView implements FillView, StrokeView {
   @Animator({valueType: Length, value: Length.zero(), updateFlags: View.NeedsRender})
-  readonly x!: Animator<this, Length, AnyLength>;
+  readonly x!: Animator<this, Length>;
 
   @Animator({valueType: Length, value: Length.zero(), updateFlags: View.NeedsRender})
-  readonly y!: Animator<this, Length, AnyLength>;
+  readonly y!: Animator<this, Length>;
 
   @Animator({valueType: Length, value: Length.zero(), updateFlags: View.NeedsRender})
-  readonly width!: Animator<this, Length, AnyLength>;
+  readonly width!: Animator<this, Length>;
 
   @Animator({valueType: Length, value: Length.zero(), updateFlags: View.NeedsRender})
-  readonly height!: Animator<this, Length, AnyLength>;
+  readonly height!: Animator<this, Length>;
 
   @ThemeAnimator({valueType: Color, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly fill!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly fill!: ThemeAnimator<this, Color | null>;
 
   @ThemeAnimator({valueType: Color, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly stroke!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly stroke!: ThemeAnimator<this, Color | null>;
 
   @ThemeAnimator({valueType: Length, value: null, inherits: true, updateFlags: View.NeedsRender})
-  readonly strokeWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
+  readonly strokeWidth!: ThemeAnimator<this, Length | null>;
 
   get value(): Rect {
     return new Rect(this.x.getValue(), this.y.getValue(), this.width.getValue(), this.height.getValue());
@@ -62,9 +60,9 @@ export class RectView extends GraphicsView implements FillView, StrokeView {
     return new Rect(this.x.getState(), this.y.getState(), this.width.getState(), this.height.getState());
   }
 
-  setState(rect: Rect | RectInit, timing?: AnyTiming | boolean): void {
+  setState(rect: Rect | RectInit, timing?: TimingLike | boolean): void {
     if (rect instanceof Rect) {
-      rect = rect.toAny();
+      rect = rect.toLike();
     }
     if (rect.x !== void 0) {
       this.x(rect.x, timing);

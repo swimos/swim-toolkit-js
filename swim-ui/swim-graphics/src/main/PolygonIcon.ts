@@ -20,7 +20,7 @@ import {Interpolator} from "@swim/util";
 import type {Output} from "@swim/codec";
 import type {Debug} from "@swim/codec";
 import {Format} from "@swim/codec";
-import type {AnyAngle} from "@swim/math";
+import type {AngleLike} from "@swim/math";
 import {Angle} from "@swim/math";
 import type {R2Box} from "@swim/math";
 import type {Color} from "@swim/style";
@@ -219,9 +219,9 @@ export class PolygonIcon extends FilledIcon implements Interpolate<PolygonIcon>,
     return Format.debug(this);
   }
 
-  static create(sides: number, rotation?: AnyAngle): PolygonIcon {
+  static create(sides: number, rotation?: AngleLike): PolygonIcon {
     if (rotation !== void 0) {
-      rotation = Angle.fromAny(rotation);
+      rotation = Angle.fromLike(rotation);
     } else {
       rotation = Angle.zero();
     }

@@ -13,10 +13,7 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
-import {Timing} from "@swim/util";
 import type {Observes} from "@swim/util";
-import {Property} from "@swim/component";
 import type {Trait} from "@swim/model";
 import {ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
@@ -199,11 +196,6 @@ export class MapController extends Controller {
     },
   })
   readonly container!: ViewRef<this, HtmlView>;
-
-  @Property({valueType: Timing, value: true})
-  get geoTiming(): Property<this, Timing | boolean | undefined, AnyTiming | boolean | undefined> {
-    return Property.dummy();
-  }
 
   @TraitViewControllerSet({
     controllerType: GeoController,

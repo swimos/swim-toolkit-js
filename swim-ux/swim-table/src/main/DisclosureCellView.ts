@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {AnyExpansion} from "@swim/style";
 import type {Expansion} from "@swim/style";
 import {ExpansionAnimator} from "@swim/style";
 import {ViewRef} from "@swim/view";
@@ -36,7 +35,7 @@ export class DisclosureCellView extends CellView {
   declare readonly observerType?: Class<DisclosureCellViewObserver>;
 
   @ExpansionAnimator({value: null, inherits: true})
-  readonly disclosure!: ExpansionAnimator<this, Expansion | null, AnyExpansion | null>;
+  readonly disclosure!: ExpansionAnimator<this, Expansion | null>;
 
   @ViewRef({
     viewType: DisclosureButton,

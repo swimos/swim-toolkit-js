@@ -16,7 +16,7 @@ import type {Class} from "@swim/util";
 import type {Domain} from "@swim/util";
 import type {Range} from "@swim/util";
 import type {ContinuousScale} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import type {Property} from "@swim/component";
 import type {GraphicsViewObserver} from "@swim/graphics";
 import {GraphicsView} from "@swim/graphics";
@@ -40,8 +40,8 @@ export interface ScaledYView<Y = unknown> extends GraphicsView {
   readonly yScale: ContinuousScaleAnimator<this, Y, number>;
 
   yDomain(): Domain<Y> | null;
-  yDomain(yDomain: Domain<Y> | null, timing?: AnyTiming | boolean): this;
-  yDomain(yMin: Y, yMax: Y, timing: AnyTiming | boolean): this;
+  yDomain(yDomain: Domain<Y> | null, timing?: TimingLike | boolean): this;
+  yDomain(yMin: Y, yMax: Y, timing: TimingLike | boolean): this;
 
   yRange(): Range<number> | null;
 

@@ -14,6 +14,8 @@
 
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
+import type {FastenerClass} from "@swim/component";
+import type {Fastener} from "@swim/component";
 import type {View} from "./View";
 import type {GestureInputType} from "./Gesture";
 import {GestureInput} from "./Gesture";
@@ -63,18 +65,18 @@ export class PositionGestureInput extends GestureInput {
 }
 
 /** @public */
-export interface PositionGestureDescriptor<V extends View = View> extends GestureDescriptor<V> {
+export interface PositionGestureDescriptor<R, V extends View> extends GestureDescriptor<R, V> {
   extends?: Proto<PositionGesture<any, any>> | boolean | null;
 }
 
 /** @public */
-export interface PositionGestureClass<F extends PositionGesture<any, any> = PositionGesture<any, any>> extends GestureClass<F> {
+export interface PositionGestureClass<G extends PositionGesture<any, any> = PositionGesture> extends GestureClass<G> {
 }
 
 /** @public */
-export interface PositionGesture<O = unknown, V extends View = View> extends Gesture<O, V> {
+export interface PositionGesture<R = any, V extends View = View> extends Gesture<R, V> {
   /** @override */
-  get descriptorType(): Proto<PositionGestureDescriptor<V>>;
+  get descriptorType(): Proto<PositionGestureDescriptor<R, V>>;
 
   /** @internal @protected @override */
   attachEvents(view: V): void;
@@ -271,107 +273,102 @@ export interface PositionGesture<O = unknown, V extends View = View> extends Ges
 }
 
 /** @public */
-export const PositionGesture = (function (_super: typeof Gesture) {
-  const PositionGesture = _super.extend("PositionGesture", {}) as PositionGestureClass;
-
-  PositionGesture.prototype.attachEvents = function (this: PositionGesture, view: View): void {
-    _super.prototype.attachEvents.call(this, view);
+export const PositionGesture = (<R, V extends View, G extends PositionGesture<any, any>>() => Gesture.extend<PositionGesture<R, V>, PositionGestureClass<G>>("PositionGesture", {
+  attachEvents(view: V): void {
+    super.attachEvents(view);
     this.attachHoverEvents(view);
-  };
+  },
 
-  PositionGesture.prototype.detachEvents = function (this: PositionGesture, view: View): void {
+  detachEvents(view: V): void {
     this.detachPressEvents(view);
     this.detachHoverEvents(view);
-    _super.prototype.detachEvents.call(this, view);
-  };
+    super.detachEvents(view);
+  },
 
-  PositionGesture.prototype.attachHoverEvents = function (this: PositionGesture, view: View): void {
+  attachHoverEvents(view: V): void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.detachHoverEvents = function (this: PositionGesture, view: View): void {
+  detachHoverEvents(view: V): void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.attachPressEvents = function (this: PositionGesture, view: View): void {
+  attachPressEvents(view: V): void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.detachPressEvents = function (this: PositionGesture, view: View): void {
+  detachPressEvents(view: V): void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.createInput = function (this: PositionGesture, inputId: string, inputType: GestureInputType, isPrimary: boolean,
-                                                    x: number, y: number, t: number): PositionGestureInput {
+  createInput(inputId: string, inputType: GestureInputType, isPrimary: boolean,
+              x: number, y: number, t: number): PositionGestureInput {
     return new PositionGestureInput(inputId, inputType, isPrimary, x, y, t);
-  };
+  },
 
-  PositionGesture.prototype.clearInput = function (this: PositionGesture, input: PositionGestureInput): void {
+  clearInput(input: PositionGestureInput): void {
     if (!input.hovering && !input.pressing) {
-      _super.prototype.clearInput.call(this, input);
+      super.clearInput(input);
     }
-  };
+  },
 
-  PositionGesture.prototype.clearInputs = function (this: PositionGesture): void {
-    _super.prototype.clearInputs.call(this);
+  clearInputs(): void {
+    super.clearInputs();
     (this as Mutable<typeof this>).hoverCount = 0;
     (this as Mutable<typeof this>).pressCount = 0;
-  };
+  },
 
-  PositionGesture.prototype.resetInput = function (this: PositionGesture, input: PositionGestureInput): void {
+  resetInput(input: PositionGestureInput): void {
     if (input.pressing) {
       this.cancelPress(input, null);
     }
     if (input.hovering) {
       this.endHover(input, null);
     }
-    _super.prototype.resetInput.call(this, input);
-  };
+    super.resetInput(input);
+  },
 
-  Object.defineProperty(PositionGesture.prototype, "hovering", {
-    get(this: PositionGesture): boolean {
-      return this.hoverCount !== 0;
-    },
-    configurable: true,
-  });
+  get hovering() {
+    return this.hoverCount !== 0;
+  },
 
-  PositionGesture.prototype.startHovering = function (this: PositionGesture): void {
+  startHovering(): void {
     this.willStartHovering();
     this.onStartHovering();
     this.didStartHovering();
-  };
+  },
 
-  PositionGesture.prototype.willStartHovering = function (this: PositionGesture): void {
+  willStartHovering(): void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.onStartHovering = function (this: PositionGesture): void {
+  onStartHovering(): void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.didStartHovering = function (this: PositionGesture): void {
+  didStartHovering(): void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.stopHovering = function (this: PositionGesture): void {
+  stopHovering(): void {
     this.willStopHovering();
     this.onStopHovering();
     this.didStopHovering();
-  };
+  },
 
-  PositionGesture.prototype.willStopHovering = function (this: PositionGesture): void {
+  willStopHovering(): void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.onStopHovering = function (this: PositionGesture): void {
+  onStopHovering(): void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.didStopHovering = function (this: PositionGesture): void {
+  didStopHovering(): void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.beginHover = function (this: PositionGesture, input: PositionGestureInput, event: Event | null): void {
+  beginHover(input: PositionGestureInput, event: Event | null): void {
     if (input.hovering) {
       return;
     }
@@ -383,21 +380,21 @@ export const PositionGesture = (function (_super: typeof Gesture) {
     if (this.hoverCount === 1) {
       this.startHovering();
     }
-  };
+  },
 
-  PositionGesture.prototype.willBeginHover = function (this: PositionGesture, input: PositionGestureInput, event: Event | null): void {
+  willBeginHover(input: PositionGestureInput, event: Event | null): void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.onBeginHover = function (this: PositionGesture, input: PositionGestureInput, event: Event | null): void {
+  onBeginHover(input: PositionGestureInput, event: Event | null): void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.didBeginHover = function (this: PositionGesture, input: PositionGestureInput, event: Event | null): void {
+  didBeginHover(input: PositionGestureInput, event: Event | null): void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.endHover = function (this: PositionGesture, input: PositionGestureInput, event: Event | null): void {
+  endHover(input: PositionGestureInput, event: Event | null): void {
     if (!input.hovering) {
       return;
     }
@@ -410,64 +407,61 @@ export const PositionGesture = (function (_super: typeof Gesture) {
       this.stopHovering();
     }
     this.clearInput(input);
-  };
+  },
 
-  PositionGesture.prototype.willEndHover = function (this: PositionGesture, input: PositionGestureInput, event: Event | null): void {
+  willEndHover(input: PositionGestureInput, event: Event | null): void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.onEndHover = function (this: PositionGesture, input: PositionGestureInput, event: Event | null): void {
+  onEndHover(input: PositionGestureInput, event: Event | null): void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.didEndHover = function (this: PositionGesture, input: PositionGestureInput, event: Event | null): void {
+  didEndHover(input: PositionGestureInput, event: Event | null): void {
     // hook
-  };
+  },
 
-  Object.defineProperty(PositionGesture.prototype, "pressing", {
-    get(this: PositionGesture): boolean {
-      return this.pressCount !== 0;
-    },
-    configurable: true,
-  });
+  get pressing(): boolean {
+    return this.pressCount !== 0;
+  },
 
-  PositionGesture.prototype.startPressing = function (this: PositionGesture): void {
+  startPressing(): void {
     this.willStartPressing();
     this.onStartPressing();
     this.didStartPressing();
-  };
+  },
 
-  PositionGesture.prototype.willStartPressing = function (this: PositionGesture): void {
+  willStartPressing(): void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.onStartPressing = function (this: PositionGesture): void {
+  onStartPressing(): void {
     this.attachPressEvents(this.view!);
-  };
+  },
 
-  PositionGesture.prototype.didStartPressing = function (this: PositionGesture): void {
+  didStartPressing(): void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.stopPressing = function (this: PositionGesture): void {
+  stopPressing(): void {
     this.willStopPressing();
     this.onStopPressing();
     this.didStopPressing();
-  };
+  },
 
-  PositionGesture.prototype.willStopPressing = function (this: PositionGesture): void {
+  willStopPressing(): void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.onStopPressing = function (this: PositionGesture): void {
+  onStopPressing(): void {
     this.detachPressEvents(this.view!);
-  };
+  },
 
-  PositionGesture.prototype.didStopPressing = function (this: PositionGesture): void {
+  didStopPressing(): void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.beginPress = function (this: PositionGesture, input: PositionGestureInput, event: Event | null): void {
+  beginPress(input: PositionGestureInput, event: Event | null): void {
     if (input.pressing) {
       return;
     }
@@ -487,47 +481,47 @@ export const PositionGesture = (function (_super: typeof Gesture) {
     if (this.pressCount === 1) {
       this.startPressing();
     }
-  };
+  },
 
-  PositionGesture.prototype.willBeginPress = function (this: PositionGesture, input: PositionGestureInput, event: Event | null): boolean | void {
+  willBeginPress(input: PositionGestureInput, event: Event | null): boolean | void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.onBeginPress = function (this: PositionGesture, input: PositionGestureInput, event: Event | null): void {
+  onBeginPress(input: PositionGestureInput, event: Event | null): void {
     input.x0 = input.x;
     input.y0 = input.y;
     input.t0 = input.t;
     input.dx = 0;
     input.dy = 0;
     input.dt = 0;
-  };
+  },
 
-  PositionGesture.prototype.didBeginPress = function (this: PositionGesture, input: PositionGestureInput, event: Event | null): void {
+  didBeginPress(input: PositionGestureInput, event: Event | null): void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.movePress = function (this: PositionGesture, input: PositionGestureInput, event: Event | null): void {
+  movePress(input: PositionGestureInput, event: Event | null): void {
     if (!input.pressing) {
       return;
     }
     this.willMovePress(input, event);
     this.onMovePress(input, event);
     this.didMovePress(input, event);
-  };
+  },
 
-  PositionGesture.prototype.willMovePress = function (this: PositionGesture, input: PositionGestureInput, event: Event | null): void {
+  willMovePress(input: PositionGestureInput, event: Event | null): void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.onMovePress = function (this: PositionGesture, input: PositionGestureInput, event: Event | null): void {
+  onMovePress(input: PositionGestureInput, event: Event | null): void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.didMovePress = function (this: PositionGesture, input: PositionGestureInput, event: Event | null): void {
+  didMovePress(input: PositionGestureInput, event: Event | null): void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.endPress = function (this: PositionGesture, input: PositionGestureInput, event: Event | null): void {
+  endPress(input: PositionGestureInput, event: Event | null): void {
     input.clearHoldTimer();
     if (!input.pressing) {
       return;
@@ -541,21 +535,21 @@ export const PositionGesture = (function (_super: typeof Gesture) {
       this.stopPressing();
     }
     this.clearInput(input);
-  };
+  },
 
-  PositionGesture.prototype.willEndPress = function (this: PositionGesture, input: PositionGestureInput, event: Event | null): void {
+  willEndPress(input: PositionGestureInput, event: Event | null): void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.onEndPress = function (this: PositionGesture, input: PositionGestureInput, event: Event | null): void {
+  onEndPress(input: PositionGestureInput, event: Event | null): void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.didEndPress = function (this: PositionGesture, input: PositionGestureInput, event: Event | null): void {
+  didEndPress(input: PositionGestureInput, event: Event | null): void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.cancelPress = function (this: PositionGesture, input: PositionGestureInput, event: Event | null): void {
+  cancelPress(input: PositionGestureInput, event: Event | null): void {
     input.clearHoldTimer();
     if (!input.pressing) {
       return;
@@ -569,39 +563,39 @@ export const PositionGesture = (function (_super: typeof Gesture) {
       this.stopPressing();
     }
     this.clearInput(input);
-  };
+  },
 
-  PositionGesture.prototype.willCancelPress = function (this: PositionGesture, input: PositionGestureInput, event: Event | null): void {
+  willCancelPress(input: PositionGestureInput, event: Event | null): void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.onCancelPress = function (this: PositionGesture, input: PositionGestureInput, event: Event | null): void {
+  onCancelPress(input: PositionGestureInput, event: Event | null): void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.didCancelPress = function (this: PositionGesture, input: PositionGestureInput, event: Event | null): void {
+  didCancelPress(input: PositionGestureInput, event: Event | null): void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.press = function (this: PositionGesture, input: PositionGestureInput, event: Event | null): void {
+  press(input: PositionGestureInput, event: Event | null): void {
     this.willPress(input, event);
     this.onPress(input, event);
     this.didPress(input, event);
-  };
+  },
 
-  PositionGesture.prototype.willPress = function (this: PositionGesture, input: PositionGestureInput, event: Event | null): void {
+  willPress(input: PositionGestureInput, event: Event | null): void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.onPress = function (this: PositionGesture, input: PositionGestureInput, event: Event | null): void {
+  onPress(input: PositionGestureInput, event: Event | null): void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.didPress = function (this: PositionGesture, input: PositionGestureInput, event: Event | null): void {
+  didPress(input: PositionGestureInput, event: Event | null): void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.longPress = function (this: PositionGesture, input: PositionGestureInput): void {
+  longPress(input: PositionGestureInput): void {
     input.clearHoldTimer();
     const dt = performance.now() - input.t0;
     if (dt >= 1.5 * input.holdDelay || !input.pressing) {
@@ -610,55 +604,54 @@ export const PositionGesture = (function (_super: typeof Gesture) {
     this.willLongPress(input);
     this.onLongPress(input);
     this.didLongPress(input);
-  };
+  },
 
-  PositionGesture.prototype.willLongPress = function (this: PositionGesture, input: PositionGestureInput): void {
+  willLongPress(input: PositionGestureInput): void {
     // hook
-  };
+  },
 
-  PositionGesture.prototype.onLongPress = function (this: PositionGesture, input: PositionGestureInput): void {
+  onLongPress(input: PositionGestureInput): void {
     const t = performance.now();
     input.dt = t - input.t;
     input.t = t;
-  };
+  },
 
-  PositionGesture.prototype.didLongPress = function (this: PositionGesture, input: PositionGestureInput): void {
+  didLongPress(input: PositionGestureInput): void {
     // hook
-  };
-
-  PositionGesture.construct = function <G extends PositionGesture<any, any>>(gesture: G | null, owner: G extends PositionGesture<infer O, any> ? O : never): G {
-    gesture = _super.construct.call(this, gesture, owner) as G;
+  },
+},
+{
+  construct(gesture: G | null, owner: G extends Fastener<infer R, any, any> ? R : never): G {
+    gesture = super.construct(gesture, owner) as G;
     (gesture as Mutable<typeof gesture>).hoverCount = 0;
     (gesture as Mutable<typeof gesture>).pressCount = 0;
     return gesture;
-  };
+  },
 
-  PositionGesture.specialize = function (template: PositionGestureDescriptor<any>): PositionGestureClass {
-    let superClass = template.extends as PositionGestureClass | null | undefined;
+  specialize(template: G extends {readonly descriptorType?: Proto<infer D>} ? D : never): FastenerClass<G> {
+    let superClass = template.extends as FastenerClass<G> | null | undefined;
     if (superClass === void 0 || superClass === null) {
       const method = template.method;
       if (method === "pointer") {
-        superClass = PointerPositionGesture;
+        superClass = PointerPositionGesture as unknown as FastenerClass<G>;
       } else if (method === "touch") {
-        superClass = TouchPositionGesture;
+        superClass = TouchPositionGesture as unknown as FastenerClass<G>;
       } else if (method === "mouse") {
-        superClass = MousePositionGesture;
+        superClass = MousePositionGesture as unknown as FastenerClass<G>;
       } else if (typeof PointerEvent !== "undefined") {
-        superClass = PointerPositionGesture;
+        superClass = PointerPositionGesture as unknown as FastenerClass<G>;
       } else if (typeof TouchEvent !== "undefined") {
-        superClass = TouchPositionGesture;
+        superClass = TouchPositionGesture as unknown as FastenerClass<G>;
       } else {
-        superClass = MousePositionGesture;
+        superClass = MousePositionGesture as unknown as FastenerClass<G>;
       }
     }
     return superClass;
-  };
-
-  return PositionGesture;
-})(Gesture);
+  },
+}))();
 
 /** @internal */
-export interface PointerPositionGesture<O = unknown, V extends View = View> extends PositionGesture<O, V> {
+export interface PointerPositionGesture<R = any, V extends View = View> extends PositionGesture<R, V> {
   /** @internal @protected @override */
   attachHoverEvents(view: V): void;
 
@@ -697,36 +690,34 @@ export interface PointerPositionGesture<O = unknown, V extends View = View> exte
 }
 
 /** @internal */
-export const PointerPositionGesture = (function (_super: typeof PositionGesture) {
-  const PointerPositionGesture = _super.extend("PointerPositionGesture", {}) as PositionGestureClass<PointerPositionGesture<any, any>>;
-
-  PointerPositionGesture.prototype.attachHoverEvents = function (this: PointerPositionGesture, view: View): void {
+export const PointerPositionGesture = (<R, V extends View, G extends PointerPositionGesture<any, any>>() => PositionGesture.extend<PointerPositionGesture<R, V>, PositionGestureClass<G>>("PointerPositionGesture", {
+  attachHoverEvents(view: V): void {
     view.addEventListener("pointerenter", this.onPointerEnter as EventListener);
     view.addEventListener("pointerleave", this.onPointerLeave as EventListener);
     view.addEventListener("pointerdown", this.onPointerDown as EventListener);
-  };
+  },
 
-  PointerPositionGesture.prototype.detachHoverEvents = function (this: PointerPositionGesture, view: View): void {
+  detachHoverEvents(view: V): void {
     view.removeEventListener("pointerenter", this.onPointerEnter as EventListener);
     view.removeEventListener("pointerleave", this.onPointerLeave as EventListener);
     view.removeEventListener("pointerdown", this.onPointerDown as EventListener);
-  };
+  },
 
-  PointerPositionGesture.prototype.attachPressEvents = function (this: PointerPositionGesture, view: View): void {
+  attachPressEvents(view: V): void {
     document.body.addEventListener("pointermove", this.onPointerMove);
     document.body.addEventListener("pointerup", this.onPointerUp);
     document.body.addEventListener("pointercancel", this.onPointerCancel);
     document.body.addEventListener("pointerleave", this.onPointerLeaveDocument);
-  };
+  },
 
-  PointerPositionGesture.prototype.detachPressEvents = function (this: PointerPositionGesture, view: View): void {
+  detachPressEvents(view: V): void {
     document.body.removeEventListener("pointermove", this.onPointerMove);
     document.body.removeEventListener("pointerup", this.onPointerUp);
     document.body.removeEventListener("pointercancel", this.onPointerCancel);
     document.body.removeEventListener("pointerleave", this.onPointerLeaveDocument);
-  };
+  },
 
-  PointerPositionGesture.prototype.updateInput = function (this: PointerPositionGesture, input: PositionGestureInput, event: PointerEvent): void {
+  updateInput(input: PositionGestureInput, event: PointerEvent): void {
     input.target = event.target;
     input.button = event.button;
     input.buttons = event.buttons;
@@ -749,30 +740,33 @@ export const PointerPositionGesture = (function (_super: typeof PositionGesture)
     input.twist = event.twist;
     input.pressure = event.pressure;
     input.tangentialPressure = event.tangentialPressure;
-  };
+  },
 
-  PointerPositionGesture.prototype.onPointerEnter = function (this: PointerPositionGesture, event: PointerEvent): void {
-    if (event.pointerType === "mouse" && event.buttons === 0) {
-      const input = this.getOrCreateInput(event.pointerId, GestureInput.pointerInputType(event.pointerType),
-                                          event.isPrimary, event.clientX, event.clientY, event.timeStamp);
-      this.updateInput(input, event);
-      if (!input.hovering) {
-        this.beginHover(input, event);
-      }
+  onPointerEnter(event: PointerEvent): void {
+    if (event.pointerType !== "mouse" || event.buttons !== 0) {
+      return;
     }
-  };
-
-  PointerPositionGesture.prototype.onPointerLeave = function (this: PointerPositionGesture, event: PointerEvent): void {
-    if (event.pointerType === "mouse") {
-      const input = this.getInput(event.pointerId);
-      if (input !== null) {
-        this.updateInput(input, event);
-        this.endHover(input, event);
-      }
+    const input = this.getOrCreateInput(event.pointerId, GestureInput.pointerInputType(event.pointerType),
+                                        event.isPrimary, event.clientX, event.clientY, event.timeStamp);
+    this.updateInput(input, event);
+    if (!input.hovering) {
+      this.beginHover(input, event);
     }
-  };
+  },
 
-  PointerPositionGesture.prototype.onPointerDown = function (this: PointerPositionGesture, event: PointerEvent): void {
+  onPointerLeave(event: PointerEvent): void {
+    if (event.pointerType !== "mouse") {
+      return;
+    }
+    const input = this.getInput(event.pointerId);
+    if (input === null) {
+      return;
+    }
+    this.updateInput(input, event);
+    this.endHover(input, event);
+  },
+
+  onPointerDown(event: PointerEvent): void {
     const input = this.getOrCreateInput(event.pointerId, GestureInput.pointerInputType(event.pointerType),
                                         event.isPrimary, event.clientX, event.clientY, event.timeStamp);
     this.updateInput(input, event);
@@ -782,46 +776,51 @@ export const PointerPositionGesture = (function (_super: typeof PositionGesture)
     if (event.pointerType === "mouse" && event.button !== 0) {
       this.cancelPress(input, event);
     }
-  };
+  },
 
-  PointerPositionGesture.prototype.onPointerMove = function (this: PointerPositionGesture, event: PointerEvent): void {
+  onPointerMove(event: PointerEvent): void {
     const input = this.getInput(event.pointerId);
-    if (input !== null) {
-      this.updateInput(input, event);
-      this.movePress(input, event);
+    if (input === null) {
+      return;
     }
-  };
+    this.updateInput(input, event);
+    this.movePress(input, event);
+  },
 
-  PointerPositionGesture.prototype.onPointerUp = function (this: PointerPositionGesture, event: PointerEvent): void {
+  onPointerUp(event: PointerEvent): void {
     const input = this.getInput(event.pointerId);
-    if (input !== null) {
-      this.updateInput(input, event);
-      this.endPress(input, event);
-      if (!input.defaultPrevented && event.button === 0) {
-        this.press(input, event);
-      }
+    if (input === null) {
+      return;
     }
-  };
+    this.updateInput(input, event);
+    this.endPress(input, event);
+    if (!input.defaultPrevented && event.button === 0) {
+      this.press(input, event);
+    }
+  },
 
-  PointerPositionGesture.prototype.onPointerCancel = function (this: PointerPositionGesture, event: PointerEvent): void {
+  onPointerCancel(event: PointerEvent): void {
     const input = this.getInput(event.pointerId);
-    if (input !== null) {
-      this.updateInput(input, event);
-      this.cancelPress(input, event);
+    if (input === null) {
+      return;
     }
-  };
+    this.updateInput(input, event);
+    this.cancelPress(input, event);
+  },
 
-  PointerPositionGesture.prototype.onPointerLeaveDocument = function (this: PointerPositionGesture, event: PointerEvent): void {
+  onPointerLeaveDocument(event: PointerEvent): void {
     const input = this.getInput(event.pointerId);
-    if (input !== null) {
-      this.updateInput(input, event);
-      this.cancelPress(input, event);
-      this.endHover(input, event);
+    if (input === null) {
+      return;
     }
-  };
-
-  PointerPositionGesture.construct = function <G extends PointerPositionGesture<any, any>>(gesture: G | null, owner: G extends PositionGesture<infer O, any> ? O : never): G {
-    gesture = _super.construct.call(this, gesture, owner) as G;
+    this.updateInput(input, event);
+    this.cancelPress(input, event);
+    this.endHover(input, event);
+  },
+},
+{
+  construct(gesture: G | null, owner: G extends Fastener<infer R, any, any> ? R : never): G {
+    gesture = super.construct(gesture, owner) as G;
     gesture.onPointerEnter = gesture.onPointerEnter.bind(gesture);
     gesture.onPointerLeave = gesture.onPointerLeave.bind(gesture);
     gesture.onPointerDown = gesture.onPointerDown.bind(gesture);
@@ -830,13 +829,11 @@ export const PointerPositionGesture = (function (_super: typeof PositionGesture)
     gesture.onPointerCancel = gesture.onPointerCancel.bind(gesture);
     gesture.onPointerLeaveDocument = gesture.onPointerLeaveDocument.bind(gesture);
     return gesture;
-  };
-
-  return PointerPositionGesture;
-})(PositionGesture);
+  },
+}))();
 
 /** @internal */
-export interface TouchPositionGesture<O = unknown, V extends View = View> extends PositionGesture<O, V> {
+export interface TouchPositionGesture<R = any, V extends View = View> extends PositionGesture<R, V> {
   /** @internal @protected @override */
   attachHoverEvents(view: V): void;
 
@@ -866,30 +863,28 @@ export interface TouchPositionGesture<O = unknown, V extends View = View> extend
 }
 
 /** @internal */
-export const TouchPositionGesture = (function (_super: typeof PositionGesture) {
-  const TouchPositionGesture = _super.extend("TouchPositionGesture", {}) as PositionGestureClass<TouchPositionGesture<any, any>>;
-
-  TouchPositionGesture.prototype.attachHoverEvents = function (this: TouchPositionGesture, view: View): void {
+export const TouchPositionGesture = (<R, V extends View, G extends TouchPositionGesture<any, any>>() => PositionGesture.extend<TouchPositionGesture<R, V>, PositionGestureClass<G>>("TouchPositionGesture", {
+  attachHoverEvents(view: V): void {
     view.addEventListener("touchstart", this.onTouchStart as EventListener);
-  };
+  },
 
-  TouchPositionGesture.prototype.detachHoverEvents = function (this: TouchPositionGesture, view: View): void {
+  detachHoverEvents(view: V): void {
     view.removeEventListener("touchstart", this.onTouchStart as EventListener);
-  };
+  },
 
-  TouchPositionGesture.prototype.attachPressEvents = function (this: TouchPositionGesture, view: View): void {
+  attachPressEvents(view: V): void {
     view.addEventListener("touchmove", this.onTouchMove as EventListener);
     view.addEventListener("touchend", this.onTouchEnd as EventListener);
     view.addEventListener("touchcancel", this.onTouchCancel as EventListener);
-  };
+  },
 
-  TouchPositionGesture.prototype.detachPressEvents = function (this: TouchPositionGesture, view: View): void {
+  detachPressEvents(view: V): void {
     view.removeEventListener("touchmove", this.onTouchMove as EventListener);
     view.removeEventListener("touchend", this.onTouchEnd as EventListener);
     view.removeEventListener("touchcancel", this.onTouchCancel as EventListener);
-  };
+  },
 
-  TouchPositionGesture.prototype.updateInput = function (this: TouchPositionGesture, input: PositionGestureInput, event: TouchEvent, touch: Touch): void {
+  updateInput(input: PositionGestureInput, event: TouchEvent, touch: Touch): void {
     input.target = touch.target;
     input.altKey = event.altKey;
     input.ctrlKey = event.ctrlKey;
@@ -902,9 +897,9 @@ export const TouchPositionGesture = (function (_super: typeof PositionGesture) {
     input.x = touch.clientX;
     input.y = touch.clientY;
     input.t = event.timeStamp;
-  };
+  },
 
-  TouchPositionGesture.prototype.onTouchStart = function (this: TouchPositionGesture, event: TouchEvent): void {
+  onTouchStart(event: TouchEvent): void {
     const touches = event.targetTouches;
     for (let i = 0; i < touches.length; i += 1) {
       const touch = touches[i]!;
@@ -914,63 +909,65 @@ export const TouchPositionGesture = (function (_super: typeof PositionGesture) {
         this.beginPress(input, event);
       }
     }
-  };
+  },
 
-  TouchPositionGesture.prototype.onTouchMove = function (this: TouchPositionGesture, event: TouchEvent): void {
+  onTouchMove(event: TouchEvent): void {
     const touches = event.changedTouches;
     for (let i = 0; i < touches.length; i += 1) {
       const touch = touches[i]!;
       const input = this.getInput(touch.identifier);
-      if (input !== null) {
-        this.updateInput(input, event, touch);
-        this.movePress(input, event);
+      if (input === null) {
+        continue;
       }
+      this.updateInput(input, event, touch);
+      this.movePress(input, event);
     }
-  };
+  },
 
-  TouchPositionGesture.prototype.onTouchEnd = function (this: TouchPositionGesture, event: TouchEvent): void {
+  onTouchEnd(event: TouchEvent): void {
     const touches = event.changedTouches;
     for (let i = 0; i < touches.length; i += 1) {
       const touch = touches[i]!;
       const input = this.getInput(touch.identifier);
-      if (input !== null) {
-        this.updateInput(input, event, touch);
-        this.endPress(input, event);
-        if (!input.defaultPrevented) {
-          this.press(input, event);
-        }
-        this.endHover(input, event);
+      if (input === null) {
+        continue;
       }
+      this.updateInput(input, event, touch);
+      this.endPress(input, event);
+      if (!input.defaultPrevented) {
+        this.press(input, event);
+      }
+      this.endHover(input, event);
     }
-  };
+  },
 
-  TouchPositionGesture.prototype.onTouchCancel = function (this: TouchPositionGesture, event: TouchEvent): void {
+  onTouchCancel(event: TouchEvent): void {
     const touches = event.changedTouches;
     for (let i = 0; i < touches.length; i += 1) {
       const touch = touches[i]!;
       const input = this.getInput(touch.identifier);
-      if (input !== null) {
-        this.updateInput(input, event, touch);
-        this.cancelPress(input, event);
-        this.endHover(input, event);
+      if (input === null) {
+        continue;
       }
+      this.updateInput(input, event, touch);
+      this.cancelPress(input, event);
+      this.endHover(input, event);
     }
-  };
-
-  TouchPositionGesture.construct = function <G extends TouchPositionGesture<any, any>>(gesture: G | null, owner: G extends PositionGesture<infer O, any> ? O : never): G {
-    gesture = _super.construct.call(this, gesture, owner) as G;
+  },
+},
+{
+  construct(gesture: G | null, owner: G extends Fastener<infer R, any, any> ? R : never): G {
+    gesture = super.construct(gesture, owner) as G;
     gesture.onTouchStart = gesture.onTouchStart.bind(gesture);
     gesture.onTouchMove = gesture.onTouchMove.bind(gesture);
     gesture.onTouchEnd = gesture.onTouchEnd.bind(gesture);
     gesture.onTouchCancel = gesture.onTouchCancel.bind(gesture);
     return gesture;
-  };
-
-  return TouchPositionGesture;
-})(PositionGesture);
+  },
+}))();
 
 /** @internal */
-export interface MousePositionGesture<O = unknown, V extends View = View> extends PositionGesture<O, V> {
+export interface MousePositionGesture<R = any, V extends View = View> extends PositionGesture<R, V> {
   /** @internal @protected @override */
   attachHoverEvents(view: V): void;
 
@@ -1006,34 +1003,32 @@ export interface MousePositionGesture<O = unknown, V extends View = View> extend
 }
 
 /** @internal */
-export const MousePositionGesture = (function (_super: typeof PositionGesture) {
-  const MousePositionGesture = _super.extend("MousePositionGesture", {}) as PositionGestureClass<MousePositionGesture<any, any>>;
-
-  MousePositionGesture.prototype.attachHoverEvents = function (this: MousePositionGesture, view: View): void {
+export const MousePositionGesture = (<R, V extends View, G extends MousePositionGesture<any, any>>() => PositionGesture.extend<MousePositionGesture<R, V>, PositionGestureClass<G>>("MousePositionGesture", {
+  attachHoverEvents(view: V): void {
     view.addEventListener("mouseenter", this.onMouseEnter as EventListener);
     view.addEventListener("mouseleave", this.onMouseLeave as EventListener);
     view.addEventListener("mousedown", this.onMouseDown as EventListener);
-  };
+  },
 
-  MousePositionGesture.prototype.detachHoverEvents = function (this: MousePositionGesture, view: View): void {
+  detachHoverEvents(view: V): void {
     view.removeEventListener("mouseenter", this.onMouseEnter as EventListener);
     view.removeEventListener("mouseleave", this.onMouseLeave as EventListener);
     view.removeEventListener("mousedown", this.onMouseDown as EventListener);
-  };
+  },
 
-  MousePositionGesture.prototype.attachPressEvents = function (this: MousePositionGesture, view: View): void {
+  attachPressEvents(view: V): void {
     document.body.addEventListener("mousemove", this.onMouseMove);
     document.body.addEventListener("mouseup", this.onMouseUp);
     document.body.addEventListener("mouseleave", this.onMouseLeaveDocument);
-  };
+  },
 
-  MousePositionGesture.prototype.detachPressEvents = function (this: MousePositionGesture, view: View): void {
+  detachPressEvents(view: V): void {
     document.body.removeEventListener("mousemove", this.onMouseMove);
     document.body.removeEventListener("mouseup", this.onMouseUp);
     document.body.removeEventListener("mouseleave", this.onMouseLeaveDocument);
-  };
+  },
 
-  MousePositionGesture.prototype.updateInput = function (this: MousePositionGesture, input: PositionGestureInput, event: MouseEvent): void {
+  updateInput(input: PositionGestureInput, event: MouseEvent): void {
     input.target = event.target;
     input.button = event.button;
     input.buttons = event.buttons;
@@ -1048,27 +1043,29 @@ export const MousePositionGesture = (function (_super: typeof PositionGesture) {
     input.x = event.clientX;
     input.y = event.clientY;
     input.t = event.timeStamp;
-  };
+  },
 
-  MousePositionGesture.prototype.onMouseEnter = function (this: MousePositionGesture, event: MouseEvent): void {
-    if (event.buttons === 0) {
-      const input = this.getOrCreateInput("mouse", "mouse", true, event.clientX, event.clientY, event.timeStamp);
-      this.updateInput(input, event);
-      if (!input.hovering) {
-        this.beginHover(input, event);
-      }
+  onMouseEnter(event: MouseEvent): void {
+    if (event.buttons !== 0) {
+      return;
     }
-  };
+    const input = this.getOrCreateInput("mouse", "mouse", true, event.clientX, event.clientY, event.timeStamp);
+    this.updateInput(input, event);
+    if (!input.hovering) {
+      this.beginHover(input, event);
+    }
+  },
 
-  MousePositionGesture.prototype.onMouseLeave = function (this: MousePositionGesture, event: MouseEvent): void {
+  onMouseLeave(event: MouseEvent): void {
     const input = this.getInput("mouse");
-    if (input !== null) {
-      this.updateInput(input, event);
-      this.endHover(input, event);
+    if (input === null) {
+      return;
     }
-  };
+    this.updateInput(input, event);
+    this.endHover(input, event);
+  },
 
-  MousePositionGesture.prototype.onMouseDown = function (this: MousePositionGesture, event: MouseEvent): void {
+  onMouseDown(event: MouseEvent): void {
     const input = this.getOrCreateInput("mouse", "mouse", true, event.clientX, event.clientY, event.timeStamp);
     this.updateInput(input, event);
     if (!input.pressing) {
@@ -1077,38 +1074,42 @@ export const MousePositionGesture = (function (_super: typeof PositionGesture) {
     if (event.button !== 0) {
       this.cancelPress(input, event);
     }
-  };
+  },
 
-  MousePositionGesture.prototype.onMouseMove = function (this: MousePositionGesture, event: MouseEvent): void {
+  onMouseMove(event: MouseEvent): void {
     const input = this.getInput("mouse");
-    if (input !== null) {
-      this.updateInput(input, event);
-      this.movePress(input, event);
+    if (input === null) {
+      return;
     }
-  };
+    this.updateInput(input, event);
+    this.movePress(input, event);
+  },
 
-  MousePositionGesture.prototype.onMouseUp = function (this: MousePositionGesture, event: MouseEvent): void {
+  onMouseUp(event: MouseEvent): void {
     const input = this.getInput("mouse");
-    if (input !== null) {
-      this.updateInput(input, event);
-      this.endPress(input, event);
-      if (!input.defaultPrevented && event.button === 0) {
-        this.press(input, event);
-      }
+    if (input === null) {
+      return;
     }
-  };
+    this.updateInput(input, event);
+    this.endPress(input, event);
+    if (!input.defaultPrevented && event.button === 0) {
+      this.press(input, event);
+    }
+  },
 
-  MousePositionGesture.prototype.onMouseLeaveDocument = function (this: MousePositionGesture, event: MouseEvent): void {
+  onMouseLeaveDocument(event: MouseEvent): void {
     const input = this.getInput("mouse");
-    if (input !== null) {
-      this.updateInput(input, event);
-      this.cancelPress(input, event);
-      this.endHover(input, event);
+    if (input === null) {
+      return;
     }
-  };
-
-  MousePositionGesture.construct = function <G extends MousePositionGesture<any, any>>(gesture: G | null, owner: G extends PositionGesture<infer O, any> ? O : never): G {
-    gesture = _super.construct.call(this, gesture, owner) as G;
+    this.updateInput(input, event);
+    this.cancelPress(input, event);
+    this.endHover(input, event);
+  },
+},
+{
+  construct(gesture: G | null, owner: G extends Fastener<infer R, any, any> ? R : never): G {
+    gesture = super.construct(gesture, owner) as G;
     gesture.onMouseEnter = gesture.onMouseEnter.bind(gesture);
     gesture.onMouseLeave = gesture.onMouseLeave.bind(gesture);
     gesture.onMouseDown = gesture.onMouseDown.bind(gesture);
@@ -1116,7 +1117,5 @@ export const MousePositionGesture = (function (_super: typeof PositionGesture) {
     gesture.onMouseUp = gesture.onMouseUp.bind(gesture);
     gesture.onMouseLeaveDocument = gesture.onMouseLeaveDocument.bind(gesture);
     return gesture;
-  };
-
-  return MousePositionGesture;
-})(PositionGesture);
+  },
+}))();

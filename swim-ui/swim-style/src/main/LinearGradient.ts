@@ -28,12 +28,12 @@ import {Parser} from "@swim/codec";
 import {Unicode} from "@swim/codec";
 import {Angle} from "@swim/math";
 import {AngleParser} from "@swim/math";
-import type {AnyColorStop} from "./ColorStop";
+import type {ColorStopLike} from "./ColorStop";
 import {ColorStop} from "./ColorStop";
 import {ColorStopListParser} from "./ColorStop";
 
 /** @public */
-export type AnyLinearGradientAngle = LinearGradientAngle | number;
+export type LinearGradientAngleLike = LinearGradientAngle | number;
 
 /** @public */
 export type LinearGradientAngle = Angle | LinearGradientSide | LinearGradientCorner;
@@ -45,11 +45,11 @@ export type LinearGradientCorner = [LinearGradientSide, LinearGradientSide];
 export type LinearGradientSide = "left" | "right" | "top" | "bottom";
 
 /** @public */
-export type AnyLinearGradient = LinearGradient | LinearGradientInit | string;
+export type LinearGradientLike = LinearGradient | LinearGradientInit | string;
 
 /** @public */
-export const AnyLinearGradient = {
-  [Symbol.hasInstance](instance: unknown): instance is AnyLinearGradient {
+export const LinearGradientLike = {
+  [Symbol.hasInstance](instance: unknown): instance is LinearGradientLike {
     return instance instanceof LinearGradient
         || LinearGradientInit[Symbol.hasInstance](instance)
         || typeof instance === "string";
@@ -58,8 +58,8 @@ export const AnyLinearGradient = {
 
 /** @public */
 export interface LinearGradientInit {
-  angle: AnyLinearGradientAngle;
-  stops: AnyColorStop[];
+  angle: LinearGradientAngleLike;
+  stops: ColorStopLike[];
 }
 
 /** @public */
@@ -71,7 +71,7 @@ export const LinearGradientInit = {
 
 /** @public */
 export class LinearGradient implements Interpolate<LinearGradient>, Equals, Equivalent {
-  constructor(angle: LinearGradientAngle, stops: ReadonlyArray<ColorStop>) {
+  constructor(angle: LinearGradientAngle, stops: readonly ColorStop[]) {
     this.angle = angle;
     this.stops = stops;
     this.stringValue = void 0;
@@ -79,20 +79,20 @@ export class LinearGradient implements Interpolate<LinearGradient>, Equals, Equi
 
   readonly angle: LinearGradientAngle;
 
-  withAngle(angle: AnyLinearGradientAngle): LinearGradient {
+  withAngle(angle: LinearGradientAngleLike): LinearGradient {
     if (angle instanceof Angle || typeof angle === "number") {
-      angle = Angle.fromAny(angle, "deg");
+      angle = Angle.fromLike(angle, "deg");
     }
     return new LinearGradient(angle, this.stops);
   }
 
-  readonly stops: ReadonlyArray<ColorStop>;
+  readonly stops: readonly ColorStop[];
 
-  withStops(stops: ReadonlyArray<AnyColorStop>): LinearGradient {
+  withStops(stops: readonly ColorStopLike[]): LinearGradient {
     const n = stops.length;
     const array = new Array<ColorStop>(n);
     for (let i = 0; i < n; i += 1) {
-      array[i] = ColorStop.fromAny(stops[i]!);
+      array[i] = ColorStop.fromLike(stops[i]!);
     }
     return new LinearGradient(this.angle, array);
   }
@@ -161,9 +161,9 @@ export class LinearGradient implements Interpolate<LinearGradient>, Equals, Equi
     return s;
   }
 
-  static create(angle: AnyLinearGradientAngle, ...stops: AnyColorStop[]): LinearGradient {
+  static create(angle: LinearGradientAngleLike, ...stops: ColorStopLike[]): LinearGradient {
     if (angle instanceof Angle || typeof angle === "number") {
-      angle = Angle.fromAny(angle, "deg");
+      angle = Angle.fromLike(angle, "deg");
     }
     const n = stops.length;
     const array = new Array<ColorStop>(n);
@@ -176,13 +176,13 @@ export class LinearGradient implements Interpolate<LinearGradient>, Equals, Equi
           array[i] = ColorStop.parseHint(stop);
         }
       } else {
-        array[i] = ColorStop.fromAny(stops[i]!);
+        array[i] = ColorStop.fromLike(stops[i]!);
       }
     }
     return new LinearGradient(angle, array);
   }
 
-  static fromAny<T extends AnyLinearGradient | null | undefined>(value: T): LinearGradient | Uninitable<T> {
+  static fromLike<T extends LinearGradientLike | null | undefined>(value: T): LinearGradient | Uninitable<T> {
     if (value === void 0 || value === null || value instanceof LinearGradient) {
       return value as LinearGradient | Uninitable<T>;
     } else if (typeof value === "string") {
@@ -194,14 +194,14 @@ export class LinearGradient implements Interpolate<LinearGradient>, Equals, Equi
   }
 
   static fromInit(init: LinearGradientInit): LinearGradient {
-    let angle: AnyLinearGradientAngle = init.angle;
+    let angle: LinearGradientAngleLike = init.angle;
     if (angle instanceof Angle || typeof angle === "number") {
-      angle = Angle.fromAny(angle, "deg");
+      angle = Angle.fromLike(angle, "deg");
     }
     const n = init.stops.length;
     const array = new Array<ColorStop>(n);
     for (let i = 0; i < n; i += 1) {
-      array[i] = ColorStop.fromAny(init.stops[i]!);
+      array[i] = ColorStop.fromLike(init.stops[i]!);
     }
     return new LinearGradient(angle, array);
   }
@@ -246,7 +246,7 @@ export interface LinearGradientInterpolator extends Interpolator<LinearGradient>
   /** @internal */
   readonly angleInterpolator: Interpolator<LinearGradientAngle>;
   /** @internal */
-  readonly stopInterpolators: ReadonlyArray<Interpolator<ColorStop>>;
+  readonly stopInterpolators: readonly Interpolator<ColorStop>[];
 
   readonly 0: LinearGradient;
 

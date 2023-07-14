@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import type {Proto} from "@swim/util";
-import type {AnyLength} from "@swim/math";
+import type {LikeType} from "@swim/util";
+import type {FastenerClass} from "@swim/component";
+import type {Fastener} from "@swim/component";
 import {Length} from "@swim/math";
-import type {AnyTransform} from "@swim/math";
 import {Transform} from "@swim/math";
-import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import type {ThemeAnimatorDescriptor} from "@swim/theme";
 import type {ThemeAnimatorClass} from "@swim/theme";
@@ -26,7 +26,7 @@ import type {Look} from "@swim/theme";
 import {ElementView} from "./"; // forward import
 
 /** @public */
-export interface AttributeAnimatorDescriptor<T = unknown, U = T> extends ThemeAnimatorDescriptor<T, U> {
+export interface AttributeAnimatorDescriptor<R, T> extends ThemeAnimatorDescriptor<R, T> {
   extends?: Proto<AttributeAnimator<any, any, any>> | boolean | null;
   attributeName?: string;
 }
@@ -36,11 +36,11 @@ export interface AttributeAnimatorClass<A extends AttributeAnimator<any, any, an
 }
 
 /** @public */
-export interface AttributeAnimator<O = unknown, T = unknown, U = T, I = Look<NonNullable<T>, any> | T> extends ThemeAnimator<O, T, U, I> {
+export interface AttributeAnimator<R = any, T = any, I extends any[] = [Look<NonNullable<T>> | T]> extends ThemeAnimator<R, T, I> {
   /** @override */
-  get descriptorType(): Proto<AttributeAnimatorDescriptor<T, U>>;
+  get descriptorType(): Proto<AttributeAnimatorDescriptor<R, T>>;
 
-  readonly attributeName: string; // prototype property
+  get attributeName(): string;
 
   get attributeValue(): T;
 
@@ -53,28 +53,27 @@ export interface AttributeAnimator<O = unknown, T = unknown, U = T, I = Look<Non
 }
 
 /** @public */
-export const AttributeAnimator = (function (_super: typeof ThemeAnimator) {
-  const AttributeAnimator = _super.extend("AttributeAnimator", {}) as AttributeAnimatorClass;
+export const AttributeAnimator = (<R, T, I extends any[], A extends AttributeAnimator<any, any, any>>() => ThemeAnimator.extend<AttributeAnimator<R, T, I>, AttributeAnimatorClass<A>>("AttributeAnimator", {
+  get attributeName(): string {
+    throw new Error("no attribute name");
+  },
 
-  Object.defineProperty(AttributeAnimator.prototype, "attributeValue", {
-    get: function <T>(this: AttributeAnimator<unknown, T>): T {
-      const view = this.owner;
-      if (view instanceof ElementView) {
-        const value = view.getAttribute(this.attributeName);
-        if (value !== null) {
-          try {
-            return this.parse(value);
-          } catch (e) {
-            // swallow parse errors
-          }
+  get attributeValue(): T {
+    const view = this.owner;
+    if (view instanceof ElementView) {
+      const value = view.getAttribute(this.attributeName);
+      if (value !== null) {
+        try {
+          return this.parse(value);
+        } catch (e) {
+          // swallow parse errors
         }
       }
-      return (Object.getPrototypeOf(this) as AttributeAnimator<unknown, T>).value;
-    },
-    configurable: true,
-  });
+    }
+    return (Object.getPrototypeOf(this) as AttributeAnimator<R, T, I>).value;
+  },
 
-  AttributeAnimator.prototype.getAttributeValue = function <T>(this: AttributeAnimator<unknown, T>): NonNullable<T> {
+  getAttributeValue(): NonNullable<T> {
     const attributeValue = this.attributeValue;
     if (attributeValue === void 0 || attributeValue === null) {
       let message = attributeValue + " ";
@@ -86,225 +85,201 @@ export const AttributeAnimator = (function (_super: typeof ThemeAnimator) {
       throw new TypeError(message);
     }
     return attributeValue as NonNullable<T>;
-  };
+  },
 
-  AttributeAnimator.prototype.onSetValue = function <T>(this: AttributeAnimator<unknown, T>, newValue: T, oldValue: T): void {
+  onSetValue(newValue: T, oldValue: T): void {
     const view = this.owner;
     if (view instanceof ElementView) {
       view.setAttribute(this.attributeName, newValue);
     }
-    _super.prototype.onSetValue.call(this, newValue, oldValue);
-  };
+    super.onSetValue(newValue, oldValue);
+  },
 
-  AttributeAnimator.prototype.parse = function <T>(this: AttributeAnimator<unknown, T>): T {
+  parse(): T {
     throw new Error();
-  };
+  },
+},
+{
+  construct(animator: A | null, owner: A extends Fastener<infer R, any, any> ? R : never): A {
+    animator = super.construct(animator, owner) as A;
+    return animator;
+  },
 
-  AttributeAnimator.specialize = function (template: AttributeAnimatorDescriptor<any, any>): AttributeAnimatorClass {
-    let superClass = template.extends as AttributeAnimatorClass | null | undefined;
+  specialize(template: A extends {readonly descriptorType?: Proto<infer D>} ? D : never): FastenerClass<A> {
+    let superClass = template.extends as FastenerClass<A> | null | undefined;
     if (superClass === void 0 || superClass === null) {
       const valueType = template.valueType;
       if (valueType === String) {
-        superClass = StringAttributeAnimator;
+        superClass = StringAttributeAnimator as unknown as FastenerClass<A>;
       } else if (valueType === Number) {
-        superClass = NumberAttributeAnimator;
+        superClass = NumberAttributeAnimator as unknown as FastenerClass<A>;
       } else if (valueType === Boolean) {
-        superClass = BooleanAttributeAnimator;
+        superClass = BooleanAttributeAnimator as unknown as FastenerClass<A>;
       } else if (valueType === Length) {
-        superClass = LengthAttributeAnimator;
+        superClass = LengthAttributeAnimator as unknown as FastenerClass<A>;
       } else if (valueType === Color) {
-        superClass = ColorAttributeAnimator;
+        superClass = ColorAttributeAnimator as unknown as FastenerClass<A>;
       } else if (valueType === Transform) {
-        superClass = TransformAttributeAnimator;
+        superClass = TransformAttributeAnimator as unknown as FastenerClass<A>;
       } else {
         superClass = this;
       }
     }
     return superClass;
-  };
-
-  return AttributeAnimator;
-})(ThemeAnimator);
+  },
+}))();
 
 /** @internal */
-export interface StringAttributeAnimator<O = unknown, T extends string | undefined = string | undefined, U extends string | undefined = T> extends AttributeAnimator<O, T, U> {
+export interface StringAttributeAnimator<R = any, T extends string | undefined = string | undefined, I extends any[] = [Look<NonNullable<T>> | T]> extends AttributeAnimator<R, T, I> {
 }
 
 /** @internal */
-export const StringAttributeAnimator = (function (_super: typeof AttributeAnimator) {
-  const StringAttributeAnimator = _super.extend("StringAttributeAnimator", {
-    valueType: String,
-  }) as AttributeAnimatorClass<StringAttributeAnimator<any, any, any>>;
+export const StringAttributeAnimator = (<R, T extends string | undefined, I extends any[], A extends StringAttributeAnimator<any, any, any>>() => AttributeAnimator.extend<StringAttributeAnimator<R, T, I>, AttributeAnimatorClass<A>>("StringAttributeAnimator", {
+  valueType: String,
 
-  StringAttributeAnimator.prototype.equalValues = function (newValue: string | undefined, oldValue: string | undefined): boolean {
+  equalValues(newValue: T, oldValue: T): boolean {
     return newValue === oldValue;
-  };
+  },
 
-  StringAttributeAnimator.prototype.parse = function (value: string): string | undefined {
-    return value;
-  };
+  parse(value: string): T {
+    return value as T;
+  },
 
-  StringAttributeAnimator.prototype.fromAny = function (value: string): string | undefined {
-    return value;
-  };
-
-  return StringAttributeAnimator;
-})(AttributeAnimator);
+  fromLike(value: T | LikeType<T>): T {
+    return value as T;
+  },
+}))();
 
 /** @internal */
-export interface NumberAttributeAnimator<O = unknown, T extends number | undefined = number | undefined, U extends number | string | undefined = number | string | T> extends AttributeAnimator<O, T, U> {
+export interface NumberAttributeAnimator<R = any, T extends number | undefined = number | undefined, I extends any[] = [Look<NonNullable<T>> | T]> extends AttributeAnimator<R, T, I> {
 }
 
 /** @internal */
-export const NumberAttributeAnimator = (function (_super: typeof AttributeAnimator) {
-  const NumberAttributeAnimator = _super.extend("NumberAttributeAnimator", {
-    valueType: Number,
-  }) as AttributeAnimatorClass<NumberAttributeAnimator<any, any, any>>;
+export const NumberAttributeAnimator = (<R, T extends number | undefined, I extends any[], A extends NumberAttributeAnimator<any, any, any>>() => AttributeAnimator.extend<NumberAttributeAnimator<R, T, I>, AttributeAnimatorClass<A>>("NumberAttributeAnimator", {
+  valueType: Number,
 
-  NumberAttributeAnimator.prototype.equalValues = function (newValue: number | undefined, oldValue: number | undefined): boolean {
+  equalValues(newValue: T, oldValue: T): boolean {
     return newValue === oldValue;
-  };
+  },
 
-  NumberAttributeAnimator.prototype.parse = function (value: string): number | undefined {
+  parse(value: string): T {
     const number = +value;
-    return isFinite(number) ? number : void 0;
-  };
+    return isFinite(number) ? number as T : void 0 as T;
+  },
 
-  NumberAttributeAnimator.prototype.fromAny = function (value: number | string): number | undefined {
+  fromLike(value: T | LikeType<T>): T {
     if (typeof value === "number") {
-      return value;
-    } else {
-      const number = +value;
-      return isFinite(number) ? number : void 0;
+      return value as T;
     }
-  };
-
-  return NumberAttributeAnimator;
-})(AttributeAnimator);
+    const number = +(value as any);
+    return isFinite(number) ? number as T : void 0 as T;
+  },
+}))();
 
 /** @internal */
-export interface BooleanAttributeAnimator<O = unknown, T extends boolean | undefined = boolean | undefined, U extends boolean | string | undefined = boolean | string | T> extends AttributeAnimator<O, T, U> {
+export interface BooleanAttributeAnimator<R = any, T extends boolean | undefined = boolean | undefined, I extends any[] = [Look<NonNullable<T>> | T]> extends AttributeAnimator<R, T, I> {
 }
 
 /** @internal */
-export const BooleanAttributeAnimator = (function (_super: typeof AttributeAnimator) {
-  const BooleanAttributeAnimator = _super.extend("BooleanAttributeAnimator", {
-    valueType: Boolean,
-  }) as AttributeAnimatorClass<BooleanAttributeAnimator<any, any, any>>;
+export const BooleanAttributeAnimator = (<R, T extends boolean | undefined, I extends any[], A extends BooleanAttributeAnimator<any, any, any>>() => AttributeAnimator.extend<BooleanAttributeAnimator<R, T, I>, AttributeAnimatorClass<A>>("BooleanAttributeAnimator", {
+  valueType: Boolean,
 
-  BooleanAttributeAnimator.prototype.equalValues = function (newValue: boolean | undefined, oldValue: boolean | undefined): boolean {
+  equalValues(newValue: T, oldValue: T): boolean {
     return newValue === oldValue;
-  };
+  },
 
-  BooleanAttributeAnimator.prototype.parse = function (value: string): boolean | undefined {
-    return !!value;
-  };
+  parse(value: string): T {
+    return !!value as T;
+  },
 
-  BooleanAttributeAnimator.prototype.fromAny = function (value: boolean | string): boolean | undefined {
-    return !!value;
-  };
-
-  return BooleanAttributeAnimator;
-})(AttributeAnimator);
+  fromLike(value: T | LikeType<T>): T {
+    return !!value as T;
+  },
+}))();
 
 /** @internal */
-export interface LengthAttributeAnimator<O = unknown, T extends Length | null = Length | null, U extends AnyLength | null = AnyLength | T> extends AttributeAnimator<O, T, U> {
+export interface LengthAttributeAnimator<R = any, T extends Length | null | undefined = Length | null, I extends any[] = [Look<NonNullable<T>> | T]> extends AttributeAnimator<R, T, I> {
 }
 
 /** @internal */
-export const LengthAttributeAnimator = (function (_super: typeof AttributeAnimator) {
-  const LengthAttributeAnimator = _super.extend("LengthAttributeAnimator", {
-    valueType: Length,
-    value: null,
-  }) as AttributeAnimatorClass<LengthAttributeAnimator<any, any, any>>;
+export const LengthAttributeAnimator = (<R, T extends Length | null | undefined, I extends any[], A extends LengthAttributeAnimator<any, any, any>>() => AttributeAnimator.extend<LengthAttributeAnimator<R, T, I>, AttributeAnimatorClass<A>>("LengthAttributeAnimator", {
+  valueType: Length,
+  value: null as T,
 
-  LengthAttributeAnimator.prototype.equalValues = function (newValue: Length | null, oldValue: Length | null): boolean {
+  equalValues(newValue: T, oldValue: T): boolean {
     if (newValue !== void 0 && newValue !== null) {
       return newValue.equals(oldValue);
-    } else {
-      return newValue === oldValue;
     }
-  };
+    return newValue === oldValue;
+  },
 
-  LengthAttributeAnimator.prototype.parse = function (value: string): Length | null {
-    return Length.parse(value);
-  };
+  parse(value: string): T {
+    return Length.parse(value) as T;
+  },
 
-  LengthAttributeAnimator.prototype.fromAny = function (value: AnyLength): Length | null {
+  fromLike(value: T | LikeType<T>): T {
     try {
-      return Length.fromAny(value);
+      return Length.fromLike(value) as T;
     } catch (swallow) {
-      return null;
+      return null as T;
     }
-  };
-
-  return LengthAttributeAnimator;
-})(AttributeAnimator);
+  },
+}))();
 
 /** @internal */
-export interface ColorAttributeAnimator<O = unknown, T extends Color | null = Color | null, U extends AnyColor | null = AnyColor | T> extends AttributeAnimator<O, T, U> {
+export interface ColorAttributeAnimator<R = any, T extends Color | null | undefined = Color | null, I extends any[] = [Look<NonNullable<T>> | T]> extends AttributeAnimator<R, T, I> {
 }
 
 /** @internal */
-export const ColorAttributeAnimator = (function (_super: typeof AttributeAnimator) {
-  const ColorAttributeAnimator = _super.extend("ColorAttributeAnimator", {
-    valueType: Color,
-    value: null,
-  }) as AttributeAnimatorClass<ColorAttributeAnimator<any, any, any>>;
+export const ColorAttributeAnimator = (<R, T extends Color | null | undefined, I extends any[], A extends ColorAttributeAnimator<any, any, any>>() => AttributeAnimator.extend<ColorAttributeAnimator<R, T, I>, AttributeAnimatorClass<A>>("ColorAttributeAnimator", {
+  valueType: Color,
+  value: null as T,
 
-  ColorAttributeAnimator.prototype.equalValues = function (newValue: Color | null, oldValue: Color | null): boolean {
+  equalValues(newValue: T, oldValue: T): boolean {
     if (newValue !== void 0 && newValue !== null) {
       return newValue.equals(oldValue);
-    } else {
-      return newValue === oldValue;
     }
-  };
+    return newValue === oldValue;
+  },
 
-  ColorAttributeAnimator.prototype.parse = function (value: string): Color | null {
-    return Color.parse(value);
-  };
+  parse(value: string): T {
+    return Color.parse(value) as T;
+  },
 
-  ColorAttributeAnimator.prototype.fromAny = function (value: AnyColor): Color | null {
+  fromLike(value: T | LikeType<T>): T {
     try {
-      return Color.fromAny(value);
+      return Color.fromLike(value) as T;
     } catch (swallow) {
-      return null;
+      return null as T;
     }
-  };
-
-  return ColorAttributeAnimator;
-})(AttributeAnimator);
+  },
+}))();
 
 /** @internal */
-export interface TransformAttributeAnimator<O = unknown, T extends Transform | null = Transform | null, U extends AnyTransform | null = AnyTransform | T> extends AttributeAnimator<O, T, U> {
+export interface TransformAttributeAnimator<R = any, T extends Transform | null | undefined = Transform | null, I extends any[] = [Look<NonNullable<T>> | T]> extends AttributeAnimator<R, T, I> {
 }
 
 /** @internal */
-export const TransformAttributeAnimator = (function (_super: typeof AttributeAnimator) {
-  const TransformAttributeAnimator = _super.extend("TransformAttributeAnimator", {
-    valueType: Transform,
-    value: null,
-  }) as AttributeAnimatorClass<TransformAttributeAnimator<any, any, any>>;
+export const TransformAttributeAnimator = (<R, T extends Transform | null | undefined, I extends any[], A extends TransformAttributeAnimator<any, any, any>>() => AttributeAnimator.extend<TransformAttributeAnimator<R, T, I>, AttributeAnimatorClass<A>>("TransformAttributeAnimator", {
+  valueType: Transform,
+  value: null as T,
 
-  TransformAttributeAnimator.prototype.equalValues = function (newValue: Transform | null, oldValue: Transform | null): boolean {
+  equalValues(newValue: T, oldValue: T): boolean {
     if (newValue !== void 0 && newValue !== null) {
       return newValue.equals(oldValue);
-    } else {
-      return newValue === oldValue;
     }
-  };
+    return newValue === oldValue;
+  },
 
-  TransformAttributeAnimator.prototype.parse = function (value: string): Transform | null {
-    return Transform.parse(value);
-  };
+  parse(value: string): T {
+    return Transform.parse(value) as T;
+  },
 
-  TransformAttributeAnimator.prototype.fromAny = function (value: AnyTransform): Transform | null {
+  fromLike(value: T | LikeType<T>): T {
     try {
-      return Transform.fromAny(value);
+      return Transform.fromLike(value) as T;
     } catch (swallow) {
-      return null;
+      return null as T;
     }
-  };
-
-  return TransformAttributeAnimator;
-})(AttributeAnimator);
+  },
+}))();

@@ -249,14 +249,8 @@ export class RefresherService extends Service {
   }
 
   @EventHandler({
-    type: "visibilitychange",
-    initTarget(): EventTarget | null {
-      if (typeof document !== "undefined") {
-        return document;
-      } else {
-        return null;
-      }
-    },
+    eventType: "visibilitychange",
+    target: typeof document !== "undefined" ? document : null,
     handle(event: Event): void {
       if (document.visibilityState === "visible") {
         this.owner.power();

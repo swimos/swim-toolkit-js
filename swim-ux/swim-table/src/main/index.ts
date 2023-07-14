@@ -14,11 +14,11 @@
 
 // Layout
 
-export type {AnyColLayout} from "./ColLayout";
+export type {ColLayoutLike} from "./ColLayout";
 export type {ColLayoutInit} from "./ColLayout";
 export {ColLayout} from "./ColLayout";
 
-export type {AnyTableLayout} from "./TableLayout";
+export type {TableLayoutLike} from "./TableLayout";
 export type {TableLayoutInit} from "./TableLayout";
 export {TableLayout} from "./TableLayout";
 

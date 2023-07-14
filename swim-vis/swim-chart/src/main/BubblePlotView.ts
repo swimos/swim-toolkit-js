@@ -13,10 +13,8 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
 import type {R2Box} from "@swim/math";
-import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import {Look} from "@swim/theme";
 import {ThemeAnimator} from "@swim/theme";
@@ -46,7 +44,7 @@ export class BubblePlotView<X = unknown, Y = unknown> extends ScatterPlotView<X,
       this.owner.callObservers("viewDidSetRadius", radius, this.owner);
     },
   })
-  readonly radius!: ThemeAnimator<this, Length | null, AnyLength | null>;
+  readonly radius!: ThemeAnimator<this, Length | null>;
 
   @ThemeAnimator({
     valueType: Color,
@@ -57,13 +55,13 @@ export class BubblePlotView<X = unknown, Y = unknown> extends ScatterPlotView<X,
       this.owner.callObservers("viewDidSetFill", fill, this.owner);
     },
   })
-  readonly fill!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly fill!: ThemeAnimator<this, Color | null>;
 
   @ThemeAnimator({valueType: Color, value: null, updateFlags: View.NeedsRender})
-  readonly stroke!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly stroke!: ThemeAnimator<this, Color | null>;
 
   @ThemeAnimator({valueType: Length, value: null, updateFlags: View.NeedsRender})
-  readonly strokeWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
+  readonly strokeWidth!: ThemeAnimator<this, Length | null>;
 
   protected renderPlot(context: CanvasContext, frame: R2Box): void {
     const size = Math.min(frame.width, frame.height);

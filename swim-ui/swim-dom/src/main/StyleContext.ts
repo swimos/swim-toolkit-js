@@ -18,7 +18,7 @@ import {Objects} from "@swim/util";
 export interface StyleContext {
   readonly node?: Node;
 
-  getStyle(propertyNames: string | ReadonlyArray<string>): CSSStyleValue | string | undefined;
+  getStyle(propertyNames: string | readonly string[]): CSSStyleValue | string | undefined;
 
   setStyle(propertyName: string, value: unknown, priority?: string): this;
 }

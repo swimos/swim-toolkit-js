@@ -14,39 +14,42 @@
 
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
+import type {LikeType} from "@swim/util";
 import {Affinity} from "@swim/component";
 import type {FastenerFlags} from "@swim/component";
-import type {AnyConstraintExpression} from "@swim/constraint";
+import type {FastenerClass} from "@swim/component";
+import type {Fastener} from "@swim/component";
+import type {ConstraintExpressionLike} from "@swim/constraint";
 import {ConstraintExpression} from "@swim/constraint";
 import type {ConstraintTerm} from "@swim/constraint";
 import type {ConstraintVariable} from "@swim/constraint";
-import type {AnyConstraintStrength} from "@swim/constraint";
+import type {ConstraintStrengthLike} from "@swim/constraint";
 import {ConstraintStrength} from "@swim/constraint";
 import type {Constraint} from "@swim/constraint";
 import {ConstraintScope} from "@swim/constraint";
 import type {ConstraintSolver} from "@swim/constraint";
 import type {LengthUnits} from "@swim/math";
 import type {LengthBasis} from "@swim/math";
-import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
 import {PxLength} from "@swim/math";
 import {EmLength} from "@swim/math";
 import {RemLength} from "@swim/math";
 import {PctLength} from "@swim/math";
+import type {Look} from "@swim/theme";
 import type {StyleAnimatorDescriptor} from "./StyleAnimator";
 import type {StyleAnimatorClass} from "./StyleAnimator";
 import {StyleAnimator} from "./StyleAnimator";
 import {StyleContext} from "./"; // forward import
 
 /** @public */
-export interface StyleConstraintAnimatorDescriptor<T = unknown, U = T> extends StyleAnimatorDescriptor<T, U> {
+export interface StyleConstraintAnimatorDescriptor<R, T> extends StyleAnimatorDescriptor<R, T> {
   extends?: Proto<StyleConstraintAnimator<any, any, any>> | boolean | null;
-  strength?: AnyConstraintStrength;
+  strength?: ConstraintStrengthLike;
   constrained?: boolean;
 }
 
 /** @public */
-export interface StyleConstraintAnimatorClass<A extends StyleConstraintAnimator<any, any, any> = StyleConstraintAnimator<any, any, any>> extends StyleAnimatorClass<A> {
+export interface StyleConstraintAnimatorClass<A extends StyleConstraintAnimator<any, any, any> = StyleConstraintAnimator> extends StyleAnimatorClass<A> {
   /** @internal */
   readonly ConstrainedFlag: FastenerFlags;
   /** @internal */
@@ -59,9 +62,9 @@ export interface StyleConstraintAnimatorClass<A extends StyleConstraintAnimator<
 }
 
 /** @public */
-export interface StyleConstraintAnimator<O = unknown, T = unknown, U = T> extends StyleAnimator<O, T, U>, ConstraintVariable {
+export interface StyleConstraintAnimator<R = any, T = any, I extends any[] = [Look<NonNullable<T>> | T]> extends StyleAnimator<R, T, I>, ConstraintVariable {
   /** @override */
-  get descriptorType(): Proto<StyleConstraintAnimatorDescriptor<T, U>>;
+  get descriptorType(): Proto<StyleConstraintAnimatorDescriptor<R, T>>;
 
   /** @internal @override */
   isExternal(): boolean;
@@ -90,7 +93,7 @@ export interface StyleConstraintAnimator<O = unknown, T = unknown, U = T> extend
   /** @override */
   readonly strength: ConstraintStrength;
 
-  setStrength(strength: AnyConstraintStrength): void;
+  setStrength(strength: ConstraintStrengthLike): void;
 
   /** @override */
   get coefficient(): number;
@@ -105,13 +108,13 @@ export interface StyleConstraintAnimator<O = unknown, T = unknown, U = T> extend
   get constant(): number;
 
   /** @override */
-  plus(that: AnyConstraintExpression): ConstraintExpression;
+  plus(that: ConstraintExpressionLike): ConstraintExpression;
 
   /** @override */
   negative(): ConstraintTerm;
 
   /** @override */
-  minus(that: AnyConstraintExpression): ConstraintExpression;
+  minus(that: ConstraintExpressionLike): ConstraintExpression;
 
   /** @override */
   times(scalar: number): ConstraintExpression;
@@ -176,33 +179,28 @@ export interface StyleConstraintAnimator<O = unknown, T = unknown, U = T> extend
 }
 
 /** @public */
-export const StyleConstraintAnimator = (function (_super: typeof StyleAnimator) {
-  const StyleConstraintAnimator = _super.extend("StyleConstraintAnimator", {}) as StyleConstraintAnimatorClass;
-
-  StyleConstraintAnimator.prototype.isExternal = function (this: StyleConstraintAnimator): boolean {
+export const StyleConstraintAnimator = (<R, T, I extends any[], A extends StyleConstraintAnimator<any, any, any>>() => StyleAnimator.extend<StyleConstraintAnimator<R, T, I>, StyleConstraintAnimatorClass<A>>("StyleConstraintAnimator", {
+  isExternal(): boolean {
     return true;
-  };
+  },
 
-  StyleConstraintAnimator.prototype.isDummy = function (this: StyleConstraintAnimator): boolean {
+  isDummy(): boolean {
     return false;
-  };
+  },
 
-  StyleConstraintAnimator.prototype.isInvalid = function (this: StyleConstraintAnimator): boolean {
+  isInvalid(): boolean {
     return false;
-  };
+  },
 
-  StyleConstraintAnimator.prototype.isConstant = function (this: StyleConstraintAnimator): boolean {
+  isConstant(): boolean {
     return false;
-  };
+  },
 
-  Object.defineProperty(StyleConstraintAnimator.prototype, "constraintValue", {
-    get<T>(this: StyleConstraintAnimator<unknown, T>): T {
-      return this.computedValue;
-    },
-    configurable: true,
-  });
+  get constraintValue(): T {
+    return this.computedValue;
+  },
 
-  StyleConstraintAnimator.prototype.evaluateConstraintVariable = function <T>(this: StyleConstraintAnimator<unknown, T>): void {
+  evaluateConstraintVariable(): void {
     const constraintScope = this.owner;
     if (!ConstraintScope[Symbol.hasInstance](constraintScope) || this.constrained || !this.constraining) {
       return;
@@ -212,88 +210,77 @@ export const StyleConstraintAnimator = (function (_super: typeof StyleAnimator) 
       return;
     }
     constraintScope.setConstraintVariable(this, this.toNumber(value));
-  };
+  },
 
-  StyleConstraintAnimator.prototype.updateConstraintSolution = function <T>(this: StyleConstraintAnimator<unknown, T>, state: number): void {
+  updateConstraintSolution(state: number): void {
     if (this.constrained && this.toNumber(this.state) !== state) {
       this.setState(state as unknown as T, Affinity.Reflexive);
     }
-  };
+  },
 
-  StyleConstraintAnimator.prototype.initStrength = function (this: StyleConstraintAnimator): ConstraintStrength {
+  initStrength(): ConstraintStrength {
     let strength = (Object.getPrototypeOf(this) as StyleConstraintAnimator).strength as ConstraintStrength | undefined;
     if (strength === void 0) {
       strength = ConstraintStrength.Strong;
     }
     return strength;
-  };
+  },
 
-  StyleConstraintAnimator.prototype.setStrength = function (this: StyleConstraintAnimator, strength: AnyConstraintStrength): void {
-    (this as Mutable<typeof this>).strength = ConstraintStrength.fromAny(strength);
-  };
+  setStrength(strength: ConstraintStrengthLike): void {
+    (this as Mutable<typeof this>).strength = ConstraintStrength.fromLike(strength);
+  },
 
-  Object.defineProperty(StyleConstraintAnimator.prototype, "coefficient", {
-    value: 1,
-    configurable: true,
-  });
+  get coefficient(): number {
+    return 1;
+  },
 
-  Object.defineProperty(StyleConstraintAnimator.prototype, "variable", {
-    get(this: StyleConstraintAnimator): ConstraintVariable {
-      return this;
-    },
-    configurable: true,
-  });
+  get variable(): ConstraintVariable {
+    return this;
+  },
 
-  Object.defineProperty(StyleConstraintAnimator.prototype, "terms", {
-    get(this: StyleConstraintAnimator): ReadonlyMap<ConstraintVariable, number> {
-      const terms = new Map<ConstraintVariable, number>();
-      terms.set(this, 1);
-      return terms;
-    },
-    configurable: true,
-  });
+  get terms(): ReadonlyMap<ConstraintVariable, number> {
+    const terms = new Map<ConstraintVariable, number>();
+    terms.set(this, 1);
+    return terms;
+  },
 
-  Object.defineProperty(StyleConstraintAnimator.prototype, "constant", {
-    value: 0,
-    configurable: true,
-  });
+  get constant(): number {
+    return 0;
+  },
 
-  StyleConstraintAnimator.prototype.plus = function (this: StyleConstraintAnimator, that: AnyConstraintExpression): ConstraintExpression {
-    that = ConstraintExpression.fromAny(that);
+  plus(that: ConstraintExpressionLike): ConstraintExpression {
+    that = ConstraintExpression.fromLike(that);
     if (this === that) {
       return ConstraintExpression.product(2, this);
     }
     return ConstraintExpression.sum(this, that);
-  };
+  },
 
-  StyleConstraintAnimator.prototype.negative = function (this: StyleConstraintAnimator): ConstraintTerm {
+  negative(): ConstraintTerm {
     return ConstraintExpression.product(-1, this);
-  };
+  },
 
-  StyleConstraintAnimator.prototype.minus = function (this: StyleConstraintAnimator, that: AnyConstraintExpression): ConstraintExpression {
-    that = ConstraintExpression.fromAny(that);
+  minus(that: ConstraintExpressionLike): ConstraintExpression {
+    that = ConstraintExpression.fromLike(that);
     if (this === that) {
       return ConstraintExpression.zero();
     }
     return ConstraintExpression.sum(this, that.negative());
-  };
+  },
 
-  StyleConstraintAnimator.prototype.times = function (this: StyleConstraintAnimator, scalar: number): ConstraintExpression {
+  times(scalar: number): ConstraintExpression {
     return ConstraintExpression.product(scalar, this);
-  };
+  },
 
-  StyleConstraintAnimator.prototype.divide = function (this: StyleConstraintAnimator, scalar: number): ConstraintExpression {
+  divide(scalar: number): ConstraintExpression {
     return ConstraintExpression.product(1 / scalar, this);
-  };
+  },
 
-  Object.defineProperty(StyleConstraintAnimator.prototype, "constrained", {
-    get(this: StyleConstraintAnimator): boolean {
-      return (this.flags & StyleConstraintAnimator.ConstrainedFlag) !== 0;
-    },
-    configurable: true,
-  });
+  get constrained(): boolean {
+    return (this.flags & StyleConstraintAnimator.ConstrainedFlag) !== 0;
+  },
 
-  StyleConstraintAnimator.prototype.constrain = function (this: StyleConstraintAnimator<unknown, unknown, unknown>, constrained?: boolean): typeof this {
+  constrain(constrained?: boolean): typeof this {
     if (constrained === void 0) {
       constrained = true;
     }
@@ -311,31 +298,28 @@ export const StyleConstraintAnimator = (function (_super: typeof StyleAnimator) 
       }
     }
     return this;
-  };
+  },
 
-  StyleConstraintAnimator.prototype.addConstraintCondition = function (this: StyleConstraintAnimator, constraint: Constraint, solver: ConstraintSolver): void {
+  addConstraintCondition(constraint: Constraint, solver: ConstraintSolver): void {
     (this as Mutable<typeof this>).conditionCount += 1;
     if (!this.constrained && this.conditionCount === 1 && this.mounted) {
       this.startConstraining();
       this.updateConstraintVariable();
     }
-  };
+  },
 
-  StyleConstraintAnimator.prototype.removeConstraintCondition = function (this: StyleConstraintAnimator, constraint: Constraint, solver: ConstraintSolver): void {
+  removeConstraintCondition(constraint: Constraint, solver: ConstraintSolver): void {
     (this as Mutable<typeof this>).conditionCount -= 1;
     if (!this.constrained && this.conditionCount === 0 && this.mounted) {
       this.stopConstraining();
     }
-  };
+  },
 
-  Object.defineProperty(StyleConstraintAnimator.prototype, "constraining", {
-    get(this: StyleConstraintAnimator): boolean {
-      return (this.flags & StyleConstraintAnimator.ConstrainingFlag) !== 0;
-    },
-    configurable: true,
-  });
+  get constraining(): boolean {
+    return (this.flags & StyleConstraintAnimator.ConstrainingFlag) !== 0;
+  },
 
-  StyleConstraintAnimator.prototype.startConstraining = function (this: StyleConstraintAnimator): void {
+  startConstraining(): void {
     if ((this.flags & StyleConstraintAnimator.ConstrainingFlag) !== 0) {
       return;
     }
@@ -343,24 +327,24 @@ export const StyleConstraintAnimator = (function (_super: typeof StyleAnimator) 
     this.setFlags(this.flags | StyleConstraintAnimator.ConstrainingFlag);
     this.onStartConstraining();
     this.didStartConstraining();
-  };
+  },
 
-  StyleConstraintAnimator.prototype.willStartConstraining = function (this: StyleConstraintAnimator): void {
+  willStartConstraining(): void {
     // hook
-  };
+  },
 
-  StyleConstraintAnimator.prototype.onStartConstraining = function (this: StyleConstraintAnimator): void {
+  onStartConstraining(): void {
     const constraintScope = this.owner;
     if (ConstraintScope[Symbol.hasInstance](constraintScope)) {
       constraintScope.addConstraintVariable(this);
     }
-  };
+  },
 
-  StyleConstraintAnimator.prototype.didStartConstraining = function (this: StyleConstraintAnimator): void {
+  didStartConstraining(): void {
     // hook
-  };
+  },
 
-  StyleConstraintAnimator.prototype.stopConstraining = function (this: StyleConstraintAnimator): void {
+  stopConstraining(): void {
     if ((this.flags & StyleConstraintAnimator.ConstrainingFlag) === 0) {
       return;
     }
@@ -368,24 +352,24 @@ export const StyleConstraintAnimator = (function (_super: typeof StyleAnimator) 
     this.setFlags(this.flags & ~StyleConstraintAnimator.ConstrainingFlag);
     this.onStopConstraining();
     this.didStopConstraining();
-  };
+  },
 
-  StyleConstraintAnimator.prototype.willStopConstraining = function (this: StyleConstraintAnimator): void {
+  willStopConstraining(): void {
     // hook
-  };
+  },
 
-  StyleConstraintAnimator.prototype.onStopConstraining = function (this: StyleConstraintAnimator): void {
+  onStopConstraining(): void {
     const constraintScope = this.owner;
     if (ConstraintScope[Symbol.hasInstance](constraintScope)) {
       constraintScope.removeConstraintVariable(this);
     }
-  };
+  },
 
-  StyleConstraintAnimator.prototype.didStopConstraining = function (this: StyleConstraintAnimator): void {
+  didStopConstraining(): void {
     // hook
-  };
+  },
 
-  StyleConstraintAnimator.prototype.updateConstraintVariable = function (this: StyleConstraintAnimator): void {
+  updateConstraintVariable(): void {
     const constraintScope = this.owner;
     if (ConstraintScope[Symbol.hasInstance](constraintScope)) {
       let value = this.value;
@@ -394,148 +378,130 @@ export const StyleConstraintAnimator = (function (_super: typeof StyleAnimator) 
       }
       constraintScope.setConstraintVariable(this, this.toNumber(value));
     }
-  };
+  },
 
-  StyleConstraintAnimator.prototype.onSetValue = function <T>(this: StyleConstraintAnimator<unknown, T>, newValue: T, oldValue: T): void {
-    _super.prototype.onSetValue.call(this, newValue, oldValue);
+  onSetValue(newValue: T, oldValue: T): void {
+    super.onSetValue(newValue, oldValue);
     const constraintScope = this.owner;
     if (this.constraining && ConstraintScope[Symbol.hasInstance](constraintScope)) {
       constraintScope.setConstraintVariable(this, newValue !== void 0 && newValue !== null ? this.toNumber(newValue) : 0);
     }
-  };
+  },
 
-  StyleConstraintAnimator.prototype.onMount = function <T>(this: StyleConstraintAnimator<unknown, T>): void {
-    _super.prototype.onMount.call(this);
+  onMount(): void {
+    super.onMount();
     if (!this.constrained && this.conditionCount !== 0) {
       this.startConstraining();
     }
-  };
+  },
 
-  StyleConstraintAnimator.prototype.onUnmount = function <T>(this: StyleConstraintAnimator<unknown, T>): void {
+  onUnmount(): void {
     if (!this.constrained && this.conditionCount !== 0) {
       this.stopConstraining();
     }
-    _super.prototype.onUnmount.call(this);
-  };
+    super.onUnmount();
+  },
 
-  StyleConstraintAnimator.prototype.toNumber = function <T>(this: StyleConstraintAnimator<unknown, T>, value: T): number {
+  toNumber(value: T): number {
     return value !== void 0 && value !== null ? +value : 0;
-  };
-
-  StyleConstraintAnimator.construct = function <A extends StyleConstraintAnimator<any, any>>(animator: A | null, owner: A extends StyleConstraintAnimator<infer O, any, any> ? O : never): A {
-    animator = _super.construct.call(this, animator, owner) as A;
+  },
+},
+{
+  construct(animator: A | null, owner: A extends Fastener<infer R, any, any> ? R : never): A {
+    animator = super.construct(animator, owner) as A;
     (animator as Mutable<typeof animator>).strength = animator.initStrength();
     (animator as Mutable<typeof animator>).conditionCount = 0;
-    const flagsInit = animator.flagsInit;
-    if (flagsInit !== void 0) {
-      animator.constrain((flagsInit & StyleConstraintAnimator.ConstrainedFlag) !== 0);
-    }
     return animator;
-  };
+  },
 
-  StyleConstraintAnimator.specialize = function (template: StyleConstraintAnimatorDescriptor<any, any>): StyleConstraintAnimatorClass {
-    let superClass = template.extends as StyleConstraintAnimatorClass | null | undefined;
+  specialize(template: A extends {readonly descriptorType?: Proto<infer D>} ? D : never): FastenerClass<A> {
+    let superClass = template.extends as FastenerClass<A> | null | undefined;
     if (superClass === void 0 || superClass === null) {
       const valueType = template.valueType;
       if (valueType === Number) {
-        superClass = NumberStyleConstraintAnimator;
+        superClass = NumberStyleConstraintAnimator as unknown as FastenerClass<A>;
       } else if (valueType === Length) {
-        superClass = LengthStyleConstraintAnimator;
+        superClass = LengthStyleConstraintAnimator as unknown as FastenerClass<A>;
       } else {
         superClass = this;
       }
     }
     return superClass;
-  };
+  },
 
-  StyleConstraintAnimator.refine = function (animatorClass: StyleConstraintAnimatorClass<any>): void {
-    _super.refine.call(this, animatorClass);
+  refine(animatorClass: FastenerClass<StyleConstraintAnimator<any, any, any>>): void {
+    super.refine(animatorClass);
     const animatorPrototype = animatorClass.prototype;
-    let flagsInit = animatorPrototype.flagsInit;
 
+    let flagsInit = animatorPrototype.flagsInit;
     if (Object.prototype.hasOwnProperty.call(animatorPrototype, "constrained")) {
-      if (flagsInit === void 0) {
-        flagsInit = 0;
-      }
       if (animatorPrototype.constrained) {
         flagsInit |= StyleConstraintAnimator.ConstrainedFlag;
       } else {
         flagsInit &= ~StyleConstraintAnimator.ConstrainedFlag;
       }
-      delete (animatorPrototype as StyleConstraintAnimatorDescriptor).constrained;
+      delete (animatorPrototype as StyleConstraintAnimatorDescriptor<any, any>).constrained;
     }
+    Object.defineProperty(animatorPrototype, "flagsInit", {
+      value: flagsInit,
+      enumerable: true,
+      configurable: true,
+    });
 
-    if (flagsInit !== void 0) {
-      Object.defineProperty(animatorPrototype, "flagsInit", {
-        value: flagsInit,
-        configurable: true,
-      });
+    const strengthDescriptor = Object.getOwnPropertyDescriptor(animatorPrototype, "strength");
+    if (strengthDescriptor !== void 0 && "value" in strengthDescriptor) {
+      strengthDescriptor.value = ConstraintStrength.fromLike(strengthDescriptor.value);
+      Object.defineProperty(animatorPrototype, "strength", strengthDescriptor);
     }
+  },
 
-    if (Object.prototype.hasOwnProperty.call(animatorPrototype, "strength")) {
-      Object.defineProperty(animatorPrototype, "strength", {
-        value: animatorPrototype.fromAny(animatorPrototype.strength),
-        enumerable: true,
-        configurable: true,
-      });
-    }
-  };
+  ConstrainedFlag: 1 << (StyleAnimator.FlagShift + 0),
+  ConstrainingFlag: 1 << (StyleAnimator.FlagShift + 1),
 
-  (StyleConstraintAnimator as Mutable<typeof StyleConstraintAnimator>).ConstrainedFlag = 1 << (_super.FlagShift + 0);
-  (StyleConstraintAnimator as Mutable<typeof StyleConstraintAnimator>).ConstrainingFlag = 1 << (_super.FlagShift + 1);
-
-  (StyleConstraintAnimator as Mutable<typeof StyleConstraintAnimator>).FlagShift = _super.FlagShift + 2;
-  (StyleConstraintAnimator as Mutable<typeof StyleConstraintAnimator>).FlagMask = (1 << StyleConstraintAnimator.FlagShift) - 1;
-
-  return StyleConstraintAnimator;
-})(StyleAnimator);
-
-/** @internal */
-export interface NumberStyleConstraintAnimator<O = unknown, T extends number | undefined = number | undefined, U extends number | string | undefined = number | string | T> extends StyleConstraintAnimator<O, T, U> {
-}
-
-/** @internal */
-export const NumberStyleConstraintAnimator = (function (_super: typeof StyleConstraintAnimator) {
-  const NumberStyleConstraintAnimator = _super.extend("NumberStyleConstraintAnimator", {
-    valueType: Number,
-  }) as StyleConstraintAnimatorClass<NumberStyleConstraintAnimator<any, any, any>>;
-
-  NumberStyleConstraintAnimator.prototype.toNumber = function (value: number): number {
-    return typeof value === "number" ? value : 0;
-  };
-
-  NumberStyleConstraintAnimator.prototype.equalValues = function (newValue: number | undefined, oldValue: number | undefined): boolean {
-    return newValue === oldValue;
-  };
-
-  NumberStyleConstraintAnimator.prototype.parse = function (value: string): number | undefined {
-    const number = +value;
-    return isFinite(number) ? number : void 0;
-  };
-
-  NumberStyleConstraintAnimator.prototype.fromCssValue = function (value: CSSStyleValue): number | undefined {
-    if (value instanceof CSSNumericValue) {
-      return value.to("number").value;
-    } else {
-      return void 0;
-    }
-  };
-
-  NumberStyleConstraintAnimator.prototype.fromAny = function (value: number | string): number | undefined {
-    if (typeof value === "number") {
-      return value;
-    } else {
-      const number = +value;
-      return isFinite(number) ? number : void 0;
-    }
-  };
-
-  return NumberStyleConstraintAnimator;
-})(StyleConstraintAnimator);
+  FlagShift: StyleAnimator.FlagShift + 2,
+  FlagMask: (1 << (StyleAnimator.FlagShift + 2)) - 1,
+}))();
 
 /** @public */
-export interface LengthStyleConstraintAnimator<O = unknown, T extends Length | null = Length | null, U extends AnyLength | null = AnyLength | T> extends StyleConstraintAnimator<O, T, U>, LengthBasis {
-  get units(): LengthUnits;
+export interface NumberStyleConstraintAnimator<R = any, T extends number | undefined = number | undefined, I extends any[] = [Look<NonNullable<T>> | T]> extends StyleConstraintAnimator<R, T, I> {
+}
+
+/** @public */
+export const NumberStyleConstraintAnimator = (<R, T extends number | undefined, I extends any[], A extends NumberStyleConstraintAnimator<any, any, any>>() => StyleConstraintAnimator.extend<NumberStyleConstraintAnimator<R, T, I>, StyleConstraintAnimatorClass<A>>("NumberStyleConstraintAnimator", {
+  valueType: Number,
+
+  toNumber(value: T): number {
+    return typeof value === "number" ? value : 0;
+  },
+
+  equalValues(newValue: T, oldValue: T): boolean {
+    return newValue === oldValue;
+  },
+
+  parse(value: string): T {
+    const number = +value;
+    return isFinite(number) ? number as T : void 0 as T;
+  },
+
+  fromCssValue(value: CSSStyleValue): T {
+    if (value instanceof CSSNumericValue) {
+      return value.to("number").value as T;
+    }
+    return void 0 as T;
+  },
+
+  fromLike(value: T | LikeType<T>): T {
+    if (typeof value === "number") {
+      return value as T;
+    }
+    const number = +(value as any);
+    return isFinite(number) ? number as T : void 0 as T;
+  },
+}))();
+
+/** @public */
+export interface LengthStyleConstraintAnimator<R = any, T extends Length | null | undefined = Length | null, I extends any[] = [Look<NonNullable<T>> | T]> extends StyleConstraintAnimator<R, T, I>, LengthBasis {
+  get units(): LengthUnits | undefined;
 
   pxValue(basis?: LengthBasis | number, defaultValue?: number): number;
 
@@ -582,205 +548,189 @@ export interface LengthStyleConstraintAnimator<O = unknown, T extends Length | n
   equalValues(newValue: T, oldValue: T | undefined): boolean;
 
   /** @override */
-  fromAny(value: T | U): T;
+  fromLike(value: T | LikeType<T>): T;
 }
 
 /** @public */
-export const LengthStyleConstraintAnimator = (function (_super: typeof StyleConstraintAnimator) {
-  const LengthStyleConstraintAnimator = _super.extend("LengthStyleConstraintAnimator", {
-    valueType: Length,
-    value: null,
-  }) as StyleConstraintAnimatorClass<LengthStyleConstraintAnimator<any, any, any>>;
+export const LengthStyleConstraintAnimator = (<R, T extends Length | null | undefined, I extends any[], A extends LengthStyleConstraintAnimator<any, any, any>>() => StyleConstraintAnimator.extend<LengthStyleConstraintAnimator<R, T, I>, StyleConstraintAnimatorClass<A>>("LengthStyleConstraintAnimator", {
+  valueType: Length,
+  value: null as T,
 
-  Object.defineProperty(LengthStyleConstraintAnimator.prototype, "units", {
-    get(this: LengthStyleConstraintAnimator): LengthUnits {
-      const value = this.cssValue;
-      return value !== null ? value.units : "";
-    },
-    configurable: true,
-  });
-
-  LengthStyleConstraintAnimator.prototype.pxValue = function (this: LengthStyleConstraintAnimator, basis?: LengthBasis | number, defaultValue?: number): number {
+  get units(): LengthUnits | undefined {
     const value = this.cssValue;
-    if (value === null) {
+    return value !== void 0 && value !== null ? value.units : void 0;
+  },
+
+  pxValue(basis?: LengthBasis | number, defaultValue?: number): number {
+    const value = this.cssValue;
+    if (value === void 0 || value === null) {
       return defaultValue !== void 0 ? defaultValue : 0;
     } else if (basis === void 0) {
       basis = this;
     }
     return value.pxValue(basis);
-  };
+  },
 
-  LengthStyleConstraintAnimator.prototype.emValue = function (this: LengthStyleConstraintAnimator, basis?: LengthBasis | number, defaultValue?: number): number {
+  emValue(basis?: LengthBasis | number, defaultValue?: number): number {
     const value = this.cssValue;
-    if (value === null) {
+    if (value === void 0 || value === null) {
       return defaultValue !== void 0 ? defaultValue : 0;
     } else if (basis === void 0) {
       basis = this;
     }
     return value.emValue(basis);
-  };
+  },
 
-  LengthStyleConstraintAnimator.prototype.remValue = function (this: LengthStyleConstraintAnimator, basis?: LengthBasis | number, defaultValue?: number): number {
+  remValue(basis?: LengthBasis | number, defaultValue?: number): number {
     const value = this.cssValue;
-    if (value === null) {
+    if (value === void 0 || value === null) {
       return defaultValue !== void 0 ? defaultValue : 0;
     } else if (basis === void 0) {
       basis = this;
     }
     return value.remValue(basis);
-  };
+  },
 
-  LengthStyleConstraintAnimator.prototype.pctValue = function (this: LengthStyleConstraintAnimator, basis?: LengthBasis | number, defaultValue?: number): number {
+  pctValue(basis?: LengthBasis | number, defaultValue?: number): number {
     const value = this.cssValue;
-    if (value === null) {
+    if (value === void 0 || value === null) {
       return defaultValue !== void 0 ? defaultValue : 0;
     } else if (basis === void 0) {
       basis = this;
     }
     return value.pctValue(basis);
-  };
+  },
 
-  LengthStyleConstraintAnimator.prototype.pxState = function (this: LengthStyleConstraintAnimator, basis?: LengthBasis | number, defaultValue?: number): number {
+  pxState(basis?: LengthBasis | number, defaultValue?: number): number {
     const value = this.cssState;
-    if (value === null) {
+    if (value === void 0 || value === null) {
       return defaultValue !== void 0 ? defaultValue : 0;
     } else if (basis === void 0) {
       basis = this;
     }
     return value.pxValue(basis);
-  };
+  },
 
-  LengthStyleConstraintAnimator.prototype.emState = function (this: LengthStyleConstraintAnimator, basis?: LengthBasis | number, defaultValue?: number): number {
+  emState(basis?: LengthBasis | number, defaultValue?: number): number {
     const value = this.cssState;
-    if (value === null) {
+    if (value === void 0 || value === null) {
       return defaultValue !== void 0 ? defaultValue : 0;
     } else if (basis === void 0) {
       basis = this;
     }
     return value.emValue(basis);
-  };
+  },
 
-  LengthStyleConstraintAnimator.prototype.remState = function (this: LengthStyleConstraintAnimator, basis?: LengthBasis | number, defaultValue?: number): number {
+  remState(basis?: LengthBasis | number, defaultValue?: number): number {
     const value = this.cssState;
-    if (value === null) {
+    if (value === void 0 || value === null) {
       return defaultValue !== void 0 ? defaultValue : 0;
     } else if (basis === void 0) {
       basis = this;
     }
     return value.remValue(basis);
-  };
+  },
 
-  LengthStyleConstraintAnimator.prototype.pctState = function (this: LengthStyleConstraintAnimator, basis?: LengthBasis | number, defaultValue?: number): number {
+  pctState(basis?: LengthBasis | number, defaultValue?: number): number {
     const value = this.cssState;
-    if (value === null) {
+    if (value === void 0 || value === null) {
       return defaultValue !== void 0 ? defaultValue : 0;
     } else if (basis === void 0) {
       basis = this;
     }
     return value.pctValue(basis);
-  };
+  },
 
-  LengthStyleConstraintAnimator.prototype.px = function (this: LengthStyleConstraintAnimator, basis?: LengthBasis | number, defaultValue?: number): PxLength {
+  px(basis?: LengthBasis | number, defaultValue?: number): PxLength {
     const value = this.cssValue;
-    if (value === null) {
+    if (value === void 0 || value === null) {
       return PxLength.of(defaultValue !== void 0 ? defaultValue : 0);
     } else if (basis === void 0) {
       basis = this;
     }
     return value.px(basis);
-  };
+  },
 
-  LengthStyleConstraintAnimator.prototype.em = function (this: LengthStyleConstraintAnimator, basis?: LengthBasis | number, defaultValue?: number): EmLength {
+  em(basis?: LengthBasis | number, defaultValue?: number): EmLength {
     const value = this.cssValue;
-    if (value === null) {
+    if (value === void 0 || value === null) {
       return EmLength.of(defaultValue !== void 0 ? defaultValue : 0);
     } else if (basis === void 0) {
       basis = this;
     }
     return value.em(basis);
-  };
+  },
 
-  LengthStyleConstraintAnimator.prototype.rem = function (this: LengthStyleConstraintAnimator, basis?: LengthBasis | number, defaultValue?: number): RemLength {
+  rem(basis?: LengthBasis | number, defaultValue?: number): RemLength {
     const value = this.cssValue;
-    if (value === null) {
+    if (value === void 0 || value === null) {
       return RemLength.of(defaultValue !== void 0 ? defaultValue : 0);
     } else if (basis === void 0) {
       basis = this;
     }
     return value.rem(basis);
-  };
+  },
 
-  LengthStyleConstraintAnimator.prototype.pct = function (this: LengthStyleConstraintAnimator, basis?: LengthBasis | number, defaultValue?: number): PctLength {
+  pct(basis?: LengthBasis | number, defaultValue?: number): PctLength {
     const value = this.cssValue;
-    if (value === null) {
+    if (value === void 0 || value === null) {
       return PctLength.of(defaultValue !== void 0 ? defaultValue : 0);
     } else if (basis === void 0) {
       basis = this;
     }
     return value.pct(basis);
-  };
+  },
 
-  LengthStyleConstraintAnimator.prototype.to = function (this: LengthStyleConstraintAnimator, units: LengthUnits, basis?: LengthBasis | number, defaultValue?: number): Length {
+  to(units: LengthUnits, basis?: LengthBasis | number, defaultValue?: number): Length {
     const value = this.cssValue;
-    if (value === null) {
+    if (value === void 0 || value === null) {
       return Length.of(defaultValue !== void 0 ? defaultValue : 0, units);
     } else if (basis === void 0) {
       basis = this;
     }
     return value.to(units, basis);
-  };
+  },
 
-  Object.defineProperty(LengthStyleConstraintAnimator.prototype, "emUnit", {
-    get(this: LengthStyleConstraintAnimator): Node | number | undefined {
-      const styleContext = this.owner;
-      if (StyleContext[Symbol.hasInstance](styleContext)) {
-        const node = styleContext.node;
-        if (node !== void 0) {
-          return node;
-        }
+  get emUnit(): Node | number | undefined {
+    const styleContext = this.owner;
+    if (StyleContext[Symbol.hasInstance](styleContext)) {
+      const node = styleContext.node;
+      if (node !== void 0) {
+        return node;
       }
-      return 0;
-    },
-    configurable: true,
-  });
-
-  Object.defineProperty(LengthStyleConstraintAnimator.prototype, "remUnit", {
-    value: 0,
-    configurable: true,
-  });
-
-  Object.defineProperty(LengthStyleConstraintAnimator.prototype, "pctUnit", {
-    value: 0,
-    configurable: true,
-  });
-
-  LengthStyleConstraintAnimator.prototype.toNumber = function (value: Length): number {
-    return this.pxValue();
-  };
-
-  LengthStyleConstraintAnimator.prototype.equalValues = function (newValue: Length | null, oldValue: Length | null): boolean {
-    if (newValue !== void 0 && newValue !== null) {
-      return newValue.equals(oldValue);
-    } else {
-      return newValue === oldValue;
     }
-  };
+    return 0;
+  },
 
-  LengthStyleConstraintAnimator.prototype.parse = function (value: string): Length | null {
-    return Length.parse(value);
-  };
+  get remUnit(): number {
+    return 0;
+  },
 
-  LengthStyleConstraintAnimator.prototype.fromCssValue = function (value: CSSStyleValue): Length | null {
-    return Length.fromCssValue(value);
-  };
+  get pctUnit(): number {
+    return 0;
+  },
 
-  LengthStyleConstraintAnimator.prototype.fromAny = function (value: AnyLength | string): Length | null {
+  toNumber(value: T): number {
+    return value !== void 0 && value !== null ? value.pxValue() : 0;
+  },
+
+  equalValues(newValue: T, oldValue: T): boolean {
+    return newValue === oldValue;
+  },
+
+  parse(value: string): T {
+    return Length.parse(value) as T;
+  },
+
+  fromCssValue(value: CSSStyleValue): T {
+    return Length.fromCssValue(value) as T;
+  },
+
+  fromLike(value: T | LikeType<T>): T {
     try {
-      return Length.fromAny(value);
+      return Length.fromLike(value) as T;
     } catch (swallow) {
-      return null;
+      return null as T;
     }
-  };
-
-  return LengthStyleConstraintAnimator;
-})(StyleConstraintAnimator);
+  },
+}))();

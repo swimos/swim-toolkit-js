@@ -16,7 +16,6 @@ import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
 import {Property} from "@swim/component";
 import {GeoBox} from "@swim/geo";
-import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import {ThemeAnimator} from "@swim/theme";
 import type {ViewFlags} from "@swim/view";
@@ -44,7 +43,7 @@ export class GeoView extends GraphicsView {
   declare readonly observerType?: Class<GeoViewObserver>;
 
   @ThemeAnimator({valueType: Color, value: null, inherits: true})
-  get geoBoundsColor(): ThemeAnimator<this, Color | null, AnyColor | null> {
+  get geoBoundsColor(): ThemeAnimator<this, Color | null> {
     return ThemeAnimator.dummy();
   }
 

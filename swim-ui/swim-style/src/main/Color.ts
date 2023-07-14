@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import type {Uninitable} from "@swim/util";
+import type {Proto} from "@swim/util";
 import {Lazy} from "@swim/util";
 import type {HashCode} from "@swim/util";
 import type {Equivalent} from "@swim/util";
@@ -29,7 +30,7 @@ import type {Item} from "@swim/structure";
 import type {Value} from "@swim/structure";
 import {Text} from "@swim/structure";
 import {Form} from "@swim/structure";
-import type {AnyAngle} from "@swim/math";
+import type {AngleLike} from "@swim/math";
 import {Angle} from "@swim/math";
 import {RgbColorInit} from "./"; // forward import
 import {RgbColor} from "./"; // forward import
@@ -41,11 +42,11 @@ import {HslColor} from "./"; // forward import
 import {HslColorParser} from "./"; // forward import
 
 /** @public */
-export type AnyColor = Color | ColorInit | string;
+export type ColorLike = Color | ColorInit | string;
 
 /** @public */
-export const AnyColor = {
-  [Symbol.hasInstance](instance: unknown): instance is AnyColor {
+export const ColorLike = {
+  [Symbol.hasInstance](instance: unknown): instance is ColorLike {
     return instance instanceof Color
         || ColorInit[Symbol.hasInstance](instance)
         || typeof instance === "string";
@@ -65,16 +66,18 @@ export const ColorInit = {
 
 /** @public */
 export abstract class Color implements Interpolate<Color>, HashCode, Equivalent, Debug {
+  declare readonly likeType?: Proto<ColorInit | string>;
+
   abstract isDefined(): boolean;
 
   abstract alpha(): number;
   abstract alpha(a: number): Color;
 
-  abstract plus(that: AnyColor): Color;
+  abstract plus(that: ColorLike): Color;
 
   abstract times(scalar: number): Color;
 
-  abstract combine(that: AnyColor, scalar?: number): Color;
+  abstract combine(that: ColorLike, scalar?: number): Color;
 
   abstract readonly lightness: number;
 
@@ -137,9 +140,9 @@ export abstract class Color implements Interpolate<Color>, HashCode, Equivalent,
     return new RgbColor(r, g, b, a);
   }
 
-  static hsl(h: AnyAngle, s: number, l: number, a?: number): HslColor {
+  static hsl(h: AngleLike, s: number, l: number, a?: number): HslColor {
     if (typeof h !== "number") {
-      h = Angle.fromAny(h).degValue();
+      h = Angle.fromLike(h).degValue();
     }
     return new HslColor(h, s, l, a);
   }
@@ -153,7 +156,7 @@ export abstract class Color implements Interpolate<Color>, HashCode, Equivalent,
     }
   }
 
-  static fromAny<T extends AnyColor | null | undefined>(value: T): Color | Uninitable<T> {
+  static fromLike<T extends ColorLike | null | undefined>(value: T): Color | Uninitable<T> {
     if (value === void 0 || value === null || value instanceof Color) {
       return value as Color | Uninitable<T>;
     } else if (typeof value === "string") {
@@ -198,7 +201,7 @@ export abstract class Color implements Interpolate<Color>, HashCode, Equivalent,
   }
 
   @Lazy
-  static form(): Form<Color, AnyColor> {
+  static form(): Form<Color, ColorLike> {
     return new ColorForm(Color.transparent());
   }
 
@@ -209,26 +212,27 @@ export abstract class Color implements Interpolate<Color>, HashCode, Equivalent,
 }
 
 /** @internal */
-export class ColorForm extends Form<Color, AnyColor> {
+export class ColorForm extends Form<Color, ColorLike> {
   constructor(unit: Color | undefined) {
     super();
     Object.defineProperty(this, "unit", {
       value: unit,
       enumerable: true,
+      configurable: true,
     });
   }
 
   override readonly unit: Color | undefined;
 
-  override withUnit(unit: Color | undefined): Form<Color, AnyColor> {
+  override withUnit(unit: Color | undefined): Form<Color, ColorLike> {
     if (unit === this.unit) {
       return this;
     }
     return new ColorForm(unit);
   }
 
-  override mold(color: AnyColor): Item {
-    color = Color.fromAny(color);
+  override mold(color: ColorLike): Item {
+    color = Color.fromLike(color);
     return Text.from(color.toString());
   }
 

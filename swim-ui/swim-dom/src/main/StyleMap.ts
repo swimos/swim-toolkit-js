@@ -16,26 +16,24 @@ import {__esDecorate} from "tslib";
 import type {Proto} from "@swim/util";
 import {Values} from "@swim/util";
 import {Equals} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import type {Affinity} from "@swim/component";
 import type {FastenerDecorator} from "@swim/component";
 import {Fastener} from "@swim/component";
-import type {AnyLength} from "@swim/math";
+import type {LengthLike} from "@swim/math";
 import {Length} from "@swim/math";
-import type {AnyTransform} from "@swim/math";
 import {Transform} from "@swim/math";
 import type {FontStyle} from "@swim/style";
 import type {FontVariant} from "@swim/style";
 import type {FontWeight} from "@swim/style";
 import type {FontStretch} from "@swim/style";
 import {FontFamily} from "@swim/style";
-import type {AnyFont} from "@swim/style";
+import type {FontLike} from "@swim/style";
 import {Font} from "@swim/style";
-import type {AnyColor} from "@swim/style";
+import type {ColorLike} from "@swim/style";
 import {Color} from "@swim/style";
-import type {AnyLinearGradient} from "@swim/style";
+import type {LinearGradientLike} from "@swim/style";
 import {LinearGradient} from "@swim/style";
-import type {AnyBoxShadow} from "@swim/style";
 import {BoxShadow} from "@swim/style";
 import {StyleAnimator} from "./StyleAnimator";
 import {LengthStyleAnimator} from "./StyleAnimator";
@@ -82,38 +80,38 @@ export interface StyleMap extends StyleContext {
 
   readonly backgroundClip: StyleAnimator<this, BackgroundClip | undefined>;
 
-  readonly backgroundColor: StyleAnimator<this, Color | null, AnyColor | null>;
+  readonly backgroundColor: StyleAnimator<this, Color | null>;
 
-  readonly backgroundImage: StyleAnimator<this, LinearGradient | string | null, AnyLinearGradient | string | null>;
+  readonly backgroundImage: StyleAnimator<this, LinearGradient | string | null>;
 
   readonly borderCollapse: StyleAnimator<this, BorderCollapse | undefined>;
 
   borderColor(): [Color | null, Color | null, Color | null, Color | null] | Color | null;
-  borderColor(value: [AnyColor | null, AnyColor | null, AnyColor | null, AnyColor | null] | AnyColor | null, timing?: AnyTiming | boolean, affinity?: Affinity): this;
+  borderColor(value: [ColorLike | null, ColorLike | null, ColorLike | null, ColorLike | null] | ColorLike | null, timing?: TimingLike | boolean, affinity?: Affinity): this;
 
-  readonly borderTopColor: StyleAnimator<this, Color | null, AnyColor | null>;
+  readonly borderTopColor: StyleAnimator<this, Color | null>;
 
-  readonly borderRightColor: StyleAnimator<this, Color | null, AnyColor | null>;
+  readonly borderRightColor: StyleAnimator<this, Color | null>;
 
-  readonly borderBottomColor: StyleAnimator<this, Color | null, AnyColor | null>;
+  readonly borderBottomColor: StyleAnimator<this, Color | null>;
 
-  readonly borderLeftColor: StyleAnimator<this, Color | null, AnyColor | null>;
+  readonly borderLeftColor: StyleAnimator<this, Color | null>;
 
   borderRadius(): [Length | null, Length | null, Length | null, Length | null] | Length | null;
-  borderRadius(value: [AnyLength | null, AnyLength | null, AnyLength | null, AnyLength | null] | AnyLength | null, timing?: AnyTiming | boolean, affinity?: Affinity): this;
+  borderRadius(value: [LengthLike | null, LengthLike | null, LengthLike | null, LengthLike | null] | LengthLike | null, timing?: TimingLike | boolean, affinity?: Affinity): this;
 
-  readonly borderTopLeftRadius: LengthStyleAnimator<this, Length | null, AnyLength | null>;
+  readonly borderTopLeftRadius: LengthStyleAnimator<this, Length | null>;
 
-  readonly borderTopRightRadius: LengthStyleAnimator<this, Length | null, AnyLength | null>;
+  readonly borderTopRightRadius: LengthStyleAnimator<this, Length | null>;
 
-  readonly borderBottomRightRadius: LengthStyleAnimator<this, Length | null, AnyLength | null>;
+  readonly borderBottomRightRadius: LengthStyleAnimator<this, Length | null>;
 
-  readonly borderBottomLeftRadius: LengthStyleAnimator<this, Length | null, AnyLength | null>;
+  readonly borderBottomLeftRadius: LengthStyleAnimator<this, Length | null>;
 
   readonly borderSpacing: StyleAnimator<this, string | undefined>;
 
   borderStyle(): [BorderStyle | undefined, BorderStyle | undefined, BorderStyle | undefined, BorderStyle | undefined] | BorderStyle | undefined;
-  borderStyle(value: [BorderStyle | undefined, BorderStyle | undefined, BorderStyle | undefined, BorderStyle | undefined] | BorderStyle | undefined, timing?: AnyTiming | boolean, affinity?: Affinity): this;
+  borderStyle(value: [BorderStyle | undefined, BorderStyle | undefined, BorderStyle | undefined, BorderStyle | undefined] | BorderStyle | undefined, timing?: TimingLike | boolean, affinity?: Affinity): this;
 
   readonly borderTopStyle: StyleAnimator<this, BorderStyle | undefined>;
 
@@ -124,23 +122,23 @@ export interface StyleMap extends StyleContext {
   readonly borderLeftStyle: StyleAnimator<this, BorderStyle | undefined>;
 
   borderWidth(): [Length | null, Length | null, Length | null, Length | null] | Length | null;
-  borderWidth(value: [AnyLength | null, AnyLength | null, AnyLength | null, AnyLength | null] | AnyLength | null, timing?: AnyTiming | boolean, affinity?: Affinity): this;
+  borderWidth(value: [LengthLike | null, LengthLike | null, LengthLike | null, LengthLike | null] | LengthLike | null, timing?: TimingLike | boolean, affinity?: Affinity): this;
 
-  readonly borderTopWidth: LengthStyleAnimator<this, Length | null, AnyLength | null>;
+  readonly borderTopWidth: LengthStyleAnimator<this, Length | null>;
 
-  readonly borderRightWidth: LengthStyleAnimator<this, Length | null, AnyLength | null>;
+  readonly borderRightWidth: LengthStyleAnimator<this, Length | null>;
 
-  readonly borderBottomWidth: LengthStyleAnimator<this, Length | null, AnyLength | null>;
+  readonly borderBottomWidth: LengthStyleAnimator<this, Length | null>;
 
-  readonly borderLeftWidth: LengthStyleAnimator<this, Length | null, AnyLength | null>;
+  readonly borderLeftWidth: LengthStyleAnimator<this, Length | null>;
 
-  readonly bottom: LengthStyleConstraintAnimator<this, Length | null, AnyLength | null>;
+  readonly bottom: LengthStyleConstraintAnimator<this, Length | null>;
 
-  readonly boxShadow: StyleAnimator<this, BoxShadow | null, AnyBoxShadow | null>;
+  readonly boxShadow: StyleAnimator<this, BoxShadow | null>;
 
   readonly boxSizing: StyleAnimator<this, BoxSizing | undefined>;
 
-  readonly color: StyleAnimator<this, Color | null, AnyColor | null>;
+  readonly color: StyleAnimator<this, Color | null>;
 
   readonly cursor: StyleAnimator<this, CssCursor | undefined>;
 
@@ -148,7 +146,7 @@ export interface StyleMap extends StyleContext {
 
   readonly filter: StyleAnimator<this, string | undefined>;
 
-  readonly flexBasis: StyleAnimator<this, Length | FlexBasis | null, AnyLength | FlexBasis | null>;
+  readonly flexBasis: StyleAnimator<this, Length | FlexBasis | null>;
 
   readonly flexDirection: StyleAnimator<this, FlexDirection | string>;
 
@@ -159,11 +157,11 @@ export interface StyleMap extends StyleContext {
   readonly flexWrap: StyleAnimator<this, FlexWrap | undefined>;
 
   font(): Font | null;
-  font(value: AnyFont | null, timing?: AnyTiming | boolean, affinity?: Affinity): this;
+  font(value: FontLike | null, timing?: TimingLike | boolean, affinity?: Affinity): this;
 
-  readonly fontFamily: StyleAnimator<this, FontFamily | FontFamily[] | undefined, FontFamily | ReadonlyArray<FontFamily> | undefined>;
+  readonly fontFamily: StyleAnimator<this, FontFamily | readonly FontFamily[] | undefined>;
 
-  readonly fontSize: LengthStyleAnimator<this, Length | null, AnyLength | null>;
+  readonly fontSize: LengthStyleAnimator<this, Length | null>;
 
   readonly fontStretch: StyleAnimator<this, FontStretch | undefined>;
 
@@ -173,47 +171,47 @@ export interface StyleMap extends StyleContext {
 
   readonly fontWeight: StyleAnimator<this, FontWeight | undefined>;
 
-  readonly height: LengthStyleConstraintAnimator<this, Length | null, AnyLength | null>;
+  readonly height: LengthStyleConstraintAnimator<this, Length | null>;
 
   readonly justifyContent: StyleAnimator<this, JustifyContent | undefined>;
 
-  readonly left: LengthStyleConstraintAnimator<this, Length | null, AnyLength | null>;
+  readonly left: LengthStyleConstraintAnimator<this, Length | null>;
 
-  readonly lineHeight: LengthStyleAnimator<this, Length | null, AnyLength | null>;
+  readonly lineHeight: LengthStyleAnimator<this, Length | null>;
 
   margin(): [Length | null, Length | null, Length | null, Length | null] | Length | null;
-  margin(value: [AnyLength | null, AnyLength | null, AnyLength | null, AnyLength | null] | AnyLength | null, timing?: AnyTiming | boolean, affinity?: Affinity): this;
+  margin(value: [LengthLike | null, LengthLike | null, LengthLike | null, LengthLike | null] | LengthLike | null, timing?: TimingLike | boolean, affinity?: Affinity): this;
 
-  readonly marginTop: LengthStyleConstraintAnimator<this, Length | null, AnyLength | null>;
+  readonly marginTop: LengthStyleConstraintAnimator<this, Length | null>;
 
-  readonly marginRight: LengthStyleConstraintAnimator<this, Length | null, AnyLength | null>;
+  readonly marginRight: LengthStyleConstraintAnimator<this, Length | null>;
 
-  readonly marginBottom: LengthStyleConstraintAnimator<this, Length | null, AnyLength | null>;
+  readonly marginBottom: LengthStyleConstraintAnimator<this, Length | null>;
 
-  readonly marginLeft: LengthStyleConstraintAnimator<this, Length | null, AnyLength | null>;
+  readonly marginLeft: LengthStyleConstraintAnimator<this, Length | null>;
 
-  readonly maxHeight: LengthStyleAnimator<this, Length | null, AnyLength | null>;
+  readonly maxHeight: LengthStyleAnimator<this, Length | null>;
 
-  readonly maxWidth: LengthStyleAnimator<this, Length | null, AnyLength | null>;
+  readonly maxWidth: LengthStyleAnimator<this, Length | null>;
 
-  readonly minHeight: LengthStyleAnimator<this, Length | null, AnyLength | null>;
+  readonly minHeight: LengthStyleAnimator<this, Length | null>;
 
-  readonly minWidth: LengthStyleAnimator<this, Length | null, AnyLength | null>;
+  readonly minWidth: LengthStyleAnimator<this, Length | null>;
 
   readonly opacity: StyleAnimator<this, number | undefined>;
 
   readonly order: StyleAnimator<this, number | undefined>;
 
-  readonly outlineColor: StyleAnimator<this, Color | null, AnyColor | null>;
+  readonly outlineColor: StyleAnimator<this, Color | null>;
 
-  readonly outlineOffset: LengthStyleAnimator<this, Length | null, AnyLength | null>;
+  readonly outlineOffset: LengthStyleAnimator<this, Length | null>;
 
   readonly outlineStyle: StyleAnimator<this, BorderStyle | undefined>;
 
-  readonly outlineWidth: LengthStyleAnimator<this, Length | null, AnyLength | null>;
+  readonly outlineWidth: LengthStyleAnimator<this, Length | null>;
 
   overflow(): [Overflow | undefined, Overflow | undefined] | Overflow | undefined;
-  overflow(value: [Overflow | undefined, Overflow | undefined] | Overflow | undefined, timing?: AnyTiming | boolean, affinity?: Affinity): this;
+  overflow(value: [Overflow | undefined, Overflow | undefined] | Overflow | undefined, timing?: TimingLike | boolean, affinity?: Affinity): this;
 
   readonly overflowX: StyleAnimator<this, Overflow | undefined>;
 
@@ -222,32 +220,32 @@ export interface StyleMap extends StyleContext {
   readonly overflowScrolling: StyleAnimator<this, "auto" | "touch" | undefined>;
 
   overscrollBehavior(): [OverscrollBehavior | undefined, OverscrollBehavior | undefined] | OverscrollBehavior | undefined;
-  overscrollBehavior(value: [OverscrollBehavior | undefined, OverscrollBehavior | undefined] | OverscrollBehavior | undefined, timing?: AnyTiming | boolean, affinity?: Affinity): this;
+  overscrollBehavior(value: [OverscrollBehavior | undefined, OverscrollBehavior | undefined] | OverscrollBehavior | undefined, timing?: TimingLike | boolean, affinity?: Affinity): this;
 
   readonly overscrollBehaviorX: StyleAnimator<this, OverscrollBehavior | undefined>;
 
   readonly overscrollBehaviorY: StyleAnimator<this, OverscrollBehavior | undefined>;
 
   padding(): [Length | null, Length | null, Length | null, Length | null] | Length | null;
-  padding(value: [AnyLength | null, AnyLength | null, AnyLength | null, AnyLength | null] | AnyLength | null, timing?: AnyTiming | boolean, affinity?: Affinity): this;
+  padding(value: [LengthLike | null, LengthLike | null, LengthLike | null, LengthLike | null] | LengthLike | null, timing?: TimingLike | boolean, affinity?: Affinity): this;
 
-  readonly paddingTop: LengthStyleConstraintAnimator<this, Length | null, AnyLength | null>;
+  readonly paddingTop: LengthStyleConstraintAnimator<this, Length | null>;
 
-  readonly paddingRight: LengthStyleConstraintAnimator<this, Length | null, AnyLength | null>;
+  readonly paddingRight: LengthStyleConstraintAnimator<this, Length | null>;
 
-  readonly paddingBottom: LengthStyleConstraintAnimator<this, Length | null, AnyLength | null>;
+  readonly paddingBottom: LengthStyleConstraintAnimator<this, Length | null>;
 
-  readonly paddingLeft: LengthStyleConstraintAnimator<this, Length | null, AnyLength | null>;
+  readonly paddingLeft: LengthStyleConstraintAnimator<this, Length | null>;
 
   readonly pointerEvents: StyleAnimator<this, PointerEvents | undefined>;
 
   readonly position: StyleAnimator<this, Position | undefined>;
 
-  readonly right: LengthStyleConstraintAnimator<this, Length | null, AnyLength | null>;
+  readonly right: LengthStyleConstraintAnimator<this, Length | null>;
 
   readonly textAlign: StyleAnimator<this, TextAlign | undefined>;
 
-  readonly textDecorationColor: StyleAnimator<this, Color | null, AnyColor | null>;
+  readonly textDecorationColor: StyleAnimator<this, Color | null>;
 
   readonly textDecorationLine: StyleAnimator<this, string | undefined>;
 
@@ -257,21 +255,21 @@ export interface StyleMap extends StyleContext {
 
   readonly textTransform: StyleAnimator<this, TextTransform | undefined>;
 
-  readonly top: LengthStyleConstraintAnimator<this, Length | null, AnyLength | null>;
+  readonly top: LengthStyleConstraintAnimator<this, Length | null>;
 
   readonly touchAction: StyleAnimator<this, TouchAction | undefined>;
 
-  readonly transform: StyleAnimator<this, Transform | null, AnyTransform | null>;
+  readonly transform: StyleAnimator<this, Transform | null>;
 
   readonly userSelect: StyleAnimator<this, UserSelect | undefined>;
 
-  readonly verticalAlign: StyleAnimator<this, VerticalAlign | undefined, AnyLength | VerticalAlign | undefined>;
+  readonly verticalAlign: StyleAnimator<this, VerticalAlign | undefined>;
 
   readonly visibility: StyleAnimator<this, Visibility | undefined>;
 
   readonly whiteSpace: StyleAnimator<this, WhiteSpace | undefined>;
 
-  readonly width: LengthStyleConstraintAnimator<this, Length | null, AnyLength | null>;
+  readonly width: LengthStyleConstraintAnimator<this, Length | null>;
 
   readonly zIndex: StyleAnimator<this, number | undefined>;
 }
@@ -391,7 +389,7 @@ export const StyleMap = (function () {
           return value;
         }
       },
-      fromAny(value: AnyLinearGradient | string | null): LinearGradient | string | null {
+      fromLike(value: LinearGradientLike | string | null): LinearGradient | string | null {
         if (typeof value === "string") {
           try {
             return LinearGradient.parse(value);
@@ -399,7 +397,7 @@ export const StyleMap = (function () {
             return value;
           }
         } else {
-          return LinearGradient.fromAny(value);
+          return LinearGradient.fromLike(value);
         }
       },
     })], fieldInitializers, instanceInitializers);
@@ -911,8 +909,8 @@ export const StyleMap = (function () {
   };
 
   function borderColor(this: StyleMap): [Color | null, Color | null, Color | null, Color | null] | Color | null;
-  function borderColor(this: StyleMap, value: [AnyColor | null, AnyColor | null, AnyColor | null, AnyColor | null] | AnyColor | null, timing?: AnyTiming | boolean, affinity?: Affinity): StyleMap;
-  function borderColor(this: StyleMap, value?: [AnyColor | null, AnyColor | null, AnyColor | null, AnyColor | null] | AnyColor | null, timing?: AnyTiming | boolean, affinity?: Affinity): [Color | null, Color | null, Color | null, Color | null] | Color | null | StyleMap {
+  function borderColor(this: StyleMap, value: [ColorLike | null, ColorLike | null, ColorLike | null, ColorLike | null] | ColorLike | null, timing?: TimingLike | boolean, affinity?: Affinity): StyleMap;
+  function borderColor(this: StyleMap, value?: [ColorLike | null, ColorLike | null, ColorLike | null, ColorLike | null] | ColorLike | null, timing?: TimingLike | boolean, affinity?: Affinity): [Color | null, Color | null, Color | null, Color | null] | Color | null | StyleMap {
     if (value === void 0) {
       const borderTopColor = this.borderTopColor.value;
       const borderRightColor = this.borderRightColor.value;
@@ -950,8 +948,8 @@ export const StyleMap = (function () {
   }
 
   function borderRadius(this: StyleMap): [Length | null, Length | null, Length | null, Length | null] | Length | null;
-  function borderRadius(this: StyleMap, value: [AnyLength | null, AnyLength | null, AnyLength | null, AnyLength | null] | AnyLength | null, timing?: AnyTiming | boolean, affinity?: Affinity): StyleMap;
-  function borderRadius(this: StyleMap, value?: [AnyLength | null, AnyLength | null, AnyLength | null, AnyLength | null] | AnyLength | null,timing?: AnyTiming | boolean, affinity?: Affinity): [Length | null, Length | null, Length | null, Length | null] | Length | null | StyleMap {
+  function borderRadius(this: StyleMap, value: [LengthLike | null, LengthLike | null, LengthLike | null, LengthLike | null] | LengthLike | null, timing?: TimingLike | boolean, affinity?: Affinity): StyleMap;
+  function borderRadius(this: StyleMap, value?: [LengthLike | null, LengthLike | null, LengthLike | null, LengthLike | null] | LengthLike | null,timing?: TimingLike | boolean, affinity?: Affinity): [Length | null, Length | null, Length | null, Length | null] | Length | null | StyleMap {
     if (value === void 0) {
       const borderTopLeftRadius = this.borderTopLeftRadius.value;
       const borderTopRightRadius = this.borderTopRightRadius.value;
@@ -989,8 +987,8 @@ export const StyleMap = (function () {
   }
 
   function borderStyle(this: StyleMap): [BorderStyle | undefined, BorderStyle | undefined, BorderStyle | undefined, BorderStyle | undefined] | BorderStyle | undefined;
-  function borderStyle(this: StyleMap, value: [BorderStyle | undefined, BorderStyle | undefined, BorderStyle | undefined, BorderStyle | undefined] | BorderStyle | undefined, timing?: AnyTiming | boolean, affinity?: Affinity): StyleMap;
-  function borderStyle(this: StyleMap, value?: [BorderStyle | undefined, BorderStyle | undefined, BorderStyle | undefined, BorderStyle | undefined] | BorderStyle | undefined, timing?: AnyTiming | boolean, affinity?: Affinity): [BorderStyle | undefined, BorderStyle | undefined, BorderStyle | undefined, BorderStyle | undefined] | BorderStyle | undefined | StyleMap {
+  function borderStyle(this: StyleMap, value: [BorderStyle | undefined, BorderStyle | undefined, BorderStyle | undefined, BorderStyle | undefined] | BorderStyle | undefined, timing?: TimingLike | boolean, affinity?: Affinity): StyleMap;
+  function borderStyle(this: StyleMap, value?: [BorderStyle | undefined, BorderStyle | undefined, BorderStyle | undefined, BorderStyle | undefined] | BorderStyle | undefined, timing?: TimingLike | boolean, affinity?: Affinity): [BorderStyle | undefined, BorderStyle | undefined, BorderStyle | undefined, BorderStyle | undefined] | BorderStyle | undefined | StyleMap {
     if (value === void 0) {
       const borderTopStyle = this.borderTopStyle.value;
       const borderRightStyle = this.borderRightStyle.value;
@@ -1028,8 +1026,8 @@ export const StyleMap = (function () {
   }
 
   function borderWidth(this: StyleMap): [Length | null, Length | null, Length | null, Length | null] | Length | null;
-  function borderWidth(this: StyleMap, value: [AnyLength | null, AnyLength | null, AnyLength | null, AnyLength | null] | AnyLength | null, timing?: AnyTiming | boolean, affinity?: Affinity): StyleMap;
-  function borderWidth(this: StyleMap, value?: [AnyLength | null, AnyLength | null, AnyLength | null, AnyLength | null] | AnyLength | null, timing?: AnyTiming | boolean, affinity?: Affinity): [Length | null, Length | null, Length | null, Length | null] | Length | null | StyleMap {
+  function borderWidth(this: StyleMap, value: [LengthLike | null, LengthLike | null, LengthLike | null, LengthLike | null] | LengthLike | null, timing?: TimingLike | boolean, affinity?: Affinity): StyleMap;
+  function borderWidth(this: StyleMap, value?: [LengthLike | null, LengthLike | null, LengthLike | null, LengthLike | null] | LengthLike | null, timing?: TimingLike | boolean, affinity?: Affinity): [Length | null, Length | null, Length | null, Length | null] | Length | null | StyleMap {
     if (value === void 0) {
       const borderTopWidth = this.borderTopWidth.value;
       const borderRightWidth = this.borderRightWidth.value;
@@ -1067,8 +1065,8 @@ export const StyleMap = (function () {
   }
 
   function font(this: StyleMap): Font | null;
-  function font(this: StyleMap, value: AnyFont | null, timing?: AnyTiming | boolean, affinity?: Affinity): StyleMap;
-  function font(this: StyleMap, value?: AnyFont | null, timing?: AnyTiming | boolean, affinity?: Affinity): Font | null | StyleMap {
+  function font(this: StyleMap, value: FontLike | null, timing?: TimingLike | boolean, affinity?: Affinity): StyleMap;
+  function font(this: StyleMap, value?: FontLike | null, timing?: TimingLike | boolean, affinity?: Affinity): Font | null | StyleMap {
     if (value === void 0) {
       const style = this.fontStyle.value;
       const variant = this.fontVariant.value;
@@ -1084,7 +1082,7 @@ export const StyleMap = (function () {
       }
     } else {
       if (value !== null) {
-        value = Font.fromAny(value);
+        value = Font.fromLike(value);
         if (value.style !== void 0) {
           this.fontStyle.setState(value.style, timing, affinity);
         }
@@ -1118,8 +1116,8 @@ export const StyleMap = (function () {
   }
 
   function margin(this: StyleMap): [Length | null, Length | null, Length | null, Length | null] | Length | null;
-  function margin(this: StyleMap, value: [AnyLength | null, AnyLength | null, AnyLength | null, AnyLength | null] | AnyLength | null, timing?: AnyTiming | boolean, affinity?: Affinity): StyleMap;
-  function margin(this: StyleMap, value?: [AnyLength | null, AnyLength | null, AnyLength | null, AnyLength | null] | AnyLength | null, timing?: AnyTiming | boolean, affinity?: Affinity): [Length | null, Length | null, Length | null, Length | null] | Length | null | StyleMap {
+  function margin(this: StyleMap, value: [LengthLike | null, LengthLike | null, LengthLike | null, LengthLike | null] | LengthLike | null, timing?: TimingLike | boolean, affinity?: Affinity): StyleMap;
+  function margin(this: StyleMap, value?: [LengthLike | null, LengthLike | null, LengthLike | null, LengthLike | null] | LengthLike | null, timing?: TimingLike | boolean, affinity?: Affinity): [Length | null, Length | null, Length | null, Length | null] | Length | null | StyleMap {
     if (value === void 0) {
       const marginTop = this.marginTop.value;
       const marginRight = this.marginRight.value;
@@ -1157,8 +1155,8 @@ export const StyleMap = (function () {
   }
 
   function overflow(this: StyleMap): [Overflow | undefined, Overflow | undefined] | Overflow | undefined;
-  function overflow(this: StyleMap, value: [Overflow | undefined, Overflow | undefined] | Overflow | undefined, timing?: AnyTiming | boolean, affinity?: Affinity): StyleMap;
-  function overflow(this: StyleMap, value?: [Overflow | undefined, Overflow | undefined] | Overflow | undefined, timing?: AnyTiming | boolean, affinity?: Affinity): [Overflow | undefined, Overflow | undefined] | Overflow | undefined | StyleMap {
+  function overflow(this: StyleMap, value: [Overflow | undefined, Overflow | undefined] | Overflow | undefined, timing?: TimingLike | boolean, affinity?: Affinity): StyleMap;
+  function overflow(this: StyleMap, value?: [Overflow | undefined, Overflow | undefined] | Overflow | undefined, timing?: TimingLike | boolean, affinity?: Affinity): [Overflow | undefined, Overflow | undefined] | Overflow | undefined | StyleMap {
     if (value === void 0) {
       const overflowX = this.overflowX.value;
       const overflowY = this.overflowY.value;
@@ -1184,8 +1182,8 @@ export const StyleMap = (function () {
   }
 
   function overscrollBehavior(this: StyleMap): [OverscrollBehavior | undefined, OverscrollBehavior | undefined] | OverscrollBehavior | undefined;
-  function overscrollBehavior(this: StyleMap, value: [OverscrollBehavior | undefined, OverscrollBehavior | undefined] | OverscrollBehavior | undefined, timing?: AnyTiming | boolean, affinity?: Affinity): StyleMap;
-  function overscrollBehavior(this: StyleMap, value?: [OverscrollBehavior | undefined, OverscrollBehavior | undefined] | OverscrollBehavior | undefined, timing?: AnyTiming | boolean, affinity?: Affinity): [OverscrollBehavior | undefined, OverscrollBehavior | undefined] | OverscrollBehavior | undefined | StyleMap {
+  function overscrollBehavior(this: StyleMap, value: [OverscrollBehavior | undefined, OverscrollBehavior | undefined] | OverscrollBehavior | undefined, timing?: TimingLike | boolean, affinity?: Affinity): StyleMap;
+  function overscrollBehavior(this: StyleMap, value?: [OverscrollBehavior | undefined, OverscrollBehavior | undefined] | OverscrollBehavior | undefined, timing?: TimingLike | boolean, affinity?: Affinity): [OverscrollBehavior | undefined, OverscrollBehavior | undefined] | OverscrollBehavior | undefined | StyleMap {
     if (value === void 0) {
       const overscrollBehaviorX = this.overscrollBehaviorX.value;
       const overscrollBehaviorY = this.overscrollBehaviorY.value;
@@ -1211,8 +1209,8 @@ export const StyleMap = (function () {
   }
 
   function padding(this: StyleMap): [Length | null, Length | null, Length | null, Length | null] | Length | null;
-  function padding(this: StyleMap, value: [AnyLength | null, AnyLength | null, AnyLength | null, AnyLength | null] | AnyLength | null, timing?: AnyTiming | boolean, affinity?: Affinity): StyleMap;
-  function padding(this: StyleMap, value?: [AnyLength | null, AnyLength | null, AnyLength | null, AnyLength | null] | AnyLength | null, timing?: AnyTiming | boolean, affinity?: Affinity): [Length | null, Length | null, Length | null, Length | null] | Length | null | StyleMap {
+  function padding(this: StyleMap, value: [LengthLike | null, LengthLike | null, LengthLike | null, LengthLike | null] | LengthLike | null, timing?: TimingLike | boolean, affinity?: Affinity): StyleMap;
+  function padding(this: StyleMap, value?: [LengthLike | null, LengthLike | null, LengthLike | null, LengthLike | null] | LengthLike | null, timing?: TimingLike | boolean, affinity?: Affinity): [Length | null, Length | null, Length | null, Length | null] | Length | null | StyleMap {
     if (value === void 0) {
       const paddingTop = this.paddingTop.value;
       const paddingRight = this.paddingRight.value;

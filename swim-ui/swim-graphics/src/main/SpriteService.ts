@@ -60,7 +60,7 @@ export class SpriteService extends Service {
 
   readonly maxSizeClass: number;
 
-  readonly slabs: ReadonlyArray<SpriteSheet | null>;
+  readonly slabs: readonly (SpriteSheet | null)[];
 
   /** @internal */
   protected createSlab(sizeClass: number): SpriteSheet {

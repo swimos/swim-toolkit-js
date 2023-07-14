@@ -15,10 +15,8 @@
 import type {Class} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
-import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
 import type {R2Box} from "@swim/math";
-import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import {Look} from "@swim/theme";
 import {ThemeAnimator} from "@swim/theme";
@@ -51,7 +49,7 @@ export class LinePlotView<X = unknown, Y = unknown> extends SeriesPlotView<X, Y>
       this.owner.callObservers("viewDidSetStroke", stroke, this.owner);
     },
   })
-  readonly stroke!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly stroke!: ThemeAnimator<this, Color | null>;
 
   @ThemeAnimator({
     valueType: Length,
@@ -69,7 +67,7 @@ export class LinePlotView<X = unknown, Y = unknown> extends SeriesPlotView<X, Y>
       this.owner.callObservers("viewDidSetStrokeWidth", strokeWidth, this.owner);
     },
   })
-  readonly strokeWidth!: ThemeAnimator<this, Length | null, AnyLength | null>;
+  readonly strokeWidth!: ThemeAnimator<this, Length | null>;
 
   @Property({valueType: Number, value: 5})
   readonly hitWidth!: Property<this, number>;

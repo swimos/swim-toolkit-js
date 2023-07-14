@@ -15,27 +15,36 @@
 import type {Class} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
-import type {AnyGeoBox} from "@swim/geo";
+import type {Uri} from "@swim/uri";
 import {GeoBox} from "@swim/geo";
 import {Model} from "@swim/model";
 import {TraitModelSet} from "@swim/model";
 import type {GeoTraitObserver} from "./GeoTrait";
 import {GeoTrait} from "./GeoTrait";
-import type {GeoController} from "./GeoController";
+import {GeoFeatureTrait} from "./GeoFeatureTrait";
 import {GeoLayerController} from "./"; // forward import
 
 /** @public */
 export interface GeoLayerTraitObserver<T extends GeoLayerTrait = GeoLayerTrait> extends GeoTraitObserver<T> {
   traitDidSetGeoBounds?(geoBoubnds: GeoBox | null, trait: T): void;
 
-  traitWillAttachFeature?(featureTrait: GeoTrait, trait: T): void;
+  traitWillAttachLayer?(layerTrait: GeoLayerTrait, trait: T): void;
 
-  traitDidDetachFeature?(featureTrait: GeoTrait, trait: T): void;
+  traitDidDetachLayer?(layerTrait: GeoLayerTrait, trait: T): void;
+
+  traitWillAttachFeature?(featureTrait: GeoFeatureTrait, trait: T): void;
+
+  traitDidDetachFeature?(featureTrait: GeoFeatureTrait, trait: T): void;
 }
 
 /** @public */
 export class GeoLayerTrait extends GeoTrait {
   declare readonly observerType?: Class<GeoLayerTraitObserver>;
+
+  @Property({extends: true, inherits: false})
+  override get nodeUri(): Property<this, Uri | null> {
+    return Property.dummy();
+  }
 
   @Property({
     valueType: GeoBox,
@@ -45,35 +54,60 @@ export class GeoLayerTrait extends GeoTrait {
       this.owner.geoPerspective.setValue(geoBounds, Affinity.Intrinsic);
     },
   })
-  readonly geoBounds!: Property<this, GeoBox | null, AnyGeoBox | null>;
+  readonly geoBounds!: Property<this, GeoBox | null>;
 
   @TraitModelSet({
-    traitType: GeoTrait,
+    get traitType(): typeof GeoLayerTrait {
+      return GeoLayerTrait;
+    },
+    traitKey: "layer",
+    modelType: Model,
+    binds: true,
+    willAttachTrait(layerTrait: GeoLayerTrait): void {
+      this.owner.callObservers("traitWillAttachLayer", layerTrait, this.owner);
+    },
+    didDetachTrait(layerTrait: GeoLayerTrait): void {
+      this.owner.callObservers("traitDidDetachLayer", layerTrait, this.owner);
+    },
+  })
+  readonly layers!: TraitModelSet<this, GeoLayerTrait, Model>;
+
+  @TraitModelSet({
+    traitType: GeoFeatureTrait,
     traitKey: "feature",
     modelType: Model,
     binds: true,
-    willAttachTrait(featureTrait: GeoTrait): void {
+    willAttachTrait(featureTrait: GeoFeatureTrait): void {
       this.owner.callObservers("traitWillAttachFeature", featureTrait, this.owner);
     },
-    didAttachTrait(featureTrait: GeoTrait): void {
+    didAttachTrait(featureTrait: GeoFeatureTrait): void {
       if (this.owner.consuming) {
         featureTrait.consume(this.owner);
       }
     },
-    willDetachTrait(featureTrait: GeoTrait): void {
+    willDetachTrait(featureTrait: GeoFeatureTrait): void {
       if (this.owner.consuming) {
         featureTrait.unconsume(this.owner);
       }
     },
-    didDetachTrait(featureTrait: GeoTrait): void {
+    didDetachTrait(featureTrait: GeoFeatureTrait): void {
       this.owner.callObservers("traitDidDetachFeature", featureTrait, this.owner);
     },
   })
-  readonly features!: TraitModelSet<this, GeoTrait, Model>;
+  readonly features!: TraitModelSet<this, GeoFeatureTrait, Model>;
+
+  consumeLayers(): void {
+    // hook
+  }
+
+  unconsumeLayers(): void {
+    // hook
+  }
 
   protected override onStartConsuming(): void {
     super.onStartConsuming();
     this.features.consumeTraits(this);
+    this.consumeLayers();
   }
 
   protected override onStopConsuming(): void {
@@ -81,7 +115,7 @@ export class GeoLayerTrait extends GeoTrait {
     this.features.unconsumeTraits(this);
   }
 
-  override createGeoController(): GeoController {
+  override createGeoController(): GeoLayerController {
     return new GeoLayerController();
   }
 }

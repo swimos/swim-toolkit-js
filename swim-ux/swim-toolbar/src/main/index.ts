@@ -14,12 +14,12 @@
 
 // Layout
 
-export type {AnyToolLayout} from "./ToolLayout";
+export type {ToolLayoutLike} from "./ToolLayout";
 export type {ToolLayoutInit} from "./ToolLayout";
 export {ToolLayout} from "./ToolLayout";
 export {ToolLayoutInterpolator} from "./ToolLayout";
 
-export type {AnyBarLayout} from "./BarLayout";
+export type {BarLayoutLike} from "./BarLayout";
 export type {BarLayoutInit} from "./BarLayout";
 export {BarLayout} from "./BarLayout";
 export {BarLayoutInterpolator} from "./BarLayout";

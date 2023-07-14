@@ -15,9 +15,7 @@
 import {Angle} from "@swim/math";
 import {Transform} from "@swim/math";
 import {Affinity} from "@swim/component";
-import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
-import type {AnyExpansion} from "@swim/style";
 import type {Expansion} from "@swim/style";
 import {ExpansionAnimator} from "@swim/style";
 import {Look} from "@swim/theme";
@@ -62,13 +60,13 @@ export class DisclosureButton extends HtmlView {
   }
 
   @ExpansionAnimator({inherits: true, updateFlags: View.NeedsLayout})
-  readonly disclosure!: ExpansionAnimator<this, Expansion | null, AnyExpansion | null>;
+  readonly disclosure!: ExpansionAnimator<this, Expansion | null>;
 
   @ThemeAnimator({valueType: Color, look: Look.textColor, inherits: true, updateFlags: View.NeedsLayout})
-  readonly collapsedColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly collapsedColor!: ThemeAnimator<this, Color | null>;
 
   @ThemeAnimator({valueType: Color, look: Look.accentColor, inherits: true, updateFlags: View.NeedsLayout})
-  readonly expandedColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly expandedColor!: ThemeAnimator<this, Color | null>;
 
   protected override needsDisplay(displayFlags: ViewFlags): ViewFlags {
     if ((this.flags & View.NeedsLayout) === 0) {

@@ -14,8 +14,9 @@
 
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
+import type {LikeType} from "@swim/util";
 import type {Observes} from "@swim/util";
-import type {AnyView} from "@swim/view";
+import type {Fastener} from "@swim/component";
 import type {ViewFactory} from "@swim/view";
 import {View} from "@swim/view";
 import type {Controller} from "./Controller";
@@ -24,11 +25,8 @@ import type {ControllerSetClass} from "./ControllerSet";
 import {ControllerSet} from "./ControllerSet";
 
 /** @public */
-export interface ViewControllerSetDescriptor<V extends View = View, C extends Controller = Controller> extends ControllerSetDescriptor<C> {
+export interface ViewControllerSetDescriptor<R, V extends View, C extends Controller> extends ControllerSetDescriptor<R, C> {
   extends?: Proto<ViewControllerSet<any, any, any>> | boolean | null;
-  viewType?: ViewFactory<V>;
-  viewKey?: string | boolean;
-  observesView?: boolean;
 }
 
 /** @public */
@@ -36,15 +34,16 @@ export interface ViewControllerSetClass<F extends ViewControllerSet<any, any, an
 }
 
 /** @public */
-export interface ViewControllerSet<O = unknown, V extends View = View, C extends Controller = Controller> extends ControllerSet<O, C> {
+export interface ViewControllerSet<R = any, V extends View = View, C extends Controller = Controller> extends ControllerSet<R, C> {
   /** @override */
-  get descriptorType(): Proto<ViewControllerSetDescriptor<V, C>>;
+  get descriptorType(): Proto<ViewControllerSetDescriptor<R, V, C>>;
 
-  /** @internal */
-  readonly viewType?: ViewFactory<V>; // optional prototype property
+  get viewType(): ViewFactory<V> | null;
 
-  /** @internal */
-  readonly viewKey?: string; // optional prototype property
+  /** @protected */
+  viewKey(view: V): string | undefined;
+
+  get observesView(): boolean;
 
   /** @internal */
   readonly viewControllers: {readonly [viewId: string]: C | undefined};
@@ -64,13 +63,13 @@ export interface ViewControllerSet<O = unknown, V extends View = View, C extends
 
   hasView(view: View): boolean;
 
-  addView(view?: AnyView<V>, targetController?: Controller | null, controllerKey?: string): V;
+  addView(view?: V | LikeType<V>, targetController?: Controller | null, controllerKey?: string): V;
 
   addViews(views: {readonly [viewId: string]: V | undefined}, targetController?: Controller | null): void;
 
   setViews(views: {readonly [viewId: string]: V | undefined}, targetController?: Controller | null): void;
 
-  attachView(view?: AnyView<V>, targetController?: Controller | null): V;
+  attachView(view?: V | LikeType<V>, targetController?: Controller | null): V;
 
   /** @protected */
   initView(view: V): void;
@@ -102,7 +101,7 @@ export interface ViewControllerSet<O = unknown, V extends View = View, C extends
 
   detachViews(views?: {readonly [viewId: string]: V | undefined}): void;
 
-  insertView(parent?: Controller | null, view?: AnyView<V>, targetController?: Controller | null, controllerKey?: string): V;
+  insertView(parent?: Controller | null, view?: V | LikeType<V>, targetController?: Controller | null, controllerKey?: string): V;
 
   insertViews(parent: Controller | null, views: {readonly [viewId: string]: V | undefined}, targetController?: Controller | null): void;
 
@@ -118,11 +117,8 @@ export interface ViewControllerSet<O = unknown, V extends View = View, C extends
 
   createView(): V;
 
-  /** @internal */
-  readonly observesView?: boolean; // optional prototype property
-
   /** @protected */
-  fromAnyView(value: AnyView<V>): V;
+  fromLikeView(value: V | LikeType<V>): V;
 
   /** @protected */
   detectControllerView(controller: Controller): V | null;
@@ -150,31 +146,37 @@ export interface ViewControllerSet<O = unknown, V extends View = View, C extends
 }
 
 /** @public */
-export const ViewControllerSet = (function (_super: typeof ControllerSet) {
-  const ViewControllerSet = _super.extend("ViewControllerSet", {}) as ViewControllerSetClass;
+export const ViewControllerSet = (<R, V extends View, C extends Controller, F extends ViewControllerSet<any, any, any>>() => ControllerSet.extend<ViewControllerSet<R, V, C>, ViewControllerSetClass<F>>("ViewControllerSet", {
+  viewType: null,
 
-  ViewControllerSet.prototype.getViewController = function <V extends View, C extends Controller>(this: ViewControllerSet<unknown, V, C>, view: V): C | null {
+  viewKey(view: V): string | undefined {
+    return void 0;
+  },
+
+  observesView: false,
+
+  getViewController(view: V): C | null {
     const controller = this.viewControllers[view.uid];
     return controller !== void 0 ? controller : null;
-  };
+  },
 
-  ViewControllerSet.prototype.associateViewController = function <V extends View, C extends Controller>(this: ViewControllerSet<unknown, V, C>, view: V, controller: C): void {
+  associateViewController(view: V, controller: C): void {
     const viewControllers = this.viewControllers as {[viewId: string]: C | undefined};
     viewControllers[view.uid] = controller;
-  };
+  },
 
-  ViewControllerSet.prototype.dissociateViewController = function <V extends View, C extends Controller>(this: ViewControllerSet<unknown, V, C>, view: V, controller: C): void {
+  dissociateViewController(view: V, controller: C): void {
     const viewControllers = this.viewControllers as {[viewId: string]: C | undefined};
     delete viewControllers[view.uid];
-  };
+  },
 
-  ViewControllerSet.prototype.hasView = function (this: ViewControllerSet, view: View): boolean {
+  hasView(view: View): boolean {
     return this.views[view.uid] !== void 0;
-  };
+  },
 
-  ViewControllerSet.prototype.addView = function <V extends View>(this: ViewControllerSet<unknown, V>, newView?: AnyView<V>, targetController?: Controller | null, controllerKey?: string): V {
+  addView(newView?: V | LikeType<V>, targetController?: Controller | null, controllerKey?: string): V {
     if (newView !== void 0 && newView !== null) {
-      newView = this.fromAnyView(newView);
+      newView = this.fromLikeView(newView);
     } else {
       newView = this.createView();
     }
@@ -184,15 +186,15 @@ export const ViewControllerSet = (function (_super: typeof ControllerSet) {
     }
     this.addController(controller, targetController, controllerKey);
     return newView;
-  };
+  },
 
-  ViewControllerSet.prototype.addViews = function <V extends View>(this: ViewControllerSet, newViews: {readonly [viewId: string]: V | undefined}, targetController?: Controller | null): void {
+  addViews(newViews: {readonly [viewId: string]: V | undefined}, targetController?: Controller | null): void {
     for (const viewId in newViews) {
       this.addView(newViews[viewId]!, targetController);
     }
-  };
+  },
 
-  ViewControllerSet.prototype.setViews = function <V extends View>(this: ViewControllerSet, newViews: {readonly [viewId: string]: V | undefined}, targetController?: Controller | null): void {
+  setViews(newViews: {readonly [viewId: string]: V | undefined}, targetController?: Controller | null): void {
     const views = this.views;
     for (const viewId in views) {
       if (newViews[viewId] === void 0) {
@@ -204,106 +206,107 @@ export const ViewControllerSet = (function (_super: typeof ControllerSet) {
         this.attachView(newViews[viewId]!, targetController);
       }
     }
-  };
+  },
 
-  ViewControllerSet.prototype.attachView = function <V extends View>(this: ViewControllerSet<unknown, V>, newView?: AnyView<V>, targetController?: Controller | null): V {
+  attachView(newView?: V | LikeType<V>, targetController?: Controller | null): V {
     if (newView !== void 0 && newView !== null) {
-      newView = this.fromAnyView(newView);
+      newView = this.fromLikeView(newView);
     } else {
       newView = this.createView();
     }
     const views = this.views as {[viewId: string]: V | undefined};
-    if (views[newView.uid] === void 0) {
-      views[newView.uid] = newView;
-      (this as Mutable<typeof this>).viewCount += 1;
-      if (targetController === void 0) {
-        targetController = null;
-      }
-      let controller = this.getViewController(newView);
-      if (controller === null) {
-        controller = this.createController(newView);
-      }
-      this.attachController(controller, targetController);
-      this.willAttachView(newView, targetController);
-      this.onAttachView(newView, targetController);
-      this.initView(newView);
-      this.didAttachView(newView, targetController);
+    if (views[newView.uid] !== void 0) {
+      return newView;
     }
+    views[newView.uid] = newView;
+    (this as Mutable<typeof this>).viewCount += 1;
+    if (targetController === void 0) {
+      targetController = null;
+    }
+    let controller = this.getViewController(newView);
+    if (controller === null) {
+      controller = this.createController(newView);
+    }
+    this.attachController(controller, targetController);
+    this.willAttachView(newView, targetController);
+    this.onAttachView(newView, targetController);
+    this.initView(newView);
+    this.didAttachView(newView, targetController);
     return newView;
-  };
+  },
 
-  ViewControllerSet.prototype.initView = function <V extends View>(this: ViewControllerSet<unknown, V>, view: V): void {
+  initView(view: V): void {
     // hook
-  };
+  },
 
-  ViewControllerSet.prototype.willAttachView = function <V extends View>(this: ViewControllerSet<unknown, V>, view: V, targetController: Controller | null): void {
+  willAttachView(view: V, targetController: Controller | null): void {
     // hook
-  };
+  },
 
-  ViewControllerSet.prototype.onAttachView = function <V extends View>(this: ViewControllerSet<unknown, V>, view: V, targetController: Controller | null): void {
-    if (this.observesView === true) {
+  onAttachView(view: V, targetController: Controller | null): void {
+    if (this.observesView) {
       view.observe(this as Observes<V>);
     }
-  };
+  },
 
-  ViewControllerSet.prototype.didAttachView = function <V extends View>(this: ViewControllerSet<unknown, V>, view: V, targetController: Controller | null): void {
+  didAttachView(view: V, targetController: Controller | null): void {
     // hook
-  };
+  },
 
-  ViewControllerSet.prototype.attachViews = function <V extends View>(this: ViewControllerSet, newViews: {readonly [viewId: string]: V | undefined}, targetController?: Controller | null): void {
+  attachViews(newViews: {readonly [viewId: string]: V | undefined}, targetController?: Controller | null): void {
     for (const viewId in newViews) {
       this.attachView(newViews[viewId]!, targetController);
     }
-  };
+  },
 
-  ViewControllerSet.prototype.detachView = function <V extends View>(this: ViewControllerSet<unknown, V>, oldView: V): V | null {
+  detachView(oldView: V): V | null {
     const views = this.views as {[viewId: string]: V | undefined};
-    if (views[oldView.uid] !== void 0) {
-      (this as Mutable<typeof this>).viewCount -= 1;
-      delete views[oldView.uid];
-      this.willDetachView(oldView);
-      this.onDetachView(oldView);
-      this.deinitView(oldView);
-      this.didDetachView(oldView);
-      const controller = this.getViewController(oldView);
-      if (controller !== null) {
-        this.detachController(controller);
-      }
-      return oldView;
+    if (views[oldView.uid] === void 0) {
+      return null;
     }
-    return null;
-  };
+    (this as Mutable<typeof this>).viewCount -= 1;
+    delete views[oldView.uid];
+    this.willDetachView(oldView);
+    this.onDetachView(oldView);
+    this.deinitView(oldView);
+    this.didDetachView(oldView);
+    const controller = this.getViewController(oldView);
+    if (controller !== null) {
+      this.detachController(controller);
+    }
+    return oldView;
+  },
 
-  ViewControllerSet.prototype.deinitView = function <V extends View>(this: ViewControllerSet<unknown, V>, view: V): void {
+  deinitView(view: V): void {
     // hook
-  };
+  },
 
-  ViewControllerSet.prototype.willDetachView = function <V extends View>(this: ViewControllerSet<unknown, V>, view: V): void {
+  willDetachView(view: V): void {
     // hook
-  };
+  },
 
-  ViewControllerSet.prototype.onDetachView = function <V extends View>(this: ViewControllerSet<unknown, V>, view: V): void {
-    if (this.observesView === true) {
+  onDetachView(view: V): void {
+    if (this.observesView) {
       view.unobserve(this as Observes<V>);
     }
-  };
+  },
 
-  ViewControllerSet.prototype.didDetachView = function <V extends View>(this: ViewControllerSet<unknown, V>, view: V): void {
+  didDetachView(view: V): void {
     // hook
-  };
+  },
 
-  ViewControllerSet.prototype.detachViews = function <V extends View>(this: ViewControllerSet<unknown, V>, views?: {readonly [viewId: string]: V | undefined}): void {
+  detachViews(views?: {readonly [viewId: string]: V | undefined}): void {
     if (views === void 0) {
       views = this.views;
     }
     for (const viewId in views) {
       this.detachView(views[viewId]!);
     }
-  };
+  },
 
-  ViewControllerSet.prototype.insertView = function <V extends View>(this: ViewControllerSet<unknown, V>, parent?: Controller | null, newView?: AnyView<V>, targetController?: Controller | null, controllerKey?: string): V {
+  insertView(parent?: Controller | null, newView?: V | LikeType<V>, targetController?: Controller | null, controllerKey?: string): V {
     if (newView !== void 0 && newView !== null) {
-      newView = this.fromAnyView(newView);
+      newView = this.fromLikeView(newView);
     } else {
       newView = this.createView();
     }
@@ -313,64 +316,66 @@ export const ViewControllerSet = (function (_super: typeof ControllerSet) {
     }
     this.insertController(parent, controller, targetController, controllerKey);
     return newView;
-  };
+  },
 
-  ViewControllerSet.prototype.insertViews = function <V extends View>(this: ViewControllerSet, parent: Controller | null, newViews: {readonly [viewId: string]: V | undefined}, targetController?: Controller | null): void {
+  insertViews(parent: Controller | null, newViews: {readonly [viewId: string]: V | undefined}, targetController?: Controller | null): void {
     for (const viewId in newViews) {
       this.insertView(parent, newViews[viewId]!, targetController);
     }
-  };
+  },
 
-  ViewControllerSet.prototype.removeView = function <V extends View>(this: ViewControllerSet<unknown, V>, view: V): V | null {
-    if (this.hasView(view)) {
-      view.remove();
-      return view;
+  removeView(view: V): V | null {
+    if (!this.hasView(view)) {
+      return null;
     }
-    return null;
-  };
+    view.remove();
+    return view;
+  },
 
-  ViewControllerSet.prototype.removeViews = function <V extends View>(this: ViewControllerSet<unknown, V>, views?: {readonly [viewId: string]: V | undefined}): void {
+  removeViews(views?: {readonly [viewId: string]: V | undefined}): void {
     if (views === void 0) {
       views = this.views;
     }
     for (const viewId in views) {
       this.removeView(views[viewId]!);
     }
-  };
+  },
 
-  ViewControllerSet.prototype.deleteView = function <V extends View>(this: ViewControllerSet<unknown, V>, view: V): V | null {
+  deleteView(view: V): V | null {
     const oldView = this.detachView(view);
-    if (oldView !== null) {
-      oldView.remove();
+    if (oldView === null) {
+      return null;
     }
+    oldView.remove();
     return oldView;
-  };
+  },
 
-  ViewControllerSet.prototype.deleteViews = function <V extends View>(this: ViewControllerSet<unknown, V>, views?: {readonly [viewId: string]: V | undefined}): void {
+  deleteViews(views?: {readonly [viewId: string]: V | undefined}): void {
     if (views === void 0) {
       views = this.views;
     }
     for (const viewId in views) {
       this.deleteView(views[viewId]!);
     }
-  };
+  },
 
-  ViewControllerSet.prototype.reinsertView = function <V extends View>(this: ViewControllerSet<unknown, V>, view: V, targetView: V | null): void {
+  reinsertView(view: V, targetView: V | null): void {
     const controller = this.getViewController(view);
-    if (controller !== null) {
-      const targetController = targetView !== null ? this.getViewController(targetView) : null;
-      this.reinsertController(controller, targetController);
+    if (controller === null) {
+      return;
     }
-  };
+    const targetController = targetView !== null ? this.getViewController(targetView) : null;
+    this.reinsertController(controller, targetController);
+  },
 
-  ViewControllerSet.prototype.createView = function <V extends View>(this: ViewControllerSet<unknown, V>): V {
+  createView(): V {
     let view: V | undefined;
     const viewType = this.viewType;
-    if (viewType !== void 0) {
+    if (viewType !== null) {
       view = viewType.create();
     }
     if (view === void 0 || view === null) {
-      let message = "Unable to create ";
+      let message = "unable to create ";
       const name = this.name.toString();
       if (name.length !== 0) {
         message += name + " ";
@@ -379,101 +384,78 @@ export const ViewControllerSet = (function (_super: typeof ControllerSet) {
       throw new Error(message);
     }
     return view;
-  };
+  },
 
-  ViewControllerSet.prototype.fromAnyView = function <V extends View>(this: ViewControllerSet<unknown, V>, value: AnyView<V>): V {
+  fromLikeView(value: V | LikeType<V>): V {
     const viewType = this.viewType;
-    if (viewType !== void 0) {
-      return viewType.fromAny(value);
+    if (viewType !== null) {
+      return viewType.fromLike(value);
     }
-    return View.fromAny(value) as V;
-  };
+    return View.fromLike(value) as V;
+  },
 
-  ViewControllerSet.prototype.detectControllerView = function <V extends View, C extends Controller>(this: ViewControllerSet<unknown, V, C>, controller: Controller): V | null {
+  detectControllerView(controller: Controller): V | null {
     return null; // hook
-  };
+  },
 
-  ViewControllerSet.prototype.insertControllerView = function <V extends View, C extends Controller>(this: ViewControllerSet<unknown, V, C>, controller: C, view: V, targetView: View | null, viewKey: string | undefined): void {
+  insertControllerView(controller: C, view: V, targetView: View | null, viewKey: string | undefined): void {
     // hook
-  };
+  },
 
-  ViewControllerSet.prototype.detectController = function <V extends View, C extends Controller>(this: ViewControllerSet<unknown, V, C>, controller: Controller): C | null {
+  detectController(controller: Controller): C | null {
     if (this.detectControllerView(controller) !== null) {
       return controller as C;
     }
     return null;
-  };
+  },
 
-  ViewControllerSet.prototype.onAttachController = function <V extends View, C extends Controller>(this: ViewControllerSet<unknown, V, C>, controller: C, targetController: Controller | null): void {
+  onAttachController(controller: C, targetController: Controller | null): void {
     const view = this.detectControllerView(controller);
     if (view !== null) {
       this.associateViewController(view, controller);
       this.attachView(view, targetController);
     }
-    _super.prototype.onAttachController.call(this, controller, targetController);
-  };
+    super.onAttachController(controller, targetController);
+  },
 
-  ViewControllerSet.prototype.onDetachController = function <V extends View, C extends Controller>(this: ViewControllerSet<unknown, V, C>, controller: C): void {
-    _super.prototype.onDetachController.call(this, controller);
+  onDetachController(controller: C): void {
+    super.onDetachController(controller);
     const view = this.detectControllerView(controller);
     if (view !== null) {
       this.detachView(view);
       this.dissociateViewController(view, controller);
     }
-  };
+  },
 
-  ViewControllerSet.prototype.createController = function <V extends View, C extends Controller>(this: ViewControllerSet<unknown, V, C>, view?: V): C {
-    const controller = _super.prototype.createController.call(this) as C;
+  createController(view?: V): C {
+    const controller = super.createController() as C;
     if (view === void 0) {
       view = this.createView();
     }
-    this.insertControllerView(controller, view, null, this.viewKey);
+    const viewKey = this.viewKey(view);
+    this.insertControllerView(controller, view, null, viewKey);
     return controller;
-  };
+  },
 
-  ViewControllerSet.prototype.compare = function <V extends View, C extends Controller>(this: ViewControllerSet<unknown, V, C>, a: C, b: C): number {
+  compare(a: C, b: C): number {
     const x = this.detectControllerView(a);
     const y = this.detectControllerView(b);
     if (x !== null && y !== null) {
       return this.compareViews(x, y);
-    } else {
-      return x !== null ? 1 : y !== null ? -1 : 0;
     }
-  };
+    return x !== null ? 1 : y !== null ? -1 : 0;
+  },
 
-  ViewControllerSet.prototype.compareViews = function <V extends View, C extends Controller>(this: ViewControllerSet<unknown, V, C>, a: V, b: V): number {
+  compareViews(a: V, b: V): number {
     return a.uid < b.uid ? -1 : a.uid > b.uid ? 1 : 0;
-  };
-
-  ViewControllerSet.construct = function <F extends ViewControllerSet<any, any, any>>(fastener: F | null, owner: F extends ViewControllerSet<infer O, any, any> ? O : never): F {
-    fastener = _super.construct.call(this, fastener, owner) as F;
+  },
+},
+{
+  construct(fastener: F | null, owner: F extends Fastener<infer R, any, any> ? R : never): F {
+    fastener = super.construct(fastener, owner) as F;
     (fastener as Mutable<typeof fastener>).viewControllers = {};
     (fastener as Mutable<typeof fastener>).views = {};
     (fastener as Mutable<typeof fastener>).viewCount = 0;
     return fastener;
-  };
-
-  ViewControllerSet.refine = function (fastenerClass: ViewControllerSetClass<any>): void {
-    _super.refine.call(this, fastenerClass);
-    const fastenerPrototype = fastenerClass.prototype;
-
-    if (Object.prototype.hasOwnProperty.call(fastenerPrototype, "viewKey")) {
-      const viewKey = fastenerPrototype.viewKey as string | boolean | undefined;
-      if (viewKey === true) {
-        Object.defineProperty(fastenerPrototype, "viewKey", {
-          value: fastenerClass.name,
-          enumerable: true,
-          configurable: true,
-        });
-      } else if (viewKey === false) {
-        Object.defineProperty(fastenerPrototype, "viewKey", {
-          value: void 0,
-          enumerable: true,
-          configurable: true,
-        });
-      }
-    }
-  };
-
-  return ViewControllerSet;
-})(ControllerSet);
+  },
+}))();

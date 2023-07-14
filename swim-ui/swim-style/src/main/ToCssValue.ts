@@ -30,9 +30,8 @@ export const ToCssValue = (function () {
         return (value as ToCssValue).toCssValue();
       } else if (typeof value === "number") {
         return new CSSUnitValue(value, "number");
-      } else {
-        return null;
       }
+      return null;
     };
   } else {
     ToCssValue = ToStyleString;

@@ -14,7 +14,6 @@
 
 import type {Class} from "@swim/util";
 import {Affinity} from "@swim/component";
-import {Length} from "@swim/math";
 import type {PositionGestureInput} from "@swim/view";
 import {PositionGesture} from "@swim/view";
 import {ViewRef} from "@swim/view";
@@ -86,8 +85,7 @@ export class TitleToolView extends ToolView {
     const contentView = this.content.view;
     if (contentView !== null) {
       const contentWidth = contentView.width.pxValue();
-      let toolWidth: Length | number | null = this.width.value;
-      toolWidth = toolWidth instanceof Length ? toolWidth.pxValue() : 0;
+      const toolWidth = this.width.pxValue();
       const excessWidth = toolWidth - contentWidth;
       const xAlign = this.xAlign.value;
       if (toolWidth !== 0) {

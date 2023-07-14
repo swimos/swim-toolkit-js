@@ -14,7 +14,6 @@
 
 import type {Class} from "@swim/util";
 import type {Property} from "@swim/component";
-import type {AnyPresence} from "@swim/style";
 import type {Presence} from "@swim/style";
 import type {PresenceAnimator} from "@swim/style";
 import type {ElementViewObserver} from "./ElementView";
@@ -46,7 +45,7 @@ export interface ModalView extends ElementView {
   /** @override */
   readonly observerType?: Class<ModalViewObserver<any>>;
 
-  readonly presence: PresenceAnimator<this, Presence, AnyPresence>;
+  readonly presence: PresenceAnimator<this, Presence>;
 
   readonly modality: Property<this, number>;
 }

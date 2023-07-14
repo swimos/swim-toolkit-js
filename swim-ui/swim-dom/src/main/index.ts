@@ -73,7 +73,6 @@ export {MediaRule} from "./MediaRule";
 
 export type {ViewNodeType} from "./NodeView";
 export type {ViewNode} from "./NodeView";
-export type {AnyNodeView} from "./NodeView";
 export type {NodeViewFactory} from "./NodeView";
 export type {NodeViewClass} from "./NodeView";
 export type {NodeViewConstructor} from "./NodeView";
@@ -83,7 +82,6 @@ export {NodeView} from "./NodeView";
 // Text
 
 export type {ViewText} from "./TextView";
-export type {AnyTextView} from "./TextView";
 export type {TextViewConstructor} from "./TextView";
 export type {TextViewObserver} from "./TextView";
 export {TextView} from "./TextView";
@@ -91,7 +89,6 @@ export {TextView} from "./TextView";
 // Element
 
 export type {ViewElement} from "./ElementView";
-export type {AnyElementView} from "./ElementView";
 export type {ElementViewFactory} from "./ElementView";
 export type {ElementViewClass} from "./ElementView";
 export type {ElementViewConstructor} from "./ElementView";
@@ -101,7 +98,6 @@ export {ElementView} from "./ElementView";
 // HTML
 
 export type {ViewHtml} from "./HtmlView";
-export type {AnyHtmlView} from "./HtmlView";
 export type {HtmlViewTagMap} from "./HtmlView";
 export type {HtmlViewFactory} from "./HtmlView";
 export type {HtmlViewClass} from "./HtmlView";
@@ -116,7 +112,6 @@ export {StyleView} from "./StyleView";
 // SVG
 
 export type {ViewSvg} from "./SvgView";
-export type {AnySvgView} from "./SvgView";
 export type {SvgViewTagMap} from "./SvgView";
 export type {SvgViewFactory} from "./SvgView";
 export type {SvgViewClass} from "./SvgView";

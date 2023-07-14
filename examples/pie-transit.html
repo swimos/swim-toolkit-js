@@ -30,10 +30,10 @@ const sliceColors = [swim.Color.parse("#00a6ed"), swim.Color.parse("#7ed321"),
                      swim.Color.parse("#57b8ff"), swim.Color.parse("#5aff15"),
                      swim.Color.parse("#55dde0"), swim.Color.parse("#f7aef8")];
 
-const pieView = canvasView.appendChild(swim.PieView)
-    .innerRadius("15%")
-    .outerRadius("25%")
-    .font("14px sans-serif");
+const pieView = canvasView.appendChild(swim.PieView);
+pieView.innerRadius.setState("15%");
+pieView.outerRadius.setState("25%");
+pieView.font.setState("14px sans-serif");
 
 const timing = swim.Easing.linear.withDuration(1000);
 
@@ -51,7 +51,7 @@ const vehiclesLink = warp.downlinkMap({
       let sliceView = pieView.getChild(id);
       if (sliceView === null) {
         sliceView = pieView.appendChild(swim.SliceView, id);
-        sliceView.sliceColor(sliceColor);
+        sliceView.sliceColor.setState(sliceColor);
         sliceView.label.setText(sliceValue.toFixed());
         sliceView.legend.setText(id);
         sliceView.label.view.textColor.setLook(swim.Look.backgroundColor);

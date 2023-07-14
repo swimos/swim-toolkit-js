@@ -261,7 +261,7 @@ export class ThemeAnimatorSpec extends Suite {
     exam.false(parent.foo.tweening);
     exam.equal(child.foo.state, color);
     exam.equal(child.foo.value, color);
-    exam.true(child.foo.coherent);
+    exam.false(child.foo.coherent);
     exam.false(child.foo.tweening);
 
     parent.foo.setLook(Look.backgroundColor, Easing.linear.withDuration(1000));

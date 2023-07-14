@@ -12,18 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {AnyLength} from "@swim/math";
 import type {Length} from "@swim/math";
-import type {AnyColor} from "@swim/style";
 import type {Color} from "@swim/style";
 import type {ThemeAnimator} from "@swim/theme";
 import {GraphicsView} from "./GraphicsView";
 
 /** @public */
 export interface StrokeView extends GraphicsView {
-  readonly stroke: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly stroke: ThemeAnimator<this, Color | null>;
 
-  readonly strokeWidth: ThemeAnimator<this, Length | null, AnyLength | null>;
+  readonly strokeWidth: ThemeAnimator<this, Length | null>;
 }
 
 /** @public */

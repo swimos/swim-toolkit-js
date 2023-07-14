@@ -14,6 +14,7 @@
 
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
+import type {LikeType} from "@swim/util";
 import type {Observes} from "@swim/util";
 import type {Consumer} from "@swim/util";
 import type {Consumable} from "@swim/util";
@@ -21,18 +22,13 @@ import type {FastenerFlags} from "@swim/component";
 import type {FastenerDescriptor} from "@swim/component";
 import type {FastenerClass} from "@swim/component";
 import {Fastener} from "@swim/component";
-import type {AnyModel} from "./Model";
 import type {ModelFactory} from "./Model";
 import {Model} from "./Model";
 import {Trait} from "./"; // forward import
 
 /** @public */
-export interface ModelRelationDescriptor<M extends Model = Model> extends FastenerDescriptor {
+export interface ModelRelationDescriptor<R, M extends Model> extends FastenerDescriptor<R> {
   extends?: Proto<ModelRelation<any, any>> | boolean | null;
-  modelType?: ModelFactory<M>;
-  binds?: boolean;
-  observes?: boolean;
-  consumed?: boolean;
 }
 
 /** @public */
@@ -47,78 +43,33 @@ export interface ModelRelationClass<F extends ModelRelation<any, any> = ModelRel
 }
 
 /** @public */
-export interface ModelRelation<O = unknown, M extends Model = Model> extends Fastener<O>, Consumable {
+export interface ModelRelation<R = any, M extends Model = Model> extends Fastener<R>, Consumable {
   /** @override */
-  get descriptorType(): Proto<ModelRelationDescriptor<M>>;
+  get descriptorType(): Proto<ModelRelationDescriptor<R, M>>;
 
   /** @override */
   get fastenerType(): Proto<ModelRelation<any, any>>;
 
-  /** @protected */
-  readonly consumed?: boolean; // optional prototype property
+  get consumed(): boolean;
 
-  /** @internal */
-  readonly observes?: boolean; // optional prototype property
+  get modelType(): ModelFactory<M> | null;
 
-  /** @internal @override */
-  setDerived(derived: boolean, inlet: ModelRelation<unknown, M>): void;
-
-  /** @protected @override */
-  willDerive(inlet: ModelRelation<unknown, M>): void;
-
-  /** @protected @override */
-  onDerive(inlet: ModelRelation<unknown, M>): void;
-
-  /** @protected @override */
-  didDerive(inlet: ModelRelation<unknown, M>): void;
-
-  /** @protected @override */
-  willUnderive(inlet: ModelRelation<unknown, M>): void;
-
-  /** @protected @override */
-  onUnderive(inlet: ModelRelation<unknown, M>): void;
-
-  /** @protected @override */
-  didUnderive(inlet: ModelRelation<unknown, M>): void;
+  get observes(): boolean;
 
   /** @override */
-  get parent(): ModelRelation<unknown, M> | null;
-
-  /** @override */
-  readonly inlet: ModelRelation<unknown, M> | null;
-
-  /** @override */
-  bindInlet(inlet: ModelRelation<unknown, M>): void;
-
-  /** @protected @override */
-  willBindInlet(inlet: ModelRelation<unknown, M>): void;
-
-  /** @protected @override */
-  onBindInlet(inlet: ModelRelation<unknown, M>): void;
-
-  /** @protected @override */
-  didBindInlet(inlet: ModelRelation<unknown, M>): void;
-
-  /** @protected @override */
-  willUnbindInlet(inlet: ModelRelation<unknown, M>): void;
-
-  /** @protected @override */
-  onUnbindInlet(inlet: ModelRelation<unknown, M>): void;
-
-  /** @protected @override */
-  didUnbindInlet(inlet: ModelRelation<unknown, M>): void;
+  get parent(): ModelRelation<any, M> | null;
 
   /** @internal */
-  readonly outlets: ReadonlyArray<ModelRelation<unknown, M>> | null;
+  readonly outlets: ReadonlySet<Fastener<any, any, any>> | null;
 
   /** @internal @override */
-  attachOutlet(outlet: ModelRelation<unknown, M>): void;
+  attachOutlet(outlet: Fastener<any, any, any>): void;
 
   /** @internal @override */
-  detachOutlet(outlet: ModelRelation<unknown, M>): void;
+  detachOutlet(outlet: Fastener<any, any, any>): void;
 
-  /** @internal */
-  readonly modelType?: ModelFactory<M>; // optional prototype property
+  /** @internal @protected */
+  decohereOutlets(): void;
 
   /** @protected */
   initModel(model: M): void;
@@ -144,10 +95,9 @@ export interface ModelRelation<O = unknown, M extends Model = Model> extends Fas
   /** @protected */
   didDetachModel(model: M): void;
 
-  /** @internal @protected */
   get parentModel(): Model | null;
 
-  /** @internal @protected */
+  /** @protected */
   insertChild(parent: Model, child: M, target: Model | null, key: string | undefined): void;
 
   /** @internal */
@@ -160,8 +110,8 @@ export interface ModelRelation<O = unknown, M extends Model = Model> extends Fas
 
   createModel(): M;
 
-  /** @internal @protected */
-  fromAny(value: AnyModel<M>): M;
+  /** @protected */
+  fromLike(value: M | LikeType<M>): M;
 
   /** @internal */
   readonly consumers: ReadonlySet<Consumer> | null;
@@ -224,125 +174,119 @@ export interface ModelRelation<O = unknown, M extends Model = Model> extends Fas
 }
 
 /** @public */
-export const ModelRelation = (function (_super: typeof Fastener) {
-  const ModelRelation = _super.extend("ModelRelation", {}) as ModelRelationClass & {
-    /** @internal */
-    readonly ConsumingFlag: FastenerFlags;
+export const ModelRelation = (<R, M extends Model, F extends ModelRelation<any, any>>() => Fastener.extend<ModelRelation<R, M>, ModelRelationClass<F>>("ModelRelation", {
+  get fastenerType(): Proto<ModelRelation<any, any>> {
+    return ModelRelation;
+  },
 
-    /** @internal @override */
-    readonly FlagShift: number;
-    /** @internal @override */
-    readonly FlagMask: FastenerFlags;
-  };
+  consumed: false,
 
-  Object.defineProperty(ModelRelation.prototype, "fastenerType", {
-    value: ModelRelation,
-    enumerable: true,
-    configurable: true,
-  });
+  modelType: null,
 
-  ModelRelation.prototype.attachOutlet = function <M extends Model>(this: ModelRelation<unknown, M>, outlet: ModelRelation<unknown, M>): void {
-    let outlets = this.outlets as ModelRelation<unknown, M>[] | null;
+  observes: false,
+
+  attachOutlet(outlet: Fastener<any, any, any>): void {
+    let outlets = this.outlets as Set<Fastener<any, any, any>> | null;
     if (outlets === null) {
-      outlets = [];
+      outlets = new Set<Fastener<any, any, any>>();
       (this as Mutable<typeof this>).outlets = outlets;
     }
-    outlets.push(outlet);
-  };
+    outlets.add(outlet);
+  },
 
-  ModelRelation.prototype.detachOutlet = function <M extends Model>(this: ModelRelation<unknown, M>, outlet: ModelRelation<unknown, M>): void {
-    const outlets = this.outlets as ModelRelation<unknown, M>[] | null;
+  detachOutlet(outlet: Fastener<any, any, any>): void {
+    const outlets = this.outlets as Set<Fastener<any, any, any>> | null;
     if (outlets === null) {
       return;
     }
-    const index = outlets.indexOf(outlet);
-    if (index < 0) {
-      return;
+    outlets.delete(outlet);
+  },
+
+  decohereOutlets(): void {
+    const outlets = this.outlets;
+    if (outlets !== null) {
+      for (const outlet of outlets) {
+        outlet.decohere(this);
+      }
     }
-    outlets.splice(index, 1);
-  };
+  },
 
-  ModelRelation.prototype.initModel = function <M extends Model>(this: ModelRelation<unknown, M>, model: M): void {
+  initModel(model: M): void {
     // hook
-  };
+  },
 
-  ModelRelation.prototype.willAttachModel = function <M extends Model>(this: ModelRelation<unknown, M>, model: M, target: Model | null): void {
+  willAttachModel(model: M, target: Model | null): void {
     // hook
-  };
+  },
 
-  ModelRelation.prototype.onAttachModel = function <M extends Model>(this: ModelRelation<unknown, M>, model: M, target: Model | null): void {
-    if (this.observes === true) {
+  onAttachModel(model: M, target: Model | null): void {
+    if (this.observes) {
       model.observe(this as Observes<M>);
     }
     if ((this.flags & ModelRelation.ConsumingFlag) !== 0) {
       model.consume(this);
     }
-  };
+  },
 
-  ModelRelation.prototype.didAttachModel = function <M extends Model>(this: ModelRelation<unknown, M>, model: M, target: Model | null): void {
+  didAttachModel(model: M, target: Model | null): void {
     // hook
-  };
+  },
 
-  ModelRelation.prototype.deinitModel = function <M extends Model>(this: ModelRelation<unknown, M>, model: M): void {
+  deinitModel(model: M): void {
     // hook
-  };
+  },
 
-  ModelRelation.prototype.willDetachModel = function <M extends Model>(this: ModelRelation<unknown, M>, model: M): void {
+  willDetachModel(model: M): void {
     // hook
-  };
+  },
 
-  ModelRelation.prototype.onDetachModel = function <M extends Model>(this: ModelRelation<unknown, M>, model: M): void {
+  onDetachModel(model: M): void {
     if ((this.flags & ModelRelation.ConsumingFlag) !== 0) {
       model.unconsume(this);
     }
-    if (this.observes === true) {
+    if (this.observes) {
       model.unobserve(this as Observes<M>);
     }
-  };
+  },
 
-  ModelRelation.prototype.didDetachModel = function <M extends Model>(this: ModelRelation<unknown, M>, model: M): void {
+  didDetachModel(model: M): void {
     // hook
-  };
+  },
 
-  Object.defineProperty(ModelRelation.prototype, "parentModel", {
-    get(this: ModelRelation): Model | null {
-      const owner = this.owner;
-      if (owner instanceof Model) {
-        return owner;
-      } else if (owner instanceof Trait) {
-        return owner.model;
-      } else {
-        return null;
-      }
-    },
-    enumerable: true,
-    configurable: true,
-  });
-
-  ModelRelation.prototype.insertChild = function <M extends Model>(this: ModelRelation<unknown, M>, parent: Model, child: M, target: Model | null, key: string | undefined): void {
-    parent.insertChild(child, target, key);
-  };
-
-  ModelRelation.prototype.bindModel = function <M extends Model>(this: ModelRelation<unknown, M>, model: Model, target: Model | null): void {
-    // hook
-  };
-
-  ModelRelation.prototype.unbindModel = function <M extends Model>(this: ModelRelation<unknown, M>, model: Model): void {
-    // hook
-  };
-
-  ModelRelation.prototype.detectModel = function <M extends Model>(this: ModelRelation<unknown, M>, model: Model): M | null {
+  get parentModel(): Model | null {
+    const owner = this.owner;
+    if (owner instanceof Model) {
+      return owner;
+    } else if (owner instanceof Trait) {
+      return owner.model;
+    }
     return null;
-  };
+  },
 
-  ModelRelation.prototype.createModel = function <M extends Model>(this: ModelRelation<unknown, M>): M {
+  insertChild(parent: Model, child: M, target: Model | null, key: string | undefined): void {
+    parent.insertChild(child, target, key);
+  },
+
+  bindModel(model: Model, target: Model | null): void {
+    // hook
+  },
+
+  unbindModel(model: Model): void {
+    // hook
+  },
+
+  detectModel(model: Model): M | null {
+    return null;
+  },
+
+  createModel(): M {
     let model: M | undefined;
     const modelType = this.modelType;
-    if (modelType !== void 0) {
+    if (modelType !== null) {
       model = modelType.create();
     }
     if (model === void 0 || model === null) {
-      let message = "Unable to create ";
+      let message = "unable to create ";
       const name = this.name.toString();
       if (name.length !== 0) {
         message += name + " ";
@@ -351,17 +295,17 @@ export const ModelRelation = (function (_super: typeof Fastener) {
       throw new Error(message);
     }
     return model;
-  };
+  },
 
-  ModelRelation.prototype.fromAny = function <M extends Model>(this: ModelRelation<unknown, M>, value: AnyModel<M>): M {
+  fromLike(value: M | LikeType<M>): M {
     const modelType = this.modelType;
-    if (modelType !== void 0) {
-      return modelType.fromAny(value);
+    if (modelType !== null) {
+      return modelType.fromLike(value);
     }
-    return Model.fromAny(value) as M;
-  };
+    return Model.fromLike(value) as M;
+  },
 
-  ModelRelation.prototype.consume = function (this: ModelRelation, consumer: Consumer): void {
+  consume(consumer: Consumer): void {
     let consumers = this.consumers as Set<Consumer> | null;
     if (consumers === null) {
       consumers = new Set<Consumer>();
@@ -376,21 +320,21 @@ export const ModelRelation = (function (_super: typeof Fastener) {
     if (consumers.size === 1 && this.mounted) {
       this.startConsuming();
     }
-  };
+  },
 
-  ModelRelation.prototype.willConsume = function (this: ModelRelation, consumer: Consumer): void {
+  willConsume(consumer: Consumer): void {
     // hook
-  };
+  },
 
-  ModelRelation.prototype.onConsume = function (this: ModelRelation, consumer: Consumer): void {
+  onConsume(consumer: Consumer): void {
     // hook
-  };
+  },
 
-  ModelRelation.prototype.didConsume = function (this: ModelRelation, consumer: Consumer): void {
+  didConsume(consumer: Consumer): void {
     // hook
-  };
+  },
 
-  ModelRelation.prototype.unconsume = function (this: ModelRelation, consumer: Consumer): void {
+  unconsume(consumer: Consumer): void {
     const consumers = this.consumers as Set<Consumer> | null;
     if (consumers === null || !consumers.has(consumer)) {
       return;
@@ -402,29 +346,25 @@ export const ModelRelation = (function (_super: typeof Fastener) {
     if (consumers.size === 0) {
       this.stopConsuming();
     }
-  };
+  },
 
-  ModelRelation.prototype.willUnconsume = function (this: ModelRelation, consumer: Consumer): void {
+  willUnconsume(consumer: Consumer): void {
     // hook
-  };
+  },
 
-  ModelRelation.prototype.onUnconsume = function (this: ModelRelation, consumer: Consumer): void {
+  onUnconsume(consumer: Consumer): void {
     // hook
-  };
+  },
 
-  ModelRelation.prototype.didUnconsume = function (this: ModelRelation, consumer: Consumer): void {
+  didUnconsume(consumer: Consumer): void {
     // hook
-  };
+  },
 
-  Object.defineProperty(ModelRelation.prototype, "consuming", {
-    get(this: ModelRelation): boolean {
-      return (this.flags & ModelRelation.ConsumingFlag) !== 0;
-    },
-    enumerable: true,
-    configurable: true,
-  });
+  get consuming(): boolean {
+    return (this.flags & ModelRelation.ConsumingFlag) !== 0;
+  },
 
-  ModelRelation.prototype.startConsuming = function (this: ModelRelation): void {
+  startConsuming(): void {
     if ((this.flags & ModelRelation.ConsumingFlag) !== 0) {
       return;
     }
@@ -432,21 +372,21 @@ export const ModelRelation = (function (_super: typeof Fastener) {
     this.setFlags(this.flags | ModelRelation.ConsumingFlag);
     this.onStartConsuming();
     this.didStartConsuming();
-  };
+  },
 
-  ModelRelation.prototype.willStartConsuming = function (this: ModelRelation): void {
+  willStartConsuming(): void {
     // hook
-  };
+  },
 
-  ModelRelation.prototype.onStartConsuming = function (this: ModelRelation): void {
+  onStartConsuming(): void {
     // hook
-  };
+  },
 
-  ModelRelation.prototype.didStartConsuming = function (this: ModelRelation): void {
+  didStartConsuming(): void {
     // hook
-  };
+  },
 
-  ModelRelation.prototype.stopConsuming = function (this: ModelRelation): void {
+  stopConsuming(): void {
     if ((this.flags & ModelRelation.ConsumingFlag) === 0) {
       return;
     }
@@ -454,43 +394,42 @@ export const ModelRelation = (function (_super: typeof Fastener) {
     this.setFlags(this.flags & ~ModelRelation.ConsumingFlag);
     this.onStopConsuming();
     this.didStopConsuming();
-  };
+  },
 
-  ModelRelation.prototype.willStopConsuming = function (this: ModelRelation): void {
+  willStopConsuming(): void {
     // hook
-  };
+  },
 
-  ModelRelation.prototype.onStopConsuming = function (this: ModelRelation): void {
+  onStopConsuming(): void {
     // hook
-  };
+  },
 
-  ModelRelation.prototype.didStopConsuming = function (this: ModelRelation): void {
+  didStopConsuming(): void {
     // hook
-  };
+  },
 
-  ModelRelation.prototype.onMount = function (this: ModelRelation): void {
-    _super.prototype.onMount.call(this);
+  onMount(): void {
+    super.onMount();
     if (this.consumers !== null && this.consumers.size !== 0) {
       this.startConsuming();
     }
-  };
+  },
 
-  ModelRelation.prototype.onUnmount = function (this: ModelRelation): void {
-    _super.prototype.onUnmount.call(this);
+  onUnmount(): void {
+    super.onUnmount();
     this.stopConsuming();
-  };
-
-  ModelRelation.construct = function <F extends ModelRelation<any, any>>(fastener: F | null, owner: F extends ModelRelation<infer O, any> ? O : never): F {
-    fastener = _super.construct.call(this, fastener, owner) as F;
+  },
+},
+{
+  construct(fastener: F | null, owner: F extends Fastener<infer R, any, any> ? R : never): F {
+    fastener = super.construct(fastener, owner) as F;
     (fastener as Mutable<typeof fastener>).outlets = null;
     (fastener as Mutable<typeof fastener>).consumers = null;
     return fastener;
-  };
+  },
 
-  (ModelRelation as Mutable<typeof ModelRelation>).ConsumingFlag = 1 << (_super.FlagShift + 0);
+  ConsumingFlag: 1 << (Fastener.FlagShift + 0),
 
-  (ModelRelation as Mutable<typeof ModelRelation>).FlagShift = _super.FlagShift + 1;
-  (ModelRelation as Mutable<typeof ModelRelation>).FlagMask = (1 << ModelRelation.FlagShift) - 1;
-
-  return ModelRelation;
-})(Fastener);
+  FlagShift: Fastener.FlagShift + 1,
+  FlagMask: (1 << (Fastener.FlagShift + 1)) - 1,
+}))();

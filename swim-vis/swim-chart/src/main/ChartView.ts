@@ -14,19 +14,15 @@
 
 import type {Class} from "@swim/util";
 import type {Range} from "@swim/util";
-import type {AnyTiming} from "@swim/util";
 import {Timing} from "@swim/util";
 import {Easing} from "@swim/util";
 import {LinearRange} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
-import type {AnyLength} from "@swim/math";
 import {Length} from "@swim/math";
 import {R2Point} from "@swim/math";
 import {R2Box} from "@swim/math";
-import type {AnyFont} from "@swim/style";
 import {Font} from "@swim/style";
-import type {AnyColor} from "@swim/style";
 import {Color} from "@swim/style";
 import {Look} from "@swim/theme";
 import {ThemeAnimator} from "@swim/theme";
@@ -69,19 +65,19 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
   declare readonly observerType?: Class<ChartViewObserver<X, Y>>;
 
   @ThemeAnimator({valueType: Length, value: Length.px(20)})
-  readonly gutterTop!: ThemeAnimator<this, Length, AnyLength>;
+  readonly gutterTop!: ThemeAnimator<this, Length>;
 
   @ThemeAnimator({valueType: Length, value: Length.px(40)})
-  readonly gutterRight!: ThemeAnimator<this, Length, AnyLength>;
+  readonly gutterRight!: ThemeAnimator<this, Length>;
 
   @ThemeAnimator({valueType: Length, value: Length.px(20)})
-  readonly gutterBottom!: ThemeAnimator<this, Length, AnyLength>;
+  readonly gutterBottom!: ThemeAnimator<this, Length>;
 
   @ThemeAnimator({valueType: Length, value: Length.px(40)})
-  readonly gutterLeft!: ThemeAnimator<this, Length, AnyLength>;
+  readonly gutterLeft!: ThemeAnimator<this, Length>;
 
   @ThemeAnimator({valueType: Color, value: null, look: Look.tickColor})
-  readonly borderColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly borderColor!: ThemeAnimator<this, Color | null>;
 
   @ThemeAnimator({valueType: Number, value: 1})
   readonly borderWidth!: ThemeAnimator<this, number>;
@@ -90,7 +86,7 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
   readonly borderSerif!: ThemeAnimator<this, number>;
 
   @ThemeAnimator({valueType: Color, value: null, look: Look.tickColor})
-  readonly tickMarkColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly tickMarkColor!: ThemeAnimator<this, Color | null>;
 
   @ThemeAnimator({valueType: Number, value: 1})
   readonly tickMarkWidth!: ThemeAnimator<this, number>;
@@ -107,19 +103,19 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
       return Easing.cubicOut.withDuration(250);
     },
   })
-  readonly tickTransition!: Property<this, Timing, AnyTiming>;
+  readonly tickTransition!: Property<this, Timing>;
 
   @ThemeAnimator({valueType: Color, value: null, look: Look.gridColor})
-  readonly gridLineColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly gridLineColor!: ThemeAnimator<this, Color | null>;
 
   @ThemeAnimator({valueType: Number, value: 0})
   readonly gridLineWidth!: ThemeAnimator<this, number>;
 
   @ThemeAnimator({valueType: Font, value: null, inherits: true})
-  readonly font!: ThemeAnimator<this, Font | null, AnyFont | null>;
+  readonly font!: ThemeAnimator<this, Font | null>;
 
   @ThemeAnimator({valueType: Color, value: null, look: Look.tickColor})
-  readonly textColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
+  readonly textColor!: ThemeAnimator<this, Color | null>;
 
   override xRange(): Range<number> | null {
     const frame = this.viewFrame;

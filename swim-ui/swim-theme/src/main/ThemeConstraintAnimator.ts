@@ -16,11 +16,13 @@ import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
 import {Affinity} from "@swim/component";
 import type {FastenerFlags} from "@swim/component";
-import type {AnyConstraintExpression} from "@swim/constraint";
+import type {FastenerClass} from "@swim/component";
+import type {Fastener} from "@swim/component";
+import type {ConstraintExpressionLike} from "@swim/constraint";
 import {ConstraintExpression} from "@swim/constraint";
 import type {ConstraintTerm} from "@swim/constraint";
 import type {ConstraintVariable} from "@swim/constraint";
-import type {AnyConstraintStrength} from "@swim/constraint";
+import type {ConstraintStrengthLike} from "@swim/constraint";
 import {ConstraintStrength} from "@swim/constraint";
 import type {Constraint} from "@swim/constraint";
 import {ConstraintScope} from "@swim/constraint";
@@ -31,9 +33,9 @@ import {ThemeAnimator} from "./ThemeAnimator";
 import type {Look} from "./Look";
 
 /** @public */
-export interface ThemeConstraintAnimatorDescriptor<T = unknown, U = T> extends ThemeAnimatorDescriptor<T, U> {
+export interface ThemeConstraintAnimatorDescriptor<R, T> extends ThemeAnimatorDescriptor<R, T> {
   extends?: Proto<ThemeConstraintAnimator<any, any, any>> | boolean | null;
-  strength?: AnyConstraintStrength;
+  strength?: ConstraintStrengthLike;
   constrained?: boolean;
 }
 
@@ -51,9 +53,9 @@ export interface ThemeConstraintAnimatorClass<A extends ThemeConstraintAnimator<
 }
 
 /** @public */
-export interface ThemeConstraintAnimator<O = unknown, T = unknown, U = T, I = Look<NonNullable<T>, any> | T> extends ThemeAnimator<O, T, U, I>, ConstraintVariable {
+export interface ThemeConstraintAnimator<R = any, T = any, I extends any[] = [Look<NonNullable<T>> | T]> extends ThemeAnimator<R, T, I>, ConstraintVariable {
   /** @override */
-  get descriptorType(): Proto<ThemeConstraintAnimatorDescriptor<T, U>>;
+  get descriptorType(): Proto<ThemeConstraintAnimatorDescriptor<R, T>>;
 
   /** @internal @override */
   isExternal(): boolean;
@@ -79,7 +81,7 @@ export interface ThemeConstraintAnimator<O = unknown, T = unknown, U = T, I = Lo
   /** @override */
   readonly strength: ConstraintStrength;
 
-  setStrength(strength: AnyConstraintStrength): void;
+  setStrength(strength: ConstraintStrengthLike): void;
 
   /** @override */
   get coefficient(): number;
@@ -94,13 +96,13 @@ export interface ThemeConstraintAnimator<O = unknown, T = unknown, U = T, I = Lo
   get constant(): number;
 
   /** @override */
-  plus(that: AnyConstraintExpression): ConstraintExpression;
+  plus(that: ConstraintExpressionLike): ConstraintExpression;
 
   /** @override */
   negative(): ConstraintTerm;
 
   /** @override */
-  minus(that: AnyConstraintExpression): ConstraintExpression;
+  minus(that: ConstraintExpressionLike): ConstraintExpression;
 
   /** @override */
   times(scalar: number): ConstraintExpression;
@@ -165,109 +167,96 @@ export interface ThemeConstraintAnimator<O = unknown, T = unknown, U = T, I = Lo
 }
 
 /** @public */
-export const ThemeConstraintAnimator = (function (_super: typeof ThemeAnimator) {
-  const ThemeConstraintAnimator = _super.extend("ThemeConstraintAnimator", {}) as ThemeConstraintAnimatorClass;
-
-  ThemeConstraintAnimator.prototype.isExternal = function (this: ThemeConstraintAnimator): boolean {
+export const ThemeConstraintAnimator = (<R, T, I extends any[], A extends ThemeConstraintAnimator<any, any, any>>() => ThemeAnimator.extend<ThemeConstraintAnimator<R, T, I>, ThemeConstraintAnimatorClass<A>>("ThemeConstraintAnimator", {
+  isExternal(): boolean {
     return true;
-  };
+  },
 
-  ThemeConstraintAnimator.prototype.isDummy = function (this: ThemeConstraintAnimator): boolean {
+  isDummy(): boolean {
     return false;
-  };
+  },
 
-  ThemeConstraintAnimator.prototype.isInvalid = function (this: ThemeConstraintAnimator): boolean {
+  isInvalid(): boolean {
     return false;
-  };
+  },
 
-  ThemeConstraintAnimator.prototype.isConstant = function (this: ThemeConstraintAnimator): boolean {
+  isConstant(): boolean {
     return false;
-  };
+  },
 
-  ThemeConstraintAnimator.prototype.evaluateConstraintVariable = function <T>(this: ThemeConstraintAnimator<unknown, T>): void {
+  evaluateConstraintVariable(): void {
     // hook
-  };
+  },
 
-  ThemeConstraintAnimator.prototype.updateConstraintSolution = function <T>(this: ThemeConstraintAnimator<unknown, T>, state: number): void {
+  updateConstraintSolution(state: number): void {
     if (this.constrained && this.toNumber(this.state) !== state) {
       this.setState(state as unknown as T, Affinity.Reflexive);
     }
-  };
+  },
 
-  ThemeConstraintAnimator.prototype.initStrength = function (this: ThemeConstraintAnimator): ConstraintStrength {
+  initStrength(): ConstraintStrength {
     let strength = (Object.getPrototypeOf(this) as ThemeConstraintAnimator).strength as ConstraintStrength | undefined;
     if (strength === void 0) {
       strength = ConstraintStrength.Strong;
     }
     return strength;
-  };
+  },
 
-  ThemeConstraintAnimator.prototype.setStrength = function (this: ThemeConstraintAnimator, strength: AnyConstraintStrength): void {
-    (this as Mutable<typeof this>).strength = ConstraintStrength.fromAny(strength);
-  };
+  setStrength(strength: ConstraintStrengthLike): void {
+    (this as Mutable<typeof this>).strength = ConstraintStrength.fromLike(strength);
+  },
 
-  Object.defineProperty(ThemeConstraintAnimator.prototype, "coefficient", {
-    value: 1,
-    configurable: true,
-  });
+  get coefficient(): number {
+    return 1;
+  },
 
-  Object.defineProperty(ThemeConstraintAnimator.prototype, "variable", {
-    get(this: ThemeConstraintAnimator): ConstraintVariable {
-      return this;
-    },
-    configurable: true,
-  });
+  get variable(): ConstraintVariable {
+    return this;
+  },
 
-  Object.defineProperty(ThemeConstraintAnimator.prototype, "terms", {
-    get(this: ThemeConstraintAnimator): ReadonlyMap<ConstraintVariable, number> {
-      const terms = new Map<ConstraintVariable, number>();
-      terms.set(this, 1);
-      return terms;
-    },
-    configurable: true,
-  });
+  get terms(): ReadonlyMap<ConstraintVariable, number> {
+    const terms = new Map<ConstraintVariable, number>();
+    terms.set(this, 1);
+    return terms;
+  },
 
-  Object.defineProperty(ThemeConstraintAnimator.prototype, "constant", {
-    value: 0,
-    configurable: true,
-  });
+  get constant(): number {
+    return 0;
+  },
 
-  ThemeConstraintAnimator.prototype.plus = function (this: ThemeConstraintAnimator, that: AnyConstraintExpression): ConstraintExpression {
-    that = ConstraintExpression.fromAny(that);
+  plus(that: ConstraintExpressionLike): ConstraintExpression {
+    that = ConstraintExpression.fromLike(that);
     if (this === that) {
       return ConstraintExpression.product(2, this);
     }
     return ConstraintExpression.sum(this, that);
-  };
+  },
 
-  ThemeConstraintAnimator.prototype.negative = function (this: ThemeConstraintAnimator): ConstraintTerm {
+  negative(): ConstraintTerm {
     return ConstraintExpression.product(-1, this);
-  };
+  },
 
-  ThemeConstraintAnimator.prototype.minus = function (this: ThemeConstraintAnimator, that: AnyConstraintExpression): ConstraintExpression {
-    that = ConstraintExpression.fromAny(that);
+  minus(that: ConstraintExpressionLike): ConstraintExpression {
+    that = ConstraintExpression.fromLike(that);
     if (this === that) {
       return ConstraintExpression.zero();
     }
     return ConstraintExpression.sum(this, that.negative());
-  };
+  },
 
-  ThemeConstraintAnimator.prototype.times = function (this: ThemeConstraintAnimator, scalar: number): ConstraintExpression {
+  times(scalar: number): ConstraintExpression {
     return ConstraintExpression.product(scalar, this);
-  };
+  },
 
-  ThemeConstraintAnimator.prototype.divide = function (this: ThemeConstraintAnimator, scalar: number): ConstraintExpression {
+  divide(scalar: number): ConstraintExpression {
     return ConstraintExpression.product(1 / scalar, this);
-  };
+  },
 
-  Object.defineProperty(ThemeConstraintAnimator.prototype, "constrained", {
-    get(this: ThemeConstraintAnimator): boolean {
-      return (this.flags & ThemeConstraintAnimator.ConstrainedFlag) !== 0;
-    },
-    configurable: true,
-  });
+  get constrained(): boolean {
+    return (this.flags & ThemeConstraintAnimator.ConstrainedFlag) !== 0;
+  },
 
-  ThemeConstraintAnimator.prototype.constrain = function (this: ThemeConstraintAnimator<unknown, unknown, unknown>, constrained?: boolean): typeof this {
+  constrain(constrained?: boolean): typeof this {
     if (constrained === void 0) {
       constrained = true;
     }
@@ -285,31 +274,28 @@ export const ThemeConstraintAnimator = (function (_super: typeof ThemeAnimator) 
       }
     }
     return this;
-  };
+  },
 
-  ThemeConstraintAnimator.prototype.addConstraintCondition = function (this: ThemeConstraintAnimator, constraint: Constraint, solver: ConstraintSolver): void {
+  addConstraintCondition(constraint: Constraint, solver: ConstraintSolver): void {
     (this as Mutable<typeof this>).conditionCount += 1;
     if (!this.constrained && this.conditionCount === 1 && this.mounted) {
       this.startConstraining();
       this.updateConstraintVariable();
     }
-  };
+  },
 
-  ThemeConstraintAnimator.prototype.removeConstraintCondition = function (this: ThemeConstraintAnimator, constraint: Constraint, solver: ConstraintSolver): void {
+  removeConstraintCondition(constraint: Constraint, solver: ConstraintSolver): void {
     (this as Mutable<typeof this>).conditionCount -= 1;
     if (!this.constrained && this.conditionCount === 0 && this.mounted) {
       this.stopConstraining();
     }
-  };
+  },
 
-  Object.defineProperty(ThemeConstraintAnimator.prototype, "constraining", {
-    get(this: ThemeConstraintAnimator): boolean {
-      return (this.flags & ThemeConstraintAnimator.ConstrainingFlag) !== 0;
-    },
-    configurable: true,
-  });
+  get constraining(): boolean {
+    return (this.flags & ThemeConstraintAnimator.ConstrainingFlag) !== 0;
+  },
 
-  ThemeConstraintAnimator.prototype.startConstraining = function (this: ThemeConstraintAnimator): void {
+  startConstraining(): void {
     if ((this.flags & ThemeConstraintAnimator.ConstrainingFlag) !== 0) {
       return;
     }
@@ -317,24 +303,24 @@ export const ThemeConstraintAnimator = (function (_super: typeof ThemeAnimator) 
     this.setFlags(this.flags | ThemeConstraintAnimator.ConstrainingFlag);
     this.onStartConstraining();
     this.didStartConstraining();
-  };
+  },
 
-  ThemeConstraintAnimator.prototype.willStartConstraining = function (this: ThemeConstraintAnimator): void {
+  willStartConstraining(): void {
     // hook
-  };
+  },
 
-  ThemeConstraintAnimator.prototype.onStartConstraining = function (this: ThemeConstraintAnimator): void {
+  onStartConstraining(): void {
     const constraintScope = this.owner;
     if (ConstraintScope[Symbol.hasInstance](constraintScope)) {
       constraintScope.addConstraintVariable(this);
     }
-  };
+  },
 
-  ThemeConstraintAnimator.prototype.didStartConstraining = function (this: ThemeConstraintAnimator): void {
+  didStartConstraining(): void {
     // hook
-  };
+  },
 
-  ThemeConstraintAnimator.prototype.stopConstraining = function (this: ThemeConstraintAnimator): void {
+  stopConstraining(): void {
     if ((this.flags & ThemeConstraintAnimator.ConstrainingFlag) === 0) {
       return;
     }
@@ -342,106 +328,94 @@ export const ThemeConstraintAnimator = (function (_super: typeof ThemeAnimator) 
     this.setFlags(this.flags & ~ThemeConstraintAnimator.ConstrainingFlag);
     this.onStopConstraining();
     this.didStopConstraining();
-  };
+  },
 
-  ThemeConstraintAnimator.prototype.willStopConstraining = function (this: ThemeConstraintAnimator): void {
+  willStopConstraining(): void {
     // hook
-  };
+  },
 
-  ThemeConstraintAnimator.prototype.onStopConstraining = function (this: ThemeConstraintAnimator): void {
+  onStopConstraining(): void {
     const constraintScope = this.owner;
     if (ConstraintScope[Symbol.hasInstance](constraintScope)) {
       constraintScope.removeConstraintVariable(this);
     }
-  };
+  },
 
-  ThemeConstraintAnimator.prototype.didStopConstraining = function (this: ThemeConstraintAnimator): void {
+  didStopConstraining(): void {
     // hook
-  };
+  },
 
-  ThemeConstraintAnimator.prototype.updateConstraintVariable = function (this: ThemeConstraintAnimator): void {
+  updateConstraintVariable(): void {
     const constraintScope = this.owner;
     const value = this.value;
     if (value !== void 0 && ConstraintScope[Symbol.hasInstance](constraintScope)) {
       constraintScope.setConstraintVariable(this, this.toNumber(value));
     }
-  };
+  },
 
-  ThemeConstraintAnimator.prototype.onSetValue = function <T>(this: ThemeConstraintAnimator<unknown, T>, newValue: T, oldValue: T): void {
-    _super.prototype.onSetValue.call(this, newValue, oldValue);
+  onSetValue(newValue: T, oldValue: T): void {
+    super.onSetValue(newValue, oldValue);
     const constraintScope = this.owner;
     if (this.constraining && ConstraintScope[Symbol.hasInstance](constraintScope)) {
       constraintScope.setConstraintVariable(this, newValue !== void 0 && newValue !== null ? this.toNumber(newValue) : 0);
     }
-  };
+  },
 
-  ThemeConstraintAnimator.prototype.onMount = function <T>(this: ThemeConstraintAnimator<unknown, T>): void {
-    _super.prototype.onMount.call(this);
+  onMount(): void {
+    super.onMount();
     if (!this.constrained && this.conditionCount !== 0) {
       this.startConstraining();
     }
-  };
+  },
 
-  ThemeConstraintAnimator.prototype.onUnmount = function <T>(this: ThemeConstraintAnimator<unknown, T>): void {
+  onUnmount(): void {
     if (!this.constrained && this.conditionCount !== 0) {
       this.stopConstraining();
     }
-    _super.prototype.onUnmount.call(this);
-  };
+    super.onUnmount();
+  },
 
-  ThemeConstraintAnimator.prototype.toNumber = function <T>(this: ThemeConstraintAnimator<unknown, T>, value: T): number {
+  toNumber(value: T): number {
     return value !== void 0 && value !== null ? +value : 0;
-  };
-
-  ThemeConstraintAnimator.construct = function <A extends ThemeConstraintAnimator<any, any>>(animator: A | null, owner: A extends ThemeConstraintAnimator<infer O, any, any> ? O : never): A {
-    animator = _super.construct.call(this, animator, owner) as A;
+  },
+},
+{
+  construct(animator: A | null, owner: A extends Fastener<infer R, any, any> ? R : never): A {
+    animator = super.construct(animator, owner) as A;
     (animator as Mutable<typeof animator>).strength = animator.initStrength();
     (animator as Mutable<typeof animator>).conditionCount = 0;
-    const flagsInit = animator.flagsInit;
-    if (flagsInit !== void 0) {
-      animator.constrain((flagsInit & ThemeConstraintAnimator.ConstrainedFlag) !== 0);
-    }
     return animator;
-  };
+  },
 
-  ThemeConstraintAnimator.refine = function (animatorClass: ThemeConstraintAnimatorClass<any>): void {
-    _super.refine.call(this, animatorClass);
+  refine(animatorClass: FastenerClass<ThemeConstraintAnimator<any, any, any>>): void {
+    super.refine(animatorClass);
     const animatorPrototype = animatorClass.prototype;
-    let flagsInit = animatorPrototype.flagsInit;
 
+    let flagsInit = animatorPrototype.flagsInit;
     if (Object.prototype.hasOwnProperty.call(animatorPrototype, "constrained")) {
-      if (flagsInit === void 0) {
-        flagsInit = 0;
-      }
       if (animatorPrototype.constrained) {
         flagsInit |= ThemeConstraintAnimator.ConstrainedFlag;
       } else {
         flagsInit &= ~ThemeConstraintAnimator.ConstrainedFlag;
       }
-      delete (animatorPrototype as ThemeConstraintAnimatorDescriptor).constrained;
+      delete (animatorPrototype as ThemeConstraintAnimatorDescriptor<any, any>).constrained;
     }
+    Object.defineProperty(animatorPrototype, "flagsInit", {
+      value: flagsInit,
+      enumerable: true,
+      configurable: true,
+    });
 
-    if (flagsInit !== void 0) {
-      Object.defineProperty(animatorPrototype, "flagsInit", {
-        value: flagsInit,
-        configurable: true,
-      });
+    const strengthDescriptor = Object.getOwnPropertyDescriptor(animatorPrototype, "strength");
+    if (strengthDescriptor !== void 0 && "value" in strengthDescriptor) {
+      strengthDescriptor.value = ConstraintStrength.fromLike(strengthDescriptor.value);
+      Object.defineProperty(animatorPrototype, "strength", strengthDescriptor);
     }
+  },
 
-    if (Object.prototype.hasOwnProperty.call(animatorPrototype, "strength")) {
-      Object.defineProperty(animatorPrototype, "strength", {
-        value: animatorPrototype.fromAny(animatorPrototype.strength),
-        enumerable: true,
-        configurable: true,
-      });
-    }
-  };
+  ConstrainedFlag: 1 << (ThemeAnimator.FlagShift + 0),
+  ConstrainingFlag: 1 << (ThemeAnimator.FlagShift + 1),
 
-  (ThemeConstraintAnimator as Mutable<typeof ThemeConstraintAnimator>).ConstrainedFlag = 1 << (_super.FlagShift + 0);
-  (ThemeConstraintAnimator as Mutable<typeof ThemeConstraintAnimator>).ConstrainingFlag = 1 << (_super.FlagShift + 1);
-
-  (ThemeConstraintAnimator as Mutable<typeof ThemeConstraintAnimator>).FlagShift = _super.FlagShift + 2;
-  (ThemeConstraintAnimator as Mutable<typeof ThemeConstraintAnimator>).FlagMask = (1 << ThemeConstraintAnimator.FlagShift) - 1;
-
-  return ThemeConstraintAnimator;
-})(ThemeAnimator);
+  FlagShift: ThemeAnimator.FlagShift + 2,
+  FlagMask: (1 << (ThemeAnimator.FlagShift + 2)) - 1,
+}))();

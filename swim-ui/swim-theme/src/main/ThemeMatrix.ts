@@ -18,10 +18,10 @@ import type {Equals} from "@swim/util";
 import type {Output} from "@swim/codec";
 import type {Debug} from "@swim/codec";
 import {Format} from "@swim/codec";
-import type {AnyLookVector} from "./LookVector";
+import type {LookVectorInit} from "./LookVector";
 import type {LookVectorUpdates} from "./LookVector";
 import {LookVector} from "./LookVector";
-import type {AnyFeelVector} from "./FeelVector";
+import type {FeelVectorLike} from "./FeelVector";
 import type {FeelVectorUpdates} from "./FeelVector";
 import {FeelVector} from "./FeelVector";
 import {MoodVector} from "./MoodVector";
@@ -31,9 +31,9 @@ import type {Feel} from "./Feel";
 
 /** @public */
 export class ThemeMatrix implements Equals, Debug {
-  constructor(rowArray: ReadonlyArray<[Look<unknown>, LookVector<unknown>]>,
+  constructor(rowArray: readonly [Look<unknown>, LookVector<unknown>][],
               rowIndex: {readonly [name: string]: number | undefined},
-              colArray: ReadonlyArray<[Feel, FeelVector]>,
+              colArray: readonly [Feel, FeelVector][],
               colIndex: {readonly [name: string]: number | undefined}) {
     this.rowArray = rowArray;
     this.rowIndex = rowIndex;
@@ -42,13 +42,13 @@ export class ThemeMatrix implements Equals, Debug {
   }
 
   /** @internal */
-  readonly rowArray: ReadonlyArray<[Look<unknown>, LookVector<unknown>]>;
+  readonly rowArray: readonly [Look<unknown>, LookVector<unknown>][];
 
   /** @internal */
   readonly rowIndex: {readonly [name: string]: number | undefined};
 
   /** @internal */
-  readonly colArray: ReadonlyArray<[Feel, FeelVector]>;
+  readonly colArray: readonly [Feel, FeelVector][];
 
   /** @internal */
   readonly colIndex: {readonly [name: string]: number | undefined};
@@ -79,10 +79,10 @@ export class ThemeMatrix implements Equals, Debug {
     return this.colIndex[feel] !== void 0;
   }
 
-  getRow<T>(look: Look<T, any>): LookVector<T> | undefined;
+  getRow<T>(look: Look<T>): LookVector<T> | undefined;
   getRow(name: string): LookVector<unknown> | undefined;
   getRow(index: number): LookVector<unknown> | undefined;
-  getRow<T>(look: Look<T, any> | string | number | undefined): LookVector<unknown> | undefined {
+  getRow<T>(look: Look<T> | string | number | undefined): LookVector<unknown> | undefined {
     if (typeof look === "object" && look !== null || typeof look === "function") {
       look = look.name;
     }
@@ -107,11 +107,11 @@ export class ThemeMatrix implements Equals, Debug {
     return entry !== void 0 ? entry[1] : void 0;
   }
 
-  get<T>(look: Look<T, any>, mood: MoodVector): T | undefined {
+  get<T>(look: Look<T>, mood: MoodVector): T | undefined {
     return this.dot(look, mood);
   }
 
-  getOr<T, E>(look: Look<T, any>, mood: MoodVector, elseValue: E): T | E {
+  getOr<T, E>(look: Look<T>, mood: MoodVector, elseValue: E): T | E {
     return this.dotOr(look, mood, elseValue);
   }
 
@@ -278,9 +278,9 @@ export class ThemeMatrix implements Equals, Debug {
     return new ThemeMatrix(newRowArray, newRowIndex, newColArray, newColIndex);
   }
 
-  row<T, U = T>(look: Look<T, U>, row: AnyLookVector<T> | undefined): ThemeMatrix {
+  row<T>(look: Look<T>, row: LookVectorInit<T> | undefined): ThemeMatrix {
     if (row !== void 0) {
-      row = LookVector.fromAny(row);
+      row = LookVector.fromLike(row);
     }
     const oldRowArray = this.rowArray;
     const oldRowIndex = this.rowIndex;
@@ -315,9 +315,9 @@ export class ThemeMatrix implements Equals, Debug {
     return this; // nop
   }
 
-  col(feel: Feel, col: AnyFeelVector | undefined): ThemeMatrix {
+  col(feel: Feel, col: FeelVectorLike | undefined): ThemeMatrix {
     if (col !== void 0) {
-      col = FeelVector.fromAny(col);
+      col = FeelVector.fromLike(col);
     }
     const oldColArray = this.colArray;
     const oldColIndex = this.colIndex;
@@ -352,13 +352,13 @@ export class ThemeMatrix implements Equals, Debug {
     return this; // nop
   }
 
-  updatedRow<T, U = T>(look: Look<T, U>, updates: LookVectorUpdates<T>,
-                       defaultRow?: AnyLookVector<T>): ThemeMatrix {
+  updatedRow<T>(look: Look<T>, updates: LookVectorUpdates<T>,
+                defaultRow?: LookVectorInit<T>): ThemeMatrix {
     const oldRow = this.getRow(look);
     let newRow = oldRow;
     if (newRow === void 0) {
       if (defaultRow !== void 0) {
-        defaultRow = LookVector.fromAny(defaultRow);
+        defaultRow = LookVector.fromLike(defaultRow);
       } else {
         defaultRow = LookVector.empty();
       }
@@ -372,12 +372,12 @@ export class ThemeMatrix implements Equals, Debug {
   }
 
   updatedCol(feel: Feel, updates: FeelVectorUpdates,
-             defaultCol?: AnyFeelVector): ThemeMatrix {
+             defaultCol?: FeelVectorLike): ThemeMatrix {
     const oldCol = this.getCol(feel);
     let newCol = oldCol;
     if (newCol === void 0) {
       if (defaultCol !== void 0) {
-        defaultCol = FeelVector.fromAny(defaultCol);
+        defaultCol = FeelVector.fromLike(defaultCol);
       } else {
         defaultCol = FeelVector.empty();
       }
@@ -427,27 +427,27 @@ export class ThemeMatrix implements Equals, Debug {
     return new ThemeMatrix(Arrays.empty(), {}, Arrays.empty(), {});
   }
 
-  static forRows(...rows: [Look<unknown>, AnyLookVector<unknown>][]): ThemeMatrix {
+  static forRows(...rows: [Look<unknown>, LookVectorInit<unknown>][]): ThemeMatrix {
     const m = rows.length;
     const rowArray = new Array<[Look<unknown>, LookVector<unknown>]>(m);
     for (let i = 0; i < m; i += 1) {
       const [look, row] = rows[i]!;
-      rowArray[i] = [look, LookVector.fromAny(row)];
+      rowArray[i] = [look, LookVector.fromLike(row)];
     }
     return this.fromRowArray(rowArray);
   }
 
-  static forCols(...cols: [Feel, AnyFeelVector][]): ThemeMatrix {
+  static forCols(...cols: [Feel, FeelVectorLike][]): ThemeMatrix {
     const m = cols.length;
     const colArray = new Array<[Feel, FeelVector]>(m);
     for (let j = 0; j < m; j += 1) {
       const [feel, col] = cols[j]!;
-      colArray[j] = [feel, FeelVector.fromAny(col)];
+      colArray[j] = [feel, FeelVector.fromLike(col)];
     }
     return this.fromColArray(colArray);
   }
 
-  static fromRowArray(rowArray: ReadonlyArray<[Look<unknown>, LookVector<unknown>]>,
+  static fromRowArray(rowArray: readonly [Look<unknown>, LookVector<unknown>][],
                       rowIndex?: {readonly [name: string]: number | undefined}): ThemeMatrix {
     if (rowIndex === void 0) {
       rowIndex = FeelVector.index(rowArray);
@@ -482,7 +482,7 @@ export class ThemeMatrix implements Equals, Debug {
     return new ThemeMatrix(rowArray, rowIndex, colArray, colIndex);
   }
 
-  static fromColArray(colArray: ReadonlyArray<[Feel, FeelVector]>,
+  static fromColArray(colArray: readonly [Feel, FeelVector][],
                       colIndex?: {readonly [name: string]: number | undefined}): ThemeMatrix {
     if (colIndex === void 0) {
       colIndex = LookVector.index(colArray);

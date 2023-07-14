@@ -13,22 +13,16 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {Property} from "@swim/component";
-import type {AnyUri} from "@swim/uri";
-import type {Uri} from "@swim/uri";
 import type {GeoTile} from "@swim/geo";
 import {Model} from "@swim/model";
 import {TraitModelRef} from "@swim/model";
-import {TraitModelSet} from "@swim/model";
-import type {GeoTrait} from "./GeoTrait";
 import type {GeoLayerTraitObserver} from "./GeoLayerTrait";
 import {GeoLayerTrait} from "./GeoLayerTrait";
+import type {GeoLayerController} from "./GeoLayerController";
+import {GeoTileController} from "./"; // forward import
 
 /** @public */
 export interface GeoTileTraitObserver<T extends GeoTileTrait = GeoTileTrait> extends GeoLayerTraitObserver<T> {
-  traitWillAttachTile?(tileTrait: GeoTileTrait, trait: T): void;
-
-  traitDidDetachTile?(tileTrait: GeoTileTrait, trait: T): void;
 }
 
 /** @public */
@@ -42,56 +36,11 @@ export class GeoTileTrait extends GeoLayerTrait {
 
   readonly geoTile: GeoTile;
 
-  @Property({extends: true, inherits: false})
-  override get nodeUri(): Property<this, Uri | null, AnyUri | null> {
-    return Property.dummy();
-  }
-
-  @TraitModelSet({
-    extends: true,
-    detectModelTrait(model: Model): GeoTrait | null {
-      const geoTrait = super.detectModelTrait(model) as GeoTrait | null;
-      return !(geoTrait instanceof GeoTileTrait) ? geoTrait : null;
-    },
-  })
-  override readonly features!: TraitModelSet<this, GeoTrait, Model> & GeoLayerTrait["features"];
-
-  @TraitModelSet({
-    get traitType(): typeof GeoTileTrait {
-      return GeoTileTrait;
-    },
-    traitKey: "tile",
-    modelType: Model,
-    binds: true,
-    willAttachTrait(tileTrait: GeoTileTrait): void {
-      this.owner.callObservers("traitWillAttachTile", tileTrait, this.owner);
-    },
-    didDetachTrait(tileTrait: GeoTileTrait): void {
-      this.owner.callObservers("traitDidDetachTile", tileTrait, this.owner);
-    },
-    insert(): void {
-      this.owner.southWest.insertModel();
-      this.owner.northWest.insertModel();
-      this.owner.southEast.insertModel();
-      this.owner.northEast.insertModel();
-    },
-    delete(): void {
-      this.owner.southWest.deleteModel();
-      this.owner.northWest.deleteModel();
-      this.owner.southEast.deleteModel();
-      this.owner.northEast.deleteModel();
-    },
-  })
-  readonly tiles!: TraitModelSet<this, GeoTileTrait, Model> & {
-    insert(): void;
-    delete(): void;
-  };
-
   @TraitModelRef({
     get traitType(): typeof GeoTileTrait {
       return GeoTileTrait;
     },
-    traitKey: "tile",
+    traitKey: "layer",
     modelType: Model,
     modelKey: "southWest",
     binds: true,
@@ -105,7 +54,7 @@ export class GeoTileTrait extends GeoLayerTrait {
     get traitType(): typeof GeoTileTrait {
       return GeoTileTrait;
     },
-    traitKey: "tile",
+    traitKey: "layer",
     modelType: Model,
     modelKey: "northWest",
     binds: true,
@@ -119,7 +68,7 @@ export class GeoTileTrait extends GeoLayerTrait {
     get traitType(): typeof GeoTileTrait {
       return GeoTileTrait;
     },
-    traitKey: "tile",
+    traitKey: "layer",
     modelType: Model,
     modelKey: "southEast",
     binds: true,
@@ -133,7 +82,7 @@ export class GeoTileTrait extends GeoLayerTrait {
     get traitType(): typeof GeoTileTrait {
       return GeoTileTrait;
     },
-    traitKey: "tile",
+    traitKey: "layer",
     modelType: Model,
     modelKey: "northEast",
     binds: true,
@@ -147,18 +96,21 @@ export class GeoTileTrait extends GeoLayerTrait {
     return new (this.constructor as typeof GeoTileTrait)(geoTile);
   }
 
-  protected createTileModel(geoTile: GeoTile): Model | null {
-    const tileTrait = this.createTileTrait(geoTile);
-    if (tileTrait === null) {
-      return null;
-    }
-    const tileModel = new Model();
-    tileModel.setTrait("tile", tileTrait);
-    return tileModel;
+  override consumeLayers(): void {
+    this.southWest.insertModel();
+    this.northWest.insertModel();
+    this.southEast.insertModel();
+    this.northEast.insertModel();
   }
 
-  protected override onStartConsuming(): void {
-    super.onStartConsuming();
-    this.tiles.insert();
+  override unconsumeLayers(): void {
+    this.southWest.deleteModel();
+    this.northWest.deleteModel();
+    this.southEast.deleteModel();
+    this.northEast.deleteModel();
+  }
+
+  override createGeoController(): GeoLayerController {
+    return new GeoTileController(this.geoTile);
   }
 }
