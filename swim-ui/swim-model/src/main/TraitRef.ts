@@ -397,11 +397,11 @@ export const TraitRef = (<R, T extends Trait, F extends TraitRef<any, any>>() =>
 
   recohere(t: number): void {
     this.setCoherentTime(t);
-    const inlets = this.inlet;
-    if (inlets instanceof TraitRef) {
-      this.setDerived((this.flags & Affinity.Mask) <= Math.min(inlets.flags & Affinity.Mask, Affinity.Intrinsic));
+    const inlet = this.inlet;
+    if (inlet instanceof TraitRef) {
+      this.setDerived((this.flags & Affinity.Mask) <= Math.min(inlet.flags & Affinity.Mask, Affinity.Intrinsic));
       if ((this.flags & Fastener.DerivedFlag) !== 0) {
-        this.setTrait(inlets.trait);
+        this.setTrait(inlet.trait);
       }
     } else {
       this.setDerived(false);

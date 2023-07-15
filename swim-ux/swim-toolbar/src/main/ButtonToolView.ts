@@ -163,7 +163,7 @@ export class ButtonToolView extends ToolView implements IconView {
 
   @FocusAnimator({
     value: Focus.unfocused(),
-    get transition(): Timing | null {
+    get transition(): Timing | boolean | null {
       return this.owner.getLookOr(Look.timing, null);
     },
     didSetValue(newHover: Focus, oldHover: Focus): void {

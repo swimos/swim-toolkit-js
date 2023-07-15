@@ -65,16 +65,16 @@ export class RectView extends GraphicsView implements FillView, StrokeView {
       rect = rect.toLike();
     }
     if (rect.x !== void 0) {
-      this.x(rect.x, timing);
+      this.x.setState(rect.x, timing);
     }
     if (rect.y !== void 0) {
-      this.y(rect.y, timing);
+      this.y.setState(rect.y, timing);
     }
     if (rect.width !== void 0) {
-      this.width(rect.width, timing);
+      this.width.setState(rect.width, timing);
     }
     if (rect.height !== void 0) {
-      this.height(rect.height, timing);
+      this.height.setState(rect.height, timing);
     }
   }
 

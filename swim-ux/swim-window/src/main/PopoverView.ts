@@ -141,7 +141,7 @@ export class PopoverView extends HtmlView implements ModalView {
   @PresenceAnimator({
     value: Presence.dismissed(),
     updateFlags: View.NeedsLayout,
-    get transition(): Timing | null {
+    get transition(): Timing | boolean | null {
       return this.owner.getLookOr(Look.timing, null);
     },
     didSetValue(presence: Presence): void {

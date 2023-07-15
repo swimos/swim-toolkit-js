@@ -1555,6 +1555,11 @@ export class View extends Component<View> implements ConstraintScope, Constraint
     }
   }
 
+  /** @override */
+  getTransition(fastener: Fastener<any, any, any>): Timing | null {
+    return this.getLookOr(Look.timing, null);
+  }
+
   /** @internal */
   protected override bindChildFastener(fastener: Fastener, child: View, target: View | null): void {
     super.bindChildFastener(fastener, child, target);

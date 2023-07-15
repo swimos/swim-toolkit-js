@@ -58,28 +58,28 @@ export class TextRunView extends GraphicsView implements TypesetView {
 
   setState(run: TextRun | TextRunInit | string, timing?: TimingLike | boolean): void {
     if (typeof run === "string") {
-      this.text(run, timing);
+      this.text.setState(run, timing);
     } else {
       if (run instanceof TextRun) {
         run = run.toLike();
       }
       if (run.text !== void 0) {
-        this.text(run.text, timing);
+        this.text.setState(run.text, timing);
       }
       if (run.font !== void 0) {
-        this.font(run.font, timing);
+        this.font.setState(run.font, timing);
       }
       if (run.textAlign !== void 0) {
-        this.textAlign(run.textAlign, timing);
+        this.textAlign.setState(run.textAlign, timing);
       }
       if (run.textBaseline !== void 0) {
-        this.textBaseline(run.textBaseline, timing);
+        this.textBaseline.setState(run.textBaseline, timing);
       }
       if (run.textOrigin !== void 0) {
-        this.textOrigin(run.textOrigin, timing);
+        this.textOrigin.setState(run.textOrigin, timing);
       }
       if (run.textColor !== void 0) {
-        this.textColor(run.textColor, timing);
+        this.textColor.setState(run.textColor, timing);
       }
     }
   }

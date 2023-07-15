@@ -349,11 +349,11 @@ export const ModelRef = (<R, M extends Model, F extends ModelRef<any, any>>() =>
 
   recohere(t: number): void {
     this.setCoherentTime(t);
-    const inlets = this.inlet;
-    if (inlets instanceof ModelRef) {
-      this.setDerived((this.flags & Affinity.Mask) <= Math.min(inlets.flags & Affinity.Mask, Affinity.Intrinsic));
+    const inlet = this.inlet;
+    if (inlet instanceof ModelRef) {
+      this.setDerived((this.flags & Affinity.Mask) <= Math.min(inlet.flags & Affinity.Mask, Affinity.Intrinsic));
       if ((this.flags & Fastener.DerivedFlag) !== 0) {
-        this.setModel(inlets.model);
+        this.setModel(inlet.model);
       }
     } else {
       this.setDerived(false);

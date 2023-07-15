@@ -52,7 +52,8 @@ const ExampleMapboxController = (function () {
     extends: true,
     initView(canvasView) {
       super.initView(canvasView);
-      canvasView.pointerEventsEnabled(true).touchAction("manipulation");
+      canvasView.pointerEventsEnabled(true);
+      canvasView.touchAction.setState("manipulation");
     },
   })], {kind: "field", name: "canvas", static: false, private: false, access: {has: obj => "canvas" in obj, get: obj => obj.canvas, set: (obj, value) => { obj.canvas = value; }}}, canvasInitializers, instanceInitializers);
   __esDecorate(null, null, [swim.TraitViewControllerSet({
@@ -79,9 +80,10 @@ layerModel.setTrait("layer", layerTrait);
 
 function addFeature(featureId, layerModel) {
   const featureModel = new swim.Model();
-  const featureTrait = new swim.GeoIconTrait()
-    .iconLayout({width: 16, height: 16})
-    .graphics(swim.CircleIcon.create());
+  const featureTrait = new swim.GeoIconTrait();
+  featureTrait.iconLayout.setValue({width: 16, height: 16});
+  featureTrait.iconColor.setValue(swim.Look.accentColor);
+  featureTrait.graphics.setValue(swim.CircleIcon.create());
   featureModel.setTrait("feature", featureTrait);
   layerModel.appendChild(featureModel, "feature" + featureId);
   setInterval(function () {

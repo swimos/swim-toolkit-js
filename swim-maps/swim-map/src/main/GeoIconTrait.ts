@@ -16,6 +16,8 @@ import type {Class} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import {GeoPoint} from "@swim/geo";
+import type {ColorOrLook} from "@swim/theme";
+import {ColorLook} from "@swim/theme";
 import {Graphics} from "@swim/graphics";
 import {IconLayout} from "@swim/graphics";
 import type {GeoFeatureTraitObserver} from "./GeoFeatureTrait";
@@ -54,6 +56,9 @@ export class GeoIconTrait extends GeoFeatureTrait {
     },
   })
   readonly iconLayout!: Property<this, IconLayout | null>;
+
+  @Property({valueType: ColorLook, value: null})
+  readonly iconColor!: Property<this, ColorOrLook | null>;
 
   @Property({
     valueType: Graphics,

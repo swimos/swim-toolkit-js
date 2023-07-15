@@ -20,10 +20,10 @@
 
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-const containerView = swim.HtmlView.create("div")
-  .position("relative")
-  .flexGrow(1)
-  .userSelect("none");
+const containerView = swim.HtmlView.create("div");
+containerView.position.setState("relative");
+containerView.flexGrow.setState(1);
+containerView.userSelect.setState("none");
 
 containerView.observe({
   viewWillResize(view) {
@@ -81,14 +81,20 @@ tableView.modifyTheme(swim.Feel.default, [[swim.Feel.primary, 1]]);
 
 const headerView = tableView.header.insertView();
 headerView.getOrCreateCol("icon", swim.DisclosureColView);
-headerView.getOrCreateCol("name", swim.TextColView).label.setText("Name");
-headerView.getOrCreateCol("kpi1", swim.TextColView).label.setText("KPI 1");
-headerView.getOrCreateCol("kpi2", swim.TextColView).label.setText("KPI 2");
+const nameColView = headerView.getOrCreateCol("name", swim.TextColView);
+nameColView.label.setText("Name");
+const kpi1ColView = headerView.getOrCreateCol("kpi1", swim.TextColView);
+kpi1ColView.label.setText("KPI 1");
+const kpi2ColView = headerView.getOrCreateCol("kpi2", swim.TextColView);
+kpi2ColView.label.setText("KPI 2");
 
 const row0View = tableView.appendChild(swim.RowView);
 const leaf0View = row0View.leaf.insertView();
-leaf0View.appendChild(swim.IconCellView, "icon").iconLayout({width: 40, height: 40}).graphics(icon);
-leaf0View.appendChild(swim.TextCellView, "name").content.setText("Row 0");
+const icon0View = leaf0View.appendChild(swim.IconCellView, "icon");
+icon0View.iconLayout.setValue({width: 40, height: 40});
+icon0View.graphics.setState(icon);
+const name0View = leaf0View.appendChild(swim.TextCellView, "name");
+name0View.content.setText("Row 0");
 leaf0View.appendChild(swim.DisclosureCellView, "accessory");
 row0View.head.insertView();
 row0View.foot.insertView();
@@ -100,16 +106,25 @@ header0View.getOrCreateCol("kpi1", swim.TextColView).label.setText("KPI 1");
 header0View.getOrCreateCol("kpi2", swim.TextColView).label.setText("KPI 2");
 const row00View = tree0View.appendChild(swim.RowView);
 const leaf00View = row00View.leaf.insertView();
-leaf00View.appendChild(swim.IconCellView, "icon").iconLayout({width: 40, height: 40}).graphics(icon);
-leaf00View.appendChild(swim.TextCellView, "name").content.setText("Row 0-0");
+const icon00View = leaf00View.appendChild(swim.IconCellView, "icon")
+icon00View.iconLayout.setValue({width: 40, height: 40});
+icon00View.graphics.setState(icon);
+const name00View = leaf00View.appendChild(swim.TextCellView, "name");
+name00View.content.setText("Row 0-0");
 const row01View = tree0View.appendChild(swim.RowView);
 const leaf01View = row01View.leaf.insertView();
-leaf01View.appendChild(swim.IconCellView, "icon").iconLayout({width: 40, height: 40}).graphics(icon);
-leaf01View.appendChild(swim.TextCellView, "name").content.setText("Row 0-1");
+const icon01View = leaf01View.appendChild(swim.IconCellView, "icon");
+icon01View.iconLayout.setValue({width: 40, height: 40});
+icon01View.graphics.setState(icon);
+const name01View = leaf01View.appendChild(swim.TextCellView, "name");
+name01View.content.setText("Row 0-1");
 const row02View = tree0View.appendChild(swim.RowView);
 const leaf02View = row02View.leaf.insertView();
-leaf02View.appendChild(swim.IconCellView, "icon").iconLayout({width: 40, height: 40}).graphics(icon);
-leaf02View.appendChild(swim.TextCellView, "name").content.setText("Row 0-2");
+const icon02View = leaf02View.appendChild(swim.IconCellView, "icon");
+icon02View.iconLayout.setValue({width: 40, height: 40});
+icon02View.graphics.setState(icon);
+const name02View = leaf02View.appendChild(swim.TextCellView, "name");
+name02View.content.setText("Row 0-2");
 
 leaf01View.appendChild(swim.DisclosureCellView, "accessory");
 row01View.head.insertView();
@@ -122,16 +137,24 @@ header01View.getOrCreateCol("kpi1", swim.TextColView).label.setText("KPI 1");
 header01View.getOrCreateCol("kpi2", swim.TextColView).label.setText("KPI 2");
 const row010View = tree01View.appendChild(swim.RowView);
 const leaf010View = row010View.leaf.insertView();
-leaf010View.appendChild(swim.IconCellView, "icon").iconLayout({width: 40, height: 40}).graphics(icon);
-leaf010View.appendChild(swim.TextCellView, "name").content.setText("Row 0-1-0");
+const icon010View = leaf010View.appendChild(swim.IconCellView, "icon");
+icon010View.iconLayout.setValue({width: 40, height: 40});
+icon010View.graphics.setValue(icon);
+const name010View = leaf010View.appendChild(swim.TextCellView, "name");
+name010View.content.setText("Row 0-1-0");
 const row011View = tree01View.appendChild(swim.RowView);
 const leaf011View = row011View.leaf.insertView();
-leaf011View.appendChild(swim.IconCellView, "icon").iconLayout({width: 40, height: 40}).graphics(icon);
-leaf011View.appendChild(swim.TextCellView, "name").content.setText("Row 0-1-1");
+const icon011View = leaf011View.appendChild(swim.IconCellView, "icon");
+icon011View.iconLayout.setValue({width: 40, height: 40});
+icon011View.graphics.setState(icon);
+const name011View = leaf011View.appendChild(swim.TextCellView, "name");
+name011View.content.setText("Row 0-1-1");
 
 const row1View = tableView.appendChild(swim.RowView);
 const leaf1View = row1View.leaf.insertView();
-leaf1View.appendChild(swim.IconCellView, "icon").iconLayout({width: 40, height: 40}).graphics(icon);
+const icon1View = leaf1View.appendChild(swim.IconCellView, "icon");
+icon1View.iconLayout.setValue({width: 40, height: 40});
+icon1View.graphics.setState(icon);
 leaf1View.appendChild(swim.TextCellView, "name").content.setText("Row 1");
 leaf1View.appendChild(swim.DisclosureCellView, "accessory");
 row1View.head.insertView();
@@ -144,20 +167,32 @@ header1View.getOrCreateCol("kpi1", swim.TextColView).label.setText("KPI 1");
 header1View.getOrCreateCol("kpi2", swim.TextColView).label.setText("KPI 2");
 const row10View = tree1View.appendChild(swim.RowView);
 const leaf10View = row10View.leaf.insertView();
-leaf10View.appendChild(swim.IconCellView, "icon").iconLayout({width: 40, height: 40}).graphics(icon);
-leaf10View.appendChild(swim.TextCellView, "name").content.setText("Row 1-0");
+const icon10View = leaf10View.appendChild(swim.IconCellView, "icon");
+icon10View.iconLayout.setValue({width: 40, height: 40});
+icon10View.graphics.setValue(icon);
+const name10View = leaf10View.appendChild(swim.TextCellView, "name");
+name10View.content.setText("Row 1-0");
 const row11View = tree1View.appendChild(swim.RowView);
 const leaf11View = row11View.leaf.insertView();
-leaf11View.appendChild(swim.IconCellView, "icon").iconLayout({width: 40, height: 40}).graphics(icon);
-leaf11View.appendChild(swim.TextCellView, "name").content.setText("Row 1-1");
+const icon11View = leaf11View.appendChild(swim.IconCellView, "icon");
+icon11View.iconLayout.setValue({width: 40, height: 40});
+icon11View.graphics.setState(icon);
+const name11View = leaf11View.appendChild(swim.TextCellView, "name");
+name11View.content.setText("Row 1-1");
 const row12View = tree1View.appendChild(swim.RowView);
 const leaf12View = row12View.leaf.insertView();
-leaf12View.appendChild(swim.IconCellView, "icon").iconLayout({width: 40, height: 40}).graphics(icon);
-leaf12View.appendChild(swim.TextCellView, "name").content.setText("Row 1-2");
+const icon12View = leaf12View.appendChild(swim.IconCellView, "icon");
+icon12View.iconLayout.setValue({width: 40, height: 40});
+icon12View.graphics.setState(icon);
+const name12View = leaf12View.appendChild(swim.TextCellView, "name");
+name12View.content.setText("Row 1-2");
 const row13View = tree1View.appendChild(swim.RowView);
 const leaf13View = row13View.leaf.insertView();
-leaf13View.appendChild(swim.IconCellView, "icon").iconLayout({width: 40, height: 40}).graphics(icon);
-leaf13View.appendChild(swim.TextCellView, "name").content.setText("Row 1-3");
+const icon13View = leaf13View.appendChild(swim.IconCellView, "icon");
+icon13View.iconLayout.setValue({width: 40, height: 40});
+icon13View.graphics.setState(icon);
+const name13View = leaf13View.appendChild(swim.TextCellView, "name");
+name13View.content.setText("Row 1-3");
 
 leaf12View.appendChild(swim.DisclosureCellView, "accessory");
 row12View.head.insertView();
@@ -170,12 +205,18 @@ header12View.getOrCreateCol("kpi1", swim.TextColView).label.setText("KPI 1");
 header12View.getOrCreateCol("kpi2", swim.TextColView).label.setText("KPI 2");
 const row120View = tree12View.appendChild(swim.RowView);
 const leaf120View = row120View.leaf.insertView();
-leaf120View.appendChild(swim.IconCellView, "icon").iconLayout({width: 40, height: 40}).graphics(icon);
-leaf120View.appendChild(swim.TextCellView, "name").content.setText("Row 1-2-0");
+const icon120View = leaf120View.appendChild(swim.IconCellView, "icon");
+icon120View.iconLayout.setValue({width: 40, height: 40});
+icon120View.graphics.setState(icon);
+const name120View = leaf120View.appendChild(swim.TextCellView, "name");
+name120View.content.setText("Row 1-2-0");
 const row121View = tree12View.appendChild(swim.RowView);
 const leaf121View = row121View.leaf.insertView();
-leaf121View.appendChild(swim.IconCellView, "icon").iconLayout({width: 40, height: 40}).graphics(icon);
-leaf121View.appendChild(swim.TextCellView, "name").content.setText("Row 1-2-1");
+const icon121View = leaf121View.appendChild(swim.IconCellView, "icon");
+icon121View.iconLayout.setValue({width: 40, height: 40});
+icon121View.graphics.setState(icon);
+const name121View = leaf121View.appendChild(swim.TextCellView, "name");
+name121View.content.setText("Row 1-2-1");
 
 containerView.appendChild(tableView);
 

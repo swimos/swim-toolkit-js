@@ -16,6 +16,7 @@ import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
 import type {Timing} from "@swim/util";
 import {Affinity} from "@swim/component";
+import type {Fastener} from "@swim/component";
 import {Animator} from "@swim/component";
 import {R2Point} from "@swim/math";
 import {R2Segment} from "@swim/math";
@@ -76,6 +77,13 @@ export class GeoIconView extends GeoFeatureView implements IconView {
         this.owner.projectIcon();
       }
       this.owner.callObservers("viewDidSetGeoCenter", geoCenter, this.owner);
+    },
+    decohere(inlet?: Fastener<any, any, any>): void {
+      if (this.owner.culled) {
+        this.recohere(performance.now());
+      } else {
+        super.decohere(inlet);
+      }
     },
   })
   readonly geoCenter!: Animator<this, GeoPoint | null>;

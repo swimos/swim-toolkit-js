@@ -400,11 +400,11 @@ export const ViewRef = (<R, V extends View, F extends ViewRef<any, any>>() => Vi
 
   recohere(t: number): void {
     this.setCoherentTime(t);
-    const inlets = this.inlet;
-    if (inlets instanceof ViewRef) {
-      this.setDerived((this.flags & Affinity.Mask) <= Math.min(inlets.flags & Affinity.Mask, Affinity.Intrinsic));
+    const inlet = this.inlet;
+    if (inlet instanceof ViewRef) {
+      this.setDerived((this.flags & Affinity.Mask) <= Math.min(inlet.flags & Affinity.Mask, Affinity.Intrinsic));
       if ((this.flags & Fastener.DerivedFlag) !== 0) {
-        this.setView(inlets.view);
+        this.setView(inlet.view);
       }
     } else {
       this.setDerived(false);

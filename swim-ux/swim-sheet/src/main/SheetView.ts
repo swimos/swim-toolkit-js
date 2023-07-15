@@ -81,7 +81,7 @@ export class SheetView extends HtmlView {
       this.overflowX = void 0;
       this.overflowY = void 0;
     },
-    get transition(): Timing | null {
+    get transition(): Timing | boolean | null {
       return this.owner.getLookOr(Look.timing, Mood.navigating, null);
     },
     willPresent(): void {

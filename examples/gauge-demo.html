@@ -152,19 +152,19 @@ const tickWidth = document.getElementById("tickWidth");
 const tickPadding = document.getElementById("tickPadding");
 const updateRate = document.getElementById("updateRate");
 
-//setTimeout(function () {
-//  swim.StylerService.global().theme(swim.Theme.light);
-//}, 1000);
-
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-const containerView = bodyView.appendChild("div").id("ui").position("relative").touchAction("none").userSelect("none");
+const containerView = bodyView.appendChild("div");
+containerView.id("ui");
+containerView.position.setState("relative");
+containerView.touchAction.setState("none");
+containerView.userSelect.setState("none");
 
-const canvasView = containerView.appendChild(swim.CanvasView)
-    .mouseEventsEnabled(true)
-    .pointerEventsEnabled(true)
-    .touchEventsEnabled(true)
-    .touchAction("manipulation");
+const canvasView = containerView.appendChild(swim.CanvasView);
+canvasView.mouseEventsEnabled(true);
+canvasView.pointerEventsEnabled(true);
+canvasView.touchEventsEnabled(true);
+canvasView.touchAction.setState("manipulation");
 
 // Append a new gauge view to the canvas.
 const gaugeView = canvasView.appendChild(swim.GaugeView);
@@ -172,24 +172,28 @@ gaugeView.innerRadius.setState(swim.Length.pct(30));
 gaugeView.outerRadius.setState(swim.Length.pct(40));
 gaugeView.tickRadius.setState(swim.Length.pct(45));
 gaugeView.font.setState("14px sans-serif");
-gaugeView.title.setText("Gauge").font("20px sans-serif");
+gaugeView.title.setText("Gauge");
+gaugeView.title.view.font.setState("20px sans-serif");
 
 // Create an array to hold our active dial views.
 const dialViews = [];
 
 function createDial() {
   // Create a new dial.
-  const dialView = new swim.DialView().value(0); // initialize to zero so the dial will tween in
-  dialView.label.setText("").setHidden(true);
-  dialView.legend.setText("").setHidden(true);
+  const dialView = new swim.DialView();
+  dialView.value.setValue(0); // initialize to zero so the dial will tween in
+  dialView.label.setText("");
+  dialView.label.view.setHidden(true);
+  dialView.legend.setText("");
+  dialView.legend.view.setHidden(true);
   //dialView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, 1]]);
   dialView.value.didSetValue = function (newValue) {
     // Update the dial label.
-    dialView.label.view.text(Math.round(100 * newValue / dialView.limit()) + "%")
-                       .setHidden(!showLabels.checked);
+    dialView.label.view.text.setState(Math.round(100 * newValue / dialView.limit.value) + "%");
+    dialView.label.view.setHidden(!showLabels.checked);
     // Update the dial legend.
-    dialView.legend.view.text(dialView.key + " (" + Math.round(100 * newValue) + ")")
-                        .setHidden(!showLegend.checked);
+    dialView.legend.view.text.setState(dialView.key + " (" + Math.round(100 * newValue) + ")");
+    dialView.legend.view.setHidden(!showLegend.checked);
   };
   // Add mouse event handlers.
   dialView.addEventListener("pointerenter", function (event) {
@@ -250,13 +254,13 @@ function updateGauge() {
   // Update all dials.
   for (let i = 0; i < count; i += 1) {
     const dialView = dialViews[i];
-    const oldValue = dialView.value();
+    const oldValue = dialView.value.value;
     const newValue = Math.random();
 
     // Update dial properties.
     dialView.value.setState(newValue, timing);
-    dialView.labelPadding(swim.Length.pct(labelPadding.checked ? 10 + 40 * Math.random() : 25), timing);
-    dialView.tickAlign(tickAlign.checked ? Math.random() : 0.5, timing);
+    dialView.labelPadding.setState(swim.Length.pct(labelPadding.checked ? 10 + 40 * Math.random() : 25), timing);
+    dialView.tickAlign.setState(tickAlign.checked ? Math.random() : 0.5, timing);
     if (newValue < 0.5) {
       dialView.modifyMood(swim.Feel.default, [[swim.Feel.warning, void 0], [swim.Feel.alert, void 0]], timing);
     } else if (newValue < 0.75) {

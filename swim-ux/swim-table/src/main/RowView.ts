@@ -257,7 +257,7 @@ export class RowView extends HtmlView {
 
   @ExpansionAnimator({
     value: Expansion.collapsed(),
-    get transition(): Timing | null {
+    get transition(): Timing | boolean | null {
       return this.owner.getLookOr(Look.timing, null);
     },
     willExpand(): void {

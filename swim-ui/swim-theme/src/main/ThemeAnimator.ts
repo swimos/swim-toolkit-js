@@ -14,9 +14,11 @@
 
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
+import {Objects} from "@swim/util";
 import type {TimingLike} from "@swim/util";
 import {Timing} from "@swim/util";
 import {Affinity} from "@swim/component";
+import type {FastenerContext} from "@swim/component";
 import {Fastener} from "@swim/component";
 import {Property} from "@swim/component";
 import type {AnimatorClass} from "@swim/component";
@@ -63,18 +65,18 @@ export interface ThemeAnimator<R = any, T = any, I extends any[] = [Look<NonNull
   setLook(newLook: Look<NonNullable<T>> | null, timing?: TimingLike | boolean | null, affinity?: Affinity): void;
 
   /** @protected */
-  willSetLook(newLook: Look<NonNullable<T>> | null, oldLook: Look<NonNullable<T>> | null, timing: Timing | boolean): void;
+  willSetLook(newLook: Look<NonNullable<T>> | null, oldLook: Look<NonNullable<T>> | null, timing: Timing | boolean | null): void;
 
   /** @protected */
-  onSetLook(newLook: Look<NonNullable<T>> | null, oldLook: Look<NonNullable<T>> | null, timing: Timing | boolean): void;
+  onSetLook(newLook: Look<NonNullable<T>> | null, oldLook: Look<NonNullable<T>> | null, timing: Timing | boolean | null): void;
 
   /** @protected */
-  didSetLook(newLook: Look<NonNullable<T>> | null, oldLook: Look<NonNullable<T>> | null, timing: Timing | boolean): void;
+  didSetLook(newLook: Look<NonNullable<T>> | null, oldLook: Look<NonNullable<T>> | null, timing: Timing | boolean | null): void;
 
   /** @internal */
-  applyLook(look: Look<NonNullable<T>>, timing: Timing | boolean): void;
+  applyLook(look: Look<NonNullable<T>>, timing: Timing | boolean | null | undefined): void;
 
-  applyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void;
+  applyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean | null | undefined): void;
 
   /** @override */
   recohere(t: number): void;
@@ -150,47 +152,53 @@ export const ThemeAnimator = (<R, T, I extends any[], A extends ThemeAnimator<an
     if (newLook === oldLook) {
       return;
     }
-    if (timing === void 0 || timing === null) {
-      timing = false;
+    if (timing === void 0) {
+      timing = this.transition;
     } else {
       timing = Timing.fromLike(timing);
     }
+    if (timing === true) {
+      if (Objects.hasAllKeys<FastenerContext>(this.owner, "getTransition")) {
+        timing = this.owner.getTransition!(this);
+      } else {
+        timing = this.timing;
+      }
+    } else if (timing === false) {
+      timing = null;
+    }
     this.willSetLook(newLook, oldLook, timing);
+    this.incrementVersion();
     (this as Mutable<typeof this>).look = newLook;
     this.onSetLook(newLook, oldLook, timing);
     this.didSetLook(newLook, oldLook, timing);
   },
 
-  willSetLook(newLook: Look<NonNullable<T>> | null, oldLook: Look<NonNullable<T>> | null, timing: Timing | boolean): void {
+  willSetLook(newLook: Look<NonNullable<T>> | null, oldLook: Look<NonNullable<T>> | null, timing: Timing | null): void {
     // hook
   },
 
-  onSetLook(newLook: Look<NonNullable<T>> | null, oldLook: Look<NonNullable<T>> | null, timing: Timing | boolean): void {
+  onSetLook(newLook: Look<NonNullable<T>> | null, oldLook: Look<NonNullable<T>> | null, timing: Timing | null): void {
     if (newLook !== null) {
       this.applyLook(newLook, timing);
     }
   },
 
-  didSetLook(newLook: Look<NonNullable<T>> | null, oldLook: Look<NonNullable<T>> | null, timing: Timing | boolean): void {
+  didSetLook(newLook: Look<NonNullable<T>> | null, oldLook: Look<NonNullable<T>> | null, timing: Timing | null): void {
     // hook
   },
 
-  applyLook(look: Look<NonNullable<T>>, timing: Timing | boolean): void {
-    const themeContext = this.owner;
-    if (!this.mounted || !ThemeContext[Symbol.hasInstance](themeContext)) {
+  applyLook(look: Look<NonNullable<T>>, timing: Timing | boolean | null | undefined): void {
+    if (!this.mounted || !ThemeContext[Symbol.hasInstance](this.owner)) {
       return;
     }
-    const state = themeContext.getLook(look);
+    const state = this.owner.getLook(look);
     if (state === void 0) {
       return;
-    }
-    if (timing === true) {
-      timing = themeContext.getLookOr(Look.timing, true);
     }
     this.setState(state, timing, Affinity.Reflexive);
   },
 
-  applyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean | undefined): void {
+  applyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean | null | undefined): void {
     const look = this.look;
     if (look === null) {
       return;
@@ -199,45 +207,95 @@ export const ThemeAnimator = (<R, T, I extends any[], A extends ThemeAnimator<an
     if (state === void 0) {
       return;
     }
+    if (timing === void 0) {
+      timing = this.transition;
+    } else {
+      timing = Timing.fromLike(timing);
+    }
     if (timing === true) {
-      timing = theme.get(Look.timing, mood);
-      if (timing === void 0) {
-        timing = true;
+      if (Objects.hasAllKeys<FastenerContext>(this.owner, "getTransition")) {
+        timing = this.owner.getTransition!(this);
+      } else {
+        timing = this.timing;
       }
+    } else if (timing === false) {
+      timing = null;
     }
     this.setState(state, timing, Affinity.Reflexive);
   },
 
   recohere(t: number): void {
     this.setCoherentTime(t);
-    const inlets = this.inlet;
-    if (inlets instanceof Property) {
-      this.setDerived((this.flags & Affinity.Mask) <= Math.min(inlets.flags & Affinity.Mask, Affinity.Intrinsic));
+    const inlet = this.inlet;
+    if (inlet instanceof Animator) {
+      this.setDerived((this.flags & Affinity.Mask) <= Math.min(inlet.flags & Affinity.Mask, Affinity.Intrinsic));
       if ((this.flags & Fastener.DerivedFlag) !== 0) {
-        if (inlets instanceof ThemeAnimator) {
-          this.setLook(inlets.look, inlets.timing, Affinity.Reflexive);
-        } else if (inlets instanceof Property) {
-          const inletValue = inlets.getOutletValue(this);
-          if (inletValue instanceof Look) {
-            this.setLook(inletValue, Affinity.Reflexive);
-          } else {
-            this.setLook(null, Affinity.Reflexive);
-          }
+        if (inlet instanceof ThemeAnimator) {
+          this.setLook(inlet.look, inlet.timing, Affinity.Reflexive);
         } else {
           this.setLook(null, Affinity.Reflexive);
         }
-        if (this.look !== null) {
+        if (this.look === null) {
+          this.tweenInherited(t);
+        } else if ((this.flags & Animator.TweeningFlag) !== 0) {
           this.tween(t);
         } else {
-          this.tweenInherited(t);
+          this.setCoherent(true);
         }
       } else if ((this.flags & Animator.TweeningFlag) !== 0) {
         this.tween(t);
+      } else {
+        this.setCoherent(true);
+      }
+    } else if (inlet instanceof Property) {
+      this.setDerived((this.flags & Affinity.Mask) <= Math.min(inlet.flags & Affinity.Mask, Affinity.Intrinsic));
+      if ((this.flags & Fastener.DerivedFlag) !== 0 && this.inletVersion !== inlet.version) {
+        (this as Mutable<typeof this>).inletVersion = inlet.version;
+        const inletValue = inlet.getOutletValue(this);
+        if (inletValue instanceof Look) {
+          this.setLook(inletValue, Affinity.Reflexive);
+        } else {
+          this.setLook(null, Affinity.Reflexive);
+          const derivedValue = (this as unknown as Property<R, T, [unknown]>).deriveValue(inlet.getOutletValue(this));
+          this.setState(derivedValue, Affinity.Reflexive);
+        }
+        if ((this.flags & Animator.TweeningFlag) !== 0) {
+          this.tween(t);
+        } else {
+          this.setCoherent(true);
+        }
+      } else if ((this.flags & Animator.TweeningFlag) !== 0) {
+        this.tween(t);
+      } else {
+        this.setCoherent(true);
+      }
+    } else if (Array.isArray(inlet)) {
+      this.setDerived(true);
+      const inletVersions = this.inletVersion as number[];
+      const inletValues = new Array<unknown>(inlet.length);
+      for (let i = 0; i < inlet.length; i += 1) {
+        if (inlet[i] instanceof Property) {
+          inletVersions[i] = (inlet[i] as Property).version;
+          inletValues[i] = (inlet[i] as Property).getOutletValue(this);
+        } else {
+          this.setDerived(false);
+          this.setCoherent(true);
+          return;
+        }
+      }
+      const derivedValue = this.deriveValue(...(inletValues as I));
+      this.setState(derivedValue, Affinity.Reflexive);
+      if ((this.flags & Animator.TweeningFlag) !== 0) {
+        this.tween(t);
+      } else {
+        this.setCoherent(true);
       }
     } else {
       this.setDerived(false);
       if ((this.flags & Animator.TweeningFlag) !== 0) {
         this.tween(t);
+      } else {
+        this.setCoherent(true);
       }
     }
   },

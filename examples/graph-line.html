@@ -11,37 +11,38 @@
     <script src="../swim-vis/dist/swim-vis.js"></script>
     <script>
 
-//setTimeout(function () {
-//  swim.StylerService.global().theme(swim.Theme.light);
-//}, 1000);
-
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-const containerView = bodyView.appendChild("div").display("flex").width("90%").height("90%").touchAction("none").userSelect("none");
+const containerView = bodyView.appendChild("div");
+containerView.display.setState("flex");
+containerView.width.setState("90%");
+containerView.height.setState("90%");
+containerView.touchAction.setState("none");
+containerView.userSelect.setState("none");
 
 const canvasView = swim.CanvasView.create();
 canvasView.wheelEventsEnabled(true);
 canvasView.mouseEventsEnabled(true);
 canvasView.pointerEventsEnabled(true);
 canvasView.touchEventsEnabled(true);
-canvasView.touchAction("manipulation");
+canvasView.touchAction.setState("manipulation");
 
 const graphView = canvasView.appendChild(swim.GraphView);
-//graphView.xDomainBounds([false, false])
-//graphView.yDomainBounds([false, false])
-graphView.xDomainPadding([Math.PI, Math.PI])
-graphView.yDomainPadding([1, 1])
-graphView.xRangePadding([2, 2])
-graphView.yRangePadding([2, 2])
-graphView.fitAspectRatio(-1 / 4)
+//graphView.xDomainBounds.setValue([false, false])
+//graphView.yDomainBounds.setValue([false, false])
+graphView.xDomainPadding.setValue([Math.PI, Math.PI])
+graphView.yDomainPadding.setValue([1, 1])
+graphView.xRangePadding.setValue([2, 2])
+graphView.yRangePadding.setValue([2, 2])
+graphView.fitAspectRatio.setValue(-1 / 4)
 graphView.preserveAspectRatio(true)
 graphView.domainTracking(true)
 graphView.xScaleGestures(true)
 graphView.yScaleGestures(true);
 
 const plotView = graphView.appendChild(swim.LinePlotView);
-plotView.hitMode("plot");
-plotView.strokeWidth(4);
+plotView.hitMode.setValue("plot");
+plotView.strokeWidth.setState(4);
 plotView.addEventListener("pointerenter", function (event) {
   plotView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, 1]], true);
 });

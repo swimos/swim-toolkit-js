@@ -134,7 +134,7 @@ export class TableView extends HtmlView {
 
   @ExpansionAnimator({
     value: Expansion.expanded(),
-    get transition(): Timing | null {
+    get transition(): Timing | boolean | null {
       return this.owner.getLookOr(Look.timing, null);
     },
     willExpand(): void {

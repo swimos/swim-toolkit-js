@@ -11,20 +11,21 @@
     <script src="../swim-vis/dist/swim-vis.js"></script>
     <script>
 
-//setTimeout(function () {
-//  swim.StylerService.global().theme(swim.Theme.light);
-//}, 1000);
-
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-const containerView = bodyView.appendChild("div").position("relative").width("90%").height("90%").touchAction("none").userSelect("none");
+const containerView = bodyView.appendChild("div");
+containerView.position.setState("relative");
+containerView.width.setState("90%");
+containerView.height.setState("90%");
+containerView.touchAction.setState("none");
+containerView.userSelect.setState("none");
 
 const canvasView = swim.CanvasView.create();
 canvasView.wheelEventsEnabled(true);
 canvasView.mouseEventsEnabled(true);
 canvasView.pointerEventsEnabled(true);
 canvasView.touchEventsEnabled(true);
-canvasView.touchAction("manipulation");
+canvasView.touchAction.setState("manipulation");
 
 const chartView = canvasView.appendChild(swim.ChartView);
 const topAxisView = chartView.topAxis.insertView();
@@ -34,16 +35,16 @@ const leftAxisView = chartView.leftAxis.insertView();
 
 chartView.xDomain("time");
 chartView.yDomain("linear");
-chartView.xDomainBounds([false, false]);
-chartView.yDomainBounds([false, false]);
+chartView.xDomainBounds.setValue([false, false]);
+chartView.yDomainBounds.setValue([false, false]);
 chartView.xScaleGestures(true);
 chartView.yScaleGestures(true);
-chartView.fitAspectRatio(60*60*1000);
+chartView.fitAspectRatio.setValue(60*60*1000);
 chartView.preserveAspectRatio(true);
-chartView.font("12px sans-serif");
+chartView.font.setState("12px sans-serif");
 
-leftAxisView.gridLineWidth(1);
-bottomAxisView.gridLineWidth(1);
+leftAxisView.gridLineWidth.setState(1);
+bottomAxisView.gridLineWidth.setState(1);
 
 chartView.graph.insertView();
 

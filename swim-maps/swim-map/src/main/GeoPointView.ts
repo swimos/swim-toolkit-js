@@ -104,7 +104,7 @@ export class GeoPointView extends GeoView {
         this.setView(labelView);
       }
       if (labelView instanceof TextRunView) {
-        labelView.text(label !== void 0 ? label : "");
+        labelView.text.setState(label !== void 0 ? label : "");
       }
       return labelView;
     },

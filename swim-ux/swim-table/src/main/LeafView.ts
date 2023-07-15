@@ -100,7 +100,7 @@ export class LeafView extends HtmlView {
 
   @FocusAnimator({
     value: Focus.unfocused(),
-    get transition(): Timing | null {
+    get transition(): Timing | boolean | null {
       return this.owner.getLookOr(Look.timing, null);
     },
     willFocus(): void {
@@ -116,7 +116,7 @@ export class LeafView extends HtmlView {
 
   @FocusAnimator({
     value: Focus.unfocused(),
-    get transition(): Timing | null {
+    get transition(): Timing | boolean | null {
       return this.owner.getLookOr(Look.timing, null);
     },
     willFocus(): void {

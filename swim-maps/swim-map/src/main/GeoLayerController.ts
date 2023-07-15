@@ -233,10 +233,6 @@ export class GeoLayerController extends GeoController {
     },
     viewType: GeoTreeView,
     observesView: true,
-    willAttachView(geoView: GeoView): void {
-      geoView.setCulled(true);
-      super.willAttachView(geoView);
-    },
     initView(geoView: GeoView): void {
       super.initView(geoView);
       const layerControllers = this.owner.layers.controllers;

@@ -13,37 +13,37 @@
 
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-const source = bodyView.appendChild("div")
-  .position("absolute")
-  .left(Math.random() * window.innerWidth)
-  .top(Math.random() * window.innerHeight)
-  .width(100)
-  .height(100)
-  .borderRadius(50)
-  .backgroundColor("#989898");
-source.addEventListener("click", function (event) {
-  bodyView.modal.toggle(popover);
+const sourceView = bodyView.appendChild("div");
+sourceView.position.setState("absolute");
+sourceView.left.setState(Math.random() * window.innerWidth);
+sourceView.top.setState(Math.random() * window.innerHeight);
+sourceView.width.setState(100);
+sourceView.height.setState(100);
+sourceView.borderRadius(50);
+sourceView.backgroundColor.setState("#989898");
+sourceView.addEventListener("click", function (event) {
+  bodyView.modal.toggle(popoverView);
 });
 
-const popover = swim.PopoverView.create()
-  .placement(["top", "bottom", "right", "left", "below"])
-  .minWidth(240)
-  .minHeight(360)
-  .borderRadius(5)
-  .backgroundColor("#4a4a4a");
-popover.source.setView(source);
-popover.presence.dismiss(false);
-bodyView.modal.present(popover);
+const popoverView = swim.PopoverView.create();
+popoverView.placement(["top", "bottom", "right", "left", "below"]);
+popoverView.minWidth.setState(240);
+popoverView.minHeight.setState(360);
+popoverView.borderRadius(5);
+popoverView.backgroundColor.setState("#4a4a4a");
+popoverView.source.setView(sourceView);
+popoverView.presence.dismiss(false);
+bodyView.modal.present(popoverView);
 
 //setInterval(function () {
 //  const timing = swim.Easing.linear.withDuration(1000);
-//  source.left(Math.random() * window.innerWidth, timing)
-//        .top(Math.random() * window.innerHeight, timing);
+//  sourceView.left.setState(Math.random() * window.innerWidth, timing)
+//  sourceView.top.setState(Math.random() * window.innerHeight, timing);
 //}, 1000);
 
 window.addEventListener("mousemove", function (event) {
-  source.left(event.clientX - 50)
-        .top(event.clientY - 50);
+  sourceView.left.setState(event.clientX - 50)
+  sourceView.top.setState(event.clientY - 50);
 });
 
     </script>

@@ -886,12 +886,12 @@ export const TraitViewRef = (<R, T extends Trait, V extends View, F extends Trai
 
   recohere(t: number): void {
     this.setCoherentTime(t);
-    const inlets = this.inlet;
-    if (inlets instanceof TraitViewRef) {
-      this.setDerived((this.flags & Affinity.Mask) <= Math.min(inlets.flags & Affinity.Mask, Affinity.Intrinsic));
+    const inlet = this.inlet;
+    if (inlet instanceof TraitViewRef) {
+      this.setDerived((this.flags & Affinity.Mask) <= Math.min(inlet.flags & Affinity.Mask, Affinity.Intrinsic));
       if ((this.flags & Fastener.DerivedFlag) !== 0) {
-        this.setTrait(inlets.trait);
-        this.setView(inlets.view);
+        this.setTrait(inlet.trait);
+        this.setView(inlet.view);
         this.setCoherent(true);
       }
     } else {

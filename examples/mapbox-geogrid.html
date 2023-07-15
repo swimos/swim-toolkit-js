@@ -52,7 +52,8 @@ const ExampleMapboxController = (function () {
     extends: true,
     initView(canvasView) {
       super.initView(canvasView);
-      canvasView.pointerEventsEnabled(true).touchAction("manipulation");
+      canvasView.pointerEventsEnabled(true);
+      canvasView.touchAction.setState("manipulation");
     },
   })], {kind: "field", name: "canvas", static: false, private: false, access: {has: obj => "canvas" in obj, get: obj => obj.canvas, set: (obj, value) => { obj.canvas = value; }}}, canvasInitializers, instanceInitializers);
   __esDecorate(null, null, [swim.TraitViewControllerSet({
@@ -90,7 +91,7 @@ const ExampleTileController = (function () {
     extends: true,
     initView(tileView) {
       super.initView(tileView);
-      tileView.geoBoundsColor("#008f11");
+      tileView.geoBoundsColor.setState("#008f11");
     },
   })], {kind: "field", name: "geo", static: false, private: false, access: {has: obj => "geo" in obj, get: obj => obj.geo, set: (obj, value) => { obj.geo = value; }}}, geoInitializers, instanceInitializers);
   __esDecorate(null, null, [swim.TraitViewControllerSet({
@@ -132,9 +133,9 @@ const ExampleTileTrait = (function () {
       let featureModel = this.owner.getChild(featureId);
       let featureTrait = featureModel !== null ? featureModel.getTrait(swim.GeoIconTrait) : null;
       if (featureTrait === null) {
-        featureTrait = new swim.GeoIconTrait()
-          .iconLayout({width: 16, height: 16})
-          .graphics(vehicleIcon);
+        featureTrait = new swim.GeoIconTrait();
+        featureTrait.iconLayout.setValue({width: 16, height: 16})
+        featureTrait.graphics.setValue(vehicleIcon);
         this.owner.features.insertTrait(void 0, featureTrait, void 0, featureId);
         featureModel = featureTrait.model;
       }

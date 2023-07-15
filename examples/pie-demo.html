@@ -155,42 +155,47 @@ const tickWidth = document.getElementById("tickWidth");
 const tickPadding = document.getElementById("tickPadding");
 const updateRate = document.getElementById("updateRate");
 
-//setTimeout(function () {
-//  swim.StylerService.global().theme(swim.Theme.light);
-//}, 1000);
-
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-const containerView = bodyView.appendChild("div").id("ui").position("relative").touchAction("none").userSelect("none");
+const containerView = bodyView.appendChild("div");
+containerView.id("ui");
+containerView.position.setState("relative");
+containerView.touchAction.setState("none");
+containerView.userSelect.setState("none");
 
-const canvasView = containerView.appendChild(swim.CanvasView)
-    .mouseEventsEnabled(true)
-    .pointerEventsEnabled(true)
-    .touchEventsEnabled(true)
-    .touchAction("manipulation");
+const canvasView = containerView.appendChild(swim.CanvasView);
+canvasView.mouseEventsEnabled(true);
+canvasView.pointerEventsEnabled(true);
+canvasView.touchEventsEnabled(true);
+canvasView.touchAction.setState("manipulation");
 
 // Append a new pie view to the canvas.
-const pieView = canvasView.appendChild(swim.PieView).font("14px sans-serif");
-pieView.title.setText("Pie").font("16px sans-serif");
+const pieView = canvasView.appendChild(swim.PieView);
+pieView.font.setState("14px sans-serif");
+pieView.title.setText("Pie");
+pieView.title.view.font.setState("16px sans-serif");
 
 // Create an array to hold our active slice views.
 const sliceViews = [];
 
 function createSlice() {
   // Create a new slice.
-  const sliceView = new swim.SliceView().value(0); // initialize to zero so the slice will tween in
-  sliceView.label.setText("").setHidden(true);
-  sliceView.legend.setText("").setHidden(true);
+  const sliceView = new swim.SliceView();
+  sliceView.value.setState(0); // initialize to zero so the slice will tween in
+  sliceView.label.setText("");
+  sliceView.label.view.setHidden(true);
+  sliceView.legend.setText("");
+  sliceView.legend.view.setHidden(true);
   sliceView.label.view.textColor.setLook(swim.Look.backgroundColor);
   sliceView.modifyMood(swim.Feel.default, [[swim.Feel.primary, 1]]);
   sliceView.observe({
     viewWillLayout() {
       // Update the slice label.
-      sliceView.label.view.text(Math.round(100 * sliceView.value.value / sliceView.total.value) + "%")
-                          .setHidden(!showLabels.checked);
+      sliceView.label.view.text.setState(Math.round(100 * sliceView.value.value / sliceView.total.value) + "%");
+      sliceView.label.view.setHidden(!showLabels.checked);
       // Update the slice legend.
-      sliceView.legend.view.text(sliceView.key + " (" + Math.round(100 * sliceView.value.value) + ")")
-                           .setHidden(!showLegend.checked);
+      sliceView.legend.view.text.setState(sliceView.key + " (" + Math.round(100 * sliceView.value.value) + ")");
+      sliceView.legend.view.setHidden(!showLegend.checked);
     },
   });
   // Add mouse event handlers.
@@ -249,7 +254,7 @@ function updatePie() {
   // Update all slices.
   for (let i = 0; i < count; i += 1) {
     const sliceView = sliceViews[i];
-    const oldValue = sliceView.value();
+    const oldValue = sliceView.value.value;
     const newValue = 0.1 + 0.8 * Math.random();
 
     // Update slice properties.

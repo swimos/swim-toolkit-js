@@ -97,18 +97,36 @@ export class GeoShapeController extends GeoFeatureController {
   })
   readonly geoShape!: Property<this, GeoShape | null>;
 
-  @Property({valueType: ColorLook, value: null})
+  @Property({
+    valueType: ColorLook,
+    value: null,
+    transition: true,
+  })
   readonly fill!: Property<this, ColorOrLook | null>;
 
-  @Property({valueType: NumberLook})
+  @Property({
+    valueType: NumberLook,
+    transition: true,
+  })
   readonly fillOpacity!: Property<this, NumberOrLook | undefined>;
 
-  @Property({valueType: ColorLook, value: null})
+  @Property({
+    valueType: ColorLook,
+    value: null,
+    transition: true,
+  })
   readonly stroke!: Property<this, ColorOrLook | null>;
 
-  @Property({valueType: NumberLook})
+  @Property({
+    valueType: NumberLook,
+    transition: true,
+  })
   readonly strokeOpacity!: Property<this, NumberOrLook | undefined>;
 
-  @Property({valueType: Length, value: null})
+  @Property({
+    valueType: Length,
+    value: null,
+    transition: true,
+  })
   readonly strokeWidth!: Property<this, Length | null>;
 }

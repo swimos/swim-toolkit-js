@@ -349,11 +349,11 @@ export const ControllerRef = (<R, C extends Controller, F extends ControllerRef<
 
   recohere(t: number): void {
     this.setCoherentTime(t);
-    const inlets = this.inlet;
-    if (inlets instanceof ControllerRef) {
-      this.setDerived((this.flags & Affinity.Mask) <= Math.min(inlets.flags & Affinity.Mask, Affinity.Intrinsic));
+    const inlet = this.inlet;
+    if (inlet instanceof ControllerRef) {
+      this.setDerived((this.flags & Affinity.Mask) <= Math.min(inlet.flags & Affinity.Mask, Affinity.Intrinsic));
       if ((this.flags & Fastener.DerivedFlag) !== 0) {
-        this.setController(inlets.controller);
+        this.setController(inlet.controller);
       }
     } else {
       this.setDerived(false);

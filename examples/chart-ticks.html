@@ -11,20 +11,21 @@
     <script src="../swim-vis/dist/swim-vis.js"></script>
     <script>
 
-//setTimeout(function () {
-//  swim.StylerService.global().theme(swim.Theme.light);
-//}, 1000);
-
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-const containerView = bodyView.appendChild("div").position("relative").width("90%").height("90%").touchAction("none").userSelect("none");
+const containerView = bodyView.appendChild("div");
+containerView.position.setState("relative");
+containerView.width.setState("90%");
+containerView.height.setState("90%");
+containerView.touchAction.setState("none");
+containerView.userSelect.setState("none");
 
 const canvasView = swim.CanvasView.create();
 canvasView.wheelEventsEnabled(true);
 canvasView.mouseEventsEnabled(true);
 canvasView.pointerEventsEnabled(true);
 canvasView.touchEventsEnabled(true);
-canvasView.touchAction("manipulation");
+canvasView.touchAction.setState("manipulation");
 
 const chartView = canvasView.appendChild(swim.ChartView);
 const topAxisView = chartView.topAxis.insertView();
@@ -32,29 +33,29 @@ const rightAxisView = chartView.rightAxis.insertView();
 chartView.bottomAxis.insertView();
 chartView.leftAxis.insertView();
 
-chartView.xRangePadding([2, 2]);
-chartView.yRangePadding([2, 2]);
-chartView.fitAspectRatio(1);
+chartView.xRangePadding.setValue([2, 2]);
+chartView.yRangePadding.setValue([2, 2]);
+chartView.fitAspectRatio.setValue(1);
 chartView.domainTracking(true);
 chartView.xScaleGestures(true);
-chartView.font("12px sans-serif");
+chartView.font.setState("12px sans-serif");
 
-topAxisView.tickGenerator(null);
-topAxisView.tickMarkWidth(0);
-topAxisView.tickMarkLength(0);
-topAxisView.borderWidth(0);
+topAxisView.tickGenerator.setValue(null);
+topAxisView.tickMarkWidth.setState(0);
+topAxisView.tickMarkLength.setState(0);
+topAxisView.borderWidth.setState(0);
 topAxisView.gridLineColor.setLook(swim.Look.labelColor);
 
-rightAxisView.tickGenerator(null);
-rightAxisView.tickMarkWidth(0);
-rightAxisView.tickMarkLength(0);
-rightAxisView.borderWidth(0);
+rightAxisView.tickGenerator.setValue(null);
+rightAxisView.tickMarkWidth.setState(0);
+rightAxisView.tickMarkLength.setState(0);
+rightAxisView.borderWidth.setState(0);
 rightAxisView.gridLineColor.setLook(swim.Look.labelColor);
 
 const graphView = chartView.graph.insertView();
 const plotView = graphView.appendChild(swim.LinePlotView);
-plotView.hitMode("domain");
-plotView.strokeWidth(2);
+plotView.hitMode.setValue("domain");
+plotView.strokeWidth.setState(2);
 plotView.addEventListener("pointerover", function (event) {
   const dataPoint = event.targetView;
 

@@ -479,11 +479,11 @@ export const ControllerSet = (<R, C extends Controller, F extends ControllerSet<
 
   recohere(t: number): void {
     this.setCoherentTime(t);
-    const inlets = this.inlet;
-    if (inlets instanceof ControllerSet) {
-      this.setDerived((this.flags & Affinity.Mask) <= Math.min(inlets.flags & Affinity.Mask, Affinity.Intrinsic));
+    const inlet = this.inlet;
+    if (inlet instanceof ControllerSet) {
+      this.setDerived((this.flags & Affinity.Mask) <= Math.min(inlet.flags & Affinity.Mask, Affinity.Intrinsic));
       if ((this.flags & Fastener.DerivedFlag) !== 0) {
-        this.setControllers(inlets.controllers);
+        this.setControllers(inlet.controllers);
       }
     } else {
       this.setDerived(false);

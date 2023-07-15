@@ -778,7 +778,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
       this.owner.requireUpdate(View.NeedsLayout);
     },
     detectView(view: View): ScaledXView<X> | ScaledYView<Y> | null {
-     return ScaledXView.is<X>(view) || ScaledYView.is<Y>(view) ? view : null;
+      return ScaledXView.is<X>(view) || ScaledYView.is<Y>(view) ? view : null;
     },
   })
   readonly scaled!: ViewSet<this, ScaledXView<X> | ScaledYView<Y>> & Observes<ScaledXView<X>> & Observes<ScaledYView<Y>>;
@@ -1179,26 +1179,24 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
     bindsOwner: true,
     getXScale(): ContinuousScale<X, number> | null {
       if ((this.owner.scaledFlags & ScaledView.XScaleGesturesFlag) !== 0) {
-        return this.owner.xScale();
-      } else {
-        return null;
+        return this.owner.xScale.value;
       }
+      return null;
     },
     setXScale(xScale: ContinuousScale<X, number> | null, timing?: TimingLike | boolean): void {
       if ((this.owner.scaledFlags & ScaledView.XScaleGesturesFlag) !== 0) {
-        this.owner.xScale(xScale, timing);
+        this.owner.xScale.setState(xScale, timing);
       }
     },
     getYScale(): ContinuousScale<Y, number> | null {
       if ((this.owner.scaledFlags & ScaledView.YScaleGesturesFlag) !== 0) {
-        return this.owner.yScale();
-      } else {
-        return null;
+        return this.owner.yScale.value;
       }
+      return null;
     },
     setYScale(yScale: ContinuousScale<Y, number> | null, timing?: TimingLike | boolean): void {
       if ((this.owner.scaledFlags & ScaledView.YScaleGesturesFlag) !== 0) {
-        this.owner.yScale(yScale, timing);
+        this.owner.yScale.setState(yScale, timing);
       }
     },
     willStartInteracting(): void {
@@ -1267,9 +1265,8 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
       return LinearScale(LinearDomain(x0, x1), range) as unknown as ContinuousScale<X, Y>;
     } else if (x0 instanceof DateTime && x1 instanceof DateTime) {
       return TimeScale(TimeDomain(x0, x1), range) as unknown as ContinuousScale<X, Y>;
-    } else {
-      throw new TypeError(x0 + ", " + x1 + ", " + y0 + ", " + y1);
     }
+    throw new TypeError(x0 + ", " + x1 + ", " + y0 + ", " + y1);
   }
 
   /** @internal */
@@ -1280,19 +1277,17 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
       const d1 = DateTime.current();
       const d0 = d1.withDay(d1.day - 1);
       return TimeScale(TimeDomain(d0, d1), LinearRange(0, 1)) as unknown as ContinuousScale<X, Y>;
-    } else {
-      const domain = string.split("...");
-      const x0 = +domain[0]!;
-      const x1 = +domain[1]!;
-      if (isFinite(x0) && isFinite(x1)) {
-        return LinearScale(LinearDomain(x0, x1), LinearRange(0, 1)) as unknown as ContinuousScale<X, Y>;
-      } else {
-        const d0 = DateTime.parse(domain[0]!);
-        const d1 = DateTime.parse(domain[1]!);
-        return TimeScale(TimeDomain(d0, d1), LinearRange(0, 1)) as unknown as ContinuousScale<X, Y>;
-      }
     }
-    throw new TypeError("" + string);
+    const domain = string.split("...");
+    const x0 = +domain[0]!;
+    const x1 = +domain[1]!;
+    if (isFinite(x0) && isFinite(x1)) {
+      return LinearScale(LinearDomain(x0, x1), LinearRange(0, 1)) as unknown as ContinuousScale<X, Y>;
+    } else {
+      const d0 = DateTime.parse(domain[0]!);
+      const d1 = DateTime.parse(domain[1]!);
+      return TimeScale(TimeDomain(d0, d1), LinearRange(0, 1)) as unknown as ContinuousScale<X, Y>;
+    }
   }
 
   /** @internal */

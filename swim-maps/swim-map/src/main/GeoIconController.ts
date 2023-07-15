@@ -16,6 +16,8 @@ import type {Class} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import {GeoPoint} from "@swim/geo";
+import type {ColorOrLook} from "@swim/theme";
+import {ColorLook} from "@swim/theme";
 import {Graphics} from "@swim/graphics";
 import {IconLayout} from "@swim/graphics";
 import {TraitViewRef} from "@swim/controller";
@@ -49,12 +51,14 @@ export class GeoIconController extends GeoFeatureController {
       this.owner.geoPerspective.bindInlet(geoTrait.geoPerspective);
       this.owner.geoCenter.bindInlet(geoTrait.geoCenter);
       this.owner.iconLayout.bindInlet(geoTrait.iconLayout);
+      this.owner.iconColor.bindInlet(geoTrait.iconColor);
       this.owner.graphics.bindInlet(geoTrait.graphics);
     },
     deinitTrait(geoTrait: GeoIconTrait): void {
       this.owner.geoPerspective.unbindInlet(geoTrait.geoPerspective);
       this.owner.geoCenter.unbindInlet(geoTrait.geoCenter);
       this.owner.iconLayout.unbindInlet(geoTrait.iconLayout);
+      this.owner.iconColor.unbindInlet(geoTrait.iconColor);
       this.owner.graphics.unbindInlet(geoTrait.graphics);
       super.deinitTrait(geoTrait);
     },
@@ -63,11 +67,13 @@ export class GeoIconController extends GeoFeatureController {
       super.initView(geoView);
       geoView.geoCenter.bindInlet(this.owner.geoCenter);
       geoView.iconLayout.bindInlet(this.owner.iconLayout);
+      geoView.iconColor.bindInlet(this.owner.iconColor);
       geoView.graphics.bindInlet(this.owner.graphics);
     },
     deinitView(geoView: GeoIconView): void {
       geoView.geoCenter.unbindInlet(this.owner.geoCenter);
       geoView.iconLayout.unbindInlet(this.owner.iconLayout);
+      geoView.iconColor.unbindInlet(this.owner.iconColor);
       geoView.graphics.unbindInlet(this.owner.graphics);
       super.deinitView(geoView);
     },
@@ -77,6 +83,7 @@ export class GeoIconController extends GeoFeatureController {
   @Property({
     valueType: GeoPoint,
     value: null,
+    transition: true,
     didSetValue(geoCenter: GeoPoint | null): void {
       this.owner.callObservers("controllerDidSetGeoCenter", geoCenter, this.owner);
       this.owner.geoPerspective.setValue(geoCenter, Affinity.Intrinsic);
@@ -84,9 +91,22 @@ export class GeoIconController extends GeoFeatureController {
   })
   readonly geoCenter!: Property<this, GeoPoint | null>;
 
-  @Property({valueType: IconLayout, value: null})
+  @Property({
+    valueType: IconLayout,
+    value: null,
+  })
   readonly iconLayout!: Property<this, IconLayout | null>;
 
-  @Property({valueType: Graphics, value: null})
+  @Property({
+    valueType: ColorLook,
+    value: null,
+    transition: true,
+  })
+  readonly iconColor!: Property<this, ColorOrLook | null>;
+
+  @Property({
+    valueType: Graphics,
+    value: null,
+  })
   readonly graphics!: Property<this, Graphics | null>;
 }

@@ -90,28 +90,28 @@ export class ArcView extends GraphicsView implements FillView, StrokeView {
       arc = arc.toLike();
     }
     if (arc.center !== void 0) {
-      this.center(arc.center, timing);
+      this.center.setState(arc.center, timing);
     }
     if (arc.innerRadius !== void 0) {
-      this.innerRadius(arc.innerRadius, timing);
+      this.innerRadius.setState(arc.innerRadius, timing);
     }
     if (arc.outerRadius !== void 0) {
-      this.outerRadius(arc.outerRadius, timing);
+      this.outerRadius.setState(arc.outerRadius, timing);
     }
     if (arc.startAngle !== void 0) {
-      this.startAngle(arc.startAngle, timing);
+      this.startAngle.setState(arc.startAngle, timing);
     }
     if (arc.sweepAngle !== void 0) {
-      this.sweepAngle(arc.sweepAngle, timing);
+      this.sweepAngle.setState(arc.sweepAngle, timing);
     }
     if (arc.padAngle !== void 0) {
-      this.padAngle(arc.padAngle, timing);
+      this.padAngle.setState(arc.padAngle, timing);
     }
     if (arc.padRadius !== void 0) {
-      this.padRadius(arc.padRadius, timing);
+      this.padRadius.setState(arc.padRadius, timing);
     }
     if (arc.cornerRadius !== void 0) {
-      this.cornerRadius(arc.cornerRadius, timing);
+      this.cornerRadius.setState(arc.cornerRadius, timing);
     }
   }
 

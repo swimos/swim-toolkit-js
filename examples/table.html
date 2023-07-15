@@ -20,10 +20,10 @@
 
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-const containerView = swim.HtmlView.create("div")
-  .position("relative")
-  .flexGrow(1)
-  .userSelect("none");
+const containerView = swim.HtmlView.create("div");
+containerView.position.setState("relative");
+containerView.flexGrow.setState(1);
+containerView.userSelect.setState("none");
 
 containerView.observe({
   viewWillResize(view) {

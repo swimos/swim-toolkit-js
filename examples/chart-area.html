@@ -11,34 +11,35 @@
     <script src="../swim-vis/dist/swim-vis.js"></script>
     <script>
 
-//setTimeout(function () {
-//  swim.StylerService.global().theme(swim.Theme.light);
-//}, 1000);
-
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-const containerView = bodyView.appendChild("div").position("relative").width("90%").height("90%").touchAction("none").userSelect("none");
+const containerView = bodyView.appendChild("div");
+containerView.position.setState("relative");
+containerView.width.setState("90%");
+containerView.height.setState("90%");
+containerView.touchAction.setState("none");
+containerView.userSelect.setState("none");
 
 const canvasView = swim.CanvasView.create();
 canvasView.wheelEventsEnabled(true);
 canvasView.mouseEventsEnabled(true);
 canvasView.pointerEventsEnabled(true);
 canvasView.touchEventsEnabled(true);
-canvasView.touchAction("manipulation");
+canvasView.touchAction.setState("manipulation");
 
 const chartView = canvasView.appendChild(swim.ChartView);
 const bottomAxisView = chartView.bottomAxis.insertView();
 const leftAxisView = chartView.leftAxis.insertView();
 
-chartView.fitAspectRatio(1);
+chartView.fitAspectRatio.setValue(1);
 chartView.preserveAspectRatio(true);
 chartView.domainTracking(true);
 chartView.scaleGestures(true);
-chartView.font("12px sans-serif");
+chartView.font.setState("12px sans-serif");
 
 const graphView = chartView.graph.insertView();
 const plotView = graphView.appendChild(swim.AreaPlotView);
-plotView.hitMode("plot");
+plotView.hitMode.setValue("plot");
 plotView.addEventListener("pointerenter", function (event) {
   plotView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, 1]], true);
 });

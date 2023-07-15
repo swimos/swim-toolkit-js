@@ -11,19 +11,20 @@
     <script src="../swim-vis/dist/swim-vis.js"></script>
     <script>
 
-//setTimeout(function () {
-//  swim.StylerService.global().theme(swim.Theme.light);
-//}, 1000);
-
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-const containerView = bodyView.appendChild("div").position("relative").width("67%").height("67%").touchAction("none").userSelect("none");
+const containerView = bodyView.appendChild("div");
+containerView.position.setState("relative");
+containerView.width.setState("67%");
+containerView.height.setState("67%");
+containerView.touchAction.setState("none");
+containerView.userSelect.setState("none");
 
-const canvasView = swim.CanvasView.create()
-    .mouseEventsEnabled(true)
-    .pointerEventsEnabled(true)
-    .touchEventsEnabled(true)
-    .touchAction("manipulation");
+const canvasView = swim.CanvasView.create();
+canvasView.mouseEventsEnabled(true);
+canvasView.pointerEventsEnabled(true);
+canvasView.touchEventsEnabled(true);
+canvasView.touchAction.setState("manipulation");
 
 const gaugeView = canvasView.appendChild(swim.GaugeView);
 gaugeView.innerRadius.setState(swim.Length.pct(25));
@@ -40,15 +41,19 @@ gaugeView.addEventListener("pointerout", function (event) {
     event.targetView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, void 0]], true);
   }
 });
-gaugeView.title.setText("Gauge").font("20px sans-serif");
+gaugeView.title.setText("Gauge");
+gaugeView.font.setState("20px sans-serif");
 
-const dial0View = gaugeView.appendChild(swim.DialView, "dial0").value(0.33);
+const dial0View = gaugeView.appendChild(swim.DialView, "dial0");
+dial0View.value.setState(0.33);
 dial0View.label.setText("label 0");
 
-const dial1View = gaugeView.appendChild(swim.DialView, "dial1").value(0.5);
+const dial1View = gaugeView.appendChild(swim.DialView, "dial1");
+dial1View.value.setState(0.5);
 dial1View.label.setText("label 1");
 
-const dial2View = gaugeView.appendChild(swim.DialView, "dial2").value(0.67);
+const dial2View = gaugeView.appendChild(swim.DialView, "dial2");
+dial2View.value.setState(0.67);
 dial2View.label.setText("label 2");
 
 setInterval(function () {

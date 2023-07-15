@@ -132,7 +132,7 @@ export class DrawerView extends HtmlView implements ModalView {
   @PresenceAnimator({
     value: Presence.presented(),
     updateFlags: View.NeedsLayout,
-    get transition(): Timing | null {
+    get transition(): Timing | boolean | null {
       return this.owner.getLookOr(Look.timing, null);
     },
     didSetValue(presence: Presence): void {
@@ -156,7 +156,7 @@ export class DrawerView extends HtmlView implements ModalView {
   @ExpansionAnimator({
     value: Expansion.expanded(),
     updateFlags: View.NeedsResize | View.NeedsLayout,
-    get transition(): Timing | null {
+    get transition(): Timing | boolean | null {
       return this.owner.getLookOr(Look.timing, null);
     },
     willExpand(): void {

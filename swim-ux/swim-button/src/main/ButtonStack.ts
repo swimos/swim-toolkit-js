@@ -137,7 +137,7 @@ export class ButtonStack extends HtmlView implements ModalView {
   @PresenceAnimator({
     value: Presence.dismissed(),
     updateFlags: View.NeedsLayout,
-    get transition(): Timing | null {
+    get transition(): Timing | boolean | null {
       return this.owner.getLookOr(Look.timing, null);
     },
     didSetValue(presence: Presence): void {
@@ -315,7 +315,7 @@ export class ButtonStack extends HtmlView implements ModalView {
 
   protected willShowStack(): void {
     this.callObservers("buttonStackWillShow", this);
-    this.display("block");
+    this.display.setState("block");
   }
 
   protected didShowStack(): void {
@@ -345,7 +345,7 @@ export class ButtonStack extends HtmlView implements ModalView {
   }
 
   protected didHideStack(): void {
-    this.display("none");
+    this.display.setState("none");
     this.requireUpdate(View.NeedsLayout);
     this.callObservers("buttonStackDidHide", this);
   }

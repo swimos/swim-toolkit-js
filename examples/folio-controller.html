@@ -54,14 +54,14 @@ const ExampleFolioController = (function () {
   __esDecorate(null, null, [swim.TraitViewControllerRef({
     extends: true,
     attachAppBarView(appBarView, appBarController) {
-      appBarView.barHeight(48);
+      appBarView.barHeight.setState(48);
       super.attachAppBarView(appBarView, appBarController);
     },
   })], {kind: "field", name: "appBar", static: false, private: false, access: {has: obj => "appBar" in obj, get: obj => obj.appBar, set: (obj, value) => { obj.appBar = value; }}}, appBarInitializers, instanceInitializers);
   __esDecorate(null, null, [swim.TraitViewControllerRef({
     extends: true,
     attachNavBarView(navBarView, navBarController) {
-      navBarView.barHeight(48);
+      navBarView.barHeight.setState(48);
       super.attachNavBarView(navBarView, navBarController);
     },
   })], {kind: "field", name: "navBar", static: false, private: false, access: {has: obj => "navBar" in obj, get: obj => obj.navBar, set: (obj, value) => { obj.navBar = value; }}}, navBarInitializers, instanceInitializers);
@@ -70,7 +70,8 @@ const ExampleFolioController = (function () {
 
 const folioController = new ExampleFolioController();
 folioController.mount();
-const folioView = folioController.folio.attachView().flexGrow(1);
+const folioView = folioController.folio.attachView();
+folioView.flexGrow.setState(1);
 
 const appBarController = folioController.appBar.insertController();
 appBarController.menuButton.insertController();
@@ -95,15 +96,20 @@ function createSheetController(i) {
   const sheetView = sheetController.sheet.attachView();
   sheetView.dismiss(false);
   const headerView = sheetView.appendChild(swim.HtmlView.fromTag("h2").margin(12).text(sheetTitle), "header");
-  headerView.cursor("pointer").userSelect("none");
+  headerView.cursor.setState("pointer");
+  headerView.userSelect.setState("none");
   headerView.addEventListener("click", () => {
     folioController.sheets.addController(createSheetController(i + 1));
   });
-  const inspectView = sheetView.appendChild(swim.HtmlView.fromTag("h3").margin(12).text("Inspect"), "inspect");
-  inspectView.cursor("pointer").userSelect("none");
+  const inspectView = swim.HtmlView.fromTag("h3");
+  inspectView.margin(12);
+  inspectView.text("Inspect")
+  inspectView.cursor.setState("pointer");
+  inspectView.userSelect.setState("none");
   inspectView.addEventListener("click", () => {
     folioController.cover.present();
   });
+  sheetView.appendChild(inspectView, "inspect");
   return sheetController;
 }
 folioController.sheets.addController(createSheetController(1));
@@ -115,7 +121,7 @@ binderView.dismiss(false);
 
 const tabBarController = binderController.tabBar.insertController();
 const tabBarView = tabBarController.bar.insertView();
-tabBarView.barHeight(48);
+tabBarView.barHeight.setState(48);
 
 const tab1Controller = new swim.SheetController();
 tab1Controller.title.setText("Tab 1");

@@ -41,11 +41,12 @@ require([
   });
   const mapView = new swim.EsriMapView(esriMapView);
   mapView.container.setView(bodyView);
-  mapView.canvas.view.pointerEventsEnabled(true).touchAction("manipulation");
+  mapView.canvas.view.pointerEventsEnabled(true);
+  mapView.canvas.view.touchAction.setState("manipulation");
 
   const layerView = mapView.appendChild(swim.GeoTreeView);
-  //layerView.geoBoundsColor("#008f11");
-  //layerView.geoTreeColor("#008f11");
+  //layerView.geoBoundsColor.setState("#008f11");
+  //layerView.geoTreeColor.setState("#008f11");
 
   const warp = swim.WarpClient.global();
   const host = warp.hostRef("warps://traffic.swim.services");
@@ -62,10 +63,10 @@ require([
       if (intersectionLayerView === null && lng !== 0 && lat !== 0 && isFinite(lng) && isFinite(lat)) {
         const intersectionId = value.get("id").stringValue();
         intersectionLayerView = new swim.GeoView();
-        const intersectionMarkerView = new swim.GeoCircleView()
-            .geoCenter([lng, lat])
-            .radius(5)
-            .fill(INTERSECTION_COLOR);
+        const intersectionMarkerView = new swim.GeoCircleView();
+        intersectionMarkerView.geoCenter.setState([lng, lat]);
+        intersectionMarkerView.radius.setState(5);
+        intersectionMarkerView.fill.setState(INTERSECTION_COLOR);
         intersectionLayerView.setChild("marker", intersectionMarkerView);
         layerView.setChild(key, intersectionLayerView);
         linkIntersection(intersectionId, host.nodeRef(key), intersectionLayerView, intersectionMarkerView);
@@ -77,19 +78,19 @@ require([
     let approaches = {};
     let phases = {};
     let detectors = {};
-    let intersectionPopover = null;
+    let intersectionPopoverView = null;
     intersectionMarkerView.addEventListener("pointerup", function (event) {
-      if (!intersectionPopover) {
-        intersectionPopover = swim.PopoverView.create()
-            .width(240)
-            .height(360)
-            .borderRadius(5)
-            .backgroundColor(swim.Color.parse("#071013").alpha(0.9))
-            .backdropFilter("blur(2px)");
-        intersectionPopover.source.setView(intersectionMarkerView);
-        intersectionPopover.presence.dismiss();
+      if (!intersectionPopoverView) {
+        intersectionPopoverView = swim.PopoverView.create();
+        intersectionPopoverView.width.setState(240);
+        intersectionPopoverView.height.setState(360);
+        intersectionPopoverView.borderRadius(5);
+        intersectionPopoverView.backgroundColor.setState(swim.Color.parse("#071013").alpha(0.9));
+        intersectionPopoverView.backdropFilter.setState("blur(2px)");
+        intersectionPopoverView.source.setView(intersectionMarkerView);
+        intersectionPopoverView.presence.dismiss();
       }
-      bodyView.modal.toggle(intersectionPopover, {multi: event.shiftKey});
+      bodyView.modal.toggle(intersectionPopoverView, {multi: event.shiftKey});
     });
     intersectionMarkerView.addEventListener("click", function (event) {
       event.stopPropagation();
@@ -112,10 +113,10 @@ require([
               approachView.stroke.setState(swim.Color.transparent());
               approachView.strokeWidth.setState(3);
               approachView.addEventListener("pointerenter", function (event) {
-                approachView.stroke("#ffffff", timing);
+                approachView.stroke.setState("#ffffff", timing);
               })
               approachView.addEventListener("pointerleave", function (event) {
-                approachView.stroke(swim.Color.transparent(), timing);
+                approachView.stroke.setState(swim.Color.transparent(), timing);
               });
               approaches[approachId] = approachView;
               const phaseId = item.get("phase").stringValue();
@@ -186,7 +187,7 @@ require([
       if (approachView.occupied === false) {
         phaseColor = phaseColor.alpha(0.25);
       }
-      approachView.fill(phaseColor, timing);
+      approachView.fill.setState(phaseColor, timing);
     }
   }
 
