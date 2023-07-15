@@ -306,19 +306,19 @@ Theme.light = (function (): ThemeMatrix {
   const highlightColor = Color.black(0.05);
 
   const accentColor = Color.parse("#a1a3a4");
-  const primaryColor = Color.parse("#18bdb0");
-  const secondaryColor = Color.parse("#47b0ec");
+  const primaryColor = Color.parse("#00b0a7");
+  const secondaryColor = Color.parse("#008ec0");
 
   const disabledColor = Color.parse("#7b7c7d");
   const inactiveColor = Color.parse("#7b7c7d");
-  const warningColor = Color.parse("#fec309");
-  const alertColor = Color.parse("#e94d20");
+  const warningColor = Color.parse("#f0b600");
+  const alertColor = Color.parse("#e24214");
 
   const selectionColor = Color.parse("#e0e0e1");
-  const primarySelectionColor = Color.parse("#b2e7e3");
-  const secondarySelectionColor = Color.parse("#b6dff7");
-  const warningSelectionColor = Color.parse("#f9e8b2");
-  const alertSelectionColor = Color.parse("#ffbdaa");
+  const primarySelectionColor = Color.parse("#bae8e6");
+  const secondarySelectionColor = Color.parse("#b5e2f1");
+  const warningSelectionColor = Color.parse("#f9ebc0");
+  const alertSelectionColor = Color.parse("#fddad0");
 
   const backgroundColor = Color.parse("#f9f9f9");
   const borderColor = Color.parse("#000000").alpha(0.25);
