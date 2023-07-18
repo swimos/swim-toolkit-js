@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {Affinity} from "@swim/component";
 import {Length} from "@swim/math";
 import {Color} from "@swim/style";
 import {Look} from "@swim/theme";
@@ -56,11 +55,13 @@ export class SearchToolView extends ToolView {
       this.onKeyDown = this.onKeyDown.bind(this);
     },
     initView(inputView: HtmlView): void {
-      inputView.position.setState("relative", Affinity.Intrinsic);
-      inputView.left.setState(0, Affinity.Intrinsic);
-      inputView.top.setState(0, Affinity.Intrinsic);
-      inputView.width.setState(Length.pct(100), Affinity.Intrinsic);
-      inputView.height.setState(30, Affinity.Intrinsic);
+      inputView.setIntrinsic({
+        position: "relative",
+        left: 0,
+        top: 0,
+        width: Length.pct(100),
+        height: 30,
+      });
     },
     willAttachView(inputView: HtmlView): void {
       this.owner.callObservers("viewWillAttachInput", inputView, this.owner);
@@ -95,14 +96,14 @@ export class SearchToolView extends ToolView {
       }
     },
     createView(): HtmlView {
-      const inputView = HtmlView.fromTag("input");
-      inputView.type.setState("search", Affinity.Intrinsic);
-      inputView.paddingTop.setState(3, Affinity.Intrinsic);
-      inputView.paddingRight.setState(15, Affinity.Intrinsic);
-      inputView.paddingBottom.setState(3, Affinity.Intrinsic);
-      inputView.paddingLeft.setState(15, Affinity.Intrinsic);
-      inputView.userSelect.setState("auto", Affinity.Intrinsic);
-      return inputView;
+      return HtmlView.fromTag("input").setIntrinsic({
+        type: "search",
+        paddingTop: 3,
+        paddingRight: 15,
+        paddingBottom: 3,
+        paddingLeft: 15,
+        userSelect: "none",
+      });
     },
   })
   readonly input!: ViewRef<this, HtmlView> & {
@@ -125,28 +126,28 @@ export class SearchToolView extends ToolView {
     },
     selector: "input",
     init(): void {
-      this.appearance.setState("none", Affinity.Intrinsic);
-      this.borderTopWidth.setState(1, Affinity.Intrinsic);
-      this.borderTopStyle.setState("solid", Affinity.Intrinsic);
-      this.borderTopColor.setLook(Look.borderColor, Affinity.Intrinsic);
-      this.borderRightWidth.setState(1, Affinity.Intrinsic);
-      this.borderRightStyle.setState("solid", Affinity.Intrinsic);
-      this.borderRightColor.setLook(Look.borderColor, Affinity.Intrinsic);
-      this.borderBottomWidth.setState(1, Affinity.Intrinsic);
-      this.borderBottomStyle.setState("solid", Affinity.Intrinsic);
-      this.borderBottomColor.setLook(Look.borderColor, Affinity.Intrinsic);
-      this.borderLeftWidth.setState(1, Affinity.Intrinsic);
-      this.borderLeftStyle.setState("solid", Affinity.Intrinsic);
-      this.borderLeftColor.setLook(Look.borderColor, Affinity.Intrinsic);
-      this.borderTopLeftRadius.setState(10, Affinity.Intrinsic);
-      this.borderTopRightRadius.setState(10, Affinity.Intrinsic);
-      this.borderBottomLeftRadius.setState(10, Affinity.Intrinsic);
-      this.borderBottomRightRadius.setState(10, Affinity.Intrinsic);
-      this.outlineWidth.setState(0, Affinity.Intrinsic);
-      this.outlineStyle.setState("none", Affinity.Intrinsic);
-      this.outlineColor.setState(Color.transparent(), Affinity.Intrinsic);
-      this.backgroundColor.setState(Color.transparent(), Affinity.Intrinsic);
-      this.color.setLook(Look.textColor, Affinity.Intrinsic);
+      this.appearance.setIntrinsic("none");
+      this.borderTopWidth.setIntrinsic(1);
+      this.borderTopStyle.setIntrinsic("solid");
+      this.borderTopColor.setIntrinsic(Look.borderColor);
+      this.borderRightWidth.setIntrinsic(1);
+      this.borderRightStyle.setIntrinsic("solid");
+      this.borderRightColor.setIntrinsic(Look.borderColor);
+      this.borderBottomWidth.setIntrinsic(1);
+      this.borderBottomStyle.setIntrinsic("solid");
+      this.borderBottomColor.setIntrinsic(Look.borderColor);
+      this.borderLeftWidth.setIntrinsic(1);
+      this.borderLeftStyle.setIntrinsic("solid");
+      this.borderLeftColor.setIntrinsic(Look.borderColor);
+      this.borderTopLeftRadius.setIntrinsic(10);
+      this.borderTopRightRadius.setIntrinsic(10);
+      this.borderBottomLeftRadius.setIntrinsic(10);
+      this.borderBottomRightRadius.setIntrinsic(10);
+      this.outlineWidth.setIntrinsic(0);
+      this.outlineStyle.setIntrinsic("none");
+      this.outlineColor.setIntrinsic(Color.transparent());
+      this.backgroundColor.setIntrinsic(Color.transparent());
+      this.color.setIntrinsic(Look.textColor);
       this.setStyle("transition", "border 100ms ease-out");
     },
   })
@@ -160,14 +161,14 @@ export class SearchToolView extends ToolView {
     },
     selector: "input:focus",
     init(): void {
-      this.borderTopWidth.setState(2, Affinity.Intrinsic);
-      this.borderTopColor.setLook(Look.focusColor, Affinity.Intrinsic);
-      this.borderRightWidth.setState(2, Affinity.Intrinsic);
-      this.borderRightColor.setLook(Look.focusColor, Affinity.Intrinsic);
-      this.borderBottomWidth.setState(2, Affinity.Intrinsic);
-      this.borderBottomColor.setLook(Look.focusColor, Affinity.Intrinsic);
-      this.borderLeftWidth.setState(2, Affinity.Intrinsic);
-      this.borderLeftColor.setLook(Look.focusColor, Affinity.Intrinsic);
+      this.borderTopWidth.setIntrinsic(2);
+      this.borderTopColor.setIntrinsic(Look.focusColor);
+      this.borderRightWidth.setIntrinsic(2);
+      this.borderRightColor.setIntrinsic(Look.focusColor);
+      this.borderBottomWidth.setIntrinsic(2);
+      this.borderBottomColor.setIntrinsic(Look.focusColor);
+      this.borderLeftWidth.setIntrinsic(2);
+      this.borderLeftColor.setIntrinsic(Look.focusColor);
       this.setStyle("transition", "border 100ms ease-out");
     },
   })
@@ -181,7 +182,7 @@ export class SearchToolView extends ToolView {
     },
     selector: "input::placeholder",
     init(): void {
-      this.color.setLook(Look.placeholderColor, Affinity.Intrinsic);
+      this.color.setIntrinsic(Look.placeholderColor);
     },
   })
   readonly inputPlaceholderRule!: StyleRule<this>;
@@ -206,21 +207,19 @@ export class SearchToolView extends ToolView {
 
   protected layoutTool(): void {
     const inputView = this.input.view;
-    if (inputView !== null) {
-      const toolWidth = this.width.pxValue();
-      const toolHeight = this.height.pxValue();
-      const inputWidth = inputView.width.pxValue();
-      const inputHeight = inputView.height.pxValue();
-      const excessWidth = toolWidth - inputWidth;
-      const excessHeight = toolHeight - inputHeight;
-      const xAlign = this.xAlign.value;
-      if (toolWidth !== 0) {
-        inputView.left.setState(excessWidth * xAlign, Affinity.Intrinsic);
-      } else {
-        inputView.left.setState(inputWidth * xAlign, Affinity.Intrinsic);
-      }
-      inputView.top.setState(excessHeight * 0.5, Affinity.Intrinsic);
-      this.effectiveWidth.setValue(inputWidth);
+    if (inputView === null) {
+      return;
     }
+    const toolWidth = this.width.pxValue();
+    const toolHeight = this.height.pxValue();
+    const inputWidth = inputView.width.pxValue();
+    const inputHeight = inputView.height.pxValue();
+    const excessWidth = toolWidth - inputWidth;
+    const excessHeight = toolHeight - inputHeight;
+    inputView.setIntrinsic({
+      left: (toolWidth !== 0 ? excessWidth : inputWidth) * this.xAlign.value,
+      top: excessHeight * 0.5,
+    });
+    this.effectiveWidth.set(inputWidth);
   }
 }

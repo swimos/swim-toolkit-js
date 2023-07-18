@@ -23,11 +23,12 @@ const timing = swim.Easing.cubicOut.withDuration(250);
 
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-const containerView = bodyView.appendChild("div");
-containerView.display.setState("relative");
-containerView.width.setState("100%");
-containerView.height.setState("100%");
-containerView.zIndex.setState(0);
+const containerView = bodyView.appendChild("div").set({
+  display: "relative",
+  width: "100%",
+  height: "100%",
+  zIndex: 0,
+});
 
 const map = L.map(containerView.node, {
   center: {lng: -122.157139, lat: 37.450809},
@@ -42,11 +43,13 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 const mapView = new swim.LeafletView(map);
 mapView.container.setView(containerView);
-mapView.canvas.view.pointerEventsEnabled(true);
+mapView.canvas.view.set({
+  pointerevents: true,
+});
 
 const layerView = mapView.appendChild(swim.GeoTreeView);
-//layerView.geoBoundsColor.setState("#008f11");
-//layerView.geoTreeColor.setState("#008f11");
+//layerView.geoBoundsColor.set("#008f11");
+//layerView.geoTreeColor.set("#008f11");
 
 const warp = swim.WarpClient.global();
 const host = warp.hostRef("warps://traffic.swim.services");
@@ -63,10 +66,11 @@ const intersectionsLink = host.downlinkMap({
     if (intersectionLayerView === null && lng !== 0 && lat !== 0 && isFinite(lng) && isFinite(lat)) {
       const intersectionId = value.get("id").stringValue();
       intersectionLayerView = new swim.GeoView();
-      const intersectionMarkerView = new swim.GeoCircleView();
-      intersectionMarkerView.geoCenter.setState([lng, lat]);
-      intersectionMarkerView.radius.setState(5);
-      intersectionMarkerView.fill.setState(INTERSECTION_COLOR);
+      const intersectionMarkerView = new swim.GeoCircleView().set({
+        geoCenter: [lng, lat],
+        radius: 5,
+        fill: INTERSECTION_COLOR,
+      });
       intersectionLayerView.setChild("marker", intersectionMarkerView);
       layerView.setChild(key, intersectionLayerView);
       linkIntersection(intersectionId, host.nodeRef(key), intersectionLayerView, intersectionMarkerView);
@@ -80,14 +84,15 @@ function linkIntersection(intersectionId, node, intersectionLayerView, intersect
   let detectors = {};
   let intersectionPopoverView = null;
   intersectionMarkerView.addEventListener("pointerup", function (event) {
-    if (!intersectionPopoverView) {
-      intersectionPopoverView = swim.PopoverView.create();
-      intersectionPopoverView.width.setState(240);
-      intersectionPopoverView.height.setState(360);
-      intersectionPopoverView.borderRadius(5);
-      intersectionPopoverView.backgroundColor.setState(swim.Color.parse("#071013").alpha(0.9));
-      intersectionPopoverView.backdropFilter.setState("blur(2px)");
-      intersectionPopoverView.source.setView(intersectionMarkerView);
+    if (intersectionPopoverView === null) {
+      intersectionPopoverView = swim.PopoverView.create().set({
+        width: 240,
+        height: 360,
+        borderRadius: 5,
+        backgroundColor: swim.Color.parse("#071013").alpha(0.9),
+        backdropFilter: "blur(2px)",
+        source: intersectionMarkerView,
+      });
       intersectionPopoverView.presence.dismiss();
     }
     bodyView.modal.toggle(intersectionPopoverView, {multi: event.shiftKey});
@@ -107,16 +112,17 @@ function linkIntersection(intersectionId, node, intersectionLayerView, intersect
           if (approachView === undefined) {
             const points = item.get("coords").toLike();
             points.push(points[0]); // close path
-            const approachView = new swim.GeoShapeView();
-            approachView.geoShape.setState(points);
-            approachView.fill.setState(swim.Color.transparent());
-            approachView.stroke.setState(swim.Color.transparent());
-            approachView.strokeWidth.setState(3);
+            const approachView = new swim.GeoShapeView().set({
+              geoShape: points,
+              fill: swim.Color.white(0),
+              stroke: swim.Color.white(0),
+              strokeWidth: 3,
+            });
             approachView.addEventListener("pointerenter", function (event) {
-              approachView.stroke.setState("#ffffff", timing);
+              approachView.stroke.set(swim.Color.white(1), timing);
             });
             approachView.addEventListener("pointerleave", function (event) {
-              approachView.stroke.setState(swim.Color.transparent(), timing);
+              approachView.stroke.set(swim.Color.white(0), timing);
             });
             approaches[approachId] = approachView;
             const phaseId = item.get("phase").stringValue();
@@ -187,7 +193,7 @@ function linkIntersection(intersectionId, node, intersectionLayerView, intersect
     if (approachView.occupied === false) {
       phaseColor = phaseColor.alpha(0.25);
     }
-    approachView.fill.setState(phaseColor, timing);
+    approachView.fill.set(phaseColor, timing);
   }
 }
 

@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import type {Uninitable} from "@swim/util";
-import type {Proto} from "@swim/util";
 import {Objects} from "@swim/util";
 import type {GeoPointLike} from "@swim/geo";
 import {GeoShape} from "@swim/geo";
@@ -58,7 +57,7 @@ export interface GeoPerspective {
   /** @internal */
   readonly typeid?: "GeoPerspective";
 
-  readonly likeType?: Proto<GeoShape | GeoPerspectiveInit | GeoBoxInit>;
+  likeType?(like: GeoShape | GeoPerspectiveInit | GeoBoxInit): void;
 
   readonly geoFrame: GeoBox | null;
 

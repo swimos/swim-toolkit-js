@@ -28,13 +28,13 @@ import {ViewRelation} from "./ViewRelation";
 
 /** @public */
 export interface ViewSetDescriptor<R, V extends View> extends ViewRelationDescriptor<R, V> {
-  extends?: Proto<ViewSet<any, any>> | boolean | null;
+  extends?: Proto<ViewSet<any, any, any>> | boolean | null;
   ordered?: boolean;
   sorted?: boolean;
 }
 
 /** @public */
-export interface ViewSetClass<F extends ViewSet<any, any> = ViewSet<any, any>> extends ViewRelationClass<F> {
+export interface ViewSetClass<F extends ViewSet<any, any, any> = ViewSet<any, any, any>> extends ViewRelationClass<F> {
   /** @internal */
   readonly OrderedFlag: FastenerFlags;
   /** @internal */
@@ -47,15 +47,15 @@ export interface ViewSetClass<F extends ViewSet<any, any> = ViewSet<any, any>> e
 }
 
 /** @public */
-export interface ViewSet<R = any, V extends View = View> extends ViewRelation<R, V> {
+export interface ViewSet<R = any, V extends View = View, I extends any[] = [V | null]> extends ViewRelation<R, V, I> {
   /** @override */
   get descriptorType(): Proto<ViewSetDescriptor<R, V>>;
 
   /** @override */
-  get fastenerType(): Proto<ViewSet<any, any>>;
+  get fastenerType(): Proto<ViewSet<any, any, any>>;
 
   /** @override */
-  get parent(): ViewSet<any, V> | null;
+  get parent(): ViewSet<any, V, any> | null;
 
   /** @protected */
   viewKey(view: V): string | undefined;
@@ -79,7 +79,7 @@ export interface ViewSet<R = any, V extends View = View> extends ViewRelation<R,
 
   setViews(views: {readonly [viewId: string]: V | undefined}, target?: View | null): void;
 
-  attachView(view?: V | LikeType<V>, target?: View | null): V;
+  attachView(view?: V | LikeType<V> | null, target?: View | null): V;
 
   attachViews(views: {readonly [viewId: string]: V | undefined}, target?: View | null): void;
 
@@ -147,8 +147,8 @@ export interface ViewSet<R = any, V extends View = View> extends ViewRelation<R,
 }
 
 /** @public */
-export const ViewSet = (<R, V extends View, F extends ViewSet<any, any>>() => ViewRelation.extend<ViewSet<R, V>, ViewSetClass<F>>("ViewSet", {
-  get fastenerType(): Proto<ViewSet<any, any>> {
+export const ViewSet = (<R, V extends View, I extends any[], F extends ViewSet<any, any, any>>() => ViewRelation.extend<ViewSet<R, V, I>, ViewSetClass<F>>("ViewSet", {
+  get fastenerType(): Proto<ViewSet<any, any, any>> {
     return ViewSet;
   },
 
@@ -252,7 +252,7 @@ export const ViewSet = (<R, V extends View, F extends ViewSet<any, any>>() => Vi
     }
   },
 
-  attachView(newView?: V | LikeType<V>, target?: View | null): V {
+  attachView(newView?: V | LikeType<V> | null, target?: View | null): V {
     if (newView !== void 0 && newView !== null) {
       newView = this.fromLike(newView);
     } else {
@@ -547,7 +547,7 @@ export const ViewSet = (<R, V extends View, F extends ViewSet<any, any>>() => Vi
     return fastener;
   },
 
-  refine(fastenerClass: FastenerClass<ViewSet<any, any>>): void {
+  refine(fastenerClass: FastenerClass<ViewSet<any, any, any>>): void {
     super.refine(fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

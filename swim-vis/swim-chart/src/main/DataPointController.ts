@@ -16,7 +16,6 @@ import type {Class} from "@swim/util";
 import type {TimingLike} from "@swim/util";
 import {Timing} from "@swim/util";
 import type {Observes} from "@swim/util";
-import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import type {LengthLike} from "@swim/math";
 import type {Length} from "@swim/math";
@@ -67,7 +66,7 @@ export class DataPointController<X = unknown, Y = unknown> extends Controller {
   protected updateLabel(x: X | undefined, y: Y | undefined, dataPointTrait: DataPointTrait<X, Y>): void {
     const label = dataPointTrait.formatLabel(x, y);
     if (label !== void 0) {
-      dataPointTrait.label.setValue(label, Affinity.Intrinsic);
+      dataPointTrait.label.setIntrinsic(label);
     }
   }
 
@@ -83,7 +82,7 @@ export class DataPointController<X = unknown, Y = unknown> extends Controller {
     } else {
       timing = Timing.fromLike(timing);
     }
-    dataPointView.x.setState(x, timing, Affinity.Intrinsic);
+    dataPointView.x.setIntrinsic(x, timing);
   }
 
   protected setY(y: Y, timing?: TimingLike | boolean): void {
@@ -98,7 +97,7 @@ export class DataPointController<X = unknown, Y = unknown> extends Controller {
     } else {
       timing = Timing.fromLike(timing);
     }
-    dataPointView.y.setState(y, timing, Affinity.Intrinsic);
+    dataPointView.y.setIntrinsic(y, timing);
   }
 
   protected setY2(y2: Y | undefined, timing?: TimingLike | boolean): void {
@@ -113,7 +112,7 @@ export class DataPointController<X = unknown, Y = unknown> extends Controller {
     } else {
       timing = Timing.fromLike(timing);
     }
-    dataPointView.y2.setState(y2, timing, Affinity.Intrinsic);
+    dataPointView.y2.setIntrinsic(y2, timing);
   }
 
   protected setRadius(radius: LengthLike | null, timing?: TimingLike | boolean): void {
@@ -128,7 +127,7 @@ export class DataPointController<X = unknown, Y = unknown> extends Controller {
     } else {
       timing = Timing.fromLike(timing);
     }
-    dataPointView.radius.setState(radius, timing, Affinity.Intrinsic);
+    dataPointView.radius.setIntrinsic(radius, timing);
   }
 
   protected setColor(color: ColorOrLookLike | null, timing?: TimingLike | boolean): void {
@@ -143,11 +142,7 @@ export class DataPointController<X = unknown, Y = unknown> extends Controller {
     } else {
       timing = Timing.fromLike(timing);
     }
-    if (color instanceof Look) {
-      dataPointView.color.setLook(color, timing, Affinity.Intrinsic);
-    } else {
-      dataPointView.color.setState(color, timing, Affinity.Intrinsic);
-    }
+    dataPointView.color.setIntrinsic(color, timing);
   }
 
   protected setOpacity(opacity: number | undefined, timing?: TimingLike | boolean): void {
@@ -162,7 +157,7 @@ export class DataPointController<X = unknown, Y = unknown> extends Controller {
     } else {
       timing = Timing.fromLike(timing);
     }
-    dataPointView.opacity.setState(opacity, timing, Affinity.Intrinsic);
+    dataPointView.opacity.setIntrinsic(opacity, timing);
   }
 
   protected setLabelView(label: string | undefined): void {
@@ -170,7 +165,7 @@ export class DataPointController<X = unknown, Y = unknown> extends Controller {
     if (dataPointView === null) {
       return;
     }
-    dataPointView.label.setText(label);
+    dataPointView.label.set(label);
   }
 
   @Property({valueType: Timing, inherits: true})
@@ -322,15 +317,15 @@ export class DataPointController<X = unknown, Y = unknown> extends Controller {
       const dataPointView = new DataPointView<X, Y>();
       const dataPointTrait = this.trait;
       if (dataPointTrait !== null) {
-        dataPointView.x.setState(dataPointTrait.x.value, Affinity.Intrinsic);
-        dataPointView.y.setState(dataPointTrait.y.value, Affinity.Intrinsic);
+        dataPointView.x.setIntrinsic(dataPointTrait.x.value);
+        dataPointView.y.setIntrinsic(dataPointTrait.y.value);
         const y2 = dataPointTrait.tryFastener("y2");
         if (y2 !== null) {
-          dataPointView.y2.setState(y2.value, Affinity.Intrinsic);
+          dataPointView.y2.setIntrinsic(y2.value);
         }
         const radius = dataPointTrait.tryFastener("radius");
         if (radius !== null) {
-          dataPointView.radius.setState(radius.value, Affinity.Intrinsic);
+          dataPointView.radius.setIntrinsic(radius.value);
         }
       }
       return dataPointView;

@@ -130,7 +130,7 @@ export class BarController extends Controller {
       return;
     }
     const timing = barView.getLookOr(Look.timing, Mood.navigating, false);
-    barView.layout.setState(barLayout, timing);
+    barView.layout.set(barLayout, timing);
     // Immediately run resize pass to prevent layout flicker.
     barView.requireUpdate(View.NeedsResize, true);
   }

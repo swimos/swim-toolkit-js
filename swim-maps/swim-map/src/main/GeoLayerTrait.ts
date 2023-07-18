@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import type {Uri} from "@swim/uri";
 import {GeoBox} from "@swim/geo";
@@ -51,7 +50,7 @@ export class GeoLayerTrait extends GeoTrait {
     value: null,
     didSetValue(geoBounds: GeoBox | null): void {
       this.owner.callObservers("traitDidSetGeoBounds", geoBounds, this.owner);
-      this.owner.geoPerspective.setValue(geoBounds, Affinity.Intrinsic);
+      this.owner.geoPerspective.setIntrinsic(geoBounds);
     },
   })
   readonly geoBounds!: Property<this, GeoBox | null>;

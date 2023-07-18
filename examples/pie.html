@@ -13,52 +13,67 @@
 
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-const containerView = bodyView.appendChild("div");
-containerView.position.setState("relative");
-containerView.width.setState("67%");
-containerView.height.setState("67%");
-containerView.touchAction.setState("none");
-containerView.userSelect.setState("none");
+const containerView = bodyView.appendChild("div").set({
+  position: "relative",
+  width: "67%",
+  height: "67%",
+  touchAction: "none",
+  userSelect: "none",
+});
 
-const canvasView = swim.CanvasView.create();
-canvasView.mouseEventsEnabled(true);
-canvasView.pointerEventsEnabled(true);
-canvasView.touchEventsEnabled(true);
-canvasView.touchAction.setState("manipulation");
+const canvasView = swim.CanvasView.create().set({
+  touchAction: "manipulation",
+  mouseEvents: true,
+  pointerevents: true,
+  touchEvents: true,
+});
 
-const pieView = canvasView.appendChild(swim.PieView);
-pieView.font.setState("14px sans-serif");
+const pieView = canvasView.appendChild(swim.PieView).set({
+  font: "16px sans-serif",
+});
 
-const slice0View = pieView.appendChild(swim.SliceView, "slice0")
-slice0View.value.setState(1);
+const slice0View = pieView.appendChild(swim.SliceView).set({
+  value: 1,
+  label: "Label 0",
+  legend: "Legend 0",
+});
+slice0View.label.view.set({
+  font: "14px sans-serif",
+  textColor: swim.Look.backgroundColor,
+});
 slice0View.addEventListener("pointerenter", function (event) {
   slice0View.modifyMood(swim.Feel.default, [[swim.Feel.primary, 1]], true);
 });
 slice0View.addEventListener("pointerleave", function (event) {
   slice0View.modifyMood(swim.Feel.default, [[swim.Feel.primary, void 0]], true);
 });
-slice0View.label.setText("Label 0")
-slice0View.legend.setText("Legend 0")
-slice0View.label.view.textColor.setLook(swim.Look.backgroundColor);
 
-const slice1View = pieView.appendChild(swim.SliceView, "slice1")
-slice1View.value.setState(2);
+const slice1View = pieView.appendChild(swim.SliceView).set({
+  value: 2,
+  label: "Label 1",
+  legend: "Legend 1",
+});
+slice1View.label.view.set({
+  font: "14px sans-serif",
+  textColor: swim.Look.backgroundColor,
+});
 slice1View.addEventListener("pointerenter", function (event) {
   slice1View.modifyMood(swim.Feel.default, [[swim.Feel.secondary, 1]], true);
 });
 slice1View.addEventListener("pointerleave", function (event) {
   slice1View.modifyMood(swim.Feel.default, [[swim.Feel.secondary, void 0]], true);
 });
-slice1View.label.setText("Label 1")
-slice1View.legend.setText("Legend 1")
-slice1View.label.view.textColor.setLook(swim.Look.backgroundColor);
 
 setInterval(function () {
   const timing = swim.Easing.linear.withDuration(1000);
-  slice0View.value.setState(Math.random(), timing);
-  slice0View.outerRadius.setState(swim.Length.pct(20 + 10 * Math.random()), timing);
-  slice1View.value.setState(Math.random(), timing);
-  slice1View.outerRadius.setState(swim.Length.pct(20 + 10 * Math.random()), timing);
+  slice0View.set({
+    value: Math.random(),
+    outerRadius: swim.Length.pct(20 + 10 * Math.random()),
+  }, timing);
+  slice1View.set({
+    value: Math.random(),
+    outerRadius: swim.Length.pct(20 + 10 * Math.random()),
+  }, timing);
 }, 1000);
 
 containerView.appendChild(canvasView);

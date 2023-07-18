@@ -17,7 +17,7 @@ import type {Proto} from "@swim/util";
 import type {LikeType} from "@swim/util";
 import type {Observes} from "@swim/util";
 import type {FastenerClass} from "@swim/component";
-import type {Fastener} from "@swim/component";
+import {Fastener} from "@swim/component";
 import type {ViewFactory} from "@swim/view";
 import {View} from "@swim/view";
 import type {Controller} from "./Controller";
@@ -27,18 +27,22 @@ import {ControllerRef} from "./ControllerRef";
 
 /** @public */
 export interface ViewControllerRefDescriptor<R, V extends View, C extends Controller> extends ControllerRefDescriptor<R, C> {
-  extends?: Proto<ViewControllerRef<any, any, any>> | boolean | null;
+  extends?: Proto<ViewControllerRef<any, any, any, any>> | boolean | null;
   viewKey?: string | boolean;
 }
 
 /** @public */
-export interface ViewControllerRefClass<F extends ViewControllerRef<any, any, any> = ViewControllerRef<any, any, any>> extends ControllerRefClass<F> {
+export interface ViewControllerRefClass<F extends ViewControllerRef<any, any, any, any> = ViewControllerRef<any, any, any, any>> extends ControllerRefClass<F> {
 }
 
 /** @public */
-export interface ViewControllerRef<R = any, V extends View = View, C extends Controller = Controller> extends ControllerRef<R, C> {
+export interface ViewControllerRef<R = any, V extends View = View, C extends Controller = Controller, I extends any[] = [C | null]> extends ControllerRef<R, C, I> {
   /** @override */
   get descriptorType(): Proto<ViewControllerRefDescriptor<R, V, C>>;
+
+  set(viewOrController: V | C | LikeType<C> | Fastener<any, I[0], any> | null): R;
+
+  setIntrinsic(viewOrController: V | C | LikeType<C> | Fastener<any, I[0], any> | null): R;
 
   get viewType(): ViewFactory<V> | null;
 
@@ -52,7 +56,7 @@ export interface ViewControllerRef<R = any, V extends View = View, C extends Con
 
   setView(view: V | LikeType<V> | null, targetView?: View | null, controllerKey?: string): V | null;
 
-  attachView(view?: V | LikeType<V>, targetView?: View | null): V;
+  attachView(view?: V | LikeType<V> | null, targetView?: View | null): V;
 
   /** @protected */
   initView(view: V): void;
@@ -89,7 +93,7 @@ export interface ViewControllerRef<R = any, V extends View = View, C extends Con
   createView(): V;
 
   /** @protected */
-  fromLikeView(value: V | LikeType<V>): V;
+  fromViewLike(value: V | LikeType<V>): V;
 
   /** @protected */
   detectControllerView(controller: Controller): V | null;
@@ -108,7 +112,29 @@ export interface ViewControllerRef<R = any, V extends View = View, C extends Con
 }
 
 /** @public */
-export const ViewControllerRef = (<R, V extends View, C extends Controller, F extends ViewControllerRef<any, any, any>>() => ControllerRef.extend<ViewControllerRef<R, V, C>, ViewControllerRefClass<F>>("ViewControllerRef", {
+export const ViewControllerRef = (<R, V extends View, C extends Controller, I extends any[], F extends ViewControllerRef<any, any, any, any>>() => ControllerRef.extend<ViewControllerRef<R, V, C, I>, ViewControllerRefClass<F>>("ViewControllerRef", {
+  set(viewOrController: V | C | LikeType<C> | Fastener<any, I[0], any> | null): R {
+    if (viewOrController instanceof Fastener) {
+      this.bindInlet(viewOrController);
+    } else if (viewOrController instanceof View) {
+      this.setView(viewOrController);
+    } else {
+      this.setController(viewOrController);
+    }
+    return this.owner;
+  },
+
+  setIntrinsic(viewOrController: V | C | LikeType<C> | Fastener<any, I[0], any> | null): R {
+    if (viewOrController instanceof Fastener) {
+      this.bindInlet(viewOrController);
+    } else if (viewOrController instanceof View) {
+      this.setView(viewOrController);
+    } else {
+      this.setController(viewOrController);
+    }
+    return this.owner;
+  },
+
   viewType: null,
 
   viewKey: void 0,
@@ -131,7 +157,7 @@ export const ViewControllerRef = (<R, V extends View, C extends Controller, F ex
 
   setView(newView: V | LikeType<V> | null, targetView?: View | null, controllerKey?: string): V | null {
     if (newView !== null) {
-      newView = this.fromLikeView(newView);
+      newView = this.fromViewLike(newView);
     }
     let oldView = this.view;
     if (oldView === newView) {
@@ -176,10 +202,10 @@ export const ViewControllerRef = (<R, V extends View, C extends Controller, F ex
     return oldView;
   },
 
-  attachView(newView?: V | LikeType<V>, targetView?: View | null): V {
+  attachView(newView?: V | LikeType<V> | null, targetView?: View | null): V {
     let oldView = this.view;
     if (newView !== void 0 && newView !== null) {
-      newView = this.fromLikeView(newView);
+      newView = this.fromViewLike(newView);
     } else if (oldView === null) {
       newView = this.createView();
     } else {
@@ -263,7 +289,7 @@ export const ViewControllerRef = (<R, V extends View, C extends Controller, F ex
   insertView(controller?: C | null, newView?: V | LikeType<V>, targetView?: View | null, controllerKey?: string): V {
     let oldView = this.view;
     if (newView !== void 0 && newView !== null) {
-      newView = this.fromLikeView(newView);
+      newView = this.fromViewLike(newView);
     } else if (oldView === null) {
       newView = this.createView();
     } else {
@@ -340,7 +366,7 @@ export const ViewControllerRef = (<R, V extends View, C extends Controller, F ex
     return view;
   },
 
-  fromLikeView(value: V | LikeType<V>): V {
+  fromViewLike(value: V | LikeType<V>): V {
     const viewType = this.viewType;
     if (viewType !== null) {
       return viewType.fromLike(value);
@@ -389,7 +415,7 @@ export const ViewControllerRef = (<R, V extends View, C extends Controller, F ex
     return fastener;
   },
 
-  refine(fastenerClass: FastenerClass<ViewControllerRef<any, any, any>>): void {
+  refine(fastenerClass: FastenerClass<ViewControllerRef<any, any, any, any>>): void {
     super.refine(fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

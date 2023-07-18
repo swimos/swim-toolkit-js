@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Proto} from "@swim/util";
 import {Equals} from "@swim/util";
 import {Equivalent} from "@swim/util";
 import type {Output} from "@swim/codec";
@@ -60,7 +59,7 @@ export class ColLayout implements Equals, Equivalent, Debug {
     this.hidden = hidden;
   }
 
-  declare readonly likeType?: Proto<ColLayoutInit>;
+  likeType?(like: ColLayoutInit): void;
 
   readonly key: string;
 

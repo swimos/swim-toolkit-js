@@ -28,11 +28,11 @@ import {Trait} from "./Trait";
 
 /** @public */
 export interface TraitRelationDescriptor<R, T extends Trait> extends FastenerDescriptor<R> {
-  extends?: Proto<TraitRelation<any, any>> | boolean | null;
+  extends?: Proto<TraitRelation<any, any, any>> | boolean | null;
 }
 
 /** @public */
-export interface TraitRelationClass<F extends TraitRelation<any, any> = TraitRelation<any, any>> extends FastenerClass<F> {
+export interface TraitRelationClass<F extends TraitRelation<any, any, any> = TraitRelation<any, any, any>> extends FastenerClass<F> {
   /** @internal */
   readonly ConsumingFlag: FastenerFlags;
 
@@ -43,12 +43,12 @@ export interface TraitRelationClass<F extends TraitRelation<any, any> = TraitRel
 }
 
 /** @public */
-export interface TraitRelation<R = any, T extends Trait = Trait> extends Fastener<R>, Consumable {
+export interface TraitRelation<R = any, T extends Trait = Trait, I extends any[] = [T | null]> extends Fastener<R, T | null, I>, Consumable {
   /** @override */
   get descriptorType(): Proto<TraitRelationDescriptor<R, T>>;
 
   /** @override */
-  get fastenerType(): Proto<TraitRelation<any, any>>;
+  get fastenerType(): Proto<TraitRelation<any, any, any>>;
 
   get consumed(): boolean;
 
@@ -57,7 +57,7 @@ export interface TraitRelation<R = any, T extends Trait = Trait> extends Fastene
   get observes(): boolean;
 
   /** @override */
-  get parent(): TraitRelation<any, T> | null;
+  get parent(): TraitRelation<any, T, any> | null;
 
   /** @internal */
   readonly outlets: ReadonlySet<Fastener<any, any, any>> | null;
@@ -182,8 +182,8 @@ export interface TraitRelation<R = any, T extends Trait = Trait> extends Fastene
 }
 
 /** @public */
-export const TraitRelation = (<R, T extends Trait, F extends TraitRelation<any, any>>() => Fastener.extend<TraitRelation<R, T>, TraitRelationClass<F>>("TraitRelation", {
-  get fastenerType(): Proto<TraitRelation<any, any>> {
+export const TraitRelation = (<R, T extends Trait, I extends any[], F extends TraitRelation<any, any, any>>() => Fastener.extend<TraitRelation<R, T, I>, TraitRelationClass<F>>("TraitRelation", {
+  get fastenerType(): Proto<TraitRelation<any, any, any>> {
     return TraitRelation;
   },
 

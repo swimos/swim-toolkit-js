@@ -15,7 +15,6 @@
 import type {Class} from "@swim/util";
 import type {Timing} from "@swim/util";
 import type {Observes} from "@swim/util";
-import {Affinity} from "@swim/component";
 import {Color} from "@swim/style";
 import {Look} from "@swim/theme";
 import type {MoodVector} from "@swim/theme";
@@ -56,19 +55,15 @@ export class InputTokenView extends TokenView {
 
   protected override initLabel(labelView: HtmlView): void {
     super.initLabel(labelView);
-    labelView.paddingTop.setState(0, Affinity.Intrinsic);
-    labelView.paddingRight.setState(0, Affinity.Intrinsic);
-    labelView.paddingBottom.setState(0, Affinity.Intrinsic);
-    labelView.paddingLeft.setState(0, Affinity.Intrinsic);
-    labelView.borderTopStyle.setState("none", Affinity.Intrinsic);
-    labelView.borderRightStyle.setState("none", Affinity.Intrinsic);
-    labelView.borderBottomStyle.setState("none", Affinity.Intrinsic);
-    labelView.borderLeftStyle.setState("none", Affinity.Intrinsic);
-    labelView.boxSizing.setState("border-box", Affinity.Intrinsic);
-    labelView.backgroundColor.setState(Color.transparent(), Affinity.Intrinsic);
-    labelView.appearance.setState("none", Affinity.Intrinsic);
-    labelView.outlineStyle.setState("none", Affinity.Intrinsic);
-    labelView.pointerEvents.setState("auto", Affinity.Intrinsic);
+    labelView.setIntrinsic({
+      padding: 0,
+      borderStyle: "none",
+      boxSizing: "border-box",
+      backgroundColor: Color.transparent(),
+      appearance: "none",
+      outlineStyle: "none",
+      pointerEvents: "auto",
+    });
   }
 
   @ViewRef({
@@ -124,11 +119,11 @@ export class InputTokenView extends TokenView {
 
   protected override onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
-    this.placeholderRule.color.setState(theme.getOr(this.placeholderLook, mood, null), timing, Affinity.Intrinsic);
+    this.placeholderRule.color.setIntrinsic(theme.getOr(this.placeholderLook, mood, null), timing);
 
     const labelView = this.label.view;
     if (labelView !== null) {
-      labelView.font(theme.getOr(Look.font, mood, null), false, Affinity.Intrinsic);
+      labelView.font.setIntrinsic(theme.getOr(Look.font, mood, null), false);
     }
   }
 

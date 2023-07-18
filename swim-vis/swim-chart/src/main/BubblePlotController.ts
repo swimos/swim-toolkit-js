@@ -16,7 +16,6 @@ import type {Class} from "@swim/util";
 import type {TimingLike} from "@swim/util";
 import {Timing} from "@swim/util";
 import type {Observes} from "@swim/util";
-import {Affinity} from "@swim/component";
 import type {Length} from "@swim/math";
 import type {Color} from "@swim/style";
 import {Look} from "@swim/theme";
@@ -71,7 +70,7 @@ export class BubblePlotController<X = unknown, Y = unknown> extends ScatterPlotC
       } else {
         timing = Timing.fromLike(timing);
       }
-      plotView.radius.setState(radius, timing, Affinity.Intrinsic);
+      plotView.radius.setIntrinsic(radius, timing);
     }
   }
 
@@ -86,11 +85,7 @@ export class BubblePlotController<X = unknown, Y = unknown> extends ScatterPlotC
       } else {
         timing = Timing.fromLike(timing);
       }
-      if (fill instanceof Look) {
-        plotView.fill.setLook(fill, timing, Affinity.Intrinsic);
-      } else {
-        plotView.fill.setState(fill, timing, Affinity.Intrinsic);
-      }
+      plotView.fill.setIntrinsic(fill, timing);
     }
   }
 

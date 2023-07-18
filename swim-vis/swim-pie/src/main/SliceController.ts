@@ -58,7 +58,7 @@ export class SliceController extends Controller {
     if (sliceTrait.label.hasAffinity(Affinity.Intrinsic)) {
       const label = sliceTrait.formatLabel(value);
       if (label !== void 0) {
-        sliceTrait.label.setValue(label, Affinity.Intrinsic);
+        sliceTrait.label.setIntrinsic(label);
       }
     }
   }
@@ -67,7 +67,7 @@ export class SliceController extends Controller {
     if (sliceTrait.legend.hasAffinity(Affinity.Intrinsic)) {
       const legend = sliceTrait.formatLegend(value);
       if (legend !== void 0) {
-        sliceTrait.legend.setValue(legend, Affinity.Intrinsic);
+        sliceTrait.legend.setIntrinsic(legend);
       }
     }
   }
@@ -83,7 +83,7 @@ export class SliceController extends Controller {
       } else {
         timing = Timing.fromLike(timing);
       }
-      sliceView.value.setState(value, timing, Affinity.Intrinsic);
+      sliceView.value.setIntrinsic(value, timing);
     }
   }
 
@@ -98,25 +98,21 @@ export class SliceController extends Controller {
       } else {
         timing = Timing.fromLike(timing);
       }
-      if (sliceColor instanceof Look) {
-        sliceView.sliceColor.setLook(sliceColor, timing, Affinity.Intrinsic);
-      } else {
-        sliceView.sliceColor.setState(sliceColor, timing, Affinity.Intrinsic);
-      }
+      sliceView.sliceColor.setIntrinsic(sliceColor, timing);
     }
   }
 
   protected setLabelView(label: string | undefined): void {
     const sliceView = this.slice.view;
     if (sliceView !== null) {
-      sliceView.label.setText(label);
+      sliceView.label.set(label !== void 0 ? label : "");
     }
   }
 
   protected setLegendView(legend: string | undefined): void {
     const sliceView = this.slice.view;
     if (sliceView !== null) {
-      sliceView.legend.setText(legend);
+      sliceView.legend.set(legend !== void 0 ? legend : "");
     }
   }
 

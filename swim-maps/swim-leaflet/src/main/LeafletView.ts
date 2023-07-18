@@ -69,10 +69,9 @@ export class LeafletView extends MapView {
       this.owner.requireUpdate(View.NeedsProject, immediate);
     },
     update(): void {
-      if (!this.hasAffinity(Affinity.Intrinsic)) {
-        return;
+      if (this.hasAffinity(Affinity.Intrinsic)) {
+        this.setIntrinsic(LeafletViewport.create(this.owner.map));
       }
-      this.setValue(LeafletViewport.create(this.owner.map), Affinity.Intrinsic);
     },
   })
   override readonly geoViewport!: Property<this, GeoViewport | null> & MapView["geoViewport"] & {
@@ -154,7 +153,7 @@ export class LeafletView extends MapView {
       const controlContainerView = HtmlView.fromNode(containerView.node.querySelector(".leaflet-control-container") as HTMLDivElement);
       const canvasView = this.owner.canvas.insertView(containerView, void 0, controlContainerView);
       if (canvasView !== null) {
-        canvasView.zIndex.setState(500, Affinity.Intrinsic);
+        canvasView.zIndex.setIntrinsic(500);
       }
       super.didAttachView(containerView, targetView);
     },

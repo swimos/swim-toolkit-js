@@ -26,29 +26,35 @@ import {ModelRelation} from "./ModelRelation";
 
 /** @public */
 export interface ModelRefDescriptor<R, M extends Model> extends ModelRelationDescriptor<R, M> {
-  extends?: Proto<ModelRef<any, any>> | boolean | null;
+  extends?: Proto<ModelRef<any, any, any>> | boolean | null;
   modelKey?: string | boolean;
 }
 
 /** @public */
-export interface ModelRefClass<F extends ModelRef<any, any> = ModelRef<any, any>> extends ModelRelationClass<F> {
+export interface ModelRefClass<F extends ModelRef<any, any, any> = ModelRef<any, any, any>> extends ModelRelationClass<F> {
   tryModel<R, K extends keyof R, F extends R[K] = R[K]>(owner: R, fastenerName: K): F extends {readonly model: infer M | null} ? M | null : null;
 }
 
 /** @public */
-export interface ModelRef<R = any, M extends Model = Model> extends ModelRelation<R, M> {
+export interface ModelRef<R = any, M extends Model = Model, I extends any[] = [M | null]> extends ModelRelation<R, M, I> {
   /** @override */
   get descriptorType(): Proto<ModelRefDescriptor<R, M>>;
 
   /** @override */
-  get fastenerType(): Proto<ModelRef<any, any>>;
+  get fastenerType(): Proto<ModelRef<any, any, any>>;
 
   /** @override */
-  get parent(): ModelRef<any, M> | null;
+  get parent(): ModelRef<any, M, any> | null;
 
   get inletModel(): M | null;
 
   getInletModel(): M;
+
+  get(): M | null;
+
+  set(model: M | LikeType<M> | Fastener<any, I[0], any> | null): R;
+
+  setIntrinsic(model: M | LikeType<M> | Fastener<any, I[0], any> | null): R;
 
   get modelKey(): string | undefined;
 
@@ -58,7 +64,7 @@ export interface ModelRef<R = any, M extends Model = Model> extends ModelRelatio
 
   setModel(model: M | LikeType<M> | null, target?: Model | null, key?: string): M | null;
 
-  attachModel(model?: M | LikeType<M>, target?: Model | null): M;
+  attachModel(model?: M | LikeType<M> | null, target?: Model | null): M;
 
   detachModel(): M | null;
 
@@ -88,8 +94,8 @@ export interface ModelRef<R = any, M extends Model = Model> extends ModelRelatio
 }
 
 /** @public */
-export const ModelRef = (<R, M extends Model, F extends ModelRef<any, any>>() => ModelRelation.extend<ModelRef<R, M>, ModelRefClass<F>>("ModelRef", {
-  get fastenerType(): Proto<ModelRef<any, any>> {
+export const ModelRef = (<R, M extends Model, I extends any[], F extends ModelRef<any, any, any>>() => ModelRelation.extend<ModelRef<R, M, I>, ModelRefClass<F>>("ModelRef", {
+  get fastenerType(): Proto<ModelRef<any, any, any>> {
     return ModelRef;
   },
 
@@ -110,6 +116,28 @@ export const ModelRef = (<R, M extends Model, F extends ModelRef<any, any>>() =>
       throw new TypeError(message);
     }
     return inletModel;
+  },
+
+  get(): M | null {
+    return this.model;
+  },
+
+  set(model: M | LikeType<M> | Fastener<any, I[0], any> | null): R {
+    if (model instanceof Fastener) {
+      this.bindInlet(model);
+    } else {
+      this.setModel(model);
+    }
+    return this.owner;
+  },
+
+  setIntrinsic(model: M | LikeType<M> | Fastener<any, I[0], any> | null): R {
+    if (model instanceof Fastener) {
+      this.bindInlet(model);
+    } else {
+      this.setModel(model);
+    }
+    return this.owner;
   },
 
   modelKey: void 0,
@@ -177,7 +205,7 @@ export const ModelRef = (<R, M extends Model, F extends ModelRef<any, any>>() =>
     return oldModel;
   },
 
-  attachModel(newModel?: M | LikeType<M>, target?: Model | null): M {
+  attachModel(newModel?: M | LikeType<M> | null, target?: Model | null): M {
     const oldModel = this.model;
     if (newModel !== void 0 && newModel !== null) {
       newModel = this.fromLike(newModel);
@@ -375,7 +403,7 @@ export const ModelRef = (<R, M extends Model, F extends ModelRef<any, any>>() =>
     return fastener;
   },
 
-  refine(fastenerClass: FastenerClass<ModelRef<any, any>>): void {
+  refine(fastenerClass: FastenerClass<ModelRef<any, any, any>>): void {
     super.refine(fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

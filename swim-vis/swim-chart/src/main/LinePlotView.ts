@@ -61,8 +61,8 @@ export class LinePlotView<X = unknown, Y = unknown> extends SeriesPlotView<X, Y>
         const size = Math.min(frame.width, frame.height);
         const strokeWidth = this.getValueOr(Length.zero()).pxValue(size);
         const strokeRadius = strokeWidth / 2;
-        this.owner.xRangePadding.setValue([strokeRadius, strokeRadius], Affinity.Intrinsic);
-        this.owner.yRangePadding.setValue([strokeRadius, strokeRadius], Affinity.Intrinsic);
+        this.owner.xRangePadding.setIntrinsic([strokeRadius, strokeRadius]);
+        this.owner.yRangePadding.setIntrinsic([strokeRadius, strokeRadius]);
       }
       this.owner.callObservers("viewDidSetStrokeWidth", strokeWidth, this.owner);
     },

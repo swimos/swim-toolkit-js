@@ -155,7 +155,7 @@ export class GeoArcView extends GeoView implements FillView, StrokeView {
       const viewCenter = geoCenter !== null && geoCenter.isDefined()
                        ? geoViewport.project(geoCenter)
                        : null;
-      (this.viewCenter as Mutable<typeof this.viewCenter>).value = viewCenter; // this.viewCenter.setValue(viewCenter, Affinity.Intrinsic)
+      (this.viewCenter as Mutable<typeof this.viewCenter>).value = viewCenter; // this.viewCenter.setIntrinsic(viewCenter);
     }
     const viewFrame = this.viewFrame;
     const size = Math.min(viewFrame.width, viewFrame.height);

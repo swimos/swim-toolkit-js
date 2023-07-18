@@ -24,27 +24,27 @@ import {View} from "./View";
 
 /** @public */
 export interface ViewRelationDescriptor<R, V extends View> extends FastenerDescriptor<R> {
-  extends?: Proto<ViewRelation<any, any>> | boolean | null;
+  extends?: Proto<ViewRelation<any, any, any>> | boolean | null;
 }
 
 /** @public */
-export interface ViewRelationClass<F extends ViewRelation<any, any> = ViewRelation<any, any>> extends FastenerClass<F> {
+export interface ViewRelationClass<F extends ViewRelation<any, any, any> = ViewRelation<any, any, any>> extends FastenerClass<F> {
 }
 
 /** @public */
-export interface ViewRelation<R = any, V extends View = View> extends Fastener<R> {
+export interface ViewRelation<R = any, V extends View = View, I extends any[] = [V | null]> extends Fastener<R, V | null, I> {
   /** @override */
   get descriptorType(): Proto<ViewRelationDescriptor<R, V>>;
 
   /** @override */
-  get fastenerType(): Proto<ViewRelation<any, any>>;
+  get fastenerType(): Proto<ViewRelation<any, any, any>>;
 
   get viewType(): ViewFactory<V> | null;
 
   get observes(): boolean;
 
   /** @override */
-  get parent(): ViewRelation<any, V> | null;
+  get parent(): ViewRelation<any, V, any> | null;
 
   /** @internal */
   readonly outlets: ReadonlySet<Fastener<any, any, any>> | null;
@@ -101,8 +101,8 @@ export interface ViewRelation<R = any, V extends View = View> extends Fastener<R
 }
 
 /** @public */
-export const ViewRelation = (<R, V extends View, F extends ViewRelation<any, any>>() => Fastener.extend<ViewRelation<R, V>, ViewRelationClass<F>>("ViewRelation", {
-  get fastenerType(): Proto<ViewRelation<any, any>> {
+export const ViewRelation = (<R, V extends View, I extends any[], F extends ViewRelation<any, any, any>>() => Fastener.extend<ViewRelation<R, V, I>, ViewRelationClass<F>>("ViewRelation", {
+  get fastenerType(): Proto<ViewRelation<any, any, any>> {
     return ViewRelation;
   },
 

@@ -50,7 +50,7 @@ export class WorldMapView extends MapView {
     extends: true,
     update(): void {
       if (this.hasAffinity(Affinity.Intrinsic) && this.value instanceof WorldMapViewport) {
-        this.setValue(this.value.withViewFrame(this.owner.viewFrame), Affinity.Intrinsic);
+        this.setIntrinsic(this.value.withViewFrame(this.owner.viewFrame));
       }
     },
   })

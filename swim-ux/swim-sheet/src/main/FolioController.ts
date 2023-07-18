@@ -214,8 +214,8 @@ export class FolioController extends StackController {
       this.owner.callObservers("controllerWillAttachFolioView", folioView, this.owner);
     },
     didAttachView(folioView: FolioView): void {
-      this.owner.folioStyle.setValue(folioView.folioStyle.value, Affinity.Intrinsic);
-      this.owner.fullBleed.setValue(folioView.fullBleed.value, Affinity.Intrinsic);
+      this.owner.folioStyle.setIntrinsic(folioView.folioStyle.value);
+      this.owner.fullBleed.setIntrinsic(folioView.fullBleed.value);
       this.owner.drawer.setView(folioView.drawer.attachView());
       this.owner.stack.setView(folioView.stack.attachView());
     },
@@ -227,10 +227,10 @@ export class FolioController extends StackController {
       this.owner.callObservers("controllerDidDetachFolioView", folioView, this.owner);
     },
     viewDidSetFolioStyle(folioStyle: FolioStyle | undefined, folioView: FolioView): void {
-      this.owner.folioStyle.setValue(folioStyle, Affinity.Intrinsic);
+      this.owner.folioStyle.setIntrinsic(folioStyle);
     },
     viewDidSetFullBleed(fullBleed: boolean, folioView: FolioView): void {
-      this.owner.fullBleed.setValue(fullBleed, Affinity.Intrinsic);
+      this.owner.fullBleed.setIntrinsic(fullBleed);
     },
     viewWillAttachDrawer(drawerView: DrawerView): void {
       this.owner.drawer.setView(drawerView);
@@ -303,7 +303,7 @@ export class FolioController extends StackController {
     controllerDidPressSearchButton(input: PositionGestureInput, event: Event | null, navBarController: BarController): void {
       const frontController = this.owner.front.controller;
       if (frontController !== null) {
-        frontController.searching.setValue(true);
+        frontController.searching.set(true);
       }
       if (navBarController instanceof NavBarController) {
         const searchInputController = navBarController.searchInput.controller;
@@ -330,7 +330,7 @@ export class FolioController extends StackController {
     controllerDidCancelSearch(inputView: HtmlView | null, navBarController: BarController): void {
       const frontController = this.owner.front.controller;
       if (frontController !== null) {
-        frontController.searching.setValue(false);
+        frontController.searching.set(false);
       }
     },
   })
@@ -339,7 +339,7 @@ export class FolioController extends StackController {
   };
 
   protected didPressMenuButton(input: PositionGestureInput, event: Event | null): void {
-    this.fullScreen.setValue(!this.fullScreen.value, Affinity.Intrinsic);
+    this.fullScreen.setIntrinsic(!this.fullScreen.value);
     this.callObservers("controllerDidPressMenuButton", input, event, this);
   }
 
@@ -461,7 +461,7 @@ export class FolioController extends StackController {
       this.owner.callObservers("controllerWillAttachCover", coverController, this.owner);
     },
     didAttachController(coverController: SheetController): void {
-      this.owner.fullBleed.setValue(coverController.fullBleed.value, Affinity.Intrinsic);
+      this.owner.fullBleed.setIntrinsic(coverController.fullBleed.value);
       const coverTrait = coverController.sheet.trait;
       if (coverTrait !== null) {
         this.attachCoverTrait(coverTrait, coverController);
@@ -532,7 +532,7 @@ export class FolioController extends StackController {
       this.detachController();
     },
     controllerDidSetFullBleed(fullBleed: boolean): void {
-      this.owner.fullBleed.setValue(fullBleed, Affinity.Intrinsic);
+      this.owner.fullBleed.setIntrinsic(fullBleed);
     },
     controllerWillAttachModeTool(toolController: ToolController, targetToolController: ToolController | null): void {
       this.owner.modeTools.attachController(toolController, targetToolController);

@@ -14,7 +14,6 @@
 
 import type {Class} from "@swim/util";
 import type {Observes} from "@swim/util";
-import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import type {Length} from "@swim/math";
 import type {ViewInsets} from "@swim/view";
@@ -58,9 +57,10 @@ export class StackView extends HtmlView {
 
   protected initStack(): void {
     this.addClass("stack");
-    this.position.setState("relative", Affinity.Intrinsic);
-    this.overflowX.setState("hidden", Affinity.Intrinsic);
-    this.overflowY.setState("hidden", Affinity.Intrinsic);
+    this.setIntrinsic<StackView>({
+      position: "relative",
+      overflow: "hidden",
+    });
   }
 
   declare readonly observerType?: Class<StackViewObserver>;
@@ -70,13 +70,14 @@ export class StackView extends HtmlView {
     binds: true,
     observes: true,
     initView(navBarView: BarView): void {
-      const stackWidth = this.owner.width.cssState;
-      navBarView.placement.setValue("top", Affinity.Intrinsic);
-      navBarView.position.setState("absolute", Affinity.Intrinsic);
-      navBarView.left.setState(0, Affinity.Intrinsic);
-      navBarView.top.setState(0, Affinity.Intrinsic);
-      navBarView.width.setState(stackWidth, Affinity.Intrinsic);
-      navBarView.zIndex.setState(1, Affinity.Intrinsic);
+      navBarView.setIntrinsic({
+        placement: "top",
+        position: "absolute",
+        left: 0,
+        top: 0,
+        width: this.owner.width.cssState,
+        zIndex: 1,
+      });
     },
     willAttachView(navBarView: BarView, target: View | null): void {
       this.owner.callObservers("viewWillAttachNavBar", navBarView, target, this.owner);
@@ -114,14 +115,16 @@ export class StackView extends HtmlView {
       const navBarHeight = navBarView !== null && navBarView.mounted
                          ? navBarView.height.cssState : null;
 
-      sheetView.position.setState("absolute", Affinity.Intrinsic);
-      sheetView.left.setState(stackWidth, Affinity.Intrinsic);
-      sheetView.top.setState(0, Affinity.Intrinsic);
-      sheetView.width.setState(stackWidth, Affinity.Intrinsic);
-      sheetView.height.setState(stackHeight, Affinity.Intrinsic);
-      sheetView.paddingTop.setState(navBarHeight, Affinity.Intrinsic);
-      sheetView.boxSizing.setState("border-box", Affinity.Intrinsic);
-      sheetView.zIndex.setState(0, Affinity.Intrinsic);
+      sheetView.setIntrinsic({
+        position: "absolute",
+        left: stackWidth,
+        top: 0,
+        width: stackWidth,
+        height: stackHeight,
+        paddingTop: navBarHeight,
+        boxSizing: "border-box",
+        zIndex: 0,
+      });
     },
     willAttachView(sheetView: SheetView, target: View | null): void {
       this.owner.callObservers("viewWillAttachSheet", sheetView, target, this.owner);
@@ -193,16 +196,18 @@ export class StackView extends HtmlView {
     const navBarView = this.navBar.view;
     let navBarHeight: Length | null = null;
     if (navBarView !== null && navBarView.mounted) {
-      navBarView.width.setState(stackWidth, Affinity.Intrinsic);
+      navBarView.width.setIntrinsic(stackWidth);
       navBarHeight = navBarView.height.cssState;
     }
 
     const sheetViews = this.sheets.views;
     for (const viewId in sheetViews) {
       const sheetView = sheetViews[viewId]!;
-      sheetView.width.setState(stackWidth, Affinity.Intrinsic);
-      sheetView.height.setState(stackHeight, Affinity.Intrinsic);
-      sheetView.paddingTop.setState(navBarHeight, Affinity.Intrinsic);
+      sheetView.setIntrinsic({
+        width: stackWidth,
+        height: stackHeight,
+        paddingTop: navBarHeight,
+      });
     }
   }
 }

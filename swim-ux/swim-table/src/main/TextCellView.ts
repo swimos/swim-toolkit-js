@@ -13,7 +13,8 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {Affinity} from "@swim/component";
+import type {Like} from "@swim/util";
+import type {LikeType} from "@swim/util";
 import {ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import type {CellViewObserver} from "./CellView";
@@ -45,26 +46,26 @@ export class TextCellView extends CellView {
     didDetachView(contentView: HtmlView): void {
       this.owner.callObservers("viewDidDetachContent", contentView, this.owner);
     },
-    setText(content: string | undefined): HtmlView {
-      let contentView = this.view;
-      if (contentView === null) {
-        contentView = this.createView();
-        this.setView(contentView);
+    fromLike(value: HtmlView | LikeType<HtmlView> | string | undefined): HtmlView {
+      if (value === void 0 || typeof value === "string") {
+        let view = this.view;
+        if (view === null) {
+          view = this.createView();
+        }
+        view.text(value);
+        return view;
       }
-      contentView.text(content);
-      return contentView;
+      return super.fromLike(value);
     },
     createView(): HtmlView {
-      const contentView = HtmlView.fromTag("span");
-      contentView.alignSelf.setState("center", Affinity.Intrinsic);
-      contentView.whiteSpace.setState("nowrap", Affinity.Intrinsic);
-      contentView.textOverflow.setState("ellipsis", Affinity.Intrinsic);
-      contentView.overflowX.setState("hidden", Affinity.Intrinsic);
-      contentView.overflowY.setState("hidden", Affinity.Intrinsic);
-      return contentView;
+      return HtmlView.fromTag("span").setIntrinsic({
+        alignSelf: "center",
+        whiteSpace: "nowrap",
+        textOverflow: "ellipsis",
+        overflowX: "hidden",
+        overflowY: "hidden",
+      });
     },
   })
-  readonly content!: ViewRef<this, HtmlView> & {
-    setText(content: string | undefined): HtmlView,
-  };
+  readonly content!: ViewRef<this, Like<HtmlView, string | undefined>>;
 }

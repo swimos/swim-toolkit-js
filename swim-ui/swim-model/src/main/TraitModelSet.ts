@@ -29,16 +29,16 @@ import {Trait} from "./Trait";
 
 /** @public */
 export interface TraitModelSetDescriptor<R, T extends Trait, M extends Model> extends ModelSetDescriptor<R, M> {
-  extends?: Proto<TraitModelSet<any, any, any>> | boolean | null;
+  extends?: Proto<TraitModelSet<any, any, any, any>> | boolean | null;
   traitKey?: string | boolean;
 }
 
 /** @public */
-export interface TraitModelSetClass<F extends TraitModelSet<any, any, any> = TraitModelSet<any, any, any>> extends ModelSetClass<F> {
+export interface TraitModelSetClass<F extends TraitModelSet<any, any, any, any> = TraitModelSet<any, any, any, any>> extends ModelSetClass<F> {
 }
 
 /** @public */
-export interface TraitModelSet<R = any, T extends Trait = Trait, M extends Model = Model> extends ModelSet<R, M> {
+export interface TraitModelSet<R = any, T extends Trait = Trait, M extends Model = Model, I extends any[] = [M | null]> extends ModelSet<R, M, I> {
   /** @override */
   get descriptorType(): Proto<TraitModelSetDescriptor<R, T, M>>;
 
@@ -61,7 +61,7 @@ export interface TraitModelSet<R = any, T extends Trait = Trait, M extends Model
 
   setTraits(traits: {readonly [traitId: string]: T | undefined}, targetModel?: Model | null): void;
 
-  attachTrait(trait?: T | LikeType<T>, targetModel?: Model | null): T;
+  attachTrait(trait?: T | LikeType<T> | null, targetModel?: Model | null): T;
 
   /** @protected */
   initTrait(trait: T): void;
@@ -114,7 +114,7 @@ export interface TraitModelSet<R = any, T extends Trait = Trait, M extends Model
   createTrait(): T;
 
   /** @protected */
-  fromLikeTrait(value: T | LikeType<T>): T;
+  fromTraitLike(value: T | LikeType<T>): T;
 
   /** @protected */
   detectModelTrait(model: Model): T | null;
@@ -142,7 +142,7 @@ export interface TraitModelSet<R = any, T extends Trait = Trait, M extends Model
 }
 
 /** @public */
-export const TraitModelSet = (<R, T extends Trait, M extends Model, F extends TraitModelSet<any, any, any>>() => ModelSet.extend<TraitModelSet<R, T, M>, TraitModelSetClass<F>>("TraitModelSet", {
+export const TraitModelSet = (<R, T extends Trait, M extends Model, I extends any[], F extends TraitModelSet<any, any, any, any>>() => ModelSet.extend<TraitModelSet<R, T, M, I>, TraitModelSetClass<F>>("TraitModelSet", {
   traitType: null,
 
   traitKey: void 0,
@@ -155,7 +155,7 @@ export const TraitModelSet = (<R, T extends Trait, M extends Model, F extends Tr
 
   addTrait(newTrait?: T | LikeType<T>, targetModel?: Model | null, modelKey?: string): T {
     if (newTrait !== void 0 && newTrait !== null) {
-      newTrait = this.fromLikeTrait(newTrait);
+      newTrait = this.fromTraitLike(newTrait);
     } else {
       newTrait = this.createTrait();
     }
@@ -187,9 +187,9 @@ export const TraitModelSet = (<R, T extends Trait, M extends Model, F extends Tr
     }
   },
 
-  attachTrait(newTrait?: T | LikeType<T>, targetModel?: Model | null): T {
+  attachTrait(newTrait?: T | LikeType<T> | null, targetModel?: Model | null): T {
     if (newTrait !== void 0 && newTrait !== null) {
-      newTrait = this.fromLikeTrait(newTrait);
+      newTrait = this.fromTraitLike(newTrait);
     } else {
       newTrait = this.createTrait();
     }
@@ -284,7 +284,7 @@ export const TraitModelSet = (<R, T extends Trait, M extends Model, F extends Tr
 
   insertTrait(parent?: Model | null, newTrait?: T | LikeType<T>, targetModel?: Model | null, modelKey?: string): T {
     if (newTrait !== void 0 && newTrait !== null) {
-      newTrait = this.fromLikeTrait(newTrait);
+      newTrait = this.fromTraitLike(newTrait);
     } else {
       newTrait = this.createTrait();
     }
@@ -380,7 +380,7 @@ export const TraitModelSet = (<R, T extends Trait, M extends Model, F extends Tr
     return trait;
   },
 
-  fromLikeTrait(value: T | LikeType<T>): T {
+  fromTraitLike(value: T | LikeType<T>): T {
     const traitType = this.traitType;
     if (traitType !== null) {
       return traitType.fromLike(value);
@@ -449,7 +449,7 @@ export const TraitModelSet = (<R, T extends Trait, M extends Model, F extends Tr
     return fastener;
   },
 
-  refine(fastenerClass: FastenerClass<TraitModelSet<any, any, any>>): void {
+  refine(fastenerClass: FastenerClass<TraitModelSet<any, any, any, any>>): void {
     super.refine(fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

@@ -25,7 +25,6 @@ import type {TimingLike} from "@swim/util";
 import {LinearRange} from "@swim/util";
 import type {ContinuousScale} from "@swim/util";
 import type {Observes} from "@swim/util";
-import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import {BTree} from "@swim/collections";
 import type {R2Box} from "@swim/math";
@@ -538,7 +537,7 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
             category = "flat";
           }
         }
-        point1.category.setValue(category, Affinity.Intrinsic);
+        point1.category.setIntrinsic(category);
 
         // update extrema
         if (Values.compare(y2, yDataDomainMin) < 0) {
@@ -580,7 +579,7 @@ export abstract class SeriesPlotView<X = unknown, Y = unknown> extends GraphicsV
         // categorize sole point
         category = "flat";
       }
-      point1.category.setValue(category, Affinity.Intrinsic);
+      point1.category.setIntrinsic(category);
     }
 
     this.setXDataDomain(point0 !== null ? this.xScale.createDomain(xDataDomainMin!, xDataDomainMax!) : null);

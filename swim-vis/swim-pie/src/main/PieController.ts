@@ -73,7 +73,7 @@ export class PieController extends Controller {
   protected setTitleView(title: string | undefined): void {
     const pieView = this.pie.view;
     if (pieView !== null) {
-      pieView.title.setText(title);
+      pieView.title.set(title);
     }
   }
 

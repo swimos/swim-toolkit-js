@@ -50,13 +50,15 @@ export class SheetView extends HtmlView {
 
   protected initSheet(): void {
     this.addClass("sheet");
-    this.position.setState("relative", Affinity.Intrinsic);
-    this.boxSizing.setState("border-box", Affinity.Intrinsic);
-    this.overflowX.setState("hidden", Affinity.Intrinsic);
-    this.overflowY.setState("auto", Affinity.Intrinsic);
-    this.overscrollBehaviorY.setState("contain", Affinity.Intrinsic);
-    this.overflowScrolling.setState("touch", Affinity.Intrinsic);
-    this.backgroundColor.setLook(Look.backgroundColor, Affinity.Intrinsic);
+    this.setIntrinsic<SheetView>({
+      position: "relative",
+      boxSizing: "border-box",
+      overflowX: "hidden",
+      overflowY: "auto",
+      overscrollBehaviorY: "contain",
+      overflowScrolling: "touch",
+      backgroundColor: Look.backgroundColor,
+    });
   }
 
   declare readonly observerType?: Class<SheetViewObserver>;
@@ -97,13 +99,13 @@ export class SheetView extends HtmlView {
       this.overflowX = this.owner.overflowX.state;
       this.overflowY = this.owner.overflowY.state;
       this.owner.pointerEvents.setState("none", Affinity.Transient);
-      this.owner.overflowX.setState("hidden", Affinity.Intrinsic);
-      this.owner.overflowY.setState("hidden", Affinity.Intrinsic);
+      this.owner.overflowX.setIntrinsic("hidden");
+      this.owner.overflowY.setIntrinsic("hidden");
     },
     didDismiss(): void {
       this.owner.pointerEvents.setState(this.pointerEvents, Affinity.Transient);
-      this.owner.overflowX.setState(this.overflowX, Affinity.Intrinsic);
-      this.owner.overflowY.setState(this.overflowY, Affinity.Intrinsic);
+      this.owner.overflowX.setIntrinsic(this.overflowX);
+      this.owner.overflowY.setIntrinsic(this.overflowY);
       this.pointerEvents = void 0;
       this.overflowX = void 0;
       this.overflowY = void 0;
@@ -132,7 +134,7 @@ export class SheetView extends HtmlView {
     const sheetWidth = this.width.pxState();
     const sheetAlign = this.sheetAlign.value;
     const phase = this.presence.value.phase;
-    this.left.setState(sheetWidth * sheetAlign * (1 - phase), Affinity.Intrinsic);
+    this.left.setIntrinsic(sheetWidth * sheetAlign * (1 - phase));
   }
 
   protected onSheetScroll(event: Event): void {

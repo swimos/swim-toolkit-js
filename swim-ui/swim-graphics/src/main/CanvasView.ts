@@ -14,8 +14,8 @@
 
 import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
-import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
+import {EventHandler} from "@swim/component";
 import {Provider} from "@swim/component";
 import {R2Box} from "@swim/math";
 import {Transform} from "@swim/math";
@@ -51,58 +51,20 @@ export class CanvasView extends HtmlView {
   constructor(node: HTMLCanvasElement) {
     super(node);
     this.viewFrame = R2Box.undefined();
-    this.canvasFlags = CanvasView.ClickEventsFlag;
-    this.eventNode = node;
     this.mouse = null;
     this.pointers = null;
     this.touches = null;
 
-    this.onClick = this.onClick.bind(this);
-    this.onDblClick = this.onDblClick.bind(this);
-    this.onContextMenu = this.onContextMenu.bind(this);
-
-    this.onWheel = this.onWheel.bind(this);
-
-    this.onMouseEnter = this.onMouseEnter.bind(this);
-    this.onMouseLeave = this.onMouseLeave.bind(this);
-    this.onMouseDown = this.onMouseDown.bind(this);
-    this.onMouseMove = this.onMouseMove.bind(this);
-    this.onMouseUp = this.onMouseUp.bind(this);
-
-    this.onPointerEnter = this.onPointerEnter.bind(this);
-    this.onPointerLeave = this.onPointerLeave.bind(this);
-    this.onPointerDown = this.onPointerDown.bind(this);
-    this.onPointerMove = this.onPointerMove.bind(this);
-    this.onPointerUp = this.onPointerUp.bind(this);
-    this.onPointerCancel = this.onPointerCancel.bind(this);
-
-    this.onTouchStart = this.onTouchStart.bind(this);
-    this.onTouchMove = this.onTouchMove.bind(this);
-    this.onTouchEnd = this.onTouchEnd.bind(this);
-    this.onTouchCancel = this.onTouchCancel.bind(this);
-
-    this.initCanvas();
+    this.setIntrinsic<CanvasView>({
+      position: "absolute",
+      left: 0,
+      top: 0,
+    });
   }
 
   declare readonly observerType?: Class<CanvasViewObserver>;
 
   declare readonly node: HTMLCanvasElement;
-
-  protected initCanvas(): void {
-    this.position.setState("absolute", Affinity.Intrinsic);
-    this.left.setState(0, Affinity.Intrinsic);
-    this.top.setState(0, Affinity.Intrinsic);
-  }
-
-  protected override onMount(): void {
-    super.onMount();
-    this.attachEvents(this.eventNode);
-  }
-
-  protected override onUnmount(): void {
-    this.detachEvents(this.eventNode);
-    super.onUnmount();
-  }
 
   protected override needsUpdate(updateFlags: ViewFlags, immediate: boolean): ViewFlags {
     updateFlags = super.needsUpdate(updateFlags, immediate);
@@ -197,14 +159,6 @@ export class CanvasView extends HtmlView {
   }
 
   /** @internal */
-  readonly canvasFlags: CanvasFlags;
-
-  /** @internal */
-  setCanvasFlags(canvasFlags: CanvasFlags): void {
-    (this as Mutable<this>).canvasFlags = canvasFlags;
-  }
-
-  /** @internal */
   readonly viewFrame: R2Box;
 
   setViewFrame(viewFrame: R2Box | null): void {
@@ -254,7 +208,7 @@ export class CanvasView extends HtmlView {
 
   /** @internal */
   protected detectHitTargets(clientBounds?: R2Box): void {
-    if ((this.canvasFlags & CanvasView.MouseEventsFlag) !== 0) {
+    if (this.mouseEvents.value) {
       const mouse = this.mouse;
       if (mouse !== null) {
         if (clientBounds === void 0) {
@@ -263,7 +217,7 @@ export class CanvasView extends HtmlView {
         this.detectMouseTarget(mouse, this.clientBounds);
       }
     }
-    if ((this.canvasFlags & CanvasView.PointerEventsFlag) !== 0) {
+    if (this.pointerEvents.value) {
       const pointers = this.pointers;
       for (const id in pointers) {
         const pointer = pointers[id]!;
@@ -275,109 +229,82 @@ export class CanvasView extends HtmlView {
     }
   }
 
-  readonly eventNode: HTMLElement;
+  setEventTarget(eventTarget: EventTarget | null): void {
+    if (eventTarget === null) {
+      eventTarget = this;
+    }
 
-  setEventNode(newEventNode: HTMLElement | null): void {
-    if (newEventNode === null) {
-      newEventNode = this.node;
-    }
-    const oldEventNode = this.eventNode;
-    if (oldEventNode !== newEventNode) {
-      this.detachEvents(oldEventNode);
-      (this as Mutable<this>).eventNode = newEventNode;
-      this.attachEvents(newEventNode);
-    }
+    this.click.setTarget(eventTarget);
+    this.dblclick.setTarget(eventTarget);
+    this.contextmenu.setTarget(eventTarget);
+    this.wheel.setTarget(eventTarget);
+
+    this.mouseenter.setTarget(eventTarget);
+    this.mouseleave.setTarget(eventTarget);
+    this.mousedown.setTarget(eventTarget);
+
+    this.pointerenter.setTarget(eventTarget);
+    this.pointerleave.setTarget(eventTarget);
+    this.pointerdown.setTarget(eventTarget);
+
+    this.touchstart.setTarget(eventTarget);
+    this.touchmove.setTarget(eventTarget);
+    this.touchend.setTarget(eventTarget);
+    this.touchcancel.setTarget(eventTarget);
   }
 
-  clickEventsEnabled(): boolean;
-  clickEventsEnabled(clickEvents: boolean): this;
-  clickEventsEnabled(newClickEvents?: boolean): boolean | this {
-    const oldClickEvents = (this.canvasFlags & CanvasView.ClickEventsFlag) !== 0;
-    if (newClickEvents === void 0) {
-      return oldClickEvents;
-    } else {
-      if (newClickEvents && !oldClickEvents) {
-        this.setCanvasFlags(this.canvasFlags | CanvasView.ClickEventsFlag);
-        this.attachClickEvents(this.eventNode);
-      } else if (!newClickEvents && oldClickEvents) {
-        this.setCanvasFlags(this.canvasFlags & ~CanvasView.ClickEventsFlag);
-        this.detachClickEvents(this.eventNode);
-      }
-      return this;
-    }
-  }
+  @Property({
+    valueType: Boolean,
+    value: true,
+    didSetValue(clickEvents: boolean): void {
+      this.owner.click.enabled = clickEvents;
+      this.owner.dblclick.enabled = clickEvents;
+      this.owner.contextmenu.enabled = clickEvents;
+    },
+  })
+  readonly clickEvents!: Property<this, boolean>;
 
-  wheelEventsEnabled(): boolean;
-  wheelEventsEnabled(wheelEvents: boolean): this;
-  wheelEventsEnabled(newWheelEvents?: boolean): boolean | this {
-    const oldWheelEvents = (this.canvasFlags & CanvasView.WheelEventsFlag) !== 0;
-    if (newWheelEvents === void 0) {
-      return oldWheelEvents;
-    } else {
-      if (newWheelEvents && !oldWheelEvents) {
-        this.setCanvasFlags(this.canvasFlags | CanvasView.WheelEventsFlag);
-        this.attachWheelEvents(this.eventNode);
-      } else if (!newWheelEvents && oldWheelEvents) {
-        this.setCanvasFlags(this.canvasFlags & ~CanvasView.WheelEventsFlag);
-        this.detachWheelEvents(this.eventNode);
-      }
-      return this;
-    }
-  }
+  @Property({
+    valueType: Boolean,
+    value: false,
+    didSetValue(wheelEvents: boolean): void {
+      this.owner.wheel.enabled = wheelEvents;
+    },
+  })
+  readonly wheelEvents!: Property<this, boolean>;
 
-  mouseEventsEnabled(): boolean;
-  mouseEventsEnabled(mouseEvents: boolean): this;
-  mouseEventsEnabled(newMouseEvents?: boolean): boolean | this {
-    const oldMouseEvents = (this.canvasFlags & CanvasView.MouseEventsFlag) !== 0;
-    if (newMouseEvents === void 0) {
-      return oldMouseEvents;
-    } else {
-      if (newMouseEvents && !oldMouseEvents) {
-        this.setCanvasFlags(this.canvasFlags | CanvasView.MouseEventsFlag);
-        this.attachPassiveMouseEvents(this.eventNode);
-      } else if (!newMouseEvents && oldMouseEvents) {
-        this.setCanvasFlags(this.canvasFlags & ~CanvasView.MouseEventsFlag);
-        this.detachPassiveMouseEvents(this.eventNode);
-      }
-      return this;
-    }
-  }
+  @Property({
+    valueType: Boolean,
+    value: false,
+    didSetValue(mouseEvents: boolean): void {
+      this.owner.mouseenter.enabled = mouseEvents;
+      this.owner.mouseleave.enabled = mouseEvents;
+      this.owner.mousedown.enabled = mouseEvents;
+    },
+  })
+  readonly mouseEvents!: Property<this, boolean>;
 
-  pointerEventsEnabled(): boolean;
-  pointerEventsEnabled(pointerEvents: boolean): this;
-  pointerEventsEnabled(newPointerEvents?: boolean): boolean | this {
-    const oldPointerEvents = (this.canvasFlags & CanvasView.PointerEventsFlag) !== 0;
-    if (newPointerEvents === void 0) {
-      return oldPointerEvents;
-    } else {
-      if (newPointerEvents && !oldPointerEvents) {
-        this.setCanvasFlags(this.canvasFlags | CanvasView.PointerEventsFlag);
-        this.attachPassivePointerEvents(this.eventNode);
-      } else if (!newPointerEvents && oldPointerEvents) {
-        this.setCanvasFlags(this.canvasFlags & ~CanvasView.PointerEventsFlag);
-        this.detachPassivePointerEvents(this.eventNode);
-      }
-      return this;
-    }
-  }
+  @Property({
+    valueType: Boolean,
+    value: false,
+    didSetValue(pointerEvents: boolean): void {
+      this.owner.pointerenter.enabled = pointerEvents;
+      this.owner.pointerleave.enabled = pointerEvents;
+      this.owner.pointerdown.enabled = pointerEvents;
+    },
+    // TODO: rename to `pointerEvents` once StyleMap
+    // becomes a nested `style` fastener.
+  })
+  readonly pointerevents!: Property<this, boolean>;
 
-  touchEventsEnabled(): boolean;
-  touchEventsEnabled(touchEvents: boolean): this;
-  touchEventsEnabled(newTouchEvents?: boolean): boolean | this {
-    const oldTouchEvents = (this.canvasFlags & CanvasView.TouchEventsFlag) !== 0;
-    if (newTouchEvents === void 0) {
-      return oldTouchEvents;
-    } else {
-      if (newTouchEvents && !oldTouchEvents) {
-        this.setCanvasFlags(this.canvasFlags | CanvasView.TouchEventsFlag);
-        this.attachPassiveTouchEvents(this.eventNode);
-      } else if (!newTouchEvents && oldTouchEvents) {
-        this.setCanvasFlags(this.canvasFlags & ~CanvasView.TouchEventsFlag);
-        this.detachPassiveTouchEvents(this.eventNode);
-      }
-      return this;
-    }
-  }
+  @Property({
+    valueType: Boolean,
+    value: false,
+    didSetValue(touchEvents: boolean): void {
+      this.owner.touchstart.enabled = touchEvents;
+    },
+  })
+  readonly touchEvents!: Property<this, boolean>;
 
   /** @internal */
   handleEvent(event: GraphicsEvent): void {
@@ -388,41 +315,6 @@ export class CanvasView extends HtmlView {
   bubbleEvent(event: GraphicsEvent): View | null {
     this.handleEvent(event);
     return this;
-  }
-
-  /** @internal */
-  protected attachEvents(eventNode: HTMLElement): void {
-    if ((this.canvasFlags & CanvasView.ClickEventsFlag) !== 0) {
-      this.attachClickEvents(eventNode);
-    }
-    if ((this.canvasFlags & CanvasView.WheelEventsFlag) !== 0) {
-      this.attachWheelEvents(eventNode);
-    }
-    if ((this.canvasFlags & CanvasView.MouseEventsFlag) !== 0) {
-      this.attachPassiveMouseEvents(eventNode);
-    }
-    if ((this.canvasFlags & CanvasView.PointerEventsFlag) !== 0) {
-      this.attachPassivePointerEvents(eventNode);
-    }
-    if ((this.canvasFlags & CanvasView.TouchEventsFlag) !== 0) {
-      this.attachPassiveTouchEvents(eventNode);
-    }
-  }
-
-  /** @internal */
-  protected detachEvents(eventNode: HTMLElement): void {
-    this.detachClickEvents(eventNode);
-
-    this.detachWheelEvents(eventNode);
-
-    this.detachPassiveMouseEvents(eventNode);
-    this.detachActiveMouseEvents(eventNode);
-
-    this.detachPassivePointerEvents(eventNode);
-    this.detachActivePointerEvents(eventNode);
-
-    this.detachPassiveTouchEvents(eventNode);
-    this.detachActiveTouchEvents(eventNode);
   }
 
   /** @internal */
@@ -440,56 +332,6 @@ export class CanvasView extends HtmlView {
     event.targetView = hit;
     hit.bubbleEvent(event);
     return hit;
-  }
-
-  /** @internal */
-  protected attachClickEvents(eventNode: HTMLElement): void {
-    eventNode.addEventListener("click", this.onClick);
-    eventNode.addEventListener("dblclick", this.onDblClick);
-    eventNode.addEventListener("contextmenu", this.onContextMenu);
-  }
-
-  /** @internal */
-  protected detachClickEvents(eventNode: HTMLElement): void {
-    eventNode.removeEventListener("click", this.onClick);
-    eventNode.removeEventListener("dblclick", this.onDblClick);
-    eventNode.removeEventListener("contextmenu", this.onContextMenu);
-  }
-
-  /** @internal */
-  protected attachWheelEvents(eventNode: HTMLElement): void {
-    eventNode.addEventListener("wheel", this.onWheel);
-  }
-
-  /** @internal */
-  protected detachWheelEvents(eventNode: HTMLElement): void {
-    eventNode.removeEventListener("wheel", this.onWheel);
-  }
-
-  /** @internal */
-  protected attachPassiveMouseEvents(eventNode: HTMLElement): void {
-    eventNode.addEventListener("mouseenter", this.onMouseEnter);
-    eventNode.addEventListener("mouseleave", this.onMouseLeave);
-    eventNode.addEventListener("mousedown", this.onMouseDown);
-  }
-
-  /** @internal */
-  protected detachPassiveMouseEvents(eventNode: HTMLElement): void {
-    eventNode.removeEventListener("mouseenter", this.onMouseEnter);
-    eventNode.removeEventListener("mouseleave", this.onMouseLeave);
-    eventNode.removeEventListener("mousedown", this.onMouseDown);
-  }
-
-  /** @internal */
-  protected attachActiveMouseEvents(eventNode: HTMLElement): void {
-    document.body.addEventListener("mousemove", this.onMouseMove);
-    document.body.addEventListener("mouseup", this.onMouseUp);
-  }
-
-  /** @internal */
-  protected detachActiveMouseEvents(eventNode: HTMLElement): void {
-    document.body.removeEventListener("mousemove", this.onMouseMove);
-    document.body.removeEventListener("mouseup", this.onMouseUp);
   }
 
   /** @internal */
@@ -521,100 +363,176 @@ export class CanvasView extends HtmlView {
     return this.fireEvent(event, event.clientX, event.clientY);
   }
 
-  /** @internal */
-  protected onClick(event: MouseEvent): void {
-    const mouse = this.mouse;
-    if (mouse !== null) {
-      this.updateMouse(mouse, event);
-    }
-    this.fireMouseEvent(event);
-  }
+  @EventHandler({
+    eventType: "click",
+    bindsOwner: true,
+    enabled: false,
+    init(): void {
+      this.enabled = this.owner.clickEvents.value;
+    },
+    handle(event: MouseEvent): void {
+      const mouse = this.owner.mouse;
+      if (mouse !== null) {
+        this.owner.updateMouse(mouse, event);
+      }
+      this.owner.fireMouseEvent(event);
+    },
+  })
+  readonly click!: EventHandler<this>;
 
-  /** @internal */
-  protected onDblClick(event: MouseEvent): void {
-    const mouse = this.mouse;
-    if (mouse !== null) {
-      this.updateMouse(mouse, event);
-    }
-    this.fireMouseEvent(event);
-  }
+  @EventHandler({
+    eventType: "dblclick",
+    bindsOwner: true,
+    enabled: false,
+    init(): void {
+      this.enabled = this.owner.clickEvents.value;
+    },
+    handle(event: MouseEvent): void {
+      const mouse = this.owner.mouse;
+      if (mouse !== null) {
+        this.owner.updateMouse(mouse, event);
+      }
+      this.owner.fireMouseEvent(event);
+    },
+  })
+  readonly dblclick!: EventHandler<this>;
 
-  /** @internal */
-  protected onContextMenu(event: MouseEvent): void {
-    const mouse = this.mouse;
-    if (mouse !== null) {
-      this.updateMouse(mouse, event);
-    }
-    this.fireMouseEvent(event);
-  }
+  @EventHandler({
+    eventType: "contextmenu",
+    bindsOwner: true,
+    enabled: false,
+    init(): void {
+      this.enabled = this.owner.clickEvents.value;
+    },
+    handle(event: MouseEvent): void {
+      const mouse = this.owner.mouse;
+      if (mouse !== null) {
+        this.owner.updateMouse(mouse, event);
+      }
+      this.owner.fireMouseEvent(event);
+    },
+  })
+  readonly contextmenu!: EventHandler<this>;
 
-  /** @internal */
-  protected onWheel(event: WheelEvent): void {
-    const mouse = this.mouse;
-    if (mouse !== null) {
-      this.updateMouse(mouse, event);
-    }
-    this.fireMouseEvent(event);
-  }
+  @EventHandler({
+    eventType: "wheel",
+    bindsOwner: true,
+    enabled: false,
+    init(): void {
+      this.enabled = this.owner.wheelEvents.value;
+    },
+    handle(event: WheelEvent): void {
+      const mouse = this.owner.mouse;
+      if (mouse !== null) {
+        this.owner.updateMouse(mouse, event);
+      }
+      this.owner.fireMouseEvent(event);
+    },
+  })
+  readonly wheel!: EventHandler<this>;
 
-  /** @internal */
-  protected onMouseEnter(event: MouseEvent): void {
-    let mouse = this.mouse;
-    if (mouse === null) {
-      this.attachActiveMouseEvents(this.eventNode);
-      mouse = {};
-      (this as Mutable<this>).mouse = mouse;
-    }
-    this.updateMouse(mouse, event);
-  }
+  @EventHandler({
+    eventType: "mouseenter",
+    bindsOwner: true,
+    enabled: false,
+    init(): void {
+      this.enabled = this.owner.mouseEvents.value;
+    },
+    handle(event: MouseEvent): void {
+      let mouse = this.owner.mouse;
+      if (mouse === null) {
+        mouse = {};
+        (this.owner as Mutable<CanvasView>).mouse = mouse;
+      }
+      this.owner.mousemove.enabled = true;
+      this.owner.updateMouse(mouse, event);
+    },
+  })
+  readonly mouseenter!: EventHandler<this>;
 
-  /** @internal */
-  protected onMouseLeave(event: MouseEvent): void {
-    const mouse = this.mouse;
-    if (mouse !== null) {
-      (this as Mutable<this>).mouse = null;
-      this.detachActiveMouseEvents(this.eventNode);
-    }
-  }
+  @EventHandler({
+    eventType: "mouseleave",
+    bindsOwner: true,
+    enabled: false,
+    init(): void {
+      this.enabled = this.owner.mouseEvents.value;
+    },
+    handle(event: MouseEvent): void {
+      (this.owner as Mutable<CanvasView>).mouse = null;
+      this.owner.mousemove.enabled = false;
+    },
+  })
+  readonly mouseleave!: EventHandler<this>;
 
-  /** @internal */
-  protected onMouseDown(event: MouseEvent): void {
-    let mouse = this.mouse;
-    if (mouse === null) {
-      this.attachActiveMouseEvents(this.eventNode);
-      mouse = {};
-      (this as Mutable<this>).mouse = mouse;
-    }
-    this.updateMouse(mouse, event);
-    this.fireMouseEvent(event);
-  }
+  @EventHandler({
+    eventType: "mousedown",
+    bindsOwner: true,
+    enabled: false,
+    init(): void {
+      this.enabled = this.owner.mouseEvents.value;
+    },
+    handle(event: MouseEvent): void {
+      let mouse = this.owner.mouse;
+      if (mouse === null) {
+        mouse = {};
+        (this.owner as Mutable<CanvasView>).mouse = mouse;
+      }
+      this.owner.mouseup.enabled = true;
+      this.owner.updateMouse(mouse, event);
+      this.owner.fireMouseEvent(event);
+    },
+  })
+  readonly mousedown!: EventHandler<this>;
 
-  /** @internal */
-  protected onMouseMove(event: MouseEvent): void {
-    let mouse = this.mouse;
-    if (mouse === null) {
-      mouse = {};
-      (this as Mutable<this>).mouse = mouse;
-    }
-    this.updateMouse(mouse, event);
-    let oldTargetView = mouse.targetView as GraphicsView | null | undefined;
-    if (oldTargetView === void 0) {
-      oldTargetView = null;
-    }
-    const newTargetView = this.fireMouseEvent(event);
-    if (newTargetView !== oldTargetView) {
-      this.onMouseTargetChange(mouse, newTargetView, oldTargetView);
-    }
-  }
+  @EventHandler({
+    eventType: "mousemove",
+    enabled: false,
+    initTarget(): EventTarget | null {
+      return document.body;
+    },
+    handle(event: MouseEvent): void {
+      let mouse = this.owner.mouse;
+      if (mouse === null) {
+        mouse = {};
+        (this.owner as Mutable<CanvasView>).mouse = mouse;
+      }
+      this.owner.updateMouse(mouse, event);
+      let oldTargetView = mouse.targetView as GraphicsView | null | undefined;
+      if (oldTargetView === void 0) {
+        oldTargetView = null;
+      }
+      const newTargetView = this.owner.fireMouseEvent(event);
+      if (newTargetView !== oldTargetView) {
+        this.owner.onMouseTargetChange(mouse, newTargetView, oldTargetView);
+      }
+    },
+    didUnmount(): void {
+      this.enabled = false;
+      super.didUnmount();
+    },
+  })
+  readonly mousemove!: EventHandler<this>;
 
-  /** @internal */
-  protected onMouseUp(event: MouseEvent): void {
-    const mouse = this.mouse;
-    if (mouse !== null) {
-      this.updateMouse(mouse, event);
-    }
-    this.fireMouseEvent(event);
-  }
+  @EventHandler({
+    eventType: "mouseup",
+    enabled: false,
+    initTarget(): EventTarget | null {
+      return document.body;
+    },
+    handle(event: MouseEvent): void {
+      const mouse = this.owner.mouse;
+      if (mouse !== null) {
+        this.owner.updateMouse(mouse, event);
+      }
+      this.owner.fireMouseEvent(event);
+      this.owner.mouseup.enabled = false;
+    },
+    didUnmount(): void {
+      this.enabled = false;
+      super.didUnmount();
+    },
+  })
+  readonly mouseup!: EventHandler<this>;
 
   /** @internal */
   protected onMouseTargetChange(mouse: GraphicsMouseEventInit, newTargetView: GraphicsView | null,
@@ -680,34 +598,6 @@ export class CanvasView extends HtmlView {
   }
 
   /** @internal */
-  protected attachPassivePointerEvents(eventNode: HTMLElement): void {
-    eventNode.addEventListener("pointerenter", this.onPointerEnter);
-    eventNode.addEventListener("pointerleave", this.onPointerLeave);
-    eventNode.addEventListener("pointerdown", this.onPointerDown);
-  }
-
-  /** @internal */
-  protected detachPassivePointerEvents(eventNode: HTMLElement): void {
-    eventNode.removeEventListener("pointerenter", this.onPointerEnter);
-    eventNode.removeEventListener("pointerleave", this.onPointerLeave);
-    eventNode.removeEventListener("pointerdown", this.onPointerDown);
-  }
-
-  /** @internal */
-  protected attachActivePointerEvents(eventNode: HTMLElement): void {
-    document.body.addEventListener("pointermove", this.onPointerMove);
-    document.body.addEventListener("pointerup", this.onPointerUp);
-    document.body.addEventListener("pointercancel", this.onPointerCancel);
-  }
-
-  /** @internal */
-  protected detachActivePointerEvents(eventNode: HTMLElement): void {
-    document.body.removeEventListener("pointermove", this.onPointerMove);
-    document.body.removeEventListener("pointerup", this.onPointerUp);
-    document.body.removeEventListener("pointercancel", this.onPointerCancel);
-  }
-
-  /** @internal */
   readonly pointers: {[id: string]: GraphicsPointerEventInit | undefined} | null;
 
   /** @internal */
@@ -748,139 +638,202 @@ export class CanvasView extends HtmlView {
     return this.fireEvent(event, event.clientX, event.clientY);
   }
 
-  /** @internal */
-  protected onPointerEnter(event: PointerEvent): void {
-    const id = "" + event.pointerId;
-    let pointers = this.pointers;
-    if (pointers === null) {
-      pointers = {};
-      (this as Mutable<this>).pointers = pointers;
-    }
-    let pointer = pointers[id];
-    if (pointer === void 0) {
-      if (Object.keys(pointers).length === 0) {
-        this.attachActivePointerEvents(this.eventNode);
+  @EventHandler({
+    eventType: "pointerenter",
+    bindsOwner: true,
+    enabled: false,
+    init(): void {
+      this.enabled = this.owner.pointerevents.value;
+    },
+    handle(event: PointerEvent): void {
+      const id = "" + event.pointerId;
+      let pointers = this.owner.pointers;
+      if (pointers === null) {
+        pointers = {};
+        (this.owner as Mutable<CanvasView>).pointers = pointers;
       }
-      pointer = {};
-      pointers[id] = pointer;
-    }
-    this.updatePointer(pointer, event);
-  }
+      let pointer = pointers[id];
+      if (pointer === void 0) {
+        pointer = {};
+        pointers[id] = pointer;
+      }
+      this.owner.pointermove.enabled = true;
+      this.owner.pointerup.enabled = true;
+      this.owner.pointercancel.enabled = true;
+      this.owner.updatePointer(pointer, event);
+    },
+  })
+  readonly pointerenter!: EventHandler<this>;
 
-  /** @internal */
-  protected onPointerLeave(event: PointerEvent): void {
-    const id = "" + event.pointerId;
-    let pointers = this.pointers;
-    if (pointers === null) {
-      pointers = {};
-      (this as Mutable<this>).pointers = pointers;
-    }
-    const pointer = pointers[id];
-    if (pointer !== void 0) {
-      if (pointer.targetView !== void 0) {
-        this.onPointerTargetChange(pointer, null, pointer.targetView as GraphicsView);
+  @EventHandler({
+    eventType: "pointerleave",
+    bindsOwner: true,
+    enabled: false,
+    init(): void {
+      this.enabled = this.owner.pointerevents.value;
+    },
+    handle(event: PointerEvent): void {
+      const id = "" + event.pointerId;
+      let pointers = this.owner.pointers;
+      if (pointers === null) {
+        pointers = {};
+        (this.owner as Mutable<CanvasView>).pointers = pointers;
       }
-      delete pointers[id];
-      if (Object.keys(pointers).length === 0) {
-        this.detachActivePointerEvents(this.eventNode);
+      const pointer = pointers[id];
+      if (pointer !== void 0) {
+        if (pointer.targetView !== void 0) {
+          this.owner.onPointerTargetChange(pointer, null, pointer.targetView as GraphicsView);
+        }
+        delete pointers[id];
+        if (Object.keys(pointers).length === 0) {
+          this.owner.pointermove.enabled = false;
+          this.owner.pointerup.enabled = false;
+          this.owner.pointercancel.enabled = false;
+        }
       }
-    }
-  }
+    },
+  })
+  readonly pointerleave!: EventHandler<this>;
 
-  /** @internal */
-  protected onPointerDown(event: PointerEvent): void {
-    const id = "" + event.pointerId;
-    let pointers = this.pointers;
-    if (pointers === null) {
-      pointers = {};
-      (this as Mutable<this>).pointers = pointers;
-    }
-    let pointer = pointers[id];
-    if (pointer === void 0) {
-      if (Object.keys(pointers).length === 0) {
-        this.attachActivePointerEvents(this.eventNode);
+  @EventHandler({
+    eventType: "pointerdown",
+    bindsOwner: true,
+    enabled: false,
+    init(): void {
+      this.enabled = this.owner.pointerevents.value;
+    },
+    handle(event: PointerEvent): void {
+      const id = "" + event.pointerId;
+      let pointers = this.owner.pointers;
+      if (pointers === null) {
+        pointers = {};
+        (this.owner as Mutable<CanvasView>).pointers = pointers;
       }
-      pointer = {};
-      pointers[id] = pointer;
-    }
-    this.updatePointer(pointer, event);
-    this.firePointerEvent(event);
-  }
+      let pointer = pointers[id];
+      if (pointer === void 0) {
+        pointer = {};
+        pointers[id] = pointer;
+      }
+      this.owner.pointermove.enabled = true;
+      this.owner.pointerup.enabled = true;
+      this.owner.pointercancel.enabled = true;
+      this.owner.updatePointer(pointer, event);
+      this.owner.firePointerEvent(event);
+    },
+  })
+  readonly pointerdown!: EventHandler<this>;
 
-  /** @internal */
-  protected onPointerMove(event: PointerEvent): void {
-    const id = "" + event.pointerId;
-    let pointers = this.pointers;
-    if (pointers === null) {
-      pointers = {};
-      (this as Mutable<this>).pointers = pointers;
-    }
-    let pointer = pointers[id];
-    if (pointer === void 0) {
-      if (Object.keys(pointers).length === 0) {
-        this.attachActivePointerEvents(this.eventNode);
+  @EventHandler({
+    eventType: "pointermove",
+    enabled: false,
+    initTarget(): EventTarget | null {
+      return document.body;
+    },
+    handle(event: PointerEvent): void {
+      const id = "" + event.pointerId;
+      let pointers = this.owner.pointers;
+      if (pointers === null) {
+        pointers = {};
+        (this.owner as Mutable<CanvasView>).pointers = pointers;
       }
-      pointer = {};
-      pointers[id] = pointer;
-    }
-    this.updatePointer(pointer, event);
-    let oldTargetView = pointer.targetView as GraphicsView | null | undefined;
-    if (oldTargetView === void 0) {
-      oldTargetView = null;
-    }
-    const newTargetView = this.firePointerEvent(event);
-    if (newTargetView !== oldTargetView) {
-      this.onPointerTargetChange(pointer, newTargetView, oldTargetView);
-    }
-  }
+      let pointer = pointers[id];
+      if (pointer === void 0) {
+        pointer = {};
+        pointers[id] = pointer;
+      }
+      this.owner.pointermove.enabled = true;
+      this.owner.pointerup.enabled = true;
+      this.owner.pointercancel.enabled = true;
+      this.owner.updatePointer(pointer, event);
+      let oldTargetView = pointer.targetView as GraphicsView | null | undefined;
+      if (oldTargetView === void 0) {
+        oldTargetView = null;
+      }
+      const newTargetView = this.owner.firePointerEvent(event);
+      if (newTargetView !== oldTargetView) {
+        this.owner.onPointerTargetChange(pointer, newTargetView, oldTargetView);
+      }
+    },
+    didUnmount(): void {
+      this.enabled = false;
+      super.didUnmount();
+    },
+  })
+  readonly pointermove!: EventHandler<this>;
 
-  /** @internal */
-  protected onPointerUp(event: PointerEvent): void {
-    const id = "" + event.pointerId;
-    let pointers = this.pointers;
-    if (pointers === null) {
-      pointers = {};
-      (this as Mutable<this>).pointers = pointers;
-    }
-    const pointer = pointers[id];
-    if (pointer !== void 0) {
-      this.updatePointer(pointer, event);
-    }
-    this.firePointerEvent(event);
-    if (pointer !== void 0 && event.pointerType !== "mouse") {
-      if (pointer.targetView !== void 0) {
-        this.onPointerTargetChange(pointer, null, pointer.targetView as GraphicsView);
+  @EventHandler({
+    eventType: "pointerup",
+    enabled: false,
+    initTarget(): EventTarget | null {
+      return document.body;
+    },
+    handle(event: PointerEvent): void {
+      const id = "" + event.pointerId;
+      let pointers = this.owner.pointers;
+      if (pointers === null) {
+        pointers = {};
+        (this.owner as Mutable<CanvasView>).pointers = pointers;
       }
-      delete pointers[id];
-      if (Object.keys(pointers).length === 0) {
-        this.detachActivePointerEvents(this.eventNode);
+      const pointer = pointers[id];
+      if (pointer !== void 0) {
+        this.owner.updatePointer(pointer, event);
       }
-    }
-  }
+      this.owner.firePointerEvent(event);
+      if (pointer !== void 0 && event.pointerType !== "mouse") {
+        if (pointer.targetView !== void 0) {
+          this.owner.onPointerTargetChange(pointer, null, pointer.targetView as GraphicsView);
+        }
+        delete pointers[id];
+        if (Object.keys(pointers).length === 0) {
+          this.owner.pointermove.enabled = false;
+          this.owner.pointerup.enabled = false;
+          this.owner.pointercancel.enabled = false;
+        }
+      }
+    },
+    didUnmount(): void {
+      this.enabled = false;
+      super.didUnmount();
+    },
+  })
+  readonly pointerup!: EventHandler<this>;
 
-  /** @internal */
-  protected onPointerCancel(event: PointerEvent): void {
-    const id = "" + event.pointerId;
-    let pointers = this.pointers;
-    if (pointers === null) {
-      pointers = {};
-      (this as Mutable<this>).pointers = pointers;
-    }
-    const pointer = pointers[id];
-    if (pointer !== void 0) {
-      this.updatePointer(pointer, event);
-    }
-    this.firePointerEvent(event);
-    if (pointer !== void 0 && event.pointerType !== "mouse") {
-      if (pointer.targetView !== void 0) {
-        this.onPointerTargetChange(pointer, null, pointer.targetView as GraphicsView);
+  @EventHandler({
+    eventType: "pointercancel",
+    enabled: false,
+    initTarget(): EventTarget | null {
+      return document.body;
+    },
+    handle(event: PointerEvent): void {
+      const id = "" + event.pointerId;
+      let pointers = this.owner.pointers;
+      if (pointers === null) {
+        pointers = {};
+        (this.owner as Mutable<CanvasView>).pointers = pointers;
       }
-      delete pointers[id];
-      if (Object.keys(pointers).length === 0) {
-        this.detachActivePointerEvents(this.eventNode);
+      const pointer = pointers[id];
+      if (pointer !== void 0) {
+        this.owner.updatePointer(pointer, event);
       }
-    }
-  }
+      this.owner.firePointerEvent(event);
+      if (pointer !== void 0 && event.pointerType !== "mouse") {
+        if (pointer.targetView !== void 0) {
+          this.owner.onPointerTargetChange(pointer, null, pointer.targetView as GraphicsView);
+        }
+        delete pointers[id];
+        if (Object.keys(pointers).length === 0) {
+          this.owner.pointermove.enabled = false;
+          this.owner.pointerup.enabled = false;
+          this.owner.pointercancel.enabled = false;
+        }
+      }
+    },
+    didUnmount(): void {
+      this.enabled = false;
+      super.didUnmount();
+    },
+  })
+  readonly pointercancel!: EventHandler<this>;
 
   /** @internal */
   protected onPointerTargetChange(pointer: GraphicsPointerEventInit, newTargetView: GraphicsView | null,
@@ -946,30 +899,6 @@ export class CanvasView extends HtmlView {
   }
 
   /** @internal */
-  protected attachPassiveTouchEvents(eventNode: HTMLElement): void {
-    eventNode.addEventListener("touchstart", this.onTouchStart);
-  }
-
-  /** @internal */
-  protected detachPassiveTouchEvents(eventNode: HTMLElement): void {
-    eventNode.removeEventListener("touchstart", this.onTouchStart);
-  }
-
-  /** @internal */
-  protected attachActiveTouchEvents(eventNode: HTMLElement): void {
-    eventNode.addEventListener("touchmove", this.onTouchMove);
-    eventNode.addEventListener("touchend", this.onTouchEnd);
-    eventNode.addEventListener("touchcancel", this.onTouchCancel);
-  }
-
-  /** @internal */
-  protected detachActiveTouchEvents(eventNode: HTMLElement): void {
-    eventNode.removeEventListener("touchmove", this.onTouchMove);
-    eventNode.removeEventListener("touchend", this.onTouchEnd);
-    eventNode.removeEventListener("touchcancel", this.onTouchCancel);
-  }
-
-  /** @internal */
   readonly touches: {[id: string]: GraphicsTouchInit | undefined} | null;
 
   /** @internal */
@@ -991,7 +920,7 @@ export class CanvasView extends HtmlView {
   protected fireTouchEvent(type: string, originalEvent: TouchEvent): void {
     const changedTouches = originalEvent.changedTouches;
     const dispatched: GraphicsView[] = [];
-    for (let i = 0, n = changedTouches.length; i < n; i += 1) {
+    for (let i = 0; i < changedTouches.length; i += 1) {
       const changedTouch = changedTouches[i]! as GraphicsTouch;
       const targetView = changedTouch.targetView as GraphicsView | undefined;
       if (targetView !== void 0 && dispatched.indexOf(targetView) < 0) {
@@ -1003,7 +932,7 @@ export class CanvasView extends HtmlView {
         });
         startEvent.targetView = targetView;
         const targetViewTouches: Touch[] = [changedTouch];
-        for (let j = i + 1; j < n; j += 1) {
+        for (let j = i + 1; j < changedTouches.length; j += 1) {
           const nextTouch = changedTouches[j]! as GraphicsTouch;
           if (nextTouch.targetView === targetView) {
             targetViewTouches.push(nextTouch);
@@ -1025,140 +954,177 @@ export class CanvasView extends HtmlView {
     }
   }
 
-  /** @internal */
-  protected onTouchStart(event: TouchEvent): void {
-    let clientBounds: R2Box | undefined;
-    let touches = this.touches;
-    if (touches === null) {
-      touches = {};
-      (this as Mutable<this>).touches = touches;
-    }
-    const changedTouches = event.changedTouches;
-    for (let i = 0, n = changedTouches.length; i < n; i += 1) {
-      const changedTouch = changedTouches[i] as GraphicsTouch;
-      const id = "" + changedTouch.identifier;
-      let touch = touches[id];
-      if (touch === void 0) {
+  @EventHandler({
+    eventType: "touchstart",
+    bindsOwner: true,
+    enabled: false,
+    init(): void {
+      this.enabled = this.owner.touchEvents.value;
+    },
+    handle(event: TouchEvent): void {
+      let clientBounds: R2Box | undefined;
+      let touches = this.owner.touches;
+      if (touches === null) {
+        touches = {};
+        (this.owner as Mutable<CanvasView>).touches = touches;
+      }
+      const changedTouches = event.changedTouches;
+      for (let i = 0; i < changedTouches.length; i += 1) {
+        const changedTouch = changedTouches[i] as GraphicsTouch;
+        const id = "" + changedTouch.identifier;
+        let touch = touches[id];
+        if (touch === void 0) {
+          touch = {
+            identifier: changedTouch.identifier,
+            target: changedTouch.target,
+          };
+          touches[id] = touch;
+        }
+        this.owner.touchmove.enabled = true;
+        this.owner.touchend.enabled = true;
+        this.owner.touchcancel.enabled = true;
+        this.owner.updateTouch(touch, changedTouch);
+        const clientX = touch.clientX!;
+        const clientY = touch.clientY!;
+        if (clientBounds === void 0) {
+          clientBounds = this.owner.clientBounds;
+        }
+        if (clientBounds.contains(clientX, clientY)) {
+          const x = clientX - clientBounds.x;
+          const y = clientY - clientBounds.y;
+          const hit = this.owner.cascadeHitTest(x, y);
+          if (hit !== null) {
+            touch.targetView = hit;
+            changedTouch.targetView = hit;
+          }
+        }
+      }
+      this.owner.fireTouchEvent("touchstart", event);
+    },
+  })
+  readonly touchstart!: EventHandler<this>;
+
+  @EventHandler({
+    eventType: "touchmove",
+    bindsOwner: true,
+    enabled: false,
+    handle(event: TouchEvent): void {
+      let touches = this.owner.touches;
+      if (touches === null) {
+        touches = {};
+        (this.owner as Mutable<CanvasView>).touches = touches;
+      }
+      const changedTouches = event.changedTouches;
+      for (let i = 0; i < changedTouches.length; i += 1) {
+        const changedTouch = changedTouches[i] as GraphicsTouch;
+        const id = "" + changedTouch.identifier;
+        let touch = touches[id];
+        if (touch === void 0) {
+          touch = {
+            identifier: changedTouch.identifier,
+            target: changedTouch.target,
+          };
+          touches[id] = touch;
+        }
+        this.owner.updateTouch(touch, changedTouch);
+        changedTouch.targetView = touch.targetView;
+      }
+      this.owner.fireTouchEvent("touchmove", event);
+    },
+    didUnmount(): void {
+      this.enabled = false;
+      super.didUnmount();
+    },
+  })
+  readonly touchmove!: EventHandler<this>;
+
+  @EventHandler({
+    eventType: "touchend",
+    bindsOwner: true,
+    enabled: false,
+    handle(event: TouchEvent): void {
+      let touches = this.owner.touches;
+      if (touches === null) {
+        touches = {};
+        (this.owner as Mutable<CanvasView>).touches = touches;
+      }
+      const changedTouches = event.changedTouches;
+      for (let i = 0; i < changedTouches.length; i += 1) {
+        const changedTouch = changedTouches[i] as GraphicsTouch;
+        const id = "" + changedTouch.identifier;
+        let touch = touches[id];
+        if (touch === void 0) {
+          touch = {
+            identifier: changedTouch.identifier,
+            target: changedTouch.target,
+          };
+          touches[id] = touch;
+        }
+        this.owner.updateTouch(touch, changedTouch);
+        changedTouch.targetView = touch.targetView;
+      }
+      this.owner.fireTouchEvent("touchend", event);
+      for (let i = 0; i < changedTouches.length; i += 1) {
+        const changedTouch = changedTouches[i] as GraphicsTouch;
+        const id = "" + changedTouch.identifier;
+        delete touches[id];
         if (Object.keys(touches).length === 0) {
-          this.attachActiveTouchEvents(this.eventNode);
-        }
-        touch = {
-          identifier: changedTouch.identifier,
-          target: changedTouch.target,
-        };
-        touches[id] = touch;
-      }
-      this.updateTouch(touch, changedTouch);
-      const clientX = touch.clientX!;
-      const clientY = touch.clientY!;
-      if (clientBounds === void 0) {
-        clientBounds = this.clientBounds;
-      }
-      if (clientBounds.contains(clientX, clientY)) {
-        const x = clientX - clientBounds.x;
-        const y = clientY - clientBounds.y;
-        const hit = this.cascadeHitTest(x, y);
-        if (hit !== null) {
-          touch.targetView = hit;
-          changedTouch.targetView = hit;
+          this.owner.touchmove.enabled = false;
+          this.owner.touchend.enabled = false;
+          this.owner.touchcancel.enabled = false;
         }
       }
-    }
-    this.fireTouchEvent("touchstart", event);
-  }
+    },
+    didUnmount(): void {
+      this.enabled = false;
+      super.didUnmount();
+    },
+  })
+  readonly touchend!: EventHandler<this>;
 
-  /** @internal */
-  protected onTouchMove(event: TouchEvent): void {
-    let touches = this.touches;
-    if (touches === null) {
-      touches = {};
-      (this as Mutable<this>).touches = touches;
-    }
-    const changedTouches = event.changedTouches;
-    for (let i = 0, n = changedTouches.length; i < n; i += 1) {
-      const changedTouch = changedTouches[i] as GraphicsTouch;
-      const id = "" + changedTouch.identifier;
-      let touch = touches[id];
-      if (touch === void 0) {
-        touch = {
-          identifier: changedTouch.identifier,
-          target: changedTouch.target,
-        };
-        touches[id] = touch;
+  @EventHandler({
+    eventType: "touchcancel",
+    bindsOwner: true,
+    enabled: false,
+    handle(event: TouchEvent): void {
+      let touches = this.owner.touches;
+      if (touches === null) {
+        touches = {};
+        (this.owner as Mutable<CanvasView>).touches = touches;
       }
-      this.updateTouch(touch, changedTouch);
-      changedTouch.targetView = touch.targetView;
-    }
-    this.fireTouchEvent("touchmove", event);
-  }
-
-  /** @internal */
-  protected onTouchEnd(event: TouchEvent): void {
-    let touches = this.touches;
-    if (touches === null) {
-      touches = {};
-      (this as Mutable<this>).touches = touches;
-    }
-    const changedTouches = event.changedTouches;
-    const n = changedTouches.length;
-    for (let i = 0; i < n; i += 1) {
-      const changedTouch = changedTouches[i] as GraphicsTouch;
-      const id = "" + changedTouch.identifier;
-      let touch = touches[id];
-      if (touch === void 0) {
-        touch = {
-          identifier: changedTouch.identifier,
-          target: changedTouch.target,
-        };
-        touches[id] = touch;
+      const changedTouches = event.changedTouches;
+      for (let i = 0; i < changedTouches.length; i += 1) {
+        const changedTouch = changedTouches[i] as GraphicsTouch;
+        const id = "" + changedTouch.identifier;
+        let touch = touches[id];
+        if (touch === void 0) {
+          touch = {
+            identifier: changedTouch.identifier,
+            target: changedTouch.target,
+          };
+          touches[id] = touch;
+        }
+        this.owner.updateTouch(touch, changedTouch);
+        changedTouch.targetView = touch.targetView;
       }
-      this.updateTouch(touch, changedTouch);
-      changedTouch.targetView = touch.targetView;
-    }
-    this.fireTouchEvent("touchend", event);
-    for (let i = 0; i < n; i += 1) {
-      const changedTouch = changedTouches[i] as GraphicsTouch;
-      const id = "" + changedTouch.identifier;
-      delete touches[id];
-      if (Object.keys(touches).length === 0) {
-        this.detachActiveTouchEvents(this.eventNode);
+      this.owner.fireTouchEvent("touchcancel", event);
+      for (let i = 0; i < changedTouches.length; i += 1) {
+        const changedTouch = changedTouches[i] as GraphicsTouch;
+        const id = "" + changedTouch.identifier;
+        delete touches[id];
+        if (Object.keys(touches).length === 0) {
+          this.owner.touchmove.enabled = false;
+          this.owner.touchend.enabled = false;
+          this.owner.touchcancel.enabled = false;
+        }
       }
-    }
-  }
-
-  /** @internal */
-  protected onTouchCancel(event: TouchEvent): void {
-    let touches = this.touches;
-    if (touches === null) {
-      touches = {};
-      (this as Mutable<this>).touches = touches;
-    }
-    const changedTouches = event.changedTouches;
-    const n = changedTouches.length;
-    for (let i = 0; i < n; i += 1) {
-      const changedTouch = changedTouches[i] as GraphicsTouch;
-      const id = "" + changedTouch.identifier;
-      let touch = touches[id];
-      if (touch === void 0) {
-        touch = {
-          identifier: changedTouch.identifier,
-          target: changedTouch.target,
-        };
-        touches[id] = touch;
-      }
-      this.updateTouch(touch, changedTouch);
-      changedTouch.targetView = touch.targetView;
-    }
-    this.fireTouchEvent("touchcancel", event);
-    for (let i = 0; i < n; i += 1) {
-      const changedTouch = changedTouches[i] as GraphicsTouch;
-      const id = "" + changedTouch.identifier;
-      delete touches[id];
-      if (Object.keys(touches).length === 0) {
-        this.detachActiveTouchEvents(this.eventNode);
-      }
-    }
-  }
+    },
+    didUnmount(): void {
+      this.enabled = false;
+      super.didUnmount();
+    },
+  })
+  readonly touchcancel!: EventHandler<this>;
 
   protected resizeCanvas(canvas: HTMLCanvasElement): void {
     let width: number;
@@ -1213,23 +1179,6 @@ export class CanvasView extends HtmlView {
 
   /** @internal */
   static override readonly tag: string = "canvas";
-
-  /** @internal */
-  static readonly ClickEventsFlag: CanvasFlags = 1 << 0;
-  /** @internal */
-  static readonly WheelEventsFlag: CanvasFlags = 1 << 1;
-  /** @internal */
-  static readonly MouseEventsFlag: CanvasFlags = 1 << 2;
-  /** @internal */
-  static readonly PointerEventsFlag: CanvasFlags = 1 << 3;
-  /** @internal */
-  static readonly TouchEventsFlag: CanvasFlags = 1 << 4;
-  /** @internal */
-  static readonly EventsMask: CanvasFlags = this.ClickEventsFlag
-                                          | this.WheelEventsFlag
-                                          | this.MouseEventsFlag
-                                          | this.PointerEventsFlag
-                                          | this.TouchEventsFlag;
 
   static override readonly UncullFlags: ViewFlags = HtmlView.UncullFlags | View.NeedsRender | View.NeedsComposite;
   static override readonly UnhideFlags: ViewFlags = HtmlView.UnhideFlags | View.NeedsRender | View.NeedsComposite;

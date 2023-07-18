@@ -48,15 +48,13 @@ export class FloatingButton extends ButtonMembrane {
 
   protected initButton(): void {
     this.addClass("floating-button");
-    this.position.setState("relative", Affinity.Intrinsic);
-    this.borderTopLeftRadius.setState(Length.pct(50), Affinity.Intrinsic);
-    this.borderTopRightRadius.setState(Length.pct(50), Affinity.Intrinsic);
-    this.borderBottomLeftRadius.setState(Length.pct(50), Affinity.Intrinsic);
-    this.borderBottomRightRadius.setState(Length.pct(50), Affinity.Intrinsic);
-    this.overflowX.setState("hidden", Affinity.Intrinsic);
-    this.overflowY.setState("hidden", Affinity.Intrinsic);
-    this.userSelect.setState("none", Affinity.Intrinsic);
-    this.cursor.setState("pointer", Affinity.Intrinsic);
+    this.setIntrinsic<FloatingButton>({
+      position: "relative",
+      borderRadius: Length.pct(50),
+      overflow: "hidden",
+      userSelect: "none",
+      cursor: "pointer",
+    });
   }
 
   @Property({
@@ -73,11 +71,15 @@ export class FloatingButton extends ButtonMembrane {
     },
     updateButtonType(buttonType: FloatingButtonType): void {
       if (buttonType === "regular") {
-        this.owner.width.setState(56, Affinity.Intrinsic);
-        this.owner.height.setState(56, Affinity.Intrinsic);
+        this.owner.setIntrinsic<FloatingButton>({
+          width: 56,
+          height: 56,
+        });
       } else if (buttonType === "mini") {
-        this.owner.width.setState(40, Affinity.Intrinsic);
-        this.owner.height.setState(40, Affinity.Intrinsic);
+        this.owner.setIntrinsic<FloatingButton>({
+          width: 40,
+          height: 40,
+        });
       }
     },
   })
@@ -90,7 +92,7 @@ export class FloatingButton extends ButtonMembrane {
     observes: true,
     viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, iconView: HtmlIconView): void {
       const iconColor = theme.getOr(Look.backgroundColor, mood, null);
-      iconView.iconColor.setState(iconColor, timing);
+      iconView.iconColor.set(iconColor, timing);
     },
     viewDidAnimate(iconView: HtmlIconView): void {
       if (!iconView.opacity.tweening && iconView !== this.owner.icon.view) {
@@ -103,16 +105,17 @@ export class FloatingButton extends ButtonMembrane {
   @ViewRef({
     viewType: HtmlIconView,
     createView(): HtmlIconView {
-      const iconView = HtmlIconView.create();
-      iconView.position.setState("absolute", Affinity.Intrinsic);
-      iconView.left.setState(0, Affinity.Intrinsic);
-      iconView.top.setState(0, Affinity.Intrinsic);
-      iconView.width.setState(this.owner.width.state, Affinity.Intrinsic);
-      iconView.height.setState(this.owner.height.state, Affinity.Intrinsic);
-      iconView.opacity.setState(0, Affinity.Intrinsic);
-      iconView.transform.setState(Transform.rotate(Angle.deg(-90)), Affinity.Intrinsic);
-      iconView.pointerEvents.setState("none", Affinity.Intrinsic);
-      iconView.iconLayout.setState({width: 24, height: 24}, Affinity.Intrinsic);
+      const iconView = HtmlIconView.create().setIntrinsic({
+        position: "absolute",
+        left: 0,
+        top: 0,
+        width: this.owner.width.state,
+        height: this.owner.height.state,
+        opacity: 0,
+        transform: Transform.rotate(Angle.deg(-90)),
+        pointerEvents: "none",
+        iconLayout: {width: 24, height: 24},
+      });
       iconView.iconColor.setAffinity(Affinity.Extrinsic);
       return iconView;
     },
@@ -128,19 +131,24 @@ export class FloatingButton extends ButtonMembrane {
       const oldIconView = this.view;
       if (oldIconView !== null) {
         if (timing !== false) {
-          oldIconView.opacity.setState(0, timing, Affinity.Intrinsic);
-          oldIconView.transform.setState(Transform.rotate(Angle.deg(90)), timing, Affinity.Intrinsic);
+          oldIconView.setIntrinsic({
+            opacity: 0,
+            transform: Transform.rotate(Angle.deg(90)),
+          }, timing);
         } else {
           this.owner.icons.deleteView(oldIconView);
         }
       }
 
-      const newIconView = this.createView();
-      newIconView.graphics.setState(icon, Affinity.Intrinsic);
+      const newIconView = this.createView().setIntrinsic({
+        graphics: icon,
+      });
       this.owner.icons.attachView(newIconView);
       this.insertView(void 0, newIconView);
-      newIconView.opacity.setState(1, timing, Affinity.Intrinsic);
-      newIconView.transform.setState(Transform.rotate(Angle.deg(0)), timing, Affinity.Intrinsic);
+      newIconView.setIntrinsic({
+        opacity: 1,
+        transform: Transform.rotate(Angle.deg(0)),
+      }, timing);
 
       return newIconView;
     },
@@ -163,8 +171,10 @@ export class FloatingButton extends ButtonMembrane {
 
       if (oldIconView !== null) {
         if (timing !== false) {
-          oldIconView.opacity.setState(0, timing, Affinity.Intrinsic);
-          oldIconView.transform.setState(Transform.rotate(Angle.deg(-90)), timing, Affinity.Intrinsic);
+          oldIconView.setIntrinsic({
+            opacity: 0,
+            transform: Transform.rotate(Angle.deg(-90)),
+          }, timing);
           this.owner.icons.insertView(void 0, oldIconView);
         } else {
           this.owner.icons.deleteView(oldIconView);
@@ -173,8 +183,10 @@ export class FloatingButton extends ButtonMembrane {
 
       if (newIconView !== null) {
         this.insertView(void 0, newIconView);
-        newIconView.opacity.setState(1, timing, Affinity.Intrinsic);
-        newIconView.transform.setState(Transform.rotate(Angle.deg(0)), timing, Affinity.Intrinsic);
+        newIconView.setIntrinsic({
+          opacity: 1,
+          transform: Transform.rotate(Angle.deg(0)),
+        }, timing);
       }
 
       return oldIconView;
@@ -196,14 +208,14 @@ export class FloatingButton extends ButtonMembrane {
       this.owner.modifyMood(Feel.default, [[Feel.hovering, 1]]);
       if (this.owner.backgroundColor.hasAffinity(Affinity.Intrinsic)) {
         const timing = this.owner.getLook(Look.timing);
-        this.owner.backgroundColor.setState(this.owner.getLookOr(Look.accentColor, null), timing, Affinity.Intrinsic);
+        this.owner.backgroundColor.setIntrinsic(this.owner.getLookOr(Look.accentColor, null), timing);
       }
     },
     didStopHovering(): void {
       this.owner.modifyMood(Feel.default, [[Feel.hovering, void 0]]);
       if (this.owner.backgroundColor.hasAffinity(Affinity.Intrinsic)) {
         const timing = this.owner.getLook(Look.timing);
-        this.owner.backgroundColor.setState(this.owner.getLookOr(Look.accentColor, null), timing, Affinity.Intrinsic);
+        this.owner.backgroundColor.setIntrinsic(this.owner.getLookOr(Look.accentColor, null), timing);
       }
     },
     didMovePress(input: PositionGestureInput, event: Event | null): void {
@@ -215,7 +227,7 @@ export class FloatingButton extends ButtonMembrane {
   protected override onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
 
-    this.backgroundColor.setState(theme.getOr(Look.accentColor, mood, null), timing, Affinity.Intrinsic);
+    this.backgroundColor.setIntrinsic(theme.getOr(Look.accentColor, mood, null), timing);
 
     let shadow = theme.getOr(Look.shadow, Mood.floating, null);
     if (shadow !== null) {
@@ -223,7 +235,7 @@ export class FloatingButton extends ButtonMembrane {
       const phase = this.presence.getPhaseOr(1);
       shadow = shadow.withColor(shadowColor.alpha(shadowColor.alpha() * phase));
     }
-    this.boxShadow.setState(shadow, timing, Affinity.Intrinsic);
+    this.boxShadow.setIntrinsic(shadow, timing);
   }
 
   protected override onLayout(): void {
@@ -234,6 +246,6 @@ export class FloatingButton extends ButtonMembrane {
       const phase = this.presence.getPhaseOr(1);
       shadow = shadow.withColor(shadowColor.alpha(shadowColor.alpha() * phase));
     }
-    this.boxShadow.setState(shadow, Affinity.Intrinsic);
+    this.boxShadow.setIntrinsic(shadow);
   }
 }

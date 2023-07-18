@@ -14,7 +14,6 @@
 
 import {__runInitializers} from "tslib";
 import type {Class} from "@swim/util";
-import type {Proto} from "@swim/util";
 import type {Instance} from "@swim/util";
 import type {LikeType} from "@swim/util";
 import type {TimingLike} from "@swim/util";
@@ -188,8 +187,7 @@ export class HtmlView extends ElementView {
     }
   }
 
-  /** @override */
-  declare readonly likeType?: Proto<{create?(): HtmlView} | (Element & {create?(): HtmlView}) | (keyof HtmlViewTagMap & {create?(): HtmlView})>;
+  override likeType?(like: {create?(): View} | Node | keyof HtmlViewTagMap): void;
 
   declare readonly observerType?: Class<HtmlViewObserver>;
 
@@ -314,27 +312,27 @@ export class HtmlView extends ElementView {
     const font = theme.getOr(Look.font, Mood.ambient, null);
     if (font !== null) {
       if (font.style !== void 0) {
-        this.fontStyle.setState(font.style, void 0, 0);
+        this.fontStyle.setState(font.style, void 0, Affinity.Transient);
       }
       if (font.variant !== void 0) {
-        this.fontVariant.setState(font.variant, void 0, 0);
+        this.fontVariant.setState(font.variant, void 0, Affinity.Transient);
       }
       if (font.weight !== void 0) {
-        this.fontWeight.setState(font.weight, void 0, 0);
+        this.fontWeight.setState(font.weight, void 0, Affinity.Transient);
       }
       if (font.stretch !== void 0) {
-        this.fontStretch.setState(font.stretch, void 0, 0);
+        this.fontStretch.setState(font.stretch, void 0, Affinity.Transient);
       }
       if (font.size !== null) {
-        this.fontSize.setState(font.size, void 0, 0);
+        this.fontSize.setState(font.size, void 0, Affinity.Transient);
       }
       if (font.height !== null) {
-        this.lineHeight.setState(font.height, void 0, 0);
+        this.lineHeight.setState(font.height, void 0, Affinity.Transient);
       }
-      this.fontFamily.setState(font.family, void 0, 0);
+      this.fontFamily.setState(font.family, void 0, Affinity.Transient);
     }
-    this.backgroundColor.setState(theme.getOr(Look.backgroundColor, Mood.ambient, null), timing, Affinity.Intrinsic);
-    this.color.setState(theme.getOr(Look.textColor, Mood.ambient, null), timing, Affinity.Intrinsic);
+    this.backgroundColor.setIntrinsic(theme.getOr(Look.backgroundColor, Mood.ambient, null), timing);
+    this.color.setIntrinsic(theme.getOr(Look.textColor, Mood.ambient, null), timing);
   }
 
   /** @internal */

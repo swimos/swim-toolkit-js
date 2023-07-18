@@ -34,20 +34,24 @@ export class DisclosureButton extends HtmlView {
 
   protected initDisclosureButton(): void {
     this.addClass("disclosure-button");
-    this.display.setState("flex", Affinity.Intrinsic);
-    this.justifyContent.setState("center", Affinity.Intrinsic);
-    this.alignItems.setState("center", Affinity.Intrinsic);
-    this.flexGrow.setState(1, Affinity.Intrinsic);
-    this.flexShrink.setState(0, Affinity.Intrinsic);
-    this.cursor.setState("pointer", Affinity.Intrinsic);
+    this.setIntrinsic<DisclosureButton>({
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      flexGrow: 1,
+      flexShrink: 0,
+      cursor: "pointer",
+    });
 
-    const icon = this.appendChild(SvgView, "icon");
-    icon.width.setState(24, Affinity.Intrinsic);
-    icon.height.setState(24, Affinity.Intrinsic);
-    icon.viewBox.setState("0 0 24 24", Affinity.Intrinsic);
-    const arrow = icon.appendChild("polygon", "arrow");
-    arrow.points.setState("0 4 -6 -2 -4.59 -3.41 0 1.17 4.59 -3.41 6 -2", Affinity.Intrinsic);
-    arrow.transform.setState(Transform.translate(12, 12).rotate(Angle.deg(0)), Affinity.Intrinsic);
+    const icon = this.appendChild(SvgView, "icon").setIntrinsic({
+      width: 24,
+      height: 24,
+      viewBox: "0 0 24 24",
+    });
+    icon.appendChild("polygon", "arrow").setIntrinsic({
+      points: "0 4 -6 -2 -4.59 -3.41 0 1.17 4.59 -3.41 6 -2",
+      transform: Transform.translate(12, 12).rotate(Angle.deg(0)),
+    });
   }
 
   get icon(): SvgView {
@@ -82,9 +86,9 @@ export class DisclosureButton extends HtmlView {
     const expandedColor = this.expandedColor.value;
     if (collapsedColor !== null && expandedColor !== null && this.arrow.fill.hasAffinity(Affinity.Intrinsic)) {
       const colorInterpolator = collapsedColor.interpolateTo(expandedColor);
-      this.arrow.fill.setState(colorInterpolator(phase), Affinity.Intrinsic);
+      this.arrow.fill.setIntrinsic(colorInterpolator(phase));
     }
     const transform = Transform.translate(12, 12).rotate(Angle.deg(-180 * phase));
-    this.arrow.transform.setState(transform, Affinity.Intrinsic);
+    this.arrow.transform.setIntrinsic(transform);
   }
 }

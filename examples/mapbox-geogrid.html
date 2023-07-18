@@ -52,8 +52,10 @@ const ExampleMapboxController = (function () {
     extends: true,
     initView(canvasView) {
       super.initView(canvasView);
-      canvasView.pointerEventsEnabled(true);
-      canvasView.touchAction.setState("manipulation");
+      canvasView.set({
+        touchAction: "manipulation",
+        pointerevents: true,
+      });
     },
   })], {kind: "field", name: "canvas", static: false, private: false, access: {has: obj => "canvas" in obj, get: obj => obj.canvas, set: (obj, value) => { obj.canvas = value; }}}, canvasInitializers, instanceInitializers);
   __esDecorate(null, null, [swim.TraitViewControllerSet({
@@ -79,11 +81,11 @@ const ExampleTileController = (function () {
       this.geo = __runInitializers(this, geoInitializers, this.geo);
       this.tiles = __runInitializers(this, tilesInitializers, this.tiles);
       if (geoTile.z % 2 === 0) { // consume even zoom level tiles
-        this.visibleRange.setValue([geoTile.z, geoTile.z + 2]);
-        this.consumeRange.setValue([geoTile.z, geoTile.z + 2]);
+        this.visibleRange.set([geoTile.z, geoTile.z + 2]);
+        this.consumeRange.set([geoTile.z, geoTile.z + 2]);
       } else { // disable auto-consumption of odd zoom level tiles
-        this.visibleRange.setValue([geoTile.z, geoTile.z]);
-        this.consumeRange.setValue([geoTile.z, geoTile.z]);
+        this.visibleRange.set([geoTile.z, geoTile.z]);
+        this.consumeRange.set([geoTile.z, geoTile.z]);
       }
     }
   }
@@ -91,7 +93,7 @@ const ExampleTileController = (function () {
     extends: true,
     initView(tileView) {
       super.initView(tileView);
-      tileView.geoBoundsColor.setState("#008f11");
+      tileView.geoBoundsColor.set("#008f11");
     },
   })], {kind: "field", name: "geo", static: false, private: false, access: {has: obj => "geo" in obj, get: obj => obj.geo, set: (obj, value) => { obj.geo = value; }}}, geoInitializers, instanceInitializers);
   __esDecorate(null, null, [swim.TraitViewControllerSet({
@@ -112,7 +114,7 @@ const ExampleTileTrait = (function () {
       __runInitializers(this, instanceInitializers);
       this.vehiclesDownlink = __runInitializers(this, vehiclesDownlinkInitializers, this.vehiclesDownlinkInitializers);
       const tileId = geoTile.x + "," + geoTile.y + "," + geoTile.z;
-      this.nodeUri.setValue(swim.Uri.path(swim.UriPath.of("/", "map", "/", tileId)));
+      this.nodeUri.set(swim.Uri.path(swim.UriPath.of("/", "map", "/", tileId)));
     }
     onStartConsuming() {
       console.log("onStartConsuming " + this.geoTile);
@@ -134,15 +136,15 @@ const ExampleTileTrait = (function () {
       let featureTrait = featureModel !== null ? featureModel.getTrait(swim.GeoIconTrait) : null;
       if (featureTrait === null) {
         featureTrait = new swim.GeoIconTrait();
-        featureTrait.iconLayout.setValue({width: 16, height: 16})
-        featureTrait.graphics.setValue(vehicleIcon);
+        featureTrait.iconLayout.set({width: 16, height: 16})
+        featureTrait.graphics.set(vehicleIcon);
         this.owner.features.insertTrait(void 0, featureTrait, void 0, featureId);
         featureModel = featureTrait.model;
       }
       const lng = value.get("longitude").numberValue(NaN);
       const lat = value.get("latitude").numberValue(NaN);
       if (isFinite(lng) && isFinite(lat)) {
-        featureTrait.geoCenter.setValue([lng, lat]);
+        featureTrait.geoCenter.set([lng, lat]);
       }
     },
   })], {kind: "field", name: "vehiclesDownlink", static: false, private: false, access: {has: obj => "vehiclesDownlink" in obj, get: obj => obj.vehiclesDownlink, set: (obj, value) => { obj.vehiclesDownlink = value; }}}, vehiclesDownlinkInitializers, instanceInitializers);
@@ -155,7 +157,7 @@ layerModel.setTrait("layer", layerTrait);
 
 const mapModel = new swim.Model();
 const mapTrait = new swim.MapTrait();
-mapTrait.hostUri.setValue("warps://transit.swim.services");
+mapTrait.hostUri.set("warps://transit.swim.services");
 mapModel.setTrait("map", mapTrait);
 mapModel.appendChild(layerModel, "layer");
 mapModel.mount();

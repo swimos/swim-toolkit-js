@@ -16,7 +16,6 @@ import type {Mutable} from "@swim/util";
 import type {TimingLike} from "@swim/util";
 import {Timing} from "@swim/util";
 import type {Observes} from "@swim/util";
-import {Affinity} from "@swim/component";
 import {EventHandler} from "@swim/component";
 import {Provider} from "@swim/component";
 import type {Service} from "@swim/component";
@@ -36,15 +35,17 @@ export class ScrimView extends HtmlView {
 
   protected initScrim(): void {
     this.addClass("scrim");
-    this.display.setState("none", Affinity.Intrinsic);
-    this.position.setState("absolute", Affinity.Intrinsic);
-    this.top.setState(0, Affinity.Intrinsic);
-    this.right.setState(0, Affinity.Intrinsic);
-    this.bottom.setState(0, Affinity.Intrinsic);
-    this.left.setState(0, Affinity.Intrinsic);
-    this.pointerEvents.setState("auto", Affinity.Intrinsic);
-    this.cursor.setState("pointer", Affinity.Intrinsic);
-    this.backgroundColor.setState(Color.black(0), Affinity.Intrinsic);
+    this.setIntrinsic<ScrimView>({
+      display: "none",
+      position: "absolute",
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      pointerEvents: "auto",
+      cursor: "pointer",
+      backgroundColor: Color.black(0),
+    });
   }
 
   /** @internal */
@@ -105,11 +106,11 @@ export class ScrimView extends HtmlView {
       }
       this.setDisplayState(ScrimView.ShowState);
       if (timing !== false) {
-        this.backgroundColor.setState(Color.black(0), Affinity.Intrinsic);
-        this.backgroundColor.setState(Color.black(opacity), timing, Affinity.Intrinsic);
+        this.backgroundColor.setIntrinsic(Color.black(0));
+        this.backgroundColor.setIntrinsic(Color.black(opacity), timing);
       } else {
         this.willShowScrim();
-        this.backgroundColor.setState(Color.black(opacity), Affinity.Intrinsic);
+        this.backgroundColor.setIntrinsic(Color.black(opacity));
         this.didShowScrim();
       }
     }
@@ -118,7 +119,7 @@ export class ScrimView extends HtmlView {
   protected willShowScrim(): void {
     this.setDisplayState(ScrimView.ShowingState);
 
-    this.display.setState("block", Affinity.Intrinsic);
+    this.display.setIntrinsic("block");
   }
 
   protected didShowScrim(): void {
@@ -134,10 +135,10 @@ export class ScrimView extends HtmlView {
       }
       this.setDisplayState(ScrimView.HideState);
       if (timing !== false) {
-        this.backgroundColor.setState(Color.black(0), timing, Affinity.Intrinsic);
+        this.backgroundColor.setIntrinsic(Color.black(0), timing);
       } else {
         this.willHideScrim();
-        this.backgroundColor.setState(Color.black(0), Affinity.Intrinsic);
+        this.backgroundColor.setIntrinsic(Color.black(0));
         this.didHideScrim();
       }
     }
@@ -150,7 +151,7 @@ export class ScrimView extends HtmlView {
   protected didHideScrim(): void {
     this.setDisplayState(ScrimView.HiddenState);
 
-    this.display.setState("none", Affinity.Intrinsic);
+    this.display.setIntrinsic("none");
   }
 
   @Provider({
@@ -175,7 +176,7 @@ export class ScrimView extends HtmlView {
       if (oldModality === 0) {
         this.show(opacity);
       } else {
-        this.backgroundColor.setState(Color.black(opacity), Affinity.Intrinsic);
+        this.backgroundColor.setIntrinsic(Color.black(opacity));
         if (this.displayState === ScrimView.ShowingState) {
           this.didShowScrim();
         }
@@ -205,14 +206,12 @@ export class ScrimView extends HtmlView {
 
   @EventHandler({
     eventType: "click",
+    enabled: typeof PointerEvent !== "undefined"
+          || typeof TouchEvent !== "undefined",
     handle(event: Event): void {
       event.preventDefault();
       event.stopPropagation();
     },
-    init(): void {
-      this.disable(typeof PointerEvent === "undefined"
-                && typeof TouchEvent === "undefined");
-    }
   })
   readonly syntheticClick!: EventHandler<this>;
 

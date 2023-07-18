@@ -75,14 +75,14 @@ export class GaugeController extends Controller {
   protected setTitleView(title: string | undefined): void {
     const gaugeView = this.gauge.view;
     if (gaugeView !== null) {
-      gaugeView.title.setText(title);
+      gaugeView.title.set(title);
     }
   }
 
   protected setLimit(limit: number): void {
     const gaugeView = this.gauge.view;
     if (gaugeView !== null) {
-      gaugeView.limit.setState(limit);
+      gaugeView.limit.set(limit);
     }
   }
 

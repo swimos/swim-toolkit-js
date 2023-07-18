@@ -14,7 +14,6 @@
 
 import type {Uninitable} from "@swim/util";
 import type {Mutable} from "@swim/util";
-import type {Proto} from "@swim/util";
 import {Murmur3} from "@swim/util";
 import {Numbers} from "@swim/util";
 import {Constructors} from "@swim/util";
@@ -69,7 +68,7 @@ export class IconLayout implements Interpolate<IconLayout>, Equivalent, HashCode
   /** @internal */
   declare readonly typeid?: "IconLayout";
 
-  declare readonly likeType?: Proto<IconLayoutInit>;
+  likeType?(like: IconLayoutInit): void;
 
   readonly width: Length;
 

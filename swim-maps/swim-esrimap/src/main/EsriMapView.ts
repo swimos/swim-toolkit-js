@@ -66,7 +66,7 @@ export class EsriMapView extends EsriView {
       if (!this.hasAffinity(Affinity.Intrinsic)) {
         return;
       }
-      this.setValue(EsriMapViewport.create(this.owner.map), Affinity.Intrinsic);
+      this.setIntrinsic(EsriMapViewport.create(this.owner.map));
     },
   })
   override readonly geoViewport!: Property<this, GeoViewport | null> & EsriView["geoViewport"] & {
@@ -127,7 +127,7 @@ export class EsriMapView extends EsriView {
     didAttachView(canvasView: CanvasView, targetView: View | null): void {
       if (this.owner.parent === null) {
         canvasView.appendChild(this.owner);
-        canvasView.setEventNode(this.owner.map.container.querySelector(".esri-view-root") as HTMLElement);
+        canvasView.setEventTarget(this.owner.map.container.querySelector(".esri-view-root") as HTMLElement);
       }
       super.didAttachView(canvasView, targetView);
     },

@@ -13,53 +13,59 @@
 
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-const containerView = bodyView.appendChild("div");
-containerView.position.setState("relative");
-containerView.width.setState("67%");
-containerView.height.setState("67%");
-containerView.touchAction.setState("none");
-containerView.userSelect.setState("none");
+const containerView = bodyView.appendChild("div").set({
+  position: "relative",
+  width: "67%",
+  height: "67%",
+  touchAction: "none",
+  userSelect: "none",
+});
 
-const canvasView = swim.CanvasView.create();
-canvasView.mouseEventsEnabled(true);
-canvasView.pointerEventsEnabled(true);
-canvasView.touchEventsEnabled(true);
-canvasView.touchAction.setState("manipulation");
+const canvasView = swim.CanvasView.create().set({
+  touchAction: "manipulation",
+  mouseEvents: true,
+  pointerevents: true,
+  touchEvents: true,
+});
 
-const gaugeView = canvasView.appendChild(swim.GaugeView);
-gaugeView.title.setText("Gauge");
-gaugeView.font.setState("20px sans-serif");
+const gaugeView = canvasView.appendChild(swim.GaugeView).set({
+  font: "20px sans-serif",
+  title: "Gauge",
+});
 
-const dial0View = gaugeView.appendChild(swim.DialView, "dial0");
-dial0View.arrangement.setValue("manual");
-dial0View.innerRadius.setState(swim.Length.pct(30));
-dial0View.outerRadius.setState(swim.Length.pct(35));
-dial0View.dialColor.setLook(swim.Look.etchColor);
+const dial0View = gaugeView.appendChild(swim.DialView).set({
+  arrangement: "manual",
+  innerRadius: "30%",
+  outerRadius: "35%",
+  dialColor: swim.Look.etchColor,
+});
 
-const dial1View = gaugeView.appendChild(swim.DialView, "dial1");
-dial1View.arrangement.setValue("manual");
-dial1View.innerRadius.setState(swim.Length.pct(35));
-dial1View.outerRadius.setState(swim.Length.pct(40));
+const dial1View = gaugeView.appendChild(swim.DialView).set({
+  arrangement: "manual",
+  innerRadius: "35%",
+  outerRadius: "40%",
+  dialColor: swim.Look.etchColor,
+});
 dial1View.modifyMood(swim.Feel.default, [[swim.Feel.contrasted, -0.6]]);
-dial1View.dialColor.setLook(swim.Look.etchColor);
 
-const ringView = gaugeView.appendChild(swim.DialView, "ring");
-ringView.value.setState(0.33);
-ringView.arrangement.setValue("manual");
-ringView.innerRadius.setState(swim.Length.pct(30));
-ringView.outerRadius.setState(swim.Length.pct(40));
-ringView.dialColor.setState(swim.Color.transparent());
+const ringView = gaugeView.appendChild(swim.DialView).set({
+  arrangement: "manual",
+  innerRadius: "30%",
+  outerRadius: "40%",
+  dialColor: swim.Color.transparent(),
+  value: 0.33,
+  legend: "Legend",
+});
 ringView.addEventListener("pointerenter", function (event) {
   ringView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, 1]], true);
 });
 ringView.addEventListener("pointerleave", function (event) {
   ringView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, void 0]], true);
 });
-ringView.legend.setText("Legend");
 
 setInterval(function () {
   const timing = swim.Easing.linear.withDuration(1000);
-  ringView.value.setState(Math.random(), timing);
+  ringView.value.set(Math.random(), timing);
 }, 1000);
 
 containerView.appendChild(canvasView);

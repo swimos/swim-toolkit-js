@@ -29,13 +29,13 @@ import {ControllerRelation} from "./ControllerRelation";
 
 /** @public */
 export interface ControllerSetDescriptor<R, C extends Controller> extends ControllerRelationDescriptor<R, C> {
-  extends?: Proto<ControllerSet<any, any>> | boolean | null;
+  extends?: Proto<ControllerSet<any, any, any>> | boolean | null;
   ordered?: boolean;
   sorted?: boolean;
 }
 
 /** @public */
-export interface ControllerSetClass<F extends ControllerSet<any, any> = ControllerSet<any, any>> extends ControllerRelationClass<F> {
+export interface ControllerSetClass<F extends ControllerSet<any, any, any> = ControllerSet<any, any, any>> extends ControllerRelationClass<F> {
   /** @internal */
   readonly OrderedFlag: FastenerFlags;
   /** @internal */
@@ -48,15 +48,15 @@ export interface ControllerSetClass<F extends ControllerSet<any, any> = Controll
 }
 
 /** @public */
-export interface ControllerSet<R = any, C extends Controller = Controller> extends ControllerRelation<R, C> {
+export interface ControllerSet<R = any, C extends Controller = Controller, I extends any[] = [C | null]> extends ControllerRelation<R, C, I> {
   /** @override */
   get descriptorType(): Proto<ControllerSetDescriptor<R, C>>;
 
   /** @override */
-  get fastenerType(): Proto<ControllerSet<any, any>>;
+  get fastenerType(): Proto<ControllerSet<any, any, any>>;
 
   /** @override */
-  get parent(): ControllerSet<any, C> | null;
+  get parent(): ControllerSet<any, C, any> | null;
 
   /** @internal @protected */
   controllerKey(controller: C): string | undefined;
@@ -80,7 +80,7 @@ export interface ControllerSet<R = any, C extends Controller = Controller> exten
 
   setControllers(controllers: {readonly [controllerId: string]: C | undefined}, target?: Controller | null): void;
 
-  attachController(controller?: C | LikeType<C>, target?: Controller | null): C;
+  attachController(controller?: C | LikeType<C> | null, target?: Controller | null): C;
 
   attachControllers(controllers: {readonly [controllerId: string]: C | undefined}, target?: Controller | null): void;
 
@@ -158,8 +158,8 @@ export interface ControllerSet<R = any, C extends Controller = Controller> exten
 }
 
 /** @public */
-export const ControllerSet = (<R, C extends Controller, F extends ControllerSet<any, any>>() => ControllerRelation.extend<ControllerSet<R, C>, ControllerSetClass<F>>("ControllerSet", {
-  get fastenerType(): Proto<ControllerSet<any, any>> {
+export const ControllerSet = (<R, C extends Controller, I extends any[], F extends ControllerSet<any, any, any>>() => ControllerRelation.extend<ControllerSet<R, C, I>, ControllerSetClass<F>>("ControllerSet", {
+  get fastenerType(): Proto<ControllerSet<any, any, any>> {
     return ControllerSet;
   },
 
@@ -263,7 +263,7 @@ export const ControllerSet = (<R, C extends Controller, F extends ControllerSet<
     }
   },
 
-  attachController(newController?: C | LikeType<C>, target?: Controller | null): C {
+  attachController(newController?: C | LikeType<C> | null, target?: Controller | null): C {
     if (newController !== void 0 && newController !== null) {
       newController = this.fromLike(newController);
     } else {
@@ -582,7 +582,7 @@ export const ControllerSet = (<R, C extends Controller, F extends ControllerSet<
     return fastener;
   },
 
-  refine(fastenerClass: FastenerClass<ControllerSet<any, any>>): void {
+  refine(fastenerClass: FastenerClass<ControllerSet<any, any, any>>): void {
     super.refine(fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

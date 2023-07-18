@@ -22,6 +22,7 @@ import type {Comparator} from "@swim/util";
 import type {LikeType} from "@swim/util";
 import type {FromLike} from "@swim/util";
 import {Creatable} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import type {Observes} from "@swim/util";
 import type {Observable} from "@swim/util";
 import type {ObserverMethods} from "@swim/util";
@@ -33,6 +34,7 @@ import {FastenerContext} from "@swim/component";
 import type {FastenerTemplate} from "@swim/component";
 import {Fastener} from "@swim/component";
 import {Property} from "@swim/component";
+import {Animator} from "@swim/component";
 import type {ValueLike} from "@swim/structure";
 import {Value} from "@swim/structure";
 import type {UriLike} from "@swim/uri";
@@ -160,7 +162,7 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
 
   declare readonly observerType?: Class<TraitObserver>;
 
-  declare readonly likeType?: Proto<Creatable<Trait>>;
+  likeType?(like: {create?(): Trait}): void;
 
   /** @internal */
   readonly uid: string;
@@ -820,7 +822,7 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
   hostRef(hostUri: UriLike): WarpRef {
     hostUri = Uri.fromLike(hostUri);
     const childRef = new Model();
-    childRef.hostUri.setValue(hostUri);
+    childRef.hostUri.set(hostUri);
     this.appendChild(childRef);
     return childRef;
   }
@@ -844,10 +846,10 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
     }
     const childRef = new Model();
     if (hostUri !== void 0) {
-      childRef.hostUri.setValue(hostUri);
+      childRef.hostUri.set(hostUri);
     }
     if (nodeUri !== void 0) {
-      childRef.nodeUri.setValue(nodeUri);
+      childRef.nodeUri.set(nodeUri);
     }
     this.appendChild(childRef);
     return childRef;
@@ -880,13 +882,13 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
     }
     const childRef = new Model();
     if (hostUri !== void 0) {
-      childRef.hostUri.setValue(hostUri);
+      childRef.hostUri.set(hostUri);
     }
     if (nodeUri !== void 0) {
-      childRef.nodeUri.setValue(nodeUri);
+      childRef.nodeUri.set(nodeUri);
     }
     if (laneUri !== void 0) {
-      childRef.laneUri.setValue(laneUri);
+      childRef.laneUri.set(laneUri);
     }
     this.appendChild(childRef);
     return childRef;
@@ -1362,6 +1364,42 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
     if (fastener instanceof TraitRelation) {
       fastener.unbindTrait(trait);
     }
+  }
+
+  set<S>(this: S, properties: {[K in keyof S as S[K] extends {set(value: any): any} ? K : never]?: S[K] extends {set(value: infer T): any} ? T : never}, timing?: TimingLike | boolean | null): this;
+  set(properties: {[K in keyof this as this[K] extends {set(value: any): any} ? K : never]?: this[K] extends {set(value: infer T): any} ? T : never}, timing?: TimingLike | boolean | null): this {
+    for (const key in properties) {
+      const value = properties[key];
+      const property = (this as any)[key] as {set?(value: any): any} | undefined;
+      if (property === void 0 || property === null) {
+        throw new Error("unknown property " + key);
+      } else if (property.set === void 0) {
+        throw new Error("unsettable property " + key);
+      } else if (property instanceof Animator) {
+        property.set(value, timing);
+      } else {
+        property.set(value);
+      }
+    }
+    return this;
+  }
+
+  setIntrinsic<S>(this: S, properties: {[K in keyof S as S[K] extends {setIntrinsic(value: any): any} ? K : never]?: S[K] extends {setIntrinsic(value: infer T): any} ? T : never}, timing?: TimingLike | boolean | null): this;
+  setIntrinsic(properties: {[K in keyof this as this[K] extends {setIntrinsic(value: any): any} ? K : never]?: this[K] extends {setIntrinsic(value: infer T): any} ? T : never}, timing?: TimingLike | boolean | null): this {
+    for (const key in properties) {
+      const value = properties[key];
+      const property = (this as any)[key] as {setIntrinsic?(value: any): any} | undefined;
+      if (property === void 0 || property === null) {
+        throw new Error("unknown property " + key);
+      } else if (property.setIntrinsic === void 0) {
+        throw new Error("unsettable property " + key);
+      } else if (property instanceof Animator) {
+        property.setIntrinsic(value, timing);
+      } else {
+        property.setIntrinsic(value);
+      }
+    }
+    return this;
   }
 
   /** @internal */

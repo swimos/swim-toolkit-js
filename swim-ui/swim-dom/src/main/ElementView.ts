@@ -13,12 +13,10 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {Proto} from "@swim/util";
 import type {Instance} from "@swim/util";
 import type {LikeType} from "@swim/util";
 import {Creatable} from "@swim/util";
 import type {Observes} from "@swim/util";
-import {Affinity} from "@swim/component";
 import {Provider} from "@swim/component";
 import {R2Box} from "@swim/math";
 import {ThemeMatrix} from "@swim/theme";
@@ -29,6 +27,7 @@ import {ToCssValue} from "@swim/style";
 import {View} from "@swim/view";
 import type {ViewportColorScheme} from "@swim/view";
 import type {ViewportService} from "@swim/view";
+import {AttributeAnimator} from "./AttributeAnimator";
 import type {StyleContext} from "./StyleContext";
 import type {ViewNodeType} from "./NodeView";
 import type {NodeViewFactory} from "./NodeView";
@@ -84,8 +83,7 @@ export class ElementView extends NodeView implements StyleContext {
     this.didSetStyleObservers = null;
   }
 
-  /** @override */
-  declare readonly likeType?: Proto<{create?(): ElementView} | (Element & {create?(): ElementView}) | (string & {create?(): ElementView})>;
+  override likeType?(like: {create?(): View} | Node | string): void;
 
   declare readonly observerType?: Class<ElementViewObserver>;
 
@@ -181,7 +179,7 @@ export class ElementView extends NodeView implements StyleContext {
     if (!(theme instanceof ThemeMatrix)) {
       throw new TypeError("unknown swim-theme: " + themeName);
     }
-    this.theme.setValue(theme, Affinity.Extrinsic);
+    this.theme.set(theme);
   }
 
   getAttribute(attributeName: string): string | null {
@@ -319,16 +317,9 @@ export class ElementView extends NodeView implements StyleContext {
     }
   }
 
-  id(): string | undefined;
-  id(value: string | undefined): this;
-  id(value?: string | undefined): string | undefined | this {
-    if (arguments.length === 0) {
-      const id = this.getAttribute("id");
-      return id !== null ? id : void 0;
-    } else {
-      this.setAttribute("id", value);
-      return this;
-    }
+  @AttributeAnimator({attributeName: "id", valueType: String})
+  get id(): AttributeAnimator<this, string | undefined> {
+    return AttributeAnimator.dummy();
   }
 
   className(): string | undefined;

@@ -16,7 +16,6 @@ import type {Class} from "@swim/util";
 import type {TimingLike} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Property} from "@swim/component";
-import {Affinity} from "@swim/component";
 import type {Trait} from "@swim/model";
 import type {PositionGestureInput} from "@swim/view";
 import type {ControllerObserver} from "@swim/controller";
@@ -541,19 +540,19 @@ export class StackController extends Controller {
         stackView.insertChild(frontView, targetView);
       }
       if (frontController.forward.controller === null) {
-        frontView.sheetAlign.setValue(1, Affinity.Intrinsic);
+        frontView.sheetAlign.setIntrinsic(1);
         frontView.present(frontController.back.controller !== null);
       } else {
-        frontView.sheetAlign.setValue(this.owner.backAlign.value, Affinity.Intrinsic);
+        frontView.sheetAlign.setIntrinsic(this.owner.backAlign.value);
         frontView.present();
       }
     },
     dismissFrontView(frontView: SheetView, frontController: SheetController): void {
       if (frontController.forward.controller !== null) {
-        frontView.sheetAlign.setValue(this.owner.backAlign.value, Affinity.Intrinsic);
+        frontView.sheetAlign.setIntrinsic(this.owner.backAlign.value);
         frontView.dismiss();
       } else {
-        frontView.sheetAlign.setValue(1, Affinity.Intrinsic);
+        frontView.sheetAlign.setIntrinsic(1);
         frontView.dismiss();
       }
     },

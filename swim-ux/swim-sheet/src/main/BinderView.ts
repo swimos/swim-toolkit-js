@@ -16,7 +16,6 @@ import type {Class} from "@swim/util";
 import type {Instance} from "@swim/util";
 import type {Creatable} from "@swim/util";
 import type {Observes} from "@swim/util";
-import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import type {Length} from "@swim/math";
 import type {ViewInsets} from "@swim/view";
@@ -56,9 +55,10 @@ export class BinderView extends SheetView {
 
   protected initBinder(): void {
     this.addClass("binder");
-    this.position.setState("relative", Affinity.Intrinsic);
-    this.overflowX.setState("hidden", Affinity.Intrinsic);
-    this.overflowY.setState("hidden", Affinity.Intrinsic);
+    this.setIntrinsic<BinderView>({
+      position: "relative",
+      overflow: "hidden",
+    });
   }
 
   declare readonly observerType?: Class<BinderViewObserver>;
@@ -79,13 +79,14 @@ export class BinderView extends SheetView {
     binds: true,
     observes: true,
     initView(tabBarView: BarView): void {
-      const binderWidth = this.owner.width.cssState;
-      tabBarView.placement.setValue("bottom", Affinity.Intrinsic);
-      tabBarView.position.setState("absolute", Affinity.Intrinsic);
-      tabBarView.left.setState(0, Affinity.Intrinsic);
-      tabBarView.bottom.setState(0, Affinity.Intrinsic);
-      tabBarView.width.setState(binderWidth, Affinity.Intrinsic);
-      tabBarView.zIndex.setState(1, Affinity.Intrinsic);
+      tabBarView.setIntrinsic({
+        placement: "bottom",
+        position: "absolute",
+        left: 0,
+        bottom: 0,
+        width: this.owner.width.cssState,
+        zIndex: 1,
+      });
     },
     willAttachView(tabBarView: BarView, targetView: View | null): void {
       this.owner.callObservers("viewWillAttachTabBar", tabBarView, targetView, this.owner);
@@ -139,22 +140,20 @@ export class BinderView extends SheetView {
     binds: false,
     observes: true,
     initView(tabView: SheetView): void {
-      const binderWidth = this.owner.width.cssState;
-      const binderHeight = this.owner.height.cssState;
-
       const tabBarView = this.owner.tabBar.view;
       const tabBarHeight = tabBarView !== null && tabBarView.mounted
                          ? tabBarView.height.cssState : null;
-
-      tabView.position.setState("absolute", Affinity.Intrinsic);
-      tabView.left.setState(0, Affinity.Intrinsic);
-      tabView.top.setState(0, Affinity.Intrinsic);
-      tabView.width.setState(binderWidth, Affinity.Intrinsic);
-      tabView.height.setState(binderHeight, Affinity.Intrinsic);
-      tabView.paddingTop.setState(this.owner.paddingTop.state, Affinity.Intrinsic);
-      tabView.paddingBottom.setState(tabBarHeight, Affinity.Intrinsic);
-      tabView.boxSizing.setState("border-box", Affinity.Intrinsic);
-      tabView.zIndex.setState(0, Affinity.Intrinsic);
+      tabView.setIntrinsic({
+        position: "absolute",
+        left: 0,
+        top: 0,
+        width: this.owner.width.cssState,
+        height: this.owner.height.cssState,
+        paddingTop: this.owner.paddingTop.state,
+        paddingBottom: tabBarHeight,
+        boxSizing: "border-box",
+        zIndex: 0,
+      });
     },
     willAttachView(tabView: SheetView, targetView: View | null): void {
       this.owner.callObservers("viewWillAttachTab", tabView, targetView, this.owner);
@@ -181,7 +180,7 @@ export class BinderView extends SheetView {
       this.owner.callObservers("viewWillAttachActive", tabView, targetView, this.owner);
     },
     didAttachView(tabView: SheetView, targetView: View | null): void {
-      this.owner.fullBleed.setValue(tabView.fullBleed.value, Affinity.Intrinsic);
+      this.owner.fullBleed.setIntrinsic(tabView.fullBleed.value);
       if (tabView.parent === null) {
         this.owner.insertChild(tabView, targetView);
       }
@@ -190,7 +189,7 @@ export class BinderView extends SheetView {
       this.owner.callObservers("viewDidDetachActive", tabView, this.owner);
     },
     viewDidSetFullBleed(fullBleed: boolean, tabView: SheetView): void {
-      this.owner.fullBleed.setValue(fullBleed, Affinity.Intrinsic);
+      this.owner.fullBleed.setIntrinsic(fullBleed);
     },
   })
   readonly active!: ViewRef<this, SheetView> & Observes<SheetView>;
@@ -239,20 +238,24 @@ export class BinderView extends SheetView {
       if (paddingRight !== null) {
         tabBarWidth = tabBarWidth.minus(paddingRight);
       }
-      tabBarView.left.setState(paddingLeft, Affinity.Intrinsic);
-      tabBarView.right.setState(paddingRight, Affinity.Intrinsic);
-      tabBarView.width.setState(tabBarWidth, Affinity.Intrinsic);
+      tabBarView.setIntrinsic({
+        left: paddingLeft,
+        right: paddingRight,
+        width: tabBarWidth,
+      });
     }
 
     const tabViews = this.tabs.views;
     for (const viewId in tabViews) {
       const tabView = tabViews[viewId]!;
-      tabView.width.setState(binderWidth, Affinity.Intrinsic);
-      tabView.height.setState(binderHeight, Affinity.Intrinsic);
-      tabView.paddingTop.setState(this.paddingTop.state, Affinity.Intrinsic);
-      tabView.paddingRight.setState(paddingRight, Affinity.Intrinsic);
-      tabView.paddingBottom.setState(tabBarHeight, Affinity.Intrinsic);
-      tabView.paddingLeft.setState(paddingLeft, Affinity.Intrinsic);
+      tabView.setIntrinsic({
+        width: binderWidth,
+        height: binderHeight,
+        paddingTop: this.paddingTop.state,
+        paddingRight,
+        paddingBottom: tabBarHeight,
+        paddingLeft,
+      });
     }
   }
 }

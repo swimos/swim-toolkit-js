@@ -42,10 +42,10 @@ export class DataPointTrait<X = unknown, Y = unknown> extends Trait {
   constructor(x?: X, y?: Y) {
     super();
     if (x !== void 0) {
-      this.x.setValue(x);
+      this.x.set(x);
     }
     if (y !== void 0) {
-      this.y.setValue(y);
+      this.y.set(y);
     }
   }
 

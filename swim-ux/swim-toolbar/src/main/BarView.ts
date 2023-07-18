@@ -60,11 +60,11 @@ export class BarView extends HtmlView {
 
   protected initBar(): void {
     this.addClass("bar");
-    this.position.setState("relative", Affinity.Intrinsic);
-    this.overflowX.setState("hidden", Affinity.Intrinsic);
-    this.overflowY.setState("hidden", Affinity.Intrinsic);
-    this.userSelect.setState("none", Affinity.Intrinsic);
-
+    this.setIntrinsic<BarView>({
+      position: "relative",
+      overflow: "hidden",
+      userSelect: "none",
+    });
     this.modifyMood(Feel.default, [[Feel.primary, 1]]);
   }
 
@@ -128,7 +128,7 @@ export class BarView extends HtmlView {
         } else if (placement === "bottom") {
           height = height.plus(edgeInsets.insetBottom);
         }
-        this.owner.height.setState(height, Affinity.Intrinsic);
+        this.owner.height.setIntrinsic(height);
       }
     },
   })
@@ -193,11 +193,13 @@ export class BarView extends HtmlView {
     viewType: ToolView,
     binds: true,
     initView(toolView: ToolView): void {
-      toolView.display.setState("none", Affinity.Intrinsic);
-      toolView.position.setState("absolute", Affinity.Intrinsic);
-      toolView.left.setState(0, Affinity.Intrinsic);
-      toolView.width.setState(0, Affinity.Intrinsic);
-      toolView.height.setState(this.owner.barHeight.value, Affinity.Intrinsic);
+      toolView.setIntrinsic({
+        display: "none",
+        position: "absolute",
+        left: 0,
+        width: 0,
+        height: this.owner.barHeight.value,
+      });
     },
     willAttachView(toolView: ToolView, target: View | null): void {
       this.owner.callObservers("viewWillAttachTool", toolView, target, this.owner);
@@ -232,7 +234,7 @@ export class BarView extends HtmlView {
     let height = this.barHeight.value;
     if (height !== null) {
       height = height.plus(edgeInsets.insetTop);
-      this.height.setState(height, Affinity.Intrinsic);
+      this.height.setIntrinsic(height);
     }
 
     const oldLayout = !this.layout.derived ? this.layout.state : null;
@@ -242,7 +244,7 @@ export class BarView extends HtmlView {
       const insetRight = edgeInsets.insetRight;
       const spacing = this.toolSpacing.getValue().pxValue(barWidth);
       const newLayout = oldLayout.resized(barWidth, insetLeft, insetRight, spacing);
-      this.layout.setState(newLayout);
+      this.layout.set(newLayout);
     }
   }
 
@@ -254,7 +256,7 @@ export class BarView extends HtmlView {
     let height = this.barHeight.value;
     if (height !== null) {
       height = height.plus(edgeInsets.insetBottom);
-      this.height.setState(height, Affinity.Intrinsic);
+      this.height.setIntrinsic(height);
     }
 
     const oldLayout = !this.layout.derived ? this.layout.state : null;
@@ -264,7 +266,7 @@ export class BarView extends HtmlView {
       const insetRight = edgeInsets.insetRight;
       const spacing = this.toolSpacing.getValue().pxValue(barWidth);
       const newLayout = oldLayout.resized(barWidth, insetLeft, insetRight, spacing);
-      this.layout.setState(newLayout);
+      this.layout.set(newLayout);
     }
   }
 
@@ -277,7 +279,7 @@ export class BarView extends HtmlView {
       const barWidth = this.width.pxState();
       const spacing = this.toolSpacing.getValue().pxValue(barWidth);
       const newLayout = oldLayout.resized(barWidth, 0, 0, spacing);
-      this.layout.setState(newLayout);
+      this.layout.set(newLayout);
     }
   }
 
@@ -302,25 +304,30 @@ export class BarView extends HtmlView {
         const key = child.key;
         const tool = layout !== null && key !== void 0 ? layout.getTool(key) : null;
         if (tool !== null) {
-          child.display.setState(!tool.presence.dismissed ? "flex" : "none", Affinity.Intrinsic);
-          child.left.setState(tool.left, Affinity.Intrinsic);
-          child.top.setState(toolTop, Affinity.Intrinsic);
-          child.bottom.setState(toolBottom, Affinity.Intrinsic);
-          child.width.setState(tool.width !== null && tool.width.value !== 0 ? tool.width : null, Affinity.Intrinsic);
-          child.height.setState(toolHeight, Affinity.Intrinsic);
-          child.opacity.setState(tool.presence.phase !== 1 ? tool.presence.phase : void 0, Affinity.Intrinsic);
-          child.xAlign.setState(tool.align, Affinity.Intrinsic);
+          child.setIntrinsic({
+            display: !tool.presence.dismissed ? "flex" : "none",
+            left: tool.left,
+            top: toolTop,
+            bottom: toolBottom,
+            width: tool.width !== null && tool.width.value !== 0 ? tool.width : null,
+            height: toolHeight,
+            opacity: tool.presence.phase !== 1 ? tool.presence.phase : void 0,
+            xAlign: tool.align,
+          });
           child.pointerEvents.setState(tool.presence.dismissing ? "none" : void 0, Affinity.Transient);
           if (tool.presence.dismissed) {
             this.callObservers("viewDidDismissTool", child, tool, this);
           }
         } else {
-          child.display.setState("none", Affinity.Intrinsic);
-          child.left.setState(null, Affinity.Intrinsic);
-          child.top.setState(null, Affinity.Intrinsic);
-          child.width.setState(null, Affinity.Intrinsic);
-          child.height.setState(null, Affinity.Intrinsic);
-          child.opacity.setState(void 0, Affinity.Intrinsic);
+          child.setIntrinsic({
+            display: "none",
+            left: null,
+            top: null,
+            bottom: null,
+            width: null,
+            height: null,
+            opacity: void 0,
+          });
           child.pointerEvents.setState(void 0, Affinity.Transient);
         }
       }
@@ -352,19 +359,27 @@ export class BarView extends HtmlView {
               overlapWidth = overlapWidth.plus(tool.overpad);
             }
             if (toolX <= overlapX) {
-              toolView.paddingLeft.setState(null, Affinity.Intrinsic);
-              toolView.paddingRight.setState(overlapWidth, Affinity.Intrinsic);
+              toolView.setIntrinsic({
+                paddingLeft: null,
+                paddingRight: overlapWidth,
+              });
             } else {
-              toolView.paddingLeft.setState(overlapWidth, Affinity.Intrinsic);
-              toolView.paddingRight.setState(null, Affinity.Intrinsic);
+              toolView.setIntrinsic({
+                paddingLeft: overlapWidth,
+                paddingRight: null,
+              });
             }
           } else {
-            toolView.paddingLeft.setState(null, Affinity.Intrinsic);
-            toolView.paddingRight.setState(null, Affinity.Intrinsic);
+            toolView.setIntrinsic({
+              paddingLeft: null,
+              paddingRight: null,
+            });
           }
         } else {
-          toolView.paddingLeft.setState(null, Affinity.Intrinsic);
-          toolView.paddingRight.setState(null, Affinity.Intrinsic);
+          toolView.setIntrinsic({
+            paddingLeft: null,
+            paddingRight: null,
+          });
         }
       }
     }

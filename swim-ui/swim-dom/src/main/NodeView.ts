@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {Proto} from "@swim/util";
 import type {Instance} from "@swim/util";
 import type {LikeType} from "@swim/util";
 import {Creatable} from "@swim/util";
@@ -62,8 +61,7 @@ export class NodeView extends View {
     (node as ViewNode).view = this;
   }
 
-  /** @override */
-  declare readonly likeType?: Proto<{create?(): NodeView} | (Node & {create?(): NodeView})>;
+  override likeType?(like: {create?(): View} | Node): void;
 
   declare readonly observerType?: Class<NodeViewObserver>;
 

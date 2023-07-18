@@ -14,8 +14,10 @@
 
 import type {Class} from "@swim/util";
 import type {Observes} from "@swim/util";
-import {Affinity} from "@swim/component";
+import type {Like} from "@swim/util";
+import type {LikeType} from "@swim/util";
 import {Property} from "@swim/component";
+import {Length} from "@swim/math";
 import {Look} from "@swim/theme";
 import {Feel} from "@swim/theme";
 import type {ViewFlags} from "@swim/view";
@@ -70,10 +72,11 @@ export class PanelView extends HtmlView {
 
   protected initPanel(): void {
     this.addClass("panel");
-    this.position.setState("relative", Affinity.Intrinsic);
-    this.boxSizing.setState("border-box", Affinity.Intrinsic);
-    this.overflowX.setState("hidden", Affinity.Intrinsic);
-    this.overflowY.setState("hidden", Affinity.Intrinsic);
+    this.setIntrinsic<PanelView>({
+      position: "relative",
+      boxSizing: "border-box",
+      overflow: "hidden",
+    });
     this.panelStyle.applyPanelStyle(this.panelStyle.value);
   }
 
@@ -125,27 +128,19 @@ export class PanelView extends HtmlView {
       const panelView = this.owner;
       if (panelStyle === "card") {
         panelView.addClass("panel-card");
-        panelView.marginTop.setState(6, Affinity.Intrinsic);
-        panelView.marginRight.setState(6, Affinity.Intrinsic);
-        panelView.marginBottom.setState(6, Affinity.Intrinsic);
-        panelView.marginLeft.setState(6, Affinity.Intrinsic);
-        panelView.borderTopLeftRadius.setState(4, Affinity.Intrinsic);
-        panelView.borderTopRightRadius.setState(4, Affinity.Intrinsic);
-        panelView.borderBottomLeftRadius.setState(4, Affinity.Intrinsic);
-        panelView.borderBottomRightRadius.setState(4, Affinity.Intrinsic);
-        panelView.backgroundColor.setLook(Look.backgroundColor, Affinity.Intrinsic);
+        panelView.setIntrinsic<PanelView>({
+          margin: 6,
+          borderRadius: 4,
+          backgroundColor: Look.backgroundColor,
+        });
         panelView.modifyTheme(Feel.default, [[Feel.raised, 1]]);
       } else {
         panelView.removeClass("panel-card");
-        panelView.marginTop.setState(0, Affinity.Intrinsic);
-        panelView.marginRight.setState(0, Affinity.Intrinsic);
-        panelView.marginBottom.setState(0, Affinity.Intrinsic);
-        panelView.marginLeft.setState(0, Affinity.Intrinsic);
-        panelView.borderTopLeftRadius.setState(null, Affinity.Intrinsic);
-        panelView.borderTopRightRadius.setState(null, Affinity.Intrinsic);
-        panelView.borderBottomLeftRadius.setState(null, Affinity.Intrinsic);
-        panelView.borderBottomRightRadius.setState(null, Affinity.Intrinsic);
-        panelView.backgroundColor.setState(null, Affinity.Intrinsic);
+        panelView.setIntrinsic<PanelView>({
+          margin: 0,
+          borderRadius: null,
+          backgroundColor: null,
+        });
         panelView.modifyTheme(Feel.default, [[Feel.raised, void 0]]);
       }
     },
@@ -191,12 +186,6 @@ export class PanelView extends HtmlView {
     didDetachView(headerView: HtmlView): void {
       this.owner.callObservers("viewDidDetachHeader", headerView, this.owner);
     },
-    setTitle(title: string | undefined): HtmlView {
-      return this.owner.headerTitle.setText(title);
-    },
-    setSubtitle(subtitle: string | undefined): HtmlView {
-      return this.owner.headerSubtitle.setText(subtitle);
-    },
     insertChild(parent: View, child: HtmlView, target: View | null, key: string | undefined): void {
       if (target !== null) {
         parent.insertChild(child, target, key);
@@ -207,29 +196,28 @@ export class PanelView extends HtmlView {
     createView(): HtmlView {
       const headerView = HtmlView.create();
       headerView.addClass("panel-header");
-      headerView.display.setState("flex", Affinity.Intrinsic);
-      headerView.justifyContent.setState("space-between", Affinity.Intrinsic);
-      headerView.position.setState("absolute");
-      headerView.left.setState(0, Affinity.Intrinsic);
-      headerView.top.setState(0, Affinity.Intrinsic);
-      headerView.width.setState("100%", Affinity.Intrinsic);
-      headerView.height.setState(30, Affinity.Intrinsic);
-      headerView.paddingLeft.setState(12, Affinity.Intrinsic);
-      headerView.paddingRight.setState(12, Affinity.Intrinsic);
-      headerView.boxSizing.setState("border-box", Affinity.Intrinsic);
-      headerView.userSelect.setState("none", Affinity.Intrinsic);
-      headerView.zIndex.setState(1, Affinity.Intrinsic);
-      return headerView;
+      return headerView.setIntrinsic({
+        display: "flex",
+        justifyContent: "space-between",
+        position: "absolute",
+        left: 0,
+        top: 0,
+        width: Length.pct(100),
+        height: 30,
+        paddingLeft: 12,
+        paddingRight: 12,
+        boxSizing: "border-box",
+        userSelect: "none",
+        zIndex: 1,
+      });
     }
   })
-  readonly header!: ViewRef<this, HtmlView> & {
-    setTitle(title: string | undefined): HtmlView,
-    setSubtitle(subtitle: string | undefined): HtmlView,
-  };
+  readonly header!: ViewRef<this, HtmlView>;
 
   @ViewRef({
     viewType: HtmlView,
     viewKey: "panel-title",
+    binds: true,
     get parentView(): HtmlView | null {
       return this.owner.header.insertView();
     },
@@ -239,32 +227,38 @@ export class PanelView extends HtmlView {
     didDetachView(titleView: HtmlView): void {
       this.owner.callObservers("viewDidDetachHeaderTitle", titleView, this.owner);
     },
-    setText(title: string | undefined): HtmlView {
-      const titleView = this.insertView();
-      titleView.text(title);
-      return titleView;
-    },
     insertChild(parent: View, child: HtmlView, target: View | null, key: string | undefined): void {
       if (target === null) {
         target = this.owner.headerSubtitle.view;
       }
       parent.insertChild(child, target, key);
     },
+    fromLike(value: HtmlView | LikeType<HtmlView> | string | undefined): HtmlView {
+      if (value === void 0 || typeof value === "string") {
+        let view = this.view;
+        if (view === null) {
+          view = this.createView();
+        }
+        view.text(value);
+        return view;
+      }
+      return super.fromLike(value);
+    },
     createView(): HtmlView {
       const titleView = HtmlView.create();
       titleView.addClass("header-title");
-      titleView.alignSelf.setState("center", Affinity.Intrinsic);
-      titleView.color.setLook(Look.legendColor, Affinity.Intrinsic);
-      return titleView;
+      return titleView.setIntrinsic({
+        alignSelf: "center",
+        color: Look.legendColor,
+      });
     },
   })
-  readonly headerTitle!: ViewRef<this, HtmlView> & {
-    setText(tite: string | undefined): HtmlView,
-  };
+  readonly headerTitle!: ViewRef<this, Like<HtmlView, string | undefined>>;
 
   @ViewRef({
     viewType: HtmlView,
     viewKey: "panel-subtitle",
+    binds: true,
     get parentView(): HtmlView | null {
       return this.owner.header.insertView();
     },
@@ -274,22 +268,27 @@ export class PanelView extends HtmlView {
     didDetachView(subtitleView: HtmlView): void {
       this.owner.callObservers("viewDidDetachHeaderSubtitle", subtitleView, this.owner);
     },
-    setText(title: string | undefined): HtmlView {
-      const subtitleView = this.insertView();
-      subtitleView.text(title);
-      return subtitleView;
+    fromLike(value: HtmlView | LikeType<HtmlView> | string | undefined): HtmlView {
+      if (value === void 0 || typeof value === "string") {
+        let view = this.view;
+        if (view === null) {
+          view = this.createView();
+        }
+        view.text(value);
+        return view;
+      }
+      return super.fromLike(value);
     },
     createView(): HtmlView {
       const subtitleView = HtmlView.create();
       subtitleView.addClass("header-subtitle");
-      subtitleView.alignSelf.setState("center", Affinity.Intrinsic);
-      subtitleView.color.setLook(Look.legendColor, Affinity.Intrinsic);
-      return subtitleView;
+      return subtitleView.setIntrinsic({
+        alignSelf: "center",
+        color: Look.legendColor,
+      });
     },
   })
-  readonly headerSubtitle!: ViewRef<this, HtmlView> & {
-    setText(subtitle: string | undefined): HtmlView,
-  };
+  readonly headerSubtitle!: ViewRef<this, Like<HtmlView, string | undefined>>;
 
   @ViewSet({
     get viewType(): typeof PanelView {
@@ -298,8 +297,10 @@ export class PanelView extends HtmlView {
     binds: true,
     observes: true,
     initView(paneView: PanelView): void {
-      paneView.position.setState("absolute", Affinity.Intrinsic);
-      paneView.visibility.setState("hidden", Affinity.Intrinsic);
+      paneView.setIntrinsic({
+        position: "absolute",
+        visibility: "hidden",
+      });
     },
     willAttachView(paneView: PanelView, target: View | null): void {
       this.owner.callObservers("viewWillAttachPane", paneView, target, this.owner);
@@ -339,17 +340,17 @@ export class PanelView extends HtmlView {
       } else {
         paneLayout = "stack";
       }
-      this.paneLayout.setValue(paneLayout, Affinity.Intrinsic);
+      this.paneLayout.setIntrinsic(paneLayout);
     }
 
     if (this.panes.viewCount === 0) {
       const widthBasis = this.widthBasis.value;
       if (widthBasis !== void 0) {
-        this.width.setState(widthBasis, Affinity.Intrinsic);
+        this.width.setIntrinsic(widthBasis);
       }
       const heightBasis = this.heightBasis.value;
       if (heightBasis !== void 0) {
-        this.height.setState(heightBasis, Affinity.Intrinsic);
+        this.height.setIntrinsic(heightBasis);
       }
     }
   }
@@ -400,11 +401,13 @@ export class PanelView extends HtmlView {
 
         const paneWidth = child.unitWidth.value * width;
         const paneHeight = Math.max(child.minPanelHeight.value, child.unitHeight.value * height);
-        child.left.setState(x, Affinity.Intrinsic);
-        child.top.setState(y, Affinity.Intrinsic);
-        child.widthBasis.setValue(paneWidth - child.marginLeft.pxValue() - child.marginRight.pxValue(), Affinity.Intrinsic);
-        child.heightBasis.setValue(paneHeight - child.marginTop.pxValue() - child.marginBottom.pxValue(), Affinity.Intrinsic);
-        child.visibility.setState(void 0, Affinity.Intrinsic);
+        child.setIntrinsic({
+          left: x,
+          top: y,
+          widthBasis: paneWidth - child.marginLeft.pxValue() - child.marginRight.pxValue(),
+          heightBasis: paneHeight - child.marginTop.pxValue() - child.marginBottom.pxValue(),
+          visibility: void 0,
+        });
         x += paneWidth;
       }
 
@@ -423,10 +426,10 @@ export class PanelView extends HtmlView {
     super.processChildren(processFlags, resizeBlockChild);
 
     if (widthBasis !== void 0) {
-      this.width.setState(width, Affinity.Intrinsic);
+      this.width.setIntrinsic(width);
     }
     if (heightBasis !== void 0) {
-      this.height.setState(y, Affinity.Intrinsic);
+      this.height.setIntrinsic(y);
     }
   }
 
@@ -442,24 +445,26 @@ export class PanelView extends HtmlView {
     function resizeStackChild(this: self, child: View, processFlags: ViewFlags): void {
       if (child instanceof PanelView) {
         const paneHeight = Math.max(child.minPanelHeight.value, child.unitHeight.value * height);
-        child.left.setState(x, Affinity.Intrinsic);
-        child.top.setState(y, Affinity.Intrinsic);
-        child.widthBasis.setValue(width - child.marginLeft.pxValue() - child.marginRight.pxValue(), Affinity.Intrinsic);
-        child.heightBasis.setValue(paneHeight - child.marginTop.pxValue() - child.marginBottom.pxValue(), Affinity.Intrinsic);
+        child.setIntrinsic({
+          left: x,
+          top: y,
+          widthBasis: width - child.marginLeft.pxValue() - child.marginRight.pxValue(),
+          heightBasis: paneHeight - child.marginTop.pxValue() - child.marginBottom.pxValue(),
+        });
       }
       processChild.call(this, child, processFlags);
       if (child instanceof PanelView) {
-        child.visibility.setState(void 0, Affinity.Intrinsic);
+        child.visibility.setIntrinsic(void 0);
         y += child.marginTop.pxValue() + child.height.pxValue() + child.marginBottom.pxValue();
       }
     }
     super.processChildren(processFlags, resizeStackChild);
 
     if (widthBasis !== void 0) {
-      this.width.setState(width, Affinity.Intrinsic);
+      this.width.setIntrinsic(width);
     }
     if (heightBasis !== void 0) {
-      this.height.setState(y + this.paddingBottom.pxValue(), Affinity.Intrinsic);
+      this.height.setIntrinsic(y + this.paddingBottom.pxValue());
     }
   }
 

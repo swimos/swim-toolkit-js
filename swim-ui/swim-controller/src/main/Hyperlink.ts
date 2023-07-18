@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import type {Uninitable} from "@swim/util";
-import type {Proto} from "@swim/util";
 import {Objects} from "@swim/util";
 import type {Equals} from "@swim/util";
 import type {Output} from "@swim/codec";
@@ -30,7 +29,7 @@ export type HyperlinkInit = HistoryHyperlinkInit | LocationHyperlinkInit;
 
 /** @public */
 export abstract class Hyperlink implements Equals, Debug {
-  declare readonly likeType?: Proto<HyperlinkInit | string>;
+  likeType?(like: HyperlinkInit | string): void;
 
   abstract readonly state: Readonly<HistoryStateInit> | null;
 

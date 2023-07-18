@@ -74,10 +74,12 @@ export class TokenView extends HtmlView {
 
   protected initToken(): void {
     this.addClass("token");
-    this.position.setState("relative", Affinity.Intrinsic);
-    this.height.setState(32, Affinity.Intrinsic);
-    this.boxSizing.setState("content-box", Affinity.Intrinsic);
-    this.userSelect.setState("none", Affinity.Intrinsic);
+    this.setIntrinsic<TokenView>({
+      position: "relative",
+      height: 32,
+      boxSizing: "content-box",
+      userSelect: "none",
+    });
     this.shape.insertView();
   }
 
@@ -96,50 +98,63 @@ export class TokenView extends HtmlView {
 
   protected initHead(headView: SvgView): void {
     headView.addClass("head");
-    headView.fillRule.setState("evenodd", Affinity.Intrinsic);
-    headView.pointerEvents.setState("bounding-box", Affinity.Intrinsic);
-    headView.cursor.setState("pointer", Affinity.Intrinsic);
+    headView.setIntrinsic({
+      fillRule: "evenodd",
+      cursor: "pointer",
+      pointerEvents: "bounding-box",
+    });
   }
 
   protected initHeadIcon(headIconView: SvgView): void {
     headIconView.addClass("head-icon");
-    headIconView.pointerEvents.setState("none", Affinity.Intrinsic);
+    headIconView.setIntrinsic({
+      pointerEvents: "none",
+    });
   }
 
   protected initBody(bodyView: SvgView): void {
     bodyView.addClass("body");
-    bodyView.pointerEvents.setState("fill", Affinity.Intrinsic);
-    bodyView.cursor.setState("pointer", Affinity.Intrinsic);
+    bodyView.setIntrinsic({
+      cursor: "pointer",
+      pointerEvents: "fill",
+    });
   }
 
   protected initFoot(footView: SvgView): void {
     footView.addClass("foot");
-    footView.fillRule.setState("evenodd", Affinity.Intrinsic);
-    footView.pointerEvents.setState("bounding-box", Affinity.Intrinsic);
-    footView.cursor.setState("pointer", Affinity.Intrinsic);
+    footView.setIntrinsic({
+      fillRule: "evenodd",
+      cursor: "pointer",
+      pointerEvents: "bounding-box",
+    });
   }
 
   protected initFootIcon(footIconView: SvgView): void {
     footIconView.addClass("foot-icon");
-    footIconView.pointerEvents.setState("none", Affinity.Intrinsic);
+    footIconView.setIntrinsic({
+      pointerEvents: "none",
+    });
   }
 
   protected initLabelContainer(labelContainer: HtmlView): void {
     labelContainer.addClass("label");
-    labelContainer.display.setState("block", Affinity.Intrinsic);
-    labelContainer.position.setState("absolute", Affinity.Intrinsic);
-    labelContainer.top.setState(0, Affinity.Intrinsic);
-    labelContainer.left.setState(0, Affinity.Intrinsic);
-    labelContainer.overflowX.setState("hidden", Affinity.Intrinsic);
-    labelContainer.overflowY.setState("hidden", Affinity.Intrinsic);
-    labelContainer.pointerEvents.setState("none", Affinity.Intrinsic);
+    labelContainer.setIntrinsic({
+      display: "block",
+      position: "absolute",
+      left: 0,
+      top: 0,
+      overflow: "hidden",
+      pointerEvents: "none",
+    });
   }
 
   protected initLabel(labelView: HtmlView): void {
-    labelView.position.setState("absolute", Affinity.Intrinsic);
-    labelView.top.setState(0, Affinity.Intrinsic);
-    labelView.bottom.setState(0, Affinity.Intrinsic);
-    labelView.left.setState(0, Affinity.Intrinsic);
+    labelView.setIntrinsic({
+      position: "absolute",
+      top: 0,
+      bottom: 0,
+      left: 0,
+    });
   }
 
   readonly tokenState: TokenViewState;
@@ -200,11 +215,11 @@ export class TokenView extends HtmlView {
       headView.removeEventListener("click", this.owner.onClickHead);
     },
     viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, headView: SvgView): void {
-      headView.fill.setState(theme.getOr(this.owner.fillLook, mood, null), timing, Affinity.Intrinsic);
+      headView.fill.setIntrinsic(theme.getOr(this.owner.fillLook, mood, null), timing);
       const headIconView = this.owner.headIcon.view;
       if (headIconView !== null && headIconView.fill.hasAffinity(Affinity.Intrinsic)) {
         const iconColor = theme.getOr(this.owner.fillLook, mood.updated(Feel.embossed, 1), null);
-        headIconView.fill.setState(iconColor, timing, Affinity.Intrinsic);
+        headIconView.fill.setIntrinsic(iconColor, timing);
       }
     },
   })
@@ -215,22 +230,22 @@ export class TokenView extends HtmlView {
       const headView = this.view!;
       headView.modifyMood(Feel.default, [[Feel.hovering, 1]]);
       const timing = headView.getLook(Look.timing);
-      headView.fill.setState(headView.getLookOr(this.owner.fillLook, null), timing, Affinity.Intrinsic);
+      headView.fill.setIntrinsic(headView.getLookOr(this.owner.fillLook, null), timing);
       const headIconView = this.owner.headIcon.view;
       if (headIconView !== null && headIconView.fill.hasAffinity(Affinity.Intrinsic)) {
         const iconColor = headView.getLookOr(this.owner.fillLook, headView.mood.getValue().updated(Feel.embossed, 1), null);
-        headIconView.fill.setState(iconColor, timing, Affinity.Intrinsic);
+        headIconView.fill.setIntrinsic(iconColor, timing);
       }
     },
     didStopHovering(): void {
       const headView = this.view!;
       headView.modifyMood(Feel.default, [[Feel.hovering, void 0]]);
       const timing = headView.getLook(Look.timing);
-      headView.fill.setState(headView.getLookOr(this.owner.fillLook, null), timing, Affinity.Intrinsic);
+      headView.fill.setIntrinsic(headView.getLookOr(this.owner.fillLook, null), timing);
       const headIconView = this.owner.headIcon.view;
       if (headIconView !== null && headIconView.fill.hasAffinity(Affinity.Intrinsic)) {
         const iconColor = headView.getLookOr(this.owner.fillLook, headView.mood.getValue().updated(Feel.embossed, 1), null);
-        headIconView.fill.setState(iconColor, timing, Affinity.Intrinsic);
+        headIconView.fill.setIntrinsic(iconColor, timing);
       }
     },
     didBeginPress(input: PositionGestureInput, event: Event | null): void {
@@ -302,10 +317,10 @@ export class TokenView extends HtmlView {
       headView.removeEventListener("click", this.owner.onClickBody);
     },
     viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, bodyView: SvgView): void {
-      bodyView.fill.setState(theme.getOr(this.owner.fillLook, mood, null), timing, Affinity.Intrinsic);
+      bodyView.fill.setIntrinsic(theme.getOr(this.owner.fillLook, mood, null), timing);
       const labelView = this.owner.label.view;
       if (labelView !== null && labelView.color.hasAffinity(Affinity.Intrinsic)) {
-        labelView.color.setState(theme.getOr(Look.backgroundColor, mood, null), timing, Affinity.Intrinsic);
+        labelView.color.setIntrinsic(theme.getOr(Look.backgroundColor, mood, null), timing);
       }
     },
   })
@@ -316,20 +331,20 @@ export class TokenView extends HtmlView {
       const bodyView = this.view!;
       bodyView.modifyMood(Feel.default, [[Feel.hovering, 1]]);
       const timing = bodyView.getLook(Look.timing);
-      bodyView.fill.setState(bodyView.getLookOr(this.owner.fillLook, null), timing, Affinity.Intrinsic);
+      bodyView.fill.setIntrinsic(bodyView.getLookOr(this.owner.fillLook, null), timing);
       const labelView = this.owner.label.view;
       if (labelView !== null && labelView.color.hasAffinity(Affinity.Intrinsic)) {
-        labelView.color.setState(bodyView.getLookOr(Look.backgroundColor, null), timing, Affinity.Intrinsic);
+        labelView.color.setIntrinsic(bodyView.getLookOr(Look.backgroundColor, null), timing);
       }
     },
     didStopHovering(): void {
       const bodyView = this.view!;
       bodyView.modifyMood(Feel.default, [[Feel.hovering, void 0]]);
       const timing = bodyView.getLook(Look.timing);
-      bodyView.fill.setState(bodyView.getLookOr(this.owner.fillLook, null), timing, Affinity.Intrinsic);
+      bodyView.fill.setIntrinsic(bodyView.getLookOr(this.owner.fillLook, null), timing);
       const labelView = this.owner.label.view;
       if (labelView !== null && labelView.color.hasAffinity(Affinity.Intrinsic)) {
-        labelView.color.setState(bodyView.getLookOr(Look.backgroundColor, null), timing, Affinity.Intrinsic);
+        labelView.color.setIntrinsic(bodyView.getLookOr(Look.backgroundColor, null), timing);
       }
     },
     didBeginPress(input: PositionGestureInput, event: Event | null): void {
@@ -373,11 +388,11 @@ export class TokenView extends HtmlView {
       footView.removeEventListener("click", this.owner.onClickFoot);
     },
     viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, footView: SvgView): void {
-      footView.fill.setState(theme.getOr(this.owner.fillLook, mood, null), timing, Affinity.Intrinsic);
+      footView.fill.setIntrinsic(theme.getOr(this.owner.fillLook, mood, null), timing);
       const footIconView = this.owner.footIcon.view;
       if (footIconView !== null && footIconView.fill.hasAffinity(Affinity.Intrinsic)) {
         const iconColor = theme.getOr(this.owner.fillLook, mood.updated(Feel.embossed, 1), null);
-        footIconView.fill.setState(iconColor, timing, Affinity.Intrinsic);
+        footIconView.fill.setIntrinsic(iconColor, timing);
       }
     },
   })
@@ -388,22 +403,22 @@ export class TokenView extends HtmlView {
       const footView = this.view!;
       footView.modifyMood(Feel.default, [[Feel.hovering, 1]]);
       const timing = footView.getLook(Look.timing);
-      footView.fill.setState(footView.getLookOr(this.owner.fillLook, null), timing, Affinity.Intrinsic);
+      footView.fill.setIntrinsic(footView.getLookOr(this.owner.fillLook, null), timing);
       const footIconView = this.owner.footIcon.view;
       if (footIconView !== null && footIconView.fill.hasAffinity(Affinity.Intrinsic)) {
         const iconColor = footView.getLookOr(this.owner.fillLook, footView.mood.getValue().updated(Feel.embossed, 1), null);
-        footIconView.fill.setState(iconColor, timing, Affinity.Intrinsic);
+        footIconView.fill.setIntrinsic(iconColor, timing);
       }
     },
     didStopHovering(): void {
       const footView = this.view!;
       footView.modifyMood(Feel.default, [[Feel.hovering, void 0]]);
       const timing = footView.getLook(Look.timing);
-      footView.fill.setState(footView.getLookOr(this.owner.fillLook, null), timing, Affinity.Intrinsic);
+      footView.fill.setIntrinsic(footView.getLookOr(this.owner.fillLook, null), timing);
       const footIconView = this.owner.footIcon.view;
       if (footIconView !== null && footIconView.fill.hasAffinity(Affinity.Intrinsic)) {
         const iconColor = footView.getLookOr(this.owner.fillLook, footView.mood.getValue().updated(Feel.embossed, 1), null);
-        footIconView.fill.setState(iconColor, timing, Affinity.Intrinsic);
+        footIconView.fill.setIntrinsic(iconColor, timing);
       }
     },
     didBeginPress(input: PositionGestureInput, event: Event | null): void {
@@ -542,22 +557,25 @@ export class TokenView extends HtmlView {
     const width = tokenWidth + paddingLeft + paddingRight;
     const height = boxHeight;
 
-    this.width.setState(tokenWidth, Affinity.Intrinsic);
+    this.width.setIntrinsic(tokenWidth);
 
     const labelContainer = this.labelContainer.view;
     if (labelContainer !== null) {
-      labelContainer.display.setState(expandedPhase !== 0 ? "block" : "none", Affinity.Intrinsic);
-      labelContainer.left.setState(paddingLeft + tokenHeight + gap + labelPaddingLeft, Affinity.Intrinsic);
-      labelContainer.top.setState(paddingTop, Affinity.Intrinsic);
-      labelContainer.width.setState(expandedPhase * labelWidth, Affinity.Intrinsic);
-      labelContainer.height.setState(tokenHeight, Affinity.Intrinsic);
+      labelContainer.setIntrinsic({
+        display: expandedPhase !== 0 ? "block" : "none",
+        left: paddingLeft + tokenHeight + gap + labelPaddingLeft,
+        top: paddingTop,
+        width: expandedPhase * labelWidth,
+        height: tokenHeight
+      });
     }
 
     const shapeView = this.shape.view;
     if (shapeView !== null) {
-      shapeView.width.setState(width, Affinity.Intrinsic);
-      shapeView.height.setState(height, Affinity.Intrinsic);
-      shapeView.viewBox.setState("0 0 " + width + " " + height, Affinity.Intrinsic);
+      shapeView.setIntrinsic({
+        width, height,
+        viewBox: "0 0 " + width + " " + height,
+      });
     }
 
     const headView = this.head.view;
@@ -572,7 +590,7 @@ export class TokenView extends HtmlView {
         icon.render(renderer, frame);
         this.headIcon.removeView();
       }
-      headView.d.setState(context.toString(), Affinity.Intrinsic);
+      headView.d.setIntrinsic(context.toString());
     }
     const headIconView = this.headIcon.view;
     if (headIconView !== null) {
@@ -582,7 +600,7 @@ export class TokenView extends HtmlView {
         const renderer = new PathRenderer(context);
         const frame = new R2Box(paddingLeft, paddingTop, paddingLeft + tokenHeight, paddingTop + tokenHeight);
         icon.render(renderer, frame);
-        headIconView.d.setState(context.toString(), Affinity.Intrinsic);
+        headIconView.d.setIntrinsic(context.toString());
         this.headIcon.insertView();
       } else {
         this.headIcon.removeView();
@@ -599,7 +617,7 @@ export class TokenView extends HtmlView {
         context.arc(paddingLeft + bodyRight - radius - u * gap, paddingTop + radius, radius + u * gap, Math.PI / 2 - u * padAngle, -(Math.PI / 2) + u * padAngle, true);
         context.closePath();
       }
-      bodyView.d.setState(context.toString(), Affinity.Intrinsic);
+      bodyView.d.setIntrinsic(context.toString());
     }
 
     const footView = this.foot.view;
@@ -618,7 +636,7 @@ export class TokenView extends HtmlView {
           this.headIcon.removeView();
         }
       }
-      footView.d.setState(context.toString(), Affinity.Intrinsic);
+      footView.d.setIntrinsic(context.toString());
     }
     const footIconView = this.footIcon.view;
     if (footIconView !== null) {
@@ -630,7 +648,7 @@ export class TokenView extends HtmlView {
           const frame = new R2Box(paddingLeft + bodyRight + gap, paddingTop, paddingLeft + bodyRight + gap + tokenHeight, paddingTop + tokenHeight);
           accessoryIcon.render(renderer, frame);
         }
-        footIconView.d.setState(context.toString(), Affinity.Intrinsic);
+        footIconView.d.setIntrinsic(context.toString());
         this.footIcon.insertView();
       } else {
         this.footIcon.removeView();
@@ -651,12 +669,12 @@ export class TokenView extends HtmlView {
       }
       if (timing !== false) {
         if (this.expandedPhase.value !== 1) {
-          this.expandedPhase.setState(1, timing, Affinity.Intrinsic);
+          this.expandedPhase.setIntrinsic(1, timing);
         } else {
           setTimeout(this.didExpand.bind(this));
         }
       } else {
-        this.expandedPhase.setState(1, Affinity.Intrinsic);
+        this.expandedPhase.setIntrinsic(1);
         this.didExpand();
       }
     }
@@ -666,7 +684,7 @@ export class TokenView extends HtmlView {
     (this as Mutable<this>).tokenState = "expanding";
     const labelContainer = this.labelContainer.view;
     if (labelContainer !== null) {
-      labelContainer.display.setState("block", Affinity.Intrinsic);
+      labelContainer.display.setIntrinsic("block");
     }
     this.callObservers("tokenWillExpand", this);
   }
@@ -694,12 +712,12 @@ export class TokenView extends HtmlView {
       }
       if (timing !== false) {
         if (this.expandedPhase.value !== 0) {
-          this.expandedPhase.setState(0, timing, Affinity.Intrinsic);
+          this.expandedPhase.setIntrinsic(0, timing);
         } else {
           setTimeout(this.didCollapse.bind(this));
         }
       } else {
-        this.expandedPhase.setState(0, Affinity.Intrinsic);
+        this.expandedPhase.setIntrinsic(0);
         this.didCollapse();
       }
     }

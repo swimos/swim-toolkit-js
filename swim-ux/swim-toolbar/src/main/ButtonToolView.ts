@@ -52,16 +52,14 @@ export class ButtonToolView extends ToolView implements IconView {
   protected override initTool(): void {
     super.initTool();
     this.addClass("tool-button");
-    this.boxSizing.setState("content-box", Affinity.Intrinsic);
-    this.borderTopLeftRadius.setState(4, Affinity.Intrinsic);
-    this.borderTopRightRadius.setState(4, Affinity.Intrinsic);
-    this.borderBottomLeftRadius.setState(4, Affinity.Intrinsic);
-    this.borderBottomRightRadius.setState(4, Affinity.Intrinsic);
-    this.overflowX.setState("hidden", Affinity.Intrinsic);
-    this.overflowY.setState("hidden", Affinity.Intrinsic);
-    this.userSelect.setState("none", Affinity.Intrinsic);
-    this.cursor.setState("pointer", Affinity.Intrinsic);
-    this.backgroundColor.setLook(Look.backgroundColor, Affinity.Intrinsic);
+    this.setIntrinsic<ButtonToolView>({
+      boxSizing: "border-box",
+      borderRadius: 4,
+      overflow: "hidden",
+      userSelect: "none",
+      cursor: "pointer",
+      backgroundColor: Look.backgroundColor,
+    });
   }
 
   declare readonly observerType?: Class<ButtonToolViewObserver>;
@@ -150,12 +148,13 @@ export class ButtonToolView extends ToolView implements IconView {
                          && !svgView.viewBox.hasAffinity(Affinity.Intrinsic)) {
       return;
     }
-    const viewWidth = this.width.pxValue();
-    const viewHeight = this.height.pxValue();
-    svgView.width.setState(viewWidth, Affinity.Intrinsic);
-    svgView.height.setState(viewHeight, Affinity.Intrinsic);
-    svgView.viewBox.setState("0 0 " + viewWidth + " " + viewHeight, Affinity.Intrinsic);
-    this.effectiveWidth.setValue(viewWidth);
+    const width = this.width.pxValue();
+    const height = this.height.pxValue();
+    svgView.setIntrinsic({
+      width, height,
+      viewBox: "0 0 " + width + " " + height,
+    });
+    this.effectiveWidth.set(width);
   }
 
   @Property({valueType: Boolean, value: true, inherits: true})

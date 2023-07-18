@@ -26,25 +26,25 @@ import {ControllerRelation} from "./ControllerRelation";
 
 /** @public */
 export interface ControllerRefDescriptor<R, C extends Controller> extends ControllerRelationDescriptor<R, C> {
-  extends?: Proto<ControllerRef<any, any>> | boolean | null;
+  extends?: Proto<ControllerRef<any, any, any>> | boolean | null;
   controllerKey?: string | boolean;
 }
 
 /** @public */
-export interface ControllerRefClass<F extends ControllerRef<any, any> = ControllerRef<any, any>> extends ControllerRelationClass<F> {
+export interface ControllerRefClass<F extends ControllerRef<any, any, any> = ControllerRef<any, any, any>> extends ControllerRelationClass<F> {
   tryController<R, K extends keyof R, F extends R[K] = R[K]>(owner: R, fastenerName: K): F extends {readonly controller: infer C | null} ? C | null : null;
 }
 
 /** @public */
-export interface ControllerRef<R = any, C extends Controller = Controller> extends ControllerRelation<R, C> {
+export interface ControllerRef<R = any, C extends Controller = Controller, I extends any[] = [C | null]> extends ControllerRelation<R, C, I> {
   /** @override */
   get descriptorType(): Proto<ControllerRefDescriptor<R, C>>;
 
   /** @override */
-  get fastenerType(): Proto<ControllerRef<any, any>>;
+  get fastenerType(): Proto<ControllerRef<any, any, any>>;
 
   /** @override */
-  get parent(): ControllerRef<any, C> | null;
+  get parent(): ControllerRef<any, C, any> | null;
 
   get inletController(): C | null;
 
@@ -52,13 +52,19 @@ export interface ControllerRef<R = any, C extends Controller = Controller> exten
 
   get controllerKey(): string | undefined;
 
+  get(): C | null;
+
+  set(controller: C | LikeType<C> | Fastener<any, I[0], any> | null): R;
+
+  setIntrinsic(controller: C | LikeType<C> | Fastener<any, I[0], any> | null): R;
+
   readonly controller: C | null;
 
   getController(): C;
 
   setController(controller: C | LikeType<C> | null, target?: Controller | null, key?: string): C | null;
 
-  attachController(controller?: C | LikeType<C>, target?: Controller | null): C;
+  attachController(controller?: C | LikeType<C> | null, target?: Controller | null): C;
 
   detachController(): C | null;
 
@@ -88,8 +94,8 @@ export interface ControllerRef<R = any, C extends Controller = Controller> exten
 }
 
 /** @public */
-export const ControllerRef = (<R, C extends Controller, F extends ControllerRef<any, any>>() => ControllerRelation.extend<ControllerRef<R, C>, ControllerRefClass<F>>("ControllerRef", {
-  get fastenerType(): Proto<ControllerRef<any, any>> {
+export const ControllerRef = (<R, C extends Controller, I extends any[], F extends ControllerRef<any, any, any>>() => ControllerRelation.extend<ControllerRef<R, C, I>, ControllerRefClass<F>>("ControllerRef", {
+  get fastenerType(): Proto<ControllerRef<any, any, any>> {
     return ControllerRef;
   },
 
@@ -110,6 +116,28 @@ export const ControllerRef = (<R, C extends Controller, F extends ControllerRef<
       throw new TypeError(message);
     }
     return inletController;
+  },
+
+  get(): C | null {
+    return this.controller;
+  },
+
+  set(controller: C | LikeType<C> | Fastener<any, I[0], any> | null): R {
+    if (controller instanceof Fastener) {
+      this.bindInlet(controller);
+    } else {
+      this.setController(controller);
+    }
+    return this.owner;
+  },
+
+  setIntrinsic(controller: C | LikeType<C> | Fastener<any, I[0], any> | null): R {
+    if (controller instanceof Fastener) {
+      this.bindInlet(controller);
+    } else {
+      this.setController(controller);
+    }
+    return this.owner;
   },
 
   controllerKey: void 0,
@@ -177,7 +205,7 @@ export const ControllerRef = (<R, C extends Controller, F extends ControllerRef<
     return oldController;
   },
 
-  attachController(newController?: C | LikeType<C>, target?: Controller | null): C {
+  attachController(newController?: C | LikeType<C> | null, target?: Controller | null): C {
     const oldController = this.controller;
     if (newController !== void 0 && newController !== null) {
       newController = this.fromLike(newController);
@@ -375,7 +403,7 @@ export const ControllerRef = (<R, C extends Controller, F extends ControllerRef<
     return fastener;
   },
 
-  refine(fastenerClass: FastenerClass<ControllerRef<any, any>>): void {
+  refine(fastenerClass: FastenerClass<ControllerRef<any, any, any>>): void {
     super.refine(fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

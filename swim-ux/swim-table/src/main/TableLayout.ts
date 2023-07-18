@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Proto} from "@swim/util";
 import {Equals} from "@swim/util";
 import type {Equivalent} from "@swim/util";
 import {Arrays} from "@swim/util";
@@ -47,7 +46,7 @@ export class TableLayout implements Equals, Equivalent, Debug {
     this.cols = cols;
   }
 
-  declare readonly likeType?: Proto<TableLayoutInit>;
+  likeType?(like: TableLayoutInit): void;
 
   readonly width: Length | null;
 

@@ -485,7 +485,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
       } else if (xScaledRangePadding !== null) {
         xRangePadding = [Math.max(xRangePadding[0], xScaledRangePadding[0]), Math.max(xRangePadding[1], xScaledRangePadding[1])];
       }
-      this.xRangePadding.setValue(xRangePadding, Affinity.Intrinsic);
+      this.xRangePadding.setIntrinsic(xRangePadding);
     }
   }
 
@@ -512,7 +512,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
       } else if (yScaledRangePadding !== null) {
         yRangePadding = [Math.max(yRangePadding[0], yScaledRangePadding[0]), Math.max(yRangePadding[1], yScaledRangePadding[1])];
       }
-      this.yRangePadding.setValue(yRangePadding, Affinity.Intrinsic);
+      this.yRangePadding.setIntrinsic(yRangePadding);
     }
   }
 
@@ -554,7 +554,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
     if (xFitAlign === void 0) {
       return fitAlign[0];
     } else {
-      this.fitAlign.setValue([xFitAlign, fitAlign[1]]);
+      this.fitAlign.set([xFitAlign, fitAlign[1]]);
       return this;
     }
   }
@@ -566,7 +566,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
     if (yFitAlign === void 0) {
       return fitAlign[0];
     } else {
-      this.fitAlign.setValue([fitAlign[0], yFitAlign]);
+      this.fitAlign.set([fitAlign[0], yFitAlign]);
       return this;
     }
   }
@@ -810,7 +810,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
         const xDataDomainPadded = this.xDataDomainPadded;
         if (xDataDomainPadded !== null) {
           xScale = ScaledView.createScale(xDataDomainPadded[0], xDataDomainPadded[1], xRange[0], xRange[1]);
-          this.xScale.setState(xScale);
+          this.xScale.set(xScale);
           this.setScaledFlags(this.scaledFlags | ScaledView.XFitFlag);
         }
       }
@@ -829,7 +829,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
         const yDataDomainPadded = this.yDataDomainPadded;
         if (yDataDomainPadded !== null) {
           yScale = ScaledView.createScale(yDataDomainPadded[0], yDataDomainPadded[1], yRange[0], yRange[1]);
-          this.yScale.setState(yScale);
+          this.yScale.set(yScale);
           this.setScaledFlags(this.scaledFlags | ScaledView.YFitFlag);
         }
       }
@@ -1127,8 +1127,8 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
 
     this.setXDataDomain(xCount !== 0 ? this.xScale.createDomain(xDataDomainMin!, xDataDomainMax!) : null);
     this.setYDataDomain(yCount !== 0 ? this.yScale.createDomain(yDataDomainMin!, yDataDomainMax!) : null);
-    this.xRangePadding.setValue([xRangePaddingMin, xRangePaddingMax], Affinity.Intrinsic);
-    this.yRangePadding.setValue([yRangePaddingMin, yRangePaddingMax], Affinity.Intrinsic);
+    this.xRangePadding.setIntrinsic([xRangePaddingMin, xRangePaddingMax]);
+    this.yRangePadding.setIntrinsic([yRangePaddingMin, yRangePaddingMax]);
   }
 
   protected onBeginBoundingXScale(xScale: ContinuousScale<X, number>): void {
@@ -1185,7 +1185,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
     },
     setXScale(xScale: ContinuousScale<X, number> | null, timing?: TimingLike | boolean): void {
       if ((this.owner.scaledFlags & ScaledView.XScaleGesturesFlag) !== 0) {
-        this.owner.xScale.setState(xScale, timing);
+        this.owner.xScale.set(xScale, timing);
       }
     },
     getYScale(): ContinuousScale<Y, number> | null {
@@ -1196,7 +1196,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends GraphicsView 
     },
     setYScale(yScale: ContinuousScale<Y, number> | null, timing?: TimingLike | boolean): void {
       if ((this.owner.scaledFlags & ScaledView.YScaleGesturesFlag) !== 0) {
-        this.owner.yScale.setState(yScale, timing);
+        this.owner.yScale.set(yScale, timing);
       }
     },
     willStartInteracting(): void {

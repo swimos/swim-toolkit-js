@@ -16,6 +16,8 @@ import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
 import {Objects} from "@swim/util";
 import type {Observes} from "@swim/util";
+import type {Like} from "@swim/util";
+import type {LikeType} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import type {Trait} from "@swim/model";
@@ -31,6 +33,7 @@ import {TraitViewControllerRef} from "@swim/controller";
 import {TraitViewControllerSet} from "@swim/controller";
 import {ToolLayout} from "@swim/toolbar";
 import type {ToolView} from "@swim/toolbar";
+import {TitleToolView} from "@swim/toolbar";
 import {ButtonToolView} from "@swim/toolbar";
 import {ToolController} from "@swim/toolbar";
 import {TitleToolController} from "@swim/toolbar";
@@ -156,7 +159,7 @@ export class SheetController extends Controller {
       this.owner.callObservers("controllerWillAttachSheetView", sheetView, this.owner);
     },
     didAttachView(sheetView: SheetView): void {
-      this.owner.fullBleed.setValue(sheetView.fullBleed.value, Affinity.Intrinsic);
+      this.owner.fullBleed.setIntrinsic(sheetView.fullBleed.value);
     },
     didDetachView(sheetView: SheetView): void {
       this.owner.callObservers("controllerDidDetachSheetView", sheetView, this.owner);
@@ -165,7 +168,7 @@ export class SheetController extends Controller {
       this.owner.callObservers("controllerDidScrollSheetView", sheetView, this.owner);
     },
     viewDidSetFullBleed(fullBleed: boolean, sheetView: SheetView): void {
-      this.owner.fullBleed.setValue(fullBleed, Affinity.Intrinsic);
+      this.owner.fullBleed.setIntrinsic(fullBleed);
     },
     viewWillPresent(sheetView: SheetView): void {
       this.owner.callObservers("controllerWillPresentSheetView", sheetView, this.owner);
@@ -251,27 +254,30 @@ export class SheetController extends Controller {
     controllerDidLongPressToolView(input: PositionGestureInput): void {
       this.owner.callObservers("controllerDidLongPressTitle", input, this.owner);
     },
-    setText(title: string | undefined): ToolView {
-      let titleController = this.controller as TitleToolController | null;
-      if (titleController === null) {
-        titleController = this.createController() as TitleToolController;
-        this.setController(titleController);
+    fromLike(value: ToolController | LikeType<ToolController> | string | undefined): ToolController {
+      if (value === void 0 || typeof value === "string") {
+        let controller = this.controller;
+        if (controller === null) {
+          controller = this.createController();
+        }
+        const view = controller.tool.attachView();
+        if (view instanceof TitleToolView) {
+          view.content.set(value);
+        }
+        return controller;
       }
-      const titleView = titleController.tool.attachView();
-      titleView.content.setText(title);
-      return titleView;
+      return super.fromLike(value);
     },
     createController(): ToolController {
       const titleController = TitleToolController.create();
       const titleView = titleController.tool.attachView();
-      titleView.fontSize.setState(14, Affinity.Intrinsic);
+      titleView.fontSize.setIntrinsic(14);
       return titleController;
     },
   })
-  readonly title!: TraitViewControllerRef<this, Trait, ToolView, ToolController> & Observes<ToolController> & {
+  readonly title!: TraitViewControllerRef<this, Trait, ToolView, Like<ToolController, string | undefined>> & Observes<ToolController> & {
     attachToolView(titleView: ToolView, titleController: ToolController): void,
     detachToolView(titleView: ToolView, titleController: ToolController): void,
-    setText(title: string | undefined): ToolView,
   };
 
   @TraitViewControllerRef({
@@ -336,23 +342,23 @@ export class SheetController extends Controller {
       if (handleView instanceof ButtonToolView) {
         const timing = !handleView.inserting ? handleView.getLook(Look.timing) : false;
         if (active) {
-          handleView.iconColor.setLook(Look.accentColor, timing, Affinity.Intrinsic);
+          handleView.iconColor.setIntrinsic(Look.accentColor, timing);
         } else {
-          handleView.iconColor.setLook(Look.iconColor, timing, Affinity.Intrinsic);
+          handleView.iconColor.setIntrinsic(Look.iconColor, timing);
         }
       }
     },
     setIcon(icon: Graphics | null): void {
       const handleController = this.insertController() as ButtonToolController;
       const handleView = handleController.tool.attachView();
-      handleView.graphics.setState(icon, Affinity.Intrinsic);
+      handleView.graphics.setIntrinsic(icon);
     },
     createController(): ToolController {
       const handleController = ButtonToolController.create();
       const toolLayout = ToolLayout.create("", 0, 0, 36);
-      handleController.layout.setValue(toolLayout);
+      handleController.layout.set(toolLayout);
       const handleView = handleController.tool.attachView();
-      handleView.iconLayout.setState({width: 24, height: 24}, Affinity.Intrinsic);
+      handleView.iconLayout.setIntrinsic({width: 24, height: 24});
       return handleController;
     },
   })

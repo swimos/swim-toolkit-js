@@ -14,7 +14,6 @@
 
 import type {Class} from "@swim/util";
 import type {Observes} from "@swim/util";
-import {Affinity} from "@swim/component";
 import type {Trait} from "@swim/model";
 import type {View} from "@swim/view";
 import type {PositionGestureInput} from "@swim/view";
@@ -188,7 +187,7 @@ export class TableController extends Controller {
   declare readonly observerType?: Class<TableControllerObserver>;
 
   protected layoutTable(tableLayout: TableLayout, tableView: TableView): void {
-    tableView.layout.setValue(tableLayout, Affinity.Intrinsic);
+    tableView.layout.setIntrinsic(tableLayout);
   }
 
   @TraitViewRef({

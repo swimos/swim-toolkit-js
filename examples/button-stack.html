@@ -40,12 +40,13 @@ const bodyView = swim.HtmlView.fromNode(document.body);
 
 bodyView.appendChild(swim.ScrimView);
 
-const buttonStack = swim.ButtonStack.create();
-buttonStack.position.setState("absolute")
-buttonStack.top.setState("60%")
-buttonStack.right.setState("50%")
-buttonStack.bottom.setState("40%")
-buttonStack.left.setState("50%");
+const buttonStack = swim.ButtonStack.create().set({
+  position: "absolute",
+  top: "60%",
+  right: "50%",
+  bottom: "40%",
+  left: "50%",
+});
 
 buttonStack.button.view.modifyMood(swim.Feel.default, [[swim.Feel.primary, 1]]);
 buttonStack.button.view.icon.push(swim.VectorIcon.create(24, 24, "M18,1.6L24,12L18,22.4L6,22.4L0,12L6,1.6L18,1.6ZM16.9,3.6L7.2,3.6L2.3,12L7.2,20.4L16.9,20.4L21.7,12L16.9,3.6ZM18,13L13,13L13,18L11,18L11,13L6,13L6,11L11,11L11,6L13,6L13,11L18,11L18,13Z"));

@@ -36,29 +36,35 @@ import {ViewRelation} from "./ViewRelation";
 
 /** @public */
 export interface ViewRefDescriptor<R, V extends View> extends ViewRelationDescriptor<R, V> {
-  extends?: Proto<ViewRef<any, any>> | boolean | null;
+  extends?: Proto<ViewRef<any, any, any>> | boolean | null;
   viewKey?: string | boolean;
 }
 
 /** @public */
-export interface ViewRefClass<F extends ViewRef<any, any> = ViewRef<any, any>> extends ViewRelationClass<F> {
+export interface ViewRefClass<F extends ViewRef<any, any, any> = ViewRef<any, any, any>> extends ViewRelationClass<F> {
   tryView<R, K extends keyof R, F extends R[K] = R[K]>(owner: R, fastenerName: K): F extends {readonly view: infer V | null} ? V | null : null;
 }
 
 /** @public */
-export interface ViewRef<R = any, V extends View = View> extends ViewRelation<R, V>, ConstraintScope, ConstraintContext {
+export interface ViewRef<R = any, V extends View = View, I extends any[] = [V | null]> extends ViewRelation<R, V, I>, ConstraintScope, ConstraintContext {
   /** @override */
   get descriptorType(): Proto<ViewRefDescriptor<R, V>>;
 
   /** @override */
-  get fastenerType(): Proto<ViewRef<any, any>>;
+  get fastenerType(): Proto<ViewRef<any, any, any>>;
 
   /** @override */
-  get parent(): ViewRef<any, V> | null;
+  get parent(): ViewRef<any, V, any> | null;
 
   get inletView(): V | null;
 
   getInletView(): V;
+
+  get(): V | null;
+
+  set(view: V | LikeType<V> | Fastener<any, I[0], any> | null): R;
+
+  setIntrinsic(view: V | LikeType<V> | Fastener<any, I[0], any> | null): R;
 
   get viewKey(): string | undefined;
 
@@ -68,7 +74,7 @@ export interface ViewRef<R = any, V extends View = View> extends ViewRelation<R,
 
   setView(view: V | LikeType<V> | null, target?: View | null, key?: string): V | null;
 
-  attachView(view?: V | LikeType<V>, target?: View | null): V;
+  attachView(view?: V | LikeType<V> | null, target?: View | null): V;
 
   detachView(): V | null;
 
@@ -148,8 +154,8 @@ export interface ViewRef<R = any, V extends View = View> extends ViewRelation<R,
 }
 
 /** @public */
-export const ViewRef = (<R, V extends View, F extends ViewRef<any, any>>() => ViewRelation.extend<ViewRef<R, V>, ViewRefClass<F>>("ViewRef", {
-  get fastenerType(): Proto<ViewRef<any, any>> {
+export const ViewRef = (<R, V extends View, I extends any[], F extends ViewRef<any, any, any>>() => ViewRelation.extend<ViewRef<R, V, I>, ViewRefClass<F>>("ViewRef", {
+  get fastenerType(): Proto<ViewRef<any, any, any>> {
     return ViewRef;
   },
 
@@ -170,6 +176,28 @@ export const ViewRef = (<R, V extends View, F extends ViewRef<any, any>>() => Vi
       throw new TypeError(message);
     }
     return inletView;
+  },
+
+  get(): V | null {
+    return this.view;
+  },
+
+  set(view: V | LikeType<V> | Fastener<any, I[0], any> | null): R {
+    if (view instanceof Fastener) {
+      this.bindInlet(view);
+    } else {
+      this.setView(view);
+    }
+    return this.owner;
+  },
+
+  setIntrinsic(view: V | LikeType<V> | Fastener<any, I[0], any> | null): R {
+    if (view instanceof Fastener) {
+      this.bindInlet(view);
+    } else {
+      this.setView(view);
+    }
+    return this.owner;
   },
 
   viewKey: void 0,
@@ -238,7 +266,7 @@ export const ViewRef = (<R, V extends View, F extends ViewRef<any, any>>() => Vi
     return oldView;
   },
 
-  attachView(newView?: V | LikeType<V>, target?: View | null): V {
+  attachView(newView?: V | LikeType<V> | null, target?: View | null): V {
     const oldView = this.view;
     if (newView !== void 0 && newView !== null) {
       newView = this.fromLike(newView);
@@ -484,7 +512,7 @@ export const ViewRef = (<R, V extends View, F extends ViewRef<any, any>>() => Vi
       configurable: true,
     });
     if (value !== void 0) {
-      property.setValue(value);
+      property.set(value);
     }
     property.setStrength(strength);
     property.mount();
@@ -601,7 +629,7 @@ export const ViewRef = (<R, V extends View, F extends ViewRef<any, any>>() => Vi
     return fastener;
   },
 
-  refine(fastenerClass: FastenerClass<ViewRef<any, any>>): void {
+  refine(fastenerClass: FastenerClass<ViewRef<any, any, any>>): void {
     super.refine(fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

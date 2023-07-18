@@ -63,10 +63,11 @@ export class FolioView extends HtmlView {
 
   protected initFolio(): void {
     this.addClass("folio");
-    this.display.setState("flex", Affinity.Intrinsic);
-    this.position.setState("relative", Affinity.Intrinsic);
-    this.overflowX.setState("hidden", Affinity.Intrinsic);
-    this.overflowY.setState("hidden", Affinity.Intrinsic);
+    this.setIntrinsic<FolioView>({
+      display: "flex",
+      position: "relative",
+      overflow: "hidden",
+    });
   }
 
   declare readonly observerType?: Class<FolioViewObserver>;
@@ -101,12 +102,14 @@ export class FolioView extends HtmlView {
       const drawerWidth = drawerView !== null ? drawerView.effectiveWidth.value : null;
       const sheetWidth = drawerWidth !== null ? folioWidth.minus(drawerWidth) : folioWidth;
 
-      appBarView.placement.setValue("top", Affinity.Intrinsic);
-      appBarView.position.setState("absolute", Affinity.Intrinsic);
-      appBarView.left.setState(drawerWidth, Affinity.Intrinsic);
-      appBarView.top.setState(0, Affinity.Intrinsic);
-      appBarView.width.setState(sheetWidth, Affinity.Intrinsic);
-      appBarView.zIndex.setState(1, Affinity.Intrinsic);
+      appBarView.setIntrinsic({
+        placement: "top",
+        position: "absolute",
+        left: drawerWidth,
+        top: 0,
+        width: sheetWidth,
+        zIndex: 1,
+      });
     },
     willAttachView(appBarView: BarView, target: View | null): void {
       this.owner.callObservers("viewWillAttachAppBar", appBarView, target, this.owner);
@@ -128,9 +131,10 @@ export class FolioView extends HtmlView {
     binds: true,
     observes: true,
     initView(drawerView: DrawerView): void {
-      drawerView.overflowX.setState("hidden", Affinity.Intrinsic);
-      drawerView.overflowY.setState("hidden", Affinity.Intrinsic);
-      drawerView.zIndex.setState(2, Affinity.Intrinsic);
+      drawerView.setIntrinsic({
+        overflow: "hidden",
+        zIndex: 2,
+      });
       drawerView.present(false);
     },
     willAttachView(drawerView: DrawerView, target: View | null): void {
@@ -156,7 +160,7 @@ export class FolioView extends HtmlView {
   @ViewRef({
     viewType: StackView,
     initView(stackView: StackView): void {
-      stackView.flexGrow.setState(1, Affinity.Intrinsic);
+      stackView.flexGrow.setIntrinsic(1);
     },
     willAttachView(stackView: StackView, target: View | null): void {
       this.owner.callObservers("viewWillAttachStack", stackView, target, this.owner);
@@ -183,21 +187,23 @@ export class FolioView extends HtmlView {
         const appBarView = this.owner.appBar.view;
         const appBarHeight = appBarView !== null ? appBarView.height.cssState : null;
 
-        coverView.position.setState("absolute", Affinity.Intrinsic);
-        coverView.left.setState(drawerWidth, Affinity.Intrinsic);
-        coverView.top.setState(0, Affinity.Intrinsic);
-        coverView.width.setState(sheetWidth, Affinity.Intrinsic);
-        coverView.height.setState(folioHeight, Affinity.Intrinsic);
-        coverView.paddingTop.setState(appBarHeight, Affinity.Intrinsic);
-        coverView.boxSizing.setState("border-box", Affinity.Intrinsic);
-        coverView.zIndex.setState(0, Affinity.Intrinsic);
+        coverView.setIntrinsic({
+          position: "absolute",
+          left: drawerWidth,
+          top: 0,
+          width: sheetWidth,
+          height: folioHeight,
+          paddingTop: appBarHeight,
+          boxSizing: "border-box",
+          zIndex: 0,
+        });
       }
     },
     willAttachView(coverView: SheetView, target: View | null): void {
       this.owner.callObservers("viewWillAttachCover", coverView, target, this.owner);
     },
     didAttachView(coverView: SheetView, target: View | null): void {
-      this.owner.fullBleed.setValue(coverView.fullBleed.value, Affinity.Intrinsic);
+      this.owner.fullBleed.setIntrinsic(coverView.fullBleed.value);
     },
     willDetachView(coverView: SheetView): void {
       coverView.remove();
@@ -206,7 +212,7 @@ export class FolioView extends HtmlView {
       this.owner.callObservers("viewDidDetachCover", coverView, this.owner);
     },
     viewDidSetFullBleed(fullBleed: boolean, coverView: SheetView): void {
-      this.owner.fullBleed.setValue(fullBleed, Affinity.Intrinsic);
+      this.owner.fullBleed.setIntrinsic(fullBleed);
     },
   })
   readonly cover!: ViewRef<this, SheetView> & Observes<SheetView>;
@@ -253,7 +259,7 @@ export class FolioView extends HtmlView {
     let folioStyle = this.folioStyle.value;
     if (this.folioStyle.hasAffinity(Affinity.Intrinsic)) {
       folioStyle = this.viewIdiom === "mobile" ? "stacked" : "unstacked";
-      this.folioStyle.setValue(folioStyle, Affinity.Intrinsic);
+      this.folioStyle.setIntrinsic(folioStyle);
     }
 
     if (folioStyle === "stacked") {
@@ -274,7 +280,7 @@ export class FolioView extends HtmlView {
         coverView.remove();
       }
 
-      coverView.paddingLeft.setState(null, Affinity.Intrinsic);
+      coverView.paddingLeft.setIntrinsic(null);
     }
   }
 
@@ -289,9 +295,10 @@ export class FolioView extends HtmlView {
     const appBarView = this.appBar.view;
     let appBarHeight: Length | null = null;
     if (appBarView !== null) {
-      this.appBar.insertView();
-      appBarView.left.setState(drawerWidth, Affinity.Intrinsic);
-      appBarView.width.setState(sheetWidth, Affinity.Intrinsic);
+      this.appBar.insertView().setIntrinsic({
+        left: drawerWidth,
+        width: sheetWidth,
+      });
       appBarHeight = appBarView.height.cssState;
     }
 
@@ -301,19 +308,23 @@ export class FolioView extends HtmlView {
     if (coverView !== null) {
       this.cover.insertView(this);
       if (this.fullBleed.value) {
-        coverView.left.setState(0, Affinity.Intrinsic);
-        coverView.top.setState(0, Affinity.Intrinsic);
-        coverView.width.setState(folioWidth, Affinity.Intrinsic);
-        coverView.height.setState(folioHeight, Affinity.Intrinsic);
-        coverView.paddingTop.setState(appBarHeight, Affinity.Intrinsic);
-        coverView.paddingLeft.setState(drawerWidth, Affinity.Intrinsic);
+        coverView.setIntrinsic({
+          left: 0,
+          top: 0,
+          width: folioWidth,
+          height: folioHeight,
+          paddingTop: appBarHeight,
+          paddingLeft: drawerWidth,
+        });
       } else {
-        coverView.left.setState(drawerWidth, Affinity.Intrinsic);
-        coverView.top.setState(0, Affinity.Intrinsic);
-        coverView.width.setState(sheetWidth, Affinity.Intrinsic);
-        coverView.height.setState(folioHeight, Affinity.Intrinsic);
-        coverView.paddingTop.setState(appBarHeight, Affinity.Intrinsic);
-        coverView.paddingLeft.setState(null, Affinity.Intrinsic);
+        coverView.setIntrinsic({
+          left: drawerWidth,
+          top: 0,
+          width: sheetWidth,
+          height: folioHeight,
+          paddingTop: appBarHeight,
+          paddingLeft: null,
+        });
       }
       coverView.present(false);
     }
@@ -346,20 +357,26 @@ export class FolioView extends HtmlView {
 
     const appBarView = this.appBar.view;
     if (appBarView !== null) {
-      appBarView.left.setState(drawerWidth, Affinity.Intrinsic);
-      appBarView.width.setState(sheetWidth, Affinity.Intrinsic);
+      appBarView.setIntrinsic({
+        left: drawerWidth,
+        width: sheetWidth,
+      });
     }
 
     const coverView = this.cover.view;
     if (coverView !== null) {
       if (this.fullBleed.value) {
-        coverView.left.setState(0, Affinity.Intrinsic);
-        coverView.width.setState(folioWidth, Affinity.Intrinsic);
-        coverView.paddingLeft.setState(drawerWidth, Affinity.Intrinsic);
+        coverView.setIntrinsic({
+          left: 0,
+          width: folioWidth,
+          paddingLeft: drawerWidth,
+        });
       } else {
-        coverView.left.setState(drawerWidth, Affinity.Intrinsic);
-        coverView.top.setState(0, Affinity.Intrinsic);
-        coverView.paddingLeft.setState(null, Affinity.Intrinsic);
+        coverView.setIntrinsic({
+          left: drawerWidth,
+          width: 0,
+          paddingLeft: null,
+        });
       }
     }
   }

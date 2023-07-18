@@ -90,7 +90,7 @@ export class StylerService extends Service {
     update(): void {
       if (this.hasAffinity(Affinity.Intrinsic)) {
         const theme = this.detect();
-        this.setValue(theme, Affinity.Intrinsic);
+        this.setIntrinsic(theme);
       }
     },
     detect(): ThemeMatrix {

@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import type {Mutable} from "@swim/util";
-import {Affinity} from "@swim/component";
 import type {ViewNode} from "@swim/dom";
 import {SvgView} from "@swim/dom";
 import {PathContext} from "./PathContext";
@@ -112,16 +111,16 @@ export class SvgContext implements PaintingContext {
     }
     const pathFlags = this.pathFlags;
     if ((pathFlags & SvgContext.FillFlag) === 0) {
-      pathView.fill.setValue(null, Affinity.Intrinsic);
+      pathView.fill.setIntrinsic(null);
     }
     if ((pathFlags & SvgContext.FillRuleFlag) === 0) {
-      pathView.fillRule.setValue(void 0, Affinity.Intrinsic);
+      pathView.fillRule.setIntrinsic(void 0);
     }
     if ((pathFlags & SvgContext.StrokeFlag) === 0) {
-      pathView.stroke.setValue(null, Affinity.Intrinsic);
+      pathView.stroke.setIntrinsic(null);
     }
     if ((pathFlags & SvgContext.PathFlag) === 0) {
-      pathView.d.setValue(void 0, Affinity.Intrinsic);
+      pathView.d.setIntrinsic(void 0);
     }
   }
 
@@ -222,16 +221,16 @@ export class SvgContext implements PaintingContext {
       this.setPathView(pathView);
       created = true;
     }
-    pathView.fill.setState(fillStyle, Affinity.Intrinsic);
-    pathView.fillOpacity.setState(this.globalAlpha !== 1 ? this.globalAlpha : void 0);
+    pathView.fill.setIntrinsic(fillStyle);
+    pathView.fillOpacity.setIntrinsic(this.globalAlpha !== 1 ? this.globalAlpha : void 0);
     this.setPathFlags(this.pathFlags | SvgContext.FillFlag);
     if (fillRule !== void 0) {
-      pathView.fillRule.setState(fillRule, Affinity.Intrinsic);
+      pathView.fillRule.setIntrinsic(fillRule);
       this.setPathFlags(this.pathFlags | SvgContext.FillRuleFlag);
     }
     if ((this.pathFlags & SvgContext.PathFlag) === 0) {
       const pathString = this.getPathContext().toString();
-      pathView.d.setState(pathString, Affinity.Intrinsic);
+      pathView.d.setIntrinsic(pathString);
       this.setPathFlags(this.pathFlags | SvgContext.PathFlag);
     }
     if (created) {
@@ -257,15 +256,15 @@ export class SvgContext implements PaintingContext {
       this.setPathView(pathView);
       created = true;
     }
-    pathView.stroke.setState(strokeStyle, Affinity.Intrinsic);
-    pathView.strokeWidth.setState(lineWidth, Affinity.Intrinsic);
-    pathView.strokeLinecap.setState(this.lineCap, Affinity.Intrinsic);
-    pathView.strokeLinejoin.setState(this.lineJoin, Affinity.Intrinsic);
-    pathView.strokeOpacity.setState(this.globalAlpha !== 1 ? this.globalAlpha : void 0);
+    pathView.stroke.setIntrinsic(strokeStyle);
+    pathView.strokeWidth.setIntrinsic(lineWidth);
+    pathView.strokeLinecap.setIntrinsic(this.lineCap);
+    pathView.strokeLinejoin.setIntrinsic(this.lineJoin);
+    pathView.strokeOpacity.setIntrinsic(this.globalAlpha !== 1 ? this.globalAlpha : void 0);
     if (this.lineJoin === "miter") {
-      pathView.strokeMiterlimit.setState(this.miterLimit, Affinity.Intrinsic);
+      pathView.strokeMiterlimit.setIntrinsic(this.miterLimit);
     } else {
-      pathView.strokeMiterlimit.setState(void 0, Affinity.Intrinsic);
+      pathView.strokeMiterlimit.setIntrinsic(void 0);
     }
     if (this.lineDash.length !== 0) {
       let dash = "";
@@ -275,20 +274,20 @@ export class SvgContext implements PaintingContext {
         }
         dash += this.lineDash[i];
       }
-      pathView.strokeDasharray.setState(dash, Affinity.Intrinsic);
+      pathView.strokeDasharray.setIntrinsic(dash);
       if (this.lineDashOffset !== 0) {
-        pathView.strokeDashoffset.setState(this.lineDashOffset, Affinity.Intrinsic);
+        pathView.strokeDashoffset.setIntrinsic(this.lineDashOffset);
       } else {
-        pathView.strokeDashoffset.setState(void 0, Affinity.Intrinsic);
+        pathView.strokeDashoffset.setIntrinsic(void 0);
       }
     } else {
-      pathView.strokeDasharray.setState(void 0, Affinity.Intrinsic);
-      pathView.strokeDashoffset.setState(void 0, Affinity.Intrinsic);
+      pathView.strokeDasharray.setIntrinsic(void 0);
+      pathView.strokeDashoffset.setIntrinsic(void 0);
     }
     this.setPathFlags(this.pathFlags | SvgContext.StrokeFlag);
     if ((this.pathFlags & SvgContext.PathFlag) === 0) {
       const pathString = this.getPathContext().toString();
-      pathView.d.setState(pathString, Affinity.Intrinsic);
+      pathView.d.setIntrinsic(pathString);
       this.setPathFlags(this.pathFlags | SvgContext.PathFlag);
     }
     if (created) {

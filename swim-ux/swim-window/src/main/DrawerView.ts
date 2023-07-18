@@ -72,11 +72,13 @@ export class DrawerView extends HtmlView implements ModalView {
 
   protected initDrawer(): void {
     this.addClass("drawer");
-    this.display.setState("flex", Affinity.Intrinsic);
-    this.overflowX.setState("hidden", Affinity.Intrinsic);
-    this.overflowY.setState("auto", Affinity.Intrinsic);
-    this.overscrollBehaviorY.setState("contain", Affinity.Intrinsic);
-    this.overflowScrolling.setState("touch", Affinity.Intrinsic);
+    this.setIntrinsic<DrawerView>({
+      display: "flex",
+      overflowX: "hidden",
+      overflowY: "auto",
+      overscrollBehaviorY: "contain",
+      overflowScrolling: "touch",
+    });
   }
 
   @ThemeConstraintAnimator({valueType: Length, value: Length.px(60)})
@@ -207,13 +209,13 @@ export class DrawerView extends HtmlView implements ModalView {
 
   protected override onLayout(): void {
     super.onLayout();
-    this.display.setState(!this.presence.dismissed ? "flex" : "none", Affinity.Intrinsic);
+    this.display.setIntrinsic(!this.presence.dismissed ? "flex" : "none");
     this.layoutDrawer();
 
     if (this.viewIdiom === "mobile") {
-      this.boxShadow.setState(this.getLookOr(Look.shadow, Mood.floating, null), Affinity.Intrinsic);
+      this.boxShadow.setIntrinsic(this.getLookOr(Look.shadow, Mood.floating, null));
     } else {
-      this.boxShadow.setState(this.getLookOr(Look.shadow, null), Affinity.Intrinsic);
+      this.boxShadow.setIntrinsic(this.getLookOr(Look.shadow, null));
     }
   }
 
@@ -238,18 +240,20 @@ export class DrawerView extends HtmlView implements ModalView {
         .removeClass("drawer-bottom")
         .removeClass("drawer-left");
 
-    this.position.setState("fixed", Affinity.Intrinsic);
-    this.width.setState(null, Affinity.Intrinsic);
-    this.height.setState(null, Affinity.Intrinsic);
-    this.left.setState(Length.zero(), Affinity.Intrinsic);
-    this.right.setState(Length.zero(), Affinity.Intrinsic);
-    this.bottom.setState(null, Affinity.Intrinsic);
+    this.setIntrinsic<DrawerView>({
+      position: "fixed",
+      width: null,
+      height: null,
+      left: Length.zero(),
+      right: Length.zero(),
+      bottom: null,
+    });
 
     const height = this.height.getCssValue();
-    this.top.setState(height.times(presencePhase - 1), Affinity.Intrinsic);
+    this.top.setIntrinsic(height.times(presencePhase - 1));
 
-    this.effectiveWidth.setValue(this.width.value);
-    this.effectiveHeight.setValue(height.times(presencePhase), Affinity.Intrinsic);
+    this.effectiveWidth.setIntrinsic(this.width.value);
+    this.effectiveHeight.setIntrinsic(height.times(presencePhase));
 
     if (this.stretch.collapsed) {
       this.expand();
@@ -265,11 +269,13 @@ export class DrawerView extends HtmlView implements ModalView {
         .removeClass("drawer-bottom")
         .removeClass("drawer-left");
 
-    this.position.setState("fixed", Affinity.Intrinsic);
-    this.height.setState(null, Affinity.Intrinsic);
-    this.top.setState(Length.zero(), Affinity.Intrinsic);
-    this.bottom.setState(Length.zero(), Affinity.Intrinsic);
-    this.left.setState(null, Affinity.Intrinsic);
+    this.setIntrinsic<DrawerView>({
+      position: "fixed",
+      height: null,
+      top: Length.zero(),
+      bottom: Length.zero(),
+      left: null,
+    });
 
     let width: Length | null;
     if (this.width.hasAffinity(Affinity.Intrinsic)) {
@@ -279,11 +285,11 @@ export class DrawerView extends HtmlView implements ModalView {
     } else {
       width = this.width.getCssValue();
     }
-    this.width.setState(width, Affinity.Intrinsic);
-    this.right.setState(width.times(presencePhase - 1), Affinity.Intrinsic);
+    this.width.setIntrinsic(width);
+    this.right.setIntrinsic(width.times(presencePhase - 1));
 
-    this.effectiveWidth.setValue(width.times(presencePhase), Affinity.Intrinsic);
-    this.effectiveHeight.setValue(this.height.value, Affinity.Intrinsic);
+    this.effectiveWidth.setIntrinsic(width.times(presencePhase));
+    this.effectiveHeight.setIntrinsic(this.height.value);
   }
 
   protected layoutDrawerBottom(): void {
@@ -294,18 +300,20 @@ export class DrawerView extends HtmlView implements ModalView {
         .addClass("drawer-bottom")
         .removeClass("drawer-left");
 
-    this.position.setState("fixed", Affinity.Intrinsic);
-    this.width.setState(null, Affinity.Intrinsic);
-    this.height.setState(null, Affinity.Intrinsic);
-    this.left.setState(Length.zero(), Affinity.Intrinsic);
-    this.right.setState(Length.zero(), Affinity.Intrinsic);
-    this.top.setState(null, Affinity.Intrinsic);
+    this.setIntrinsic<DrawerView>({
+      position: "fixed",
+      width: null,
+      height: null,
+      left: Length.zero(),
+      right: Length.zero(),
+      top: null,
+    });
 
     const height = this.height.getCssValue();
-    this.bottom.setState(height.times(presencePhase - 1), Affinity.Intrinsic);
+    this.bottom.setIntrinsic(height.times(presencePhase - 1));
 
-    this.effectiveWidth.setValue(this.width.value, Affinity.Intrinsic);
-    this.effectiveHeight.setValue(height.times(presencePhase), Affinity.Intrinsic);
+    this.effectiveWidth.setIntrinsic(this.width.value);
+    this.effectiveHeight.setIntrinsic(height.times(presencePhase));
 
     if (this.stretch.collapsed) {
       this.expand();
@@ -321,11 +329,13 @@ export class DrawerView extends HtmlView implements ModalView {
         .removeClass("drawer-bottom")
         .addClass("drawer-left");
 
-    this.position.setState("fixed", Affinity.Intrinsic);
-    this.height.setState(null, Affinity.Intrinsic);
-    this.top.setState(Length.zero(), Affinity.Intrinsic);
-    this.bottom.setState(Length.zero(), Affinity.Intrinsic);
-    this.right.setState(null, Affinity.Intrinsic);
+    this.setIntrinsic<DrawerView>({
+      position: "fixed",
+      height: null,
+      top: Length.zero(),
+      bottom: Length.zero(),
+      right: null,
+    });
 
     let width: Length | null;
     if (this.width.hasAffinity(Affinity.Intrinsic)) {
@@ -335,11 +345,11 @@ export class DrawerView extends HtmlView implements ModalView {
     } else {
       width = this.width.getCssValue();
     }
-    this.width.setState(width, Affinity.Intrinsic);
-    this.left.setState(width.times(presencePhase - 1), Affinity.Intrinsic);
+    this.width.setIntrinsic(width);
+    this.left.setIntrinsic(width.times(presencePhase - 1));
 
-    this.effectiveWidth.setValue(width.times(presencePhase), Affinity.Intrinsic);
-    this.effectiveHeight.setValue(this.height.value, Affinity.Intrinsic);
+    this.effectiveWidth.setIntrinsic(width.times(presencePhase));
+    this.effectiveHeight.setIntrinsic(this.height.value);
   }
 
   /** @override */

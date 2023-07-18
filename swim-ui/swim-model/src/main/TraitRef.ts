@@ -27,29 +27,35 @@ import {TraitRelation} from "./TraitRelation";
 
 /** @public */
 export interface TraitRefDescriptor<R, T extends Trait> extends TraitRelationDescriptor<R, T> {
-  extends?: Proto<TraitRef<any, any>> | boolean | null;
+  extends?: Proto<TraitRef<any, any, any>> | boolean | null;
   traitKey?: string | boolean;
 }
 
 /** @public */
-export interface TraitRefClass<F extends TraitRef<any, any> = TraitRef<any, any>> extends TraitRelationClass<F> {
+export interface TraitRefClass<F extends TraitRef<any, any, any> = TraitRef<any, any, any>> extends TraitRelationClass<F> {
   tryTrait<R, K extends keyof R, F extends R[K] = R[K]>(owner: R, fastenerName: K): F extends {readonly trait: infer T | null} ? T | null : null;
 }
 
 /** @public */
-export interface TraitRef<R = any, T extends Trait = Trait> extends TraitRelation<R, T> {
+export interface TraitRef<R = any, T extends Trait = Trait, I extends any[] = [T | null]> extends TraitRelation<R, T, I> {
   /** @override */
   get descriptorType(): Proto<TraitRefDescriptor<R, T>>;
 
   /** @override */
-  get fastenerType(): Proto<TraitRef<any, any>>;
+  get fastenerType(): Proto<TraitRef<any, any, any>>;
 
   /** @override */
-  get parent(): TraitRef<any, T> | null;
+  get parent(): TraitRef<any, T, any> | null;
 
   get inletTrait(): T | null;
 
   getInletTrait(): T;
+
+  get(): T | null;
+
+  set(trait: T | LikeType<T> | Fastener<any, I[0], any> | null): R;
+
+  setIntrinsic(trait: T | LikeType<T> | Fastener<any, I[0], any> | null): R;
 
   get traitKey(): string | undefined;
 
@@ -59,7 +65,7 @@ export interface TraitRef<R = any, T extends Trait = Trait> extends TraitRelatio
 
   setTrait(trait: T | LikeType<T> | null, target?: Trait | null, key?: string): T | null;
 
-  attachTrait(trait?: T | LikeType<T>, target?: Trait | null): T;
+  attachTrait(trait?: T | LikeType<T> | null, target?: Trait | null): T;
 
   detachTrait(): T | null;
 
@@ -98,8 +104,8 @@ export interface TraitRef<R = any, T extends Trait = Trait> extends TraitRelatio
 }
 
 /** @public */
-export const TraitRef = (<R, T extends Trait, F extends TraitRef<any, any>>() => TraitRelation.extend<TraitRef<R, T>, TraitRefClass<F>>("TraitRef", {
-  get fastenerType(): Proto<TraitRef<any, any>> {
+export const TraitRef = (<R, T extends Trait, I extends any[], F extends TraitRef<any, any, any>>() => TraitRelation.extend<TraitRef<R, T, I>, TraitRefClass<F>>("TraitRef", {
+  get fastenerType(): Proto<TraitRef<any, any, any>> {
     return TraitRef;
   },
 
@@ -120,6 +126,28 @@ export const TraitRef = (<R, T extends Trait, F extends TraitRef<any, any>>() =>
       throw new TypeError(message);
     }
     return inletTrait;
+  },
+
+  get(): T | null {
+    return this.trait;
+  },
+
+  set(trait: T | LikeType<T> | Fastener<any, I[0], any> | null): R {
+    if (trait instanceof Fastener) {
+      this.bindInlet(trait);
+    } else {
+      this.setTrait(trait);
+    }
+    return this.owner;
+  },
+
+  setIntrinsic(trait: T | LikeType<T> | Fastener<any, I[0], any> | null): R {
+    if (trait instanceof Fastener) {
+      this.bindInlet(trait);
+    } else {
+      this.setTrait(trait);
+    }
+    return this.owner;
   },
 
   traitKey: void 0,
@@ -187,7 +215,7 @@ export const TraitRef = (<R, T extends Trait, F extends TraitRef<any, any>>() =>
     return oldTrait;
   },
 
-  attachTrait(newTrait?: T | LikeType<T>, target?: Trait | null): T {
+  attachTrait(newTrait?: T | LikeType<T> | null, target?: Trait | null): T {
     const oldTrait = this.trait;
     if (newTrait !== void 0 && newTrait !== null) {
       newTrait = this.fromLike(newTrait);
@@ -423,7 +451,7 @@ export const TraitRef = (<R, T extends Trait, F extends TraitRef<any, any>>() =>
     return fastener;
   },
 
-  refine(fastenerClass: FastenerClass<TraitRef<any, any>>): void {
+  refine(fastenerClass: FastenerClass<TraitRef<any, any, any>>): void {
     super.refine(fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

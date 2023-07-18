@@ -127,10 +127,11 @@ export class IconCellView extends CellView implements IconView {
                          && !svgView.viewBox.hasAffinity(Affinity.Intrinsic)) {
       return;
     }
-    const viewWidth = this.width.pxValue();
-    const viewHeight = this.height.pxValue();
-    svgView.width.setState(viewWidth, Affinity.Intrinsic);
-    svgView.height.setState(viewHeight, Affinity.Intrinsic);
-    svgView.viewBox.setState("0 0 " + viewWidth + " " + viewHeight, Affinity.Intrinsic);
+    const width = this.width.pxValue();
+    const height = this.height.pxValue();
+    svgView.setIntrinsic({
+      width, height,
+      viewBox: "0 0 " + width + " " + height,
+    });
   }
 }

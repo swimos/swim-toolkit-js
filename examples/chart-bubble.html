@@ -13,19 +13,21 @@
 
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-const containerView = bodyView.appendChild("div");
-containerView.position.setState("relative");
-containerView.width.setState("90%");
-containerView.height.setState("90%");
-containerView.touchAction.setState("none");
-containerView.userSelect.setState("none");
+const containerView = bodyView.appendChild("div").set({
+  position: "relative",
+  width: "90%",
+  height: "90%",
+  touchAction: "none",
+  userSelect: "none",
+});
 
-const canvasView = swim.CanvasView.create();
-canvasView.wheelEventsEnabled(true);
-canvasView.mouseEventsEnabled(true);
-canvasView.pointerEventsEnabled(true);
-canvasView.touchEventsEnabled(true);
-canvasView.touchAction.setState("manipulation");
+const canvasView = swim.CanvasView.create().set({
+  touchAction: "manipulation",
+  wheelEvents: true,
+  mouseEvents: true,
+  pointerevents: true,
+  touchEvents: true,
+});
 
 const chartView = canvasView.appendChild(swim.ChartView);
 const bottomAxisView = chartView.bottomAxis.insertView();
@@ -33,15 +35,15 @@ const leftAxisView = chartView.leftAxis.insertView();
 
 chartView.xScaleGestures(true);
 chartView.yScaleGestures(true);
-//chartView.xRangePadding.setValue([20, 20]);
-//chartView.yRangePadding.setValue([20, 20]);
+//chartView.xRangePadding.set([20, 20]);
+//chartView.yRangePadding.set([20, 20]);
 chartView.xFitAlign(0.5);
 chartView.yFitAlign(0.5);
-chartView.fitAspectRatio.setValue(-1);
+chartView.fitAspectRatio.set(-1);
 chartView.preserveAspectRatio(true);
 chartView.domainTracking(true);
-chartView.font.setState("12px sans-serif");
-chartView.rescaleTransition.setValue(void 0);
+chartView.font.set("12px sans-serif");
+chartView.rescaleTransition.set(void 0);
 
 leftAxisView.createTickLabel = function (tickValue) {
   return tickValue + "%";
@@ -64,14 +66,13 @@ plotView.modifyMood(swim.Feel.default, [[swim.Feel.primary, 1]]);
 const n = 10;
 for (let i = 0; i < n; i += 1) {
   const key = "p" + i;
-  const x = Math.round(100 * Math.random());
-  const y = Math.round(100 * Math.random());
-  const radius = 10 + Math.round(Math.random() * 10);
-  const opacity = 0.5 + 0.5 * Math.random();
-  const bubbleView = new swim.DataPointView(x, y);
-  bubbleView.radius.setState(radius);
-  bubbleView.opacity.setState(opacity);
-  bubbleView.color.setLook(swim.Look.accentColor);
+  const bubbleView = new swim.DataPointView().set({
+    x: Math.round(100 * Math.random()),
+    y: Math.round(100 * Math.random()),
+    radius: 10 + Math.round(Math.random() * 10),
+    opacity: 0.5 + 0.5 * Math.random(),
+    color: swim.Look.accentColor,
+  });
   plotView.appendChild(bubbleView, key);
 }
 
@@ -81,15 +82,12 @@ setInterval(function () {
   const timing = swim.Easing.linear.withDuration(2000);
   for (let i = 0; i < n; i += 1) {
     const key = "p" + i;
-    const x = Math.round(100 * Math.random());
-    const y = Math.round(100 * Math.random());
-    const radius = 10 + Math.round(Math.random() * 10);
-    const opacity = 0.5 + 0.5 * Math.random();
-    const bubbleView = plotView.getChild(key);
-    bubbleView.x.setState(x, timing)
-    bubbleView.y.setState(y, timing)
-    bubbleView.radius.setState(radius, timing)
-    bubbleView.opacity.setState(opacity, timing);
+    plotView.getChild(key).set({
+      x: Math.round(100 * Math.random()),
+      y: Math.round(100 * Math.random()),
+      radius: 10 + Math.round(Math.random() * 10),
+      opacity: 0.5 + 0.5 * Math.random(),
+    }, timing);
   }
 }, 2000);
 

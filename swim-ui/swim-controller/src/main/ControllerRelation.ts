@@ -27,11 +27,11 @@ import {Controller} from "./Controller";
 
 /** @public */
 export interface ControllerRelationDescriptor<R, C extends Controller> extends FastenerDescriptor<R> {
-  extends?: Proto<ControllerRelation<any, any>> | boolean | null;
+  extends?: Proto<ControllerRelation<any, any, any>> | boolean | null;
 }
 
 /** @public */
-export interface ControllerRelationClass<F extends ControllerRelation<any, any> = ControllerRelation<any, any>> extends FastenerClass<F> {
+export interface ControllerRelationClass<F extends ControllerRelation<any, any, any> = ControllerRelation<any, any, any>> extends FastenerClass<F> {
   /** @internal */
   readonly ConsumingFlag: FastenerFlags;
 
@@ -42,12 +42,12 @@ export interface ControllerRelationClass<F extends ControllerRelation<any, any> 
 }
 
 /** @public */
-export interface ControllerRelation<R = any, C extends Controller = Controller> extends Fastener<R>, Consumable {
+export interface ControllerRelation<R = any, C extends Controller = Controller, I extends any[] = [C | null]> extends Fastener<R, C | null, I>, Consumable {
   /** @override */
   get descriptorType(): Proto<ControllerRelationDescriptor<R, C>>;
 
   /** @override */
-  get fastenerType(): Proto<ControllerRelation<any, any>>;
+  get fastenerType(): Proto<ControllerRelation<any, any, any>>;
 
   get consumed(): boolean;
 
@@ -56,7 +56,7 @@ export interface ControllerRelation<R = any, C extends Controller = Controller> 
   get observes(): boolean;
 
   /** @override */
-  get parent(): ControllerRelation<any, C> | null;
+  get parent(): ControllerRelation<any, C, any> | null;
 
   /** @internal */
   readonly outlets: ReadonlySet<Fastener<any, any, any>> | null;
@@ -173,8 +173,8 @@ export interface ControllerRelation<R = any, C extends Controller = Controller> 
 }
 
 /** @public */
-export const ControllerRelation = (<R, C extends Controller, F extends ControllerRelation<any, any>>() => Fastener.extend<ControllerRelation<R, C>, ControllerRelationClass<F>>("ControllerRelation", {
-  get fastenerType(): Proto<ControllerRelation<any, any>> {
+export const ControllerRelation = (<R, C extends Controller, I extends any[], F extends ControllerRelation<any, any, any>>() => Fastener.extend<ControllerRelation<R, C, I>, ControllerRelationClass<F>>("ControllerRelation", {
+  get fastenerType(): Proto<ControllerRelation<any, any, any>> {
     return ControllerRelation;
   },
 

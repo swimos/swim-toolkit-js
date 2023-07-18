@@ -13,7 +13,8 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {Affinity} from "@swim/component";
+import type {Like} from "@swim/util";
+import type {LikeType} from "@swim/util";
 import {Look} from "@swim/theme";
 import {ViewRef} from "@swim/view";
 import {HtmlView} from "@swim/dom";
@@ -46,27 +47,27 @@ export class TextColView extends ColView {
     didDetachView(labelView: HtmlView): void {
       this.owner.callObservers("viewDidDetachLabel", labelView, this.owner);
     },
-    setText(label: string | undefined): HtmlView {
-      let labelView = this.view;
-      if (labelView === null) {
-        labelView = this.createView();
-        this.setView(labelView);
+    fromLike(value: HtmlView | LikeType<HtmlView> | string | undefined): HtmlView {
+      if (value === void 0 || typeof value === "string") {
+        let view = this.view;
+        if (view === null) {
+          view = this.createView();
+        }
+        view.text(value);
+        return view;
       }
-      labelView.text(label);
-      return labelView;
+      return super.fromLike(value);
     },
     createView(): HtmlView {
-      const labelView = HtmlView.fromTag("span");
-      labelView.alignSelf.setState("center", Affinity.Intrinsic);
-      labelView.whiteSpace.setState("nowrap", Affinity.Intrinsic);
-      labelView.textOverflow.setState("ellipsis", Affinity.Intrinsic);
-      labelView.overflowX.setState("hidden", Affinity.Intrinsic);
-      labelView.overflowY.setState("hidden", Affinity.Intrinsic);
-      labelView.color.setLook(Look.legendColor, Affinity.Intrinsic);
-      return labelView;
+      return HtmlView.fromTag("span").setIntrinsic({
+        alignSelf: "center",
+        whiteSpace: "nowrap",
+        textOverflow: "ellipsis",
+        overflowX: "hidden",
+        overflowY: "hidden",
+        color: Look.legendColor,
+      });
     },
   })
-  readonly label!: ViewRef<this, HtmlView> & {
-    setText(label: string | undefined): HtmlView,
-  };
+  readonly label!: ViewRef<this, Like<HtmlView, string | undefined>>;
 }

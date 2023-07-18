@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import type {Uninitable} from "@swim/util";
-import type {Proto} from "@swim/util";
 import {Lazy} from "@swim/util";
 import {Arrays} from "@swim/util";
 import type {Equals} from "@swim/util";
@@ -39,7 +38,7 @@ export class LookVector<T> implements Equals, Debug {
     this.index = index;
   }
 
-  declare readonly likeType?: Proto<LookVectorArray<T>>;
+  likeType?(like: LookVectorArray<T>): void;
 
   /** @internal */
   readonly array: readonly [Feel, T][];

@@ -41,7 +41,7 @@ export class IconColController extends ColController {
   protected setIcon(icon: Graphics | null): void {
     const colView = this.col.view;
     if (colView !== null) {
-      colView.graphics.setState(icon);
+      colView.graphics.set(icon);
     }
   }
 

@@ -13,6 +13,8 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
+import type {Like} from "@swim/util";
+import type {LikeType} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import {Animator} from "@swim/component";
@@ -97,21 +99,21 @@ export class GeoPointView extends GeoView {
     didDetachView(labelView: GraphicsView): void {
       this.owner.callObservers("viewDidDetachGeoLabel", labelView, this.owner);
     },
-    setText(label: string | undefined): GraphicsView {
-      let labelView = this.view;
-      if (labelView === null) {
-        labelView = this.createView();
-        this.setView(labelView);
+    fromLike(value: GraphicsView | LikeType<GraphicsView> | string | undefined): GraphicsView {
+      if (value === void 0 || typeof value === "string") {
+        let view = this.view;
+        if (view === null) {
+          view = this.createView();
+        }
+        if (view instanceof TextRunView) {
+          view.text.setState(value !== void 0 ? value : "");
+        }
+        return view;
       }
-      if (labelView instanceof TextRunView) {
-        labelView.text.setState(label !== void 0 ? label : "");
-      }
-      return labelView;
+      return super.fromLike(value);
     },
   })
-  readonly label!: ViewRef<this, GraphicsView> & {
-    setText(label: string | undefined): GraphicsView,
-  };
+  readonly label!: ViewRef<this, Like<GraphicsView, string | undefined>>;
 
   @Property({valueType: String, value: "auto"})
   readonly labelPlacement!: Property<this, GeoPointLabelPlacement>;
@@ -162,9 +164,11 @@ export class GeoPointView extends GeoView {
     }
 
     if (TypesetView[Symbol.hasInstance](labelView)) {
-      labelView.textAlign.setState("center", Affinity.Intrinsic);
-      labelView.textBaseline.setState("bottom", Affinity.Intrinsic);
-      labelView.textOrigin.setState(new R2Point(x, y1), Affinity.Intrinsic);
+      labelView.setIntrinsic({
+        textAlign: "center",
+        textBaseline: "bottom",
+        textOrigin: new R2Point(x, y1),
+      });
     }
   }
 

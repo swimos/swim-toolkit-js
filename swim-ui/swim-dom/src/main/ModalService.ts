@@ -170,7 +170,7 @@ export class ModalService extends Service {
         const modalView = modalViews[viewId]!;
         modality = Math.min(Math.max(modality, modalView.modality.value), 1);
       }
-      this.setValue(modality, Affinity.Intrinsic);
+      this.setIntrinsic(modality);
     },
     didSetValue(newModality: number, oldModality: number): void {
       this.owner.callObservers("serviceDidSetModality", newModality, oldModality, this.owner);

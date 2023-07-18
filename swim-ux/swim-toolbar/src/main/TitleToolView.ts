@@ -13,7 +13,8 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {Affinity} from "@swim/component";
+import type {Like} from "@swim/util";
+import type {LikeType} from "@swim/util";
 import type {PositionGestureInput} from "@swim/view";
 import {PositionGesture} from "@swim/view";
 import {ViewRef} from "@swim/view";
@@ -33,7 +34,9 @@ export class TitleToolView extends ToolView {
   protected override initTool(): void {
     super.initTool();
     this.addClass("tool-title");
-    this.overflowX.setState("hidden", Affinity.Intrinsic);
+    this.setIntrinsic<TitleToolView>({
+      overflowX: "hidden",
+    });
   }
 
   declare readonly observerType?: Class<TitleToolViewObserver>;
@@ -43,9 +46,11 @@ export class TitleToolView extends ToolView {
     viewKey: true,
     binds: true,
     initView(contentView: HtmlView): void {
-      contentView.position.setState("relative", Affinity.Intrinsic);
-      contentView.left.setState(0, Affinity.Intrinsic);
-      contentView.top.setState(0, Affinity.Intrinsic);
+      contentView.setIntrinsic({
+        position: "relative",
+        left: 0,
+        top: 0,
+      });
     },
     willAttachView(contentView: HtmlView): void {
       this.owner.callObservers("viewWillAttachContent", contentView, this.owner);
@@ -53,28 +58,28 @@ export class TitleToolView extends ToolView {
     didDetachView(contentView: HtmlView): void {
       this.owner.callObservers("viewDidDetachContent", contentView, this.owner);
     },
-    setText(content: string | undefined): HtmlView {
-      let contentView = this.view;
-      if (contentView === null) {
-        contentView = this.createView();
-        this.setView(contentView);
+    fromLike(value: HtmlView | LikeType<HtmlView> | string | undefined): HtmlView {
+      if (value === void 0 || typeof value === "string") {
+        let view = this.view;
+        if (view === null) {
+          view = this.createView();
+        }
+        view.text(value);
+        return view;
       }
-      contentView.text(content);
-      return contentView;
+      return super.fromLike(value);
     },
     createView(): HtmlView {
-      const contentView = HtmlView.fromTag("span");
-      contentView.display.setState("block", Affinity.Intrinsic);
-      contentView.whiteSpace.setState("nowrap", Affinity.Intrinsic);
-      contentView.textOverflow.setState("ellipsis", Affinity.Intrinsic);
-      contentView.overflowX.setState("hidden", Affinity.Intrinsic);
-      contentView.overflowY.setState("hidden", Affinity.Intrinsic);
-      return contentView;
+      return HtmlView.fromTag("span").setIntrinsic({
+        display: "block",
+        whiteSpace: "nowrap",
+        textOverflow: "ellipsis",
+        overflowX: "hidden",
+        overflowY: "hidden",
+      });
     },
   })
-  readonly content!: ViewRef<this, HtmlView> & {
-    setText(content: string | undefined): HtmlView,
-  };
+  readonly content!: ViewRef<this, Like<HtmlView, string | undefined>>;
 
   protected override onLayout(): void {
     super.onLayout();
@@ -83,22 +88,19 @@ export class TitleToolView extends ToolView {
 
   protected layoutTool(): void {
     const contentView = this.content.view;
-    if (contentView !== null) {
-      const contentWidth = contentView.width.pxValue();
-      const toolWidth = this.width.pxValue();
-      const excessWidth = toolWidth - contentWidth;
-      const xAlign = this.xAlign.value;
-      if (toolWidth !== 0) {
-        contentView.left.setState(excessWidth * xAlign, Affinity.Intrinsic);
-      } else {
-        contentView.left.setState(contentWidth * xAlign, Affinity.Intrinsic);
-      }
-      contentView.top.setState(0, Affinity.Intrinsic);
-      contentView.height.setState(this.height.value, Affinity.Intrinsic);
-      contentView.lineHeight.setState(this.height.value, Affinity.Intrinsic);
-      if (this.effectiveWidth.value === null && contentWidth !== 0) {
-        this.effectiveWidth.setValue(contentWidth);
-      }
+    if (contentView === null) {
+      return;
+    }
+    const contentWidth = contentView.width.pxValue();
+    const toolWidth = this.width.pxValue();
+    contentView.setIntrinsic({
+      left: (toolWidth !== 0 ? toolWidth - contentWidth : contentWidth) * this.xAlign.value,
+      top: 0,
+      height: this.height.value,
+      lineHeight: this.height.value,
+    });
+    if (this.effectiveWidth.value === null && contentWidth !== 0) {
+      this.effectiveWidth.set(contentWidth);
     }
   }
 

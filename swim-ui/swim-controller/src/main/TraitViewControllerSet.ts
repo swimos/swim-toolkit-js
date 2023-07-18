@@ -14,10 +14,11 @@
 
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
+import type {LikeType} from "@swim/util";
 import type {Consumer} from "@swim/util";
 import type {Fastener} from "@swim/component";
 import type {TraitFactory} from "@swim/model";
-import type {Trait} from "@swim/model";
+import {Trait} from "@swim/model";
 import type {ViewFactory} from "@swim/view";
 import type {View} from "@swim/view";
 import type {Controller} from "./Controller";
@@ -28,15 +29,15 @@ import type {TraitViewRef} from "./TraitViewRef";
 
 /** @public */
 export interface TraitViewControllerSetDescriptor<R, T extends Trait, V extends View, C extends Controller> extends ControllerSetDescriptor<R, C> {
-  extends?: Proto<TraitViewControllerSet<any, any, any, any>> | boolean | null;
+  extends?: Proto<TraitViewControllerSet<any, any, any, any, any>> | boolean | null;
 }
 
 /** @public */
-export interface TraitViewControllerSetClass<F extends TraitViewControllerSet<any, any, any, any> = TraitViewControllerSet<any, any, any, any>> extends ControllerSetClass<F> {
+export interface TraitViewControllerSetClass<F extends TraitViewControllerSet<any, any, any, any, any> = TraitViewControllerSet<any, any, any, any, any>> extends ControllerSetClass<F> {
 }
 
 /** @public */
-export interface TraitViewControllerSet<R = any, T extends Trait = Trait, V extends View = View, C extends Controller = Controller> extends ControllerSet<R, C> {
+export interface TraitViewControllerSet<R = any, T extends Trait = Trait, V extends View = View, C extends Controller = Controller, I extends any[] = [C | null]> extends ControllerSet<R, C, I> {
   /** @override */
   get descriptorType(): Proto<TraitViewControllerSetDescriptor<R, T, V, C>>;
 
@@ -49,13 +50,13 @@ export interface TraitViewControllerSet<R = any, T extends Trait = Trait, V exte
 
   hasTrait(trait: Trait): boolean;
 
-  addTrait(trait: T, targetTrait?: Trait | null, key?: string): C;
+  addTrait(trait: T | LikeType<T>, targetTrait?: Trait | null, key?: string): C;
 
   addTraits(traits: {readonly [traitId: string]: T | undefined}, targetTrait?: Trait | null): void;
 
   setTraits(traits: {readonly [traitId: string]: T | undefined}, targetTrait?: Trait | null): void;
 
-  attachTrait(trait: T, targetTrait?: Trait | null, controller?: C): C;
+  attachTrait(trait: T | LikeType<T>, targetTrait?: Trait | null, controller?: C): C;
 
   /** @protected */
   initTrait(trait: T, controller: C): void;
@@ -87,7 +88,7 @@ export interface TraitViewControllerSet<R = any, T extends Trait = Trait, V exte
 
   detachTraits(traits: {readonly [traitId: string]: T | undefined}): void;
 
-  insertTrait(parent: Controller | null | undefined, trait: T, targetTrait?: Trait | null, key?: string): C;
+  insertTrait(parent: Controller | null | undefined, trait: T | LikeType<T>, targetTrait?: Trait | null, key?: string): C;
 
   insertTraits(parent: Controller | null | undefined, traits: {readonly [traitId: string]: T | undefined}, targetTrait?: Trait | null, key?: string): void;
 
@@ -107,6 +108,9 @@ export interface TraitViewControllerSet<R = any, T extends Trait = Trait, V exte
 
   createTrait(): T;
 
+  /** @protected */
+  fromTraitLike(value: T | LikeType<T>): T;
+
   get viewType(): ViewFactory<V> | null;
 
   get parentView(): View | null;
@@ -124,16 +128,19 @@ export interface TraitViewControllerSet<R = any, T extends Trait = Trait, V exte
 }
 
 /** @public */
-export const TraitViewControllerSet = (<R, T extends Trait, V extends View, C extends Controller, F extends TraitViewControllerSet<any, any, any, any>>() => ControllerSet.extend<TraitViewControllerSet<R, T, V, C>, TraitViewControllerSetClass<F>>("TraitViewControllerSet", {
+export const TraitViewControllerSet = (<R, T extends Trait, V extends View, C extends Controller, I extends any[], F extends TraitViewControllerSet<any, any, any, any, any>>() => ControllerSet.extend<TraitViewControllerSet<R, T, V, C, I>, TraitViewControllerSetClass<F>>("TraitViewControllerSet", {
   getTraitViewRef(controller: C): TraitViewRef<any, T, V> {
     throw new Error("missing implementation");
   },
+
+  traitType: null,
 
   hasTrait(trait: Trait): boolean {
     return this.traitControllers[trait.uid] !== void 0;
   },
 
-  addTrait(trait: T, targetTrait?: Trait | null, key?: string): C {
+  addTrait(trait: T | LikeType<T>, targetTrait?: Trait | null, key?: string): C {
+    trait = this.fromTraitLike(trait);
     const traitControllers = this.traitControllers as {[traitId: string]: C | undefined};
     let controller = traitControllers[trait.uid];
     if (controller !== void 0) {
@@ -193,13 +200,14 @@ export const TraitViewControllerSet = (<R, T extends Trait, V extends View, C ex
     }
   },
 
-  attachTrait(trait: T, targetTrait?: Trait | null, controller?: C): C {
-    if (targetTrait === void 0) {
-      targetTrait = null;
-    }
+  attachTrait(trait: T | LikeType<T>, targetTrait?: Trait | null, controller?: C): C {
+    trait = this.fromTraitLike(trait);
     const traitControllers = this.traitControllers as {[traitId: string]: C | undefined};
     if (controller === void 0) {
       controller = traitControllers[trait.uid];
+    }
+    if (targetTrait === void 0) {
+      targetTrait = null;
     }
     if (controller === void 0) {
       controller = this.createController();
@@ -276,7 +284,8 @@ export const TraitViewControllerSet = (<R, T extends Trait, V extends View, C ex
     }
   },
 
-  insertTrait(parent: Controller | null | undefined, trait: T, targetTrait?: Trait | null, key?: string): C {
+  insertTrait(parent: Controller | null | undefined, trait: T | LikeType<T>, targetTrait?: Trait | null, key?: string): C {
+    trait = this.fromTraitLike(trait);
     const traitControllers = this.traitControllers as {[traitId: string]: C | undefined};
     let controller = traitControllers[trait.uid];
     if (controller !== void 0) {
@@ -390,6 +399,14 @@ export const TraitViewControllerSet = (<R, T extends Trait, V extends View, C ex
       throw new Error(message);
     }
     return trait;
+  },
+
+  fromTraitLike(value: T | LikeType<T>): T {
+    const traitType = this.traitType;
+    if (traitType !== null) {
+      return traitType.fromLike(value);
+    }
+    return Trait.fromLike(value) as T;
   },
 
   get parentView(): View | null {

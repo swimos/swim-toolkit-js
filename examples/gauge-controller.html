@@ -14,18 +14,20 @@
 
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-const containerView = bodyView.appendChild("div");
-containerView.position.setState("relative");
-containerView.width.setState("67%");
-containerView.height.setState("67%");
-containerView.touchAction.setState("none");
-containerView.userSelect.setState("none");
+const containerView = bodyView.appendChild("div").set({
+  position: "relative",
+  width: "67%",
+  height: "67%",
+  touchAction: "none",
+  userSelect: "none",
+});
 
-const canvasView = containerView.appendChild(swim.CanvasView);
-canvasView.mouseEventsEnabled(true);
-canvasView.pointerEventsEnabled(true);
-canvasView.touchEventsEnabled(true);
-canvasView.touchAction.setState("manipulation");
+const canvasView = containerView.appendChild(swim.CanvasView).set({
+  touchAction: "manipulation",
+  mouseEvents: true,
+  pointerevents: true,
+  touchEvents: true,
+});
 
 const ExampleGaugeController = (function () {
   const instanceInitializers = [];
@@ -43,12 +45,14 @@ const ExampleGaugeController = (function () {
     extends: true,
     initView(gaugeView) {
       super.initView(gaugeView);
-      gaugeView.innerRadius.setState(swim.Length.pct(25));
-      gaugeView.startAngle.setState(swim.Angle.rad(3 * Math.PI / 4));
-      gaugeView.sweepAngle.setState(swim.Angle.rad(3 * Math.PI / 2));
-      gaugeView.cornerRadius.setState(0);
-      gaugeView.tickAlign.setState(1);
-      gaugeView.font.setState("14px sans-serif");
+      gaugeView.set({
+        innerRadius: "25%",
+        startAngle: swim.Angle.rad(3 * Math.PI / 4),
+        sweepAngle: swim.Angle.rad(3 * Math.PI / 2),
+        cornerRadius: 0,
+        tickAlign: 1,
+        font: "16px sans-serif",
+      });
     },
   })], {kind: "field", name: "gauge", static: false, private: false, access: {has: obj => "gauge" in obj, get: obj => obj.gauge, set: (obj, value) => { obj.gauge = value; }}}, gaugeInitializers, instanceInitializers);
   __esDecorate(null, null, [swim.TraitViewControllerSet({
@@ -64,38 +68,42 @@ const ExampleGaugeController = (function () {
     },
     controllerDidSetDialValue(dialValue, dialController, gaugeController) {
       super.controllerDidSetDialValue(dialValue, dialController, gaugeController);
-      const label = Math.round(100 * dialValue).toString();
-      dialController.dial.trait.label.setValue(label);
+      dialController.dial.trait.set({
+        label: Math.round(100 * dialValue).toString(),
+      });
     },
   })], {kind: "field", name: "dials", static: false, private: false, access: {has: obj => "dials" in obj, get: obj => obj.dials, set: (obj, value) => { obj.dials = value; }}}, dialsInitializers, instanceInitializers);
   return ExampleGaugeController;
 })();
 
 const dial1Model = new swim.Model();
-const dial1Trait = new swim.DialTrait();
-dial1Trait.value.setValue(Math.random());
-dial1Trait.legend.setValue("Dial 1");
+const dial1Trait = new swim.DialTrait().set({
+  value: Math.random(),
+  legend: "Dial 1",
+});
 dial1Model.setTrait("dial", dial1Trait);
 
 const dial2Model = new swim.Model();
-const dial2Trait = new swim.DialTrait();
-dial2Trait.value.setValue(Math.random());
-dial2Trait.legend.setValue("Dial 2");
+const dial2Trait = new swim.DialTrait().set({
+  value: Math.random(),
+  legend: "Dial 2",
+});
 dial2Model.setTrait("dial", dial2Trait);
 
 const dial3Model = new swim.Model();
-const dial3Trait = new swim.DialTrait();
-dial3Trait.value.setValue(Math.random());
-dial3Trait.legend.setValue("Dial 3");
+const dial3Trait = new swim.DialTrait().set({
+  value: Math.random(),
+  legend: "Dial 3",
+});
 dial3Model.setTrait("dial", dial3Trait);
 
 const gaugeModel = new swim.Model();
 gaugeModel.mount();
 const gaugeTrait = new swim.GaugeTrait();
 gaugeModel.setTrait("gauge", gaugeTrait);
-gaugeModel.appendChild(dial1Model, "dial1");
-gaugeModel.appendChild(dial2Model, "dial2");
-gaugeModel.appendChild(dial3Model, "dial3");
+gaugeModel.appendChild(dial1Model);
+gaugeModel.appendChild(dial2Model);
+gaugeModel.appendChild(dial3Model);
 
 const gaugeController = new ExampleGaugeController();
 gaugeController.mount();
@@ -103,16 +111,16 @@ gaugeController.gauge.insertView(canvasView);
 gaugeController.gauge.setTrait(gaugeTrait);
 
 setInterval(function () {
-  dial1Trait.value.setValue(0.1 + 0.9 * Math.random());
-  dial2Trait.value.setValue(0.1 + 0.9 * Math.random());
-  dial3Trait.value.setValue(0.1 + 0.9 * Math.random());
+  dial1Trait.value.set(0.1 + 0.9 * Math.random());
+  dial2Trait.value.set(0.1 + 0.9 * Math.random());
+  dial3Trait.value.set(0.1 + 0.9 * Math.random());
 }, 1000);
 
 setInterval(function () {
   if (dial3Model.mounted) {
     dial3Model.remove();
   } else {
-    gaugeModel.appendChild(dial3Model, "dial3");
+    gaugeModel.appendChild(dial3Model);
   }
 }, 2500);
 

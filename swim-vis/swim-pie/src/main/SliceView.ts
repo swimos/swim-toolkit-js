@@ -14,7 +14,8 @@
 
 import type {Class} from "@swim/util";
 import {Equivalent} from "@swim/util";
-import {Affinity} from "@swim/component";
+import type {Like} from "@swim/util";
+import type {LikeType} from "@swim/util";
 import {Animator} from "@swim/component";
 import {Length} from "@swim/math";
 import {Angle} from "@swim/math";
@@ -137,21 +138,21 @@ export class SliceView extends GraphicsView {
     didDetachView(labelView: GraphicsView): void {
       this.owner.callObservers("viewDidDetachLabel", labelView, this.owner);
     },
-    setText(label: string | undefined): GraphicsView {
-      let labelView = this.view;
-      if (labelView === null) {
-        labelView = this.createView();
-        this.setView(labelView);
+    fromLike(value: GraphicsView | LikeType<GraphicsView> | string | undefined): GraphicsView {
+      if (value === void 0 || typeof value === "string") {
+        let view = this.view;
+        if (view === null) {
+          view = this.createView();
+        }
+        if (view instanceof TextRunView) {
+          view.text.setState(value !== void 0 ? value : "");
+        }
+        return view;
       }
-      if (labelView instanceof TextRunView) {
-        labelView.text.setState(label !== void 0 ? label : "");
-      }
-      return labelView;
+      return super.fromLike(value);
     },
   })
-  readonly label!: ViewRef<this, GraphicsView> & {
-    setText(label: string | undefined): GraphicsView,
-  };
+  readonly label!: ViewRef<this, Like<GraphicsView, string | undefined>>;
 
   @ViewRef({
     viewType: TextRunView,
@@ -163,21 +164,21 @@ export class SliceView extends GraphicsView {
     didDetachView(legendView: GraphicsView): void {
       this.owner.callObservers("viewDidDetachLegend", legendView, this.owner);
     },
-    setText(legend: string | undefined): GraphicsView {
-      let legendView = this.view;
-      if (legendView === null) {
-        legendView = this.createView();
-        this.setView(legendView);
+    fromLike(value: GraphicsView | LikeType<GraphicsView> | string | undefined): GraphicsView {
+      if (value === void 0 || typeof value === "string") {
+        let view = this.view;
+        if (view === null) {
+          view = this.createView();
+        }
+        if (view instanceof TextRunView) {
+          view.text.setState(value !== void 0 ? value : "");
+        }
+        return view;
       }
-      if (legendView instanceof TextRunView) {
-        legendView.text.setState(legend !== void 0 ? legend : "");
-      }
-      return legendView;
+      return super.fromLike(value);
     },
   })
-  readonly legend!: ViewRef<this, GraphicsView> & {
-    setText(legend: string | undefined): GraphicsView,
-  };
+  readonly legend!: ViewRef<this, Like<GraphicsView, string | undefined>>;
 
   protected override onLayout(): void {
     super.onLayout();
@@ -235,9 +236,11 @@ export class SliceView extends GraphicsView {
       const ry = r * Math.sin(labelAngle);
 
       if (TypesetView[Symbol.hasInstance](labelView)) {
-        labelView.textAlign.setState("center", Affinity.Intrinsic);
-        labelView.textBaseline.setState("middle", Affinity.Intrinsic);
-        labelView.textOrigin.setState(new R2Point(center.x + rx, center.y + ry), Affinity.Intrinsic);
+        labelView.setIntrinsic({
+          textAlign: "center",
+          textBaseline: "middle",
+          textOrigin: new R2Point(center.x + rx, center.y + ry),
+        });
       }
     }
 
@@ -303,11 +306,13 @@ export class SliceView extends GraphicsView {
       if (TypesetView[Symbol.hasInstance](legendView)) {
         const tickPadding = this.tickPadding.getValue().pxValue(size);
         if (FillView[Symbol.hasInstance](legendView)) {
-          legendView.fill.setState(tickColor, Affinity.Intrinsic);
+          legendView.fill.setIntrinsic(tickColor);
         }
-        legendView.textAlign.setState(textAlign, Affinity.Intrinsic);
-        legendView.textBaseline.setState("alphabetic", Affinity.Intrinsic);
-        legendView.textOrigin.setState(new R2Point(cx + r2x + dx, cy + r2y - tickPadding), Affinity.Intrinsic);
+        legendView.setIntrinsic({
+          textAlign,
+          textBaseline: "alphabetic",
+          textOrigin: new R2Point(cx + r2x + dx, cy + r2y - tickPadding),
+        });
       }
     }
   }

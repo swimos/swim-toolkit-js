@@ -80,7 +80,9 @@ export class RowView extends HtmlView {
 
   protected initRow(): void {
     this.addClass("row");
-    this.position.setState("relative", Affinity.Intrinsic);
+    this.setIntrinsic<RowView>({
+      position: "relative",
+    });
   }
 
   declare readonly observerType?: Class<RowViewObserver>;
@@ -96,7 +98,7 @@ export class RowView extends HtmlView {
     didSetValue(newDepth: number, oldDepth: number): void {
       const treeView = this.owner.tree.view;
       if (treeView !== null) {
-        treeView.depth.setValue(newDepth + 1, Affinity.Intrinsic);
+        treeView.depth.setIntrinsic(newDepth + 1);
       }
     },
   })
@@ -143,13 +145,15 @@ export class RowView extends HtmlView {
     binds: true,
     observes: true,
     initView(leafView: LeafView): void {
-      leafView.display.setState("none", Affinity.Intrinsic);
-      leafView.position.setState("absolute", Affinity.Intrinsic);
-      leafView.left.setState(0, Affinity.Intrinsic);
-      leafView.top.setState(0, Affinity.Intrinsic);
       const layout = this.owner.layout.value;
-      leafView.width.setState(layout !== null ? layout.width : null, Affinity.Intrinsic);
-      leafView.zIndex.setState(1, Affinity.Intrinsic);
+      leafView.setIntrinsic({
+        display: "none",
+        position: "absolute",
+        left: 0,
+        top: 0,
+        width: layout !== null ? layout.width : null,
+        zIndex: 1,
+      });
     },
     willAttachView(leafView: LeafView): void {
       this.owner.callObservers("viewWillAttachLeaf", leafView, this.owner);
@@ -189,17 +193,19 @@ export class RowView extends HtmlView {
     viewKey: true,
     binds: true,
     initView(headView: HtmlView): void {
-      headView.addClass("head");
-      headView.display.setState("none", Affinity.Intrinsic);
-      headView.position.setState("absolute", Affinity.Intrinsic);
-      headView.left.setState(0, Affinity.Intrinsic);
-      headView.top.setState(this.owner.rowHeight.state, Affinity.Intrinsic);
       const layout = this.owner.layout.value;
-      headView.width.setState(layout !== null ? layout.width : null, Affinity.Intrinsic);
-      headView.height.setState(this.owner.rowSpacing.state, Affinity.Intrinsic);
-      headView.backgroundColor.setLook(Look.accentColor, Affinity.Intrinsic);
-      headView.opacity.setState(this.owner.disclosing.getPhaseOr(1) * this.owner.expanding.getPhaseOr(1), Affinity.Intrinsic);
-      headView.zIndex.setState(1, Affinity.Intrinsic);
+      headView.addClass("head");
+      headView.setIntrinsic({
+        display: "none",
+        position: "absolute",
+        left: 0,
+        top: this.owner.rowHeight.state,
+        width: layout !== null ? layout.width : null,
+        height: this.owner.rowSpacing.state,
+        backgroundColor: Look.accentColor,
+        opacity: this.owner.disclosing.getPhaseOr(1) * this.owner.expanding.getPhaseOr(1),
+        zIndex: 1,
+      });
     },
   })
   readonly head!: ViewRef<this, HtmlView>;
@@ -211,14 +217,16 @@ export class RowView extends HtmlView {
     viewKey: true,
     binds: true,
     initView(treeView: TableView): void {
-      treeView.addClass("tree");
-      treeView.display.setState(this.owner.disclosure.collapsed ? "none" : "block", Affinity.Intrinsic);
-      treeView.position.setState("absolute", Affinity.Intrinsic);
-      treeView.left.setState(0, Affinity.Intrinsic);
       const layout = this.owner.layout.value;
-      treeView.width.setState(layout !== null ? layout.width : null, Affinity.Intrinsic);
-      treeView.zIndex.setState(0, Affinity.Intrinsic);
-      treeView.depth.setValue(this.owner.depth.value + 1, Affinity.Intrinsic);
+      treeView.addClass("tree");
+      treeView.setIntrinsic({
+        display: this.owner.disclosure.collapsed ? "none" : "block",
+        position: "absolute",
+        left: 0,
+        width: layout !== null ? layout.width : null,
+        zIndex: 0,
+        depth: this.owner.depth.value + 1,
+      });
     },
     willAttachView(treeView: TableView): void {
       this.owner.callObservers("viewWillAttachTree", treeView, this.owner);
@@ -234,17 +242,19 @@ export class RowView extends HtmlView {
     viewKey: true,
     binds: true,
     initView(footView: HtmlView): void {
-      footView.addClass("foot");
-      footView.display.setState("none", Affinity.Intrinsic);
-      footView.position.setState("absolute", Affinity.Intrinsic);
-      footView.left.setState(0, Affinity.Intrinsic);
-      footView.top.setState(this.owner.rowHeight.state, Affinity.Intrinsic);
       const layout = this.owner.layout.value;
-      footView.width.setState(layout !== null ? layout.width : null, Affinity.Intrinsic);
-      footView.height.setState(this.owner.rowSpacing.state, Affinity.Intrinsic);
-      footView.backgroundColor.setLook(Look.borderColor, Affinity.Intrinsic);
-      footView.opacity.setState(this.owner.disclosing.getPhaseOr(1) * this.owner.expanding.getPhaseOr(1), Affinity.Intrinsic);
-      footView.zIndex.setState(1, Affinity.Intrinsic);
+      footView.addClass("foot");
+      footView.setIntrinsic({
+        display: "none",
+        position: "absolute",
+        left: 0,
+        top: this.owner.rowHeight.state,
+        width: layout !== null ? layout.width : null,
+        height: this.owner.rowSpacing.state,
+        backgroundColor: Look.borderColor,
+        opacity: this.owner.disclosing.getPhaseOr(1) * this.owner.expanding.getPhaseOr(1),
+        zIndex: 1,
+      });
     },
   })
   readonly foot!: ViewRef<this, HtmlView>;
@@ -264,7 +274,7 @@ export class RowView extends HtmlView {
       this.owner.callObservers("viewWillExpand", this.owner);
       const treeView = this.owner.tree.view;
       if (treeView !== null) {
-        treeView.display.setState("block", Affinity.Intrinsic);
+        treeView.display.setIntrinsic("block");
       }
     },
     didExpand(): void {
@@ -276,13 +286,13 @@ export class RowView extends HtmlView {
     didCollapse(): void {
       const treeView = this.owner.tree.view;
       if (treeView !== null) {
-        treeView.display.setState("none", Affinity.Intrinsic);
+        treeView.display.setIntrinsic("none");
       }
       this.owner.callObservers("viewDidCollapse", this.owner);
     },
     didSetValue(newDisclosure: Expansion, oldDisclosure: Expansion): void {
       if (newDisclosure.direction !== 0) {
-        this.owner.disclosing.setState(newDisclosure, Affinity.Intrinsic);
+        this.owner.disclosing.setIntrinsic(newDisclosure);
       } else {
         this.owner.disclosing.setAffinity(Affinity.Transient);
       }
@@ -383,15 +393,15 @@ export class RowView extends HtmlView {
       width = this.width.pxState();
     }
     const newLayout = oldLayout.resized(width, 0, 0);
-    this.layout.setValue(newLayout);
+    this.layout.set(newLayout);
   }
 
   protected layoutLeaf(leafView: LeafView): void {
     const layout = this.layout.value;
     const width = layout !== null ? layout.width : null;
     const timing = this.getLook(Look.timing);
-    leafView.top.setState(0, timing, Affinity.Intrinsic);
-    leafView.width.setState(width, Affinity.Intrinsic);
+    leafView.top.setIntrinsic(0, timing);
+    leafView.width.setIntrinsic(width);
   }
 
   protected override didLayout(): void {
@@ -410,8 +420,8 @@ export class RowView extends HtmlView {
     let leafHeightState = 0;
     const leafView = this.leaf.view;
     if (leafView !== null) {
-      leafView.width.setState(width, Affinity.Intrinsic);
-      leafView.display.setState("flex", Affinity.Intrinsic);
+      leafView.width.setIntrinsic(width);
+      leafView.display.setIntrinsic("flex");
       leafHeightValue = leafView.height.pxValue();
       leafHeightState = leafView.height.pxState();
     }
@@ -419,13 +429,13 @@ export class RowView extends HtmlView {
     const headView = this.head.view;
     if (headView !== null) {
       if (!disclosure.collapsed) {
-        headView.top.setState(leafHeightValue, Affinity.Intrinsic);
-        headView.width.setState(width, Affinity.Intrinsic);
-        headView.height.setState(rowSpacing, Affinity.Intrinsic);
-        headView.opacity.setState(disclosingPhase, Affinity.Intrinsic);
-        headView.display.setState("block", Affinity.Intrinsic);
+        headView.top.setIntrinsic(leafHeightValue);
+        headView.width.setIntrinsic(width);
+        headView.height.setIntrinsic(rowSpacing);
+        headView.opacity.setIntrinsic(disclosingPhase);
+        headView.display.setIntrinsic("block");
       } else {
-        headView.display.setState("none", Affinity.Intrinsic);
+        headView.display.setIntrinsic("none");
       }
     }
 
@@ -434,28 +444,28 @@ export class RowView extends HtmlView {
     const treeView = this.tree.view;
     if (treeView !== null) {
       if (!disclosure.collapsed) {
-        treeView.top.setState(leafHeightValue + rowSpacing * disclosingPhase, Affinity.Intrinsic);
-        treeView.width.setState(width, Affinity.Intrinsic);
-        treeView.display.setState("block", Affinity.Intrinsic);
+        treeView.top.setIntrinsic(leafHeightValue + rowSpacing * disclosingPhase);
+        treeView.width.setIntrinsic(width);
+        treeView.display.setIntrinsic("block");
         treeHeightValue = treeView.height.pxValue();
         treeHeightValue += rowSpacing * disclosingPhase;
         treeHeightState = treeView.height.pxState();
         treeHeightState += rowSpacing;
       } else {
-        treeView.display.setState("none", Affinity.Intrinsic);
+        treeView.display.setIntrinsic("none");
       }
     }
 
     const footView = this.foot.view;
     if (footView !== null) {
       if (!disclosure.collapsed) {
-        footView.top.setState(leafHeightValue + treeHeightValue, Affinity.Intrinsic);
-        footView.width.setState(width, Affinity.Intrinsic);
-        footView.height.setState(rowSpacing, Affinity.Intrinsic);
-        footView.opacity.setState(disclosingPhase, Affinity.Intrinsic);
-        footView.display.setState("block", Affinity.Intrinsic);
+        footView.top.setIntrinsic(leafHeightValue + treeHeightValue);
+        footView.width.setIntrinsic(width);
+        footView.height.setIntrinsic(rowSpacing);
+        footView.opacity.setIntrinsic(disclosingPhase);
+        footView.display.setIntrinsic("block");
       } else {
-        footView.display.setState("none", Affinity.Intrinsic);
+        footView.display.setIntrinsic("none");
       }
     }
 
@@ -468,11 +478,11 @@ export class RowView extends HtmlView {
 
   protected override onCull(): void {
     super.onCull();
-    this.display.setState("none", Affinity.Intrinsic);
+    this.display.setIntrinsic("none");
   }
 
   protected override onUncull(): void {
     super.onUncull();
-    this.display.setState("block", Affinity.Intrinsic);
+    this.display.setIntrinsic("block");
   }
 }

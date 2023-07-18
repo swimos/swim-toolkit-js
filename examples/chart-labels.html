@@ -13,45 +13,47 @@
 
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-const containerView = bodyView.appendChild("div");
-containerView.position.setState("relative");
-containerView.width.setState("90%");
-containerView.height.setState("90%");
-containerView.touchAction.setState("none");
-containerView.userSelect.setState("none");
+const containerView = bodyView.appendChild("div").set({
+  position: "relative",
+  width: "90%",
+  height: "90%",
+  touchAction: "none",
+  userSelect: "none",
+});
 
-const canvasView = swim.CanvasView.create();
-canvasView.wheelEventsEnabled(true);
-canvasView.mouseEventsEnabled(true);
-canvasView.pointerEventsEnabled(true);
-canvasView.touchEventsEnabled(true);
-canvasView.touchAction.setState("manipulation");
+const canvasView = swim.CanvasView.create().set({
+  touchAction: "manipulation",
+  wheelEvents: true,
+  mouseEvents: true,
+  pointerevents: true,
+  touchEvents: true,
+});
 
 const chartView = canvasView.appendChild(swim.ChartView);
 const bottomAxisView = chartView.bottomAxis.insertView();
 const leftAxisView = chartView.leftAxis.insertView();
 
-//chartView.xRangePadding.setValue([2, 2]);
-//chartView.yRangePadding.setValue([2, 2]);
-chartView.fitAspectRatio.setValue(1);
+//chartView.xRangePadding.set([2, 2]);
+//chartView.yRangePadding.set([2, 2]);
+chartView.fitAspectRatio.set(1);
 chartView.domainTracking(true);
 chartView.xScaleGestures(true);
-chartView.font.setState("12px sans-serif");
+chartView.font.set("12px sans-serif");
 
 const graphView = chartView.graph.insertView();
-const plotView = graphView.appendChild(swim.LinePlotView);
-plotView.hitMode.setValue("domain");
-plotView.strokeWidth.setState(2);
+const plotView = graphView.appendChild(swim.LinePlotView).set({
+  hitMode: "domain",
+  strokeWidth: 2,
+});
 plotView.addEventListener("pointerover", function (event) {
   const dataPoint = event.targetView;
-  const y = dataPoint.y.value;
-  dataPoint.label.setText(y.toFixed(2));
+  dataPoint.label.set(dataPoint.y.value.toFixed(2));
 });
 plotView.addEventListener("pointerout", function (event) {
   const dataPoint = event.targetView;
   dataPoint.label.setView(null);
 });
-plotView.textColor.setLook(swim.Look.labelColor);
+plotView.textColor.set(swim.Look.labelColor);
 plotView.modifyMood(swim.Feel.default, [[swim.Feel.primary, 1]]);
 
 const cycles = 2;
@@ -59,11 +61,12 @@ const samples = 100;
 for (let i = 0, n = cycles * samples; i <= n; i += 1) {
   const x = i * 2 * Math.PI / samples;
   const y = Math.round(1000 * Math.sin(x)) / 1000;
-  const opacity = i === 0 ? 0.75 : i === n ? 0.25 : void 0;
-  const dataPointView = plotView.insertDataPoint(new swim.DataPointView(x, y));
-  dataPointView.opacity.setState(opacity);
-  dataPointView.labelPadding.setState(2);
-  dataPointView.labelPlacement.setValue(y > 0 ? "above" : y < 0 ? "below" : "middle");
+  const dataPointView = new swim.DataPointView(x, y).set({
+    opacity: i === 0 ? 0.75 : i === n ? 0.25 : void 0,
+    labelPadding: 2,
+    labelPlacement: y < 0 ? "above" : y > 0 ? "below" : "middle",
+  });
+  plotView.insertDataPoint(dataPointView);
 }
 
 containerView.appendChild(canvasView);

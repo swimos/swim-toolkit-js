@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {Affinity} from "@swim/component";
 import type {PositionGestureInput} from "@swim/view";
 import type {HtmlViewObserver} from "@swim/dom";
 import {HtmlView} from "@swim/dom";
@@ -34,8 +33,9 @@ export class ColView extends HtmlView {
 
   protected initCol(): void {
     this.addClass("col");
-    this.overflowX.setState("hidden", Affinity.Intrinsic);
-    this.overflowY.setState("hidden", Affinity.Intrinsic);
+    this.setIntrinsic<ColView>({
+      overflow: "hidden",
+    });
   }
 
   declare readonly observerType?: Class<ColViewObserver>;

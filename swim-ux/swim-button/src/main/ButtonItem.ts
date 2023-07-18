@@ -12,13 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Timing} from "@swim/util";
-import {Affinity} from "@swim/component";
 import type {Presence} from "@swim/style";
 import {PresenceAnimator} from "@swim/style";
 import {Look} from "@swim/theme";
-import type {MoodVector} from "@swim/theme";
-import type {ThemeMatrix} from "@swim/theme";
 import type {View} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import type {HtmlIconView} from "@swim/graphics";
@@ -33,7 +29,7 @@ export class ButtonItem extends HtmlView {
 
   protected initButtonItem(): void {
     this.addClass("button-item");
-    this.position.setState("relative", Affinity.Intrinsic);
+    this.position.setIntrinsic("relative");
     const button = this.createButton();
     if (button !== null) {
       this.setChild("button", button);
@@ -42,7 +38,7 @@ export class ButtonItem extends HtmlView {
 
   protected createButton(): FloatingButton | null {
     const button = FloatingButton.create();
-    button.buttonType.setValue("mini", Affinity.Intrinsic);
+    button.buttonType.setIntrinsic("mini");
     return button;
   }
 
@@ -65,25 +61,17 @@ export class ButtonItem extends HtmlView {
   @PresenceAnimator({inherits: true})
   readonly presence!: PresenceAnimator<this, Presence | undefined>;
 
-  protected override onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
-    super.onApplyTheme(theme, mood, timing);
-    const label = this.label;
-    if (label !== null && label.color.hasAffinity(Affinity.Intrinsic)) {
-      label.color.setState(theme.getOr(Look.labelColor, mood, null), timing, Affinity.Intrinsic);
-    }
-  }
-
   protected override onLayout(): void {
     super.onLayout();
     const phase = this.presence.getPhaseOr(1);
     const button = this.button;
     if (button !== null) {
-      this.width.setState(button.width.state, Affinity.Intrinsic);
-      this.height.setState(button.height.state, Affinity.Intrinsic);
+      this.width.setIntrinsic(button.width.state);
+      this.height.setIntrinsic(button.height.state);
     }
     const label = this.label;
     if (label !== null) {
-      label.opacity.setState(phase, Affinity.Intrinsic);
+      label.opacity.setIntrinsic(phase);
     }
   }
 
@@ -116,16 +104,19 @@ export class ButtonItem extends HtmlView {
   }
 
   protected onInsertLabel(label: HtmlView): void {
-    label.display.setState("block", Affinity.Intrinsic);
-    label.position.setState("absolute", Affinity.Intrinsic);
-    label.top.setState(0, Affinity.Intrinsic);
-    label.right.setState(40 + 16, Affinity.Intrinsic);
-    label.bottom.setState(0, Affinity.Intrinsic);
-    label.fontSize.setState(17, Affinity.Intrinsic);
-    label.fontWeight.setState("500", Affinity.Intrinsic);
-    label.lineHeight.setState(40, Affinity.Intrinsic);
-    label.whiteSpace.setState("nowrap", Affinity.Intrinsic);
-    label.opacity.setState(this.presence.getPhaseOr(0), Affinity.Intrinsic);
+    label.setIntrinsic({
+      display: "block",
+      position: "absolute",
+      top: 0,
+      right: 40 + 16,
+      bottom: 0,
+      fontSize: 17,
+      fontWeight: "500",
+      lineHeight: 40,
+      whiteSpace: "nowrap",
+      color: Look.labelColor,
+      opacity: this.presence.getPhaseOr(0),
+    });
   }
 
   protected onRemoveLabel(label: HtmlView): void {

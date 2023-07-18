@@ -54,7 +54,7 @@ const ExampleBinderController = (function () {
   __esDecorate(null, null, [swim.TraitViewControllerRef({
     extends: true,
     attachTabBarView(tabBarView, tabBarController) {
-      tabBarView.barHeight.setState(48);
+      tabBarView.barHeight.set(48);
       super.attachTabBarView(tabBarView, tabBarController);
     },
   })], {kind: "field", name: "tabBar", static: false, private: false, access: {has: obj => "tabBar" in obj, get: obj => obj.tabBar, set: (obj, value) => { obj.tabBar = value; }}}, tabBarInitializers, instanceInitializers);
@@ -64,53 +64,54 @@ const ExampleBinderController = (function () {
       super.attachTabView(tabView, tabController);
       const tabTrait = tabController.sheet.trait;
       if (tabTrait !== null) {
-        const tabTitle = tabTrait.title.value;
-        const headerView = swim.HtmlView.fromTag("h2");
-        headerView.margin(12);
-        headerView.text(tabTitle);
-        tabView.appendChild(headerView, "header");
+        const headerView = tabView.appendChild("h2", "header").set({
+          margin: 12,
+        });
+        headerView.text(tabTrait.title.value);
       }
     },
   })], {kind: "field", name: "tabs", static: false, private: false, access: {has: obj => "tabs" in obj, get: obj => obj.tabs, set: (obj, value) => { obj.tabs = value; }}}, tabsInitializers, instanceInitializers);
   return ExampleBinderController;
 })();
 
-const binderController = new ExampleBinderController();
+const binderController = new ExampleBinderController().set({
+  tabStyle: "bottom",
+});
 binderController.mount();
-binderController.tabStyle.setValue("bottom");
-const binderView = binderController.binder.attachView()
-binderView.flexGrow.setState(1);
+const binderView = binderController.binder.attachView().set({
+  flexGrow: 1,
+});
 
 binderController.tabBar.insertController();
 
 const tab1Controller = new swim.SheetController();
-tab1Controller.title.setText("Tab 1");
+tab1Controller.title.set("Tab 1");
 tab1Controller.handle.setIcon(swim.PolygonIcon.create(4));
 const tab1View = tab1Controller.sheet.attachView();
-const header1View = swim.HtmlView.fromTag("h2");
-header1View.margin(12);
+const header1View = tab1View.appendChild("h2").set({
+  margin: 12,
+});
 header1View.text("Tab 1");
-tab1View.appendChild(header1View);
 binderController.tabs.addController(tab1Controller);
 
 const tab2Controller = new swim.SheetController();
-tab2Controller.title.setText("Tab 2");
+tab2Controller.title.set("Tab 2");
 tab2Controller.handle.setIcon(swim.PolygonIcon.create(6));
 const tab2View = tab2Controller.sheet.attachView();
-const header2View = swim.HtmlView.fromTag("h2");
-header2View.margin(12);
+const header2View = tab2View.appendChild("h2").set({
+  margin: 12,
+});
 header2View.text("Tab 2");
-tab2View.appendChild(header2View);
 binderController.tabs.addController(tab2Controller);
 
 const tab3Controller = new swim.SheetController();
-tab3Controller.title.setText("Tab 3");
+tab3Controller.title.set("Tab 3");
 tab3Controller.handle.setIcon(swim.PolygonIcon.create(8));
-const header3View = swim.HtmlView.fromTag("h2");
-header3View.margin(12);
-header3View.text("Tab 3");
 const tab3View = tab3Controller.sheet.attachView();
-tab3View.appendChild(header3View);
+const header3View = tab3View.appendChild("h2").set({
+  margin: 12,
+});
+header3View.text("Tab 3");
 binderController.tabs.addController(tab3Controller);
 
 binderController.binder.insertView(bodyView);

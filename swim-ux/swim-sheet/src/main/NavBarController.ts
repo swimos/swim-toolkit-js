@@ -15,7 +15,6 @@
 import {Lazy} from "@swim/util";
 import type {Class} from "@swim/util";
 import type {Observes} from "@swim/util";
-import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import type {Trait} from "@swim/model";
 import {Presence} from "@swim/style";
@@ -91,7 +90,7 @@ export class NavBarController extends BarController {
         const closeButtonView = closeButtonController.tool.view;
         if (closeButtonView !== null) {
           this.closeButton.insertView();
-          closeButtonView.zIndex.setState(2, Affinity.Intrinsic);
+          closeButtonView.zIndex.setIntrinsic(2);
         }
       }
     } else {
@@ -105,7 +104,7 @@ export class NavBarController extends BarController {
           tools.push(backButtonLayout);
         }
         const backButtonView = this.backButton.insertView();
-        backButtonView.zIndex.setState(2, Affinity.Intrinsic);
+        backButtonView.zIndex.setIntrinsic(2);
       }
     }
 
@@ -116,9 +115,9 @@ export class NavBarController extends BarController {
         const backTitleView = backController.title.insertView(this.bar.view, void 0, void 0, backKey);
         if (backTitleView !== null) {
           const timing = backTitleView.getLookOr(Look.timing, Mood.navigating, false);
-          backTitleView.color.setLook(Look.accentColor, timing, Affinity.Intrinsic);
-          backTitleView.zIndex.setState(3, Affinity.Intrinsic);
-          backTitleView.pointerEvents.setState("none", Affinity.Intrinsic);
+          backTitleView.color.setIntrinsic(Look.accentColor, timing);
+          backTitleView.zIndex.setIntrinsic(3);
+          backTitleView.pointerEvents.setIntrinsic("none");
         }
       }
       const frontTitleLayout = ToolLayout.create(frontKey, 1, 0, 0, 0.5, 1, 1);
@@ -127,9 +126,9 @@ export class NavBarController extends BarController {
         const frontTitleView = frontController.title.insertView(this.bar.view, void 0, void 0, frontKey);
         if (frontTitleView !== null) {
           const timing = frontTitleView.getLookOr(Look.timing, Mood.navigating, false);
-          frontTitleView.color.setLook(Look.textColor, timing, Affinity.Intrinsic);
-          frontTitleView.zIndex.setState(1, Affinity.Intrinsic);
-          frontTitleView.pointerEvents.setState("auto", Affinity.Intrinsic);
+          frontTitleView.color.setIntrinsic(Look.textColor, timing);
+          frontTitleView.zIndex.setIntrinsic(1);
+          frontTitleView.pointerEvents.setIntrinsic("auto");
         }
       }
     } else {
@@ -151,9 +150,9 @@ export class NavBarController extends BarController {
         const frontTitleView = frontController.title.insertView(this.bar.view, void 0, void 0, frontKey);
         if (frontTitleView !== null) {
           const timing = frontTitleView.getLookOr(Look.timing, Mood.navigating, false);
-          frontTitleView.color.setLook(Look.textColor, timing, Affinity.Intrinsic);
-          frontTitleView.zIndex.setState(1, Affinity.Intrinsic);
-          frontTitleView.pointerEvents.setState("auto", Affinity.Intrinsic);
+          frontTitleView.color.setIntrinsic(Look.textColor, timing);
+          frontTitleView.zIndex.setIntrinsic(1);
+          frontTitleView.pointerEvents.setIntrinsic("auto");
         }
       }
     }
@@ -219,10 +218,10 @@ export class NavBarController extends BarController {
     createController(): ToolController {
       const toolController = new ButtonToolController();
       const toolLayout = ToolLayout.create(this.viewKey!, 0, 0, 48);
-      toolController.layout.setValue(toolLayout);
+      toolController.layout.set(toolLayout);
       const toolView = toolController.tool.attachView();
-      toolView.iconLayout.setState({width: 24, height: 24}, Affinity.Intrinsic);
-      toolView.graphics.setState(this.owner.closeIcon, Affinity.Intrinsic);
+      toolView.iconLayout.setIntrinsic({width: 24, height: 24});
+      toolView.graphics.setIntrinsic(this.owner.closeIcon);
       return toolController;
     },
   })
@@ -245,10 +244,10 @@ export class NavBarController extends BarController {
     createController(): ToolController {
       const toolController = new ButtonToolController();
       const toolLayout = ToolLayout.create(this.viewKey!, 0, 0, 48);
-      toolController.layout.setValue(toolLayout);
+      toolController.layout.set(toolLayout);
       const toolView = toolController.tool.attachView();
-      toolView.iconLayout.setState({width: 24, height: 24}, Affinity.Intrinsic);
-      toolView.graphics.setState(this.owner.backIcon, Affinity.Intrinsic);
+      toolView.iconLayout.setIntrinsic({width: 24, height: 24});
+      toolView.graphics.setIntrinsic(this.owner.backIcon);
       return toolController;
     },
   })
@@ -271,10 +270,10 @@ export class NavBarController extends BarController {
     createController(): ToolController {
       const toolController = new ButtonToolController();
       const toolLayout = ToolLayout.create(this.viewKey!, 0, 0, 48);
-      toolController.layout.setValue(toolLayout);
+      toolController.layout.set(toolLayout);
       const toolView = toolController.tool.attachView();
-      toolView.iconLayout.setState({width: 24, height: 24}, Affinity.Intrinsic);
-      toolView.graphics.setState(this.owner.searchIcon, Affinity.Intrinsic);
+      toolView.iconLayout.setIntrinsic({width: 24, height: 24});
+      toolView.graphics.setIntrinsic(this.owner.searchIcon);
       return toolController;
     },
   })
@@ -303,13 +302,13 @@ export class NavBarController extends BarController {
     createController(): ToolController {
       const toolController = new SearchToolController();
       const toolLayout = ToolLayout.create(this.viewKey!, 1, 0, 0, 0.5);
-      toolController.layout.setValue(toolLayout);
+      toolController.layout.set(toolLayout);
       const toolView = toolController.tool.attachView()!;
       toolView.stylesheet.insertView();
       const inputView = toolView.input.insertView();
-      inputView.marginLeft.setState(8, Affinity.Intrinsic);
-      inputView.marginRight.setState(8, Affinity.Intrinsic);
-      inputView.placeholder.setState("Search", Affinity.Intrinsic);
+      inputView.marginLeft.setIntrinsic(8);
+      inputView.marginRight.setIntrinsic(8);
+      inputView.placeholder.setIntrinsic("Search");
       return toolController;
     },
   })
@@ -334,11 +333,12 @@ export class NavBarController extends BarController {
     createController(): ToolController {
       const toolController = new TitleToolController();
       const toolLayout = ToolLayout.create(this.viewKey!, 0, 0, 72, 0.5);
-      toolController.layout.setValue(toolLayout);
-      const toolView = toolController.tool.attachView()!;
-      toolView.color.setLook(Look.accentColor, Affinity.Intrinsic);
-      toolView.cursor.setState("pointer", Affinity.Intrinsic);
-      toolView.content.setText("Cancel");
+      toolController.layout.set(toolLayout);
+      toolController.tool.attachView().setIntrinsic({
+        color: Look.accentColor,
+        cursor: "pointer",
+        content: "Cancel",
+      });
       return toolController;
     },
   })

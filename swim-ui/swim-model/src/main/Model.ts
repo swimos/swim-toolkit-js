@@ -1760,7 +1760,7 @@ export class Model extends Component<Model> implements Consumable, WarpRef {
   hostRef(hostUri: UriLike): WarpRef {
     hostUri = Uri.fromLike(hostUri);
     const childRef = new Model();
-    childRef.hostUri.setValue(hostUri);
+    childRef.hostUri.set(hostUri);
     this.appendChild(childRef);
     return childRef;
   }
@@ -1784,10 +1784,10 @@ export class Model extends Component<Model> implements Consumable, WarpRef {
     }
     const childRef = new Model();
     if (hostUri !== void 0) {
-      childRef.hostUri.setValue(hostUri);
+      childRef.hostUri.set(hostUri);
     }
     if (nodeUri !== void 0) {
-      childRef.nodeUri.setValue(nodeUri);
+      childRef.nodeUri.set(nodeUri);
     }
     this.appendChild(childRef);
     return childRef;
@@ -1820,13 +1820,13 @@ export class Model extends Component<Model> implements Consumable, WarpRef {
     }
     const childRef = new Model();
     if (hostUri !== void 0) {
-      childRef.hostUri.setValue(hostUri);
+      childRef.hostUri.set(hostUri);
     }
     if (nodeUri !== void 0) {
-      childRef.nodeUri.setValue(nodeUri);
+      childRef.nodeUri.set(nodeUri);
     }
     if (laneUri !== void 0) {
-      childRef.laneUri.setValue(laneUri);
+      childRef.laneUri.set(laneUri);
     }
     this.appendChild(childRef);
     return childRef;

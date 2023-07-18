@@ -96,9 +96,9 @@ export class BinderController extends SheetController {
     inherits: true,
     didSetValue(folioStyle: FolioStyle | undefined): void {
       if (folioStyle === "stacked") {
-        this.owner.tabStyle.setValue("bottom", Affinity.Intrinsic);
+        this.owner.tabStyle.setIntrinsic("bottom");
       } else if (folioStyle === "unstacked") {
-        this.owner.tabStyle.setValue("mode", Affinity.Intrinsic);
+        this.owner.tabStyle.setIntrinsic("mode");
       }
     },
   })
@@ -153,7 +153,7 @@ export class BinderController extends SheetController {
       }
     },
     didAttachView(binderView: BinderView): void {
-      //this.owner.tabStyle.setValue(binderView.tabStyle.value, Affinity.Intrinsic);
+      //this.owner.tabStyle.setIntrinsic(binderView.tabStyle.value);
       const activeController = this.owner.active.controller;
       if (activeController !== null) {
         activeController.sheet.removeView();
@@ -169,7 +169,7 @@ export class BinderController extends SheetController {
       this.owner.callObservers("controllerDidDetachBinderView", binderView, this.owner);
     },
     //viewDidSetTabStyle(tabStyle: BinderTabStyle, binderView: BinderView): void {
-    //  this.owner.tabStyle.setValue(tabStyle, Affinity.Intrinsic);
+    //  this.owner.tabStyle.setIntrinsic(tabStyle);
     //},
     viewWillAttachTabBar(tabBarView: BarView): void {
       const tabBarController = this.owner.tabBar.controller;
@@ -431,7 +431,7 @@ export class BinderController extends SheetController {
       this.owner.callObservers("controllerWillAttachActive", activeController, this.owner);
     },
     didAttachController(activeController: SheetController): void {
-      this.owner.fullBleed.setValue(activeController.fullBleed.value, Affinity.Intrinsic);
+      this.owner.fullBleed.setIntrinsic(activeController.fullBleed.value);
       const activeTrait = activeController.sheet.trait;
       if (activeTrait !== null) {
         this.attachActiveTrait(activeTrait, activeController);
@@ -491,7 +491,7 @@ export class BinderController extends SheetController {
       }
     },
     controllerDidSetFullBleed(fullBleed: boolean, activeController: SheetController): void {
-      this.owner.fullBleed.setValue(fullBleed, Affinity.Intrinsic);
+      this.owner.fullBleed.setIntrinsic(fullBleed);
     },
     controllerDidScrollSheetView(activeView: SheetView, activeController: SheetController): void {
       this.owner.callObservers("controllerDidScrollSheetView", activeView, this.owner);

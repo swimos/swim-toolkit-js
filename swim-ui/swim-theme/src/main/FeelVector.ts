@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import type {Uninitable} from "@swim/util";
-import type {Proto} from "@swim/util";
 import {Lazy} from "@swim/util";
 import type {Mutable} from "@swim/util";
 import {Arrays} from "@swim/util";
@@ -43,7 +42,7 @@ export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
     this.index = index;
   }
 
-  declare readonly likeType?: Proto<FeelVectorArray>;
+  likeType?(like: FeelVectorArray): void;
 
   /** @internal */
   readonly array: readonly [Look<unknown>, unknown][];

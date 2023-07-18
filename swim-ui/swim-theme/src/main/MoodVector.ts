@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import type {Uninitable} from "@swim/util";
-import type {Proto} from "@swim/util";
 import {Lazy} from "@swim/util";
 import {Arrays} from "@swim/util";
 import type {Equals} from "@swim/util";
@@ -40,7 +39,7 @@ export class MoodVector<M extends Mood = Feel> implements Equals, Debug {
     this.index = index;
   }
 
-  declare readonly likeType?: Proto<MoodVectorArray<M>>;
+  likeType?(like: MoodVectorArray<M>): void;
 
   /** @internal */
   readonly array: readonly [M, number][];

@@ -120,7 +120,7 @@ export class ArcView extends GraphicsView implements FillView, StrokeView {
       const viewFrame = this.viewFrame;
       const cx = viewFrame.xMin + viewFrame.width * this.xAlign.getValue();
       const cy = viewFrame.yMin + viewFrame.height * this.yAlign.getValue();
-      this.center.setState(new R2Point(cx, cy), Affinity.Intrinsic);
+      this.center.setIntrinsic(new R2Point(cx, cy));
     }
   }
 

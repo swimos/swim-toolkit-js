@@ -54,11 +54,11 @@ const ExampleStackController = (function () {
   __esDecorate(null, null, [swim.TraitViewControllerRef({
     extends: true,
     attachNavBarView(navBarView, navBarController) {
-      navBarView.barHeight.setState(48);
+      navBarView.barHeight.set(48);
       super.attachNavBarView(navBarView, navBarController);
     },
     controllerDidPressSearchButton(input, event, navBarController) {
-      this.owner.front.controller.searching.setValue(true);
+      this.owner.front.controller.searching.set(true);
       navBarController.searchInput.controller.input.view.node.focus();
     },
     controllerDidUpdateSearch(query, inputView, navBarController) {
@@ -68,7 +68,7 @@ const ExampleStackController = (function () {
       // hook
     },
     controllerDidCancelSearch(inputView, navBarController) {
-      this.owner.front.controller.searching.setValue(false);
+      this.owner.front.controller.searching.set(false);
     },
   })], {kind: "field", name: "navBar", static: false, private: false, access: {has: obj => "navBar" in obj, get: obj => obj.navBar, set: (obj, value) => { obj.navBar = value; }}}, navBarInitializers, instanceInitializers);
   __esDecorate(null, null, [swim.TraitViewControllerSet({
@@ -77,13 +77,11 @@ const ExampleStackController = (function () {
       super.attachSheetView(sheetView, sheetController);
       const sheetTrait = sheetController.sheet.trait;
       if (sheetTrait !== null) {
-        const sheetTitle = sheetTrait.title.value;
-        const headerView = swim.HtmlView.fromTag("h2");
-        headerView.margin(12);
-        headerView.text(sheetTitle);
-        headerView.cursor.setState("pointer");
-        headerView.userSelect.setState("none");
-        sheetView.appendChild(headerView, "header");
+        sheetView.appendChild("h2").set({
+          margin: 12,
+          cursor: "pointer",
+          userSelect: "none",
+        }).text(sheetTrait.title.value);
       }
     },
   })], {kind: "field", name: "sheets", static: false, private: false, access: {has: obj => "sheets" in obj, get: obj => obj.sheets, set: (obj, value) => { obj.appBar = value; }}}, sheetsInitializers, instanceInitializers);
@@ -92,8 +90,9 @@ const ExampleStackController = (function () {
 
 const stackController = new ExampleStackController();
 stackController.mount();
-const stackView = stackController.stack.attachView();
-stackView.flexGrow.setState(1);
+stackController.stack.attachView().set({
+  flexGrow: 1,
+});
 
 const navBarController = stackController.navBar.insertController();
 navBarController.closeButton.insertController();
@@ -104,20 +103,20 @@ navBarController.cancelSearch.insertController();
 
 function createSheetController(i) {
   const sheetTitle = "Sheet " + i;
-  const sheetController = new swim.SheetController();
-  sheetController.title.setText(sheetTitle);
-  sheetController.searchable.setValue(i % 2 !== 0);
+  const sheetController = new swim.SheetController().set({
+    title: sheetTitle,
+    searchable: i % 2 !== 0,
+  });
   const sheetView = sheetController.sheet.attachView();
   sheetView.dismiss(false);
-  const headerView = swim.HtmlView.fromTag("h2");
-  headerView.margin(12);
-  headerView.text(sheetTitle);
-  headerView.cursor.setState("pointer");
-  headerView.userSelect.setState("none");
+  const headerView = sheetView.appendChild("h2").set({
+    margin: 12,
+    cursor: "pointer",
+    userSelect: "none",
+  }).text(sheetTitle);
   headerView.addEventListener("click", () => {
     stackController.sheets.addController(createSheetController(i + 1));
   });
-  sheetView.appendChild(headerView, "header");
   return sheetController;
 }
 stackController.sheets.addController(createSheetController(1));

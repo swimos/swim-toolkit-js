@@ -14,7 +14,6 @@
 
 import type {Class} from "@swim/util";
 import type {Observes} from "@swim/util";
-import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import type {GeoTile} from "@swim/geo";
 import {TraitViewRef} from "@swim/controller";
@@ -43,8 +42,8 @@ export class GeoTileController extends GeoLayerController {
   constructor(geoTile: GeoTile) {
     super();
     this.geoTile = geoTile;
-    this.visibleRange.setValue([geoTile.z, geoTile.z + 1], Affinity.Intrinsic);
-    this.consumeRange.setValue([geoTile.z, geoTile.z + 1], Affinity.Intrinsic);
+    this.visibleRange.setIntrinsic([geoTile.z, geoTile.z + 1]);
+    this.consumeRange.setIntrinsic([geoTile.z, geoTile.z + 1]);
   }
 
   declare readonly observerType?: Class<GeoTileControllerObserver>;

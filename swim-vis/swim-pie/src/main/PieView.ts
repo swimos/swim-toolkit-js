@@ -13,6 +13,8 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
+import type {Like} from "@swim/util";
+import type {LikeType} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Animator} from "@swim/component";
@@ -108,9 +110,11 @@ export class PieView extends GraphicsView {
     binds: true,
     initView(titleView: GraphicsView): void {
       if (TypesetView[Symbol.hasInstance](titleView)) {
-        titleView.textAlign.setState("center", Affinity.Intrinsic);
-        titleView.textBaseline.setState("middle", Affinity.Intrinsic);
-        titleView.textOrigin.setState(this.owner.center.state, Affinity.Intrinsic);
+        titleView.setIntrinsic({
+          textAlign: "center",
+          textBaseline: "middle",
+          textOrigin: this.owner.center.state,
+        });
       }
     },
     willAttachView(titleView: GraphicsView): void {
@@ -119,21 +123,21 @@ export class PieView extends GraphicsView {
     didDetachView(titleView: GraphicsView): void {
       this.owner.callObservers("viewDidDetachTitle", titleView, this.owner);
     },
-    setText(title: string | undefined): GraphicsView {
-      let titleView = this.view;
-      if (titleView === null) {
-        titleView = this.createView();
-        this.setView(titleView);
+    fromLike(value: GraphicsView | LikeType<GraphicsView> | string | undefined): GraphicsView {
+      if (value === void 0 || typeof value === "string") {
+        let view = this.view;
+        if (view === null) {
+          view = this.createView();
+        }
+        if (view instanceof TextRunView) {
+          view.text.setState(value !== void 0 ? value : "");
+        }
+        return view;
       }
-      if (titleView instanceof TextRunView) {
-        titleView.text.setState(title !== void 0 ? title : "");
-      }
-      return titleView;
+      return super.fromLike(value);
     },
   })
-  readonly title!: ViewRef<this, GraphicsView> & {
-    setText(title: string | undefined): GraphicsView,
-  };
+  readonly title!: ViewRef<this, Like<GraphicsView, string | undefined>>;
 
   @ViewSet({
     viewType: SliceView,
@@ -209,7 +213,7 @@ export class PieView extends GraphicsView {
     if (this.center.hasAffinity(Affinity.Intrinsic)) {
       const cx = (frame.xMin + frame.xMax) / 2;
       const cy = (frame.yMin + frame.yMax) / 2;
-      this.center.setState(new R2Point(cx, cy), Affinity.Intrinsic);
+      this.center.setIntrinsic(new R2Point(cx, cy));
     }
 
     const sliceViews = this.slices.views;
@@ -227,8 +231,8 @@ export class PieView extends GraphicsView {
     let baseAngle = this.baseAngle.getValue().rad();
     for (const viewId in sliceViews) {
       const sliceView = sliceViews[viewId]!;
-      sliceView.total.setState(total, Affinity.Intrinsic);
-      sliceView.phaseAngle.setState(baseAngle, Affinity.Intrinsic);
+      sliceView.total.setIntrinsic(total);
+      sliceView.phaseAngle.setIntrinsic(baseAngle);
       const value = sliceView.value.getValue();
       if (isFinite(value)) {
         const delta = total !== 0 ? value / total : 0;
@@ -238,7 +242,7 @@ export class PieView extends GraphicsView {
 
     const titleView = this.title.view;
     if (TypesetView[Symbol.hasInstance](titleView)) {
-      titleView.textOrigin.setState(this.center.value, Affinity.Intrinsic);
+      titleView.textOrigin.setIntrinsic(this.center.value);
     }
   }
 }

@@ -145,7 +145,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     let timing: Timing | boolean = this.tickTransition.value;
     if (tickGenerator === true) {
       tickGenerator = TickGenerator.fromScale(scale);
-      this.tickGenerator.setValue(tickGenerator);
+      this.tickGenerator.set(tickGenerator);
       timing = false;
     }
     this.generateTicks(tickGenerator, scale, timing);
@@ -194,11 +194,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     }
     const tickLabel = this.createTickLabel(tickValue, tickView);
     if (tickLabel !== null) {
-      if (typeof tickLabel === "string") {
-        tickView.label.setText(tickLabel);
-      } else {
-        tickView.label.setView(tickLabel);
-      }
+      tickView.label.set(tickLabel);
       tickView.preserve(false);
     }
     return tickView;
@@ -315,7 +311,7 @@ export class TopAxisView<X = unknown> extends AxisView<X> {
     if (tick.anchor.hasAffinity(Affinity.Intrinsic)) {
       const offset = scale(tick.value);
       tick.setOffset(offset);
-      tick.anchor.setState(new R2Point(frame.xMin + offset, origin.y), Affinity.Intrinsic);
+      tick.anchor.setIntrinsic(new R2Point(frame.xMin + offset, origin.y));
     }
   }
 
@@ -373,7 +369,7 @@ export class RightAxisView<Y = unknown> extends AxisView<Y> {
     if (tick.anchor.hasAffinity(Affinity.Intrinsic)) {
       const offset = scale(tick.value);
       tick.setOffset(offset);
-      tick.anchor.setState(new R2Point(origin.x, frame.yMin + offset), Affinity.Intrinsic);
+      tick.anchor.setIntrinsic(new R2Point(origin.x, frame.yMin + offset));
     }
   }
 
@@ -431,7 +427,7 @@ export class BottomAxisView<X = unknown> extends AxisView<X> {
     if (tick.anchor.hasAffinity(Affinity.Intrinsic)) {
       const offset = scale(tick.value);
       tick.setOffset(offset);
-      tick.anchor.setState(new R2Point(frame.xMin + offset, origin.y), Affinity.Intrinsic);
+      tick.anchor.setIntrinsic(new R2Point(frame.xMin + offset, origin.y));
     }
   }
 
@@ -489,7 +485,7 @@ export class LeftAxisView<Y = unknown> extends AxisView<Y> {
     if (tick.anchor.hasAffinity(Affinity.Intrinsic)) {
       const offset = scale(tick.value);
       tick.setOffset(offset);
-      tick.anchor.setState(new R2Point(origin.x, frame.yMin + offset), Affinity.Intrinsic);
+      tick.anchor.setIntrinsic(new R2Point(origin.x, frame.yMin + offset));
     }
   }
 

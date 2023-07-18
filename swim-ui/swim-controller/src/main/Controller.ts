@@ -902,7 +902,7 @@ export class Controller extends Component<Controller> implements Consumable, War
   hostRef(hostUri: UriLike): WarpRef {
     hostUri = Uri.fromLike(hostUri);
     const childRef = new Controller();
-    childRef.hostUri.setValue(hostUri);
+    childRef.hostUri.set(hostUri);
     this.appendChild(childRef);
     return childRef;
   }
@@ -926,10 +926,10 @@ export class Controller extends Component<Controller> implements Consumable, War
     }
     const childRef = new Controller();
     if (hostUri !== void 0) {
-      childRef.hostUri.setValue(hostUri);
+      childRef.hostUri.set(hostUri);
     }
     if (nodeUri !== void 0) {
-      childRef.nodeUri.setValue(nodeUri);
+      childRef.nodeUri.set(nodeUri);
     }
     this.appendChild(childRef);
     return childRef;
@@ -962,13 +962,13 @@ export class Controller extends Component<Controller> implements Consumable, War
     }
     const childRef = new Controller();
     if (hostUri !== void 0) {
-      childRef.hostUri.setValue(hostUri);
+      childRef.hostUri.set(hostUri);
     }
     if (nodeUri !== void 0) {
-      childRef.nodeUri.setValue(nodeUri);
+      childRef.nodeUri.set(nodeUri);
     }
     if (laneUri !== void 0) {
-      childRef.laneUri.setValue(laneUri);
+      childRef.laneUri.set(laneUri);
     }
     this.appendChild(childRef);
     return childRef;

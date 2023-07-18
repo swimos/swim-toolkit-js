@@ -28,11 +28,11 @@ import {Trait} from "./"; // forward import
 
 /** @public */
 export interface ModelRelationDescriptor<R, M extends Model> extends FastenerDescriptor<R> {
-  extends?: Proto<ModelRelation<any, any>> | boolean | null;
+  extends?: Proto<ModelRelation<any, any, any>> | boolean | null;
 }
 
 /** @public */
-export interface ModelRelationClass<F extends ModelRelation<any, any> = ModelRelation<any, any>> extends FastenerClass<F> {
+export interface ModelRelationClass<F extends ModelRelation<any, any, any> = ModelRelation<any, any, any>> extends FastenerClass<F> {
   /** @internal */
   readonly ConsumingFlag: FastenerFlags;
 
@@ -43,12 +43,12 @@ export interface ModelRelationClass<F extends ModelRelation<any, any> = ModelRel
 }
 
 /** @public */
-export interface ModelRelation<R = any, M extends Model = Model> extends Fastener<R>, Consumable {
+export interface ModelRelation<R = any, M extends Model = Model, I extends any[] = [M | null]> extends Fastener<R, M | null, I>, Consumable {
   /** @override */
   get descriptorType(): Proto<ModelRelationDescriptor<R, M>>;
 
   /** @override */
-  get fastenerType(): Proto<ModelRelation<any, any>>;
+  get fastenerType(): Proto<ModelRelation<any, any, any>>;
 
   get consumed(): boolean;
 
@@ -57,7 +57,7 @@ export interface ModelRelation<R = any, M extends Model = Model> extends Fastene
   get observes(): boolean;
 
   /** @override */
-  get parent(): ModelRelation<any, M> | null;
+  get parent(): ModelRelation<any, M, any> | null;
 
   /** @internal */
   readonly outlets: ReadonlySet<Fastener<any, any, any>> | null;
@@ -174,8 +174,8 @@ export interface ModelRelation<R = any, M extends Model = Model> extends Fastene
 }
 
 /** @public */
-export const ModelRelation = (<R, M extends Model, F extends ModelRelation<any, any>>() => Fastener.extend<ModelRelation<R, M>, ModelRelationClass<F>>("ModelRelation", {
-  get fastenerType(): Proto<ModelRelation<any, any>> {
+export const ModelRelation = (<R, M extends Model, I extends any[], F extends ModelRelation<any, any, any>>() => Fastener.extend<ModelRelation<R, M, I>, ModelRelationClass<F>>("ModelRelation", {
+  get fastenerType(): Proto<ModelRelation<any, any, any>> {
     return ModelRelation;
   },
 

@@ -15,7 +15,6 @@
 import {Lazy} from "@swim/util";
 import type {Class} from "@swim/util";
 import type {Observes} from "@swim/util";
-import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import type {Trait} from "@swim/model";
 import {Look} from "@swim/theme";
@@ -96,8 +95,8 @@ export class AppBarController extends BarController {
       const coverTitleView = coverController.title.insertView(this.bar.view, void 0, void 0, "cover");
       if (coverTitleView !== null) {
         const timing = coverTitleView.getLookOr(Look.timing, Mood.navigating, false);
-        coverTitleView.color.setLook(Look.textColor, timing, Affinity.Intrinsic);
-        coverTitleView.zIndex.setState(1, Affinity.Intrinsic);
+        coverTitleView.color.setIntrinsic(Look.textColor, timing);
+        coverTitleView.zIndex.setIntrinsic(1);
       }
     }
 
@@ -132,13 +131,13 @@ export class AppBarController extends BarController {
     createController(): ToolController {
       const toolController = new ButtonToolController();
       const toolLayout = ToolLayout.create(this.viewKey!, 0, 0, 48);
-      toolController.layout.setValue(toolLayout);
+      toolController.layout.set(toolLayout);
       const toolView = toolController.tool.attachView();
-      toolView.iconLayout.setState({width: 24, height: 24}, Affinity.Intrinsic);
+      toolView.iconLayout.setIntrinsic({width: 24, height: 24});
       if (this.owner.fullScreen.value) {
-        toolView.graphics.setState(this.owner.menuIcon, Affinity.Intrinsic);
+        toolView.graphics.setIntrinsic(this.owner.menuIcon);
       } else {
-        toolView.graphics.setState(this.owner.menuCloseIcon, Affinity.Intrinsic);
+        toolView.graphics.setIntrinsic(this.owner.menuCloseIcon);
       }
       return toolController;
     },
@@ -162,10 +161,10 @@ export class AppBarController extends BarController {
     createController(): ToolController {
       const toolController = new ButtonToolController();
       const toolLayout = ToolLayout.create(this.viewKey!, 0, 0, 48);
-      toolController.layout.setValue(toolLayout);
+      toolController.layout.set(toolLayout);
       const toolView = toolController.tool.attachView();
-      toolView.iconLayout.setState({width: 24, height: 24}, Affinity.Intrinsic);
-      toolView.graphics.setState(this.owner.actionIcon, Affinity.Intrinsic);
+      toolView.iconLayout.setIntrinsic({width: 24, height: 24});
+      toolView.graphics.setIntrinsic(this.owner.actionIcon);
       return toolController;
     },
   })
@@ -226,9 +225,9 @@ export class AppBarController extends BarController {
       const toolView = this.owner.menuButton.view;
       if (toolView instanceof ButtonToolView) {
         if (fullScreen) {
-          toolView.graphics.setState(this.owner.menuIcon, Affinity.Intrinsic);
+          toolView.graphics.setIntrinsic(this.owner.menuIcon);
         } else {
-          toolView.graphics.setState(this.owner.menuCloseIcon, Affinity.Intrinsic);
+          toolView.graphics.setIntrinsic(this.owner.menuCloseIcon);
         }
       }
     },

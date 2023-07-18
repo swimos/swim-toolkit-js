@@ -18,20 +18,22 @@ bodyView.constraint(leftPaneWidth.constrain(), "eq", bodyView.width.divide(4));
 const rightPaneWidth = bodyView.constraintVariable("rightPaneWidth");
 bodyView.constraint(rightPaneWidth.constrain(), "eq", bodyView.width.minus(leftPaneWidth));
 
-const sidebarView = bodyView.appendChild("div");
-sidebarView.position.setState("absolute");
-sidebarView.top.setState(0);
-sidebarView.bottom.setState(0);
-sidebarView.left.setState(0);
-sidebarView.borderRightWidth.setState(1);
-sidebarView.borderRightStyle.setState("solid");
-sidebarView.borderRightColor.setState("#0000cc");
+const sidebarView = bodyView.appendChild("div").set({
+  position: "absolute",
+  top: 0,
+  bottom: 0,
+  left: 0,
+  borderRightWidth: 1,
+  borderRightStyle: "solid",
+  borderRightColor: "#0000cc",
+});
 sidebarView.constraint(sidebarView.width.constrain(), "eq", leftPaneWidth);
 
-const circleView = bodyView.appendChild("div");
-circleView.position.setState("absolute");
-circleView.borderRadius("50%");
-circleView.backgroundColor.setState("#989898");
+const circleView = bodyView.appendChild("div").set({
+  position: "absolute",
+  borderRadius: "50%",
+  backgroundColor: "#989898",
+});
 circleView.constraint(circleView.width.constrain(), "eq", circleView.height);
 circleView.constraint(circleView.height.constrain(), "eq", bodyView.height.divide(3));
 circleView.constraint(circleView.left.constrain(), "eq", leftPaneWidth.plus(rightPaneWidth.times(0.5)).minus(circleView.width.times(0.5)));

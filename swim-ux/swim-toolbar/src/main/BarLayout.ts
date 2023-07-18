@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import type {Mutable} from "@swim/util";
-import type {Proto} from "@swim/util";
 import {Arrays} from "@swim/util";
 import {Equals} from "@swim/util";
 import type {Equivalent} from "@swim/util";
@@ -51,7 +50,7 @@ export class BarLayout implements Interpolate<BarLayout>, Equals, Equivalent, De
     this.tools = tools;
   }
 
-  declare readonly likeType?: Proto<BarLayoutInit>;
+  likeType?(like: BarLayoutInit): void;
 
   readonly width: Length | null;
 

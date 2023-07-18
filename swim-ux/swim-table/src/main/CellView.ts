@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import type {PositionGestureInput} from "@swim/view";
 import type {HtmlViewObserver} from "@swim/dom";
@@ -36,8 +35,9 @@ export class CellView extends HtmlView {
 
   protected initCell(): void {
     this.addClass("cell");
-    this.overflowX.setState("hidden", Affinity.Intrinsic);
-    this.overflowY.setState("hidden", Affinity.Intrinsic);
+    this.setIntrinsic<CellView>({
+      overflow: "hidden",
+    });
   }
 
   declare readonly observerType?: Class<CellViewObserver>;
@@ -47,15 +47,19 @@ export class CellView extends HtmlView {
     value: null,
     didSetValue(hyperlink: Hyperlink | null): void {
       if (hyperlink !== null) {
-        this.owner.href.setState(hyperlink.href, Affinity.Intrinsic);
-        this.owner.title.setState(hyperlink.title, Affinity.Intrinsic);
-        this.owner.textDecorationLine.setState("underline", Affinity.Intrinsic);
-        this.owner.cursor.setState("pointer", Affinity.Intrinsic);
+        this.owner.setIntrinsic<CellView>({
+          href: hyperlink.href,
+          title: hyperlink.title,
+          textDecorationLine: "underline",
+          cursor: "pointer",
+        });
       } else {
-        this.owner.href.setState(void 0, Affinity.Intrinsic);
-        this.owner.title.setState(void 0, Affinity.Intrinsic);
-        this.owner.textDecorationLine.setState(void 0, Affinity.Intrinsic);
-        this.owner.cursor.setState(void 0, Affinity.Intrinsic);
+        this.owner.setIntrinsic<CellView>({
+          href: void 0,
+          title: void 0,
+          textDecorationLine: void 0,
+          cursor: void 0,
+        });
       }
     },
   })

@@ -130,7 +130,7 @@ export interface TraitViewRef<R = any, T extends Trait = Trait, V extends View =
   createTrait(): T;
 
   /** @protected */
-  fromLikeTrait(value: T | LikeType<T>): T;
+  fromTraitLike(value: T | LikeType<T>): T;
 
   get viewType(): ViewFactory<V> | null;
 
@@ -146,7 +146,7 @@ export interface TraitViewRef<R = any, T extends Trait = Trait, V extends View =
 
   setView(view: V | LikeType<V> | null, target?: View | null, key?: string): V | null;
 
-  attachView(view?: V | LikeType<V>, target?: View | null): V;
+  attachView(view?: V | LikeType<V> | null, target?: View | null): V;
 
   detachView(): V | null;
 
@@ -196,7 +196,7 @@ export interface TraitViewRef<R = any, T extends Trait = Trait, V extends View =
   createView(): V;
 
   /** @internal @protected */
-  fromLikeView(value: V | LikeType<V>): V;
+  fromViewLike(value: V | LikeType<V>): V;
 
   /** @override */
   recohere(t: number): void;
@@ -294,7 +294,7 @@ export const TraitViewRef = (<R, T extends Trait, V extends View, F extends Trai
   setTrait(newTrait: T | LikeType<T> | null, target?: Trait | null, key?: string): T | null {
     let oldTrait = this.trait;
     if (newTrait !== null) {
-      newTrait = this.fromLikeTrait(newTrait);
+      newTrait = this.fromTraitLike(newTrait);
     }
     if (oldTrait === newTrait) {
       return oldTrait;
@@ -340,7 +340,7 @@ export const TraitViewRef = (<R, T extends Trait, V extends View, F extends Trai
   attachTrait(newTrait?: T | LikeType<T>, target?: Trait | null): T {
     const oldTrait = this.trait;
     if (newTrait !== void 0 && newTrait !== null) {
-      newTrait = this.fromLikeTrait(newTrait);
+      newTrait = this.fromTraitLike(newTrait);
     } else if (oldTrait === null) {
       newTrait = this.createTrait();
     } else {
@@ -424,7 +424,7 @@ export const TraitViewRef = (<R, T extends Trait, V extends View, F extends Trai
   insertTrait(model?: Model | null, newTrait?: T | LikeType<T> | null, target?: Trait | null, key?: string): T {
     let oldTrait = this.trait;
     if (newTrait !== void 0 && newTrait !== null) {
-      newTrait = this.fromLikeTrait(newTrait);
+      newTrait = this.fromTraitLike(newTrait);
     } else if (oldTrait === null) {
       newTrait = this.createTrait();
     } else {
@@ -591,7 +591,7 @@ export const TraitViewRef = (<R, T extends Trait, V extends View, F extends Trai
     return trait;
   },
 
-  fromLikeTrait(value: T | LikeType<T>): T {
+  fromTraitLike(value: T | LikeType<T>): T {
     const traitType = this.traitType;
     if (traitType !== null) {
       return traitType.fromLike(value);
@@ -623,7 +623,7 @@ export const TraitViewRef = (<R, T extends Trait, V extends View, F extends Trai
 
   setView(newView: V | LikeType<V> | null, target?: View | null, key?: string): V | null {
     if (newView !== null) {
-      newView = this.fromLikeView(newView);
+      newView = this.fromViewLike(newView);
     }
     let oldView = this.view;
     if (oldView === newView) {
@@ -667,10 +667,10 @@ export const TraitViewRef = (<R, T extends Trait, V extends View, F extends Trai
     return oldView;
   },
 
-  attachView(newView?: V | LikeType<V>, target?: View | null): V {
+  attachView(newView?: V | LikeType<V> | null, target?: View | null): V {
     const oldView = this.view;
     if (newView !== void 0 && newView !== null) {
-      newView = this.fromLikeView(newView);
+      newView = this.fromViewLike(newView);
     } else if (oldView === null) {
       newView = this.createView();
     } else {
@@ -748,7 +748,7 @@ export const TraitViewRef = (<R, T extends Trait, V extends View, F extends Trai
   insertView(parent?: View | null, newView?: V | LikeType<V> | null, target?: View | null, key?: string): V {
     let oldView = this.view;
     if (newView !== void 0 && newView !== null) {
-      newView = this.fromLikeView(newView);
+      newView = this.fromViewLike(newView);
     } else if (oldView === null) {
       newView = this.createView();
     } else {
@@ -876,7 +876,7 @@ export const TraitViewRef = (<R, T extends Trait, V extends View, F extends Trai
     return view;
   },
 
-  fromLikeView(value: V | LikeType<V>): V {
+  fromViewLike(value: V | LikeType<V>): V {
     const viewType = this.viewType;
     if (viewType !== null) {
       return viewType.fromLike(value);

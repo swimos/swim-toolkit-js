@@ -101,7 +101,7 @@ export class GoogleMapView extends MapView {
       if (!this.hasAffinity(Affinity.Intrinsic)) {
         return;
       }
-      this.setValue(GoogleMapViewport.create(this.owner.map, this.owner.mapOverlay.getProjection()), Affinity.Intrinsic);
+      this.setIntrinsic(GoogleMapViewport.create(this.owner.map, this.owner.mapOverlay.getProjection()));
     },
   })
   override readonly geoViewport!: Property<this, GeoViewport | null> & MapView["geoViewport"] & {

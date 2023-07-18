@@ -16,7 +16,6 @@ import type {Class} from "@swim/util";
 import type {TimingLike} from "@swim/util";
 import {Timing} from "@swim/util";
 import type {Observes} from "@swim/util";
-import {Affinity} from "@swim/component";
 import type {Length} from "@swim/math";
 import type {Color} from "@swim/style";
 import {Look} from "@swim/theme";
@@ -71,11 +70,7 @@ export class LinePlotController<X = unknown, Y = unknown> extends SeriesPlotCont
       } else {
         timing = Timing.fromLike(timing);
       }
-      if (stroke instanceof Look) {
-        plotView.stroke.setLook(stroke, timing, Affinity.Intrinsic);
-      } else {
-        plotView.stroke.setState(stroke, timing, Affinity.Intrinsic);
-      }
+      plotView.stroke.setIntrinsic(stroke, timing);
     }
   }
 
@@ -90,7 +85,7 @@ export class LinePlotController<X = unknown, Y = unknown> extends SeriesPlotCont
       } else {
         timing = Timing.fromLike(timing);
       }
-      plotView.strokeWidth.setState(strokeWidth, timing, Affinity.Intrinsic);
+      plotView.strokeWidth.setIntrinsic(strokeWidth, timing);
     }
   }
 

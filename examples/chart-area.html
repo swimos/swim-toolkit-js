@@ -13,33 +13,38 @@
 
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-const containerView = bodyView.appendChild("div");
-containerView.position.setState("relative");
-containerView.width.setState("90%");
-containerView.height.setState("90%");
-containerView.touchAction.setState("none");
-containerView.userSelect.setState("none");
+const containerView = bodyView.appendChild("div").set({
+  position: "relative",
+  width: "90%",
+  height: "90%",
+  touchAction: "none",
+  userSelect: "none",
+});
 
-const canvasView = swim.CanvasView.create();
-canvasView.wheelEventsEnabled(true);
-canvasView.mouseEventsEnabled(true);
-canvasView.pointerEventsEnabled(true);
-canvasView.touchEventsEnabled(true);
-canvasView.touchAction.setState("manipulation");
+const canvasView = swim.CanvasView.create().set({
+  touchAction: "manipulation",
+  wheelEvents: true,
+  mouseEvents: true,
+  pointerevents: true,
+  touchEvents: true,
+});
 
 const chartView = canvasView.appendChild(swim.ChartView);
 const bottomAxisView = chartView.bottomAxis.insertView();
 const leftAxisView = chartView.leftAxis.insertView();
 
-chartView.fitAspectRatio.setValue(1);
+chartView.set({
+  fitAspectRatio: 1,
+  font: "12px sans-serif",
+});
 chartView.preserveAspectRatio(true);
 chartView.domainTracking(true);
 chartView.scaleGestures(true);
-chartView.font.setState("12px sans-serif");
 
 const graphView = chartView.graph.insertView();
-const plotView = graphView.appendChild(swim.AreaPlotView);
-plotView.hitMode.setValue("plot");
+const plotView = graphView.appendChild(swim.AreaPlotView).set({
+  hitMode: "plot",
+});
 plotView.addEventListener("pointerenter", function (event) {
   plotView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, 1]], true);
 });
@@ -52,12 +57,13 @@ const cycles = 2;
 const samples = 100;
 for (let i = 0, n = cycles * samples; i <= n; i += 1) {
   const x = i * 2 * Math.PI / samples;
-  const y = Math.sin(x) + 1;
-  const y2 = Math.sin(x) - 1;
-  const opacity = i === 0 ? 0.75 : i === n ? 0.25 : void 0;
-  const dataPointView = plotView.insertDataPoint(new swim.DataPointView(x, y));
-  dataPointView.y2.setState(y2);
-  dataPointView.opacity.setState(opacity);
+  const dataPointView = new swim.DataPointView().set({
+    x,
+    y: Math.sin(x) + 1,
+    y2: Math.sin(x) - 1,
+    opacity: i === 0 ? 0.75 : i === n ? 0.25 : void 0,
+  });
+  plotView.insertDataPoint(dataPointView);
 }
 
 containerView.appendChild(canvasView);

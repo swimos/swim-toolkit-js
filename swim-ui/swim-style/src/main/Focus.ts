@@ -14,14 +14,12 @@
 
 import type {Uninitable} from "@swim/util";
 import type {Mutable} from "@swim/util";
-import type {Proto} from "@swim/util";
 import {Lazy} from "@swim/util";
 import {Murmur3} from "@swim/util";
 import type {Equivalent} from "@swim/util";
 import type {HashCode} from "@swim/util";
 import {Numbers} from "@swim/util";
 import {Constructors} from "@swim/util";
-import type {LikeType} from "@swim/util";
 import type {TimingLike} from "@swim/util";
 import type {Interpolate} from "@swim/util";
 import {Objects} from "@swim/util";
@@ -70,7 +68,7 @@ export class Focus implements Interpolate<Focus>, HashCode, Equivalent, Debug {
   /** @internal */
   declare readonly typeid?: "Focus";
 
-  declare likeType?: Proto<FocusInit | boolean>;
+  likeType?(like: FocusInit | boolean): void;
 
   readonly phase: number;
 
@@ -321,10 +319,8 @@ export interface FocusAnimator<R = any, T extends Focus | null | undefined = Foc
   toggle(timingOrAffinity: Affinity | TimingLike | boolean | null | undefined): void;
   toggle(timing?: TimingLike | boolean | null, affinity?: Affinity): void;
 
-  /** @override */
-  /** @override */
-  setState(newState: T | LikeType<T>, timingOrAffinity: Affinity | TimingLike | boolean | null | undefined): void;
-  setState(newState: T | LikeType<T>, timing?: TimingLike | boolean | null, affinity?: Affinity): void;
+  /** @protected @override */
+  willSetState(newState: T, oldState: T): void;
 
   /** @override @protected */
   onSetValue(newValue: T, oldValue: T): void;
@@ -414,56 +410,33 @@ export const FocusAnimator = (<R, T extends Focus | null | undefined, I extends 
   },
 
   focus(timing?: Affinity | TimingLike | boolean | null, affinity?: Affinity): void {
-    const oldValue = this.value;
-    if (oldValue !== void 0 && oldValue !== null) {
-      if (oldValue.focused) {
-        return;
-      }
-      this.setValue(oldValue.asFocusing() as T, Affinity.Reflexive);
-    }
     this.setState(Focus.focused() as T, timing as any, affinity);
   },
 
   unfocus(timing?: Affinity | TimingLike | boolean | null, affinity?: Affinity): void {
-    const oldValue = this.value;
-    if (oldValue !== void 0 && oldValue !== null) {
-      if (oldValue.unfocused) {
-        return;
-      }
-      this.setValue(oldValue.asUnfocusing() as T, Affinity.Reflexive);
-    }
     this.setState(Focus.unfocused() as T, timing as any, affinity);
   },
 
   toggle(timing?: Affinity | TimingLike | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
-    if (oldValue === void 0 || oldValue === null) {
-      return;
+    if (oldValue !== void 0 && oldValue !== null) {
+      this.setState(oldValue.asToggled() as T, timing as any, affinity);
     }
-    this.setValue(oldValue.asToggling() as T, Affinity.Reflexive);
-    this.setState(oldValue.asToggled() as T, timing as any, affinity);
   },
 
-  setState(newState: FocusLike | null | undefined, timing?: Affinity | TimingLike | boolean | null, affinity?: Affinity): void {
-    if (typeof timing === "number") {
-      affinity = timing;
-      timing = void 0;
-    }
-    if (timing === void 0 || timing === true) {
-      timing = this.transition;
-    }
-    if (typeof newState === "boolean") {
-      const oldValue = this.value;
-      const newValue = newState ? Focus.focused() : Focus.unfocused();
-      if (oldValue !== void 0 && oldValue !== null && !oldValue.equals(newValue)) {
-        this.setValue(newState ? oldValue.asFocusing() as T : oldValue.asUnfocusing() as T, Affinity.Reflexive);
+  willSetState(newState: T, oldState: T): void {
+    super.willSetState(newState, oldState);
+    const oldValue = this.value;
+    if (oldValue !== void 0 && oldValue !== null && newState !== void 0 && newState !== null) {
+      if (newState.focused) {
+        this.setValue(oldValue.asFocusing() as T, Affinity.Reflexive);
+      } else if (newState.unfocused) {
+        this.setValue(oldValue.asUnfocusing() as T, Affinity.Reflexive);
       }
-      newState = newValue;
     }
-    super.setState(newState, timing, affinity);
   },
 
-  onSetValue(newValue: Focus | null | undefined, oldValue: Focus | null | undefined): void {
+  onSetValue(newValue: T, oldValue: T): void {
     super.onSetValue(newValue, oldValue);
     if (newValue === void 0 || newValue === null || oldValue === void 0 || oldValue === null) {
       return;
@@ -494,7 +467,7 @@ export const FocusAnimator = (<R, T extends Focus | null | undefined, I extends 
     // hook
   },
 
-  equalValues(newState: Focus | null | undefined, oldState: Focus | null | undefined): boolean {
+  equalValues(newState: T | undefined, oldState: T | undefined): boolean {
     if (newState !== void 0 && newState !== null) {
       return newState.equals(oldState);
     }

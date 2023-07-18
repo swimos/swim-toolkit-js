@@ -45,8 +45,10 @@ export class BoardView extends SheetView {
     binds: true,
     observes: true,
     initView(panelView: PanelView): void {
-      panelView.position.setState("absolute", Affinity.Intrinsic);
-      panelView.visibility.setState("hidden", Affinity.Intrinsic);
+      panelView.setIntrinsic({
+        position: "absolute",
+        visibility: "hidden",
+      });
     },
     willAttachView(panelView: PanelView, target: View | null): void {
       this.owner.callObservers("viewWillAttachPanel", panelView, target, this.owner);
@@ -92,17 +94,19 @@ export class BoardView extends SheetView {
     function resizeChild(this: self, child: View, processFlags: ViewFlags): void {
       if (child instanceof PanelView) {
         const panelHeight = Math.max(child.minPanelHeight.value, child.unitHeight.value * height);
-        child.left.setState(x, Affinity.Intrinsic);
-        child.top.setState(y, Affinity.Intrinsic);
-        child.widthBasis.setValue(width - child.marginLeft.pxValue() - child.marginRight.pxValue(), Affinity.Intrinsic);
-        child.heightBasis.setValue(panelHeight - child.marginTop.pxValue() - child.marginBottom.pxValue(), Affinity.Intrinsic);
+        child.setIntrinsic({
+          left: x,
+          top: y,
+          widthBasis: width - child.marginLeft.pxValue() - child.marginRight.pxValue(),
+          heightBasis: panelHeight - child.marginTop.pxValue() - child.marginBottom.pxValue(),
+        });
       }
       if (child instanceof HtmlView) {
         child.paddingBottom.setState(child.nextSibling === null ? this.paddingBottom.value : null, Affinity.Transient);
       }
       processChild.call(this, child, processFlags);
       if (child instanceof PanelView) {
-        child.visibility.setState(void 0, Affinity.Intrinsic);
+        child.visibility.setIntrinsic(void 0);
         y += child.marginTop.pxValue() + child.height.pxValue() + child.marginBottom.pxValue();
       }
     }

@@ -16,7 +16,6 @@ import type {Class} from "@swim/util";
 import type {Instance} from "@swim/util";
 import type {Creatable} from "@swim/util";
 import type {Timing} from "@swim/util";
-import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import {Length} from "@swim/math";
 import {Focus} from "@swim/style";
@@ -71,10 +70,11 @@ export class LeafView extends HtmlView {
 
   protected initLeaf(): void {
     this.addClass("leaf");
-    this.position.setState("relative", Affinity.Intrinsic);
-    this.overflowX.setState("hidden", Affinity.Intrinsic);
-    this.overflowY.setState("hidden", Affinity.Intrinsic);
-    this.backgroundColor.setLook(Look.backgroundColor, Affinity.Intrinsic);
+    this.setIntrinsic<LeafView>({
+      position: "relative",
+      overflow: "hidden",
+      backgroundColor: Look.backgroundColor,
+    });
     this.modifyMood(Feel.default, [[Feel.transparent, 1], [Feel.hovering, 0]], false);
   }
 
@@ -123,7 +123,7 @@ export class LeafView extends HtmlView {
       this.owner.callObservers("viewWillHighlight", this.owner);
       const timing = this.owner.getLook(Look.timing);
       this.owner.modifyMood(Feel.default, [[Feel.transparent, 0]], timing);
-      this.owner.backgroundColor.setLook(Look.selectionColor, timing, Affinity.Intrinsic);
+      this.owner.backgroundColor.setIntrinsic(Look.selectionColor, timing);
     },
     didFocus(): void {
       this.owner.callObservers("viewDidHighlight", this.owner);
@@ -132,7 +132,7 @@ export class LeafView extends HtmlView {
       this.owner.callObservers("viewWillUnhighlight", this.owner);
       const timing = this.owner.getLook(Look.timing);
       this.owner.modifyMood(Feel.default, [[Feel.transparent, 1 - this.owner.hover.state.phase]], timing);
-      this.owner.backgroundColor.setLook(Look.backgroundColor, timing, Affinity.Intrinsic);
+      this.owner.backgroundColor.setIntrinsic(Look.backgroundColor, timing);
     },
     didUnfocus(): void {
       this.owner.callObservers("viewDidUnhighlight", this.owner);
@@ -167,12 +167,14 @@ export class LeafView extends HtmlView {
     viewType: CellView,
     binds: true,
     initView(cellView: CellView): void {
-      cellView.display.setState("none", Affinity.Intrinsic);
-      cellView.position.setState("absolute", Affinity.Intrinsic);
-      cellView.left.setState(0, Affinity.Intrinsic);
-      cellView.top.setState(0, Affinity.Intrinsic);
-      cellView.width.setState(0, Affinity.Intrinsic);
-      cellView.height.setState(this.owner.height.state, Affinity.Intrinsic);
+      cellView.setIntrinsic({
+        display: "none",
+        position: "absolute",
+        left: 0,
+        top: 0,
+        width: 0,
+        height: this.owner.height.state,
+      });
     },
     willAttachView(cellView: CellView, target: View | null): void {
       this.owner.callObservers("viewWillAttachCell", cellView, target, this.owner);
@@ -192,7 +194,7 @@ export class LeafView extends HtmlView {
   protected layoutLeaf(): void {
     const rowHeight = this.rowHeight.value;
     if (rowHeight !== null) {
-      this.height.setState(rowHeight, Affinity.Intrinsic);
+      this.height.setIntrinsic(rowHeight);
     }
   }
 
@@ -214,24 +216,23 @@ export class LeafView extends HtmlView {
         const key = child.key;
         const col = layout !== null && key !== void 0 ? layout.getCol(key) : null;
         if (col !== null) {
-          child.display.setState(!col.hidden && col.width !== null ? "flex" : "none", Affinity.Intrinsic);
-          child.left.setState(col.left, Affinity.Intrinsic);
-          child.width.setState(col.width, Affinity.Intrinsic);
-          child.height.setState(height, Affinity.Intrinsic);
-          const textColor = col.textColor;
-          if (textColor instanceof Look) {
-            child.color.setLook(textColor, Affinity.Intrinsic);
-          } else {
-            child.color.setState(textColor, Affinity.Intrinsic);
-          }
-          if (!col.persistent) {
-            child.opacity.setState(stretch, Affinity.Intrinsic);
-          }
+          child.setIntrinsic({
+            display: !col.hidden && col.width !== null ? "flex" : "none",
+            left: col.left,
+            width: col.width,
+            height,
+            color: col.textColor,
+            opacity: col.persistent ? void 0 : stretch,
+          });
         } else {
-          child.display.setState("none", Affinity.Intrinsic);
-          child.left.setState(null, Affinity.Intrinsic);
-          child.width.setState(null, Affinity.Intrinsic);
-          child.height.setState(null, Affinity.Intrinsic);
+          child.setIntrinsic({
+            display: "none",
+            left: null,
+            width: null,
+            height: null,
+            color: null,
+            opacity: void 0,
+          });
         }
       }
       displayChild.call(this, child, displayFlags);
@@ -259,13 +260,17 @@ export class LeafView extends HtmlView {
     value: null,
     didSetValue(hyperlink: Hyperlink | null): void {
       if (hyperlink !== null) {
-        this.owner.href.setState(hyperlink.href, Affinity.Intrinsic);
-        this.owner.title.setState(hyperlink.title, Affinity.Intrinsic);
-        this.owner.cursor.setState("pointer", Affinity.Intrinsic);
+        this.owner.setIntrinsic<LeafView>({
+          href: hyperlink.href,
+          title: hyperlink.title,
+          cursor: "pointer",
+        });
       } else {
-        this.owner.href.setState(void 0, Affinity.Intrinsic);
-        this.owner.title.setState(void 0, Affinity.Intrinsic);
-        this.owner.cursor.setState(void 0, Affinity.Intrinsic);
+        this.owner.setIntrinsic<LeafView>({
+          href: void 0,
+          title: void 0,
+          cursor: void 0,
+        });
       }
     },
   })

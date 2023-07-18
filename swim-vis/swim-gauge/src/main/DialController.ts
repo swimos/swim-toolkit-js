@@ -60,7 +60,7 @@ export class DialController extends Controller {
     if (dialTrait.label.hasAffinity(Affinity.Intrinsic)) {
       const label = dialTrait.formatLabel(value, limit);
       if (label !== void 0) {
-        dialTrait.label.setValue(label, Affinity.Intrinsic);
+        dialTrait.label.setIntrinsic(label);
       }
     }
   }
@@ -69,7 +69,7 @@ export class DialController extends Controller {
     if (dialTrait.legend.hasAffinity(Affinity.Intrinsic)) {
       const legend = dialTrait.formatLegend(value, limit);
       if (legend !== void 0) {
-        dialTrait.legend.setValue(legend, Affinity.Intrinsic);
+        dialTrait.legend.setIntrinsic(legend);
       }
     }
   }
@@ -85,7 +85,7 @@ export class DialController extends Controller {
       } else {
         timing = Timing.fromLike(timing);
       }
-      dialView.value.setState(value, timing, Affinity.Intrinsic);
+      dialView.value.setIntrinsic(value, timing);
     }
   }
 
@@ -100,7 +100,7 @@ export class DialController extends Controller {
       } else {
         timing = Timing.fromLike(timing);
       }
-      dialView.limit.setState(limit, timing, Affinity.Intrinsic);
+      dialView.limit.setIntrinsic(limit, timing);
     }
   }
 
@@ -115,11 +115,7 @@ export class DialController extends Controller {
       } else {
         timing = Timing.fromLike(timing);
       }
-      if (dialColor instanceof Look) {
-        dialView.dialColor.setLook(dialColor, timing, Affinity.Intrinsic);
-      } else {
-        dialView.dialColor.setState(dialColor, timing, Affinity.Intrinsic);
-      }
+      dialView.dialColor.setIntrinsic(dialColor, timing);
     }
   }
 
@@ -134,25 +130,21 @@ export class DialController extends Controller {
       } else {
         timing = Timing.fromLike(timing);
       }
-      if (meterColor instanceof Look) {
-        dialView.meterColor.setLook(meterColor, timing, Affinity.Intrinsic);
-      } else {
-        dialView.meterColor.setState(meterColor, timing, Affinity.Intrinsic);
-      }
+      dialView.meterColor.setIntrinsic(meterColor, timing);
     }
   }
 
   protected setLabelView(label: string | undefined): void {
     const dialView = this.dial.view;
     if (dialView !== null) {
-      dialView.label.setText(label);
+      dialView.label.set(label !== void 0 ? label : "");
     }
   }
 
   protected setLegendView(legend: string | undefined): void {
     const dialView = this.dial.view;
     if (dialView !== null) {
-      dialView.legend.setText(legend);
+      dialView.legend.set(legend !== void 0 ? legend : "");
     }
   }
 

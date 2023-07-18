@@ -13,43 +13,46 @@
 
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-const containerView = bodyView.appendChild("div");
-containerView.position.setState("relative");
-containerView.width.setState("90%");
-containerView.height.setState("90%");
-containerView.touchAction.setState("none");
-containerView.userSelect.setState("none");
+const containerView = bodyView.appendChild("div").set({
+  position: "relative",
+  width: "90%",
+  height: "90%",
+  touchAction: "none",
+  userSelect: "none",
+});
 
-const canvasView = swim.CanvasView.create();
-canvasView.wheelEventsEnabled(true);
-canvasView.mouseEventsEnabled(true);
-canvasView.pointerEventsEnabled(true);
-canvasView.touchEventsEnabled(true);
-canvasView.touchAction.setState("manipulation");
+const canvasView = swim.CanvasView.create().set({
+  touchAction: "manipulation",
+  wheelEvents: true,
+  mouseEvents: true,
+  pointerevents: true,
+  touchEvents: true,
+});
 
 const chartView = canvasView.appendChild(swim.ChartView);
 const bottomAxisView = chartView.bottomAxis.insertView();
 const leftAxisView = chartView.leftAxis.insertView();
 
-//chartView.xDomainBounds.setValue([false, false]);
-//chartView.yDomainBounds.setValue([false, false]);
-chartView.xDomainPadding.setValue([Math.PI, Math.PI]);
-chartView.yDomainPadding.setValue([1, 1]);
-//chartView.xRangePadding.setValue([2, 2]);
-//chartView.yRangePadding.setValue([2, 2]);
-chartView.fitAspectRatio.setValue(-1 / 4);
+//chartView.xDomainBounds.set([false, false]);
+//chartView.yDomainBounds.set([false, false]);
+chartView.xDomainPadding.set([Math.PI, Math.PI]);
+chartView.yDomainPadding.set([1, 1]);
+//chartView.xRangePadding.set([2, 2]);
+//chartView.yRangePadding.set([2, 2]);
+chartView.fitAspectRatio.set(-1 / 4);
 chartView.preserveAspectRatio(true);
 chartView.domainTracking(true);
 chartView.xScaleGestures(true);
 chartView.yScaleGestures(true);
-chartView.font.setState("12px sans-serif");
+chartView.font.set("12px sans-serif");
 
-leftAxisView.gridLineWidth.setState(1);
+leftAxisView.gridLineWidth.set(1);
 
 const graphView = chartView.graph.insertView();
-const plotView = graphView.appendChild(swim.LinePlotView);
-plotView.hitMode.setValue("plot");
-plotView.strokeWidth.setState(4);
+const plotView = graphView.appendChild(swim.LinePlotView).set({
+  hitMode: "plot",
+  strokeWidth: 4,
+});
 plotView.addEventListener("pointerenter", function (event) {
   plotView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, 1]], true);
 });

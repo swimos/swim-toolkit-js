@@ -13,28 +13,31 @@
 
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-const containerView = bodyView.appendChild("div");
-containerView.position.setState("relative");
-containerView.width.setState("67%");
-containerView.height.setState("67%");
-containerView.touchAction.setState("none");
-containerView.userSelect.setState("none");
+const containerView = bodyView.appendChild("div").set({
+  position: "relative",
+  width: "67%",
+  height: "67%",
+  touchAction: "none",
+  userSelect: "none",
+});
 
-const canvasView = swim.CanvasView.create();
-canvasView.mouseEventsEnabled(true);
-canvasView.pointerEventsEnabled(true);
-canvasView.touchEventsEnabled(true);
-canvasView.touchAction.setState("manipulation");
+const canvasView = swim.CanvasView.create().set({
+  touchAction: "manipulation",
+  mouseEvents: true,
+  pointerevents: true,
+  touchEvents: true,
+});
 
 const sliceColors = [swim.Color.parse("#00a6ed"), swim.Color.parse("#7ed321"),
                      swim.Color.parse("#c200fb"), swim.Color.parse("#50e3c2"),
                      swim.Color.parse("#57b8ff"), swim.Color.parse("#5aff15"),
                      swim.Color.parse("#55dde0"), swim.Color.parse("#f7aef8")];
 
-const pieView = canvasView.appendChild(swim.PieView);
-pieView.innerRadius.setState("15%");
-pieView.outerRadius.setState("25%");
-pieView.font.setState("14px sans-serif");
+const pieView = canvasView.appendChild(swim.PieView).set({
+  innerRadius: "15%",
+  outerRadius: "25%",
+  font: "16px sans-serif",
+});
 
 const timing = swim.Easing.linear.withDuration(1000);
 
@@ -51,14 +54,17 @@ const vehiclesLink = warp.downlinkMap({
     if (sliceValue > 0) {
       let sliceView = pieView.getChild(id);
       if (sliceView === null) {
-        sliceView = pieView.appendChild(swim.SliceView, id);
-        sliceView.sliceColor.setState(sliceColor);
-        sliceView.label.setText(sliceValue.toFixed());
-        sliceView.legend.setText(id);
-        sliceView.label.view.textColor.setLook(swim.Look.backgroundColor);
+        sliceView = pieView.appendChild(swim.SliceView, id).set({
+          sliceColor,
+          label: sliceValue.toFixed(),
+          legend: id,
+        });
+        sliceView.label.view.textColor.set(swim.Look.backgroundColor);
       }
-      sliceView.value.setState(sliceValue, timing);
-      sliceView.label.setText(sliceValue.toFixed());
+      sliceView.set({
+        value: sliceValue,
+        label: sliceValue.toFixed(),
+      }, timing)
     }
   },
 }).open();

@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import {GeoPoint} from "@swim/geo";
 import type {ColorOrLook} from "@swim/theme";
@@ -43,7 +42,7 @@ export class GeoIconTrait extends GeoFeatureTrait {
     value: null,
     didSetValue(geoCenter: GeoPoint | null): void {
       this.owner.callObservers("traitDidSetGeoCenter", geoCenter, this.owner);
-      this.owner.geoPerspective.setValue(geoCenter, Affinity.Intrinsic);
+      this.owner.geoPerspective.setIntrinsic(geoCenter);
     },
   })
   readonly geoCenter!: Property<this, GeoPoint | null>;

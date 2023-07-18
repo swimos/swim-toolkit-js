@@ -14,7 +14,6 @@
 
 import type {Uninitable} from "@swim/util";
 import type {Mutable} from "@swim/util";
-import type {Proto} from "@swim/util";
 import {Lazy} from "@swim/util";
 import {Equals} from "@swim/util";
 import {Equivalent} from "@swim/util";
@@ -94,7 +93,7 @@ export class BoxShadow implements Interpolate<BoxShadow>, Equals, Equivalent {
     this.stringValue = void 0;
   }
 
-  declare readonly likeType?: Proto<BoxShadowInit | string | readonly BoxShadowLike[]>;
+  likeType?(like: BoxShadowInit | string | readonly BoxShadowLike[]): void;
 
   readonly inset: boolean;
 

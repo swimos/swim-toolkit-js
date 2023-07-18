@@ -15,11 +15,11 @@
 import type {Proto} from "@swim/util";
 import type {LikeType} from "@swim/util";
 import type {FastenerClass} from "@swim/component";
-import type {Fastener} from "@swim/component";
+import {Fastener} from "@swim/component";
 import type {TraitFactory} from "@swim/model";
-import type {Trait} from "@swim/model";
+import {Trait} from "@swim/model";
 import type {ViewFactory} from "@swim/view";
-import type {View} from "@swim/view";
+import {View} from "@swim/view";
 import type {Controller} from "./Controller";
 import type {ControllerRefDescriptor} from "./ControllerRef";
 import type {ControllerRefClass} from "./ControllerRef";
@@ -28,21 +28,25 @@ import type {TraitViewRef} from "./TraitViewRef";
 
 /** @public */
 export interface TraitViewControllerRefDescriptor<R, T extends Trait, V extends View, C extends Controller> extends ControllerRefDescriptor<R, C> {
-  extends?: Proto<TraitViewControllerRef<any, any, any, any>> | boolean | null;
+  extends?: Proto<TraitViewControllerRef<any, any, any, any, any>> | boolean | null;
   traitKey?: string | boolean;
   viewKey?: string | boolean;
 }
 
 /** @public */
-export interface TraitViewControllerRefClass<F extends TraitViewControllerRef<any, any, any, any> = TraitViewControllerRef<any, any, any, any>> extends ControllerRefClass<F> {
+export interface TraitViewControllerRefClass<F extends TraitViewControllerRef<any, any, any, any, any> = TraitViewControllerRef<any, any, any, any, any>> extends ControllerRefClass<F> {
 }
 
 /** @public */
-export interface TraitViewControllerRef<R = any, T extends Trait = Trait, V extends View = View, C extends Controller = Controller> extends ControllerRef<R, C> {
+export interface TraitViewControllerRef<R = any, T extends Trait = Trait, V extends View = View, C extends Controller = Controller, I extends any[] = [C | null]> extends ControllerRef<R, C, I> {
   /** @override */
   get descriptorType(): Proto<TraitViewControllerRefDescriptor<R, T, V, C>>;
 
   getTraitViewRef(controller: C): TraitViewRef<any, T, V>;
+
+  set(traitOrViewOrController: T | V | C | LikeType<C> | Fastener<any, I[0], any> | null): R;
+
+  setIntrinsic(traitOrViewOrController: T | V | C | LikeType<C> | Fastener<any, I[0], any> | null): R;
 
   get traitType(): TraitFactory<T> | null;
 
@@ -52,9 +56,9 @@ export interface TraitViewControllerRef<R = any, T extends Trait = Trait, V exte
 
   getTrait(): T;
 
-  setTrait(trait: T | null, targetTrait?: Trait | null, key?: string): C | null;
+  setTrait(trait: T | LikeType<T> | null, targetTrait?: Trait | null, key?: string): C | null;
 
-  attachTrait(trait?: T, targetTrait?: Trait | null): C;
+  attachTrait(trait?: T | LikeType<T> | null, targetTrait?: Trait | null): C;
 
   /** @protected */
   initTrait(trait: T, controller: C): void;
@@ -82,13 +86,16 @@ export interface TraitViewControllerRef<R = any, T extends Trait = Trait, V exte
   /** @protected */
   didDetachTrait(trait: T, controller: C): void;
 
-  insertTrait(parent?: Controller | null, trait?: T, targetTrait?: Trait | null, key?: string): C;
+  insertTrait(parent?: Controller | null, trait?: T | LikeType<T>, targetTrait?: Trait | null, key?: string): C;
 
   removeTrait(trait: T | null): C | null;
 
   deleteTrait(trait: T | null): C | null;
 
   createTrait(): T;
+
+  /** @protected */
+  fromTraitLike(value: T | LikeType<T>): T;
 
   get viewType(): ViewFactory<V> | null;
 
@@ -100,7 +107,7 @@ export interface TraitViewControllerRef<R = any, T extends Trait = Trait, V exte
 
   setView(view: V | LikeType<V> | null, targetView?: View | null, key?: string): V | null;
 
-  attachView(view?: V | LikeType<V>, targetView?: View | null): V;
+  attachView(view?: V | LikeType<V> | null, targetView?: View | null): V;
 
   detachView(): V | null;
 
@@ -112,14 +119,45 @@ export interface TraitViewControllerRef<R = any, T extends Trait = Trait, V exte
 
   deleteView(): V | null;
 
+  createView(): V | null;
+
+  /** @protected */
+  fromViewLike(value: V | LikeType<V>): V | LikeType<V>;
+
   /** @override */
   createController(trait?: T): C;
 }
 
 /** @public */
-export const TraitViewControllerRef = (<R, T extends Trait, V extends View, C extends Controller, F extends TraitViewControllerRef<any, any, any, any>>() => ControllerRef.extend<TraitViewControllerRef<R, T, V, C>, TraitViewControllerRefClass<F>>("TraitViewControllerRef", {
+export const TraitViewControllerRef = (<R, T extends Trait, V extends View, C extends Controller, I extends any[], F extends TraitViewControllerRef<any, any, any, any, any>>() => ControllerRef.extend<TraitViewControllerRef<R, T, V, C, I>, TraitViewControllerRefClass<F>>("TraitViewControllerRef", {
   getTraitViewRef(controller: C): TraitViewRef<any, T, V> {
     throw new Error("missing implementation");
+  },
+
+  set(traitOrViewOrController: T | V | C | LikeType<C> | Fastener<any, I[0], any> | null): R {
+    if (traitOrViewOrController instanceof Fastener) {
+      this.bindInlet(traitOrViewOrController);
+    } else if (traitOrViewOrController instanceof Trait) {
+      this.setTrait(traitOrViewOrController);
+    } else if (traitOrViewOrController instanceof View) {
+      this.setView(traitOrViewOrController);
+    } else {
+      this.setController(traitOrViewOrController);
+    }
+    return this.owner;
+  },
+
+  setIntrinsic(traitOrViewOrController: T | V | C | LikeType<C> | Fastener<any, I[0], any> | null): R {
+    if (traitOrViewOrController instanceof Fastener) {
+      this.bindInlet(traitOrViewOrController);
+    } else if (traitOrViewOrController instanceof Trait) {
+      this.setTrait(traitOrViewOrController);
+    } else if (traitOrViewOrController instanceof View) {
+      this.setView(traitOrViewOrController);
+    } else {
+      this.setController(traitOrViewOrController);
+    }
+    return this.owner;
   },
 
   traitType: null,
@@ -149,9 +187,10 @@ export const TraitViewControllerRef = (<R, T extends Trait, V extends View, C ex
     return trait;
   },
 
-  setTrait(trait: T | null, targetTrait?: Trait | null, key?: string): C | null {
+  setTrait(trait: T | LikeType<T> | null, targetTrait?: Trait | null, key?: string): C | null {
     let controller = this.controller;
     if (trait !== null) {
+      trait = this.fromTraitLike(trait);
       if (controller === null) {
         controller = this.createController(trait);
       }
@@ -168,9 +207,11 @@ export const TraitViewControllerRef = (<R, T extends Trait, V extends View, C ex
     return controller;
   },
 
-  attachTrait(trait?: T | null, targetTrait?: Trait | null): C {
+  attachTrait(trait?: T | LikeType<T> | null, targetTrait?: Trait | null): C {
     if (trait === void 0 || trait === null) {
       trait = this.createTrait();
+    } else {
+      trait = this.fromTraitLike(trait);
     }
     let controller = this.controller;
     if (controller === null) {
@@ -226,9 +267,11 @@ export const TraitViewControllerRef = (<R, T extends Trait, V extends View, C ex
     // hook
   },
 
-  insertTrait(parent?: Controller | null, trait?: T, targetTrait?: Trait | null, key?: string): C {
+  insertTrait(parent?: Controller | null, trait?: T | LikeType<T>, targetTrait?: Trait | null, key?: string): C {
     if (trait === void 0 || trait === null) {
       trait = this.createTrait();
+    } else {
+      trait = this.fromTraitLike(trait);
     }
     let controller = this.controller;
     if (controller === null) {
@@ -285,6 +328,14 @@ export const TraitViewControllerRef = (<R, T extends Trait, V extends View, C ex
     return trait;
   },
 
+  fromTraitLike(value: T | LikeType<T>): T {
+    const traitType = this.traitType;
+    if (traitType !== null) {
+      return traitType.fromLike(value);
+    }
+    return Trait.fromLike(value) as T;
+  },
+
   viewType: null,
 
   viewKey: void 0,
@@ -313,6 +364,9 @@ export const TraitViewControllerRef = (<R, T extends Trait, V extends View, C ex
   },
 
   setView(view: V | LikeType<V> | null, targetView?: View | null, key?: string): V | null {
+    if (view !== null) {
+      view = this.fromViewLike(view);
+    }
     const controller = this.attachController();
     const traitViewRef = this.getTraitViewRef(controller);
     if (key === void 0) {
@@ -321,7 +375,12 @@ export const TraitViewControllerRef = (<R, T extends Trait, V extends View, C ex
     return traitViewRef.setView(view, targetView, key);
   },
 
-  attachView(view?: V | LikeType<V>, targetView?: View | null): V {
+  attachView(view?: V | LikeType<V> | null, targetView?: View | null): V {
+    if (view !== void 0 && view !== null) {
+      view = this.fromViewLike(view);
+    } else {
+      view = this.createView();
+    }
     const controller = this.attachController();
     const traitViewRef = this.getTraitViewRef(controller);
     return traitViewRef.attachView(view, targetView);
@@ -369,6 +428,22 @@ export const TraitViewControllerRef = (<R, T extends Trait, V extends View, C ex
     const traitViewRef = this.getTraitViewRef(controller);
     return traitViewRef.deleteView();
   },
+
+  createView(): V | null {
+    const viewType = this.viewType;
+    if (viewType === null) {
+      return null;
+    }
+    return viewType.create();
+  },
+
+  fromViewLike(value: V | LikeType<V>): V | LikeType<V> {
+    const viewType = this.viewType;
+    if (viewType === null) {
+      return value;
+    }
+    return viewType.fromLike(value);
+  },
 },
 {
   construct(fastener: F | null, owner: F extends Fastener<infer R, any, any> ? R : never): F {
@@ -376,7 +451,7 @@ export const TraitViewControllerRef = (<R, T extends Trait, V extends View, C ex
     return fastener;
   },
 
-  refine(fastenerClass: FastenerClass<TraitViewControllerRef<any, any, any, any>>): void {
+  refine(fastenerClass: FastenerClass<TraitViewControllerRef<any, any, any, any, any>>): void {
     super.refine(fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

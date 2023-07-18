@@ -26,15 +26,15 @@ import {ControllerSet} from "./ControllerSet";
 
 /** @public */
 export interface ViewControllerSetDescriptor<R, V extends View, C extends Controller> extends ControllerSetDescriptor<R, C> {
-  extends?: Proto<ViewControllerSet<any, any, any>> | boolean | null;
+  extends?: Proto<ViewControllerSet<any, any, any, any>> | boolean | null;
 }
 
 /** @public */
-export interface ViewControllerSetClass<F extends ViewControllerSet<any, any, any> = ViewControllerSet<any, any, any>> extends ControllerSetClass<F> {
+export interface ViewControllerSetClass<F extends ViewControllerSet<any, any, any, any> = ViewControllerSet<any, any, any, any>> extends ControllerSetClass<F> {
 }
 
 /** @public */
-export interface ViewControllerSet<R = any, V extends View = View, C extends Controller = Controller> extends ControllerSet<R, C> {
+export interface ViewControllerSet<R = any, V extends View = View, C extends Controller = Controller, I extends any[] = [C | null]> extends ControllerSet<R, C, I> {
   /** @override */
   get descriptorType(): Proto<ViewControllerSetDescriptor<R, V, C>>;
 
@@ -69,7 +69,7 @@ export interface ViewControllerSet<R = any, V extends View = View, C extends Con
 
   setViews(views: {readonly [viewId: string]: V | undefined}, targetController?: Controller | null): void;
 
-  attachView(view?: V | LikeType<V>, targetController?: Controller | null): V;
+  attachView(view?: V | LikeType<V> | null, targetController?: Controller | null): V;
 
   /** @protected */
   initView(view: V): void;
@@ -118,7 +118,7 @@ export interface ViewControllerSet<R = any, V extends View = View, C extends Con
   createView(): V;
 
   /** @protected */
-  fromLikeView(value: V | LikeType<V>): V;
+  fromViewLike(value: V | LikeType<V>): V;
 
   /** @protected */
   detectControllerView(controller: Controller): V | null;
@@ -146,7 +146,7 @@ export interface ViewControllerSet<R = any, V extends View = View, C extends Con
 }
 
 /** @public */
-export const ViewControllerSet = (<R, V extends View, C extends Controller, F extends ViewControllerSet<any, any, any>>() => ControllerSet.extend<ViewControllerSet<R, V, C>, ViewControllerSetClass<F>>("ViewControllerSet", {
+export const ViewControllerSet = (<R, V extends View, C extends Controller, I extends any[], F extends ViewControllerSet<any, any, any, any>>() => ControllerSet.extend<ViewControllerSet<R, V, C, I>, ViewControllerSetClass<F>>("ViewControllerSet", {
   viewType: null,
 
   viewKey(view: V): string | undefined {
@@ -176,7 +176,7 @@ export const ViewControllerSet = (<R, V extends View, C extends Controller, F ex
 
   addView(newView?: V | LikeType<V>, targetController?: Controller | null, controllerKey?: string): V {
     if (newView !== void 0 && newView !== null) {
-      newView = this.fromLikeView(newView);
+      newView = this.fromViewLike(newView);
     } else {
       newView = this.createView();
     }
@@ -208,9 +208,9 @@ export const ViewControllerSet = (<R, V extends View, C extends Controller, F ex
     }
   },
 
-  attachView(newView?: V | LikeType<V>, targetController?: Controller | null): V {
+  attachView(newView?: V | LikeType<V> | null, targetController?: Controller | null): V {
     if (newView !== void 0 && newView !== null) {
-      newView = this.fromLikeView(newView);
+      newView = this.fromViewLike(newView);
     } else {
       newView = this.createView();
     }
@@ -306,7 +306,7 @@ export const ViewControllerSet = (<R, V extends View, C extends Controller, F ex
 
   insertView(parent?: Controller | null, newView?: V | LikeType<V>, targetController?: Controller | null, controllerKey?: string): V {
     if (newView !== void 0 && newView !== null) {
-      newView = this.fromLikeView(newView);
+      newView = this.fromViewLike(newView);
     } else {
       newView = this.createView();
     }
@@ -386,7 +386,7 @@ export const ViewControllerSet = (<R, V extends View, C extends Controller, F ex
     return view;
   },
 
-  fromLikeView(value: V | LikeType<V>): V {
+  fromViewLike(value: V | LikeType<V>): V {
     const viewType = this.viewType;
     if (viewType !== null) {
       return viewType.fromLike(value);

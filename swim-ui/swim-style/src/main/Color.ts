@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import type {Uninitable} from "@swim/util";
-import type {Proto} from "@swim/util";
 import {Lazy} from "@swim/util";
 import type {HashCode} from "@swim/util";
 import type {Equivalent} from "@swim/util";
@@ -66,7 +65,7 @@ export const ColorInit = {
 
 /** @public */
 export abstract class Color implements Interpolate<Color>, HashCode, Equivalent, Debug {
-  declare readonly likeType?: Proto<ColorInit | string>;
+  likeType?(like: ColorInit | string): void;
 
   abstract isDefined(): boolean;
 

@@ -13,6 +13,8 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
+import type {Like} from "@swim/util";
+import type {LikeType} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Animator} from "@swim/component";
@@ -111,9 +113,11 @@ export class GaugeView extends GraphicsView {
     binds: true,
     initView(titleView: GraphicsView): void {
       if (TypesetView[Symbol.hasInstance](titleView)) {
-        titleView.textAlign.setState("center", Affinity.Intrinsic);
-        titleView.textBaseline.setState("middle", Affinity.Intrinsic);
-        titleView.textOrigin.setState(this.owner.center.state, Affinity.Intrinsic);
+        titleView.setIntrinsic({
+          textAlign: "center",
+          textBaseline: "middle",
+          textOrigin: this.owner.center.state,
+        });
       }
     },
     willAttachView(titleView: GraphicsView): void {
@@ -122,21 +126,21 @@ export class GaugeView extends GraphicsView {
     didDetachView(titleView: GraphicsView): void {
       this.owner.callObservers("viewDidDetachTitle", titleView, this.owner);
     },
-    setText(title: string | undefined): GraphicsView {
-      let titleView = this.view;
-      if (titleView === null) {
-        titleView = this.createView();
-        this.setView(titleView);
+    fromLike(value: GraphicsView | LikeType<GraphicsView> | string | undefined): GraphicsView {
+      if (value === void 0 || typeof value === "string") {
+        let view = this.view;
+        if (view === null) {
+          view = this.createView();
+        }
+        if (view instanceof TextRunView) {
+          view.text.setState(value !== void 0 ? value : "");
+        }
+        return view;
       }
-      if (titleView instanceof TextRunView) {
-        titleView.text.setState(title !== void 0 ? title : "");
-      }
-      return titleView;
+      return super.fromLike(value);
     },
   })
-  readonly title!: ViewRef<this, GraphicsView> & {
-    setText(title: string | undefined): GraphicsView,
-  };
+  readonly title!: ViewRef<this, Like<GraphicsView, string | undefined>>;
 
   @ViewSet({
     viewType: DialView,
@@ -212,7 +216,7 @@ export class GaugeView extends GraphicsView {
     if (this.center.hasAffinity(Affinity.Intrinsic)) {
       const cx = (frame.xMin + frame.xMax) / 2;
       const cy = (frame.yMin + frame.yMax) / 2;
-      this.center.setState(new R2Point(cx, cy), Affinity.Intrinsic);
+      this.center.setIntrinsic(new R2Point(cx, cy));
     }
 
     const dialViews = this.dials.views;
@@ -239,19 +243,19 @@ export class GaugeView extends GraphicsView {
       if (dialView.arrangement.value === "auto") {
         if (isFinite(gaugeLimit)) {
           const dialLimit = dialView.limit.getValue();
-          dialView.limit.setState(Math.max(dialLimit, gaugeLimit), Affinity.Intrinsic);
+          dialView.limit.setIntrinsic(Math.max(dialLimit, gaugeLimit));
         }
-        dialView.startAngle.setState(startAngle, Affinity.Intrinsic);
-        dialView.sweepAngle.setState(sweepAngle, Affinity.Intrinsic);
-        dialView.innerRadius.setState(Length.px(r0), Affinity.Intrinsic);
-        dialView.outerRadius.setState(Length.px(r0 + dr), Affinity.Intrinsic);
+        dialView.startAngle.setIntrinsic(startAngle);
+        dialView.sweepAngle.setIntrinsic(sweepAngle);
+        dialView.innerRadius.setIntrinsic(Length.px(r0));
+        dialView.outerRadius.setIntrinsic(Length.px(r0 + dr));
         r0 = r0 + dr + rs;
       }
     }
 
     const titleView = this.title.view;
     if (TypesetView[Symbol.hasInstance](titleView)) {
-      titleView.textOrigin.setState(this.center.state, Affinity.Intrinsic);
+      titleView.textOrigin.setIntrinsic(this.center.state);
     }
   }
 }

@@ -14,7 +14,6 @@
 
 import type {Uninitable} from "@swim/util";
 import type {Mutable} from "@swim/util";
-import type {Proto} from "@swim/util";
 import {Lazy} from "@swim/util";
 import type {Equals} from "@swim/util";
 import type {Equivalent} from "@swim/util";
@@ -253,7 +252,7 @@ export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
     this.stringValue = void 0;
   }
 
-  declare readonly likeType?: Proto<FontInit | string>;
+  likeType?(like: FontInit | string): void;
 
   readonly style: FontStyle | undefined;
 

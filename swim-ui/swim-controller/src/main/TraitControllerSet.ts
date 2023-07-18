@@ -14,10 +14,11 @@
 
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
+import type {LikeType} from "@swim/util";
 import type {Consumer} from "@swim/util";
 import type {Fastener} from "@swim/component";
 import type {TraitFactory} from "@swim/model";
-import type {Trait} from "@swim/model";
+import {Trait} from "@swim/model";
 import type {TraitRef} from "@swim/model";
 import type {Controller} from "./Controller";
 import type {ControllerSetDescriptor} from "./ControllerSet";
@@ -26,15 +27,15 @@ import {ControllerSet} from "./ControllerSet";
 
 /** @public */
 export interface TraitControllerSetDescriptor<R, T extends Trait, C extends Controller> extends ControllerSetDescriptor<R, C> {
-  extends?: Proto<TraitControllerSet<any, any, any>> | boolean | null;
+  extends?: Proto<TraitControllerSet<any, any, any, any>> | boolean | null;
 }
 
 /** @public */
-export interface TraitControllerSetClass<F extends TraitControllerSet<any, any, any> = TraitControllerSet<any, any, any>> extends ControllerSetClass<F> {
+export interface TraitControllerSetClass<F extends TraitControllerSet<any, any, any, any> = TraitControllerSet<any, any, any, any>> extends ControllerSetClass<F> {
 }
 
 /** @public */
-export interface TraitControllerSet<R = any, T extends Trait = Trait, C extends Controller = Controller> extends ControllerSet<R, C> {
+export interface TraitControllerSet<R = any, T extends Trait = Trait, C extends Controller = Controller, I extends any[] = [C | null]> extends ControllerSet<R, C, I> {
   /** @override */
   get descriptorType(): Proto<TraitControllerSetDescriptor<R, T, C>>;
 
@@ -47,13 +48,13 @@ export interface TraitControllerSet<R = any, T extends Trait = Trait, C extends 
 
   hasTrait(trait: Trait): boolean;
 
-  addTrait(trait: T, targetTrait?: Trait | null, key?: string): C;
+  addTrait(trait: T | LikeType<T>, targetTrait?: Trait | null, key?: string): C;
 
   addTraits(traits: {readonly [traitId: string]: T | undefined}, targetTrait?: Trait | null): void;
 
   setTraits(traits: {readonly [traitId: string]: T | undefined}, targetTrait?: Trait | null): void;
 
-  attachTrait(trait: T, targetTrait?: Trait | null, controller?: C): C;
+  attachTrait(trait: T | LikeType<T>, targetTrait?: Trait | null, controller?: C): C;
 
   /** @protected */
   initTrait(trait: T, controller: C): void;
@@ -85,7 +86,7 @@ export interface TraitControllerSet<R = any, T extends Trait = Trait, C extends 
 
   detachTraits(traits: {readonly [traitId: string]: T | undefined}): void;
 
-  insertTrait(parent: Controller | null | undefined, trait: T, targetTrait?: Trait | null, key?: string): C;
+  insertTrait(parent: Controller | null | undefined, trait: T | LikeType<T>, targetTrait?: Trait | null, key?: string): C;
 
   insertTraits(parent: Controller | null | undefined, traits: {readonly [traitId: string]: T | undefined}, targetTrait?: Trait | null, key?: string): void;
 
@@ -105,6 +106,9 @@ export interface TraitControllerSet<R = any, T extends Trait = Trait, C extends 
 
   createTrait(): T;
 
+  /** @protected */
+  fromTraitLike(value: T | LikeType<T>): T;
+
   /** @protected @override */
   onAttachController(controller: C, targetController: Controller | null): void;
 
@@ -116,7 +120,7 @@ export interface TraitControllerSet<R = any, T extends Trait = Trait, C extends 
 }
 
 /** @public */
-export const TraitControllerSet = (<R, T extends Trait, C extends Controller, F extends TraitControllerSet<any, any, any>>() => ControllerSet.extend<TraitControllerSet<R, T, C>, TraitControllerSetClass<F>>("TraitControllerSet", {
+export const TraitControllerSet = (<R, T extends Trait, C extends Controller, I extends any[], F extends TraitControllerSet<any, any, any, any>>() => ControllerSet.extend<TraitControllerSet<R, T, C, I>, TraitControllerSetClass<F>>("TraitControllerSet", {
   getTraitRef(controller: C): TraitRef<any, T> {
     throw new Error("missing implementation");
   },
@@ -127,7 +131,8 @@ export const TraitControllerSet = (<R, T extends Trait, C extends Controller, F 
     return this.traitControllers[trait.uid] !== void 0;
   },
 
-  addTrait(trait: T, targetTrait?: Trait | null, key?: string): C {
+  addTrait(trait: T | LikeType<T>, targetTrait?: Trait | null, key?: string): C {
+    trait = this.fromTraitLike(trait);
     const traitControllers = this.traitControllers as {[traitId: string]: C | undefined};
     let controller = traitControllers[trait.uid];
     if (controller !== void 0) {
@@ -182,7 +187,8 @@ export const TraitControllerSet = (<R, T extends Trait, C extends Controller, F 
     }
   },
 
-  attachTrait(trait: T, targetTrait?: Trait | null, controller?: C): C {
+  attachTrait(trait: T | LikeType<T>, targetTrait?: Trait | null, controller?: C): C {
+    trait = this.fromTraitLike(trait);
     const traitControllers = this.traitControllers as {[traitId: string]: C | undefined};
     if (controller === void 0) {
       controller = traitControllers[trait.uid];
@@ -266,7 +272,8 @@ export const TraitControllerSet = (<R, T extends Trait, C extends Controller, F 
     }
   },
 
-  insertTrait(parent: Controller | null | undefined, trait: T, targetTrait?: Trait | null, key?: string): C {
+  insertTrait(parent: Controller | null | undefined, trait: T | LikeType<T>, targetTrait?: Trait | null, key?: string): C {
+    trait = this.fromTraitLike(trait);
     const traitControllers = this.traitControllers as {[traitId: string]: C | undefined};
     let controller = traitControllers[trait.uid];
     if (controller !== void 0) {
@@ -375,6 +382,14 @@ export const TraitControllerSet = (<R, T extends Trait, C extends Controller, F 
       throw new Error(message);
     }
     return trait;
+  },
+
+  fromTraitLike(value: T | LikeType<T>): T {
+    const traitType = this.traitType;
+    if (traitType !== null) {
+      return traitType.fromLike(value);
+    }
+    return Trait.fromLike(value) as T;
   },
 
   onAttachController(controller: C, targetController: Controller | null): void {

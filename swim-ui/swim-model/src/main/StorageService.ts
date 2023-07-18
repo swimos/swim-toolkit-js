@@ -16,6 +16,7 @@ import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
 import type {Dictionary} from "@swim/util";
 import type {MutableDictionary} from "@swim/util";
+import type {TimingLike} from "@swim/util";
 import {EventHandler} from "@swim/component";
 import type {ServiceObserver} from "@swim/component";
 import {Service} from "@swim/component";
@@ -37,7 +38,8 @@ export abstract class StorageService extends Service {
 
   abstract get(key: string): string | undefined;
 
-  abstract set(key: string, newValue: string | undefined): string | undefined;
+  abstract override set(key: string, newValue: string | undefined): string | undefined;
+  abstract override set<S>(this: S, properties: {[K in keyof S as S[K] extends {set(value: any): any} ? K : never]?: S[K] extends {set(value: infer T): any} ? T : never}, timing?: TimingLike | boolean | null): this;
 
   protected willSet(key: string, newValue: string | undefined, oldValue: string | undefined): void {
     this.callObservers("serviceWillStore", key, newValue, oldValue, this);
@@ -90,21 +92,28 @@ export class WebStorageService extends StorageService {
     return value !== null ? value : void 0;
   }
 
-  override set(key: string, newValue: string | undefined): string | undefined {
+  override set(key: string, newValue: string | undefined): string | undefined;
+  override set<S>(this: S, properties: {[K in keyof S as S[K] extends {set(value: any): any} ? K : never]?: S[K] extends {set(value: infer T): any} ? T : never}, timing?: TimingLike | boolean | null): this;
+  override set(key: string | {[K in keyof WebStorageService as WebStorageService[K] extends {set(value: any): any} ? K : never]?: WebStorageService[K] extends {set(value: infer T): any} ? T : never}, newValue?: string | TimingLike | boolean | null): string | undefined | this {
+    if (typeof key !== "string") {
+      Service.prototype.set.call(this, key, newValue as TimingLike | boolean | null | undefined);
+      return this;
+    }
     let oldValue: string | null | undefined = this.storageArea.getItem(key);
     if (oldValue === null) {
       oldValue = void 0;
     }
-    if (newValue !== oldValue) {
-      this.willSet(key, newValue, oldValue);
-      if (newValue !== void 0) {
-        this.storageArea.setItem(key, newValue);
-      } else {
-        this.storageArea.removeItem(key);
-      }
-      this.onSet(key, newValue, oldValue);
-      this.didSet(key, newValue, oldValue);
+    if (newValue === oldValue) {
+      return oldValue;
     }
+    this.willSet(key, newValue as string | undefined, oldValue);
+    if (newValue !== void 0) {
+      this.storageArea.setItem(key, newValue as string);
+    } else {
+      this.storageArea.removeItem(key);
+    }
+    this.onSet(key, newValue as string | undefined, oldValue);
+    this.didSet(key, newValue as string | undefined, oldValue);
     return oldValue;
   }
 
@@ -191,19 +200,26 @@ export class EphemeralStorageService extends StorageService {
     return this.storageArea[key];
   }
 
-  override set(key: string, newValue: string | undefined): string | undefined {
+  override set(key: string, newValue: string | undefined): string | undefined;
+  override set<S>(this: S, properties: {[K in keyof S as S[K] extends {set(value: any): any} ? K : never]?: S[K] extends {set(value: infer T): any} ? T : never}, timing?: TimingLike | boolean | null): this;
+  override set(key: string | {[K in keyof EphemeralStorageService as EphemeralStorageService[K] extends {set(value: any): any} ? K : never]?: EphemeralStorageService[K] extends {set(value: infer T): any} ? T : never}, newValue?: string | TimingLike | boolean | null): string | undefined | this {
+    if (typeof key !== "string") {
+      Service.prototype.set.call(this, key, newValue as TimingLike | boolean | null | undefined);
+      return this;
+    }
     const storageArea = this.storageArea as MutableDictionary<string>;
     const oldValue = storageArea[key];
-    if (newValue !== oldValue) {
-      this.willSet(key, newValue, oldValue);
-      if (newValue !== void 0) {
-        storageArea[key] = newValue;
-      } else {
-        delete storageArea[key];
-      }
-      this.onSet(key, newValue, oldValue);
-      this.didSet(key, newValue, oldValue);
+    if (newValue === oldValue) {
+      return oldValue;
     }
+    this.willSet(key, newValue as string | undefined, oldValue);
+    if (newValue !== void 0) {
+      storageArea[key] = newValue as string;
+    } else {
+      delete storageArea[key];
+    }
+    this.onSet(key, newValue as string | undefined, oldValue);
+    this.didSet(key, newValue as string | undefined, oldValue);
     return oldValue;
   }
 

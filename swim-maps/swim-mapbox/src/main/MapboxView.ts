@@ -23,6 +23,7 @@ import {Property} from "@swim/component";
 import {Provider} from "@swim/component";
 import {Look} from "@swim/theme";
 import {Mood} from "@swim/theme";
+import type {ViewInsets} from "@swim/view";
 import {View} from "@swim/view";
 import {ViewRef} from "@swim/view";
 import type {ViewportColorScheme} from "@swim/view";
@@ -84,7 +85,7 @@ export class MapboxView extends MapView {
     },
     update(): void {
       if (this.hasAffinity(Affinity.Intrinsic)) {
-        this.setValue(MapboxViewport.create(this.owner.map), Affinity.Intrinsic);
+        this.setIntrinsic(MapboxViewport.create(this.owner.map));
       }
     },
   })
@@ -151,6 +152,8 @@ export class MapboxView extends MapView {
       options.duration = 0;
     }
 
+    options.padding = this.edgeInsets.padding;
+
     if (bounds !== void 0) {
       this.map.fitBounds(bounds, options);
     } else {
@@ -175,7 +178,7 @@ export class MapboxView extends MapView {
     didAttachView(canvasView: CanvasView, targetView: View | null): void {
       if (this.owner.parent === null) {
         canvasView.appendChild(this.owner);
-        canvasView.setEventNode(this.owner.map.getCanvasContainer());
+        canvasView.setEventTarget(this.owner.map.getCanvasContainer());
       }
       super.didAttachView(canvasView, targetView);
     },
@@ -247,6 +250,30 @@ export class MapboxView extends MapView {
   @ViewRef({viewType: HtmlView})
   readonly bottomRightControls!: ViewRef<this, HtmlView>;
 
+  @Property({
+    extends: true,
+    get padding(): mapboxgl.PaddingOptions {
+      const edgeInsets = this.value;
+      let top = edgeInsets.insetTop;
+      let right = edgeInsets.insetRight;
+      let bottom = edgeInsets.insetBottom;
+      let left = edgeInsets.insetLeft;
+      const containerView = this.owner.container.view;
+      if (containerView !== null) {
+        top = Math.max(containerView.paddingTop.pxState(), top);
+        right = Math.max(containerView.paddingRight.pxState(), right);
+        bottom = Math.max(containerView.paddingBottom.pxState(), bottom);
+        left = Math.max(containerView.paddingLeft.pxState(), left);
+      }
+      return {top, right, bottom, left};
+    },
+  })
+  override get edgeInsets(): Property<this, ViewInsets> & {
+    get padding(): mapboxgl.PaddingOptions;
+  } {
+    return Property.dummy();
+  }
+
   protected override onResize(): void {
     super.onResize();
     this.map.resize();
@@ -269,23 +296,23 @@ export class MapboxView extends MapView {
     const left = Math.max(containerView.paddingLeft.pxState(), edgeInsets.insetLeft);
     const topLeftControlsView = this.topLeftControls.view;
     if (topLeftControlsView !== null) {
-      topLeftControlsView.top.setState(top, Affinity.Intrinsic);
-      topLeftControlsView.left.setState(left, Affinity.Intrinsic);
+      topLeftControlsView.top.setIntrinsic(top);
+      topLeftControlsView.left.setIntrinsic(left);
     }
     const topRightControlsView = this.topRightControls.view;
     if (topRightControlsView !== null) {
-      topRightControlsView.top.setState(top, Affinity.Intrinsic);
-      topRightControlsView.right.setState(right, Affinity.Intrinsic);
+      topRightControlsView.top.setIntrinsic(top);
+      topRightControlsView.right.setIntrinsic(right);
     }
     const bottomLeftControlsView = this.bottomLeftControls.view;
     if (bottomLeftControlsView !== null) {
-      bottomLeftControlsView.bottom.setState(bottom, Affinity.Intrinsic);
-      bottomLeftControlsView.left.setState(left, Affinity.Intrinsic);
+      bottomLeftControlsView.bottom.setIntrinsic(bottom);
+      bottomLeftControlsView.left.setIntrinsic(left);
     }
     const bottomRightControlsView = this.bottomRightControls.view;
     if (bottomRightControlsView !== null) {
-      bottomRightControlsView.bottom.setState(bottom, Affinity.Intrinsic);
-      bottomRightControlsView.right.setState(right, Affinity.Intrinsic);
+      bottomRightControlsView.bottom.setIntrinsic(bottom);
+      bottomRightControlsView.right.setIntrinsic(right);
     }
   }
 
@@ -321,9 +348,9 @@ export class MapboxView extends MapView {
       }
       const colorScheme = viewportService.colorScheme.value;
       if (colorScheme === "dark") {
-        this.setValue(this.dark, Affinity.Intrinsic);
+        this.setIntrinsic(this.dark);
       } else {
-        this.setValue(this.light, Affinity.Intrinsic);
+        this.setIntrinsic(this.light);
       }
     },
   })

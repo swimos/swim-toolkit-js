@@ -154,45 +154,51 @@ const updateRate = document.getElementById("updateRate");
 
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-const containerView = bodyView.appendChild("div");
-containerView.id("ui");
-containerView.position.setState("relative");
-containerView.touchAction.setState("none");
-containerView.userSelect.setState("none");
+const containerView = bodyView.appendChild("div").set({
+  id: "ui",
+  position: "relative",
+  touchAction: "none",
+  userSelect: "none",
+});
 
-const canvasView = containerView.appendChild(swim.CanvasView);
-canvasView.mouseEventsEnabled(true);
-canvasView.pointerEventsEnabled(true);
-canvasView.touchEventsEnabled(true);
-canvasView.touchAction.setState("manipulation");
+const canvasView = containerView.appendChild(swim.CanvasView).set({
+  touchAction: "manipulation",
+  mouseEvents: true,
+  pointerevents: true,
+  touchEvents: true,
+});
 
 // Append a new gauge view to the canvas.
-const gaugeView = canvasView.appendChild(swim.GaugeView);
-gaugeView.innerRadius.setState(swim.Length.pct(30));
-gaugeView.outerRadius.setState(swim.Length.pct(40));
-gaugeView.tickRadius.setState(swim.Length.pct(45));
-gaugeView.font.setState("14px sans-serif");
-gaugeView.title.setText("Gauge");
-gaugeView.title.view.font.setState("20px sans-serif");
+const gaugeView = canvasView.appendChild(swim.GaugeView).set({
+  innerRadius: "30%",
+  outerRadius: "40%",
+  tickRadius: "45%",
+  font: "14px sans-serif",
+  title: "Gauge",
+});
+gaugeView.title.view.set({
+  font: "20px sans-serif",
+});
 
 // Create an array to hold our active dial views.
 const dialViews = [];
 
 function createDial() {
   // Create a new dial.
-  const dialView = new swim.DialView();
-  dialView.value.setValue(0); // initialize to zero so the dial will tween in
-  dialView.label.setText("");
+  const dialView = new swim.DialView().set({
+    value: 0, // initialize to zero so the dial will tween in
+    label: "",
+    legend: "",
+  });
   dialView.label.view.setHidden(true);
-  dialView.legend.setText("");
   dialView.legend.view.setHidden(true);
   //dialView.modifyMood(swim.Feel.default, [[swim.Feel.secondary, 1]]);
   dialView.value.didSetValue = function (newValue) {
     // Update the dial label.
-    dialView.label.view.text.setState(Math.round(100 * newValue / dialView.limit.value) + "%");
+    dialView.label.view.text.set(Math.round(100 * newValue / dialView.limit.value) + "%");
     dialView.label.view.setHidden(!showLabels.checked);
     // Update the dial legend.
-    dialView.legend.view.text.setState(dialView.key + " (" + Math.round(100 * newValue) + ")");
+    dialView.legend.view.text.set(dialView.key + " (" + Math.round(100 * newValue) + ")");
     dialView.legend.view.setHidden(!showLegend.checked);
   };
   // Add mouse event handlers.
@@ -221,7 +227,7 @@ function updateGauge() {
   // Insert any missing dials.
   for (let i = dialViews.length; i < count; i += 1) {
     const dialView = createDial();
-    dialView.value.setState(Math.random(), timing);
+    dialView.value.set(Math.random(), timing);
     dialViews[i] = dialView;
     gaugeView.appendChild(dialView, "Dial " + String.fromCharCode(65/*'A'*/ + (i % 26)) + (Math.floor(i / 26) + 1));
   }
@@ -230,23 +236,25 @@ function updateGauge() {
   for (let i = dialViews.length - 1; i >= count; i -= 1) {
     const dialView = dialViews[i];
     dialViews.splice(i, 1);
-    dialView.value.setState(0, timing);
+    dialView.value.set(0, timing);
     dialView.value.didTransition = function () {
       dialView.remove();
     };
   }
 
   // Update gauge properties.
-  gaugeView.innerRadius.setState(swim.Length.pct(innerRadius.checked ? 15 + 10 * Math.random() : 35 - 5 * count), timing);
-  gaugeView.outerRadius.setState(swim.Length.pct(outerRadius.checked ? 30 + 10 * Math.random() : 40), timing);
-  gaugeView.startAngle.setState(swim.Angle.rad((count === 1 ? -Math.PI / 2 : 3 * Math.PI / 4) + (startAngle.checked ? 2 * Math.PI * Math.random() : 0)), timing);
-  gaugeView.sweepAngle.setState(swim.Angle.rad((count === 1 ? 2 * Math.PI : 3 * Math.PI / 2) * (sweepAngle.checked ? 0.5 + 0.5 * Math.random() : 1)), timing);
-  gaugeView.cornerRadius.setState(swim.Length.pct(cornerRadius.checked ? 50 * Math.random() : count === 1 ? 50 : 0), timing);
-  gaugeView.dialSpacing.setState(swim.Length.px(dialSpacing.checked ? 5 * Math.random() : 1), timing);
-  gaugeView.tickRadius.setState(swim.Length.pct(tickRadius.checked ? 40 + 5 * Math.random() : 45), timing);
-  gaugeView.tickLength.setState(swim.Length.pct(tickLength.checked ? 45 + 5 * Math.random() : 50), timing);
-  gaugeView.tickWidth.setState(swim.Length.px(tickWidth.checked ? 0.5 + Math.random() : 1), timing);
-  gaugeView.tickPadding.setState(swim.Length.px(gaugeView.tickWidth.state.pxValue() + 1 + (tickPadding.checked ? 4 * Math.random() : 0)), timing);
+  gaugeView.set({
+    innerRadius: swim.Length.pct(innerRadius.checked ? 15 + 10 * Math.random() : 35 - 5 * count),
+    outerRadius: swim.Length.pct(outerRadius.checked ? 30 + 10 * Math.random() : 40),
+    startAngle: swim.Angle.rad((count === 1 ? -Math.PI / 2 : 3 * Math.PI / 4) + (startAngle.checked ? 2 * Math.PI * Math.random() : 0)),
+    sweepAngle: swim.Angle.rad((count === 1 ? 2 * Math.PI : 3 * Math.PI / 2) * (sweepAngle.checked ? 0.5 + 0.5 * Math.random() : 1)),
+    cornerRadius: swim.Length.pct(cornerRadius.checked ? 50 * Math.random() : count === 1 ? 50 : 0),
+    dialSpacing: swim.Length.px(dialSpacing.checked ? 5 * Math.random() : 1),
+    tickRadius: swim.Length.pct(tickRadius.checked ? 40 + 5 * Math.random() : 45),
+    tickLength: swim.Length.pct(tickLength.checked ? 45 + 5 * Math.random() : 50),
+    tickWidth: swim.Length.px(tickWidth.checked ? 0.5 + Math.random() : 1),
+    tickPadding: swim.Length.px(gaugeView.tickWidth.state.pxValue() + 1 + (tickPadding.checked ? 4 * Math.random() : 0)),
+  }, timing);
 
   // Update the gauge title.
   gaugeView.title.view.setHidden(!showTitle.checked);
@@ -258,9 +266,11 @@ function updateGauge() {
     const newValue = Math.random();
 
     // Update dial properties.
-    dialView.value.setState(newValue, timing);
-    dialView.labelPadding.setState(swim.Length.pct(labelPadding.checked ? 10 + 40 * Math.random() : 25), timing);
-    dialView.tickAlign.setState(tickAlign.checked ? Math.random() : 0.5, timing);
+    dialView.set({
+      value: newValue,
+      labelPadding: swim.Length.pct(labelPadding.checked ? 10 + 40 * Math.random() : 25),
+      tickAlign: tickAlign.checked ? Math.random() : 0.5,
+    }, timing);
     if (newValue < 0.5) {
       dialView.modifyMood(swim.Feel.default, [[swim.Feel.warning, void 0], [swim.Feel.alert, void 0]], timing);
     } else if (newValue < 0.75) {

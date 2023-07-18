@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import type {Mutable} from "@swim/util";
-import type {Proto} from "@swim/util";
 import {Equals} from "@swim/util";
 import {Equivalent} from "@swim/util";
 import type {Interpolate} from "@swim/util";
@@ -74,7 +73,7 @@ export class ToolLayout implements Interpolate<ToolLayout>, Equals, Equivalent, 
     this.right = right;
   }
 
-  declare readonly likeType?: Proto<ToolLayoutInit>;
+  likeType?(like: ToolLayoutInit): void;
 
   readonly key: string;
 

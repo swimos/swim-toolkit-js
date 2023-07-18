@@ -14,18 +14,20 @@
 
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-const containerView = bodyView.appendChild("div");
-containerView.position.setState("relative");
-containerView.width.setState("67%");
-containerView.height.setState("67%");
-containerView.touchAction.setState("none");
-containerView.userSelect.setState("none");
+const containerView = bodyView.appendChild("div").set({
+  position: "relative",
+  width: "67%",
+  height: "67%",
+  touchAction: "none",
+  userSelect: "none",
+});
 
-const canvasView = containerView.appendChild(swim.CanvasView);
-canvasView.mouseEventsEnabled(true);
-canvasView.pointerEventsEnabled(true);
-canvasView.touchEventsEnabled(true);
-canvasView.touchAction.setState("manipulation");
+const canvasView = containerView.appendChild(swim.CanvasView).set({
+  touchAction: "manipulation",
+  mouseEvents: true,
+  pointerevents: true,
+  touchEvents: true,
+});
 
 const ExamplePieController = (function () {
   const instanceInitializers = [];
@@ -43,7 +45,7 @@ const ExamplePieController = (function () {
     extends: true,
     initView(pieView) {
       super.initView(pieView);
-      pieView.font.setState("14px sans-serif");
+      pieView.font.set("16px sans-serif");
     },
   })], {kind: "field", name: "pie", static: false, private: false, access: {has: obj => "pie" in obj, get: obj => obj.pie, set: (obj, value) => { obj.pie = value; }}}, pieInitializers, instanceInitializers);
   __esDecorate(null, null, [swim.TraitViewControllerSet({
@@ -59,12 +61,15 @@ const ExamplePieController = (function () {
     },
     controllerDidSetSliceValue(sliceValue, sliceController, pieController) {
       super.controllerDidSetSliceValue(sliceValue, sliceController, pieController);
-      const label = Math.round(100 * sliceValue).toString();
-      sliceController.slice.trait.label.setValue(label);
+      sliceController.slice.trait.set({
+        label: Math.round(100 * sliceValue).toString(),
+      });
     },
     attachSliceLabelView(labelView, sliceController) {
       super.attachSliceLabelView(labelView, sliceController);
-      labelView.textColor.setLook(swim.Look.backgroundColor);
+      labelView.set({
+        textColor: swim.Look.backgroundColor,
+      });
     },
   })], {kind: "field", name: "slices", static: false, private: false, access: {has: obj => "slices" in obj, get: obj => obj.slices, set: (obj, value) => { obj.slices = value; }}}, slicesInitializers, instanceInitializers);
 
@@ -72,30 +77,33 @@ const ExamplePieController = (function () {
 })();
 
 const slice1Model = new swim.Model();
-const slice1Trait = new swim.SliceTrait();
-slice1Trait.value.setValue(1);
-slice1Trait.legend.setValue("Slice 1");
+const slice1Trait = new swim.SliceTrait().set({
+  value: 1,
+  legend: "Slice 1",
+});
 slice1Model.setTrait("slice", slice1Trait);
 
 const slice2Model = new swim.Model();
-const slice2Trait = new swim.SliceTrait();
-slice2Trait.value.setValue(1);
-slice2Trait.legend.setValue("Slice 2");
+const slice2Trait = new swim.SliceTrait().set({
+  value: 1,
+  legend: "Slice 2",
+});
 slice2Model.setTrait("slice", slice2Trait);
 
 const slice3Model = new swim.Model();
-const slice3Trait = new swim.SliceTrait();
-slice3Trait.value.setValue(1);
-slice3Trait.legend.setValue("Slice 3");
+const slice3Trait = new swim.SliceTrait().set({
+  value: 1,
+  legend: "Slice 3",
+});
 slice3Model.setTrait("slice", slice3Trait);
 
 const pieModel = new swim.Model();
 pieModel.mount();
 const pieTrait = new swim.PieTrait();
 pieModel.setTrait("pie", pieTrait);
-pieModel.appendChild(slice1Model, "slice1");
-pieModel.appendChild(slice2Model, "slice2");
-pieModel.appendChild(slice3Model, "slice3");
+pieModel.appendChild(slice1Model);
+pieModel.appendChild(slice2Model);
+pieModel.appendChild(slice3Model);
 
 const pieController = new ExamplePieController();
 pieController.mount();
@@ -103,16 +111,16 @@ pieController.pie.insertView(canvasView);
 pieController.pie.setTrait(pieTrait);
 
 setInterval(function () {
-  slice1Trait.value.setValue(0.1 + 0.9 * Math.random());
-  slice2Trait.value.setValue(0.1 + 0.9 * Math.random());
-  slice3Trait.value.setValue(0.1 + 0.9 * Math.random());
+  slice1Trait.value.set(0.1 + 0.9 * Math.random());
+  slice2Trait.value.set(0.1 + 0.9 * Math.random());
+  slice3Trait.value.set(0.1 + 0.9 * Math.random());
 }, 1000);
 
 setInterval(function () {
   if (slice3Model.mounted) {
     slice3Model.remove();
   } else {
-    pieModel.appendChild(slice3Model, "slice3");
+    pieModel.appendChild(slice3Model);
   }
 }, 2500);
 

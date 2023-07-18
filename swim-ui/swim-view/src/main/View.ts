@@ -1500,7 +1500,7 @@ export class View extends Component<View> implements ConstraintScope, Constraint
       return;
     }
     this.mood.timing = timing;
-    this.moodModifier.setValue(newMoodModifier, Affinity.Intrinsic);
+    this.moodModifier.setIntrinsic(newMoodModifier);
   }
 
   @Property({
@@ -1551,7 +1551,7 @@ export class View extends Component<View> implements ConstraintScope, Constraint
     }
     if (!newThemeModifier.equals(oldThemeModifier)) {
       this.theme.timing = timing;
-      this.themeModifier.setValue(newThemeModifier, Affinity.Intrinsic);
+      this.themeModifier.setIntrinsic(newThemeModifier);
     }
   }
 
@@ -1730,7 +1730,7 @@ export class View extends Component<View> implements ConstraintScope, Constraint
       configurable: true,
     });
     if (value !== void 0) {
-      property.setValue(value);
+      property.set(value);
     }
     property.setStrength(strength);
     property.mount();

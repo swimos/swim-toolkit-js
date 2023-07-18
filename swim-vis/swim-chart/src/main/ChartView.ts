@@ -17,7 +17,6 @@ import type {Range} from "@swim/util";
 import {Timing} from "@swim/util";
 import {Easing} from "@swim/util";
 import {LinearRange} from "@swim/util";
-import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import {Length} from "@swim/math";
 import {R2Point} from "@swim/math";
@@ -236,22 +235,22 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
     const topAxisView = this.topAxis.view;
     if (topAxisView !== null) {
       topAxisView.setViewFrame(new R2Box(graphLeft, frame.yMin, graphRight, graphBottom));
-      topAxisView.origin.setState(new R2Point(graphLeft, graphTop), Affinity.Intrinsic);
+      topAxisView.origin.setIntrinsic(new R2Point(graphLeft, graphTop));
     }
     const rightAxisView = this.rightAxis.view;
     if (rightAxisView !== null) {
       rightAxisView.setViewFrame(new R2Box(graphLeft, graphTop, frame.xMax, graphBottom));
-      rightAxisView.origin.setState(new R2Point(Math.max(graphLeft, graphRight), graphBottom), Affinity.Intrinsic);
+      rightAxisView.origin.setIntrinsic(new R2Point(Math.max(graphLeft, graphRight), graphBottom));
     }
     const bottomAxisView = this.bottomAxis.view;
     if (bottomAxisView !== null) {
       bottomAxisView.setViewFrame(new R2Box(graphLeft, graphTop, graphRight, frame.yMax));
-      bottomAxisView.origin.setState(new R2Point(graphLeft, Math.max(graphTop, graphBottom)), Affinity.Intrinsic);
+      bottomAxisView.origin.setIntrinsic(new R2Point(graphLeft, Math.max(graphTop, graphBottom)));
     }
     const leftAxisView = this.leftAxis.view;
     if (leftAxisView !== null) {
       leftAxisView.setViewFrame(new R2Box(frame.xMin, graphTop, graphRight, graphBottom));
-      leftAxisView.origin.setState(new R2Point(graphLeft, graphBottom), Affinity.Intrinsic);
+      leftAxisView.origin.setIntrinsic(new R2Point(graphLeft, graphBottom));
     }
 
     const graphView = this.graph.view;

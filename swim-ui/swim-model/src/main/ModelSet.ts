@@ -29,13 +29,13 @@ import {ModelRelation} from "./ModelRelation";
 
 /** @public */
 export interface ModelSetDescriptor<R, M extends Model> extends ModelRelationDescriptor<R, M> {
-  extends?: Proto<ModelSet<any, any>> | boolean | null;
+  extends?: Proto<ModelSet<any, any, any>> | boolean | null;
   ordered?: boolean;
   sorted?: boolean;
 }
 
 /** @public */
-export interface ModelSetClass<F extends ModelSet<any, any> = ModelSet<any, any>> extends ModelRelationClass<F> {
+export interface ModelSetClass<F extends ModelSet<any, any, any> = ModelSet<any, any, any>> extends ModelRelationClass<F> {
   /** @internal */
   readonly OrderedFlag: FastenerFlags;
   /** @internal */
@@ -48,15 +48,15 @@ export interface ModelSetClass<F extends ModelSet<any, any> = ModelSet<any, any>
 }
 
 /** @public */
-export interface ModelSet<R = any, M extends Model = Model> extends ModelRelation<R, M> {
+export interface ModelSet<R = any, M extends Model = Model, I extends any[] = [M | null]> extends ModelRelation<R, M, I> {
   /** @override */
   get descriptorType(): Proto<ModelSetDescriptor<R, M>>;
 
   /** @override */
-  get fastenerType(): Proto<ModelSet<any, any>>;
+  get fastenerType(): Proto<ModelSet<any, any, any>>;
 
   /** @override */
-  get parent(): ModelSet<any, M> | null;
+  get parent(): ModelSet<any, M, any> | null;
 
   /** @protected */
   modelKey(model: M): string | undefined;
@@ -80,7 +80,7 @@ export interface ModelSet<R = any, M extends Model = Model> extends ModelRelatio
 
   setModels(models: {readonly [modelId: string]: M | undefined}, target?: Model | null): void;
 
-  attachModel(model?: M | LikeType<M>, target?: Model | null): M;
+  attachModel(model?: M | LikeType<M> | null, target?: Model | null): M;
 
   attachModels(models: {readonly [modelId: string]: M | undefined}, target?: Model | null): void;
 
@@ -158,8 +158,8 @@ export interface ModelSet<R = any, M extends Model = Model> extends ModelRelatio
 }
 
 /** @public */
-export const ModelSet = (<R, M extends Model, F extends ModelSet<any, any>>() => ModelRelation.extend<ModelSet<R, M>, ModelSetClass<F>>("ModelSet", {
-  get fastenerType(): Proto<ModelSet<any, any>> {
+export const ModelSet = (<R, M extends Model, I extends any[], F extends ModelSet<any, any, any>>() => ModelRelation.extend<ModelSet<R, M, I>, ModelSetClass<F>>("ModelSet", {
+  get fastenerType(): Proto<ModelSet<any, any, any>> {
     return ModelSet;
   },
 
@@ -263,7 +263,7 @@ export const ModelSet = (<R, M extends Model, F extends ModelSet<any, any>>() =>
     }
   },
 
-  attachModel(newModel?: M | LikeType<M>, target?: Model | null): M {
+  attachModel(newModel?: M | LikeType<M> | null, target?: Model | null): M {
     if (newModel !== void 0 && newModel !== null) {
       newModel = this.fromLike(newModel);
     } else {
@@ -582,7 +582,7 @@ export const ModelSet = (<R, M extends Model, F extends ModelSet<any, any>>() =>
     return fastener;
   },
 
-  refine(fastenerClass: FastenerClass<ModelSet<any, any>>): void {
+  refine(fastenerClass: FastenerClass<ModelSet<any, any, any>>): void {
     super.refine(fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

@@ -14,8 +14,9 @@
 
 import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
+import type {Like} from "@swim/util";
+import type {LikeType} from "@swim/util";
 import type {Timing} from "@swim/util";
-import {Affinity} from "@swim/component";
 import {Animator} from "@swim/component";
 import {R2Point} from "@swim/math";
 import type {R2Box} from "@swim/math";
@@ -117,21 +118,21 @@ export abstract class TickView<D = unknown> extends GraphicsView {
     didDetachView(labelView: GraphicsView): void {
       this.owner.callObservers("viewDidDetachTickLabel", labelView, this.owner);
     },
-    setText(label: string | undefined): GraphicsView {
-      let labelView = this.view;
-      if (labelView === null) {
-        labelView = this.createView();
-        this.setView(labelView);
+    fromLike(value: GraphicsView | LikeType<GraphicsView> | string | undefined): GraphicsView {
+      if (value === void 0 || typeof value === "string") {
+        let view = this.view;
+        if (view === null) {
+          view = this.createView();
+        }
+        if (view instanceof TextRunView) {
+          view.text.setState(value !== void 0 ? value : "");
+        }
+        return view;
       }
-      if (labelView instanceof TextRunView) {
-        labelView.text.setState(label !== void 0 ? label : "");
-      }
-      return labelView;
+      return super.fromLike(value);
     },
   })
-  readonly label!: ViewRef<this, GraphicsView> & {
-    setText(label: string | undefined): GraphicsView,
-  };
+  readonly label!: ViewRef<this, Like<GraphicsView, string | undefined>>;
 
   /** @internal */
   readonly preserved: boolean;
@@ -149,14 +150,14 @@ export abstract class TickView<D = unknown> extends GraphicsView {
 
   fadeIn(timing?: Timing | boolean): void {
     if (this.tickState === TickState.Excluded || this.tickState === TickState.Leaving) {
-      this.opacity.setState(1, timing);
+      this.opacity.set(1, timing);
       (this as Mutable<this>).tickState = TickState.Entering;
     }
   }
 
   fadeOut(timing?: Timing | boolean): void {
     if (this.tickState === TickState.Entering || this.tickState === TickState.Included) {
-      this.opacity.setState(0, timing);
+      this.opacity.set(0, timing);
       (this as Mutable<this>).tickState = TickState.Leaving;
     }
   }
@@ -254,9 +255,11 @@ export class TopTickView<X = unknown> extends TickView<X> {
     const y2 = y1 - this.tickLabelPadding.getValue();
 
     if (TypesetView[Symbol.hasInstance](labelView)) {
-      labelView.textAlign.setState("center", Affinity.Intrinsic);
-      labelView.textBaseline.setState("bottom", Affinity.Intrinsic);
-      labelView.textOrigin.setState(new R2Point(x, y2), Affinity.Intrinsic);
+      labelView.setIntrinsic({
+        textAlign: "center",
+        textBaseline: "bottom",
+        textOrigin: new R2Point(x, y2),
+      });
     }
   }
 
@@ -317,9 +320,11 @@ export class RightTickView<Y = unknown> extends TickView<Y> {
     const x2 = x1 + this.tickLabelPadding.getValue();
 
     if (TypesetView[Symbol.hasInstance](labelView)) {
-      labelView.textAlign.setState("left", Affinity.Intrinsic);
-      labelView.textBaseline.setState("middle", Affinity.Intrinsic);
-      labelView.textOrigin.setState(new R2Point(x2, y), Affinity.Intrinsic);
+      labelView.setIntrinsic({
+        textAlign: "left",
+        textBaseline: "middle",
+        textOrigin: new R2Point(x2, y),
+      });
     }
   }
 
@@ -380,9 +385,11 @@ export class BottomTickView<X = unknown> extends TickView<X> {
     const y2 = y1 + this.tickLabelPadding.getValue();
 
     if (TypesetView[Symbol.hasInstance](labelView)) {
-      labelView.textAlign.setState("center", Affinity.Intrinsic);
-      labelView.textBaseline.setState("top", Affinity.Intrinsic);
-      labelView.textOrigin.setState(new R2Point(x, y2), Affinity.Intrinsic);
+      labelView.setIntrinsic({
+        textAlign: "center",
+        textBaseline: "top",
+        textOrigin: new R2Point(x, y2),
+      });
     }
   }
 
@@ -443,9 +450,11 @@ export class LeftTickView<Y = unknown> extends TickView<Y> {
     const x2 = x1 - this.tickLabelPadding.getValue();
 
     if (TypesetView[Symbol.hasInstance](labelView)) {
-      labelView.textAlign.setState("right", Affinity.Intrinsic);
-      labelView.textBaseline.setState("middle", Affinity.Intrinsic);
-      labelView.textOrigin.setState(new R2Point(x2, y), Affinity.Intrinsic);
+      labelView.setIntrinsic({
+        textAlign: "right",
+        textBaseline: "middle",
+        textOrigin: new R2Point(x2, y),
+      });
     }
   }
 

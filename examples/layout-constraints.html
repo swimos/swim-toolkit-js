@@ -12,10 +12,11 @@
 
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-const circleView = bodyView.appendChild("div");
-circleView.position.setState("absolute");
-circleView.borderRadius("50%");
-circleView.backgroundColor.setState("#989898");
+const circleView = bodyView.appendChild("div").set({
+  position: "absolute",
+  borderRadius: "50%",
+  backgroundColor: "#989898",
+});
 circleView.constraint(circleView.width.constrain(), "eq", circleView.height);
 circleView.constraint(circleView.height.constrain(), "eq", bodyView.height.divide(3));
 circleView.constraint(circleView.left.constrain(), "eq", bodyView.width.times(0.5).minus(circleView.width.times(0.5)));

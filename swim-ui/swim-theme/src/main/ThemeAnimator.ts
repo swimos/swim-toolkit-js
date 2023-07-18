@@ -15,6 +15,7 @@
 import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
 import {Objects} from "@swim/util";
+import type {LikeType} from "@swim/util";
 import type {TimingLike} from "@swim/util";
 import {Timing} from "@swim/util";
 import {Affinity} from "@swim/component";
@@ -45,6 +46,12 @@ export interface ThemeAnimator<R = any, T = any, I extends any[] = [Look<NonNull
 
   /** @protected @override */
   onSetAffinity(newAffinity: Affinity, oldAffinity: Affinity): void;
+
+  /** @override */
+  set(newValue: T | LikeType<T> | Look<NonNullable<T>> | Fastener<any, I[0], any>, timing?: TimingLike | boolean | null): R;
+
+  /** @override */
+  setIntrinsic(newValue: T | LikeType<T> | Look<NonNullable<T>> | Fastener<any, I[0], any>, timing?: TimingLike | boolean | null): R;
 
   get inletLook(): Look<NonNullable<T>> | null;
 
@@ -92,6 +99,28 @@ export const ThemeAnimator = (<R, T, I extends any[], A extends ThemeAnimator<an
       this.setLook(null, newAffinity);
     }
     super.onSetAffinity(newAffinity, oldAffinity);
+  },
+
+  set(newValue: T | LikeType<T> | Look<NonNullable<T>> | Fastener<any, I[0], any>, timing?: TimingLike | boolean | null): R {
+    if (newValue instanceof Fastener) {
+      this.bindInlet(newValue);
+    } else if (newValue instanceof Look) {
+      this.setLook(newValue, timing, Affinity.Extrinsic);
+    } else {
+      this.setState(newValue, timing, Affinity.Extrinsic);
+    }
+    return this.owner;
+  },
+
+  setIntrinsic(newValue: T | LikeType<T> | Look<NonNullable<T>> | Fastener<any, I[0], any>, timing?: TimingLike | boolean | null): R {
+    if (newValue instanceof Fastener) {
+      this.bindInlet(newValue);
+    } else if (newValue instanceof Look) {
+      this.setLook(newValue, timing, Affinity.Intrinsic);
+    } else {
+      this.setState(newValue, timing, Affinity.Intrinsic);
+    }
+    return this.owner;
   },
 
   get inletLook(): Look<NonNullable<T>> | null {

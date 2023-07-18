@@ -56,7 +56,7 @@ export class ViewportService extends Service {
     update(): void {
       if (this.hasAffinity(Affinity.Intrinsic)) {
         const layoutViewport = this.detect();
-        this.setValue(layoutViewport, Affinity.Intrinsic);
+        this.setIntrinsic(layoutViewport);
       }
     },
     detect(): LayoutViewport {
@@ -106,7 +106,7 @@ export class ViewportService extends Service {
     update(): void {
       if (this.hasAffinity(Affinity.Intrinsic)) {
         const visualViewport = this.detect();
-        this.setValue(visualViewport, Affinity.Intrinsic);
+        this.setIntrinsic(visualViewport);
       }
     },
     detect(): VisualViewport {
@@ -165,7 +165,7 @@ export class ViewportService extends Service {
     update(): void {
       if (this.hasAffinity(Affinity.Intrinsic)) {
         const safeArea = this.detect();
-        this.setValue(safeArea, Affinity.Intrinsic);
+        this.setIntrinsic(safeArea);
       }
     },
     detect(): ViewInsets {
@@ -211,7 +211,7 @@ export class ViewportService extends Service {
     update(): void {
       if (this.hasAffinity(Affinity.Intrinsic)) {
         const orientation = this.detect();
-        this.setValue(orientation, Affinity.Intrinsic);
+        this.setIntrinsic(orientation);
       }
     },
     detect(): ViewportOrientation {
@@ -258,7 +258,7 @@ export class ViewportService extends Service {
     update(): void {
       if (this.hasAffinity(Affinity.Intrinsic)) {
         const colorScheme = this.detect();
-        this.setValue(colorScheme, Affinity.Intrinsic);
+        this.setIntrinsic(colorScheme);
       }
     },
     detect(): ViewportColorScheme {
@@ -303,7 +303,7 @@ export class ViewportService extends Service {
     update(): void {
       if (this.hasAffinity(Affinity.Intrinsic)) {
         const viewIdiom = this.detect();
-        this.setValue(viewIdiom, Affinity.Intrinsic);
+        this.setIntrinsic(viewIdiom);
       }
     },
     detect(): ViewIdiom {

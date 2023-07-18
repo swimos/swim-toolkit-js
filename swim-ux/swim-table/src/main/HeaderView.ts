@@ -15,12 +15,10 @@
 import type {Class} from "@swim/util";
 import type {Instance} from "@swim/util";
 import type {Creatable} from "@swim/util";
-import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import {Length} from "@swim/math";
 import type {Expansion} from "@swim/style";
 import {ExpansionAnimator} from "@swim/style";
-import {Look} from "@swim/theme";
 import {ThemeConstraintAnimator} from "@swim/theme";
 import type {ViewFlags} from "@swim/view";
 import {View} from "@swim/view";
@@ -53,9 +51,10 @@ export class HeaderView extends HtmlView {
 
   protected initHeader(): void {
     this.addClass("header");
-    this.position.setState("relative", Affinity.Intrinsic);
-    this.overflowX.setState("hidden", Affinity.Intrinsic);
-    this.overflowY.setState("hidden", Affinity.Intrinsic);
+    this.setIntrinsic<HeaderView>({
+      position: "relative",
+      overflow: "hidden",
+    });
   }
 
   declare readonly observerType?: Class<HeaderViewObserver>;
@@ -102,12 +101,14 @@ export class HeaderView extends HtmlView {
     viewType: ColView,
     binds: true,
     initView(colView: ColView): void {
-      colView.display.setState("none", Affinity.Intrinsic);
-      colView.position.setState("absolute", Affinity.Intrinsic);
-      colView.left.setState(0, Affinity.Intrinsic);
-      colView.top.setState(0, Affinity.Intrinsic);
-      colView.width.setState(0, Affinity.Intrinsic);
-      colView.height.setState(this.owner.height.state, Affinity.Intrinsic);
+      colView.setIntrinsic({
+        display: "none",
+        position: "absolute",
+        left: 0,
+        top: 0,
+        width: 0,
+        height: this.owner.height.state,
+      });
     },
     willAttachView(colView: ColView, target: View | null): void {
       this.owner.callObservers("viewWillAttachCol", colView, target, this.owner);
@@ -127,7 +128,7 @@ export class HeaderView extends HtmlView {
     this.rowHeight.recohere(this.updateTime);
     const rowHeight = this.rowHeight.value;
     if (rowHeight !== null) {
-      this.height.setState(rowHeight, Affinity.Intrinsic);
+      this.height.setIntrinsic(rowHeight);
     }
   }
 
@@ -149,24 +150,23 @@ export class HeaderView extends HtmlView {
         const key = child.key;
         const col = layout !== null && key !== void 0 ? layout.getCol(key) : null;
         if (col !== null) {
-          child.display.setState(!col.hidden && col.width !== null ? "flex" : "none", Affinity.Intrinsic);
-          child.left.setState(col.left, Affinity.Intrinsic);
-          child.width.setState(col.width, Affinity.Intrinsic);
-          child.height.setState(height, Affinity.Intrinsic);
-          const textColor = col.textColor;
-          if (textColor instanceof Look) {
-            child.color.setLook(textColor, Affinity.Intrinsic);
-          } else {
-            child.color.setState(textColor, Affinity.Intrinsic);
-          }
-          if (!col.persistent) {
-            child.opacity.setState(stretch, Affinity.Intrinsic);
-          }
+          child.setIntrinsic({
+            display: !col.hidden && col.width !== null ? "flex" : "none",
+            left: col.left,
+            width: col.width,
+            height,
+            color: col.textColor,
+            opacity: col.persistent ? void 0 : stretch,
+          });
         } else {
-          child.display.setState("none", Affinity.Intrinsic);
-          child.left.setState(null, Affinity.Intrinsic);
-          child.width.setState(null, Affinity.Intrinsic);
-          child.height.setState(null, Affinity.Intrinsic);
+          child.setIntrinsic({
+            display: "none",
+            left: null,
+            width: null,
+            height: null,
+            color: null,
+            opacity: void 0,
+          });
         }
       }
       displayChild.call(this, child, displayFlags);

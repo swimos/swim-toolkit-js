@@ -13,10 +13,11 @@
 // limitations under the License.
 
 import type {Proto} from "@swim/util";
+import type {LikeType} from "@swim/util";
 import type {FastenerClass} from "@swim/component";
-import type {Fastener} from "@swim/component";
+import {Fastener} from "@swim/component";
 import type {TraitFactory} from "@swim/model";
-import type {Trait} from "@swim/model";
+import {Trait} from "@swim/model";
 import type {TraitRef} from "@swim/model";
 import type {Controller} from "./Controller";
 import type {ControllerRefDescriptor} from "./ControllerRef";
@@ -25,20 +26,26 @@ import {ControllerRef} from "./ControllerRef";
 
 /** @public */
 export interface TraitControllerRefDescriptor<R, T extends Trait, C extends Controller> extends ControllerRefDescriptor<R, C> {
-  extends?: Proto<TraitControllerRef<any, any, any>> | boolean | null;
+  extends?: Proto<TraitControllerRef<any, any, any, any>> | boolean | null;
   traitKey?: string | boolean;
 }
 
 /** @public */
-export interface TraitControllerRefClass<F extends TraitControllerRef<any, any, any> = TraitControllerRef<any, any, any>> extends ControllerRefClass<F> {
+export interface TraitControllerRefClass<F extends TraitControllerRef<any, any, any, any> = TraitControllerRef<any, any, any, any>> extends ControllerRefClass<F> {
 }
 
 /** @public */
-export interface TraitControllerRef<R = any, T extends Trait = Trait, C extends Controller = Controller> extends ControllerRef<R, C> {
+export interface TraitControllerRef<R = any, T extends Trait = Trait, C extends Controller = Controller, I extends any[] = [C | null]> extends ControllerRef<R, C, I> {
   /** @override */
   get descriptorType(): Proto<TraitControllerRefDescriptor<R, T, C>>;
 
   getTraitRef(controller: C): TraitRef<any, T>;
+
+  /** @override */
+  set(traitOrController: T | C | LikeType<C> | Fastener<any, I[0], any> | null): R;
+
+  /** @override */
+  setIntrinsic(traitOrController: T | C | LikeType<C> | Fastener<any, I[0], any> | null): R;
 
   get traitType(): TraitFactory<T> | null;
 
@@ -48,9 +55,9 @@ export interface TraitControllerRef<R = any, T extends Trait = Trait, C extends 
 
   getTrait(): T;
 
-  setTrait(trait: T | null, targetTrait?: Trait | null, key?: string): C | null;
+  setTrait(trait: T | LikeType<T> | null, targetTrait?: Trait | null, key?: string): C | null;
 
-  attachTrait(trait?: T, targetTrait?: Trait | null): C;
+  attachTrait(trait?: T | LikeType<T> | null, targetTrait?: Trait | null): C;
 
   /** @protected */
   initTrait(trait: T, controller: C): void;
@@ -78,13 +85,16 @@ export interface TraitControllerRef<R = any, T extends Trait = Trait, C extends 
   /** @protected */
   didDetachTrait(trait: T, controller: C): void;
 
-  insertTrait(parent?: Controller | null, trait?: T, targetTrait?: Trait | null, key?: string): C;
+  insertTrait(parent?: Controller | null, trait?: T | LikeType<T>, targetTrait?: Trait | null, key?: string): C;
 
   removeTrait(trait: T | null): C | null;
 
   deleteTrait(trait: T | null): C | null;
 
   createTrait(): T;
+
+  /** @protected */
+  fromTraitLike(value: T | LikeType<T>): T;
 
   /** @protected @override */
   onAttachController(controller: C, targetController: Controller | null): void;
@@ -96,9 +106,31 @@ export interface TraitControllerRef<R = any, T extends Trait = Trait, C extends 
 }
 
 /** @public */
-export const TraitControllerRef = (<R, T extends Trait, C extends Controller, F extends TraitControllerRef<any, any, any>>() => ControllerRef.extend<TraitControllerRef<R, T, C>, TraitControllerRefClass<F>>("TraitControllerRef", {
+export const TraitControllerRef = (<R, T extends Trait, C extends Controller, I extends any[], F extends TraitControllerRef<any, any, any, any>>() => ControllerRef.extend<TraitControllerRef<R, T, C, I>, TraitControllerRefClass<F>>("TraitControllerRef", {
   getTraitRef(controller: C): TraitRef<any, T> {
     throw new Error("missing implementation");
+  },
+
+  set(traitOrController: T | C | LikeType<C> | Fastener<any, I[0], any> | null): R {
+    if (traitOrController instanceof Fastener) {
+      this.bindInlet(traitOrController);
+    } else if (traitOrController instanceof Trait) {
+      this.setTrait(traitOrController);
+    } else {
+      this.setController(traitOrController);
+    }
+    return this.owner;
+  },
+
+  setIntrinsic(traitOrController: T | C | LikeType<C> | Fastener<any, I[0], any> | null): R {
+    if (traitOrController instanceof Fastener) {
+      this.bindInlet(traitOrController);
+    } else if (traitOrController instanceof Trait) {
+      this.setTrait(traitOrController);
+    } else {
+      this.setController(traitOrController);
+    }
+    return this.owner;
   },
 
   traitType: null,
@@ -128,9 +160,10 @@ export const TraitControllerRef = (<R, T extends Trait, C extends Controller, F 
     return trait;
   },
 
-  setTrait(trait: T | null, targetTrait?: Trait | null, key?: string): C | null {
+  setTrait(trait: T | LikeType<T> | null, targetTrait?: Trait | null, key?: string): C | null {
     let controller = this.controller;
     if (trait !== null) {
+      trait = this.fromTraitLike(trait);
       if (controller === null) {
         controller = this.createController(trait);
       }
@@ -144,9 +177,11 @@ export const TraitControllerRef = (<R, T extends Trait, C extends Controller, F 
     return controller;
   },
 
-  attachTrait(trait?: T | null, targetTrait?: Trait | null): C {
+  attachTrait(trait?: T | LikeType<T> | null, targetTrait?: Trait | null): C {
     if (trait === void 0 || trait === null) {
       trait = this.createTrait();
+    } else {
+      trait = this.fromTraitLike(trait);
     }
     let controller = this.controller;
     if (controller === null) {
@@ -202,9 +237,11 @@ export const TraitControllerRef = (<R, T extends Trait, C extends Controller, F 
     // hook
   },
 
-  insertTrait(parent?: Controller | null, trait?: T, targetTrait?: Trait | null, key?: string): C {
+  insertTrait(parent?: Controller | null, trait?: T | LikeType<T>, targetTrait?: Trait | null, key?: string): C {
     if (trait === void 0 || trait === null) {
       trait = this.createTrait();
+    } else {
+      trait = this.fromTraitLike(trait);
     }
     let controller = this.controller;
     if (controller === null) {
@@ -241,6 +278,14 @@ export const TraitControllerRef = (<R, T extends Trait, C extends Controller, F 
     controller.remove();
     this.setController(null);
     return controller;
+  },
+
+  fromTraitLike(value: T | LikeType<T>): T {
+    const traitType = this.traitType;
+    if (traitType !== null) {
+      return traitType.fromLike(value);
+    }
+    return Trait.fromLike(value) as T;
   },
 
   onAttachController(controller: C, targetController: Controller | null): void {
@@ -284,7 +329,7 @@ export const TraitControllerRef = (<R, T extends Trait, C extends Controller, F 
     return fastener;
   },
 
-  refine(fastenerClass: FastenerClass<TraitControllerRef<any, any, any>>): void {
+  refine(fastenerClass: FastenerClass<TraitControllerRef<any, any, any, any>>): void {
     super.refine(fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

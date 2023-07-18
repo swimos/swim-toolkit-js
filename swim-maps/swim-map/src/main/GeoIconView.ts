@@ -165,7 +165,7 @@ export class GeoIconView extends GeoFeatureView implements IconView {
       const viewCenter = geoCenter !== null && geoCenter.isDefined()
                        ? geoViewport.project(geoCenter)
                        : null;
-      (this.viewCenter as Mutable<typeof this.viewCenter>).value = viewCenter; // this.viewCenter.setValue(viewCenter, Affinity.Intrinsic)
+      (this.viewCenter as Mutable<typeof this.viewCenter>).value = viewCenter; // this.viewCenter.setIntrinsic(viewCenter);
     }
     const viewFrame = this.viewFrame;
     (this as Mutable<GeoIconView>).viewBounds = this.deriveViewBounds(viewFrame);

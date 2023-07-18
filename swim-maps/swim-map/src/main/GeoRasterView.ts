@@ -184,7 +184,7 @@ export class GeoRasterView extends GeoView {
       viewAnchor = geoAnchor !== null && geoAnchor.isDefined()
                  ? geoViewport.project(geoAnchor)
                  : null;
-      this.viewAnchor.setValue(viewAnchor, Affinity.Intrinsic);
+      this.viewAnchor.setIntrinsic(viewAnchor);
     } else {
       viewAnchor = this.viewAnchor.value;
     }

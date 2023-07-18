@@ -14,6 +14,8 @@
 
 import type {Class} from "@swim/util";
 import type {Observes} from "@swim/util";
+import type {Like} from "@swim/util";
+import type {LikeType} from "@swim/util";
 import type {Trait} from "@swim/model";
 import type {View} from "@swim/view";
 import {ViewRef} from "@swim/view";
@@ -121,16 +123,17 @@ export class PanelController extends Controller {
     initView(titleView: HtmlView): void {
       this.owner.panel.attachView().headerTitle.setView(titleView);
     },
-    setText(title: string | undefined): HtmlView {
-      return this.owner.panel.attachView().headerTitle.setText(title);
+    fromLike(value: HtmlView | LikeType<HtmlView> | string | undefined): HtmlView {
+      if (value === void 0 || typeof value === "string") {
+        return this.owner.panel.attachView().headerTitle.fromLike(value);
+      }
+      return super.fromLike(value);
     },
     createView(): HtmlView {
       return this.owner.panel.attachView().headerTitle.createView();
     },
   })
-  readonly panelTitle!: ViewRef<this, HtmlView> & {
-    setText(title: string | undefined): HtmlView,
-  };
+  readonly panelTitle!: ViewRef<this, Like<HtmlView, string | undefined>>;
 
   @ViewRef({
     viewType: HtmlView,
@@ -141,16 +144,17 @@ export class PanelController extends Controller {
     initView(subtitleView: HtmlView): void {
       this.owner.panel.attachView().headerSubtitle.setView(subtitleView);
     },
-    setText(subtitle: string | undefined): HtmlView {
-      return this.owner.panel.attachView().headerSubtitle.setText(subtitle);
+    fromLike(value: HtmlView | LikeType<HtmlView> | string | undefined): HtmlView {
+      if (value === void 0 || typeof value === "string") {
+        return this.owner.panel.attachView().headerSubtitle.fromLike(value);
+      }
+      return super.fromLike(value);
     },
     createView(): HtmlView {
       return this.owner.panel.attachView().headerSubtitle.createView();
     },
   })
-  readonly panelSubtitle!: ViewRef<this, HtmlView> & {
-    setText(subtitle: string | undefined): HtmlView,
-  };
+  readonly panelSubtitle!: ViewRef<this, Like<HtmlView, string | undefined>>;
 
   @TraitViewControllerSet({
     get controllerType(): typeof PanelController {

@@ -99,9 +99,11 @@ export class TableView extends HtmlView {
 
   protected initTable(): void {
     this.addClass("table");
-    this.position.setState("relative", Affinity.Intrinsic);
-    this.backgroundColor.setLook(Look.backgroundColor, Affinity.Intrinsic);
-    this.boxSizing.setState("border-box", Affinity.Intrinsic);
+    this.setIntrinsic<TableView>({
+      position: "relative",
+      backgroundColor: Look.backgroundColor,
+      boxSizing: "border-box",
+    });
   }
 
   declare readonly observerType?: Class<TableViewObserver>;
@@ -151,7 +153,7 @@ export class TableView extends HtmlView {
     },
     didSetValue(newExpansion: Expansion, oldExpansion: Expansion): void {
       if (newExpansion.phase !== 1) {
-        this.owner.expanding.setState(newExpansion, Affinity.Intrinsic);
+        this.owner.expanding.setIntrinsic(newExpansion);
       } else {
         this.owner.expanding.setAffinity(Affinity.Transient);
       }
@@ -182,12 +184,14 @@ export class TableView extends HtmlView {
     viewKey: true,
     binds: true,
     initView(headerView: HeaderView): void {
-      headerView.display.setState("none", Affinity.Intrinsic);
-      headerView.position.setState("absolute", Affinity.Intrinsic);
-      headerView.left.setState(0, Affinity.Intrinsic);
-      headerView.top.setState(null, Affinity.Intrinsic);
       const layout = this.owner.layout.value;
-      headerView.width.setState(layout !== null ? layout.width : null, Affinity.Intrinsic);
+      headerView.setIntrinsic({
+        display: "none",
+        position: "absolute",
+        left: 0,
+        top: null,
+        width: layout !== null ? layout.width : null,
+      });
       headerView.setCulled(true);
     },
     willAttachView(headerView: HeaderView): void {
@@ -235,12 +239,14 @@ export class TableView extends HtmlView {
     binds: true,
     observes: true,
     initView(rowView: RowView): void {
-      rowView.display.setState("none", Affinity.Intrinsic);
-      rowView.position.setState("absolute", Affinity.Intrinsic);
-      rowView.left.setState(0, Affinity.Intrinsic);
-      rowView.top.setState(null, Affinity.Intrinsic);
       const layout = this.owner.layout.value;
-      rowView.width.setState(layout !== null ? layout.width : null, Affinity.Intrinsic);
+      rowView.setIntrinsic({
+        display: "none",
+        position: "absolute",
+        left: 0,
+        top: null,
+        width: layout !== null ? layout.width : null,
+      });
       rowView.setCulled(true);
     },
     willAttachView(rowView: RowView, target: View | null): void {
@@ -378,7 +384,7 @@ export class TableView extends HtmlView {
       let right = edgeInsets !== null ? edgeInsets.insetRight : 0;
       right += paddingRight;
       const newLayout = oldLayout.resized(width, left, right);
-      this.layout.setValue(newLayout);
+      this.layout.set(newLayout);
     }
   }
 
@@ -449,7 +455,7 @@ export class TableView extends HtmlView {
           const yMax1 = yMin1 + height.pxValue();
           isVisible = disclosingPhase !== 0 && (child instanceof HeaderView || expandingPhase !== 0)
                    && yMin0 <= yMax1 && yMin1 <= yMax0 && yMin1 !== yMax1;
-          child.display.setState(isVisible ? "flex" : "none", Affinity.Intrinsic);
+          child.display.setIntrinsic(isVisible ? "flex" : "none");
           child.setCulled(!isVisible);
         } else {
           isVisible = true;
@@ -534,10 +540,10 @@ export class TableView extends HtmlView {
           if (yValue !== yState || child.display.value === "none") {
             child.top.setInterpolatedValue(Length.px(yValue), Length.px(yState));
           } else {
-            child.top.setState(yState, timing, Affinity.Intrinsic);
+            child.top.setIntrinsic(yState, timing);
           }
         }
-        child.width.setState(width, Affinity.Intrinsic);
+        child.width.setIntrinsic(width);
       }
       let isVisible: boolean;
       if (child instanceof HtmlView) {
@@ -554,11 +560,11 @@ export class TableView extends HtmlView {
           isVisible = true;
         }
         if (child instanceof RowView) {
-          child.opacity.setState(disclosurePhase * expandingPhase, Affinity.Intrinsic);
+          child.opacity.setIntrinsic(disclosurePhase * expandingPhase);
         } else {
-          child.opacity.setState(disclosurePhase, Affinity.Intrinsic);
+          child.opacity.setIntrinsic(disclosurePhase);
         }
-        child.display.setState(isVisible ? "flex" : "none", Affinity.Intrinsic);
+        child.display.setIntrinsic(isVisible ? "flex" : "none");
         child.setCulled(!isVisible);
       } else {
         isVisible = true;

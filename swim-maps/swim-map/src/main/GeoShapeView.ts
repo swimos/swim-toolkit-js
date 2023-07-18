@@ -66,10 +66,10 @@ export class GeoShapeView extends GeoFeatureView implements FillView, StrokeView
     didSetValue(geoShape: GeoShape | null): void {
       if (geoShape !== null) {
         this.owner.setGeoBounds(geoShape.bounds);
-        this.owner.geoCentroid.setState(geoShape.bounds.center, Affinity.Intrinsic);
+        this.owner.geoCentroid.setIntrinsic(geoShape.bounds.center);
       } else {
         this.owner.setGeoBounds(GeoBox.undefined());
-        this.owner.geoCentroid.setState(null, Affinity.Intrinsic);
+        this.owner.geoCentroid.setIntrinsic(null);
       }
       if (this.mounted) {
         this.owner.projectShape();
@@ -140,7 +140,7 @@ export class GeoShapeView extends GeoFeatureView implements FillView, StrokeView
     if (this.viewShape.hasAffinity(Affinity.Intrinsic)) {
       const geoShape = this.geoShape.value;
       viewShape = geoShape !== null && geoShape.isDefined() ? geoShape.project(geoViewport) : null;
-      this.viewShape.setState(viewShape, Affinity.Intrinsic);
+      this.viewShape.setIntrinsic(viewShape);
     } else {
       viewShape = this.viewShape.value;
     }
@@ -150,7 +150,7 @@ export class GeoShapeView extends GeoFeatureView implements FillView, StrokeView
       const viewCentroid = geoCentroid !== null && geoCentroid.isDefined()
                          ? geoViewport.project(geoCentroid)
                          : null;
-      this.viewCentroid.setState(viewCentroid, Affinity.Intrinsic);
+      this.viewCentroid.setIntrinsic(viewCentroid);
     }
 
     (this as Mutable<this>).viewBounds = viewShape !== null ? viewShape.bounds : this.viewFrame;

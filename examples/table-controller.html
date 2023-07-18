@@ -21,11 +21,12 @@
 
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-const containerView = bodyView.appendChild("div");
-containerView.position.setState("relative");
-containerView.flexGrow.setState(1);
-containerView.margin(60);
-containerView.userSelect.setState("none");
+const containerView = bodyView.appendChild("div").set({
+  position: "relative",
+  flexGrow: 1,
+  margin: 60,
+  userSelect: "none",
+});
 
 const ExampleTableController = (function () {
   const instanceInitializers = [];
@@ -51,7 +52,7 @@ const ExampleTableController = (function () {
     attachCellView(cellView, cellController, rowController) {
       super.attachCellView(cellView, cellController, rowController);
       if (cellFastener.key === "a") {
-        cellView.color.setState("#989898");
+        cellView.color.set("#989898");
       }
     },
   })], {kind: "field", name: "rows", static: false, private: false, access: {has: obj => "rows" in obj, get: obj => obj.rows, set: (obj, value) => { obj.appBar = value; }}}, rowInitializers, instanceInitializers);
@@ -63,23 +64,25 @@ tableModel.mount();
 const tableTrait = new swim.TableTrait();
 tableModel.setTrait("table", tableTrait);
 tableTrait.header.insertTrait();
-const colATrait = new swim.TextColTrait();
-colATrait.layout.setValue({key: "a", grow: 2, textColor: swim.Look.labelColor});
-colATrait.label.setValue("A");
-tableTrait.setTrait("a", colATrait);
-const colBTrait = new swim.TextColTrait();
-colBTrait.layout.setValue({key: "b", grow: 1});
-colBTrait.label.setValue("B");
-tableTrait.setTrait("b", colBTrait);
+tableTrait.appendTrait(swim.TextColTrait, "a").set({
+  layout: {key: "a", grow: 2, textColor: swim.Look.labelColor},
+  label: "A",
+});
+tableTrait.appendTrait(swim.TextColTrait, "b").set({
+  layout: {key: "b", grow: 1},
+  label: "B",
+});
 
 function createRowModel(i) {
   const rowModel = new swim.Model();
   const rowTrait = new swim.RowTrait();
   rowModel.setTrait("row", rowTrait);
-  const cellATrait = rowTrait.getOrCreateCell("a", swim.TextCellTrait);
-  cellATrait.content.setValue(i + "A");
-  const cellBTrait = rowTrait.getOrCreateCell("b", swim.TextCellTrait);
-  cellBTrait.content.setValue(i + "B");
+  rowTrait.getOrCreateCell("a", swim.TextCellTrait).set({
+    content: i + "A",
+  });
+  rowTrait.getOrCreateCell("b", swim.TextCellTrait).set({
+    content: i + "B",
+  });
   return rowModel;
 }
 for (let i = 1; i <= 100; i += 1) {

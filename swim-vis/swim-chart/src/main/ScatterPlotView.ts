@@ -22,7 +22,6 @@ import type {TimingLike} from "@swim/util";
 import {LinearRange} from "@swim/util";
 import type {ContinuousScale} from "@swim/util";
 import type {Observes} from "@swim/util";
-import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import type {R2Box} from "@swim/math";
 import {Font} from "@swim/style";
@@ -448,8 +447,8 @@ export abstract class ScatterPlotView<X = unknown, Y = unknown> extends Graphics
 
     this.setXDataDomain(point0 !== null ? this.xScale.createDomain(xDataDomainMin!, xDataDomainMax!) : null);
     this.setYDataDomain(point0 !== null ? this.yScale.createDomain(yDataDomainMin!, yDataDomainMax!) : null);
-    this.xRangePadding.setValue([xRangePaddingMin, xRangePaddingMax], Affinity.Intrinsic);
-    this.yRangePadding.setValue([yRangePaddingMin, yRangePaddingMax], Affinity.Intrinsic);
+    this.xRangePadding.setIntrinsic([xRangePaddingMin, xRangePaddingMax]);
+    this.yRangePadding.setIntrinsic([yRangePaddingMin, yRangePaddingMax]);
   }
 
   protected override didRender(): void {

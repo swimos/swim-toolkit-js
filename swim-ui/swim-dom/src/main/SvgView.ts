@@ -13,11 +13,12 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {Proto} from "@swim/util";
 import type {Instance} from "@swim/util";
 import type {LikeType} from "@swim/util";
 import type {TimingLike} from "@swim/util";
 import {Creatable} from "@swim/util";
+import {Affinity} from "@swim/component";
+import {Fastener} from "@swim/component";
 import {Length} from "@swim/math";
 import {Transform} from "@swim/math";
 import type {FontStyle} from "@swim/style";
@@ -150,8 +151,7 @@ export class SvgView extends ElementView {
     super(node);
   }
 
-  /** @override */
-  declare readonly likeType?: Proto<{create?(): SvgView} | (Element & {create?(): SvgView}) | (keyof SvgViewTagMap & {create?(): SvgView})>;
+  override likeType?(like: {create?(): View} | Node | keyof SvgViewTagMap): void;
 
   declare readonly observerType?: Class<SvgViewObserver>;
 
@@ -454,52 +454,56 @@ export class SvgView extends ElementView {
     return StyleAnimator.dummy();
   }
 
-  font(): Font | null;
-  font(value: FontLike | null, timing?: TimingLike | boolean): this;
-  font(value?: FontLike | null, timing?: TimingLike | boolean): Font | null | this {
-    if (value === void 0) {
-      const style = this.fontStyle.value;
-      const variant = this.fontVariant.value;
-      const weight = this.fontWeight.value;
-      const stretch = this.fontStretch.value;
-      const size = this.fontSize.value;
-      const height = this.lineHeight.value;
-      const family = this.fontFamily.value;
+  @Fastener({
+    get(): Font | null {
+      const style = this.owner.fontStyle.value;
+      const variant = this.owner.fontVariant.value;
+      const weight = this.owner.fontWeight.value;
+      const stretch = this.owner.fontStretch.value;
+      const size = this.owner.fontSize.value;
+      const height = this.owner.lineHeight.value;
+      const family = this.owner.fontFamily.value;
       if (family === void 0) {
         return null;
       }
       return Font.create(style, variant, weight, stretch, size, height, family);
-    } if (value !== null) {
+    },
+    set(value: FontLike | null, timing?: TimingLike | boolean | null): SvgView {
+      this.setState(value, timing, Affinity.Extrinsic);
+      return this.owner;
+    },
+    setIntrinsic(value: FontLike | null, timing?: TimingLike | boolean | null): SvgView {
+      this.setState(value, timing, Affinity.Intrinsic);
+      return this.owner;
+    },
+    setState(value: FontLike | null, timing: TimingLike | boolean | null | undefined, affinity: Affinity): void {
+      if (value === null) {
+        this.owner.fontStyle.setState(void 0, timing, affinity);
+        this.owner.fontVariant.setState(void 0, timing, affinity);
+        this.owner.fontWeight.setState(void 0, timing, affinity);
+        this.owner.fontStretch.setState(void 0, timing, affinity);
+        this.owner.fontSize.setState(null, timing, affinity);
+        this.owner.lineHeight.setState(null, timing, affinity);
+        this.owner.fontFamily.setState(void 0, timing, affinity);
+        return;
+      }
       value = Font.fromLike(value);
-      if (value.style !== void 0) {
-        this.fontStyle.setState(value.style, timing);
-      }
-      if (value.variant !== void 0) {
-        this.fontVariant.setState(value.variant, timing);
-      }
-      if (value.weight !== void 0) {
-        this.fontWeight.setState(value.weight, timing);
-      }
-      if (value.stretch !== void 0) {
-        this.fontStretch.setState(value.stretch, timing);
-      }
-      if (value.size !== void 0) {
-        this.fontSize.setState(value.size, timing);
-      }
-      if (value.height !== void 0) {
-        this.lineHeight.setState(value.height, timing);
-      }
-      this.fontFamily.setState(value.family, timing);
-    } else {
-      this.fontStyle.setState(void 0, timing);
-      this.fontVariant.setState(void 0, timing);
-      this.fontWeight.setState(void 0, timing);
-      this.fontStretch.setState(void 0, timing);
-      this.fontSize.setState(null, timing);
-      this.lineHeight.setState(null, timing);
-      this.fontFamily.setState(void 0, timing);
-    }
-    return this;
+      this.owner.fontStyle.setState(value.style, timing, affinity);
+      this.owner.fontVariant.setState(value.variant, timing, affinity);
+      this.owner.fontWeight.setState(value.weight, timing, affinity);
+      this.owner.fontStretch.setState(value.stretch, timing, affinity);
+      this.owner.fontSize.setState(value.size, timing, affinity);
+      this.owner.lineHeight.setState(value.height, timing, affinity);
+      this.owner.fontFamily.setState(value.family, timing, affinity);
+    },
+  })
+  get font(): Fastener<this> & {
+    get(): Font | null;
+    set(value: FontLike | null, timing?: TimingLike | boolean | null): SvgView;
+    setIntrinsic(value: FontLike | null, timing?: TimingLike | boolean | null): SvgView;
+    setState(value: FontLike | null, timing: TimingLike | boolean | null | undefined, affinity: Affinity): void;
+  } {
+    return Fastener.dummy();
   }
 
   @StyleAnimator({propertyNames: "font-family", valueType: FontFamily})

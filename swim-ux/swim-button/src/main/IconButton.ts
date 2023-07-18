@@ -55,20 +55,18 @@ export class IconButton extends ButtonMembrane implements IconView {
 
   protected initButton(): void {
     this.addClass("icon-button");
-    this.position.setState("relative", Affinity.Intrinsic);
-    this.width.setState(44, Affinity.Intrinsic);
-    this.height.setState(44, Affinity.Intrinsic);
-    this.display.setState("flex", Affinity.Intrinsic);
-    this.justifyContent.setState("center", Affinity.Intrinsic);
-    this.alignItems.setState("center", Affinity.Intrinsic);
-    this.borderTopLeftRadius.setState(4, Affinity.Intrinsic);
-    this.borderTopRightRadius.setState(4, Affinity.Intrinsic);
-    this.borderBottomLeftRadius.setState(4, Affinity.Intrinsic);
-    this.borderBottomRightRadius.setState(4, Affinity.Intrinsic);
-    this.overflowX.setState("hidden", Affinity.Intrinsic);
-    this.overflowY.setState("hidden", Affinity.Intrinsic);
-    this.userSelect.setState("none", Affinity.Intrinsic);
-    this.cursor.setState("pointer", Affinity.Intrinsic);
+    this.setIntrinsic<IconButton>({
+      position: "relative",
+      width: 44,
+      height: 44,
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      borderRadius: 4,
+      overflow: "hidden",
+      userSelect: "none",
+      cursor: "pointer",
+    });
   }
 
   protected initTheme(): void {
@@ -92,7 +90,7 @@ export class IconButton extends ButtonMembrane implements IconView {
     updateFlags: View.NeedsLayout,
     didSetState(iconColor: Color | null): void {
       const timing = this.timing !== null ? this.timing : false;
-      this.owner.graphics.setState(this.owner.graphics.state, timing, Affinity.Reflexive);
+      this.owner.graphics.setIntrinsic(this.owner.graphics.state, timing);
     },
   })
   readonly iconColor!: ThemeAnimator<this, Color | null>;
@@ -111,7 +109,7 @@ export class IconButton extends ButtonMembrane implements IconView {
     observes: true,
     viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, iconView: SvgIconView): void {
       const iconColor = theme.getOr(Look.backgroundColor, mood, null);
-      iconView.iconColor.setState(iconColor, timing);
+      iconView.iconColor.set(iconColor, timing);
     },
     viewDidAnimate(iconView: SvgIconView): void {
       if (!iconView.opacity.tweening && iconView !== this.owner.icon.view) {
@@ -119,11 +117,12 @@ export class IconButton extends ButtonMembrane implements IconView {
       }
     },
     viewWillLayout(iconView: SvgIconView): void {
-      const viewWidth = this.owner.width.pxValue();
-      const viewHeight = this.owner.height.pxValue();
-      iconView.width.setState(viewWidth, Affinity.Intrinsic);
-      iconView.height.setState(viewHeight, Affinity.Intrinsic);
-      iconView.viewBox.setState("0 0 " + viewWidth + " " + viewHeight, Affinity.Intrinsic);
+      const width = this.owner.width.pxValue();
+      const height = this.owner.height.pxValue();
+      iconView.setIntrinsic({
+        width, height,
+        viewBox: "0 0 " + width + " " + height,
+      });
     },
   })
   readonly icons!: ViewSet<this, SvgIconView> & Observes<SvgIconView>;
@@ -135,9 +134,11 @@ export class IconButton extends ButtonMembrane implements IconView {
       iconView.setStyle("position", "absolute");
       iconView.setStyle("left", "0");
       iconView.setStyle("top", "0");
-      iconView.opacity.setState(0, Affinity.Intrinsic);
-      iconView.cssTransform.setState(Transform.rotate(Angle.deg(-90)), Affinity.Intrinsic);
-      iconView.pointerEvents.setState("none", Affinity.Intrinsic);
+      iconView.setIntrinsic({
+        opacity: 0,
+        cssTransform: Transform.rotate(Angle.deg(-90)),
+        pointerEvents: "none",
+      });
       iconView.iconLayout.setInherits(true);
       iconView.iconColor.setInherits(true);
       return iconView;
@@ -154,19 +155,24 @@ export class IconButton extends ButtonMembrane implements IconView {
       const oldIconView = this.view;
       if (oldIconView !== null) {
         if (timing !== false) {
-          oldIconView.opacity.setState(0, timing, Affinity.Intrinsic);
-          oldIconView.transform.setState(Transform.rotate(Angle.deg(90)), timing, Affinity.Intrinsic);
+          oldIconView.setIntrinsic({
+            opacity: 0,
+            transform: Transform.rotate(Angle.deg(90)),
+          }, timing);
         } else {
           this.owner.icons.deleteView(oldIconView);
         }
       }
 
-      const newIconView = this.createView();
-      newIconView.graphics.setState(icon, Affinity.Intrinsic);
+      const newIconView = this.createView().setIntrinsic({
+        graphics: icon,
+      });
       this.owner.icons.attachView(newIconView);
       this.insertView(void 0, newIconView);
-      newIconView.opacity.setState(1, timing, Affinity.Intrinsic);
-      newIconView.transform.setState(Transform.rotate(Angle.deg(0)), timing, Affinity.Intrinsic);
+      newIconView.setIntrinsic({
+        opacity: 1,
+        transform: Transform.rotate(Angle.deg(0)),
+      }, timing);
 
       return newIconView;
     },
@@ -189,8 +195,10 @@ export class IconButton extends ButtonMembrane implements IconView {
 
       if (oldIconView !== null) {
         if (timing !== false) {
-          oldIconView.opacity.setState(0, timing, Affinity.Intrinsic);
-          oldIconView.transform.setState(Transform.rotate(Angle.deg(-90)), timing, Affinity.Intrinsic);
+          oldIconView.setIntrinsic({
+            opacity: 0,
+            transform: Transform.rotate(Angle.deg(-90)),
+          }, timing);
           this.owner.icons.insertView(void 0, oldIconView);
         } else {
           this.owner.icons.deleteView(oldIconView);
@@ -199,8 +207,10 @@ export class IconButton extends ButtonMembrane implements IconView {
 
       if (newIconView !== null) {
         this.insertView(void 0, newIconView);
-        newIconView.opacity.setState(1, timing, Affinity.Intrinsic);
-        newIconView.transform.setState(Transform.rotate(Angle.deg(0)), timing, Affinity.Intrinsic);
+        newIconView.setIntrinsic({
+          opacity: 1,
+          transform: Transform.rotate(Angle.deg(0)),
+        }, timing);
       }
 
       return oldIconView;
@@ -221,7 +231,7 @@ export class IconButton extends ButtonMembrane implements IconView {
         this.owner.modifyMood(Feel.default, [[Feel.hovering, 1]]);
         const timing = this.owner.getLook(Look.timing);
         if (this.owner.backgroundColor.hasAffinity(Affinity.Intrinsic)) {
-          this.owner.backgroundColor.setState(this.owner.getLookOr(Look.backgroundColor, null), timing, Affinity.Intrinsic);
+          this.owner.backgroundColor.setIntrinsic(this.owner.getLookOr(Look.backgroundColor, null), timing);
         }
       }
     },
@@ -233,7 +243,7 @@ export class IconButton extends ButtonMembrane implements IconView {
         if (backgroundColor !== null) {
           backgroundColor = backgroundColor.alpha(0);
         }
-        this.owner.backgroundColor.setState(backgroundColor, timing, Affinity.Intrinsic);
+        this.owner.backgroundColor.setIntrinsic(backgroundColor, timing);
       }
     },
   })
@@ -255,13 +265,13 @@ export class IconButton extends ButtonMembrane implements IconView {
       if (!this.gesture.hovering && backgroundColor instanceof Color) {
         backgroundColor = backgroundColor.alpha(0);
       }
-      this.backgroundColor.setState(backgroundColor, timing, Affinity.Intrinsic);
+      this.backgroundColor.setIntrinsic(backgroundColor, timing);
     }
     if (!this.graphics.derived) {
       const oldGraphics = this.graphics.value;
       if (oldGraphics instanceof Icon) {
         const newGraphics = oldGraphics.withTheme(theme, mood);
-        this.graphics.setState(newGraphics, oldGraphics.isThemed() ? timing : false, Affinity.Reflexive);
+        this.graphics.setIntrinsic(newGraphics, oldGraphics.isThemed() ? timing : false);
       }
     }
   }

@@ -14,7 +14,6 @@
 
 import type {Class} from "@swim/util";
 import type {Observes} from "@swim/util";
-import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import {Length} from "@swim/math";
 import type {Model} from "@swim/model";
@@ -65,7 +64,7 @@ export class TableTrait extends Trait {
 
   protected updateLayout(): void {
     const layout = this.createLayout();
-    this.layout.setValue(layout, Affinity.Intrinsic);
+    this.layout.setIntrinsic(layout);
   }
 
   @Property({

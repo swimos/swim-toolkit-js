@@ -30,13 +30,13 @@ import {TraitRelation} from "./TraitRelation";
 
 /** @public */
 export interface TraitSetDescriptor<R, T extends Trait> extends TraitRelationDescriptor<R, T> {
-  extends?: Proto<TraitSet<any, any>> | boolean | null;
+  extends?: Proto<TraitSet<any, any, any>> | boolean | null;
   ordered?: boolean;
   sorted?: boolean;
 }
 
 /** @public */
-export interface TraitSetClass<F extends TraitSet<any, any> = TraitSet<any, any>> extends TraitRelationClass<F> {
+export interface TraitSetClass<F extends TraitSet<any, any, any> = TraitSet<any, any, any>> extends TraitRelationClass<F> {
   /** @internal */
   readonly OrderedFlag: FastenerFlags;
   /** @internal */
@@ -49,15 +49,15 @@ export interface TraitSetClass<F extends TraitSet<any, any> = TraitSet<any, any>
 }
 
 /** @public */
-export interface TraitSet<R = any, T extends Trait = Trait> extends TraitRelation<R, T> {
+export interface TraitSet<R = any, T extends Trait = Trait, I extends any[] = [T | null]> extends TraitRelation<R, T, I> {
   /** @override */
   get descriptorType(): Proto<TraitSetDescriptor<R, T>>;
 
   /** @override */
-  get fastenerType(): Proto<TraitSet<any, any>>;
+  get fastenerType(): Proto<TraitSet<any, any, any>>;
 
   /** @override */
-  get parent(): TraitSet<any, T> | null;
+  get parent(): TraitSet<any, T, any> | null;
 
   /** @internal */
   readonly traits: {readonly [traitId: string]: T | undefined};
@@ -78,7 +78,7 @@ export interface TraitSet<R = any, T extends Trait = Trait> extends TraitRelatio
 
   setTraits(traits: {readonly [traitId: string]: T | undefined}, target?: Trait | null): void;
 
-  attachTrait(trait?: T | LikeType<T>, target?: Trait | null): T;
+  attachTrait(trait?: T | LikeType<T> | null, target?: Trait | null): T;
 
   attachTraits(traits: {readonly [traitId: string]: T | undefined}, target?: Trait | null): void;
 
@@ -168,8 +168,8 @@ export interface TraitSet<R = any, T extends Trait = Trait> extends TraitRelatio
 }
 
 /** @public */
-export const TraitSet = (<R, T extends Trait, F extends TraitSet<any, any>>() => TraitRelation.extend<TraitSet<R, T>, TraitSetClass<F>>("TraitSet", {
-  get fastenerType(): Proto<TraitSet<any, any>> {
+export const TraitSet = (<R, T extends Trait, I extends any[], F extends TraitSet<any, any, any>>() => TraitRelation.extend<TraitSet<R, T, I>, TraitSetClass<F>>("TraitSet", {
+  get fastenerType(): Proto<TraitSet<any, any, any>> {
     return TraitSet;
   },
 
@@ -273,7 +273,7 @@ export const TraitSet = (<R, T extends Trait, F extends TraitSet<any, any>>() =>
     }
   },
 
-  attachTrait(newTrait?: T | LikeType<T>, target?: Trait | null): T {
+  attachTrait(newTrait?: T | LikeType<T> | null, target?: Trait | null): T {
     if (newTrait !== void 0 && newTrait !== null) {
       newTrait = this.fromLike(newTrait);
     } else {
@@ -644,7 +644,7 @@ export const TraitSet = (<R, T extends Trait, F extends TraitSet<any, any>>() =>
     return fastener;
   },
 
-  refine(fastenerClass: FastenerClass<TraitSet<any, any>>): void {
+  refine(fastenerClass: FastenerClass<TraitSet<any, any, any>>): void {
     super.refine(fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

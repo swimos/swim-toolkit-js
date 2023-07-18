@@ -16,7 +16,6 @@ import {Lazy} from "@swim/util";
 import type {Class} from "@swim/util";
 import type {TimingLike} from "@swim/util";
 import {Timing} from "@swim/util";
-import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import {EventHandler} from "@swim/component";
 import {Presence} from "@swim/style";
@@ -47,13 +46,15 @@ export class ButtonStack extends HtmlView implements ModalView {
 
   protected initButtonStack(): void {
     this.addClass("button-stack");
-    this.display.setState("block", Affinity.Intrinsic);
-    this.position.setState("relative", Affinity.Intrinsic);
-    this.width.setState(56, Affinity.Intrinsic);
-    this.height.setState(56, Affinity.Intrinsic);
-    this.opacity.setState(1, Affinity.Intrinsic);
-    this.userSelect.setState("none", Affinity.Intrinsic);
-    this.cursor.setState("pointer", Affinity.Intrinsic);
+    this.setIntrinsic<ButtonStack>({
+      display: "block",
+      position: "relative",
+      width: 56,
+      height: 56,
+      opacity: 1,
+      userSelect: "none",
+      cursor: "pointer",
+    });
     this.button.insertView();
   }
 
@@ -92,13 +93,13 @@ export class ButtonStack extends HtmlView implements ModalView {
     viewKey: true,
     binds: true,
     willAttachView(buttonView: FloatingButton, target: View | null): void {
-      buttonView.presence.setState(Presence.presented(), Affinity.Intrinsic);
+      buttonView.presence.setIntrinsic(Presence.presented());
       if (this.owner.presence.presented || this.owner.presence.presenting) {
         buttonView.icon.push(this.owner.closeIcon);
       }
     },
     initView(buttonView: FloatingButton): void {
-      buttonView.zIndex.setState(0, Affinity.Intrinsic);
+      buttonView.zIndex.setIntrinsic(0);
     },
   })
   readonly button!: ViewRef<this, FloatingButton>;
@@ -107,11 +108,13 @@ export class ButtonStack extends HtmlView implements ModalView {
     viewType: ButtonItem,
     binds: true,
     willAttachView(itemView: ButtonItem, target: View | null): void {
-      itemView.position.setState("absolute", Affinity.Intrinsic);
-      itemView.right.setState(8, Affinity.Intrinsic);
-      itemView.bottom.setState(8, Affinity.Intrinsic);
-      itemView.left.setState(8, Affinity.Intrinsic);
-      itemView.zIndex.setState(0, Affinity.Intrinsic);
+      itemView.setIntrinsic({
+        position: "absolute",
+        right: 8,
+        bottom: 8,
+        left: 8,
+        zIndex: 0,
+      });
     },
   })
   readonly items!: ViewSet<this, ButtonItem>;
@@ -142,7 +145,7 @@ export class ButtonStack extends HtmlView implements ModalView {
     },
     didSetValue(presence: Presence): void {
       this.owner.callObservers("viewDidSetPresence", presence, this.owner);
-      this.owner.modality.setValue(presence.phase, Affinity.Intrinsic);
+      this.owner.modality.setIntrinsic(presence.phase);
     },
     willPresent(): void {
       this.owner.callObservers("viewWillPresent", this.owner);
@@ -184,33 +187,35 @@ export class ButtonStack extends HtmlView implements ModalView {
     binds: true,
     viewKey: "button",
     didMovePress(input: PositionGestureInput, event: Event | null): void {
-      if (!input.defaultPrevented && !this.owner.presence.presented) {
-        const stackHeight = this.owner.stackHeight.value;
-        const phase = Math.min(Math.max(0, -(input.y - input.y0) / (0.5 * stackHeight)), 1);
-        this.owner.presence.setPhase(phase);
-        if (phase > 0.1) {
-          input.clearHoldTimer();
-          if (!this.owner.presence.presenting) {
-            this.owner.presence.setState(this.owner.presence.value.asPresenting());
-          }
+      if (input.defaultPrevented || this.owner.presence.presented) {
+        return;
+      }
+      const stackHeight = this.owner.stackHeight.value;
+      const phase = Math.min(Math.max(0, -(input.y - input.y0) / (0.5 * stackHeight)), 1);
+      this.owner.presence.setPhase(phase);
+      if (phase > 0.1) {
+        input.clearHoldTimer();
+        if (!this.owner.presence.presenting) {
+          this.owner.presence.set(this.owner.presence.value.asPresenting());
         }
       }
     },
     didEndPress(input: PositionGestureInput, event: Event | null): void {
-      if (!input.defaultPrevented) {
-        const phase = this.owner.presence.getPhase();
-        if (input.t - input.t0 < input.holdDelay) {
-          if (phase < 0.1 || this.owner.presence.presented) {
-            this.owner.presence.dismiss();
-          } else {
-            this.owner.presence.present();
-          }
+      if (input.defaultPrevented) {
+        return;
+      }
+      const phase = this.owner.presence.getPhase();
+      if (input.t - input.t0 < input.holdDelay) {
+        if (phase < 0.1 || this.owner.presence.presented) {
+          this.owner.presence.dismiss();
         } else {
-          if (phase < 0.5) {
-            this.owner.presence.dismiss();
-          } else if (phase >= 0.5) {
-            this.owner.presence.present();
-          }
+          this.owner.presence.present();
+        }
+      } else {
+        if (phase < 0.5) {
+          this.owner.presence.dismiss();
+        } else if (phase >= 0.5) {
+          this.owner.presence.present();
         }
       }
     },
@@ -266,7 +271,7 @@ export class ButtonStack extends HtmlView implements ModalView {
     let stackHeight = 0;
     let y: number;
     if (buttonView !== null) {
-      buttonView.zIndex.setState(childCount, Affinity.Intrinsic);
+      buttonView.zIndex.setIntrinsic(childCount);
       y = buttonView.height.pxValue();
     } else {
       y = 0;
@@ -284,16 +289,18 @@ export class ButtonStack extends HtmlView implements ModalView {
           y += itemSpacing;
         }
         const dy = childView.height.pxValue();
-        childView.display.setState(phase === 0 ? "none" : "flex", Affinity.Intrinsic);
-        childView.bottom.setState(phase * y, Affinity.Intrinsic);
-        childView.zIndex.setState(zIndex, Affinity.Intrinsic);
+        childView.setIntrinsic({
+          display: phase === 0 ? "none" : "flex",
+          bottom: phase * y,
+          zIndex,
+        });
         y += dy;
         stackHeight += dy;
         itemIndex += 1;
         zIndex -= 1;
       }
     }
-    this.stackHeight.setValue(stackHeight);
+    this.stackHeight.set(stackHeight);
   }
 
   show(timing?: TimingLike | boolean): void {
@@ -305,9 +312,9 @@ export class ButtonStack extends HtmlView implements ModalView {
       }
       this.willShowStack();
       if (timing !== false) {
-        this.opacity.setState(1, timing, Affinity.Intrinsic);
+        this.opacity.setIntrinsic(1, timing);
       } else {
-        this.opacity.setState(1, Affinity.Intrinsic);
+        this.opacity.setIntrinsic(1);
         this.didShowStack();
       }
     }
@@ -315,7 +322,7 @@ export class ButtonStack extends HtmlView implements ModalView {
 
   protected willShowStack(): void {
     this.callObservers("buttonStackWillShow", this);
-    this.display.setState("block");
+    this.display.set("block");
   }
 
   protected didShowStack(): void {
@@ -332,9 +339,9 @@ export class ButtonStack extends HtmlView implements ModalView {
       }
       this.willHideStack();
       if (timing !== false) {
-        this.opacity.setState(0, timing, Affinity.Intrinsic);
+        this.opacity.setIntrinsic(0, timing);
       } else {
-        this.opacity.setState(0, Affinity.Intrinsic);
+        this.opacity.setIntrinsic(0);
         this.didHideStack();
       }
     }
@@ -345,7 +352,7 @@ export class ButtonStack extends HtmlView implements ModalView {
   }
 
   protected didHideStack(): void {
-    this.display.setState("none");
+    this.display.set("none");
     this.requireUpdate(View.NeedsLayout);
     this.callObservers("buttonStackDidHide", this);
   }

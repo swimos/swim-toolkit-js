@@ -14,7 +14,6 @@
 
 import type {Uninitable} from "@swim/util";
 import type {Mutable} from "@swim/util";
-import type {Proto} from "@swim/util";
 import {Equals} from "@swim/util";
 import {Equivalent} from "@swim/util";
 import {Objects} from "@swim/util";
@@ -78,7 +77,7 @@ export class ColorStop implements Interpolate<ColorStop>, Equals, Equivalent {
     this.hint = hint;
   }
 
-  declare readonly likeType?: Proto<ColorStopInit | ColorStopTuple | string>;
+  likeType?(like: ColorStopInit | ColorStopTuple | string): void;
 
   readonly color: Color;
 

@@ -16,7 +16,6 @@ import type {Class} from "@swim/util";
 import type {TimingLike} from "@swim/util";
 import {Timing} from "@swim/util";
 import type {Observes} from "@swim/util";
-import {Affinity} from "@swim/component";
 import type {Color} from "@swim/style";
 import {Look} from "@swim/theme";
 import {Mood} from "@swim/theme";
@@ -68,11 +67,7 @@ export class AreaPlotController<X = unknown, Y = unknown> extends SeriesPlotCont
       } else {
         timing = Timing.fromLike(timing);
       }
-      if (fill instanceof Look) {
-        plotView.fill.setLook(fill, timing, Affinity.Intrinsic);
-      } else {
-        plotView.fill.setState(fill, timing, Affinity.Intrinsic);
-      }
+      plotView.fill.setIntrinsic(fill, timing);
     }
   }
 

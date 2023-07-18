@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import {Length} from "@swim/math";
 import {GeoShape} from "@swim/geo";
@@ -40,7 +39,7 @@ export class GeoShapeTrait extends GeoFeatureTrait {
     value: null,
     didSetValue(geoShape: GeoShape | null): void {
       this.owner.callObservers("traitDidSetGeoShape", geoShape, this.owner);
-      this.owner.geoPerspective.setValue(geoShape, Affinity.Intrinsic);
+      this.owner.geoPerspective.setIntrinsic(geoShape);
     },
   })
   readonly geoShape!: Property<this, GeoShape | null>;

@@ -14,7 +14,6 @@
 
 import type {Uninitable} from "@swim/util";
 import type {Mutable} from "@swim/util";
-import type {Proto} from "@swim/util";
 import {Lazy} from "@swim/util";
 import {Murmur3} from "@swim/util";
 import type {Equivalent} from "@swim/util";
@@ -22,7 +21,6 @@ import type {HashCode} from "@swim/util";
 import {Numbers} from "@swim/util";
 import {Constructors} from "@swim/util";
 import {Objects} from "@swim/util";
-import type {LikeType} from "@swim/util";
 import type {TimingLike} from "@swim/util";
 import type {Interpolate} from "@swim/util";
 import {Interpolator} from "@swim/util";
@@ -70,7 +68,7 @@ export class Presence implements Interpolate<Presence>, HashCode, Equivalent, De
   /** @internal */
   declare readonly typeid?: "Presence";
 
-  declare likeType?: Proto<PresenceInit | boolean>;
+  likeType?(like: PresenceInit | boolean): void;
 
   readonly phase: number;
 
@@ -321,10 +319,8 @@ export interface PresenceAnimator<R = any, T extends Presence | null | undefined
   toggle(timingOrAffinity: Affinity | TimingLike | boolean | null | undefined): void;
   toggle(timing?: TimingLike | boolean | null, affinity?: Affinity): void;
 
-  /** @override */
-  setState(newState: T | LikeType<T>, timingOrAffinity: Affinity | TimingLike | boolean | null | undefined): void;
-  /** @override */
-  setState(newState: T | LikeType<T>, timing?: TimingLike | boolean | null, affinity?: Affinity): void;
+  /** @protected @override */
+  willSetState(newState: T, oldState: T): void;
 
   /** @override @protected */
   onSetValue(newValue: T, oldValue: T): void;
@@ -414,56 +410,33 @@ export const PresenceAnimator = (<R, T extends Presence | null | undefined, I ex
   },
 
   present(timing?: Affinity | TimingLike | boolean | null, affinity?: Affinity): void {
-    const oldValue = this.value;
-    if (oldValue !== void 0 && oldValue !== null) {
-      if (oldValue.presented) {
-        return;
-      }
-      this.setValue(oldValue.asPresenting() as T, Affinity.Reflexive);
-    }
     this.setState(Presence.presented() as T, timing as any, affinity);
   },
 
   dismiss(timing?: Affinity | TimingLike | boolean | null, affinity?: Affinity): void {
-    const oldValue = this.value;
-    if (oldValue !== void 0 && oldValue !== null) {
-      if (oldValue.dismissed) {
-        return;
-      }
-      this.setValue(oldValue.asDismissing() as T, Affinity.Reflexive);
-    }
     this.setState(Presence.dismissed() as T, timing as any, affinity);
   },
 
   toggle(timing?: Affinity | TimingLike | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
-    if (oldValue === void 0 || oldValue === null) {
-      return;
+    if (oldValue !== void 0 && oldValue !== null) {
+      this.setState(oldValue.asToggled() as T, timing as any, affinity);
     }
-    this.setValue(oldValue.asToggling() as T, Affinity.Reflexive);
-    this.setState(oldValue.asToggled() as T, timing as any, affinity);
   },
 
-  setState(newState: PresenceLike | null | undefined, timing?: Affinity | TimingLike | boolean | null, affinity?: Affinity): void {
-    if (typeof timing === "number") {
-      affinity = timing;
-      timing = void 0;
-    }
-    if (timing === void 0 || timing === true) {
-      timing = this.transition;
-    }
-    if (typeof newState === "boolean") {
-      const oldValue = this.value;
-      const newValue = newState ? Presence.presented() : Presence.dismissed();
-      if (oldValue !== void 0 && oldValue !== null && !oldValue.equals(newValue)) {
-        this.setValue(newState ? oldValue.asPresenting() as T : oldValue.asDismissing() as T, Affinity.Reflexive);
+  willSetState(newState: T, oldState: T): void {
+    super.willSetState(newState, oldState);
+    const oldValue = this.value;
+    if (oldValue !== void 0 && oldValue !== null && newState !== void 0 && newState !== null) {
+      if (newState.presented) {
+        this.setValue(oldValue.asPresenting() as T, Affinity.Reflexive);
+      } else if (newState.dismissed) {
+        this.setValue(oldValue.asDismissing() as T, Affinity.Reflexive);
       }
-      newState = newValue;
     }
-    super.setState(newState, timing, affinity);
   },
 
-  onSetValue(newValue: Presence | null | undefined, oldValue: Presence | null | undefined): void {
+  onSetValue(newValue: T, oldValue: T): void {
     super.onSetValue(newValue, oldValue);
     if (newValue === void 0 || newValue === null || oldValue === void 0 || oldValue === null) {
       return;
@@ -494,7 +467,7 @@ export const PresenceAnimator = (<R, T extends Presence | null | undefined, I ex
     // hook
   },
 
-  equalValues(newValue: Presence | null | undefined, oldState: Presence | null | undefined): boolean {
+  equalValues(newValue: T | undefined, oldState: T | undefined): boolean {
     if (newValue !== void 0 && newValue !== null) {
       return newValue.equals(oldState);
     }

@@ -14,7 +14,6 @@
 
 import type {Uninitable} from "@swim/util";
 import type {Mutable} from "@swim/util";
-import type {Proto} from "@swim/util";
 import {Lazy} from "@swim/util";
 import {Murmur3} from "@swim/util";
 import type {Equivalent} from "@swim/util";
@@ -22,7 +21,6 @@ import type {HashCode} from "@swim/util";
 import {Numbers} from "@swim/util";
 import {Constructors} from "@swim/util";
 import {Objects} from "@swim/util";
-import type {LikeType} from "@swim/util";
 import type {TimingLike} from "@swim/util";
 import type {Interpolate} from "@swim/util";
 import {Interpolator} from "@swim/util";
@@ -70,7 +68,7 @@ export class Expansion implements Interpolate<Expansion>, HashCode, Equivalent, 
   /** @internal */
   declare readonly typeid?: "Expansion";
 
-  declare likeType?: Proto<ExpansionInit | boolean>;
+  likeType?(like: ExpansionInit | boolean): void;
 
   readonly phase: number;
 
@@ -321,10 +319,8 @@ export interface ExpansionAnimator<R = any, T extends Expansion | null | undefin
   toggle(timingOrAffinity: Affinity | TimingLike | boolean | null | undefined): void;
   toggle(timing?: TimingLike | boolean | null, affinity?: Affinity): void;
 
-  /** @override */
-  setState(newState: T | LikeType<T>, timingOrAffinity: Affinity | TimingLike | boolean | null | undefined): void;
-  /** @override */
-  setState(newState: T | LikeType<T>, timing?: TimingLike | boolean | null, affinity?: Affinity): void;
+  /** @protected @override */
+  willSetState(newState: T, oldState: T): void;
 
   /** @override @protected */
   onSetValue(newValue: T, oldValue: T): void;
@@ -414,56 +410,33 @@ export const ExpansionAnimator = (<R, T extends Expansion | null | undefined, I 
   },
 
   expand(timing?: Affinity | TimingLike | boolean | null, affinity?: Affinity): void {
-    const oldValue = this.value;
-    if (oldValue !== void 0 && oldValue !== null) {
-      if (oldValue.expanded) {
-        return;
-      }
-      this.setValue(oldValue.asExpanding() as T, Affinity.Reflexive);
-    }
     this.setState(Expansion.expanded() as T, timing as any, affinity);
   },
 
   collapse(timing?: Affinity | TimingLike | boolean | null, affinity?: Affinity): void {
-    const oldValue = this.value;
-    if (oldValue !== void 0 && oldValue !== null) {
-      if (oldValue.collapsed) {
-        return;
-      }
-      this.setValue(oldValue.asCollapsing() as T, Affinity.Reflexive);
-    }
     this.setState(Expansion.collapsed() as T, timing as any, affinity);
   },
 
   toggle(timing?: Affinity | TimingLike | boolean | null, affinity?: Affinity): void {
     const oldValue = this.value;
-    if (oldValue === void 0 || oldValue === null) {
-      return;
+    if (oldValue !== void 0 && oldValue !== null) {
+      this.setState(oldValue.asToggled() as T, timing as any, affinity);
     }
-    this.setValue(oldValue.asToggling() as T, Affinity.Reflexive);
-    this.setState(oldValue.asToggled() as T, timing as any, affinity);
   },
 
-  setState(newState: ExpansionLike | null | undefined, timing?: Affinity | TimingLike | boolean | null, affinity?: Affinity): void {
-    if (typeof timing === "number") {
-      affinity = timing;
-      timing = void 0;
-    }
-    if (timing === void 0 || timing === true) {
-      timing = this.transition;
-    }
-    if (typeof newState === "boolean") {
-      const oldValue = this.value;
-      const newValue = newState ? Expansion.expanded() : Expansion.collapsed();
-      if (oldValue !== void 0 && oldValue !== null && !oldValue.equals(newValue)) {
-        this.setValue(newState ? oldValue.asExpanding() as T : oldValue.asCollapsing() as T, Affinity.Reflexive);
+  willSetState(newState: T, oldState: T): void {
+    super.willSetState(newState, oldState);
+    const oldValue = this.value;
+    if (oldValue !== void 0 && oldValue !== null && newState !== void 0 && newState !== null) {
+      if (newState.expanded) {
+        this.setValue(oldValue.asExpanding() as T, Affinity.Reflexive);
+      } else if (newState.collapsed) {
+        this.setValue(oldValue.asCollapsing() as T, Affinity.Reflexive);
       }
-      newState = newValue;
     }
-    super.setState(newState, timing, affinity);
   },
 
-  onSetValue(newValue: Expansion | null | undefined, oldValue: Expansion | null | undefined): void {
+  onSetValue(newValue: T, oldValue: T): void {
     super.onSetValue(newValue, oldValue);
     if (newValue === void 0 || newValue === null || oldValue === void 0 || oldValue === null) {
       return;
@@ -494,7 +467,7 @@ export const ExpansionAnimator = (<R, T extends Expansion | null | undefined, I 
     // hook
   },
 
-  equalValues(newValue: Expansion | null | undefined, oldValue: Expansion | null | undefined): boolean {
+  equalValues(newValue: T, oldValue: T | undefined): boolean {
     if (newValue !== void 0 && newValue !== null) {
       return newValue.equals(oldValue);
     }

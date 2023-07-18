@@ -41,7 +41,7 @@ export class IconCellController extends CellController {
   protected setIcon(icon: Graphics | null): void {
     const cellView = this.cell.view;
     if (cellView !== null) {
-      cellView.graphics.setState(icon);
+      cellView.graphics.set(icon);
     }
   }
 

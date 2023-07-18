@@ -52,8 +52,10 @@ const ExampleMapboxController = (function () {
     extends: true,
     initView(canvasView) {
       super.initView(canvasView);
-      canvasView.pointerEventsEnabled(true);
-      canvasView.touchAction.setState("manipulation");
+      canvasView.set({
+        touchAction: "manipulation",
+        pointerevents: true,
+      });
     },
   })], {kind: "field", name: "canvas", static: false, private: false, access: {has: obj => "canvas" in obj, get: obj => obj.canvas, set: (obj, value) => { obj.canvas = value; }}}, canvasInitializers, instanceInitializers);
   __esDecorate(null, null, [swim.TraitViewControllerSet({
@@ -80,18 +82,19 @@ layerModel.setTrait("layer", layerTrait);
 
 function addFeature(featureId, layerModel) {
   const featureModel = new swim.Model();
-  const featureTrait = new swim.GeoIconTrait();
-  featureTrait.iconLayout.setValue({width: 16, height: 16});
-  featureTrait.iconColor.setValue(swim.Look.accentColor);
-  featureTrait.graphics.setValue(swim.CircleIcon.create());
+  const featureTrait = new swim.GeoIconTrait().set({
+    iconLayout: {width: 16, height: 16},
+    iconColor: swim.Look.accentColor,
+    graphics: swim.CircleIcon.create(),
+  });
   featureModel.setTrait("feature", featureTrait);
   layerModel.appendChild(featureModel, "feature" + featureId);
   setInterval(function () {
     const lng = Math.random() * 360 - 180;
     const lat = Math.random() * 120 - 60;
-    featureTrait.geoCenter.setValue([lng, lat]);
+    featureTrait.geoCenter.set([lng, lat]);
     //const iconSize = 8 + 16 * Math.random();
-    //featureTrait.iconLayout.setValue({width: iconSize, height: iconSize});
+    //featureTrait.iconLayout.set({width: iconSize, height: iconSize});
   }, 1000);
 }
 const featureCount = 32;

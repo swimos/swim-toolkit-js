@@ -118,13 +118,13 @@ export class GeoRippleView extends GeoView implements StrokeView {
   @ViewRef({
     observes: true,
     didAttachView(sourceView: GeoView): void {
-      this.owner.geoCenter.setState(sourceView.geoBounds.center, Affinity.Intrinsic);
+      this.owner.geoCenter.setIntrinsic(sourceView.geoBounds.center);
     },
     viewDidUnmount(sourceView: GeoView): void {
       this.owner.remove();
     },
     viewDidSetGeoBounds(geoBounds: GeoBox): void {
-      this.owner.geoCenter.setState(geoBounds.center, Affinity.Intrinsic);
+      this.owner.geoCenter.setIntrinsic(geoBounds.center);
     },
   })
   readonly source!: ViewRef<this, GeoView> & Observes<GeoView>;
@@ -155,7 +155,7 @@ export class GeoRippleView extends GeoView implements StrokeView {
     const viewCenter = geoCenter !== null && geoCenter.isDefined()
                      ? geoViewport.project(geoCenter)
                      : null;
-    this.viewCenter.setValue(viewCenter, Affinity.Intrinsic);
+    this.viewCenter.setIntrinsic(viewCenter);
   }
 
   protected override onRender(): void {
@@ -266,15 +266,15 @@ export class GeoRippleView extends GeoView implements StrokeView {
       this.source.setView(source);
     }
     if (center !== null) {
-      this.geoCenter.setState(center, Affinity.Intrinsic);
+      this.geoCenter.setIntrinsic(center);
     }
     if (width !== null) {
-      this.strokeWidth.setState(width, Affinity.Intrinsic);
+      this.strokeWidth.setIntrinsic(width);
     }
-    this.radius.setState(radius, timing);
+    this.radius.set(radius, timing);
     if (color !== null) {
-      this.stroke.setState(opacity !== void 0 ? color.alpha(opacity) : color);
-      this.stroke.setState(color.alpha(0), timing);
+      this.stroke.set(opacity !== void 0 ? color.alpha(opacity) : color);
+      this.stroke.set(color.alpha(0), timing);
     }
 
     return this;

@@ -14,7 +14,6 @@
 
 import type {Mutable} from "@swim/util";
 import type {Class} from "@swim/util";
-import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
 import {Length} from "@swim/math";
 import {R2Point} from "@swim/math";
@@ -161,19 +160,19 @@ export class GeoPlotView extends GeoView implements StrokeView {
       child = child.nextSibling;
     }
     if (invalid || pointCount === 0) {
-      this.geoCentroid.setValue(GeoPoint.origin(), Affinity.Intrinsic);
+      this.geoCentroid.setIntrinsic(GeoPoint.origin());
       (this as Mutable<this>).geoBounds = GeoBox.undefined();
-      this.viewCentroid.setValue(R2Point.origin(), Affinity.Intrinsic);
+      this.viewCentroid.setIntrinsic(R2Point.origin());
       (this as Mutable<this>).viewBounds = R2Box.undefined();
       this.setCulled(true);
     } else {
       lngMid /= pointCount;
       latMid /= pointCount;
-      this.geoCentroid.setValue(new GeoPoint(lngMid, latMid), Affinity.Intrinsic);
+      this.geoCentroid.setIntrinsic(new GeoPoint(lngMid, latMid));
       (this as Mutable<this>).geoBounds = new GeoBox(lngMin, latMin, lngMax, latMax);
       xMid /= pointCount;
       yMid /= pointCount;
-      this.viewCentroid.setValue(new R2Point(xMid, yMid), Affinity.Intrinsic);
+      this.viewCentroid.setIntrinsic(new R2Point(xMid, yMid));
       (this as Mutable<this>).viewBounds = new R2Box(xMin, yMin, xMax, yMax);
       this.cullGeoFrame(geoViewport.geoFrame);
     }

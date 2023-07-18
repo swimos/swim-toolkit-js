@@ -17,7 +17,7 @@ import type {Class} from "@swim/util";
 import type {Proto} from "@swim/util";
 import type {LikeType} from "@swim/util";
 import type {Observes} from "@swim/util";
-import type {Fastener} from "@swim/component";
+import {Fastener} from "@swim/component";
 import type {FastenerClass} from "@swim/component";
 import type {Model} from "./Model";
 import type {ModelRefDescriptor} from "./ModelRef";
@@ -28,16 +28,16 @@ import {Trait} from "./Trait";
 
 /** @public */
 export interface TraitModelRefDescriptor<R, T extends Trait, M extends Model> extends ModelRefDescriptor<R, M> {
-  extends?: Proto<TraitModelRef<any, any, any>> | boolean | null;
+  extends?: Proto<TraitModelRef<any, any, any, any>> | boolean | null;
   traitKey?: string | boolean;
 }
 
 /** @public */
-export interface TraitModelRefClass<F extends TraitModelRef<any, any, any> = TraitModelRef<any, any, any>> extends ModelRefClass<F> {
+export interface TraitModelRefClass<F extends TraitModelRef<any, any, any, any> = TraitModelRef<any, any, any, any>> extends ModelRefClass<F> {
 }
 
 /** @public */
-export interface TraitModelRef<R = any, T extends Trait = Trait, M extends Model = Model> extends ModelRef<R, M> {
+export interface TraitModelRef<R = any, T extends Trait = Trait, M extends Model = Model, I extends any[] = [M | null]> extends ModelRef<R, M, I> {
   /** @override */
   get descriptorType(): Proto<TraitModelRefDescriptor<R, T, M>>;
 
@@ -47,13 +47,19 @@ export interface TraitModelRef<R = any, T extends Trait = Trait, M extends Model
 
   get observesTrait(): boolean;
 
+  /** @override */
+  set(traitOrModel: T | M | LikeType<M> | Fastener<any, I[0], any> | null): R;
+
+  /** @override */
+  setIntrinsic(traitOrModel: T | M | LikeType<M> | Fastener<any, I[0], any> | null): R;
+
   readonly trait: T | null;
 
   getTrait(): T;
 
   setTrait(trait: T | LikeType<T> | null, targetTrait?: Trait | null, modelKey?: string): T | null;
 
-  attachTrait(trait?: T | LikeType<T>, targetTrait?: Trait | null): T;
+  attachTrait(trait?: T | LikeType<T> | null, targetTrait?: Trait | null): T;
 
   /** @protected */
   initTrait(trait: T): void;
@@ -90,7 +96,7 @@ export interface TraitModelRef<R = any, T extends Trait = Trait, M extends Model
   createTrait(): T;
 
   /** @protected */
-  fromLikeTrait(value: T | LikeType<T>): T;
+  fromTraitLike(value: T | LikeType<T>): T;
 
   /** @protected */
   detectModelTrait(model: Model): T | null;
@@ -109,7 +115,29 @@ export interface TraitModelRef<R = any, T extends Trait = Trait, M extends Model
 }
 
 /** @public */
-export const TraitModelRef = (<R, T extends Trait, M extends Model, F extends TraitModelRef<any, any, any>>() => ModelRef.extend<TraitModelRef<R, T, M>, TraitModelRefClass<F>>("TraitModelRef", {
+export const TraitModelRef = (<R, T extends Trait, M extends Model, I extends any[], F extends TraitModelRef<any, any, any, any>>() => ModelRef.extend<TraitModelRef<R, T, M, I>, TraitModelRefClass<F>>("TraitModelRef", {
+  set(traitOrModel: T | M | LikeType<M> | Fastener<any, I[0], any> | null): R {
+    if (traitOrModel instanceof Fastener) {
+      this.bindInlet(traitOrModel);
+    } else if (traitOrModel instanceof Trait) {
+      this.setTrait(traitOrModel);
+    } else {
+      this.setModel(traitOrModel);
+    }
+    return this.owner;
+  },
+
+  setIntrinsic(traitOrModel: T | M | LikeType<M> | Fastener<any, I[0], any> | null): R {
+    if (traitOrModel instanceof Fastener) {
+      this.bindInlet(traitOrModel);
+    } else if (traitOrModel instanceof Trait) {
+      this.setTrait(traitOrModel);
+    } else {
+      this.setModel(traitOrModel);
+    }
+    return this.owner;
+  },
+
   traitType: null,
 
   traitKey: void 0,
@@ -132,7 +160,7 @@ export const TraitModelRef = (<R, T extends Trait, M extends Model, F extends Tr
 
   setTrait(newTrait: T | LikeType<T> | null, targetTrait?: Trait | null, modelKey?: string): T | null {
     if (newTrait !== null) {
-      newTrait = this.fromLikeTrait(newTrait);
+      newTrait = this.fromTraitLike(newTrait);
     }
     let oldTrait = this.trait;
     if (oldTrait === newTrait) {
@@ -178,10 +206,10 @@ export const TraitModelRef = (<R, T extends Trait, M extends Model, F extends Tr
     return oldTrait;
   },
 
-  attachTrait(newTrait?: T | LikeType<T>, targetTrait?: Trait | null): T {
+  attachTrait(newTrait?: T | LikeType<T> | null, targetTrait?: Trait | null): T {
     let oldTrait = this.trait;
     if (newTrait !== void 0 && newTrait !== null) {
-      newTrait = this.fromLikeTrait(newTrait);
+      newTrait = this.fromTraitLike(newTrait);
     } else if (oldTrait === null) {
       newTrait = this.createTrait();
     } else {
@@ -266,7 +294,7 @@ export const TraitModelRef = (<R, T extends Trait, M extends Model, F extends Tr
   insertTrait(model?: M | null, newTrait?: T | LikeType<T>, targetTrait?: Trait | null, modelKey?: string): T {
     let oldTrait = this.trait;
     if (newTrait !== void 0 && newTrait !== null) {
-      newTrait = this.fromLikeTrait(newTrait);
+      newTrait = this.fromTraitLike(newTrait);
     } else if (oldTrait === null) {
       newTrait = this.createTrait();
     } else {
@@ -344,7 +372,7 @@ export const TraitModelRef = (<R, T extends Trait, M extends Model, F extends Tr
     return trait;
   },
 
-  fromLikeTrait(value: T | LikeType<T>): T {
+  fromTraitLike(value: T | LikeType<T>): T {
     const traitType = this.traitType;
     if (traitType !== null) {
       return traitType.fromLike(value);
@@ -390,7 +418,7 @@ export const TraitModelRef = (<R, T extends Trait, M extends Model, F extends Tr
     return fastener;
   },
 
-  refine(fastenerClass: FastenerClass<TraitModelRef<any, any, any>>): void {
+  refine(fastenerClass: FastenerClass<TraitModelRef<any, any, any, any>>): void {
     super.refine(fastenerClass);
     const fastenerPrototype = fastenerClass.prototype;
 

@@ -14,7 +14,6 @@
 
 import type {Uninitable} from "@swim/util";
 import type {Mutable} from "@swim/util";
-import type {Proto} from "@swim/util";
 import {Lazy} from "@swim/util";
 import {Murmur3} from "@swim/util";
 import {Numbers} from "@swim/util";
@@ -75,8 +74,7 @@ export class HslColor extends Color {
     this.stringValue = void 0;
   }
 
-  /** @override */
-  declare readonly likeType?: Proto<HslColorInit | string>;
+  override likeType?(like: HslColorInit | string): void;
 
   override isDefined(): boolean {
     return isFinite(this.h) && isFinite(this.s)
