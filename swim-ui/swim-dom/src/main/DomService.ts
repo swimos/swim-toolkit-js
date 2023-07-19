@@ -16,13 +16,11 @@ import type {Class} from "@swim/util";
 import type {ServiceObserver} from "@swim/component";
 import {Service} from "@swim/component";
 import {ViewSet} from "@swim/view";
-import type {ViewNode} from "./NodeView";
-import type {NodeView} from "./NodeView";
+import {NodeView} from "./NodeView";
 import type {TextView} from "./TextView";
-import type {ViewElement} from "./ElementView"; // forward import
-import {ElementView} from "./"; // forward import
-import {HtmlView} from "./"; // forward import
-import {SvgView} from "./"; // forward import
+import {ElementView} from "./ElementView";
+import {HtmlView} from "./HtmlView";
+import {SvgView} from "./SvgView";
 
 /** @public */
 export interface DomServiceObserver<S extends DomService = DomService> extends ServiceObserver<S> {
@@ -72,9 +70,10 @@ export class DomService extends Service {
     }
   }
 
-  materializeNode(parentView: NodeView, childNode: ViewNode): NodeView | null {
-    if (childNode.view !== void 0) {
-      return childNode.view as NodeView;
+  materializeNode(parentView: NodeView, childNode: Node): NodeView | null {
+    const childView = NodeView.get(childNode);
+    if (childView !== null) {
+      return childView;
     } else if (childNode instanceof Element) {
       return this.materializeElement(parentView, childNode);
     } else if (childNode instanceof Text) {
@@ -124,9 +123,9 @@ export class DomService extends Service {
     return views;
   }
 
-  static bootElement(node: ViewElement): ElementView {
-    let view = node.view;
-    if (view !== void 0) {
+  static bootElement(node: Element): ElementView {
+    let view = ElementView.get(node);
+    if (view !== null) {
       return view;
     }
     let viewClass: typeof ElementView | undefined;

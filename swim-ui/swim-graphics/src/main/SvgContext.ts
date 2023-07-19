@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Mutable} from "@swim/util";
-import type {ViewNode} from "@swim/dom";
+import {NodeView} from "@swim/dom";
 import {SvgView} from "@swim/dom";
 import {PathContext} from "./PathContext";
 import type {PaintingFillRule} from "./PaintingContext";
@@ -321,9 +321,9 @@ export class SvgContext implements PaintingContext {
     }
     pathView = null;
     while (nextNode !== null) {
-      const nextView = (nextNode as ViewNode).view;
+      const nextView = NodeView.get(nextNode);
       nextNode = nextNode.nextSibling;
-      if (nextView !== void 0) {
+      if (nextView !== null) {
         nextView.remove();
       }
     }

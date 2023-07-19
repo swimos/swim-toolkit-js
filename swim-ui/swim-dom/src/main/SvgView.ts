@@ -40,17 +40,11 @@ import type {StrokeLinejoin} from "./csstypes";
 import type {SvgPointerEvents} from "./csstypes";
 import type {TextAnchor} from "./csstypes";
 import type {TouchAction} from "./csstypes";
-import type {ViewNodeType} from "./NodeView";
 import type {ElementViewFactory} from "./ElementView";
 import type {ElementViewClass} from "./ElementView";
 import type {ElementViewConstructor} from "./ElementView";
 import type {ElementViewObserver} from "./ElementView";
 import {ElementView} from "./ElementView";
-
-/** @public */
-export interface ViewSvg extends SVGElement {
-  view?: SvgView;
-}
 
 /** @public */
 export interface SvgViewTagMap {
@@ -591,15 +585,13 @@ export class SvgView extends ElementView {
     throw new TypeError("" + value);
   }
 
-  static override fromNode<S extends new (node: SVGElement) => Instance<S, SvgView>>(this: S, node: ViewNodeType<InstanceType<S>>): InstanceType<S>;
+  static override fromNode<S extends new (node: SVGElement) => Instance<S, SvgView>>(this: S, node: SVGElement): InstanceType<S>;
   static override fromNode(node: SVGElement): SvgView;
   static override fromNode(node: SVGElement): SvgView {
-    let view = (node as ViewSvg).view;
-    if (view === void 0) {
+    let view = this.get(node);
+    if (view === null) {
       view = new this(node);
       this.mount(view);
-    } else if (!(view instanceof this)) {
-      throw new TypeError(view + " not an instance of " + this);
     }
     return view;
   }
@@ -645,12 +637,12 @@ export class SvgViewTagFactory<V extends SvgView> implements SvgViewFactory<V> {
     return this.factory.fromLike(value);
   }
 
-  fromNode(node: ViewNodeType<V>): V {
+  fromNode(node: SVGElement): V {
     return this.factory.fromNode(node);
   }
 
   fromTag(tag: string): V {
     const node = document.createElementNS(this.namespace, tag) as SVGElement;
-    return this.fromNode(node as ViewNodeType<V>);
+    return this.fromNode(node);
   }
 }

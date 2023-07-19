@@ -22,7 +22,6 @@ import {Property} from "@swim/component";
 import type {ViewFlags} from "@swim/view";
 import {View} from "@swim/view";
 import {ViewRef} from "@swim/view";
-import type {ViewHtml} from "@swim/dom";
 import {HtmlView} from "@swim/dom";
 import type {CanvasView} from "@swim/graphics";
 import type {GeoViewport} from "@swim/map";
@@ -178,20 +177,20 @@ export class GoogleMapView extends MapView {
       super.willDetachView(containerView);
       const canvasView = this.owner.canvas.view;
       const mapPanes = this.owner.mapOverlay.getPanes();
-      if (mapPanes === void 0 || mapPanes === null) {
+      if (canvasView === null || mapPanes === void 0 || mapPanes === null) {
         return;
       }
-      const overlayMouseTargetView = (mapPanes.overlayMouseTarget as ViewHtml).view!;
-      const overlayContainerView = overlayMouseTargetView.parent as HtmlView;
-      const canvasContainerView = overlayContainerView.parent as HtmlView;
-      if (canvasView !== null && canvasView.parent === canvasContainerView) {
+      const overlayMouseTargetView = HtmlView.get(mapPanes.overlayMouseTarget);
+      const overlayContainerView = overlayMouseTargetView !== null ? overlayMouseTargetView.parent : null;
+      const canvasContainerView = overlayContainerView !== null ? overlayContainerView.parent : null;
+      if (canvasContainerView !== null && canvasView.parent === canvasContainerView) {
         canvasContainerView.removeChild(containerView);
       }
     },
     materializeView(containerView: HtmlView): void {
       function materializeAncestors(node: HTMLElement): HtmlView {
         const parentNode = node.parentNode;
-        if (parentNode instanceof HTMLElement && (parentNode as ViewHtml).view === void 0) {
+        if (parentNode instanceof HTMLElement && HtmlView.get(parentNode) === null) {
           materializeAncestors(parentNode);
         }
         return HtmlView.fromNode(node);
@@ -199,9 +198,9 @@ export class GoogleMapView extends MapView {
       const mapPanes = this.owner.mapOverlay.getPanes();
       if (mapPanes !== void 0 && mapPanes !== null) {
         materializeAncestors(mapPanes.overlayMouseTarget as HTMLElement);
-        const overlayMouseTargetView = (mapPanes.overlayMouseTarget as ViewHtml).view!;
-        const overlayContainerView = overlayMouseTargetView.parent as HtmlView;
-        const canvasContainerView = overlayContainerView.parent as HtmlView;
+        const overlayMouseTargetView = HtmlView.get(mapPanes.overlayMouseTarget);
+        const overlayContainerView = overlayMouseTargetView !== null ? overlayMouseTargetView.parent : null;
+        const canvasContainerView = overlayContainerView !== null ? overlayContainerView.parent : null;
         this.owner.canvas.insertView(canvasContainerView);
       } else if (this.owner.canvas.view === null) {
         this.owner.canvas.attachView();

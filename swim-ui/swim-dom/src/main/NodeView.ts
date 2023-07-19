@@ -23,21 +23,13 @@ import type {ViewClass} from "@swim/view";
 import type {ViewObserver} from "@swim/view";
 import {View} from "@swim/view";
 import {TextView} from "./"; // forward import
-import type {ViewElement} from "./"; // forward import
 import {ElementView} from "./"; // forward import
-
-/** @public */
-export type ViewNodeType<V extends NodeView> =
-  V extends {readonly node: infer N} ? N : never;
-
-/** @public */
-export interface ViewNode extends Node {
-  view?: NodeView;
-}
+import {HtmlView} from "./"; // forward import
+import {SvgView} from "./"; // forward import
 
 /** @public */
 export interface NodeViewFactory<V extends NodeView = NodeView> extends ViewFactory<V> {
-  fromNode(node: ViewNodeType<V>): V
+  fromNode(node: Node): V
 }
 
 /** @public */
@@ -46,7 +38,7 @@ export interface NodeViewClass<V extends NodeView = NodeView> extends ViewClass<
 
 /** @public */
 export interface NodeViewConstructor<V extends NodeView = NodeView> extends NodeViewClass<V> {
-  new(node: ViewNodeType<V>): V;
+  new(node: Node): V;
 }
 
 /** @public */
@@ -58,7 +50,11 @@ export class NodeView extends View {
   constructor(node: Node) {
     super();
     this.node = node;
-    (node as ViewNode).view = this;
+
+    if (NodeView.nodeMap.has(node)) {
+      throw new Error(node + " already has an associated view");
+    }
+    NodeView.nodeMap.set(node, this);
   }
 
   override likeType?(like: {create?(): View} | Node): void;
@@ -101,14 +97,14 @@ export class NodeView extends View {
           this.node.replaceChild(newChild.node, oldChild.node);
         } else if (target !== null) {
           let targetNode: Node | null = null;
-          let next: View | null = target;
+          let nextView: View | null = target;
           do {
-            if (next instanceof NodeView) {
-              targetNode = next.node;
+            if (nextView instanceof NodeView) {
+              targetNode = nextView.node;
               break;
             }
-            next = next.nextSibling;
-          } while (next !== null);
+            nextView = nextView.nextSibling;
+          } while (nextView !== null);
           this.node.insertBefore(newChild.node, targetNode);
         } else {
           this.node.appendChild(newChild.node);
@@ -151,14 +147,14 @@ export class NodeView extends View {
         if (newChild instanceof NodeView) {
           let targetNode: Node | null = null;
           if (target !== null) {
-            let next: View | null = target;
+            let nextView: View | null = target;
             do {
-              if (next instanceof NodeView) {
-                targetNode = next.node;
+              if (nextView instanceof NodeView) {
+                targetNode = nextView.node;
                 break;
               }
-              next = next.nextSibling;
-            } while (next !== null);
+              nextView = nextView.nextSibling;
+            } while (nextView !== null);
           }
           this.node.insertBefore(newChild.node, targetNode);
         }
@@ -261,14 +257,15 @@ export class NodeView extends View {
     if (target instanceof Node) {
       targetView = null;
       targetNode = target;
-      let next: ViewNode | null = target;
+      let nextNode: Node | null = target;
       do {
-        if (next.view !== void 0) {
-          targetView = next.view;
+        const nextView = NodeView.get(nextNode);
+        if (nextView !== null) {
+          targetView = nextView;
           break;
         }
-        next = next.nextSibling;
-      } while (next !== null);
+        nextNode = nextNode.nextSibling;
+      } while (nextNode !== null);
     } else {
       targetView = target;
       targetNode = null;
@@ -279,14 +276,14 @@ export class NodeView extends View {
     this.willInsertChild(child, targetView);
     if (child instanceof NodeView) {
       if (targetNode === null && targetView !== null) {
-        let next: View | null = targetView;
+        let nextView: View | null = targetView;
         do {
-          if (next instanceof NodeView) {
-            targetNode = next.node;
+          if (nextView instanceof NodeView) {
+            targetNode = nextView.node;
             break;
           }
-          next = next.nextSibling;
-        } while (next !== null);
+          nextView = nextView.nextSibling;
+        } while (nextView !== null);
       }
       this.node.insertBefore(child.node, targetNode);
     }
@@ -315,15 +312,16 @@ export class NodeView extends View {
     }
 
     if (target instanceof Node) {
-      let next: ViewNode | null = target;
+      let nextNode: Node | null = target;
       target = null;
       do {
-        if (next.view !== void 0) {
-          target = next.view;
+        const nextView = NodeView.get(nextNode);
+        if (nextView !== null) {
+          target = nextView;
           break;
         }
-        next = next.nextSibling;
-      } while (next !== null);
+        nextNode = nextNode.nextSibling;
+      } while (nextNode !== null);
     }
 
     child.setFlags(child.flags | View.InsertingFlag);
@@ -376,14 +374,14 @@ export class NodeView extends View {
         this.node.replaceChild(newChild.node, oldChild.node);
       } else if (target !== null) {
         let targetNode: Node | null = null;
-        let next: View | null = target;
+        let nextView: View | null = target;
         do {
-          if (next instanceof NodeView) {
-            targetNode = next.node;
+          if (nextView instanceof NodeView) {
+            targetNode = nextView.node;
             break;
           }
-          next = next.nextSibling;
-        } while (next !== null);
+          nextView = nextView.nextSibling;
+        } while (nextView !== null);
         this.node.insertBefore(newChild.node, targetNode);
       } else {
         this.node.appendChild(newChild.node);
@@ -404,7 +402,7 @@ export class NodeView extends View {
   override removeChild<V extends View | Node>(child: V): V;
   override removeChild(key: string | View): View | null;
   override removeChild(key: string | View | Node): View | Node | null;
-  override removeChild(key: string | View | ViewNode): View | Node | null {
+  override removeChild(key: string | View | Node): View | Node | null {
     let child: View | null;
     if (typeof key === "string") {
       child = this.getChild(key);
@@ -415,8 +413,9 @@ export class NodeView extends View {
       if (key.parentNode !== this.node) {
         throw new Error("not a child node");
       }
-      if (key.view !== void 0) {
-        child = key.view;
+      const view = NodeView.get(key);
+      if (view !== null) {
+        child = view;
       } else {
         this.node.removeChild(key);
         return key;
@@ -486,12 +485,12 @@ export class NodeView extends View {
   /** @internal */
   static isRootView(node: Node): boolean {
     do {
-      const parentNode: ViewNode | null = node.parentNode;
+      const parentNode: Node | null = node.parentNode;
       if (parentNode === null) {
         return true;
       }
-      const parentView = parentNode.view;
-      if (parentView !== void 0) {
+      const parentView = NodeView.get(parentNode);
+      if (parentView !== null) {
         return false;
       }
       node = parentNode;
@@ -518,17 +517,16 @@ export class NodeView extends View {
     if (view.parent !== null) {
       return;
     }
-    const parentNode = view.node.parentNode as ViewNode | null;
-    const parentView = parentNode !== null && parentNode.view !== void 0 ? parentNode.view : null;
+    const parentView = NodeView.get(view.node.parentNode);
     if (parentView === null) {
       view.mount();
       return;
     }
     let targetView: View | null = null;
-    let targetNode: ViewNode | null = view.node.nextSibling;
+    let targetNode = view.node.nextSibling;
     while (targetNode !== null) {
-      if (targetNode.view !== void 0) {
-        targetView = targetNode.view;
+      targetView = NodeView.get(targetNode);
+      if (targetView !== null) {
         break;
       }
       targetNode = targetNode.nextSibling;
@@ -601,6 +599,19 @@ export class NodeView extends View {
     this.node.removeEventListener(type, listener, options);
   }
 
+  /** @internal */
+  static readonly nodeMap: WeakMap<Node, NodeView> = new WeakMap();
+
+  static get<S extends Class<Instance<S, NodeView>>>(this: S, node: Node | null | undefined): InstanceType<S> | null {
+    const view = node !== void 0 && node !== null ? NodeView.nodeMap.get(node) : void 0;
+    if (view === void 0) {
+      return null;
+    } else if (!(view instanceof this)) {
+      throw new TypeError(node + " not an instance of " + this.name);
+    }
+    return view;
+  }
+
   static override fromLike<S extends Class<Instance<S, View>>>(this: S, value: InstanceType<S> | LikeType<InstanceType<S>>): InstanceType<S> {
     if (value === void 0 || value === null) {
       return value as InstanceType<S>;
@@ -617,21 +628,23 @@ export class NodeView extends View {
     throw new TypeError("" + value);
   }
 
-  static fromNode<S extends new (node: Node) => Instance<S, NodeView>>(this: S, node: ViewNodeType<InstanceType<S>>): InstanceType<S>;
+  static fromNode<S extends new (node: Node) => Instance<S, NodeView>>(this: S, node: Node): InstanceType<S>;
   static fromNode(node: Node): NodeView;
   static fromNode(node: Node): NodeView {
-    let view = (node as ViewNode).view;
-    if (view === void 0) {
-      if (node instanceof Element) {
-        view = ElementView.fromNode(node as ViewElement);
+    let view = this.get(node);
+    if (view === null) {
+      if (node instanceof HTMLElement) {
+        view = new HtmlView(node);
+      } else if (node instanceof SVGElement) {
+        view = new SvgView(node);
+      } else if (node instanceof Element) {
+        view = new ElementView(node);
       } else if (node instanceof Text) {
-        view = TextView.fromNode(node);
+        view = new TextView(node);
       } else {
-        view = new this(node);
-        this.mount(view);
+        view = new NodeView(node);
       }
-    } else if (!(view instanceof this)) {
-      throw new TypeError(view + " not an instance of " + this);
+      this.mount(view);
     }
     return view;
   }

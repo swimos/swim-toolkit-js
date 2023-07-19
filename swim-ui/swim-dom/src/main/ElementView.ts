@@ -29,7 +29,6 @@ import type {ViewportColorScheme} from "@swim/view";
 import type {ViewportService} from "@swim/view";
 import {AttributeAnimator} from "./AttributeAnimator";
 import type {StyleContext} from "./StyleContext";
-import type {ViewNodeType} from "./NodeView";
 import type {NodeViewFactory} from "./NodeView";
 import type {NodeViewClass} from "./NodeView";
 import type {NodeViewConstructor} from "./NodeView";
@@ -41,11 +40,6 @@ import {DomService} from "./"; // forward import
 import type {ModalOptions} from "./"; // forward import
 import {ModalView} from "./"; // forward import
 import {ModalService} from "./"; // forward import
-
-/** @public */
-export interface ViewElement extends Element, ElementCSSInlineStyle {
-  view?: ElementView;
-}
 
 /** @public */
 export interface ElementViewFactory<V extends ElementView = ElementView> extends NodeViewFactory<V> {
@@ -488,21 +482,19 @@ export class ElementView extends NodeView implements StyleContext {
     throw new TypeError("" + value);
   }
 
-  static override fromNode<S extends new (node: Element) => Instance<S, ElementView>>(this: S, node: ViewNodeType<InstanceType<S>>): InstanceType<S>;
+  static override fromNode<S extends new (node: Element) => Instance<S, ElementView>>(this: S, node: Element): InstanceType<S>;
   static override fromNode(node: Element): ElementView;
   static override fromNode(node: Element): ElementView {
-    let view = (node as ViewElement).view;
-    if (view === void 0) {
+    let view = this.get(node);
+    if (view === null) {
       if (node instanceof HTMLElement) {
-        view = HtmlView.fromNode(node);
+        view = new HtmlView(node);
       } else if (node instanceof SVGElement) {
-        view = SvgView.fromNode(node);
+        view = new SvgView(node);
       } else {
-        view = new this(node);
-        this.mount(view);
+        view = new ElementView(node);
       }
-    } else if (!(view instanceof this)) {
-      throw new TypeError(view + " not an instance of " + this);
+      this.mount(view);
     }
     return view;
   }

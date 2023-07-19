@@ -25,7 +25,7 @@ import {View} from "@swim/view";
 import {ViewSet} from "@swim/view";
 import type {PositionGestureInput} from "@swim/view";
 import {PositionGesture} from "@swim/view";
-import type {ViewNode} from "@swim/dom";
+import {NodeView} from "@swim/dom";
 import type {HtmlViewObserver} from "@swim/dom";
 import {HtmlView} from "@swim/dom";
 import {TableLayout} from "./TableLayout";
@@ -180,13 +180,13 @@ export class HeaderView extends HtmlView {
       if (this.owner.clientBounds.contains(input.x, input.y)) {
         if (!input.defaultPrevented) {
           let target = input.target;
-          while (target !== null && target !== this.owner.node) {
-            const targetView = (target as ViewNode).view;
+          while (target instanceof Node && target !== this.owner.node) {
+            const targetView = NodeView.get(target);
             if (targetView instanceof ColView) {
               targetView.didPress(input, event);
               break;
             }
-            target = target instanceof Node ? target.parentNode : null;
+            target = target.parentNode;
           }
         }
         if (!input.defaultPrevented) {
@@ -197,13 +197,13 @@ export class HeaderView extends HtmlView {
     didLongPress(input: PositionGestureInput): void {
       if (!input.defaultPrevented) {
         let target = input.target;
-        while (target !== null && target !== this.owner.node) {
-          const targetView = (target as ViewNode).view;
+        while (target instanceof Node && target !== this.owner.node) {
+          const targetView = NodeView.get(target);
           if (targetView instanceof ColView) {
             targetView.didLongPress(input);
             break;
           }
-          target = target instanceof Node ? target.parentNode : null;
+          target = target.parentNode;
         }
       }
       if (!input.defaultPrevented) {

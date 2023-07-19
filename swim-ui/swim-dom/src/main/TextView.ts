@@ -22,11 +22,6 @@ import type {NodeViewObserver} from "./NodeView";
 import {NodeView} from "./NodeView";
 
 /** @public */
-export interface ViewText extends Text {
-  view?: TextView;
-}
-
-/** @public */
 export interface TextViewConstructor<V extends TextView = TextView> extends NodeViewConstructor<V> {
   new(node: Text): V;
 }
@@ -78,11 +73,10 @@ export class TextView extends NodeView {
   static override fromNode<S extends new (node: Text) => Instance<S, TextView>>(this: S, node: Text): InstanceType<S>;
   static override fromNode(node: Text): TextView;
   static override fromNode(node: Text): TextView {
-    let view = (node as ViewText).view;
-    if (view === void 0) {
+    let view = this.get(node);
+    if (view === null) {
       view = new this(node);
-    } else if (!(view instanceof this)) {
-      throw new TypeError(view + " not an instance of " + this);
+      this.mount(view);
     }
     return view;
   }

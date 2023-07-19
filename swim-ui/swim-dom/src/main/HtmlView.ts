@@ -29,7 +29,6 @@ import type {ViewFlags} from "@swim/view";
 import {View} from "@swim/view";
 import {AttributeAnimator} from "./AttributeAnimator";
 import {StyleMap} from "./StyleMap";
-import type {ViewNodeType} from "./NodeView";
 import type {ElementViewFactory} from "./ElementView";
 import type {ElementViewClass} from "./ElementView";
 import type {ElementViewConstructor} from "./ElementView";
@@ -37,11 +36,6 @@ import type {ElementViewObserver} from "./ElementView";
 import {ElementView} from "./ElementView";
 import {StyleView} from "./"; // forward import
 import {SvgView} from "./"; // forward import
-
-/** @public */
-export interface ViewHtml extends HTMLElement {
-  view?: HtmlView;
-}
 
 /** @public */
 export interface HtmlViewTagMap {
@@ -430,15 +424,13 @@ export class HtmlView extends ElementView {
     throw new TypeError("" + value);
   }
 
-  static override fromNode<S extends new (node: HTMLElement) => Instance<S, HtmlView>>(this: S, node: ViewNodeType<InstanceType<S>>): InstanceType<S>;
+  static override fromNode<S extends new (node: HTMLElement) => Instance<S, HtmlView>>(this: S, node: HTMLElement): InstanceType<S>;
   static override fromNode(node: HTMLElement): HtmlView;
   static override fromNode(node: HTMLElement): HtmlView {
-    let view = (node as ViewHtml).view;
-    if (view === void 0) {
+    let view = this.get(node);
+    if (view === null) {
       view = new this(node);
       this.mount(view);
-    } else if (!(view instanceof this)) {
-      throw new TypeError(view + " not an instance of " + this);
     }
     return view;
   }
@@ -499,12 +491,12 @@ export class HtmlViewTagFactory<V extends HtmlView> implements HtmlViewFactory<V
     return this.factory.fromLike(value);
   }
 
-  fromNode(node: ViewNodeType<V>): V {
+  fromNode(node: HTMLElement): V {
     return this.factory.fromNode(node);
   }
 
   fromTag(tag: string): V {
     const node = document.createElement(tag);
-    return this.fromNode(node as ViewNodeType<V>);
+    return this.fromNode(node);
   }
 }

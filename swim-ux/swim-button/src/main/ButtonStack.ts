@@ -28,7 +28,7 @@ import {ViewSet} from "@swim/view";
 import type {PositionGestureInput} from "@swim/view";
 import {PositionGesture} from "@swim/view";
 import {StyleAnimator} from "@swim/dom";
-import type {ViewNode} from "@swim/dom";
+import {NodeView} from "@swim/dom";
 import {HtmlView} from "@swim/dom";
 import type {ModalView} from "@swim/dom";
 import type {Graphics} from "@swim/graphics";
@@ -129,7 +129,7 @@ export class ButtonStack extends HtmlView implements ModalView {
   removeItems(): void {
     const childNodes = this.node.childNodes;
     for (let i = childNodes.length - 1; i >= 0; i -= 1) {
-      const childView = (childNodes[i] as ViewNode).view;
+      const childView = NodeView.get(childNodes[i]);
       if (childView instanceof ButtonItem) {
         this.removeChild(childView);
       }
@@ -279,7 +279,7 @@ export class ButtonStack extends HtmlView implements ModalView {
     const buttonSpacing = this.buttonSpacing.value;
     const itemSpacing = this.itemSpacing.value;
     for (let i = 0; i < childCount; i += 1) {
-      const childView = (childNodes[i] as ViewNode).view;
+      const childView = NodeView.get(childNodes[i]);
       if (childView instanceof ButtonItem) {
         if (itemIndex === 0) {
           stackHeight += buttonSpacing;

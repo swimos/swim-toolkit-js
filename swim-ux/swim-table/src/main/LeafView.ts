@@ -30,7 +30,7 @@ import {View} from "@swim/view";
 import {ViewSet} from "@swim/view";
 import type {PositionGestureInput} from "@swim/view";
 import {PositionGesture} from "@swim/view";
-import type {ViewNode} from "@swim/dom";
+import {NodeView} from "@swim/dom";
 import type {HtmlViewObserver} from "@swim/dom";
 import {HtmlView} from "@swim/dom";
 import {Hyperlink} from "@swim/controller";
@@ -334,13 +334,13 @@ export class LeafView extends HtmlView {
         return;
       }
       let target = input.target;
-      while (target !== null && target !== this.owner.node) {
-        const targetView = (target as ViewNode).view;
+      while (target instanceof Node && target !== this.owner.node) {
+        const targetView = NodeView.get(target);
         if (targetView instanceof CellView) {
           targetView.didPress(input, event);
           break;
         }
-        target = target instanceof Node ? target.parentNode : null;
+        target = target.parentNode;
       }
       this.owner.didPress(input, event);
     },
@@ -349,13 +349,13 @@ export class LeafView extends HtmlView {
         return;
       }
       let target = input.target;
-      while (target !== null && target !== this.owner.node) {
-        const targetView = (target as ViewNode).view;
+      while (target instanceof Node && target !== this.owner.node) {
+        const targetView = NodeView.get(target);
         if (targetView instanceof CellView) {
           targetView.didLongPress(input);
           break;
         }
-        target = target instanceof Node ? target.parentNode : null;
+        target = target.parentNode;
       }
       this.owner.didLongPress(input);
     },

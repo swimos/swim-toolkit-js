@@ -22,7 +22,6 @@ import {Service} from "@swim/component";
 import type {View} from "@swim/view";
 import {ViewRef} from "@swim/view";
 import {ViewSet} from "@swim/view";
-import type {ViewElement} from "./ElementView";
 import {ElementView} from "./ElementView";
 import type {ModalOptions} from "./ModalView";
 import type {ModalView} from "./ModalView";
@@ -65,12 +64,7 @@ export class ModalService extends Service {
       if (parentView !== null) {
         return parentView;
       }
-      const bodyNode = document.body as ViewElement;
-      const bodyView = bodyNode.view;
-      if (bodyView === void 0) {
-        return null;
-      }
-      return bodyView;
+      return ElementView.get(document.body);
     },
     insertChild(parent: View, child: ElementView, target: View | null, key: string | undefined): void {
       super.insertChild(parent, child, target, key);
