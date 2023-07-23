@@ -23,7 +23,7 @@ import type {ThemeAnimatorDescriptor} from "@swim/theme";
 import type {ThemeAnimatorClass} from "@swim/theme";
 import {ThemeAnimator} from "@swim/theme";
 import type {Look} from "@swim/theme";
-import {ElementView} from "./"; // forward import
+import {AttributeContext} from "./AttributeContext";
 
 /** @public */
 export interface AttributeAnimatorDescriptor<R, T> extends ThemeAnimatorDescriptor<R, T> {
@@ -59,9 +59,8 @@ export const AttributeAnimator = (<R, T, I extends any[], A extends AttributeAni
   },
 
   get attributeValue(): T {
-    const view = this.owner;
-    if (view instanceof ElementView) {
-      const value = view.getAttribute(this.attributeName);
+    if (AttributeContext[Symbol.hasInstance](this.owner)) {
+      const value = this.owner.getAttribute(this.attributeName);
       if (value !== null) {
         try {
           return this.parse(value);
@@ -88,9 +87,8 @@ export const AttributeAnimator = (<R, T, I extends any[], A extends AttributeAni
   },
 
   onSetValue(newValue: T, oldValue: T): void {
-    const view = this.owner;
-    if (view instanceof ElementView) {
-      view.setAttribute(this.attributeName, newValue);
+    if (AttributeContext[Symbol.hasInstance](this.owner)) {
+      this.owner.setAttribute(this.attributeName, newValue);
     }
     super.onSetValue(newValue, oldValue);
   },

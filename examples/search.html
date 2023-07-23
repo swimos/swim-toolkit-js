@@ -39,7 +39,9 @@ if (navigator.standalone) {
 const bodyView = swim.HtmlView.fromNode(document.body);
 
 const barView = swim.BarView.create().set({
-  width: "100%",
+  style: {
+    width: "100%",
+  },
   barHeight: 60,
   layout: {
     tools: [
@@ -71,7 +73,7 @@ const closeView = barView.appendChild(swim.ButtonToolView, "close").set({
 
 const searchView = barView.appendChild(swim.SearchToolView, "search");
 searchView.stylesheet.insertView();
-searchView.input.insertView().set({
+searchView.input.insertView().attributes.set({
   placeholder: "Search",
 });
 

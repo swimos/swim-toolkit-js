@@ -20,15 +20,16 @@ import type {TimingLike} from "@swim/util";
 import type {Timing} from "@swim/util";
 import {Creatable} from "@swim/util";
 import {Affinity} from "@swim/component";
+import type {FastenerClass} from "@swim/component";
+import type {Fastener} from "@swim/component";
 import {Transform} from "@swim/math";
 import {Look} from "@swim/theme";
 import {Mood} from "@swim/theme";
 import type {MoodVector} from "@swim/theme";
 import type {ThemeMatrix} from "@swim/theme";
-import type {ViewFlags} from "@swim/view";
 import {View} from "@swim/view";
 import {AttributeAnimator} from "./AttributeAnimator";
-import {StyleMap} from "./StyleMap";
+import {ElementAttributes} from "./ElementView";
 import type {ElementViewFactory} from "./ElementView";
 import type {ElementViewClass} from "./ElementView";
 import type {ElementViewConstructor} from "./ElementView";
@@ -36,6 +37,107 @@ import type {ElementViewObserver} from "./ElementView";
 import {ElementView} from "./ElementView";
 import {StyleView} from "./"; // forward import
 import {SvgView} from "./"; // forward import
+
+/** @public */
+export interface HtmlAttributes<R = any> extends ElementAttributes<R> {
+  get autocomplete(): AttributeAnimator<this, string | undefined>;
+
+  get checked(): AttributeAnimator<this, boolean | undefined>;
+
+  get colspan(): AttributeAnimator<this, number | undefined>;
+
+  get disabled(): AttributeAnimator<this, boolean | undefined>;
+
+  get href(): AttributeAnimator<this, string | undefined>;
+
+  get placeholder(): AttributeAnimator<this, string | undefined>;
+
+  get rowspan(): AttributeAnimator<this, number | undefined>;
+
+  get selected(): AttributeAnimator<this, boolean | undefined>;
+
+  get title(): AttributeAnimator<this, string | undefined>;
+
+  get type(): AttributeAnimator<this, string | undefined>;
+
+  get value(): AttributeAnimator<this, string | undefined>;
+
+  /** @override */
+  set<S>(this: S, properties: {[K in keyof S as S[K] extends {set(value: any): any} ? K : never]?: S[K] extends {set(value: infer T): any} ? T : never}, timing?: TimingLike | boolean | null): R;
+  /** @override */
+  set(properties: {[K in keyof HtmlAttributes as HtmlAttributes[K] extends {set(value: any): any} ? K : never]?: HtmlAttributes[K] extends {set(value: infer T): any} ? T : never}, timing?: TimingLike | boolean | null): R;
+
+  /** @override */
+  setIntrinsic<S>(this: S, properties: {[K in keyof S as S[K] extends {setIntrinsic(value: any): any} ? K : never]?: S[K] extends {setIntrinsic(value: infer T): any} ? T : never}, timing?: TimingLike | boolean | null): R;
+  /** @override */
+  setIntrinsic(properties: {[K in keyof HtmlAttributes as HtmlAttributes[K] extends {setIntrinsic(value: any): any} ? K : never]?: HtmlAttributes[K] extends {setIntrinsic(value: infer T): any} ? T : never}, timing?: TimingLike | boolean | null): R;
+}
+
+/** @public */
+export const HtmlAttributes = (<R, F extends HtmlAttributes<any>>() => ElementAttributes.extend<HtmlAttributes<R>, FastenerClass<F>>("HtmlAttributes", {
+},
+{
+  construct(fastener: F | null, owner: F extends Fastener<infer R, any, any> ? R : never): F {
+    fastener = super.construct(fastener, owner) as F;
+    fastener.initFasteners(HtmlAttributes);
+    return fastener;
+  },
+}))();
+
+HtmlAttributes.defineGetter("autocomplete", [AttributeAnimator({
+  attributeName: "autocomplete",
+  valueType: String,
+})]);
+
+HtmlAttributes.defineGetter("checked", [AttributeAnimator({
+  attributeName: "checked",
+  valueType: Boolean,
+})]);
+
+HtmlAttributes.defineGetter("colspan", [AttributeAnimator({
+  attributeName: "colspan",
+  valueType: Number,
+})]);
+
+HtmlAttributes.defineGetter("disabled", [AttributeAnimator({
+  attributeName: "disabled",
+  valueType: Boolean,
+})]);
+
+HtmlAttributes.defineGetter("href", [AttributeAnimator({
+  attributeName: "href",
+  valueType: String,
+})]);
+
+HtmlAttributes.defineGetter("placeholder", [AttributeAnimator({
+  attributeName: "placeholder",
+  valueType: String,
+})]);
+
+HtmlAttributes.defineGetter("rowspan", [AttributeAnimator({
+  attributeName: "rowspan",
+  valueType: Number,
+})]);
+
+HtmlAttributes.defineGetter("selected", [AttributeAnimator({
+  attributeName: "selected",
+  valueType: Boolean,
+})]);
+
+HtmlAttributes.defineGetter("title", [AttributeAnimator({
+  attributeName: "title",
+  valueType: String,
+})]);
+
+HtmlAttributes.defineGetter("type", [AttributeAnimator({
+  attributeName: "type",
+  valueType: String,
+})]);
+
+HtmlAttributes.defineGetter("value", [AttributeAnimator({
+  attributeName: "value",
+  valueType: String,
+})]);
 
 /** @public */
 export interface HtmlViewTagMap {
@@ -175,10 +277,6 @@ export interface HtmlViewObserver<V extends HtmlView = HtmlView> extends Element
 export class HtmlView extends ElementView {
   constructor(node: HTMLElement) {
     super(node);
-    __runInitializers(this, HtmlView.instanceInitializers);
-    for (const key in HtmlView.fieldInitializers) {
-      (this as any)[key] = __runInitializers(this, HtmlView.fieldInitializers[key]!, void 0);
-    }
   }
 
   override likeType?(like: {create?(): View} | Node | keyof HtmlViewTagMap): void;
@@ -186,6 +284,11 @@ export class HtmlView extends ElementView {
   declare readonly observerType?: Class<HtmlViewObserver>;
 
   declare readonly node: HTMLElement;
+
+  @HtmlAttributes({})
+  override get attributes(): HtmlAttributes<this> {
+    return HtmlAttributes.dummy();
+  }
 
   override setChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(key: string, newChildFactory: F): View | null;
   override setChild(key: string, newChild: View | LikeType<HtmlView> | null): View | null;
@@ -239,61 +342,6 @@ export class HtmlView extends ElementView {
     return super.replaceChild(newChild, oldChild);
   }
 
-  @AttributeAnimator({attributeName: "autocomplete", valueType: String})
-  get autocomplete(): AttributeAnimator<this, string | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "checked", valueType: Boolean})
-  get checked(): AttributeAnimator<this, boolean | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "colspan", valueType: Number})
-  get colspan(): AttributeAnimator<this, number | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "disabled", valueType: Boolean})
-  get disabled(): AttributeAnimator<this, boolean | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "href", valueType: String})
-  get href(): AttributeAnimator<this, string | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "placeholder", valueType: String})
-  get placeholder(): AttributeAnimator<this, string | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "rowspan", valueType: Number})
-  get rowspan(): AttributeAnimator<this, number | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "selected", valueType: Boolean})
-  get selected(): AttributeAnimator<this, boolean | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "title", valueType: String})
-  get title(): AttributeAnimator<this, string | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "type", valueType: String})
-  get type(): AttributeAnimator<this, string | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "value", valueType: String})
-  get value(): AttributeAnimator<this, string | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
   protected override onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
     if (this.node.hasAttribute("swim-theme")) {
@@ -306,27 +354,27 @@ export class HtmlView extends ElementView {
     const font = theme.getOr(Look.font, Mood.ambient, null);
     if (font !== null) {
       if (font.style !== void 0) {
-        this.fontStyle.setState(font.style, void 0, Affinity.Transient);
+        this.style.fontStyle.setState(font.style, void 0, Affinity.Transient);
       }
       if (font.variant !== void 0) {
-        this.fontVariant.setState(font.variant, void 0, Affinity.Transient);
+        this.style.fontVariant.setState(font.variant, void 0, Affinity.Transient);
       }
       if (font.weight !== void 0) {
-        this.fontWeight.setState(font.weight, void 0, Affinity.Transient);
+        this.style.fontWeight.setState(font.weight, void 0, Affinity.Transient);
       }
       if (font.stretch !== void 0) {
-        this.fontStretch.setState(font.stretch, void 0, Affinity.Transient);
+        this.style.fontStretch.setState(font.stretch, void 0, Affinity.Transient);
       }
       if (font.size !== null) {
-        this.fontSize.setState(font.size, void 0, Affinity.Transient);
+        this.style.fontSize.setState(font.size, void 0, Affinity.Transient);
       }
       if (font.height !== null) {
-        this.lineHeight.setState(font.height, void 0, Affinity.Transient);
+        this.style.lineHeight.setState(font.height, void 0, Affinity.Transient);
       }
-      this.fontFamily.setState(font.family, void 0, Affinity.Transient);
+      this.style.fontFamily.setState(font.family, void 0, Affinity.Transient);
     }
-    this.backgroundColor.setIntrinsic(theme.getOr(Look.backgroundColor, Mood.ambient, null), timing);
-    this.color.setIntrinsic(theme.getOr(Look.textColor, Mood.ambient, null), timing);
+    this.style.backgroundColor.setIntrinsic(theme.getOr(Look.backgroundColor, Mood.ambient, null), timing);
+    this.style.color.setIntrinsic(theme.getOr(Look.textColor, Mood.ambient, null), timing);
   }
 
   /** @internal */
@@ -361,7 +409,7 @@ export class HtmlView extends ElementView {
   }
 
   override get parentTransform(): Transform {
-    const transform = this.transform.value;
+    const transform = this.style.transform.value;
     if (transform !== null) {
       return transform;
     } else if (this.isPositioned()) {
@@ -457,19 +505,7 @@ export class HtmlView extends ElementView {
     }
     return new HtmlViewTagFactory(this, tag);
   }
-
-  /** @internal */
-  static readonly fieldInitializers: {[name: PropertyKey]: Function[]} = {};
-  /** @internal */
-  static readonly instanceInitializers: Function[] = [];
 }
-/** @public */
-export interface HtmlView extends StyleMap {
-  applyTheme(theme: ThemeMatrix, mood: MoodVector, timing?: TimingLike | boolean): void;
-  requireUpdate(updateFlags: ViewFlags, immediate?: boolean): void;
-}
-
-StyleMap.define(HtmlView, HtmlView.fieldInitializers, HtmlView.instanceInitializers);
 
 /** @internal */
 export class HtmlViewTagFactory<V extends HtmlView> implements HtmlViewFactory<V> {

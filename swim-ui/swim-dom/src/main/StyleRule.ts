@@ -12,14 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {__runInitializers} from "tslib";
-import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
-import {Objects} from "@swim/util";
 import type {TimingLike} from "@swim/util";
 import {Timing} from "@swim/util";
-import {FastenerContext} from "@swim/component";
-import {Fastener} from "@swim/component";
+import {FastenerContextMetaclass} from "@swim/component";
+import type {Fastener} from "@swim/component";
 import type {ConstraintExpressionLike} from "@swim/constraint";
 import type {ConstraintVariable} from "@swim/constraint";
 import type {ConstraintProperty} from "@swim/constraint";
@@ -34,10 +31,9 @@ import type {Feel} from "@swim/theme";
 import {Mood} from "@swim/theme";
 import type {MoodVector} from "@swim/theme";
 import type {ThemeMatrix} from "@swim/theme";
-import {ThemeAnimator} from "@swim/theme";
 import {ThemeContext} from "@swim/theme";
-import {StyleAnimator} from "./StyleAnimator";
-import {StyleMap} from "./StyleMap";
+import type {StyleContext} from "./StyleContext";
+import {StyleAttribute} from "./StyleAttribute";
 import type {CssRuleDescriptor} from "./CssRule";
 import type {CssRuleClass} from "./CssRule";
 import {CssRule} from "./CssRule";
@@ -49,14 +45,10 @@ export interface StyleRuleDescriptor<R> extends CssRuleDescriptor<R, CSSStyleRul
 
 /** @public */
 export interface StyleRuleClass<F extends StyleRule<any> = StyleRule> extends CssRuleClass<F> {
-  /** @internal */
-  readonly fieldInitializers: {[name: PropertyKey]: Function[]};
-  /** @internal */
-  readonly instanceInitializers: Function[];
 }
 
 /** @public */
-export interface StyleRule<R = any> extends CssRule<R, CSSStyleRule>, FastenerContext, ConstraintScope, ThemeContext, StyleMap {
+export interface StyleRule<R = any> extends CssRule<R, CSSStyleRule>, ConstraintScope, ThemeContext, StyleContext {
   /** @override */
   get descriptorType(): Proto<StyleRuleDescriptor<R>>;
 
@@ -74,6 +66,8 @@ export interface StyleRule<R = any> extends CssRule<R, CSSStyleRule>, FastenerCo
 
   /** @override */
   get selector(): string;
+
+  readonly style: StyleAttribute<this>;
 
   /** @override */
   getStyle(propertyNames: string | readonly string[]): CSSStyleValue | string | undefined;
@@ -129,53 +123,8 @@ export interface StyleRule<R = any> extends CssRule<R, CSSStyleRule>, FastenerCo
   /** @override */
   applyTheme(theme: ThemeMatrix, mood: MoodVector, timing?: TimingLike | boolean | null): void;
 
-  /** @internal */
-  applyStyles(): void;
-
-  /** @override */
-  getFastener<F extends Fastener>(fastenerName: PropertyKey, fastenerType?: Proto<F>, contextType?: Proto<any> | null): F | null;
-
-  /** @override */
-  getParentFastener<F extends Fastener>(fastenerName: string, fastenerType?: Proto<F>, contextType?: Proto<any>): F | null;
-
-  /** @override */
-  attachFastener(fastener: Fastener): void;
-
-  /** @internal @protected */
-  mountFasteners(): void;
-
-  /** @internal @protected */
-  unmountFasteners(): void;
-
-  /** @override */
-  requireUpdate(updateFlags: number): void;
-
-  /** @internal */
-  readonly coherentTime: number;
-
-  /** @internal */
-  readonly decoherent: readonly Fastener[] | null;
-
-  /** @internal */
-  readonly recohering: readonly Fastener[] | null;
-
-  /** @override */
-  decohereFastener(fastener: Fastener): void;
-
-  /** @internal @protected */
-  enqueueFastener(fastener: Fastener): void;
-
-  /** @internal @protected */
-  recohereFasteners(t: number): void
-
-  /** @override */
-  recohere(t: number): void
-
   /** @protected @override */
   didMount(): void;
-
-  /** @protected @override */
-  willUnmount(): void;
 }
 
 /** @public */
@@ -209,7 +158,7 @@ export const StyleRule = (<R, F extends StyleRule<any>>() => CssRule.extend<Styl
 
   onAttachCss(css: CSSStyleRule): void {
     if (this.mounted) {
-      this.applyStyles();
+      this.style.applyStyles();
     }
   },
 
@@ -356,20 +305,18 @@ export const StyleRule = (<R, F extends StyleRule<any>>() => CssRule.extend<Styl
   },
 
   getLook<T>(look: Look<T>, mood?: MoodVector<Feel> | null): T | undefined {
-    const themeContext = this.owner;
-    if (!ThemeContext[Symbol.hasInstance](themeContext)) {
+    if (!ThemeContext[Symbol.hasInstance](this.owner)) {
       return void 0;
     }
-    return themeContext.getLook(look, mood);
+    return this.owner.getLook(look, mood);
   },
 
   getLookOr<T, E>(look: Look<T>, mood: MoodVector<Feel> | null | E, elseValue?: E): T | E {
-    const themeContext = this.owner;
-    if (ThemeContext[Symbol.hasInstance](themeContext)) {
+    if (ThemeContext[Symbol.hasInstance](this.owner)) {
       if (arguments.length === 2) {
-        return themeContext.getLookOr(look, mood as E);
+        return this.owner.getLookOr(look, mood as E);
       } else {
-        return themeContext.getLookOr(look, mood as MoodVector<Feel> | null, elseValue!);
+        return this.owner.getLookOr(look, mood as MoodVector<Feel> | null, elseValue!);
       }
     } else if (arguments.length === 2) {
       return mood as E;
@@ -378,155 +325,37 @@ export const StyleRule = (<R, F extends StyleRule<any>>() => CssRule.extend<Styl
   },
 
   applyTheme(theme: ThemeMatrix, mood: MoodVector, timing?: TimingLike | boolean | null): void {
-    if (timing === void 0 || timing === null || timing === true) {
+    const metaclass = FastenerContextMetaclass.get(this);
+    if (metaclass === null) {
+      return;
+    } else if (timing === void 0 || timing === null || timing === true) {
       timing = theme.getOr(Look.timing, Mood.ambient, false);
     } else {
       timing = Timing.fromLike(timing);
     }
-    const fastenerSlots = FastenerContext.getFastenerSlots(this);
+    const fastenerSlots = metaclass.slots;
     for (let i = 0; i < fastenerSlots.length; i += 1) {
-      const fastener = this[fastenerSlots[i]!];
-      if (fastener instanceof ThemeAnimator) {
-        fastener.applyTheme(theme, mood, timing);
+      const fastener = this[fastenerSlots[i]!] as Fastener<any, any, any> | undefined;
+      if (fastener !== void 0 && "applyTheme" in (fastener as any)) {
+        (fastener as any).applyTheme(theme, mood, timing);
       }
     }
     super.applyTheme(theme, mood, timing);
   },
 
-  applyStyles(): void {
-    const fastenerSlots = FastenerContext.getFastenerSlots(this);
-    for (let i = 0; i < fastenerSlots.length; i += 1) {
-      const fastener = this[fastenerSlots[i]!];
-      if (fastener instanceof StyleAnimator) {
-        fastener.applyStyle(fastener.value, fastener.priority);
-      }
-    }
-  },
-
-  getFastener<F extends Fastener>(fastenerName: PropertyKey, fastenerType?: Proto<F>, contextType?: Proto<any> | null): F | null {
-    if (contextType !== void 0 && contextType !== null && !(this instanceof contextType)) {
-      return null;
-    }
-    const fastener = (this as any)[fastenerName] as F | null | undefined;
-    if (fastener === void 0 || (fastenerType !== void 0 && fastenerType !== null && !(fastener instanceof fastenerType))) {
-      return null;
-    }
-    return fastener;
-  },
-
-  getParentFastener<F extends Fastener>(fastenerName: string, fastenerType?: Proto<F>, contextType?: Proto<any>): F | null {
-    return null;
-  },
-
-  attachFastener(fastener: Fastener): void {
-    if (this.mounted) {
-      fastener.mount();
-    }
-  },
-
-  mountFasteners(): void {
-    const fastenerSlots = FastenerContext.getFastenerSlots(this);
-    for (let i = 0; i < fastenerSlots.length; i += 1) {
-      const fastener = this[fastenerSlots[i]!];
-      if (fastener instanceof Fastener) {
-        fastener.mount();
-      }
-    }
-  },
-
-  unmountFasteners(): void {
-    const fastenerSlots = FastenerContext.getFastenerSlots(this);
-    for (let i = 0; i < fastenerSlots.length; i += 1) {
-      const fastener = this[fastenerSlots[i]!];
-      if (fastener instanceof Fastener) {
-        fastener.unmount();
-      }
-    }
-  },
-
-  requireUpdate(updateFlags: number): void {
-    if (Objects.hasAllKeys<FastenerContext>(this.owner, "requireUpdate")) {
-      this.owner.requireUpdate!(updateFlags);
-    }
-  },
-
-  decohereFastener(fastener: Fastener): void {
-    const recohering = this.recohering as Fastener[] | null;
-    if (recohering !== null && fastener.coherentTime !== this.coherentTime) {
-      recohering.push(fastener);
-      return;
-    }
-    this.enqueueFastener(fastener);
-  },
-
-  enqueueFastener(fastener: Fastener): void {
-    let decoherent = this.decoherent as Fastener[] | null;
-    if (decoherent === null) {
-      decoherent = [];
-      (this as Mutable<typeof this>).decoherent = decoherent;
-    }
-    decoherent.push(fastener);
-    this.decohere();
-  },
-
-  recohereFasteners(t: number): void {
-    const decoherent = this.decoherent;
-    if (decoherent === null || decoherent.length === 0) {
-      return;
-    } else if (t === void 0) {
-      t = performance.now();
-    }
-    (this as Mutable<typeof this>).coherentTime = t;
-    (this as Mutable<typeof this>).decoherent = null;
-    (this as Mutable<typeof this>).recohering = decoherent;
-    try {
-      for (let i = 0; i < decoherent.length; i += 1) {
-        const fastener = decoherent[i]!;
-        fastener.recohere(t);
-      }
-    } finally {
-      (this as Mutable<typeof this>).recohering = null;
-    }
-  },
-
-  recohere(t: number): void {
-    super.recohere(t);
-    this.recohereFasteners(t);
-    if (this.decoherent === null || this.decoherent.length === 0) {
-      this.setCoherent(true);
-    } else {
-      this.setCoherent(false);
-      this.decohere();
-    }
-  },
-
   didMount(): void {
-    this.mountFasteners();
-    if (this.css !== null) {
-      this.applyStyles();
-    }
     super.didMount();
-  },
-
-  willUnmount(): void {
-    super.willUnmount();
-    this.unmountFasteners();
+    if (this.css !== null) {
+      this.style.applyStyles();
+    }
   },
 },
 {
   construct(fastener: F | null, owner: F extends Fastener<infer R, any, any> ? R : never): F {
     fastener = super.construct(fastener, owner) as F;
-    (fastener as Mutable<typeof fastener>).coherentTime = 0;
-    (fastener as Mutable<typeof fastener>).decoherent = null;
-    (fastener as Mutable<typeof fastener>).recohering = null;
-    __runInitializers(fastener, StyleRule.instanceInitializers);
-    for (const key in StyleRule.fieldInitializers) {
-      (fastener as any)[key] = __runInitializers(fastener, StyleRule.fieldInitializers[key]!, void 0);
-    }
+    fastener.initFasteners(StyleRule);
     return fastener;
   },
-
-  fieldInitializers: {},
-  instanceInitializers: [],
 }))();
-StyleMap.define(StyleRule, StyleRule.fieldInitializers, StyleRule.instanceInitializers);
+
+StyleRule.defineField("style", [StyleAttribute({})]);

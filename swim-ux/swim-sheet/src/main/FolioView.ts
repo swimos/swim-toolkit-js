@@ -63,7 +63,7 @@ export class FolioView extends HtmlView {
 
   protected initFolio(): void {
     this.addClass("folio");
-    this.setIntrinsic<FolioView>({
+    this.style.setIntrinsic({
       display: "flex",
       position: "relative",
       overflow: "hidden",
@@ -96,14 +96,14 @@ export class FolioView extends HtmlView {
     viewType: BarView,
     binds: true,
     initView(appBarView: BarView): void {
-      const folioWidth = this.owner.width.cssState!;
+      const folioWidth = this.owner.style.width.cssState!;
 
       const drawerView = this.owner.drawer.view;
       const drawerWidth = drawerView !== null ? drawerView.effectiveWidth.value : null;
       const sheetWidth = drawerWidth !== null ? folioWidth.minus(drawerWidth) : folioWidth;
 
-      appBarView.setIntrinsic({
-        placement: "top",
+      appBarView.placement.setIntrinsic("top");
+      appBarView.style.setIntrinsic({
         position: "absolute",
         left: drawerWidth,
         top: 0,
@@ -131,7 +131,7 @@ export class FolioView extends HtmlView {
     binds: true,
     observes: true,
     initView(drawerView: DrawerView): void {
-      drawerView.setIntrinsic({
+      drawerView.style.setIntrinsic({
         overflow: "hidden",
         zIndex: 2,
       });
@@ -160,7 +160,7 @@ export class FolioView extends HtmlView {
   @ViewRef({
     viewType: StackView,
     initView(stackView: StackView): void {
-      stackView.flexGrow.setIntrinsic(1);
+      stackView.style.flexGrow.setIntrinsic(1);
     },
     willAttachView(stackView: StackView, target: View | null): void {
       this.owner.callObservers("viewWillAttachStack", stackView, target, this.owner);
@@ -177,17 +177,17 @@ export class FolioView extends HtmlView {
     observes: true,
     initView(coverView: SheetView): void {
       if (this.owner.folioStyle.value === "unstacked") {
-        const folioWidth = this.owner.width.cssState!;
-        const folioHeight = this.owner.height.cssState!;
+        const folioWidth = this.owner.style.width.cssState!;
+        const folioHeight = this.owner.style.height.cssState!;
 
         const drawerView = this.owner.drawer.view;
         const drawerWidth = drawerView !== null ? drawerView.effectiveWidth.value : null;
         const sheetWidth = drawerWidth !== null ? folioWidth.minus(drawerWidth) : folioWidth;
 
         const appBarView = this.owner.appBar.view;
-        const appBarHeight = appBarView !== null ? appBarView.height.cssState : null;
+        const appBarHeight = appBarView !== null ? appBarView.style.height.cssState : null;
 
-        coverView.setIntrinsic({
+        coverView.style.setIntrinsic({
           position: "absolute",
           left: drawerWidth,
           top: 0,
@@ -280,13 +280,13 @@ export class FolioView extends HtmlView {
         coverView.remove();
       }
 
-      coverView.paddingLeft.setIntrinsic(null);
+      coverView.style.paddingLeft.setIntrinsic(null);
     }
   }
 
   protected resizeUnstacked(): void {
-    const folioWidth = this.width.cssState!;
-    const folioHeight = this.height.cssState!;
+    const folioWidth = this.style.width.cssState!;
+    const folioHeight = this.style.height.cssState!;
 
     const drawerView = this.drawer.insertView();
     const drawerWidth = drawerView.effectiveWidth.value;
@@ -295,11 +295,11 @@ export class FolioView extends HtmlView {
     const appBarView = this.appBar.view;
     let appBarHeight: Length | null = null;
     if (appBarView !== null) {
-      this.appBar.insertView().setIntrinsic({
+      this.appBar.insertView().style.setIntrinsic({
         left: drawerWidth,
         width: sheetWidth,
       });
-      appBarHeight = appBarView.height.cssState;
+      appBarHeight = appBarView.style.height.cssState;
     }
 
     this.stack.insertView(drawerView);
@@ -308,7 +308,7 @@ export class FolioView extends HtmlView {
     if (coverView !== null) {
       this.cover.insertView(this);
       if (this.fullBleed.value) {
-        coverView.setIntrinsic({
+        coverView.style.setIntrinsic({
           left: 0,
           top: 0,
           width: folioWidth,
@@ -317,7 +317,7 @@ export class FolioView extends HtmlView {
           paddingLeft: drawerWidth,
         });
       } else {
-        coverView.setIntrinsic({
+        coverView.style.setIntrinsic({
           left: drawerWidth,
           top: 0,
           width: sheetWidth,
@@ -349,7 +349,7 @@ export class FolioView extends HtmlView {
   }
 
   protected layoutUnstacked(): void {
-    const folioWidth = this.width.cssState!;
+    const folioWidth = this.style.width.cssState!;
 
     const drawerView = this.drawer.insertView();
     const drawerWidth = drawerView.effectiveWidth.value;
@@ -357,7 +357,7 @@ export class FolioView extends HtmlView {
 
     const appBarView = this.appBar.view;
     if (appBarView !== null) {
-      appBarView.setIntrinsic({
+      appBarView.style.setIntrinsic({
         left: drawerWidth,
         width: sheetWidth,
       });
@@ -366,13 +366,13 @@ export class FolioView extends HtmlView {
     const coverView = this.cover.view;
     if (coverView !== null) {
       if (this.fullBleed.value) {
-        coverView.setIntrinsic({
+        coverView.style.setIntrinsic({
           left: 0,
           width: folioWidth,
           paddingLeft: drawerWidth,
         });
       } else {
-        coverView.setIntrinsic({
+        coverView.style.setIntrinsic({
           left: drawerWidth,
           width: 0,
           paddingLeft: null,

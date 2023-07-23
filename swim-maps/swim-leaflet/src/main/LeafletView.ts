@@ -153,7 +153,7 @@ export class LeafletView extends MapView {
       const controlContainerView = HtmlView.fromNode(containerView.node.querySelector(".leaflet-control-container") as HTMLDivElement);
       const canvasView = this.owner.canvas.insertView(containerView, void 0, controlContainerView);
       if (canvasView !== null) {
-        canvasView.zIndex.setIntrinsic(500);
+        canvasView.style.zIndex.setIntrinsic(500);
       }
       super.didAttachView(containerView, targetView);
     },

@@ -58,7 +58,7 @@ export class TextCellView extends CellView {
       return super.fromLike(value);
     },
     createView(): HtmlView {
-      return HtmlView.fromTag("span").setIntrinsic({
+      return HtmlView.fromTag("span").style.setIntrinsic({
         alignSelf: "center",
         whiteSpace: "nowrap",
         textOverflow: "ellipsis",

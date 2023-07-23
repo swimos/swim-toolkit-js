@@ -18,7 +18,7 @@ import type {FromLike} from "@swim/util";
 import type {Creatable} from "@swim/util";
 import type {Consumer} from "@swim/util";
 import type {Consumable} from "@swim/util";
-import {FastenerContext} from "@swim/component";
+import {FastenerContextMetaclass} from "@swim/component";
 import type {FastenerTemplate} from "@swim/component";
 import type {Fastener} from "@swim/component";
 import {Property} from "@swim/component";
@@ -714,7 +714,11 @@ export class Controller extends Component<Controller> implements Consumable, War
 
   /** @internal */
   protected startConsumingFasteners(): void {
-    const fastenerSlots = FastenerContext.getFastenerSlots(this);
+    const metaclass = FastenerContextMetaclass.get(this);
+    if (metaclass === null) {
+      return;
+    }
+    const fastenerSlots = metaclass.slots;
     for (let i = 0; i < fastenerSlots.length; i += 1) {
       const fastener = this[fastenerSlots[i]!];
       if (fastener instanceof WarpDownlink && fastener.consumed === true) {
@@ -733,7 +737,11 @@ export class Controller extends Component<Controller> implements Consumable, War
 
   /** @internal */
   protected stopConsumingFasteners(): void {
-    const fastenerSlots = FastenerContext.getFastenerSlots(this);
+    const metaclass = FastenerContextMetaclass.get(this);
+    if (metaclass === null) {
+      return;
+    }
+    const fastenerSlots = metaclass.slots;
     for (let i = 0; i < fastenerSlots.length; i += 1) {
       const fastener = this[fastenerSlots[i]!];
       if (fastener instanceof WarpDownlink && fastener.consumed === true) {

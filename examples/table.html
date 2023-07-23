@@ -20,7 +20,7 @@
 
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-const containerView = swim.HtmlView.create("div").set({
+const containerView = swim.HtmlView.create("div").style.set({
   position: "relative",
   flexGrow: 1,
   userSelect: "none",
@@ -28,7 +28,7 @@ const containerView = swim.HtmlView.create("div").set({
 
 containerView.observe({
   viewWillResize(view) {
-    view.margin.set(view.viewIdiom === "desktop" ? 60 : 0);
+    view.style.margin.set(view.viewIdiom === "desktop" ? 60 : 0);
   },
 });
 

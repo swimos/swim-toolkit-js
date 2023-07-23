@@ -29,7 +29,7 @@ export class ButtonItem extends HtmlView {
 
   protected initButtonItem(): void {
     this.addClass("button-item");
-    this.position.setIntrinsic("relative");
+    this.style.position.setIntrinsic("relative");
     const button = this.createButton();
     if (button !== null) {
       this.setChild("button", button);
@@ -66,12 +66,12 @@ export class ButtonItem extends HtmlView {
     const phase = this.presence.getPhaseOr(1);
     const button = this.button;
     if (button !== null) {
-      this.width.setIntrinsic(button.width.state);
-      this.height.setIntrinsic(button.height.state);
+      this.style.width.setIntrinsic(button.style.width.state);
+      this.style.height.setIntrinsic(button.style.height.state);
     }
     const label = this.label;
     if (label !== null) {
-      label.opacity.setIntrinsic(phase);
+      label.style.opacity.setIntrinsic(phase);
     }
   }
 
@@ -104,7 +104,7 @@ export class ButtonItem extends HtmlView {
   }
 
   protected onInsertLabel(label: HtmlView): void {
-    label.setIntrinsic({
+    label.style.setIntrinsic({
       display: "block",
       position: "absolute",
       top: 0,

@@ -14,7 +14,7 @@
 
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-const containerView = bodyView.appendChild("div").set({
+const containerView = bodyView.appendChild("div").style.set({
   position: "relative",
   width: "67%",
   height: "67%",
@@ -23,9 +23,11 @@ const containerView = bodyView.appendChild("div").set({
 });
 
 const canvasView = containerView.appendChild(swim.CanvasView).set({
-  touchAction: "manipulation",
+  style: {
+    touchAction: "manipulation",
+  },
   mouseEvents: true,
-  pointerevents: true,
+  pointerEvents: true,
   touchEvents: true,
 });
 

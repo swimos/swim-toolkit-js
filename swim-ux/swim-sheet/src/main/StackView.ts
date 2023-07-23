@@ -57,7 +57,7 @@ export class StackView extends HtmlView {
 
   protected initStack(): void {
     this.addClass("stack");
-    this.setIntrinsic<StackView>({
+    this.style.setIntrinsic({
       position: "relative",
       overflow: "hidden",
     });
@@ -70,12 +70,12 @@ export class StackView extends HtmlView {
     binds: true,
     observes: true,
     initView(navBarView: BarView): void {
-      navBarView.setIntrinsic({
-        placement: "top",
+      navBarView.placement.setIntrinsic("top");
+      navBarView.style.setIntrinsic({
         position: "absolute",
         left: 0,
         top: 0,
-        width: this.owner.width.cssState,
+        width: this.owner.style.width.cssState,
         zIndex: 1,
       });
     },
@@ -108,14 +108,14 @@ export class StackView extends HtmlView {
     binds: true,
     observes: true,
     initView(sheetView: SheetView): void {
-      const stackWidth = this.owner.width.cssState;
-      const stackHeight = this.owner.height.cssState;
+      const stackWidth = this.owner.style.width.cssState;
+      const stackHeight = this.owner.style.height.cssState;
 
       const navBarView = this.owner.navBar.view;
       const navBarHeight = navBarView !== null && navBarView.mounted
-                         ? navBarView.height.cssState : null;
+                         ? navBarView.style.height.cssState : null;
 
-      sheetView.setIntrinsic({
+      sheetView.style.setIntrinsic({
         position: "absolute",
         left: stackWidth,
         top: 0,
@@ -190,20 +190,20 @@ export class StackView extends HtmlView {
   }
 
   protected resizeStack(): void {
-    const stackWidth = this.width.cssState;
-    const stackHeight = this.height.cssState;
+    const stackWidth = this.style.width.cssState;
+    const stackHeight = this.style.height.cssState;
 
     const navBarView = this.navBar.view;
     let navBarHeight: Length | null = null;
     if (navBarView !== null && navBarView.mounted) {
-      navBarView.width.setIntrinsic(stackWidth);
-      navBarHeight = navBarView.height.cssState;
+      navBarView.style.width.setIntrinsic(stackWidth);
+      navBarHeight = navBarView.style.height.cssState;
     }
 
     const sheetViews = this.sheets.views;
     for (const viewId in sheetViews) {
       const sheetView = sheetViews[viewId]!;
-      sheetView.setIntrinsic({
+      sheetView.style.setIntrinsic({
         width: stackWidth,
         height: stackHeight,
         paddingTop: navBarHeight,

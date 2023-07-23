@@ -78,7 +78,7 @@ const binderController = new ExampleBinderController().set({
   tabStyle: "bottom",
 });
 binderController.mount();
-const binderView = binderController.binder.attachView().set({
+const binderView = binderController.binder.attachView().style.set({
   flexGrow: 1,
 });
 
@@ -88,7 +88,7 @@ const tab1Controller = new swim.SheetController();
 tab1Controller.title.set("Tab 1");
 tab1Controller.handle.setIcon(swim.PolygonIcon.create(4));
 const tab1View = tab1Controller.sheet.attachView();
-const header1View = tab1View.appendChild("h2").set({
+const header1View = tab1View.appendChild("h2").style.set({
   margin: 12,
 });
 header1View.text("Tab 1");
@@ -98,7 +98,7 @@ const tab2Controller = new swim.SheetController();
 tab2Controller.title.set("Tab 2");
 tab2Controller.handle.setIcon(swim.PolygonIcon.create(6));
 const tab2View = tab2Controller.sheet.attachView();
-const header2View = tab2View.appendChild("h2").set({
+const header2View = tab2View.appendChild("h2").style.set({
   margin: 12,
 });
 header2View.text("Tab 2");
@@ -108,7 +108,7 @@ const tab3Controller = new swim.SheetController();
 tab3Controller.title.set("Tab 3");
 tab3Controller.handle.setIcon(swim.PolygonIcon.create(8));
 const tab3View = tab3Controller.sheet.attachView();
-const header3View = tab3View.appendChild("h2").set({
+const header3View = tab3View.appendChild("h2").style.set({
   margin: 12,
 });
 header3View.text("Tab 3");

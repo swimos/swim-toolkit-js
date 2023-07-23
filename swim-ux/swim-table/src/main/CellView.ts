@@ -35,7 +35,7 @@ export class CellView extends HtmlView {
 
   protected initCell(): void {
     this.addClass("cell");
-    this.setIntrinsic<CellView>({
+    this.style.setIntrinsic({
       overflow: "hidden",
     });
   }
@@ -48,17 +48,25 @@ export class CellView extends HtmlView {
     didSetValue(hyperlink: Hyperlink | null): void {
       if (hyperlink !== null) {
         this.owner.setIntrinsic<CellView>({
-          href: hyperlink.href,
-          title: hyperlink.title,
-          textDecorationLine: "underline",
-          cursor: "pointer",
+          attributes: {
+            href: hyperlink.href,
+            title: hyperlink.title,
+          },
+          style: {
+            textDecorationLine: "underline",
+            cursor: "pointer",
+          },
         });
       } else {
         this.owner.setIntrinsic<CellView>({
-          href: void 0,
-          title: void 0,
-          textDecorationLine: void 0,
-          cursor: void 0,
+          attributes: {
+            href: void 0,
+            title: void 0,
+          },
+          style: {
+            textDecorationLine: void 0,
+            cursor: void 0,
+          },
         });
       }
     },

@@ -34,7 +34,7 @@ export class TitleToolView extends ToolView {
   protected override initTool(): void {
     super.initTool();
     this.addClass("tool-title");
-    this.setIntrinsic<TitleToolView>({
+    this.style.setIntrinsic({
       overflowX: "hidden",
     });
   }
@@ -46,7 +46,7 @@ export class TitleToolView extends ToolView {
     viewKey: true,
     binds: true,
     initView(contentView: HtmlView): void {
-      contentView.setIntrinsic({
+      contentView.style.setIntrinsic({
         position: "relative",
         left: 0,
         top: 0,
@@ -70,7 +70,7 @@ export class TitleToolView extends ToolView {
       return super.fromLike(value);
     },
     createView(): HtmlView {
-      return HtmlView.fromTag("span").setIntrinsic({
+      return HtmlView.fromTag("span").style.setIntrinsic({
         display: "block",
         whiteSpace: "nowrap",
         textOverflow: "ellipsis",
@@ -91,13 +91,13 @@ export class TitleToolView extends ToolView {
     if (contentView === null) {
       return;
     }
-    const contentWidth = contentView.width.pxValue();
-    const toolWidth = this.width.pxValue();
-    contentView.setIntrinsic({
+    const contentWidth = contentView.style.width.pxValue();
+    const toolWidth = this.style.width.pxValue();
+    contentView.style.setIntrinsic({
       left: (toolWidth !== 0 ? toolWidth - contentWidth : contentWidth) * this.xAlign.value,
       top: 0,
-      height: this.height.value,
-      lineHeight: this.height.value,
+      height: this.style.height.value,
+      lineHeight: this.style.height.value,
     });
     if (this.effectiveWidth.value === null && contentWidth !== 0) {
       this.effectiveWidth.set(contentWidth);

@@ -17,6 +17,7 @@ import type {Class} from "@swim/util";
 import type {TimingLike} from "@swim/util";
 import {Timing} from "@swim/util";
 import {Property} from "@swim/component";
+import {Animator} from "@swim/component";
 import {EventHandler} from "@swim/component";
 import {Presence} from "@swim/style";
 import {PresenceAnimator} from "@swim/style";
@@ -27,7 +28,6 @@ import {ViewRef} from "@swim/view";
 import {ViewSet} from "@swim/view";
 import type {PositionGestureInput} from "@swim/view";
 import {PositionGesture} from "@swim/view";
-import {StyleAnimator} from "@swim/dom";
 import {NodeView} from "@swim/dom";
 import {HtmlView} from "@swim/dom";
 import type {ModalView} from "@swim/dom";
@@ -46,7 +46,7 @@ export class ButtonStack extends HtmlView implements ModalView {
 
   protected initButtonStack(): void {
     this.addClass("button-stack");
-    this.setIntrinsic<ButtonStack>({
+    this.style.setIntrinsic({
       display: "block",
       position: "relative",
       width: 56,
@@ -70,8 +70,11 @@ export class ButtonStack extends HtmlView implements ModalView {
   @ThemeAnimator({valueType: Number, value: 20, updateFlags: View.NeedsLayout})
   readonly itemSpacing!: ThemeAnimator<this, number>;
 
-  @StyleAnimator({
-    extends: true,
+  @Animator({
+    inherits: true,
+    get parent(): Animator<any, number | undefined, any> {
+      return this.owner.style.opacity;
+    },
     didTransition(opacity: number | undefined): void {
       if (opacity === 1) {
         this.owner.didShowStack();
@@ -80,9 +83,7 @@ export class ButtonStack extends HtmlView implements ModalView {
       }
     },
   })
-  override get opacity(): StyleAnimator<this, number | undefined> {
-    return StyleAnimator.dummy();
-  }
+  readonly opacity!: Animator<this, number | undefined>;
 
   get closeIcon(): Graphics {
     return ButtonStack.closeIcon;
@@ -99,7 +100,7 @@ export class ButtonStack extends HtmlView implements ModalView {
       }
     },
     initView(buttonView: FloatingButton): void {
-      buttonView.zIndex.setIntrinsic(0);
+      buttonView.style.zIndex.setIntrinsic(0);
     },
   })
   readonly button!: ViewRef<this, FloatingButton>;
@@ -108,7 +109,7 @@ export class ButtonStack extends HtmlView implements ModalView {
     viewType: ButtonItem,
     binds: true,
     willAttachView(itemView: ButtonItem, target: View | null): void {
-      itemView.setIntrinsic({
+      itemView.style.setIntrinsic({
         position: "absolute",
         right: 8,
         bottom: 8,
@@ -271,8 +272,8 @@ export class ButtonStack extends HtmlView implements ModalView {
     let stackHeight = 0;
     let y: number;
     if (buttonView !== null) {
-      buttonView.zIndex.setIntrinsic(childCount);
-      y = buttonView.height.pxValue();
+      buttonView.style.zIndex.setIntrinsic(childCount);
+      y = buttonView.style.height.pxValue();
     } else {
       y = 0;
     }
@@ -288,8 +289,8 @@ export class ButtonStack extends HtmlView implements ModalView {
           stackHeight += itemSpacing;
           y += itemSpacing;
         }
-        const dy = childView.height.pxValue();
-        childView.setIntrinsic({
+        const dy = childView.style.height.pxValue();
+        childView.style.setIntrinsic({
           display: phase === 0 ? "none" : "flex",
           bottom: phase * y,
           zIndex,
@@ -322,7 +323,7 @@ export class ButtonStack extends HtmlView implements ModalView {
 
   protected willShowStack(): void {
     this.callObservers("buttonStackWillShow", this);
-    this.display.set("block");
+    this.style.display.set("block");
   }
 
   protected didShowStack(): void {
@@ -352,7 +353,7 @@ export class ButtonStack extends HtmlView implements ModalView {
   }
 
   protected didHideStack(): void {
-    this.display.set("none");
+    this.style.display.set("none");
     this.requireUpdate(View.NeedsLayout);
     this.callObservers("buttonStackDidHide", this);
   }

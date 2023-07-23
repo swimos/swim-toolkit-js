@@ -70,7 +70,7 @@ export class LeafView extends HtmlView {
 
   protected initLeaf(): void {
     this.addClass("leaf");
-    this.setIntrinsic<LeafView>({
+    this.style.setIntrinsic({
       position: "relative",
       overflow: "hidden",
       backgroundColor: Look.backgroundColor,
@@ -123,7 +123,7 @@ export class LeafView extends HtmlView {
       this.owner.callObservers("viewWillHighlight", this.owner);
       const timing = this.owner.getLook(Look.timing);
       this.owner.modifyMood(Feel.default, [[Feel.transparent, 0]], timing);
-      this.owner.backgroundColor.setIntrinsic(Look.selectionColor, timing);
+      this.owner.style.backgroundColor.setIntrinsic(Look.selectionColor, timing);
     },
     didFocus(): void {
       this.owner.callObservers("viewDidHighlight", this.owner);
@@ -132,7 +132,7 @@ export class LeafView extends HtmlView {
       this.owner.callObservers("viewWillUnhighlight", this.owner);
       const timing = this.owner.getLook(Look.timing);
       this.owner.modifyMood(Feel.default, [[Feel.transparent, 1 - this.owner.hover.state.phase]], timing);
-      this.owner.backgroundColor.setIntrinsic(Look.backgroundColor, timing);
+      this.owner.style.backgroundColor.setIntrinsic(Look.backgroundColor, timing);
     },
     didUnfocus(): void {
       this.owner.callObservers("viewDidUnhighlight", this.owner);
@@ -167,13 +167,13 @@ export class LeafView extends HtmlView {
     viewType: CellView,
     binds: true,
     initView(cellView: CellView): void {
-      cellView.setIntrinsic({
+      cellView.style.setIntrinsic({
         display: "none",
         position: "absolute",
         left: 0,
         top: 0,
         width: 0,
-        height: this.owner.height.state,
+        height: this.owner.style.height.state,
       });
     },
     willAttachView(cellView: CellView, target: View | null): void {
@@ -194,7 +194,7 @@ export class LeafView extends HtmlView {
   protected layoutLeaf(): void {
     const rowHeight = this.rowHeight.value;
     if (rowHeight !== null) {
-      this.height.setIntrinsic(rowHeight);
+      this.style.height.setIntrinsic(rowHeight);
     }
   }
 
@@ -208,7 +208,7 @@ export class LeafView extends HtmlView {
 
   protected layoutChildren(displayFlags: ViewFlags, displayChild: (this: this, child: View, displayFlags: ViewFlags) => void): void {
     const layout = this.layout.value;
-    const height = this.height.state;
+    const height = this.style.height.state;
     const stretch = this.stretch.getPhaseOr(1);
     type self = this;
     function layoutChild(this: self, child: View, displayFlags: ViewFlags): void {
@@ -216,7 +216,7 @@ export class LeafView extends HtmlView {
         const key = child.key;
         const col = layout !== null && key !== void 0 ? layout.getCol(key) : null;
         if (col !== null) {
-          child.setIntrinsic({
+          child.style.setIntrinsic({
             display: !col.hidden && col.width !== null ? "flex" : "none",
             left: col.left,
             width: col.width,
@@ -225,7 +225,7 @@ export class LeafView extends HtmlView {
             opacity: col.persistent ? void 0 : stretch,
           });
         } else {
-          child.setIntrinsic({
+          child.style.setIntrinsic({
             display: "none",
             left: null,
             width: null,
@@ -261,15 +261,23 @@ export class LeafView extends HtmlView {
     didSetValue(hyperlink: Hyperlink | null): void {
       if (hyperlink !== null) {
         this.owner.setIntrinsic<LeafView>({
-          href: hyperlink.href,
-          title: hyperlink.title,
-          cursor: "pointer",
+          attributes: {
+            href: hyperlink.href,
+            title: hyperlink.title,
+          },
+          style: {
+            cursor: "pointer",
+          },
         });
       } else {
         this.owner.setIntrinsic<LeafView>({
-          href: void 0,
-          title: void 0,
-          cursor: void 0,
+          attributes: {
+            href: void 0,
+            title: void 0,
+          },
+          style: {
+            cursor: void 0,
+          },
         });
       }
     },

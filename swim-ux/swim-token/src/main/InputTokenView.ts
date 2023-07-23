@@ -55,7 +55,7 @@ export class InputTokenView extends TokenView {
 
   protected override initLabel(labelView: HtmlView): void {
     super.initLabel(labelView);
-    labelView.setIntrinsic({
+    labelView.style.setIntrinsic({
       padding: 0,
       borderStyle: "none",
       boxSizing: "border-box",
@@ -119,11 +119,11 @@ export class InputTokenView extends TokenView {
 
   protected override onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
-    this.placeholderRule.color.setIntrinsic(theme.getOr(this.placeholderLook, mood, null), timing);
+    this.placeholderRule.style.color.setIntrinsic(theme.getOr(this.placeholderLook, mood, null), timing);
 
     const labelView = this.label.view;
     if (labelView !== null) {
-      labelView.font.setIntrinsic(theme.getOr(Look.font, mood, null), false);
+      labelView.style.font.setIntrinsic(theme.getOr(Look.font, mood, null), false);
     }
   }
 

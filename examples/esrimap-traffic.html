@@ -42,7 +42,7 @@ require([
   const mapView = new swim.EsriMapView(esriMapView);
   mapView.container.setView(bodyView);
   mapView.canvas.view.set({
-    pointerevents: true,
+    pointerEvents: true,
   });
 
   const layerView = mapView.appendChild(swim.GeoTreeView);
@@ -84,11 +84,13 @@ require([
     intersectionMarkerView.addEventListener("pointerup", function (event) {
       if (intersectionPopoverView === null) {
         intersectionPopoverView = swim.PopoverView.create().set({
-          width: 240,
-          height: 360,
-          borderRadius: 5,
-          backgroundColor: swim.Color.parse("#071013").alpha(0.9),
-          backdropFilter: "blur(2px)",
+          style: {
+            width: 240,
+            height: 360,
+            borderRadius: 5,
+            backgroundColor: swim.Color.parse("#071013").alpha(0.9),
+            backdropFilter: "blur(2px)",
+          },
           source: intersectionMarkerView,
         });
         intersectionPopoverView.presence.dismiss();

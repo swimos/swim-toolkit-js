@@ -38,8 +38,8 @@ import {PctLength} from "@swim/math";
 import type {Look} from "@swim/theme";
 import type {StyleAnimatorDescriptor} from "./StyleAnimator";
 import type {StyleAnimatorClass} from "./StyleAnimator";
+import {StyleContext} from "./StyleContext";
 import {StyleAnimator} from "./StyleAnimator";
-import {StyleContext} from "./"; // forward import
 
 /** @public */
 export interface StyleConstraintAnimatorDescriptor<R, T> extends StyleAnimatorDescriptor<R, T> {

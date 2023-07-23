@@ -15,23 +15,15 @@
 import type {Class} from "@swim/util";
 import type {Instance} from "@swim/util";
 import type {LikeType} from "@swim/util";
-import type {TimingLike} from "@swim/util";
 import {Creatable} from "@swim/util";
-import {Affinity} from "@swim/component";
-import {Fastener} from "@swim/component";
+import type {TimingLike} from "@swim/util";
+import type {FastenerClass} from "@swim/component";
+import type {Fastener} from "@swim/component";
 import {Length} from "@swim/math";
 import {Transform} from "@swim/math";
-import type {FontStyle} from "@swim/style";
-import type {FontVariant} from "@swim/style";
-import type {FontWeight} from "@swim/style";
-import type {FontStretch} from "@swim/style";
-import {FontFamily} from "@swim/style";
-import type {FontLike} from "@swim/style";
-import {Font} from "@swim/style";
 import {Color} from "@swim/style";
 import {View} from "@swim/view";
 import {AttributeAnimator} from "./AttributeAnimator";
-import {StyleAnimator} from "./StyleAnimator";
 import type {AlignmentBaseline} from "./csstypes";
 import type {CssCursor} from "./csstypes";
 import type {FillRule} from "./csstypes";
@@ -39,12 +31,374 @@ import type {StrokeLinecap} from "./csstypes";
 import type {StrokeLinejoin} from "./csstypes";
 import type {SvgPointerEvents} from "./csstypes";
 import type {TextAnchor} from "./csstypes";
-import type {TouchAction} from "./csstypes";
+import {ElementAttributes} from "./ElementView";
 import type {ElementViewFactory} from "./ElementView";
 import type {ElementViewClass} from "./ElementView";
 import type {ElementViewConstructor} from "./ElementView";
 import type {ElementViewObserver} from "./ElementView";
 import {ElementView} from "./ElementView";
+
+/** @public */
+export interface SvgAttributes<R = any> extends ElementAttributes<R> {
+  get alignmentBaseline(): AttributeAnimator<this, AlignmentBaseline | undefined>;
+
+  get clipPath(): AttributeAnimator<this, string | undefined>;
+
+  get cursor(): AttributeAnimator<this, CssCursor | undefined>;
+
+  get cx(): AttributeAnimator<this, number | undefined>;
+
+  get cy(): AttributeAnimator<this, number | undefined>;
+
+  get d(): AttributeAnimator<this, string | undefined>;
+
+  get dx(): AttributeAnimator<this, Length | null>;
+
+  get dy(): AttributeAnimator<this, Length | null>;
+
+  get edgeMode(): AttributeAnimator<this, string | undefined>;
+
+  get fill(): AttributeAnimator<this, Color | null>;
+
+  get fillOpacity(): AttributeAnimator<this, number | undefined>;
+
+  get fillRule(): AttributeAnimator<this, FillRule | undefined>;
+
+  get floodColor(): AttributeAnimator<this, Color | null>;
+
+  get floodOpacity(): AttributeAnimator<this, number | undefined>;
+
+  get height(): AttributeAnimator<this, Length | null>;
+
+  get in(): AttributeAnimator<this, string | undefined>;
+
+  get in2(): AttributeAnimator<this, string | undefined>;
+
+  get lengthAdjust(): AttributeAnimator<this, "spacing" | "spacingAndGlyphs" | undefined>;
+
+  get mode(): AttributeAnimator<this, string | undefined>;
+
+  get opacity(): AttributeAnimator<this, number | undefined>;
+
+  get pointerEvents(): AttributeAnimator<this, SvgPointerEvents | undefined>;
+
+  get points(): AttributeAnimator<this, string | undefined>;
+
+  get preserveAspectRatio(): AttributeAnimator<this, boolean | undefined>;
+
+  get r(): AttributeAnimator<this, number | undefined>;
+
+  get result(): AttributeAnimator<this, string | undefined>;
+
+  get stdDeviation(): AttributeAnimator<this, number | undefined>;
+
+  get stroke(): AttributeAnimator<this, Color | null>;
+
+  get strokeDasharray(): AttributeAnimator<this, string | undefined>;
+
+  get strokeDashoffset(): AttributeAnimator<this, number | undefined>;
+
+  get strokeLinecap(): AttributeAnimator<this, StrokeLinecap | undefined>;
+
+  get strokeLinejoin(): AttributeAnimator<this, StrokeLinejoin | undefined>;
+
+  get strokeMiterlimit(): AttributeAnimator<this, number | undefined>;
+
+  get strokeOpacity(): AttributeAnimator<this, number | undefined>;
+
+  get strokeWidth(): AttributeAnimator<this, number | undefined>;
+
+  get textAnchor(): AttributeAnimator<this, TextAnchor | undefined>;
+
+  get textLength(): AttributeAnimator<this, Length | null>;
+
+  get transform(): AttributeAnimator<this, Transform | null>;
+
+  get type(): AttributeAnimator<this, string | undefined>;
+
+  get values(): AttributeAnimator<this, string | undefined>;
+
+  get viewBox(): AttributeAnimator<this, string | undefined>;
+
+  get width(): AttributeAnimator<this, Length | null>;
+
+  get x(): AttributeAnimator<this, number | undefined>;
+
+  get x1(): AttributeAnimator<this, number | undefined>;
+
+  get x2(): AttributeAnimator<this, number | undefined>;
+
+  get y(): AttributeAnimator<this, number | undefined>;
+
+  get y1(): AttributeAnimator<this, number | undefined>;
+
+  get y2(): AttributeAnimator<this, number | undefined>;
+
+  /** @override */
+  set<S>(this: S, properties: {[K in keyof S as S[K] extends {set(value: any): any} ? K : never]?: S[K] extends {set(value: infer T): any} ? T : never}, timing?: TimingLike | boolean | null): R;
+  /** @override */
+  set(properties: {[K in keyof SvgAttributes as SvgAttributes[K] extends {set(value: any): any} ? K : never]?: SvgAttributes[K] extends {set(value: infer T): any} ? T : never}, timing?: TimingLike | boolean | null): R;
+
+  /** @override */
+  setIntrinsic<S>(this: S, properties: {[K in keyof S as S[K] extends {setIntrinsic(value: any): any} ? K : never]?: S[K] extends {setIntrinsic(value: infer T): any} ? T : never}, timing?: TimingLike | boolean | null): R;
+  /** @override */
+  setIntrinsic(properties: {[K in keyof SvgAttributes as SvgAttributes[K] extends {setIntrinsic(value: any): any} ? K : never]?: SvgAttributes[K] extends {setIntrinsic(value: infer T): any} ? T : never}, timing?: TimingLike | boolean | null): R;
+}
+
+/** @public */
+export const SvgAttributes = (<R, F extends SvgAttributes<any>>() => ElementAttributes.extend<SvgAttributes<R>, FastenerClass<F>>("SvgAttributes", {
+},
+{
+  construct(fastener: F | null, owner: F extends Fastener<infer R, any, any> ? R : never): F {
+    fastener = super.construct(fastener, owner) as F;
+    fastener.initFasteners(SvgAttributes);
+    return fastener;
+  },
+}))();
+
+SvgAttributes.defineGetter("alignmentBaseline", [AttributeAnimator({
+  attributeName: "alignment-baseline",
+  valueType: String,
+})]);
+
+SvgAttributes.defineGetter("clipPath", [AttributeAnimator({
+  attributeName: "clip-path",
+  valueType: String,
+})]);
+
+SvgAttributes.defineGetter("cursor", [AttributeAnimator({
+  attributeName: "cursor",
+  valueType: String,
+})]);
+
+SvgAttributes.defineGetter("cx", [AttributeAnimator({
+  attributeName: "cx",
+  valueType: Number,
+})]);
+
+SvgAttributes.defineGetter("cy", [AttributeAnimator({
+  attributeName: "cy",
+  valueType: Number,
+})]);
+
+SvgAttributes.defineGetter("d", [AttributeAnimator({
+  attributeName: "d",
+  valueType: String,
+})]);
+
+SvgAttributes.defineGetter("dx", [AttributeAnimator({
+  attributeName: "dx",
+  valueType: Length,
+  value: null,
+})]);
+
+SvgAttributes.defineGetter("dy", [AttributeAnimator({
+  attributeName: "dy",
+  valueType: Length,
+  value: null,
+})]);
+
+SvgAttributes.defineGetter("edgeMode", [AttributeAnimator({
+  attributeName: "edgeMode",
+  valueType: String,
+})]);
+
+SvgAttributes.defineGetter("fill", [AttributeAnimator({
+  attributeName: "fill",
+  valueType: Color,
+  value: null,
+})]);
+
+SvgAttributes.defineGetter("fillOpacity", [AttributeAnimator({
+  attributeName: "fill-opacity",
+  valueType: Number,
+})]);
+
+SvgAttributes.defineGetter("fillRule", [AttributeAnimator({
+  attributeName: "fill-rule",
+  valueType: String,
+})]);
+
+SvgAttributes.defineGetter("floodColor", [AttributeAnimator({
+  attributeName: "flood-color",
+  valueType: Color,
+  value: null,
+})]);
+
+SvgAttributes.defineGetter("floodOpacity", [AttributeAnimator({
+  attributeName: "flood-opacity",
+  valueType: Number,
+})]);
+
+SvgAttributes.defineGetter("height", [AttributeAnimator({
+  attributeName: "height",
+  valueType: Length,
+  value: null,
+})]);
+
+SvgAttributes.defineGetter("in", [AttributeAnimator({
+  attributeName: "in",
+  valueType: String,
+})]);
+
+SvgAttributes.defineGetter("in2", [AttributeAnimator({
+  attributeName: "in2",
+  valueType: String,
+})]);
+
+SvgAttributes.defineGetter("lengthAdjust", [AttributeAnimator({
+  attributeName: "lengthAdjust",
+  valueType: String,
+})]);
+
+SvgAttributes.defineGetter("mode", [AttributeAnimator({
+  attributeName: "mode",
+  valueType: String,
+})]);
+
+SvgAttributes.defineGetter("opacity", [AttributeAnimator({
+  attributeName: "opacity",
+  valueType: Number,
+})]);
+
+SvgAttributes.defineGetter("pointerEvents", [AttributeAnimator({
+  attributeName: "pointer-events",
+  valueType: String,
+})]);
+
+SvgAttributes.defineGetter("points", [AttributeAnimator({
+  attributeName: "points",
+  valueType: String,
+})]);
+
+SvgAttributes.defineGetter("preserveAspectRatio", [AttributeAnimator({
+  attributeName: "preserveAspectRatio",
+  valueType: Boolean,
+})]);
+
+SvgAttributes.defineGetter("r", [AttributeAnimator({
+  attributeName: "r",
+  valueType: Number,
+})]);
+
+SvgAttributes.defineGetter("result", [AttributeAnimator({
+  attributeName: "result",
+  valueType: String,
+})]);
+
+SvgAttributes.defineGetter("stdDeviation", [AttributeAnimator({
+  attributeName: "stdDeviation",
+  valueType: Number,
+})]);
+
+SvgAttributes.defineGetter("stroke", [AttributeAnimator({
+  attributeName: "stroke",
+  valueType: Color,
+  value: null,
+})]);
+
+SvgAttributes.defineGetter("strokeDasharray", [AttributeAnimator({
+  attributeName: "stroke-dasharray",
+  valueType: String,
+})]);
+
+SvgAttributes.defineGetter("strokeDashoffset", [AttributeAnimator({
+  attributeName: "stroke-dashoffset",
+  valueType: Number,
+})]);
+
+SvgAttributes.defineGetter("strokeLinecap", [AttributeAnimator({
+  attributeName: "stroke-linecap",
+  valueType: String,
+})]);
+
+SvgAttributes.defineGetter("strokeLinejoin", [AttributeAnimator({
+  attributeName: "stroke-linejoin",
+  valueType: String,
+})]);
+
+SvgAttributes.defineGetter("strokeMiterlimit", [AttributeAnimator({
+  attributeName: "stroke-miterlimit",
+  valueType: Number,
+})]);
+
+SvgAttributes.defineGetter("strokeOpacity", [AttributeAnimator({
+  attributeName: "stroke-opacity",
+  valueType: Number,
+})]);
+
+SvgAttributes.defineGetter("strokeWidth", [AttributeAnimator({
+  attributeName: "stroke-width",
+  valueType: Number,
+})]);
+
+SvgAttributes.defineGetter("textAnchor", [AttributeAnimator({
+  attributeName: "text-anchor",
+  valueType: String,
+})]);
+
+SvgAttributes.defineGetter("textLength", [AttributeAnimator({
+  attributeName: "textLength",
+  valueType: Length,
+  value: null,
+})]);
+
+SvgAttributes.defineGetter("transform", [AttributeAnimator({
+  attributeName: "transform",
+  valueType: Transform,
+  value: null,
+})]);
+
+SvgAttributes.defineGetter("type", [AttributeAnimator({
+  attributeName: "type",
+  valueType: String,
+})]);
+
+SvgAttributes.defineGetter("values", [AttributeAnimator({
+  attributeName: "values",
+  valueType: String,
+})]);
+
+SvgAttributes.defineGetter("viewBox", [AttributeAnimator({
+  attributeName: "viewBox",
+  valueType: String,
+})]);
+
+SvgAttributes.defineGetter("width", [AttributeAnimator({
+  attributeName: "width",
+  valueType: Length,
+  value: null,
+})]);
+
+SvgAttributes.defineGetter("x", [AttributeAnimator({
+  attributeName: "x",
+  valueType: Number,
+})]);
+
+SvgAttributes.defineGetter("x1", [AttributeAnimator({
+  attributeName: "x1",
+  valueType: Number,
+})]);
+
+SvgAttributes.defineGetter("x2", [AttributeAnimator({
+  attributeName: "x2",
+  valueType: Number,
+})]);
+
+SvgAttributes.defineGetter("y", [AttributeAnimator({
+  attributeName: "y",
+  valueType: Number,
+})]);
+
+SvgAttributes.defineGetter("y1", [AttributeAnimator({
+  attributeName: "y1",
+  valueType: Number,
+})]);
+
+SvgAttributes.defineGetter("y2", [AttributeAnimator({
+  attributeName: "y2",
+  valueType: Number,
+})]);
 
 /** @public */
 export interface SvgViewTagMap {
@@ -151,6 +505,11 @@ export class SvgView extends ElementView {
 
   declare readonly node: SVGElement;
 
+  @SvgAttributes({})
+  override get attributes(): SvgAttributes<this> {
+    return SvgAttributes.dummy();
+  }
+
   override setChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(key: string, newChildFactory: F): View | null;
   override setChild(key: string, newChild: View | LikeType<SvgView> | null): View | null;
   override setChild(key: string, newChild: View | LikeType<SvgView> | null): View | null {
@@ -203,345 +562,8 @@ export class SvgView extends ElementView {
     return super.replaceChild(newChild, oldChild);
   }
 
-  @AttributeAnimator({attributeName: "alignment-baseline", valueType: String})
-  get alignmentBaseline(): AttributeAnimator<this, AlignmentBaseline | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "clip-path", valueType: String})
-  get clipPath(): AttributeAnimator<this, string | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "cursor", valueType: String})
-  get cursor(): AttributeAnimator<this, CssCursor | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "cx", valueType: Number})
-  get cx(): AttributeAnimator<this, number | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "cy", valueType: Number})
-  get cy(): AttributeAnimator<this, number | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "d", valueType: String})
-  get d(): AttributeAnimator<this, string | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "dx", valueType: Length, value: null})
-  get dx(): AttributeAnimator<this, Length | null> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "dy", valueType: Length, value: null})
-  get dy(): AttributeAnimator<this, Length | null> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "edgeMode", valueType: String})
-  get edgeMode(): AttributeAnimator<this, string | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "fill", valueType: Color, value: null})
-  get fill(): AttributeAnimator<this, Color | null> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "fill-opacity", valueType: Number})
-  get fillOpacity(): AttributeAnimator<this, number | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "fill-rule", valueType: String})
-  get fillRule(): AttributeAnimator<this, FillRule | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "flood-color", valueType: Color, value: null})
-  get floodColor(): AttributeAnimator<this, Color | null> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "flood-opacity", valueType: Number})
-  get floodOpacity(): AttributeAnimator<this, number | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "height", valueType: Length, value: null})
-  get height(): AttributeAnimator<this, Length | null> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "in", valueType: String})
-  get in(): AttributeAnimator<this, string | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "in2", valueType: String})
-  get in2(): AttributeAnimator<this, string | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "lengthAdjust", valueType: String})
-  get lengthAdjust(): AttributeAnimator<this, "spacing" | "spacingAndGlyphs" | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "mode", valueType: String})
-  get mode(): AttributeAnimator<this, string | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "opacity", valueType: Number})
-  get opacity(): AttributeAnimator<this, number | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "pointer-events", valueType: String})
-  get pointerEvents(): AttributeAnimator<this, SvgPointerEvents | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "points", valueType: String})
-  get points(): AttributeAnimator<this, string | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "preserveAspectRatio", valueType: Boolean})
-  get preserveAspectRatio(): AttributeAnimator<this, boolean | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "r", valueType: Number})
-  get r(): AttributeAnimator<this, number | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "result", valueType: String})
-  get result(): AttributeAnimator<this, string | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "stdDeviation", valueType: Number})
-  get stdDeviation(): AttributeAnimator<this, number | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "stroke", valueType: Color, value: null})
-  get stroke(): AttributeAnimator<this, Color | null> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "stroke-dasharray", valueType: String})
-  get strokeDasharray(): AttributeAnimator<this, string | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "stroke-dashoffset", valueType: Number})
-  get strokeDashoffset(): AttributeAnimator<this, number | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "stroke-linecap", valueType: String})
-  get strokeLinecap(): AttributeAnimator<this, StrokeLinecap | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "stroke-linejoin", valueType: String})
-  get strokeLinejoin(): AttributeAnimator<this, StrokeLinejoin | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "stroke-miterlimit", valueType: Number})
-  get strokeMiterlimit(): AttributeAnimator<this, number | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "stroke-opacity", valueType: Number})
-  get strokeOpacity(): AttributeAnimator<this, number | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "stroke-width", valueType: Number})
-  get strokeWidth(): AttributeAnimator<this, number | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "text-anchor", valueType: String})
-  get textAnchor(): AttributeAnimator<this, TextAnchor | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "textLength", valueType: Length, value: null})
-  get textLength(): AttributeAnimator<this, Length | null> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "transform", valueType: Transform, value: null})
-  get transform(): AttributeAnimator<this, Transform | null> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "type", valueType: String})
-  get type(): AttributeAnimator<this, string | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "values", valueType: String})
-  get values(): AttributeAnimator<this, string | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "viewBox", valueType: String})
-  get viewBox(): AttributeAnimator<this, string | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "width", valueType: Length, value: null})
-  get width(): AttributeAnimator<this, Length | null> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "x", valueType: Number})
-  get x(): AttributeAnimator<this, number | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "x1", valueType: Number})
-  get x1(): AttributeAnimator<this, number | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "x2", valueType: Number})
-  get x2(): AttributeAnimator<this, number | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "y", valueType: Number})
-  get y(): AttributeAnimator<this, number | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "y1", valueType: Number})
-  get y1(): AttributeAnimator<this, number | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @AttributeAnimator({attributeName: "y2", valueType: Number})
-  get y2(): AttributeAnimator<this, number | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
-  @StyleAnimator({propertyNames: "transform", valueType: Transform, value: null})
-  get cssTransform(): StyleAnimator<this, Transform | null> {
-    return StyleAnimator.dummy();
-  }
-
-  @StyleAnimator({propertyNames: "filter", valueType: String})
-  get filter(): StyleAnimator<this, string | undefined> {
-    return StyleAnimator.dummy();
-  }
-
-  @Fastener({
-    get(): Font | null {
-      const style = this.owner.fontStyle.value;
-      const variant = this.owner.fontVariant.value;
-      const weight = this.owner.fontWeight.value;
-      const stretch = this.owner.fontStretch.value;
-      const size = this.owner.fontSize.value;
-      const height = this.owner.lineHeight.value;
-      const family = this.owner.fontFamily.value;
-      if (family === void 0) {
-        return null;
-      }
-      return Font.create(style, variant, weight, stretch, size, height, family);
-    },
-    set(value: FontLike | null, timing?: TimingLike | boolean | null): SvgView {
-      this.setState(value, timing, Affinity.Extrinsic);
-      return this.owner;
-    },
-    setIntrinsic(value: FontLike | null, timing?: TimingLike | boolean | null): SvgView {
-      this.setState(value, timing, Affinity.Intrinsic);
-      return this.owner;
-    },
-    setState(value: FontLike | null, timing: TimingLike | boolean | null | undefined, affinity: Affinity): void {
-      if (value === null) {
-        this.owner.fontStyle.setState(void 0, timing, affinity);
-        this.owner.fontVariant.setState(void 0, timing, affinity);
-        this.owner.fontWeight.setState(void 0, timing, affinity);
-        this.owner.fontStretch.setState(void 0, timing, affinity);
-        this.owner.fontSize.setState(null, timing, affinity);
-        this.owner.lineHeight.setState(null, timing, affinity);
-        this.owner.fontFamily.setState(void 0, timing, affinity);
-        return;
-      }
-      value = Font.fromLike(value);
-      this.owner.fontStyle.setState(value.style, timing, affinity);
-      this.owner.fontVariant.setState(value.variant, timing, affinity);
-      this.owner.fontWeight.setState(value.weight, timing, affinity);
-      this.owner.fontStretch.setState(value.stretch, timing, affinity);
-      this.owner.fontSize.setState(value.size, timing, affinity);
-      this.owner.lineHeight.setState(value.height, timing, affinity);
-      this.owner.fontFamily.setState(value.family, timing, affinity);
-    },
-  })
-  get font(): Fastener<this> & {
-    get(): Font | null;
-    set(value: FontLike | null, timing?: TimingLike | boolean | null): SvgView;
-    setIntrinsic(value: FontLike | null, timing?: TimingLike | boolean | null): SvgView;
-    setState(value: FontLike | null, timing: TimingLike | boolean | null | undefined, affinity: Affinity): void;
-  } {
-    return Fastener.dummy();
-  }
-
-  @StyleAnimator({propertyNames: "font-family", valueType: FontFamily})
-  get fontFamily(): StyleAnimator<this, FontFamily | readonly FontFamily[] | undefined> {
-    return StyleAnimator.dummy();
-  }
-
-  @StyleAnimator({propertyNames: "font-size", valueType: Length, value: null})
-  get fontSize(): StyleAnimator<this, Length | null> {
-    return StyleAnimator.dummy();
-  }
-
-  @StyleAnimator({propertyNames: "font-stretch", valueType: String})
-  get fontStretch(): StyleAnimator<this, FontStretch | undefined> {
-    return StyleAnimator.dummy();
-  }
-
-  @StyleAnimator({propertyNames: "font-style", valueType: String})
-  get fontStyle(): StyleAnimator<this, FontStyle | undefined> {
-    return StyleAnimator.dummy();
-  }
-
-  @StyleAnimator({propertyNames: "font-variant", valueType: String})
-  get fontVariant(): StyleAnimator<this, FontVariant | undefined> {
-    return StyleAnimator.dummy();
-  }
-
-  @StyleAnimator({propertyNames: "font-weight", valueType: String})
-  get fontWeight(): StyleAnimator<this, FontWeight | undefined> {
-    return StyleAnimator.dummy();
-  }
-
-  @StyleAnimator({propertyNames: "line-height", valueType: Length, value: null})
-  get lineHeight(): StyleAnimator<this, Length | null> {
-    return StyleAnimator.dummy();
-  }
-
-  @StyleAnimator({propertyNames: "touch-action", valueType: String})
-  get touchAction(): StyleAnimator<this, TouchAction | undefined> {
-    return StyleAnimator.dummy();
-  }
-
   override get parentTransform(): Transform {
-    const transform = this.transform.value;
+    const transform = this.attributes.transform.value;
     return transform !== null ? transform : Transform.identity();
   }
 

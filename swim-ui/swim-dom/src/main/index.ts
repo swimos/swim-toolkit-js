@@ -14,6 +14,8 @@
 
 // Attribute
 
+export {AttributeContext} from "./AttributeContext";
+
 export type {AttributeAnimatorDescriptor} from "./AttributeAnimator";
 export type {AttributeAnimatorClass} from "./AttributeAnimator";
 export {AttributeAnimator} from "./AttributeAnimator";
@@ -25,6 +27,8 @@ export {ColorAttributeAnimator} from "./AttributeAnimator";
 export {TransformAttributeAnimator} from "./AttributeAnimator";
 
 // Style
+
+export {StyleContext} from "./StyleContext";
 
 export type {StyleAnimatorDescriptor} from "./StyleAnimator";
 export type {StyleAnimatorClass} from "./StyleAnimator";
@@ -45,9 +49,9 @@ export {LengthStyleConstraintAnimator} from "./StyleConstraintAnimator";
 
 export * from "./csstypes";
 
-export {StyleContext} from "./StyleContext";
-
-export {StyleMap} from "./StyleMap";
+export type {StyleAttributeDescriptor} from "./StyleAttribute";
+export type {StyleAttributeClass} from "./StyleAttribute";
+export {StyleAttribute} from "./StyleAttribute";
 
 export type {CssScopeDescriptor} from "./CssScope";
 export type {CssScopeClass} from "./CssScope";
@@ -85,6 +89,7 @@ export {TextView} from "./TextView";
 
 // Element
 
+export {ElementAttributes} from "./ElementView";
 export type {ElementViewFactory} from "./ElementView";
 export type {ElementViewClass} from "./ElementView";
 export type {ElementViewConstructor} from "./ElementView";
@@ -93,6 +98,7 @@ export {ElementView} from "./ElementView";
 
 // HTML
 
+export {HtmlAttributes} from "./HtmlView";
 export type {HtmlViewTagMap} from "./HtmlView";
 export type {HtmlViewFactory} from "./HtmlView";
 export type {HtmlViewClass} from "./HtmlView";
@@ -106,6 +112,7 @@ export {StyleView} from "./StyleView";
 
 // SVG
 
+export {SvgAttributes} from "./SvgView";
 export type {SvgViewTagMap} from "./SvgView";
 export type {SvgViewFactory} from "./SvgView";
 export type {SvgViewClass} from "./SvgView";

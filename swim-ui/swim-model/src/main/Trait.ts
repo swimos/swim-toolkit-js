@@ -30,7 +30,8 @@ import type {ObserverParameters} from "@swim/util";
 import type {Observer} from "@swim/util";
 import type {Consumer} from "@swim/util";
 import type {Consumable} from "@swim/util";
-import {FastenerContext} from "@swim/component";
+import type {FastenerContext} from "@swim/component";
+import {FastenerContextMetaclass} from "@swim/component";
 import type {FastenerTemplate} from "@swim/component";
 import {Fastener} from "@swim/component";
 import {Property} from "@swim/component";
@@ -1152,8 +1153,9 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
     refreshChildren.call(this.model!, refreshFlags, refreshChild);
   }
 
-  tryFastener<K extends keyof this>(fastenerName: K): this[K] | null {
-    return FastenerContext.tryFastener(this, fastenerName);
+  tryFastener<K extends keyof this, F extends this[K] = this[K]>(fastenerName: K): (F extends Fastener<any, any, any> ? F | null : never) | null {
+    const metaclass = FastenerContextMetaclass.get(this);
+    return metaclass !== null ? metaclass.tryFastener(this, fastenerName) : null;
   }
 
   getFastener<F extends Fastener>(fastenerName: PropertyKey, fastenerType?: Proto<F>, contextType?: Proto<any> | null): F | null {
@@ -1210,7 +1212,11 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
 
   /** @internal */
   protected mountFasteners(): void {
-    const fastenerSlots = FastenerContext.getFastenerSlots(this);
+    const metaclass = FastenerContextMetaclass.get(this);
+    if (metaclass === null) {
+      return;
+    }
+    const fastenerSlots = metaclass.slots;
     for (let i = 0; i < fastenerSlots.length; i += 1) {
       const fastener = this[fastenerSlots[i]!];
       if (fastener instanceof Fastener) {
@@ -1221,7 +1227,11 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
 
   /** @internal */
   protected unmountFasteners(): void {
-    const fastenerSlots = FastenerContext.getFastenerSlots(this);
+    const metaclass = FastenerContextMetaclass.get(this);
+    if (metaclass === null) {
+      return;
+    }
+    const fastenerSlots = metaclass.slots;
     for (let i = 0; i < fastenerSlots.length; i += 1) {
       const fastener = this[fastenerSlots[i]!];
       if (fastener instanceof Fastener) {
@@ -1254,7 +1264,11 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
 
   /** @internal */
   protected bindModelFasteners(model: Model): void {
-    const fastenerSlots = FastenerContext.getFastenerSlots(this);
+    const metaclass = FastenerContextMetaclass.get(this);
+    if (metaclass === null) {
+      return;
+    }
+    const fastenerSlots = metaclass.slots;
     model.forEachChild(function (child: Model): void {
       for (let i = 0; i < fastenerSlots.length; i += 1) {
         const fastener = this[fastenerSlots[i]!];
@@ -1275,7 +1289,11 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
 
   /** @internal */
   protected unbindModelFasteners(model: Model): void {
-    const fastenerSlots = FastenerContext.getFastenerSlots(this);
+    const metaclass = FastenerContextMetaclass.get(this);
+    if (metaclass === null) {
+      return;
+    }
+    const fastenerSlots = metaclass.slots;
     model.forEachTrait(function (trait: Trait): void {
       for (let i = 0; i < fastenerSlots.length; i += 1) {
         const fastener = this[fastenerSlots[i]!];
@@ -1296,7 +1314,11 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
 
   /** @internal */
   protected bindChildFasteners(child: Model, target: Model | null): void {
-    const fastenerSlots = FastenerContext.getFastenerSlots(this);
+    const metaclass = FastenerContextMetaclass.get(this);
+    if (metaclass === null) {
+      return;
+    }
+    const fastenerSlots = metaclass.slots;
     for (let i = 0; i < fastenerSlots.length; i += 1) {
       const fastener = this[fastenerSlots[i]!];
       if (fastener instanceof Fastener) {
@@ -1314,7 +1336,11 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
 
   /** @internal */
   protected unbindChildFasteners(child: Model): void {
-    const fastenerSlots = FastenerContext.getFastenerSlots(this);
+    const metaclass = FastenerContextMetaclass.get(this);
+    if (metaclass === null) {
+      return;
+    }
+    const fastenerSlots = metaclass.slots;
     for (let i = 0; i < fastenerSlots.length; i += 1) {
       const fastener = this[fastenerSlots[i]!];
       if (fastener instanceof Fastener) {
@@ -1332,7 +1358,11 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
 
   /** @internal */
   protected bindTraitFasteners(trait: Trait, target: Trait | null): void {
-    const fastenerSlots = FastenerContext.getFastenerSlots(this);
+    const metaclass = FastenerContextMetaclass.get(this);
+    if (metaclass === null) {
+      return;
+    }
+    const fastenerSlots = metaclass.slots;
     for (let i = 0; i < fastenerSlots.length; i += 1) {
       const fastener = this[fastenerSlots[i]!];
       if (fastener instanceof Fastener) {
@@ -1350,7 +1380,11 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
 
   /** @internal */
   protected unbindTraitFasteners(trait: Trait): void {
-    const fastenerSlots = FastenerContext.getFastenerSlots(this);
+    const metaclass = FastenerContextMetaclass.get(this);
+    if (metaclass === null) {
+      return;
+    }
+    const fastenerSlots = metaclass.slots;
     for (let i = 0; i < fastenerSlots.length; i += 1) {
       const fastener = this[fastenerSlots[i]!];
       if (fastener instanceof Fastener) {
@@ -1677,7 +1711,11 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
 
   /** @internal */
   protected startConsumingFasteners(): void {
-    const fastenerSlots = FastenerContext.getFastenerSlots(this);
+    const metaclass = FastenerContextMetaclass.get(this);
+    if (metaclass === null) {
+      return;
+    }
+    const fastenerSlots = metaclass.slots;
     for (let i = 0; i < fastenerSlots.length; i += 1) {
       const fastener = this[fastenerSlots[i]!];
       if (fastener instanceof WarpDownlink && fastener.consumed === true) {
@@ -1692,7 +1730,11 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
 
   /** @internal */
   protected stopConsumingFasteners(): void {
-    const fastenerSlots = FastenerContext.getFastenerSlots(this);
+    const metaclass = FastenerContextMetaclass.get(this);
+    if (metaclass === null) {
+      return;
+    }
+    const fastenerSlots = metaclass.slots;
     for (let i = 0; i < fastenerSlots.length; i += 1) {
       const fastener = this[fastenerSlots[i]!];
       if (fastener instanceof WarpDownlink && fastener.consumed === true) {

@@ -12,11 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Proto} from "@swim/util";
 import type {Class} from "@swim/util";
 import type {Instance} from "@swim/util";
 import type {LikeType} from "@swim/util";
 import {Creatable} from "@swim/util";
 import type {Observes} from "@swim/util";
+import type {TimingLike} from "@swim/util";
+import type {FastenerClass} from "@swim/component";
+import {Fastener} from "@swim/component";
+import {Animator} from "@swim/component";
 import {Provider} from "@swim/component";
 import {R2Box} from "@swim/math";
 import {ThemeMatrix} from "@swim/theme";
@@ -27,8 +32,10 @@ import {ToCssValue} from "@swim/style";
 import {View} from "@swim/view";
 import type {ViewportColorScheme} from "@swim/view";
 import type {ViewportService} from "@swim/view";
+import type {AttributeContext} from "./AttributeContext";
 import {AttributeAnimator} from "./AttributeAnimator";
 import type {StyleContext} from "./StyleContext";
+import {StyleAttribute} from "./StyleAttribute";
 import type {NodeViewFactory} from "./NodeView";
 import type {NodeViewClass} from "./NodeView";
 import type {NodeViewConstructor} from "./NodeView";
@@ -40,6 +47,88 @@ import {DomService} from "./"; // forward import
 import type {ModalOptions} from "./"; // forward import
 import {ModalView} from "./"; // forward import
 import {ModalService} from "./"; // forward import
+
+/** @public */
+export interface ElementAttributes<R = any> extends Fastener<R>, AttributeContext {
+  /** @override */
+  get fastenerType(): Proto<ElementAttributes<any>>;
+
+  get id(): AttributeAnimator<this, string | undefined>;
+
+  set<S>(this: S, properties: {[K in keyof S as S[K] extends {set(value: any): any} ? K : never]?: S[K] extends {set(value: infer T): any} ? T : never}, timing?: TimingLike | boolean | null): R;
+  set(properties: {[K in keyof ElementAttributes as ElementAttributes[K] extends {set(value: any): any} ? K : never]?: ElementAttributes[K] extends {set(value: infer T): any} ? T : never}, timing?: TimingLike | boolean | null): R;
+
+  setIntrinsic<S>(this: S, properties: {[K in keyof S as S[K] extends {setIntrinsic(value: any): any} ? K : never]?: S[K] extends {setIntrinsic(value: infer T): any} ? T : never}, timing?: TimingLike | boolean | null): R;
+  setIntrinsic(properties: {[K in keyof ElementAttributes as ElementAttributes[K] extends {setIntrinsic(value: any): any} ? K : never]?: ElementAttributes[K] extends {setIntrinsic(value: infer T): any} ? T : never}, timing?: TimingLike | boolean | null): R;
+
+  /** @override */
+  getAttribute(attributeName: string): string | null;
+
+  /** @override */
+  setAttribute(attributeName: string, value: unknown): this;
+}
+
+/** @public */
+export const ElementAttributes = (<R, F extends ElementAttributes<any>>() => Fastener.extend<ElementAttributes<R>, FastenerClass<F>>("ElementAttributes", {
+  get fastenerType(): Proto<ElementAttributes<any>> {
+    return ElementAttributes;
+  },
+
+  set(properties: {[K in keyof ElementAttributes as ElementAttributes[K] extends {set(value: any): any} ? K : never]?: ElementAttributes[K] extends {set(value: infer T): any} ? T : never}, timing?: TimingLike | boolean | null): R {
+    for (const key in properties) {
+      const value = properties[key as keyof typeof properties];
+      const property = (this as any)[key] as {set?(value: any): any} | undefined;
+      if (property === void 0 || property === null) {
+        throw new Error("unknown property " + key);
+      } else if (property.set === void 0) {
+        throw new Error("unsettable property " + key);
+      } else if (property instanceof Animator) {
+        property.set(value, timing);
+      } else {
+        property.set(value);
+      }
+    }
+    return this.owner;
+  },
+
+  setIntrinsic(properties: {[K in keyof ElementAttributes as ElementAttributes[K] extends {setIntrinsic(value: any): any} ? K : never]?: ElementAttributes[K] extends {setIntrinsic(value: infer T): any} ? T : never}, timing?: TimingLike | boolean | null): R {
+    for (const key in properties) {
+      const value = properties[key as keyof typeof properties];
+      const property = (this as any)[key] as {setIntrinsic?(value: any): any} | undefined;
+      if (property === void 0 || property === null) {
+        throw new Error("unknown property " + key);
+      } else if (property.setIntrinsic === void 0) {
+        throw new Error("unsettable property " + key);
+      } else if (property instanceof Animator) {
+        property.setIntrinsic(value, timing);
+      } else {
+        property.setIntrinsic(value);
+      }
+    }
+    return this.owner;
+  },
+
+  getAttribute(attributeName: string): string | null {
+    return (this.owner as AttributeContext).getAttribute(attributeName);
+  },
+
+  setAttribute(attributeName: string, value: unknown): ElementAttributes {
+    (this.owner as AttributeContext).setAttribute(attributeName, value);
+    return this;
+  },
+},
+{
+  construct(fastener: F | null, owner: F extends Fastener<infer R, any, any> ? R : never): F {
+    fastener = super.construct(fastener, owner) as F;
+    fastener.initFasteners(ElementAttributes);
+    return fastener;
+  },
+}))();
+
+ElementAttributes.defineGetter("id", [AttributeAnimator({
+  attributeName: "id",
+  valueType: String,
+})]);
 
 /** @public */
 export interface ElementViewFactory<V extends ElementView = ElementView> extends NodeViewFactory<V> {
@@ -68,7 +157,7 @@ export interface ElementViewObserver<V extends ElementView = ElementView> extend
 }
 
 /** @public */
-export class ElementView extends NodeView implements StyleContext {
+export class ElementView extends NodeView implements AttributeContext, StyleContext {
   constructor(node: Element) {
     super(node);
     this.willSetAttributeObservers = null;
@@ -83,103 +172,17 @@ export class ElementView extends NodeView implements StyleContext {
 
   declare readonly node: Element & ElementCSSInlineStyle;
 
-  @Provider({
-    extends: true,
-    observes: true,
-    serviceDidSetViewportColorScheme(colorScheme: ViewportColorScheme): void {
-      this.owner.detectTheme();
-    },
-  })
-  override get viewport(): Provider<this, ViewportService> & NodeView["viewport"] & Observes<ViewportService> {
-    return Provider.dummy();
+  @ElementAttributes({})
+  get attributes(): ElementAttributes<this> {
+    return ElementAttributes.dummy();
   }
 
-  @Provider({
-    get serviceType(): typeof DomService { // avoid static forward reference
-      return DomService;
-    },
-    mountRootService(service: DomService,): void {
-      super.mountRootService(service);
-      service.roots.addView(this.owner);
-    },
-    unmountRootService(service: DomService): void {
-      super.unmountService(service);
-      service.roots.removeView(this.owner);
-    },
-  })
-  get dom(): Provider<this, DomService> {
-    return Provider.dummy();
-  }
-
-  @Provider({
-    get serviceType(): typeof ModalService { // avoid static forward reference
-      return ModalService;
-    },
-    present(modalView?: ModalView, options?: ModalOptions): void {
-      if (modalView === void 0 && ModalView[Symbol.hasInstance](this.owner)) {
-        modalView = this.owner;
-      }
-      if (modalView !== void 0) {
-        this.getService().presentModal(modalView, options);
-      }
-    },
-    dismiss(modalView?: ModalView): void {
-      if (modalView === void 0 && ModalView[Symbol.hasInstance](this.owner)) {
-        modalView = this.owner;
-      }
-      if (modalView !== void 0) {
-        this.getService().dismissModal(modalView);
-      }
-    },
-    toggle(modalView?: ModalView, options?: ModalOptions): void {
-      if (modalView === void 0 && ModalView[Symbol.hasInstance](this.owner)) {
-        modalView = this.owner;
-      }
-      if (modalView !== void 0) {
-        this.getService().toggleModal(modalView, options);
-      }
-    },
-  })
-  get modal(): Provider<this, ModalService> & {
-    present(modalView?: ModalView, options?: ModalOptions): void,
-    dismiss(modalView?: ModalView): void,
-    toggle(modalView?: ModalView): void,
-  } {
-    return Provider.dummy();
-  }
-
-  protected detectTheme(): void {
-    let themeName = this.node.getAttribute("swim-theme");
-    if (themeName === "") {
-      themeName = "auto";
-    }
-    if (themeName === null) {
-      return;
-    }
-    let theme: ThemeMatrix | undefined;
-    if (themeName === "auto") {
-      const viewportService = this.viewport.getService();
-      const colorScheme = viewportService.colorScheme.value;
-      if (colorScheme === "dark") {
-        theme = Theme.dark;
-      } else {
-        theme = Theme.light;
-      }
-    } else if (themeName.indexOf('.') < 0) {
-      theme = (Theme as any)[themeName];
-    } else {
-      theme = DomService.eval(themeName) as ThemeMatrix | undefined;
-    }
-    if (!(theme instanceof ThemeMatrix)) {
-      throw new TypeError("unknown swim-theme: " + themeName);
-    }
-    this.theme.set(theme);
-  }
-
+  /** @override */
   getAttribute(attributeName: string): string | null {
     return this.node.getAttribute(attributeName);
   }
 
+  /** @override */
   setAttribute(attributeName: string, value: unknown): this {
     this.willSetAttribute(attributeName, value);
     if (value !== void 0 && value !== null) {
@@ -216,6 +219,11 @@ export class ElementView extends NodeView implements StyleContext {
         observer.viewDidSetAttribute(attributeName, value, this);
       }
     }
+  }
+
+  @StyleAttribute({})
+  get style(): StyleAttribute<this> {
+    return StyleAttribute.dummy();
   }
 
   getStyle(propertyNames: string | readonly string[]): CSSStyleValue | string | undefined {
@@ -311,11 +319,6 @@ export class ElementView extends NodeView implements StyleContext {
     }
   }
 
-  @AttributeAnimator({attributeName: "id", valueType: String})
-  get id(): AttributeAnimator<this, string | undefined> {
-    return AttributeAnimator.dummy();
-  }
-
   className(): string | undefined;
   className(value: string | undefined): this;
   className(value?: string | undefined): string | undefined | this {
@@ -362,6 +365,99 @@ export class ElementView extends NodeView implements StyleContext {
       classList.remove(className);
     }
     return this;
+  }
+
+  protected detectTheme(): void {
+    let themeName = this.node.getAttribute("swim-theme");
+    if (themeName === "") {
+      themeName = "auto";
+    }
+    if (themeName === null) {
+      return;
+    }
+    let theme: ThemeMatrix | undefined;
+    if (themeName === "auto") {
+      const viewportService = this.viewport.getService();
+      const colorScheme = viewportService.colorScheme.value;
+      if (colorScheme === "dark") {
+        theme = Theme.dark;
+      } else {
+        theme = Theme.light;
+      }
+    } else if (themeName.indexOf('.') < 0) {
+      theme = (Theme as any)[themeName];
+    } else {
+      theme = DomService.eval(themeName) as ThemeMatrix | undefined;
+    }
+    if (!(theme instanceof ThemeMatrix)) {
+      throw new TypeError("unknown swim-theme: " + themeName);
+    }
+    this.theme.set(theme);
+  }
+
+  @Provider({
+    extends: true,
+    observes: true,
+    serviceDidSetViewportColorScheme(colorScheme: ViewportColorScheme): void {
+      this.owner.detectTheme();
+    },
+  })
+  override get viewport(): Provider<this, ViewportService> & NodeView["viewport"] & Observes<ViewportService> {
+    return Provider.dummy();
+  }
+
+  @Provider({
+    get serviceType(): typeof DomService { // avoid static forward reference
+      return DomService;
+    },
+    mountRootService(service: DomService,): void {
+      super.mountRootService(service);
+      service.roots.addView(this.owner);
+    },
+    unmountRootService(service: DomService): void {
+      super.unmountService(service);
+      service.roots.removeView(this.owner);
+    },
+  })
+  get dom(): Provider<this, DomService> {
+    return Provider.dummy();
+  }
+
+  @Provider({
+    get serviceType(): typeof ModalService { // avoid static forward reference
+      return ModalService;
+    },
+    present(modalView?: ModalView, options?: ModalOptions): void {
+      if (modalView === void 0 && ModalView[Symbol.hasInstance](this.owner)) {
+        modalView = this.owner;
+      }
+      if (modalView !== void 0) {
+        this.getService().presentModal(modalView, options);
+      }
+    },
+    dismiss(modalView?: ModalView): void {
+      if (modalView === void 0 && ModalView[Symbol.hasInstance](this.owner)) {
+        modalView = this.owner;
+      }
+      if (modalView !== void 0) {
+        this.getService().dismissModal(modalView);
+      }
+    },
+    toggle(modalView?: ModalView, options?: ModalOptions): void {
+      if (modalView === void 0 && ModalView[Symbol.hasInstance](this.owner)) {
+        modalView = this.owner;
+      }
+      if (modalView !== void 0) {
+        this.getService().toggleModal(modalView, options);
+      }
+    },
+  })
+  get modal(): Provider<this, ModalService> & {
+    present(modalView?: ModalView, options?: ModalOptions): void,
+    dismiss(modalView?: ModalView): void,
+    toggle(modalView?: ModalView): void,
+  } {
+    return Provider.dummy();
   }
 
   override get clientBounds(): R2Box {

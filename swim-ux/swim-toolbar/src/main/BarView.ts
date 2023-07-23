@@ -60,7 +60,7 @@ export class BarView extends HtmlView {
 
   protected initBar(): void {
     this.addClass("bar");
-    this.setIntrinsic<BarView>({
+    this.style.setIntrinsic({
       position: "relative",
       overflow: "hidden",
       userSelect: "none",
@@ -128,7 +128,7 @@ export class BarView extends HtmlView {
         } else if (placement === "bottom") {
           height = height.plus(edgeInsets.insetBottom);
         }
-        this.owner.height.setIntrinsic(height);
+        this.owner.style.height.setIntrinsic(height);
       }
     },
   })
@@ -193,7 +193,7 @@ export class BarView extends HtmlView {
     viewType: ToolView,
     binds: true,
     initView(toolView: ToolView): void {
-      toolView.setIntrinsic({
+      toolView.style.setIntrinsic({
         display: "none",
         position: "absolute",
         left: 0,
@@ -234,12 +234,12 @@ export class BarView extends HtmlView {
     let height = this.barHeight.value;
     if (height !== null) {
       height = height.plus(edgeInsets.insetTop);
-      this.height.setIntrinsic(height);
+      this.style.height.setIntrinsic(height);
     }
 
     const oldLayout = !this.layout.derived ? this.layout.state : null;
     if (oldLayout !== void 0 && oldLayout !== null) {
-      const barWidth = this.width.pxState();
+      const barWidth = this.style.width.pxState();
       const insetLeft = edgeInsets.insetLeft;
       const insetRight = edgeInsets.insetRight;
       const spacing = this.toolSpacing.getValue().pxValue(barWidth);
@@ -256,12 +256,12 @@ export class BarView extends HtmlView {
     let height = this.barHeight.value;
     if (height !== null) {
       height = height.plus(edgeInsets.insetBottom);
-      this.height.setIntrinsic(height);
+      this.style.height.setIntrinsic(height);
     }
 
     const oldLayout = !this.layout.derived ? this.layout.state : null;
     if (oldLayout !== void 0 && oldLayout !== null) {
-      const barWidth = this.width.pxState();
+      const barWidth = this.style.width.pxState();
       const insetLeft = edgeInsets.insetLeft;
       const insetRight = edgeInsets.insetRight;
       const spacing = this.toolSpacing.getValue().pxValue(barWidth);
@@ -276,7 +276,7 @@ export class BarView extends HtmlView {
 
     const oldLayout = !this.layout.derived ? this.layout.state : null;
     if (oldLayout !== void 0 && oldLayout !== null) {
-      const barWidth = this.width.pxState();
+      const barWidth = this.style.width.pxState();
       const spacing = this.toolSpacing.getValue().pxValue(barWidth);
       const newLayout = oldLayout.resized(barWidth, 0, 0, spacing);
       this.layout.set(newLayout);
@@ -304,7 +304,8 @@ export class BarView extends HtmlView {
         const key = child.key;
         const tool = layout !== null && key !== void 0 ? layout.getTool(key) : null;
         if (tool !== null) {
-          child.setIntrinsic({
+          child.xAlign.setIntrinsic(tool.align);
+          child.style.setIntrinsic({
             display: !tool.presence.dismissed ? "flex" : "none",
             left: tool.left,
             top: toolTop,
@@ -312,14 +313,13 @@ export class BarView extends HtmlView {
             width: tool.width !== null && tool.width.value !== 0 ? tool.width : null,
             height: toolHeight,
             opacity: tool.presence.phase !== 1 ? tool.presence.phase : void 0,
-            xAlign: tool.align,
           });
-          child.pointerEvents.setState(tool.presence.dismissing ? "none" : void 0, Affinity.Transient);
+          child.style.pointerEvents.setState(tool.presence.dismissing ? "none" : void 0, Affinity.Transient);
           if (tool.presence.dismissed) {
             this.callObservers("viewDidDismissTool", child, tool, this);
           }
         } else {
-          child.setIntrinsic({
+          child.style.setIntrinsic({
             display: "none",
             left: null,
             top: null,
@@ -328,7 +328,7 @@ export class BarView extends HtmlView {
             height: null,
             opacity: void 0,
           });
-          child.pointerEvents.setState(void 0, Affinity.Transient);
+          child.style.pointerEvents.setState(void 0, Affinity.Transient);
         }
       }
       displayChild.call(this, child, displayFlags);
@@ -359,24 +359,24 @@ export class BarView extends HtmlView {
               overlapWidth = overlapWidth.plus(tool.overpad);
             }
             if (toolX <= overlapX) {
-              toolView.setIntrinsic({
+              toolView.style.setIntrinsic({
                 paddingLeft: null,
                 paddingRight: overlapWidth,
               });
             } else {
-              toolView.setIntrinsic({
+              toolView.style.setIntrinsic({
                 paddingLeft: overlapWidth,
                 paddingRight: null,
               });
             }
           } else {
-            toolView.setIntrinsic({
+            toolView.style.setIntrinsic({
               paddingLeft: null,
               paddingRight: null,
             });
           }
         } else {
-          toolView.setIntrinsic({
+          toolView.style.setIntrinsic({
             paddingLeft: null,
             paddingRight: null,
           });

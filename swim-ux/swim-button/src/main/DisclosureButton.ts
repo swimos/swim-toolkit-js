@@ -34,7 +34,7 @@ export class DisclosureButton extends HtmlView {
 
   protected initDisclosureButton(): void {
     this.addClass("disclosure-button");
-    this.setIntrinsic<DisclosureButton>({
+    this.style.setIntrinsic({
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
@@ -43,12 +43,12 @@ export class DisclosureButton extends HtmlView {
       cursor: "pointer",
     });
 
-    const icon = this.appendChild(SvgView, "icon").setIntrinsic({
+    const icon = this.appendChild(SvgView, "icon").attributes.setIntrinsic({
       width: 24,
       height: 24,
       viewBox: "0 0 24 24",
     });
-    icon.appendChild("polygon", "arrow").setIntrinsic({
+    icon.appendChild("polygon", "arrow").attributes.setIntrinsic({
       points: "0 4 -6 -2 -4.59 -3.41 0 1.17 4.59 -3.41 6 -2",
       transform: Transform.translate(12, 12).rotate(Angle.deg(0)),
     });
@@ -84,11 +84,11 @@ export class DisclosureButton extends HtmlView {
     const phase = this.disclosure.getPhaseOr(1);
     const collapsedColor = this.collapsedColor.value;
     const expandedColor = this.expandedColor.value;
-    if (collapsedColor !== null && expandedColor !== null && this.arrow.fill.hasAffinity(Affinity.Intrinsic)) {
+    if (collapsedColor !== null && expandedColor !== null && this.arrow.attributes.fill.hasAffinity(Affinity.Intrinsic)) {
       const colorInterpolator = collapsedColor.interpolateTo(expandedColor);
-      this.arrow.fill.setIntrinsic(colorInterpolator(phase));
+      this.arrow.attributes.fill.setIntrinsic(colorInterpolator(phase));
     }
     const transform = Transform.translate(12, 12).rotate(Angle.deg(-180 * phase));
-    this.arrow.transform.setIntrinsic(transform);
+    this.arrow.attributes.transform.setIntrinsic(transform);
   }
 }

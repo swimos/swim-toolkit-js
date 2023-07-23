@@ -55,7 +55,7 @@ export class CanvasView extends HtmlView {
     this.pointers = null;
     this.touches = null;
 
-    this.setIntrinsic<CanvasView>({
+    this.style.setIntrinsic({
       position: "absolute",
       left: 0,
       top: 0,
@@ -292,10 +292,8 @@ export class CanvasView extends HtmlView {
       this.owner.pointerleave.enabled = pointerEvents;
       this.owner.pointerdown.enabled = pointerEvents;
     },
-    // TODO: rename to `pointerEvents` once StyleMap
-    // becomes a nested `style` fastener.
   })
-  readonly pointerevents!: Property<this, boolean>;
+  readonly pointerEvents!: Property<this, boolean>;
 
   @Property({
     valueType: Boolean,
@@ -643,7 +641,7 @@ export class CanvasView extends HtmlView {
     bindsOwner: true,
     enabled: false,
     init(): void {
-      this.enabled = this.owner.pointerevents.value;
+      this.enabled = this.owner.pointerEvents.value;
     },
     handle(event: PointerEvent): void {
       const id = "" + event.pointerId;
@@ -670,7 +668,7 @@ export class CanvasView extends HtmlView {
     bindsOwner: true,
     enabled: false,
     init(): void {
-      this.enabled = this.owner.pointerevents.value;
+      this.enabled = this.owner.pointerEvents.value;
     },
     handle(event: PointerEvent): void {
       const id = "" + event.pointerId;
@@ -700,7 +698,7 @@ export class CanvasView extends HtmlView {
     bindsOwner: true,
     enabled: false,
     init(): void {
-      this.enabled = this.owner.pointerevents.value;
+      this.enabled = this.owner.pointerEvents.value;
     },
     handle(event: PointerEvent): void {
       const id = "" + event.pointerId;

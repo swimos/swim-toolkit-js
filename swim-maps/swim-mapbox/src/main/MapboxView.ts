@@ -260,10 +260,10 @@ export class MapboxView extends MapView {
       let left = edgeInsets.insetLeft;
       const containerView = this.owner.container.view;
       if (containerView !== null) {
-        top = Math.max(containerView.paddingTop.pxState(), top);
-        right = Math.max(containerView.paddingRight.pxState(), right);
-        bottom = Math.max(containerView.paddingBottom.pxState(), bottom);
-        left = Math.max(containerView.paddingLeft.pxState(), left);
+        top = Math.max(containerView.style.paddingTop.pxState(), top);
+        right = Math.max(containerView.style.paddingRight.pxState(), right);
+        bottom = Math.max(containerView.style.paddingBottom.pxState(), bottom);
+        left = Math.max(containerView.style.paddingLeft.pxState(), left);
       }
       return {top, right, bottom, left};
     },
@@ -290,29 +290,29 @@ export class MapboxView extends MapView {
       return;
     }
     const edgeInsets = containerView.edgeInsets.value;
-    const top = Math.max(containerView.paddingTop.pxState(), edgeInsets.insetTop);
-    const right = Math.max(containerView.paddingRight.pxState(), edgeInsets.insetRight);
-    const bottom = Math.max(containerView.paddingBottom.pxState(), edgeInsets.insetBottom);
-    const left = Math.max(containerView.paddingLeft.pxState(), edgeInsets.insetLeft);
+    const top = Math.max(containerView.style.paddingTop.pxState(), edgeInsets.insetTop);
+    const right = Math.max(containerView.style.paddingRight.pxState(), edgeInsets.insetRight);
+    const bottom = Math.max(containerView.style.paddingBottom.pxState(), edgeInsets.insetBottom);
+    const left = Math.max(containerView.style.paddingLeft.pxState(), edgeInsets.insetLeft);
     const topLeftControlsView = this.topLeftControls.view;
     if (topLeftControlsView !== null) {
-      topLeftControlsView.top.setIntrinsic(top);
-      topLeftControlsView.left.setIntrinsic(left);
+      topLeftControlsView.style.top.setIntrinsic(top);
+      topLeftControlsView.style.left.setIntrinsic(left);
     }
     const topRightControlsView = this.topRightControls.view;
     if (topRightControlsView !== null) {
-      topRightControlsView.top.setIntrinsic(top);
-      topRightControlsView.right.setIntrinsic(right);
+      topRightControlsView.style.top.setIntrinsic(top);
+      topRightControlsView.style.right.setIntrinsic(right);
     }
     const bottomLeftControlsView = this.bottomLeftControls.view;
     if (bottomLeftControlsView !== null) {
-      bottomLeftControlsView.bottom.setIntrinsic(bottom);
-      bottomLeftControlsView.left.setIntrinsic(left);
+      bottomLeftControlsView.style.bottom.setIntrinsic(bottom);
+      bottomLeftControlsView.style.left.setIntrinsic(left);
     }
     const bottomRightControlsView = this.bottomRightControls.view;
     if (bottomRightControlsView !== null) {
-      bottomRightControlsView.bottom.setIntrinsic(bottom);
-      bottomRightControlsView.right.setIntrinsic(right);
+      bottomRightControlsView.style.bottom.setIntrinsic(bottom);
+      bottomRightControlsView.style.right.setIntrinsic(right);
     }
   }
 

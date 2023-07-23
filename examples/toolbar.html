@@ -120,7 +120,9 @@ const layout2 = swim.BarLayout.fromInit({
 const bodyView = swim.HtmlView.fromNode(document.body);
 
 const barView = swim.BarView.create().set({
-  width: "100%",
+  style: {
+    width: "100%",
+  },
   barHeight: 60,
   layout: layout0,
 });
@@ -136,17 +138,23 @@ barView.appendChild(swim.ButtonToolView, "back").set({
 });
 
 const title0View = barView.appendChild(swim.TitleToolView, "title0").set({
-  fontSize: 16,
+  style: {
+    fontSize: 16,
+  },
   content: "Card 0",
 });
 
 const title1View = barView.appendChild(swim.TitleToolView, "title1").set({
-  fontSize: 16,
+  style: {
+    fontSize: 16,
+  },
   content: "Card 1",
 });
 
 const title2View = barView.appendChild(swim.TitleToolView, "title2").set({
-  fontSize: 16,
+  style: {
+    fontSize: 16,
+  },
   content: "Card 2",
 });
 
@@ -161,19 +169,19 @@ const duration = 500;
 const pause = 500;
 const tween = swim.Easing.cubicOut.withDuration(duration);
 
-title0View.color.set(swim.Look.accentColor);
+title0View.style.color.set(swim.Look.accentColor);
 function play() {
   barView.layout.set(layout1, tween);
-  title1View.color.set(swim.Look.accentColor, tween);
+  title1View.style.color.set(swim.Look.accentColor, tween);
   setTimeout(function () {
     barView.layout.set(layout2, tween);
-    title2View.color.set(swim.Look.accentColor, tween);
+    title2View.style.color.set(swim.Look.accentColor, tween);
     setTimeout(function () {
       barView.layout.set(layout1, tween);
-      title2View.color.set(swim.Look.textColor, tween);
+      title2View.style.color.set(swim.Look.textColor, tween);
       setTimeout(function () {
         barView.layout.set(layout0, tween);
-        title1View.color.set(swim.Look.textColor, tween);
+        title1View.style.color.set(swim.Look.textColor, tween);
         setTimeout(play, duration + 5 * pause);
       }, duration + pause);
     }, duration + pause);

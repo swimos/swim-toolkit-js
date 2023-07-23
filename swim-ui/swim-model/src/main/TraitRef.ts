@@ -16,7 +16,7 @@ import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
 import type {LikeType} from "@swim/util";
 import {Affinity} from "@swim/component";
-import {FastenerContext} from "@swim/component";
+import {FastenerContextMetaclass} from "@swim/component";
 import type {FastenerClass} from "@swim/component";
 import {Fastener} from "@swim/component";
 import type {Model} from "./Model";
@@ -33,7 +33,7 @@ export interface TraitRefDescriptor<R, T extends Trait> extends TraitRelationDes
 
 /** @public */
 export interface TraitRefClass<F extends TraitRef<any, any, any> = TraitRef<any, any, any>> extends TraitRelationClass<F> {
-  tryTrait<R, K extends keyof R, F extends R[K] = R[K]>(owner: R, fastenerName: K): F extends {readonly trait: infer T | null} ? T | null : null;
+  tryTrait<R, K extends keyof R, F extends R[K] = R[K]>(owner: R, fastenerName: K): (F extends {readonly trait: infer T | null} ? T | null : never) | null;
 }
 
 /** @public */
@@ -437,12 +437,10 @@ export const TraitRef = (<R, T extends Trait, I extends any[], F extends TraitRe
   },
 },
 {
-  tryTrait<R, K extends keyof R, F extends R[K]>(owner: R, fastenerName: K): F extends {readonly trait: infer T | null} ? T | null : null {
-    const traitRef = FastenerContext.tryFastener(owner, fastenerName) as TraitRef | null;
-    if (traitRef !== null) {
-      return traitRef.trait as any;
-    }
-    return null as any;
+  tryTrait<R, K extends keyof R, F extends R[K]>(owner: R, fastenerName: K): (F extends {readonly trait: infer T | null} ? T | null : never) | null {
+    const metaclass = FastenerContextMetaclass.get(owner);
+    const traitRef = metaclass !== null ? metaclass.tryFastener(owner, fastenerName) : null;
+    return traitRef instanceof TraitRef ? traitRef.trait : null;
   },
 
   construct(fastener: F | null, owner: F extends Fastener<infer R, any, any> ? R : never): F {

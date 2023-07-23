@@ -13,9 +13,6 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {Timing} from "@swim/util";
-import type {MoodVector} from "@swim/theme";
-import type {ThemeMatrix} from "@swim/theme";
 import type {StyleContext} from "./StyleContext";
 import {StyleSheet} from "./StyleSheet";
 import type {HtmlViewObserver} from "./HtmlView";
@@ -37,11 +34,6 @@ export class StyleView extends HtmlView implements StyleContext {
 
   @StyleSheet({})
   readonly sheet!: StyleSheet<this>;
-
-  protected override onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
-    super.onApplyTheme(theme, mood, timing);
-    this.sheet.applyTheme(theme, mood, timing);
-  }
 
   protected override onMount(): void {
     super.onMount();

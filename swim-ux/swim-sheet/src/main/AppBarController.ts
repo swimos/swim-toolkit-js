@@ -95,8 +95,8 @@ export class AppBarController extends BarController {
       const coverTitleView = coverController.title.insertView(this.bar.view, void 0, void 0, "cover");
       if (coverTitleView !== null) {
         const timing = coverTitleView.getLookOr(Look.timing, Mood.navigating, false);
-        coverTitleView.color.setIntrinsic(Look.textColor, timing);
-        coverTitleView.zIndex.setIntrinsic(1);
+        coverTitleView.style.color.setIntrinsic(Look.textColor, timing);
+        coverTitleView.style.zIndex.setIntrinsic(1);
       }
     }
 

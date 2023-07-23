@@ -21,7 +21,7 @@
 
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-const containerView = bodyView.appendChild("div").set({
+const containerView = bodyView.appendChild("div").style.set({
   position: "relative",
   flexGrow: 1,
   margin: 60,
@@ -52,7 +52,7 @@ const ExampleTableController = (function () {
     attachCellView(cellView, cellController, rowController) {
       super.attachCellView(cellView, cellController, rowController);
       if (cellFastener.key === "a") {
-        cellView.color.set("#989898");
+        cellView.style.color.set("#989898");
       }
     },
   })], {kind: "field", name: "rows", static: false, private: false, access: {has: obj => "rows" in obj, get: obj => obj.rows, set: (obj, value) => { obj.appBar = value; }}}, rowInitializers, instanceInitializers);

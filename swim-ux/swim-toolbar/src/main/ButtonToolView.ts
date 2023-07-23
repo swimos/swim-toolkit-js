@@ -52,7 +52,7 @@ export class ButtonToolView extends ToolView implements IconView {
   protected override initTool(): void {
     super.initTool();
     this.addClass("tool-button");
-    this.setIntrinsic<ButtonToolView>({
+    this.style.setIntrinsic({
       boxSizing: "border-box",
       borderRadius: 4,
       overflow: "hidden",
@@ -105,7 +105,7 @@ export class ButtonToolView extends ToolView implements IconView {
       this.insertView();
     },
     initView(svgView: SvgIconView): void {
-      svgView.setStyle("position", "absolute");
+      svgView.style.position.set("absolute");
       svgView.iconLayout.setInherits(true);
       svgView.iconColor.setInherits(true);
       svgView.graphics.setInherits(true);
@@ -143,14 +143,14 @@ export class ButtonToolView extends ToolView implements IconView {
 
   protected layoutTool(): void {
     const svgView = this.svg.view;
-    if (svgView === null || !svgView.width.hasAffinity(Affinity.Intrinsic)
-                         && !svgView.height.hasAffinity(Affinity.Intrinsic)
-                         && !svgView.viewBox.hasAffinity(Affinity.Intrinsic)) {
+    if (svgView === null || !svgView.attributes.width.hasAffinity(Affinity.Intrinsic)
+                         && !svgView.attributes.height.hasAffinity(Affinity.Intrinsic)
+                         && !svgView.attributes.viewBox.hasAffinity(Affinity.Intrinsic)) {
       return;
     }
-    const width = this.width.pxValue();
-    const height = this.height.pxValue();
-    svgView.setIntrinsic({
+    const width = this.style.width.pxValue();
+    const height = this.style.height.pxValue();
+    svgView.attributes.setIntrinsic({
       width, height,
       viewBox: "0 0 " + width + " " + height,
     });

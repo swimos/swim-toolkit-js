@@ -155,16 +155,22 @@ const updateRate = document.getElementById("updateRate");
 const bodyView = swim.HtmlView.fromNode(document.body);
 
 const containerView = bodyView.appendChild("div").set({
-  id: "ui",
-  position: "relative",
-  touchAction: "none",
-  userSelect: "none",
+  attributes: {
+    id: "ui",
+  },
+  style: {
+    position: "relative",
+    touchAction: "none",
+    userSelect: "none",
+  },
 });
 
 const canvasView = containerView.appendChild(swim.CanvasView).set({
-  touchAction: "manipulation",
+  style: {
+    touchAction: "manipulation",
+  },
   mouseEvents: true,
-  pointerevents: true,
+  pointerEvents: true,
   touchEvents: true,
 });
 

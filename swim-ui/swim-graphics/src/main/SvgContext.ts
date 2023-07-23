@@ -111,16 +111,16 @@ export class SvgContext implements PaintingContext {
     }
     const pathFlags = this.pathFlags;
     if ((pathFlags & SvgContext.FillFlag) === 0) {
-      pathView.fill.setIntrinsic(null);
+      pathView.attributes.fill.setIntrinsic(null);
     }
     if ((pathFlags & SvgContext.FillRuleFlag) === 0) {
-      pathView.fillRule.setIntrinsic(void 0);
+      pathView.attributes.fillRule.setIntrinsic(void 0);
     }
     if ((pathFlags & SvgContext.StrokeFlag) === 0) {
-      pathView.stroke.setIntrinsic(null);
+      pathView.attributes.stroke.setIntrinsic(null);
     }
     if ((pathFlags & SvgContext.PathFlag) === 0) {
-      pathView.d.setIntrinsic(void 0);
+      pathView.attributes.d.setIntrinsic(void 0);
     }
   }
 
@@ -221,16 +221,16 @@ export class SvgContext implements PaintingContext {
       this.setPathView(pathView);
       created = true;
     }
-    pathView.fill.setIntrinsic(fillStyle);
-    pathView.fillOpacity.setIntrinsic(this.globalAlpha !== 1 ? this.globalAlpha : void 0);
+    pathView.attributes.fill.setIntrinsic(fillStyle);
+    pathView.attributes.fillOpacity.setIntrinsic(this.globalAlpha !== 1 ? this.globalAlpha : void 0);
     this.setPathFlags(this.pathFlags | SvgContext.FillFlag);
     if (fillRule !== void 0) {
-      pathView.fillRule.setIntrinsic(fillRule);
+      pathView.attributes.fillRule.setIntrinsic(fillRule);
       this.setPathFlags(this.pathFlags | SvgContext.FillRuleFlag);
     }
     if ((this.pathFlags & SvgContext.PathFlag) === 0) {
       const pathString = this.getPathContext().toString();
-      pathView.d.setIntrinsic(pathString);
+      pathView.attributes.d.setIntrinsic(pathString);
       this.setPathFlags(this.pathFlags | SvgContext.PathFlag);
     }
     if (created) {
@@ -256,16 +256,14 @@ export class SvgContext implements PaintingContext {
       this.setPathView(pathView);
       created = true;
     }
-    pathView.stroke.setIntrinsic(strokeStyle);
-    pathView.strokeWidth.setIntrinsic(lineWidth);
-    pathView.strokeLinecap.setIntrinsic(this.lineCap);
-    pathView.strokeLinejoin.setIntrinsic(this.lineJoin);
-    pathView.strokeOpacity.setIntrinsic(this.globalAlpha !== 1 ? this.globalAlpha : void 0);
-    if (this.lineJoin === "miter") {
-      pathView.strokeMiterlimit.setIntrinsic(this.miterLimit);
-    } else {
-      pathView.strokeMiterlimit.setIntrinsic(void 0);
-    }
+    pathView.attributes.setIntrinsic({
+      stroke: strokeStyle,
+      strokeWidth: lineWidth,
+      strokeLinecap: this.lineCap,
+      strokeLinejoin: this.lineJoin,
+      strokeOpacity: this.globalAlpha !== 1 ? this.globalAlpha : void 0,
+      strokeMiterlimit: this.lineJoin === "miter" ? this.miterLimit : void 0,
+    });
     if (this.lineDash.length !== 0) {
       let dash = "";
       for (let i = 0; i < this.lineDash.length; i += 1) {
@@ -274,20 +272,20 @@ export class SvgContext implements PaintingContext {
         }
         dash += this.lineDash[i];
       }
-      pathView.strokeDasharray.setIntrinsic(dash);
-      if (this.lineDashOffset !== 0) {
-        pathView.strokeDashoffset.setIntrinsic(this.lineDashOffset);
-      } else {
-        pathView.strokeDashoffset.setIntrinsic(void 0);
-      }
+      pathView.attributes.setIntrinsic({
+        strokeDasharray: dash,
+        strokeDashoffset: this.lineDashOffset !== 0 ? this.lineDashOffset : void 0,
+      });
     } else {
-      pathView.strokeDasharray.setIntrinsic(void 0);
-      pathView.strokeDashoffset.setIntrinsic(void 0);
+      pathView.attributes.setIntrinsic({
+        strokeDasharray: void 0,
+        strokeDashoffset: void 0,
+      });
     }
     this.setPathFlags(this.pathFlags | SvgContext.StrokeFlag);
     if ((this.pathFlags & SvgContext.PathFlag) === 0) {
       const pathString = this.getPathContext().toString();
-      pathView.d.setIntrinsic(pathString);
+      pathView.attributes.d.setIntrinsic(pathString);
       this.setPathFlags(this.pathFlags | SvgContext.PathFlag);
     }
     if (created) {
@@ -315,7 +313,7 @@ export class SvgContext implements PaintingContext {
       return;
     }
     let nextNode = pathView.node.nextSibling;
-    if (pathView.fill.state === null && pathView.stroke.state === null) {
+    if (pathView.attributes.fill.state === null && pathView.attributes.stroke.state === null) {
       (this as Mutable<this>).pathView = null;
       pathView.remove();
     }

@@ -52,9 +52,9 @@ const ExampleMapboxController = (function () {
     extends: true,
     initView(canvasView) {
       super.initView(canvasView);
-      canvasView.set({
+      canvasView.style.set({
         touchAction: "manipulation",
-        pointerevents: true,
+        pointerEvents: true,
       });
     },
   })], {kind: "field", name: "canvas", static: false, private: false, access: {has: obj => "canvas" in obj, get: obj => obj.canvas, set: (obj, value) => { obj.canvas = value; }}}, canvasInitializers, instanceInitializers);

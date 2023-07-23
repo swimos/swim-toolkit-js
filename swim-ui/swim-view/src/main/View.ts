@@ -21,7 +21,7 @@ import {Timing} from "@swim/util";
 import type {Creatable} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Affinity} from "@swim/component";
-import {FastenerContext} from "@swim/component";
+import {FastenerContextMetaclass} from "@swim/component";
 import type {Fastener} from "@swim/component";
 import {Property} from "@swim/component";
 import {Animator} from "@swim/component";
@@ -49,7 +49,6 @@ import {MoodVector} from "@swim/theme";
 import {MoodMatrix} from "@swim/theme";
 import {ThemeMatrix} from "@swim/theme";
 import type {ThemeContext} from "@swim/theme";
-import {ThemeAnimator} from "@swim/theme";
 import {ViewRelation} from "./"; // forward import
 import {Gesture} from "./"; // forward import
 import type {LayoutViewport} from "./Viewport";
@@ -1450,7 +1449,7 @@ export class View extends Component<View> implements ConstraintScope, Constraint
   }
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
-    this.themeAnimators(theme, mood, timing);
+    this.themeFsteners(theme, mood, timing);
   }
 
   protected didApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
@@ -1458,12 +1457,16 @@ export class View extends Component<View> implements ConstraintScope, Constraint
   }
 
   /** @internal */
-  protected themeAnimators(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
-    const fastenerSlots = FastenerContext.getFastenerSlots(this);
+  protected themeFsteners(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
+    const metaclass = FastenerContextMetaclass.get(this);
+    if (metaclass === null) {
+      return;
+    }
+    const fastenerSlots = metaclass.slots;
     for (let i = 0; i < fastenerSlots.length; i += 1) {
-      const fastener = this[fastenerSlots[i]!];
-      if (fastener instanceof ThemeAnimator) {
-        fastener.applyTheme(theme, mood, timing);
+      const fastener = this[fastenerSlots[i]!] as Fastener<any, any, any> | undefined;
+      if (fastener !== void 0 && "applyTheme" in (fastener as any)) {
+        (fastener as any).applyTheme(theme, mood, timing);
       }
     }
   }

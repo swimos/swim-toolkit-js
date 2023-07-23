@@ -13,7 +13,7 @@
 
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-const sourceView = bodyView.appendChild("div").set({
+const sourceView = bodyView.appendChild("div").style.set({
   position: "absolute",
   left: Math.random() * window.innerWidth,
   top: Math.random() * window.innerHeight,
@@ -27,11 +27,13 @@ sourceView.addEventListener("click", function (event) {
 });
 
 const popoverView = swim.PopoverView.create().set({
+  style: {
+    minWidth: 240,
+    minHeight: 360,
+    borderRadius: 5,
+    backgroundColor: "#4a4a4a",
+  },
   placement: ["top", "bottom", "right", "left", "below"],
-  minWidth: 240,
-  minHeight: 360,
-  borderRadius: 5,
-  backgroundColor: "#4a4a4a",
   source: sourceView,
 });
 popoverView.presence.dismiss(false);
@@ -39,14 +41,14 @@ bodyView.modal.present(popoverView);
 
 //setInterval(function () {
 //  const timing = swim.Easing.linear.withDuration(1000);
-//  sourceView.set({
+//  sourceView.style.set({
 //    left: Math.random() * window.innerWidth,
 //    top: Math.random() * window.innerHeight,
 //  }, timing);
 //}, 1000);
 
 window.addEventListener("mousemove", function (event) {
-  sourceView.set({
+  sourceView.style.set({
     left: event.clientX - 50,
     top: event.clientY - 50,
   });

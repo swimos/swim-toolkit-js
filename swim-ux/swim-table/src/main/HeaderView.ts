@@ -51,7 +51,7 @@ export class HeaderView extends HtmlView {
 
   protected initHeader(): void {
     this.addClass("header");
-    this.setIntrinsic<HeaderView>({
+    this.style.setIntrinsic({
       position: "relative",
       overflow: "hidden",
     });
@@ -101,13 +101,13 @@ export class HeaderView extends HtmlView {
     viewType: ColView,
     binds: true,
     initView(colView: ColView): void {
-      colView.setIntrinsic({
+      colView.style.setIntrinsic({
         display: "none",
         position: "absolute",
         left: 0,
         top: 0,
         width: 0,
-        height: this.owner.height.state,
+        height: this.owner.style.height.state,
       });
     },
     willAttachView(colView: ColView, target: View | null): void {
@@ -128,7 +128,7 @@ export class HeaderView extends HtmlView {
     this.rowHeight.recohere(this.updateTime);
     const rowHeight = this.rowHeight.value;
     if (rowHeight !== null) {
-      this.height.setIntrinsic(rowHeight);
+      this.style.height.setIntrinsic(rowHeight);
     }
   }
 
@@ -142,7 +142,7 @@ export class HeaderView extends HtmlView {
 
   protected layoutChildren(displayFlags: ViewFlags, displayChild: (this: this, child: View, displayFlags: ViewFlags) => void): void {
     const layout = this.layout.value;
-    const height = this.height.state;
+    const height = this.style.height.state;
     const stretch = this.stretch.getPhaseOr(1);
     type self = this;
     function layoutChild(this: self, child: View, displayFlags: ViewFlags): void {
@@ -150,7 +150,7 @@ export class HeaderView extends HtmlView {
         const key = child.key;
         const col = layout !== null && key !== void 0 ? layout.getCol(key) : null;
         if (col !== null) {
-          child.setIntrinsic({
+          child.style.setIntrinsic({
             display: !col.hidden && col.width !== null ? "flex" : "none",
             left: col.left,
             width: col.width,
@@ -159,7 +159,7 @@ export class HeaderView extends HtmlView {
             opacity: col.persistent ? void 0 : stretch,
           });
         } else {
-          child.setIntrinsic({
+          child.style.setIntrinsic({
             display: "none",
             left: null,
             width: null,

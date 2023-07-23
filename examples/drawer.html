@@ -39,14 +39,16 @@ if (navigator.standalone) {
 const bodyView = swim.HtmlView.fromNode(document.body);
 
 const drawerView = swim.DrawerView.create().set({
-  flexDirection: "column",
-  userSelect: "none",
-  backgroundColor: swim.Look.backgroundColor,
+  style: {
+    flexDirection: "column",
+    userSelect: "none",
+    backgroundColor: swim.Look.backgroundColor,
+  },
   placement: "left",
 });
 drawerView.modifyTheme(swim.Feel.default, [[swim.Feel.raised, 1]]);
 
-const drawerButton = bodyView.appendChild(swim.DrawerButton).set({
+const drawerButton = bodyView.appendChild(swim.DrawerButton).style.set({
   position: "absolute",
   top: "50%",
   right: "50%",
@@ -73,8 +75,10 @@ const listLayout = swim.TableLayout.fromLike({
 });
 
 const listView = drawerView.appendChild(swim.TableView).set({
-  flexGrow: 1,
-  backgroundColor: null,
+  style: {
+    flexGrow: 1,
+    backgroundColor: null,
+  },
   hovers: true,
   layout: listLayout,
   rowHeight: 44,

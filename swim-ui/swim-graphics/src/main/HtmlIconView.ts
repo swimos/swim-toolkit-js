@@ -38,7 +38,7 @@ export class HtmlIconView extends HtmlView implements IconView {
   }
 
   protected initIcon(): void {
-    this.position.setIntrinsic("relative");
+    this.style.position.setIntrinsic("relative");
   }
 
   /** @override */
@@ -76,7 +76,7 @@ export class HtmlIconView extends HtmlView implements IconView {
       this.insertView();
     },
     initView(svgView: SvgIconView): void {
-      svgView.setStyle("position", "absolute");
+      svgView.style.position.set("absolute");
       svgView.iconLayout.setInherits(true);
       svgView.iconColor.setInherits(true);
       svgView.graphics.setInherits(true);
@@ -114,14 +114,14 @@ export class HtmlIconView extends HtmlView implements IconView {
 
   protected layoutIcon(): void {
     const svgView = this.svg.view;
-    if (svgView === null || !svgView.width.hasAffinity(Affinity.Intrinsic)
-                         && !svgView.height.hasAffinity(Affinity.Intrinsic)
-                         && !svgView.viewBox.hasAffinity(Affinity.Intrinsic)) {
+    if (svgView === null || !svgView.attributes.width.hasAffinity(Affinity.Intrinsic)
+                         && !svgView.attributes.height.hasAffinity(Affinity.Intrinsic)
+                         && !svgView.attributes.viewBox.hasAffinity(Affinity.Intrinsic)) {
       return;
     }
-    const width = this.width.pxValue();
-    const height = this.height.pxValue();
-    svgView.setIntrinsic({
+    const width = this.style.width.pxValue();
+    const height = this.style.height.pxValue();
+    svgView.attributes.setIntrinsic({
       width, height,
       viewBox: "0 0 " + width + " " + height,
     });

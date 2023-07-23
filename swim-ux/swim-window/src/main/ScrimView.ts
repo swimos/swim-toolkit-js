@@ -16,12 +16,12 @@ import type {Mutable} from "@swim/util";
 import type {TimingLike} from "@swim/util";
 import {Timing} from "@swim/util";
 import type {Observes} from "@swim/util";
+import {Animator} from "@swim/component";
 import {EventHandler} from "@swim/component";
 import {Provider} from "@swim/component";
 import type {Service} from "@swim/component";
 import {Color} from "@swim/style";
 import {Look} from "@swim/theme";
-import {StyleAnimator} from "@swim/dom";
 import {HtmlView} from "@swim/dom";
 import type {ModalService} from "@swim/dom";
 
@@ -35,7 +35,7 @@ export class ScrimView extends HtmlView {
 
   protected initScrim(): void {
     this.addClass("scrim");
-    this.setIntrinsic<ScrimView>({
+    this.style.setIntrinsic({
       display: "none",
       position: "absolute",
       top: 0,
@@ -56,8 +56,11 @@ export class ScrimView extends HtmlView {
     (this as Mutable<this>).displayState = displayState;
   }
 
-  @StyleAnimator({
-    extends: true,
+  @Animator({
+    inherits: true,
+    get parent(): Animator<any, Color | null, any> {
+      return this.owner.style.backgroundColor;
+    },
     willTransition(): void {
       const displayState = this.owner.displayState;
       if (displayState === ScrimView.ShowState) {
@@ -75,9 +78,7 @@ export class ScrimView extends HtmlView {
       }
     },
   })
-  override get backgroundColor(): StyleAnimator<this, Color | null> {
-    return StyleAnimator.dummy();
-  }
+  readonly backgroundColor!: Animator<this, Color | null>;
 
   isShown(): boolean {
     switch (this.displayState) {
@@ -106,11 +107,11 @@ export class ScrimView extends HtmlView {
       }
       this.setDisplayState(ScrimView.ShowState);
       if (timing !== false) {
-        this.backgroundColor.setIntrinsic(Color.black(0));
-        this.backgroundColor.setIntrinsic(Color.black(opacity), timing);
+        this.style.backgroundColor.setIntrinsic(Color.black(0));
+        this.style.backgroundColor.setIntrinsic(Color.black(opacity), timing);
       } else {
         this.willShowScrim();
-        this.backgroundColor.setIntrinsic(Color.black(opacity));
+        this.style.backgroundColor.setIntrinsic(Color.black(opacity));
         this.didShowScrim();
       }
     }
@@ -119,7 +120,7 @@ export class ScrimView extends HtmlView {
   protected willShowScrim(): void {
     this.setDisplayState(ScrimView.ShowingState);
 
-    this.display.setIntrinsic("block");
+    this.style.display.setIntrinsic("block");
   }
 
   protected didShowScrim(): void {
@@ -135,10 +136,10 @@ export class ScrimView extends HtmlView {
       }
       this.setDisplayState(ScrimView.HideState);
       if (timing !== false) {
-        this.backgroundColor.setIntrinsic(Color.black(0), timing);
+        this.style.backgroundColor.setIntrinsic(Color.black(0), timing);
       } else {
         this.willHideScrim();
-        this.backgroundColor.setIntrinsic(Color.black(0));
+        this.style.backgroundColor.setIntrinsic(Color.black(0));
         this.didHideScrim();
       }
     }
@@ -151,7 +152,7 @@ export class ScrimView extends HtmlView {
   protected didHideScrim(): void {
     this.setDisplayState(ScrimView.HiddenState);
 
-    this.display.setIntrinsic("none");
+    this.style.display.setIntrinsic("none");
   }
 
   @Provider({
@@ -176,7 +177,7 @@ export class ScrimView extends HtmlView {
       if (oldModality === 0) {
         this.show(opacity);
       } else {
-        this.backgroundColor.setIntrinsic(Color.black(opacity));
+        this.style.backgroundColor.setIntrinsic(Color.black(opacity));
         if (this.displayState === ScrimView.ShowingState) {
           this.didShowScrim();
         }

@@ -16,7 +16,7 @@ import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
 import type {LikeType} from "@swim/util";
 import {Affinity} from "@swim/component";
-import {FastenerContext} from "@swim/component";
+import {FastenerContextMetaclass} from "@swim/component";
 import type {FastenerClass} from "@swim/component";
 import {Fastener} from "@swim/component";
 import type {Controller} from "./Controller";
@@ -32,7 +32,7 @@ export interface ControllerRefDescriptor<R, C extends Controller> extends Contro
 
 /** @public */
 export interface ControllerRefClass<F extends ControllerRef<any, any, any> = ControllerRef<any, any, any>> extends ControllerRelationClass<F> {
-  tryController<R, K extends keyof R, F extends R[K] = R[K]>(owner: R, fastenerName: K): F extends {readonly controller: infer C | null} ? C | null : null;
+  tryController<R, K extends keyof R, F extends R[K] = R[K]>(owner: R, fastenerName: K): (F extends {readonly controller: infer C | null} ? C | null : never) | null;
 }
 
 /** @public */
@@ -389,12 +389,10 @@ export const ControllerRef = (<R, C extends Controller, I extends any[], F exten
   },
 },
 {
-  tryController<R, K extends keyof R, F extends R[K]>(owner: R, fastenerName: K): F extends {readonly controller: infer C | null} ? C | null : null {
-    const controllerRef = FastenerContext.tryFastener(owner, fastenerName) as ControllerRef | null;
-    if (controllerRef !== null) {
-      return controllerRef.controller as any;
-    }
-    return null as any;
+  tryController<R, K extends keyof R, F extends R[K]>(owner: R, fastenerName: K): (F extends {readonly controller: infer C | null} ? C | null : never) | null {
+    const metaclass = FastenerContextMetaclass.get(owner);
+    const controllerRef = metaclass !== null ? metaclass.tryFastener(owner, fastenerName) : null;
+    return controllerRef instanceof ControllerRef ? controllerRef.controller : null;
   },
 
   construct(fastener: F | null, owner: F extends Fastener<infer R, any, any> ? R : never): F {

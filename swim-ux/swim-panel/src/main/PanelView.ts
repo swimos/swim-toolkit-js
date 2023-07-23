@@ -72,7 +72,7 @@ export class PanelView extends HtmlView {
 
   protected initPanel(): void {
     this.addClass("panel");
-    this.setIntrinsic<PanelView>({
+    this.style.setIntrinsic({
       position: "relative",
       boxSizing: "border-box",
       overflow: "hidden",
@@ -128,7 +128,7 @@ export class PanelView extends HtmlView {
       const panelView = this.owner;
       if (panelStyle === "card") {
         panelView.addClass("panel-card");
-        panelView.setIntrinsic<PanelView>({
+        panelView.style.setIntrinsic({
           margin: 6,
           borderRadius: 4,
           backgroundColor: Look.backgroundColor,
@@ -136,7 +136,7 @@ export class PanelView extends HtmlView {
         panelView.modifyTheme(Feel.default, [[Feel.raised, 1]]);
       } else {
         panelView.removeClass("panel-card");
-        panelView.setIntrinsic<PanelView>({
+        panelView.style.setIntrinsic({
           margin: 0,
           borderRadius: null,
           backgroundColor: null,
@@ -196,7 +196,7 @@ export class PanelView extends HtmlView {
     createView(): HtmlView {
       const headerView = HtmlView.create();
       headerView.addClass("panel-header");
-      return headerView.setIntrinsic({
+      return headerView.style.setIntrinsic({
         display: "flex",
         justifyContent: "space-between",
         position: "absolute",
@@ -247,7 +247,7 @@ export class PanelView extends HtmlView {
     createView(): HtmlView {
       const titleView = HtmlView.create();
       titleView.addClass("header-title");
-      return titleView.setIntrinsic({
+      return titleView.style.setIntrinsic({
         alignSelf: "center",
         color: Look.legendColor,
       });
@@ -282,7 +282,7 @@ export class PanelView extends HtmlView {
     createView(): HtmlView {
       const subtitleView = HtmlView.create();
       subtitleView.addClass("header-subtitle");
-      return subtitleView.setIntrinsic({
+      return subtitleView.style.setIntrinsic({
         alignSelf: "center",
         color: Look.legendColor,
       });
@@ -297,7 +297,7 @@ export class PanelView extends HtmlView {
     binds: true,
     observes: true,
     initView(paneView: PanelView): void {
-      paneView.setIntrinsic({
+      paneView.style.setIntrinsic({
         position: "absolute",
         visibility: "hidden",
       });
@@ -332,8 +332,8 @@ export class PanelView extends HtmlView {
     if (!this.paneLayout.derived) {
       const widthBasis = this.widthBasis.value;
       const heightBasis = this.heightBasis.value;
-      const width = widthBasis !== void 0 ? widthBasis : this.width.pxValue();
-      const height = heightBasis !== void 0 ? heightBasis : this.height.pxValue();
+      const width = widthBasis !== void 0 ? widthBasis : this.style.width.pxValue();
+      const height = heightBasis !== void 0 ? heightBasis : this.style.height.pxValue();
       let paneLayout: PaneLayout;
       if (width >= this.minFrameWidth.value && height >= this.minFrameHeight.value) {
         paneLayout = "frame";
@@ -346,11 +346,11 @@ export class PanelView extends HtmlView {
     if (this.panes.viewCount === 0) {
       const widthBasis = this.widthBasis.value;
       if (widthBasis !== void 0) {
-        this.width.setIntrinsic(widthBasis);
+        this.style.width.setIntrinsic(widthBasis);
       }
       const heightBasis = this.heightBasis.value;
       if (heightBasis !== void 0) {
-        this.height.setIntrinsic(heightBasis);
+        this.style.height.setIntrinsic(heightBasis);
       }
     }
   }
@@ -370,12 +370,12 @@ export class PanelView extends HtmlView {
   }
 
   protected resizeFrameChildren(processFlags: ViewFlags, processChild: (this: this, child: View, processFlags: ViewFlags) => void): void {
-    let x = this.paddingLeft.pxValue();
-    let y = this.paddingTop.pxValue();
+    let x = this.style.paddingLeft.pxValue();
+    let y = this.style.paddingTop.pxValue();
     const widthBasis = this.widthBasis.value;
     const heightBasis = this.heightBasis.value;
-    const width = (widthBasis !== void 0 ? widthBasis : this.width.pxValue()) - x;
-    const height = (heightBasis !== void 0 ? heightBasis : this.height.pxValue()) - y;
+    const width = (widthBasis !== void 0 ? widthBasis : this.style.width.pxValue()) - x;
+    const height = (heightBasis !== void 0 ? heightBasis : this.style.height.pxValue()) - y;
     const left = x;
     const epsilon = 0.01;
     let rowHeight = 0;
@@ -402,11 +402,13 @@ export class PanelView extends HtmlView {
         const paneWidth = child.unitWidth.value * width;
         const paneHeight = Math.max(child.minPanelHeight.value, child.unitHeight.value * height);
         child.setIntrinsic({
-          left: x,
-          top: y,
-          widthBasis: paneWidth - child.marginLeft.pxValue() - child.marginRight.pxValue(),
-          heightBasis: paneHeight - child.marginTop.pxValue() - child.marginBottom.pxValue(),
-          visibility: void 0,
+          style: {
+            left: x,
+            top: y,
+            visibility: void 0,
+          },
+          widthBasis: paneWidth - child.style.marginLeft.pxValue() - child.style.marginRight.pxValue(),
+          heightBasis: paneHeight - child.style.marginTop.pxValue() - child.style.marginBottom.pxValue(),
         });
         x += paneWidth;
       }
@@ -414,7 +416,7 @@ export class PanelView extends HtmlView {
       processChild.call(this, child, processFlags);
 
       if (child instanceof PanelView) {
-        rowHeight = Math.max(rowHeight, child.marginTop.pxValue() + child.height.pxValue() + child.marginBottom.pxValue());
+        rowHeight = Math.max(rowHeight, child.style.marginTop.pxValue() + child.style.height.pxValue() + child.style.marginBottom.pxValue());
         if (child === rightView) { // begin new row
           x = left;
           y += rowHeight;
@@ -426,45 +428,47 @@ export class PanelView extends HtmlView {
     super.processChildren(processFlags, resizeBlockChild);
 
     if (widthBasis !== void 0) {
-      this.width.setIntrinsic(width);
+      this.style.width.setIntrinsic(width);
     }
     if (heightBasis !== void 0) {
-      this.height.setIntrinsic(y);
+      this.style.height.setIntrinsic(y);
     }
   }
 
   protected resizeStackChildren(processFlags: ViewFlags, processChild: (this: this, child: View, processFlags: ViewFlags) => void): void {
-    const x = this.paddingLeft.pxValue();
-    let y = this.paddingTop.pxValue();
+    const x = this.style.paddingLeft.pxValue();
+    let y = this.style.paddingTop.pxValue();
     const widthBasis = this.widthBasis.value;
     const heightBasis = this.heightBasis.value;
-    const width = (widthBasis !== void 0 ? widthBasis : this.width.pxValue()) - x;
-    const height = (heightBasis !== void 0 ? heightBasis : this.height.pxValue()) - y;
+    const width = (widthBasis !== void 0 ? widthBasis : this.style.width.pxValue()) - x;
+    const height = (heightBasis !== void 0 ? heightBasis : this.style.height.pxValue()) - y;
 
     type self = this;
     function resizeStackChild(this: self, child: View, processFlags: ViewFlags): void {
       if (child instanceof PanelView) {
         const paneHeight = Math.max(child.minPanelHeight.value, child.unitHeight.value * height);
         child.setIntrinsic({
-          left: x,
-          top: y,
-          widthBasis: width - child.marginLeft.pxValue() - child.marginRight.pxValue(),
-          heightBasis: paneHeight - child.marginTop.pxValue() - child.marginBottom.pxValue(),
+          style: {
+            left: x,
+            top: y,
+          },
+          widthBasis: width - child.style.marginLeft.pxValue() - child.style.marginRight.pxValue(),
+          heightBasis: paneHeight - child.style.marginTop.pxValue() - child.style.marginBottom.pxValue(),
         });
       }
       processChild.call(this, child, processFlags);
       if (child instanceof PanelView) {
-        child.visibility.setIntrinsic(void 0);
-        y += child.marginTop.pxValue() + child.height.pxValue() + child.marginBottom.pxValue();
+        child.style.visibility.setIntrinsic(void 0);
+        y += child.style.marginTop.pxValue() + child.style.height.pxValue() + child.style.marginBottom.pxValue();
       }
     }
     super.processChildren(processFlags, resizeStackChild);
 
     if (widthBasis !== void 0) {
-      this.width.setIntrinsic(width);
+      this.style.width.setIntrinsic(width);
     }
     if (heightBasis !== void 0) {
-      this.height.setIntrinsic(y + this.paddingBottom.pxValue());
+      this.style.height.setIntrinsic(y + this.style.paddingBottom.pxValue());
     }
   }
 

@@ -19,6 +19,7 @@ import type {Timing} from "@swim/util";
 import type {Observes} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
+import {Animator} from "@swim/component";
 import {EventHandler} from "@swim/component";
 import {Length} from "@swim/math";
 import type {R2BoxLike} from "@swim/math";
@@ -31,7 +32,6 @@ import {ThemeAnimator} from "@swim/theme";
 import type {ViewFlags} from "@swim/view";
 import {View} from "@swim/view";
 import {ViewRef} from "@swim/view";
-import {StyleAnimator} from "@swim/dom";
 import type {HtmlViewObserver} from "@swim/dom";
 import {HtmlView} from "@swim/dom";
 import type {ModalViewObserver} from "@swim/dom";
@@ -72,7 +72,7 @@ export class PopoverView extends HtmlView implements ModalView {
   protected createArrow(): HtmlView | null {
     const arrow = HtmlView.fromTag("div");
     arrow.addClass("popover-arrow");
-    return arrow.setIntrinsic({
+    return arrow.style.setIntrinsic({
       display: "none",
       position: "absolute",
       width: 0,
@@ -80,15 +80,16 @@ export class PopoverView extends HtmlView implements ModalView {
     });
   }
 
-  @StyleAnimator({
-    extends: true,
+  @Animator({
+    inherits: true,
+    get parent(): Animator<any, Color | null, any> {
+      return this.owner.style.backgroundColor;
+    },
     didSetValue(backgroundColor: Color): void {
       this.owner.place();
     },
   })
-  override get backgroundColor(): StyleAnimator<this, Color | null> {
-    return StyleAnimator.dummy();
-  }
+  readonly backgroundColor!: Animator<this, Color | null>;
 
   @ThemeAnimator({valueType: Length, value: Length.zero()})
   readonly placementGap!: ThemeAnimator<this, Length>;
@@ -148,17 +149,17 @@ export class PopoverView extends HtmlView implements ModalView {
       const phase = presence.phase;
       const placement = this.owner.currentPlacement;
       if (placement === "above") {
-        this.owner.setIntrinsic<PopoverView>({
+        this.owner.style.setIntrinsic({
           marginTop: (1 - phase) * -this.owner.node.clientHeight,
           opacity: void 0,
         });
       } else if (placement === "below") {
-        this.owner.setIntrinsic<PopoverView>({
+        this.owner.style.setIntrinsic({
           marginTop: (1 - phase) * this.owner.node.clientHeight,
           opacity: void 0,
         });
       } else {
-        this.owner.setIntrinsic<PopoverView>({
+        this.owner.style.setIntrinsic({
           marginTop: null,
           opacity: phase,
         });
@@ -168,10 +169,10 @@ export class PopoverView extends HtmlView implements ModalView {
     willPresent(): void {
       this.owner.callObservers("viewWillPresent", this.owner);
       this.owner.place();
-      this.owner.visibility.setIntrinsic("visible");
+      this.owner.style.visibility.setIntrinsic("visible");
     },
     didPresent(): void {
-      this.owner.setIntrinsic<PopoverView>({
+      this.owner.style.setIntrinsic({
         marginTop: null,
         opacity: void 0,
         pointerEvents: "auto",
@@ -180,10 +181,10 @@ export class PopoverView extends HtmlView implements ModalView {
     },
     willDismiss(): void {
       this.owner.callObservers("viewWillDismiss", this.owner);
-      this.owner.pointerEvents.setIntrinsic("none");
+      this.owner.style.pointerEvents.setIntrinsic("none");
     },
     didDismiss(): void {
-      this.owner.setIntrinsic<PopoverView>({
+      this.owner.style.setIntrinsic({
         marginTop: null,
         opacity: void 0,
         visibility: "hidden",
@@ -358,13 +359,13 @@ export class PopoverView extends HtmlView implements ModalView {
     let right: number | null = null;
     let bottom: number | null = null;
 
-    const oldWidth = this.width.pxValue();
-    const oldHeight = this.height.pxValue();
+    const oldWidth = this.style.width.pxValue();
+    const oldHeight = this.style.height.pxValue();
     let width: number | null = oldWidth;
     let height: number | null = oldHeight;
 
-    const oldMaxWidth = this.maxWidth.pxState();
-    const oldMaxHeight = this.maxHeight.pxState();
+    const oldMaxWidth = this.style.maxWidth.pxState();
+    const oldMaxHeight = this.style.maxHeight.pxState();
     let maxWidth: number | null = oldMaxWidth;
     let maxHeight: number | null = oldMaxHeight;
 
@@ -467,14 +468,14 @@ export class PopoverView extends HtmlView implements ModalView {
       maxHeight = Math.round(Math.max(0, placementBottom - placementTop));
     }
 
-    if (placement !== "none" && (left !== node.offsetLeft && this.left.hasAffinity(Affinity.Intrinsic)
-                              || top !== node.offsetTop && this.top.hasAffinity(Affinity.Intrinsic)
-                              || width !== oldWidth && this.width.hasAffinity(Affinity.Intrinsic)
-                              || height !== oldHeight && this.height.hasAffinity(Affinity.Intrinsic)
-                              || maxWidth !== oldMaxWidth && this.maxWidth.hasAffinity(Affinity.Intrinsic)
-                              || maxHeight !== oldMaxHeight && this.maxHeight.hasAffinity(Affinity.Intrinsic))) {
+    if (placement !== "none" && (left !== node.offsetLeft && this.style.left.hasAffinity(Affinity.Intrinsic)
+                              || top !== node.offsetTop && this.style.top.hasAffinity(Affinity.Intrinsic)
+                              || width !== oldWidth && this.style.width.hasAffinity(Affinity.Intrinsic)
+                              || height !== oldHeight && this.style.height.hasAffinity(Affinity.Intrinsic)
+                              || maxWidth !== oldMaxWidth && this.style.maxWidth.hasAffinity(Affinity.Intrinsic)
+                              || maxHeight !== oldMaxHeight && this.style.maxHeight.hasAffinity(Affinity.Intrinsic))) {
       this.willPlacePopover(placement);
-      this.setIntrinsic<PopoverView>({
+      this.style.setIntrinsic({
         position: "absolute",
         left, right,
         top, bottom,
@@ -528,11 +529,11 @@ export class PopoverView extends HtmlView implements ModalView {
     const offsetTop = node.offsetTop;
     const offsetBottom = offsetTop + node.clientHeight;
 
-    let backgroundColor = this.backgroundColor.value;
+    let backgroundColor = this.style.backgroundColor.value;
     if (backgroundColor === null) {
       backgroundColor = Color.transparent();
     }
-    const borderRadius = this.borderRadius.get();
+    const borderRadius = this.style.borderRadius.get();
     const radius = borderRadius instanceof Length ? borderRadius.pxValue() : 0;
 
     const arrowWidth = this.arrowWidth.getValue().pxValue();
@@ -543,11 +544,14 @@ export class PopoverView extends HtmlView implements ModalView {
     const arrowYMin = offsetTop + radius + arrowWidth / 2;
     const arrowYMax = offsetBottom - radius - arrowWidth / 2;
 
-    arrow.setIntrinsic({
+    arrow.style.setIntrinsic({
       top: null,
       right: null,
       bottom: null,
       left: null,
+      borderWidth: null,
+      borderStyle: void 0,
+      borderColor: null,
       borderLeftWidth: null,
       borderLeftStyle: void 0,
       borderLeftColor: null,
@@ -565,11 +569,11 @@ export class PopoverView extends HtmlView implements ModalView {
 
     if (placement === "none" || placement === "above" || placement === "below" || placement === "over") {
       // hide arrow
-      arrow.display.setIntrinsic("none");
+      arrow.style.display.setIntrinsic("none");
     } else if (Math.round(sourceY) <= Math.round(offsetTop - arrowHeight) // arrow tip below source center
         && arrowXMin <= sourceX && sourceX <= arrowXMax) { // arrow base on top popover edge
       // top arrow
-      arrow.setIntrinsic({
+      arrow.style.setIntrinsic({
         display: "block",
         top: Math.round(-arrowHeight),
         left: Math.round(sourceX - offsetLeft - arrowWidth / 2),
@@ -586,7 +590,7 @@ export class PopoverView extends HtmlView implements ModalView {
     } else if (Math.round(offsetBottom + arrowHeight) <= Math.round(sourceY) // arrow tip above source center
         && arrowXMin <= sourceX && sourceX <= arrowXMax) { // arrow base on bottom popover edge
       // bottom arrow
-      arrow.setIntrinsic({
+      arrow.style.setIntrinsic({
         display: "block",
         bottom: Math.round(-arrowHeight),
         left: Math.round(sourceX - offsetLeft - arrowWidth / 2),
@@ -603,7 +607,7 @@ export class PopoverView extends HtmlView implements ModalView {
     } else if (Math.round(sourceX) <= Math.round(offsetLeft - arrowHeight) // arrow tip right of source center
         && arrowYMin <= sourceY && sourceY <= arrowYMax) { // arrow base on left popover edge
       // left arrow
-      arrow.setIntrinsic({
+      arrow.style.setIntrinsic({
         display: "block",
         left: Math.round(-arrowHeight),
         top: Math.round(sourceY - offsetTop - arrowWidth / 2),
@@ -620,7 +624,7 @@ export class PopoverView extends HtmlView implements ModalView {
     } else if (Math.round(offsetRight + arrowHeight) <= Math.round(sourceX) // arrow tip left of source center
         && arrowYMin <= sourceY && sourceY <= arrowYMax) { // arrow base on right popover edge
       // right arrow
-      arrow.setIntrinsic({
+      arrow.style.setIntrinsic({
         display: "block",
         right: Math.round(-arrowHeight),
         top: Math.round(sourceY - offsetTop - arrowWidth / 2),
@@ -636,7 +640,7 @@ export class PopoverView extends HtmlView implements ModalView {
       });
     } else {
       // no arrow
-      arrow.display.setIntrinsic("none");
+      arrow.style.display.setIntrinsic("none");
     }
   }
 

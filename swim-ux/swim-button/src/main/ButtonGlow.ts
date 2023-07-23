@@ -16,12 +16,11 @@ import type {Mutable} from "@swim/util";
 import type {TimingLike} from "@swim/util";
 import {Timing} from "@swim/util";
 import {Affinity} from "@swim/component";
+import {Animator} from "@swim/component";
 import {Length} from "@swim/math";
 import {Look} from "@swim/theme";
 import type {MoodVector} from "@swim/theme";
 import type {ThemeMatrix} from "@swim/theme";
-import {StyleAnimator} from "@swim/dom";
-import {LengthStyleConstraintAnimator} from "@swim/dom";
 import {HtmlView} from "@swim/dom";
 
 /** @public */
@@ -38,7 +37,7 @@ export class ButtonGlow extends HtmlView {
 
   protected initGlow(): void {
     this.addClass("button-glow");
-    this.setIntrinsic<ButtonGlow>({
+    this.style.setIntrinsic({
       position: "absolute",
       width: Length.zero(),
       height: Length.zero(),
@@ -52,18 +51,22 @@ export class ButtonGlow extends HtmlView {
   /** @internal */
   glowTimer: number;
 
-  @LengthStyleConstraintAnimator({
-    extends: true,
+  @Animator({
+    inherits: true,
+    get parent(): Animator<any, Length | null, any> {
+      return this.owner.style.left;
+    },
     didTransition(): void {
       this.owner.didGlow();
     },
   })
-  override get left(): LengthStyleConstraintAnimator<this, Length | null> {
-    return LengthStyleConstraintAnimator.dummy();
-  }
+  readonly left!: Animator<this, Length | null>;
 
-  @StyleAnimator({
-    extends: true,
+  @Animator({
+    inherits: true,
+    get parent(): Animator<any, number | undefined, any> {
+      return this.owner.style.opacity;
+    },
     didTransition(opacity: number | undefined): void {
       if (this.owner.glowState === "pulsing" && opacity === 0) {
         this.owner.didPulse();
@@ -72,17 +75,15 @@ export class ButtonGlow extends HtmlView {
       }
     },
   })
-  override get opacity(): StyleAnimator<this, number | undefined> {
-    return StyleAnimator.dummy();
-  }
+  readonly opacity!: Animator<this, number | undefined>;
 
   protected override didMount(): void {
-    if (this.backgroundColor.hasAffinity(Affinity.Intrinsic)) {
+    if (this.style.backgroundColor.hasAffinity(Affinity.Intrinsic)) {
       let highlightColor = this.getLookOr(Look.highlightColor, null);
       if (highlightColor !== null) {
         highlightColor = highlightColor.alpha(1);
       }
-      this.backgroundColor.setIntrinsic(highlightColor);
+      this.style.backgroundColor.setIntrinsic(highlightColor);
     }
     super.didMount();
   }
@@ -96,12 +97,12 @@ export class ButtonGlow extends HtmlView {
 
   protected override onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
-    if (this.backgroundColor.hasAffinity(Affinity.Intrinsic)) {
+    if (this.style.backgroundColor.hasAffinity(Affinity.Intrinsic)) {
       let highlightColor = theme.getOr(Look.highlightColor, mood, null);
       if (highlightColor !== null) {
         highlightColor = highlightColor.alpha(1);
       }
-      this.backgroundColor.setIntrinsic(highlightColor);
+      this.style.backgroundColor.setIntrinsic(highlightColor);
     }
   }
 
@@ -132,20 +133,20 @@ export class ButtonGlow extends HtmlView {
     const r = Math.sqrt(rx * rx + ry * ry);
     const highlightColor = this.getLook(Look.highlightColor);
     const opacity = highlightColor !== void 0 ? highlightColor.alpha() : 0.1;
-    this.opacity.setIntrinsic(opacity);
+    this.style.opacity.setIntrinsic(opacity);
     if (timing !== false) {
-      this.setIntrinsic<ButtonGlow>({
+      this.style.setIntrinsic({
         left: cx,
         top: cy,
       });
-      this.setIntrinsic<ButtonGlow>({
+      this.style.setIntrinsic({
         left: cx - r,
         top: cy - r,
         width: 2 * r,
         height: 2 * r,
       }, timing);
     } else {
-      this.setIntrinsic<ButtonGlow>({
+      this.style.setIntrinsic({
         left: cx - r,
         top: cy - r,
         width: 2 * r,
@@ -183,9 +184,9 @@ export class ButtonGlow extends HtmlView {
     if (this.glowState === "glowing") {
       this.willPulse();
       if (timing !== false) {
-        this.opacity.setIntrinsic(0, timing);
+        this.style.opacity.setIntrinsic(0, timing);
       } else {
-        this.opacity.setIntrinsic(0);
+        this.style.opacity.setIntrinsic(0);
         this.didPulse();
       }
       (this as Mutable<this>).glowState = "pulsing";
@@ -212,9 +213,9 @@ export class ButtonGlow extends HtmlView {
       }
       this.willFade();
       if (timing !== false) {
-        this.opacity.setIntrinsic(0, timing);
+        this.style.opacity.setIntrinsic(0, timing);
       } else {
-        this.opacity.setIntrinsic(0);
+        this.style.opacity.setIntrinsic(0);
         this.didFade();
       }
     }

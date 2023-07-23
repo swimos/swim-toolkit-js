@@ -50,7 +50,7 @@ export class SheetView extends HtmlView {
 
   protected initSheet(): void {
     this.addClass("sheet");
-    this.setIntrinsic<SheetView>({
+    this.style.setIntrinsic({
       position: "relative",
       boxSizing: "border-box",
       overflowX: "hidden",
@@ -90,22 +90,22 @@ export class SheetView extends HtmlView {
       this.owner.callObservers("viewWillPresent", this.owner);
     },
     didPresent(): void {
-      this.owner.pointerEvents.setState(void 0, Affinity.Transient);
+      this.owner.style.pointerEvents.setState(void 0, Affinity.Transient);
       this.owner.callObservers("viewDidPresent", this.owner);
     },
     willDismiss(): void {
       this.owner.callObservers("viewWillDismiss", this.owner);
-      this.pointerEvents = this.owner.pointerEvents.state;
-      this.overflowX = this.owner.overflowX.state;
-      this.overflowY = this.owner.overflowY.state;
-      this.owner.pointerEvents.setState("none", Affinity.Transient);
-      this.owner.overflowX.setIntrinsic("hidden");
-      this.owner.overflowY.setIntrinsic("hidden");
+      this.pointerEvents = this.owner.style.pointerEvents.state;
+      this.overflowX = this.owner.style.overflowX.state;
+      this.overflowY = this.owner.style.overflowY.state;
+      this.owner.style.pointerEvents.setState("none", Affinity.Transient);
+      this.owner.style.overflowX.setIntrinsic("hidden");
+      this.owner.style.overflowY.setIntrinsic("hidden");
     },
     didDismiss(): void {
-      this.owner.pointerEvents.setState(this.pointerEvents, Affinity.Transient);
-      this.owner.overflowX.setIntrinsic(this.overflowX);
-      this.owner.overflowY.setIntrinsic(this.overflowY);
+      this.owner.style.pointerEvents.setState(this.pointerEvents, Affinity.Transient);
+      this.owner.style.overflowX.setIntrinsic(this.overflowX);
+      this.owner.style.overflowY.setIntrinsic(this.overflowY);
       this.pointerEvents = void 0;
       this.overflowX = void 0;
       this.overflowY = void 0;
@@ -131,10 +131,10 @@ export class SheetView extends HtmlView {
 
   /** @internal */
   layoutSheet(): void {
-    const sheetWidth = this.width.pxState();
+    const sheetWidth = this.style.width.pxState();
     const sheetAlign = this.sheetAlign.value;
     const phase = this.presence.value.phase;
-    this.left.setIntrinsic(sheetWidth * sheetAlign * (1 - phase));
+    this.style.left.setIntrinsic(sheetWidth * sheetAlign * (1 - phase));
   }
 
   protected onSheetScroll(event: Event): void {

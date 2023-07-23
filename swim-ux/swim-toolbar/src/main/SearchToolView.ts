@@ -55,7 +55,7 @@ export class SearchToolView extends ToolView {
       this.onKeyDown = this.onKeyDown.bind(this);
     },
     initView(inputView: HtmlView): void {
-      inputView.setIntrinsic({
+      inputView.style.setIntrinsic({
         position: "relative",
         left: 0,
         top: 0,
@@ -97,12 +97,16 @@ export class SearchToolView extends ToolView {
     },
     createView(): HtmlView {
       return HtmlView.fromTag("input").setIntrinsic({
-        type: "search",
-        paddingTop: 3,
-        paddingRight: 15,
-        paddingBottom: 3,
-        paddingLeft: 15,
-        userSelect: "none",
+        attributes: {
+          type: "search",
+        },
+        style: {
+          paddingTop: 3,
+          paddingRight: 15,
+          paddingBottom: 3,
+          paddingLeft: 15,
+          userSelect: "none",
+        },
       });
     },
   })
@@ -126,28 +130,18 @@ export class SearchToolView extends ToolView {
     },
     selector: "input",
     init(): void {
-      this.appearance.setIntrinsic("none");
-      this.borderTopWidth.setIntrinsic(1);
-      this.borderTopStyle.setIntrinsic("solid");
-      this.borderTopColor.setIntrinsic(Look.borderColor);
-      this.borderRightWidth.setIntrinsic(1);
-      this.borderRightStyle.setIntrinsic("solid");
-      this.borderRightColor.setIntrinsic(Look.borderColor);
-      this.borderBottomWidth.setIntrinsic(1);
-      this.borderBottomStyle.setIntrinsic("solid");
-      this.borderBottomColor.setIntrinsic(Look.borderColor);
-      this.borderLeftWidth.setIntrinsic(1);
-      this.borderLeftStyle.setIntrinsic("solid");
-      this.borderLeftColor.setIntrinsic(Look.borderColor);
-      this.borderTopLeftRadius.setIntrinsic(10);
-      this.borderTopRightRadius.setIntrinsic(10);
-      this.borderBottomLeftRadius.setIntrinsic(10);
-      this.borderBottomRightRadius.setIntrinsic(10);
-      this.outlineWidth.setIntrinsic(0);
-      this.outlineStyle.setIntrinsic("none");
-      this.outlineColor.setIntrinsic(Color.transparent());
-      this.backgroundColor.setIntrinsic(Color.transparent());
-      this.color.setIntrinsic(Look.textColor);
+      this.style.setIntrinsic({
+        appearance: "none",
+        borderWidth: 1,
+        borderStyle: "solid",
+        borderColor: Look.borderColor,
+        borderRadius: 10,
+        outlineWidth: 0,
+        outlineStyle: "none",
+        outlineColor: Color.transparent(),
+        backgroundColor: Color.transparent(),
+        color: Look.textColor,
+      });
       this.setStyle("transition", "border 100ms ease-out");
     },
   })
@@ -161,14 +155,10 @@ export class SearchToolView extends ToolView {
     },
     selector: "input:focus",
     init(): void {
-      this.borderTopWidth.setIntrinsic(2);
-      this.borderTopColor.setIntrinsic(Look.focusColor);
-      this.borderRightWidth.setIntrinsic(2);
-      this.borderRightColor.setIntrinsic(Look.focusColor);
-      this.borderBottomWidth.setIntrinsic(2);
-      this.borderBottomColor.setIntrinsic(Look.focusColor);
-      this.borderLeftWidth.setIntrinsic(2);
-      this.borderLeftColor.setIntrinsic(Look.focusColor);
+      this.style.setIntrinsic({
+        borderWidth: 2,
+        borderColor: Look.focusColor,
+      });
       this.setStyle("transition", "border 100ms ease-out");
     },
   })
@@ -182,7 +172,7 @@ export class SearchToolView extends ToolView {
     },
     selector: "input::placeholder",
     init(): void {
-      this.color.setIntrinsic(Look.placeholderColor);
+      this.style.color.setIntrinsic(Look.placeholderColor);
     },
   })
   readonly inputPlaceholderRule!: StyleRule<this>;
@@ -210,13 +200,13 @@ export class SearchToolView extends ToolView {
     if (inputView === null) {
       return;
     }
-    const toolWidth = this.width.pxValue();
-    const toolHeight = this.height.pxValue();
-    const inputWidth = inputView.width.pxValue();
-    const inputHeight = inputView.height.pxValue();
+    const toolWidth = this.style.width.pxValue();
+    const toolHeight = this.style.height.pxValue();
+    const inputWidth = inputView.style.width.pxValue();
+    const inputHeight = inputView.style.height.pxValue();
     const excessWidth = toolWidth - inputWidth;
     const excessHeight = toolHeight - inputHeight;
-    inputView.setIntrinsic({
+    inputView.style.setIntrinsic({
       left: (toolWidth !== 0 ? excessWidth : inputWidth) * this.xAlign.value,
       top: excessHeight * 0.5,
     });

@@ -38,11 +38,11 @@ if (navigator.standalone) {
 
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-const boardView = swim.BoardView.create().set({
+const boardView = swim.BoardView.create().style.set({
   width: "100%",
 });
 
-const panelView = boardView.appendChild(swim.PanelView).set({
+const panelView = boardView.appendChild(swim.PanelView).style.set({
   margin: 6,
 });
 

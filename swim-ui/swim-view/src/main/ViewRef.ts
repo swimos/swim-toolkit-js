@@ -16,7 +16,7 @@ import type {Mutable} from "@swim/util";
 import type {Proto} from "@swim/util";
 import type {LikeType} from "@swim/util";
 import {Affinity} from "@swim/component";
-import {FastenerContext} from "@swim/component";
+import {FastenerContextMetaclass} from "@swim/component";
 import type {FastenerClass} from "@swim/component";
 import {Fastener} from "@swim/component";
 import type {ConstraintExpressionLike} from "@swim/constraint";
@@ -42,7 +42,7 @@ export interface ViewRefDescriptor<R, V extends View> extends ViewRelationDescri
 
 /** @public */
 export interface ViewRefClass<F extends ViewRef<any, any, any> = ViewRef<any, any, any>> extends ViewRelationClass<F> {
-  tryView<R, K extends keyof R, F extends R[K] = R[K]>(owner: R, fastenerName: K): F extends {readonly view: infer V | null} ? V | null : null;
+  tryView<R, K extends keyof R, F extends R[K] = R[K]>(owner: R, fastenerName: K): (F extends {readonly view: infer V | null} ? V | null : never) | null;
 }
 
 /** @public */
@@ -613,12 +613,10 @@ export const ViewRef = (<R, V extends View, I extends any[], F extends ViewRef<a
   },
 },
 {
-  tryView<R, K extends keyof R, F extends R[K]>(owner: R, fastenerName: K): F extends {readonly view: infer V | null} ? V | null : null {
-    const viewRef = FastenerContext.tryFastener(owner, fastenerName) as ViewRef | null;
-    if (viewRef !== null) {
-      return viewRef.view as any;
-    }
-    return null as any;
+  tryView<R, K extends keyof R, F extends R[K]>(owner: R, fastenerName: K): (F extends {readonly view: infer V | null} ? V | null : never) | null {
+    const metaclass = FastenerContextMetaclass.get(owner);
+    const viewRef = metaclass !== null ? metaclass.tryFastener(owner, fastenerName) : null;
+    return viewRef instanceof ViewRef ? viewRef.view : null;
   },
 
   construct(fastener: F | null, owner: F extends Fastener<infer R, any, any> ? R : never): F {

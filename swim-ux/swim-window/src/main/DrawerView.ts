@@ -72,7 +72,7 @@ export class DrawerView extends HtmlView implements ModalView {
 
   protected initDrawer(): void {
     this.addClass("drawer");
-    this.setIntrinsic<DrawerView>({
+    this.style.setIntrinsic({
       display: "flex",
       overflowX: "hidden",
       overflowY: "auto",
@@ -209,13 +209,13 @@ export class DrawerView extends HtmlView implements ModalView {
 
   protected override onLayout(): void {
     super.onLayout();
-    this.display.setIntrinsic(!this.presence.dismissed ? "flex" : "none");
+    this.style.display.setIntrinsic(!this.presence.dismissed ? "flex" : "none");
     this.layoutDrawer();
 
     if (this.viewIdiom === "mobile") {
-      this.boxShadow.setIntrinsic(this.getLookOr(Look.shadow, Mood.floating, null));
+      this.style.boxShadow.setIntrinsic(this.getLookOr(Look.shadow, Mood.floating, null));
     } else {
-      this.boxShadow.setIntrinsic(this.getLookOr(Look.shadow, null));
+      this.style.boxShadow.setIntrinsic(this.getLookOr(Look.shadow, null));
     }
   }
 
@@ -240,7 +240,7 @@ export class DrawerView extends HtmlView implements ModalView {
         .removeClass("drawer-bottom")
         .removeClass("drawer-left");
 
-    this.setIntrinsic<DrawerView>({
+    this.style.setIntrinsic({
       position: "fixed",
       width: null,
       height: null,
@@ -249,10 +249,10 @@ export class DrawerView extends HtmlView implements ModalView {
       bottom: null,
     });
 
-    const height = this.height.getCssValue();
-    this.top.setIntrinsic(height.times(presencePhase - 1));
+    const height = this.style.height.getCssValue();
+    this.style.top.setIntrinsic(height.times(presencePhase - 1));
 
-    this.effectiveWidth.setIntrinsic(this.width.value);
+    this.effectiveWidth.setIntrinsic(this.style.width.value);
     this.effectiveHeight.setIntrinsic(height.times(presencePhase));
 
     if (this.stretch.collapsed) {
@@ -269,7 +269,7 @@ export class DrawerView extends HtmlView implements ModalView {
         .removeClass("drawer-bottom")
         .removeClass("drawer-left");
 
-    this.setIntrinsic<DrawerView>({
+    this.style.setIntrinsic({
       position: "fixed",
       height: null,
       top: Length.zero(),
@@ -278,18 +278,18 @@ export class DrawerView extends HtmlView implements ModalView {
     });
 
     let width: Length | null;
-    if (this.width.hasAffinity(Affinity.Intrinsic)) {
+    if (this.style.width.hasAffinity(Affinity.Intrinsic)) {
       const collapsedWidth = this.collapsedWidth.getValue();
       const expandedWidth = this.expandedWidth.getValue();
       width = collapsedWidth.times(1 - stretchPhase).plus(expandedWidth.times(stretchPhase));
     } else {
-      width = this.width.getCssValue();
+      width = this.style.width.getCssValue();
     }
-    this.width.setIntrinsic(width);
-    this.right.setIntrinsic(width.times(presencePhase - 1));
+    this.style.width.setIntrinsic(width);
+    this.style.right.setIntrinsic(width.times(presencePhase - 1));
 
     this.effectiveWidth.setIntrinsic(width.times(presencePhase));
-    this.effectiveHeight.setIntrinsic(this.height.value);
+    this.effectiveHeight.setIntrinsic(this.style.height.value);
   }
 
   protected layoutDrawerBottom(): void {
@@ -300,7 +300,7 @@ export class DrawerView extends HtmlView implements ModalView {
         .addClass("drawer-bottom")
         .removeClass("drawer-left");
 
-    this.setIntrinsic<DrawerView>({
+    this.style.setIntrinsic({
       position: "fixed",
       width: null,
       height: null,
@@ -309,10 +309,10 @@ export class DrawerView extends HtmlView implements ModalView {
       top: null,
     });
 
-    const height = this.height.getCssValue();
-    this.bottom.setIntrinsic(height.times(presencePhase - 1));
+    const height = this.style.height.getCssValue();
+    this.style.bottom.setIntrinsic(height.times(presencePhase - 1));
 
-    this.effectiveWidth.setIntrinsic(this.width.value);
+    this.effectiveWidth.setIntrinsic(this.style.width.value);
     this.effectiveHeight.setIntrinsic(height.times(presencePhase));
 
     if (this.stretch.collapsed) {
@@ -329,7 +329,7 @@ export class DrawerView extends HtmlView implements ModalView {
         .removeClass("drawer-bottom")
         .addClass("drawer-left");
 
-    this.setIntrinsic<DrawerView>({
+    this.style.setIntrinsic({
       position: "fixed",
       height: null,
       top: Length.zero(),
@@ -338,18 +338,18 @@ export class DrawerView extends HtmlView implements ModalView {
     });
 
     let width: Length | null;
-    if (this.width.hasAffinity(Affinity.Intrinsic)) {
+    if (this.style.width.hasAffinity(Affinity.Intrinsic)) {
       const collapsedWidth = this.collapsedWidth.getValue();
       const expandedWidth = this.expandedWidth.getValue();
       width = collapsedWidth.times(1 - stretchPhase).plus(expandedWidth.times(stretchPhase));
     } else {
-      width = this.width.getCssValue();
+      width = this.style.width.getCssValue();
     }
-    this.width.setIntrinsic(width);
-    this.left.setIntrinsic(width.times(presencePhase - 1));
+    this.style.width.setIntrinsic(width);
+    this.style.left.setIntrinsic(width.times(presencePhase - 1));
 
     this.effectiveWidth.setIntrinsic(width.times(presencePhase));
-    this.effectiveHeight.setIntrinsic(this.height.value);
+    this.effectiveHeight.setIntrinsic(this.style.height.value);
   }
 
   /** @override */

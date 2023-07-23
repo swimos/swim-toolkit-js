@@ -90,7 +90,7 @@ export class NavBarController extends BarController {
         const closeButtonView = closeButtonController.tool.view;
         if (closeButtonView !== null) {
           this.closeButton.insertView();
-          closeButtonView.zIndex.setIntrinsic(2);
+          closeButtonView.style.zIndex.setIntrinsic(2);
         }
       }
     } else {
@@ -104,7 +104,7 @@ export class NavBarController extends BarController {
           tools.push(backButtonLayout);
         }
         const backButtonView = this.backButton.insertView();
-        backButtonView.zIndex.setIntrinsic(2);
+        backButtonView.style.zIndex.setIntrinsic(2);
       }
     }
 
@@ -115,9 +115,9 @@ export class NavBarController extends BarController {
         const backTitleView = backController.title.insertView(this.bar.view, void 0, void 0, backKey);
         if (backTitleView !== null) {
           const timing = backTitleView.getLookOr(Look.timing, Mood.navigating, false);
-          backTitleView.color.setIntrinsic(Look.accentColor, timing);
-          backTitleView.zIndex.setIntrinsic(3);
-          backTitleView.pointerEvents.setIntrinsic("none");
+          backTitleView.style.color.setIntrinsic(Look.accentColor, timing);
+          backTitleView.style.zIndex.setIntrinsic(3);
+          backTitleView.style.pointerEvents.setIntrinsic("none");
         }
       }
       const frontTitleLayout = ToolLayout.create(frontKey, 1, 0, 0, 0.5, 1, 1);
@@ -126,9 +126,9 @@ export class NavBarController extends BarController {
         const frontTitleView = frontController.title.insertView(this.bar.view, void 0, void 0, frontKey);
         if (frontTitleView !== null) {
           const timing = frontTitleView.getLookOr(Look.timing, Mood.navigating, false);
-          frontTitleView.color.setIntrinsic(Look.textColor, timing);
-          frontTitleView.zIndex.setIntrinsic(1);
-          frontTitleView.pointerEvents.setIntrinsic("auto");
+          frontTitleView.style.color.setIntrinsic(Look.textColor, timing);
+          frontTitleView.style.zIndex.setIntrinsic(1);
+          frontTitleView.style.pointerEvents.setIntrinsic("auto");
         }
       }
     } else {
@@ -150,9 +150,9 @@ export class NavBarController extends BarController {
         const frontTitleView = frontController.title.insertView(this.bar.view, void 0, void 0, frontKey);
         if (frontTitleView !== null) {
           const timing = frontTitleView.getLookOr(Look.timing, Mood.navigating, false);
-          frontTitleView.color.setIntrinsic(Look.textColor, timing);
-          frontTitleView.zIndex.setIntrinsic(1);
-          frontTitleView.pointerEvents.setIntrinsic("auto");
+          frontTitleView.style.color.setIntrinsic(Look.textColor, timing);
+          frontTitleView.style.zIndex.setIntrinsic(1);
+          frontTitleView.style.pointerEvents.setIntrinsic("auto");
         }
       }
     }
@@ -305,10 +305,15 @@ export class NavBarController extends BarController {
       toolController.layout.set(toolLayout);
       const toolView = toolController.tool.attachView()!;
       toolView.stylesheet.insertView();
-      const inputView = toolView.input.insertView();
-      inputView.marginLeft.setIntrinsic(8);
-      inputView.marginRight.setIntrinsic(8);
-      inputView.placeholder.setIntrinsic("Search");
+      toolView.input.insertView().setIntrinsic({
+        attributes: {
+          placeholder: "Search",
+        },
+        style: {
+          marginLeft: 8,
+          marginRight: 8,
+        },
+      });
       return toolController;
     },
   })
@@ -335,8 +340,10 @@ export class NavBarController extends BarController {
       const toolLayout = ToolLayout.create(this.viewKey!, 0, 0, 72, 0.5);
       toolController.layout.set(toolLayout);
       toolController.tool.attachView().setIntrinsic({
-        color: Look.accentColor,
-        cursor: "pointer",
+        style: {
+          color: Look.accentColor,
+          cursor: "pointer",
+        },
         content: "Cancel",
       });
       return toolController;

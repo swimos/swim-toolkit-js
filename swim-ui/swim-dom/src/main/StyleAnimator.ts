@@ -33,7 +33,7 @@ import type {ThemeAnimatorDescriptor} from "@swim/theme";
 import type {ThemeAnimatorClass} from "@swim/theme";
 import {ThemeAnimator} from "@swim/theme";
 import type {Look} from "@swim/theme";
-import {StyleContext} from "./"; // forward import
+import {StyleContext} from "./StyleContext";
 
 /** @public */
 export interface StyleAnimatorDescriptor<R, T> extends ThemeAnimatorDescriptor<R, T> {
@@ -91,9 +91,8 @@ export const StyleAnimator = (<R, T, I extends any[], A extends StyleAnimator<an
   },
 
   get propertyValue(): T {
-    const styleContext = this.owner;
-    if (StyleContext[Symbol.hasInstance](styleContext)) {
-      let value: T | CSSStyleValue | string | undefined = styleContext.getStyle(this.propertyNames);
+    if (StyleContext[Symbol.hasInstance](this.owner)) {
+      let value: T | CSSStyleValue | string | undefined = this.owner.getStyle(this.propertyNames);
       if (typeof CSSStyleValue !== "undefined" && value instanceof CSSStyleValue) { // CSS Typed OM support
         try {
           value = this.fromCssValue(value);
@@ -215,16 +214,15 @@ export const StyleAnimator = (<R, T, I extends any[], A extends StyleAnimator<an
   },
 
   applyStyle(value: T, priority: string | undefined): void {
-    const styleContext = this.owner;
-    if (!StyleContext[Symbol.hasInstance](styleContext)) {
+    if (!StyleContext[Symbol.hasInstance](this.owner)) {
       return;
     }
     const propertyNames = this.propertyNames;
     if (typeof propertyNames === "string") {
-      styleContext.setStyle(propertyNames, value, priority);
+      this.owner.setStyle(propertyNames, value, priority);
     } else {
       for (let i = 0, n = propertyNames.length; i < n; i += 1) {
-        styleContext.setStyle(propertyNames[i]!, value, priority);
+        this.owner.setStyle(propertyNames[i]!, value, priority);
       }
     }
   },
@@ -521,9 +519,8 @@ export const LengthStyleAnimator = (<R, T extends Length | null | undefined, I e
   },
 
   get emUnit(): Node | number | undefined {
-    const styleContext = this.owner;
-    if (StyleContext[Symbol.hasInstance](styleContext)) {
-      const node = styleContext.node;
+    if (StyleContext[Symbol.hasInstance](this.owner)) {
+      const node = this.owner.node;
       if (node !== void 0) {
         return node;
       }

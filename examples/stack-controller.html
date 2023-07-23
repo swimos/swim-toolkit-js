@@ -77,7 +77,7 @@ const ExampleStackController = (function () {
       super.attachSheetView(sheetView, sheetController);
       const sheetTrait = sheetController.sheet.trait;
       if (sheetTrait !== null) {
-        sheetView.appendChild("h2").set({
+        sheetView.appendChild("h2").style.set({
           margin: 12,
           cursor: "pointer",
           userSelect: "none",
@@ -90,7 +90,7 @@ const ExampleStackController = (function () {
 
 const stackController = new ExampleStackController();
 stackController.mount();
-stackController.stack.attachView().set({
+stackController.stack.attachView().style.set({
   flexGrow: 1,
 });
 
@@ -109,7 +109,7 @@ function createSheetController(i) {
   });
   const sheetView = sheetController.sheet.attachView();
   sheetView.dismiss(false);
-  const headerView = sheetView.appendChild("h2").set({
+  const headerView = sheetView.appendChild("h2").style.set({
     margin: 12,
     cursor: "pointer",
     userSelect: "none",

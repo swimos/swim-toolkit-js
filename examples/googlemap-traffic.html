@@ -22,7 +22,7 @@ const timing = swim.Easing.cubicOut.withDuration(250);
 
 const bodyView = swim.HtmlView.fromNode(document.body);
 
-const containerView = bodyView.appendChild("div").set({
+const containerView = bodyView.appendChild("div").style.set({
   width: "100%",
   height: "100%",
 });
@@ -36,7 +36,7 @@ const map = new google.maps.Map(containerView.node, {
 const mapView = new swim.GoogleMapView(map);
 mapView.container.setView(containerView);
 mapView.canvas.view.set({
-  pointerevents: true,
+  pointerEvents: true,
 });
 
 const layerView = mapView.appendChild(swim.GeoTreeView);
@@ -78,11 +78,13 @@ function linkIntersection(intersectionId, node, intersectionLayerView, intersect
   intersectionMarkerView.addEventListener("pointerup", function (event) {
     if (intersectionPopoverView === null) {
       intersectionPopoverView = swim.PopoverView.create().set({
-        width: 240,
-        height: 360,
-        borderRadius: 5,
-        backgroundColor: swim.Color.parse("#071013").alpha(0.9),
-        backdropFilter: "blur(2px)",
+        style: {
+          width: 240,
+          height: 360,
+          borderRadius: 5,
+          backgroundColor: swim.Color.parse("#071013").alpha(0.9),
+          backdropFilter: "blur(2px)",
+        },
         source: intersectionMarkerView,
       });
       intersectionPopoverView.presence.dismiss();

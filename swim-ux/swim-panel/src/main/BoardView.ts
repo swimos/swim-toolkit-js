@@ -45,7 +45,7 @@ export class BoardView extends SheetView {
     binds: true,
     observes: true,
     initView(panelView: PanelView): void {
-      panelView.setIntrinsic({
+      panelView.style.setIntrinsic({
         position: "absolute",
         visibility: "hidden",
       });
@@ -81,12 +81,12 @@ export class BoardView extends SheetView {
 
   protected resizeChildren(processFlags: ViewFlags, processChild: (this: this, child: View, processFlags: ViewFlags) => void): void {
     const edgeInsets = this.edgeInsets.value;
-    const insetTop = Math.max(this.paddingTop.pxValue(), edgeInsets.insetTop);
-    const insetRight = Math.max(this.paddingRight.pxValue(), edgeInsets.insetRight);
-    const insetBottom = Math.max(this.paddingBottom.pxValue(), edgeInsets.insetBottom);
-    const insetLeft = Math.max(this.paddingLeft.pxValue(), edgeInsets.insetLeft);
-    const width = this.width.pxValue() - this.marginLeft.pxValue() - insetLeft - insetRight - this.marginRight.pxValue();
-    const height = this.height.pxValue() - this.marginTop.pxValue() - insetTop - insetBottom - this.marginBottom.pxValue();
+    const insetTop = Math.max(this.style.paddingTop.pxValue(), edgeInsets.insetTop);
+    const insetRight = Math.max(this.style.paddingRight.pxValue(), edgeInsets.insetRight);
+    const insetBottom = Math.max(this.style.paddingBottom.pxValue(), edgeInsets.insetBottom);
+    const insetLeft = Math.max(this.style.paddingLeft.pxValue(), edgeInsets.insetLeft);
+    const width = this.style.width.pxValue() - this.style.marginLeft.pxValue() - insetLeft - insetRight - this.style.marginRight.pxValue();
+    const height = this.style.height.pxValue() - this.style.marginTop.pxValue() - insetTop - insetBottom - this.style.marginBottom.pxValue();
     const x = insetLeft;
     let y = insetTop;
 
@@ -95,19 +95,21 @@ export class BoardView extends SheetView {
       if (child instanceof PanelView) {
         const panelHeight = Math.max(child.minPanelHeight.value, child.unitHeight.value * height);
         child.setIntrinsic({
-          left: x,
-          top: y,
-          widthBasis: width - child.marginLeft.pxValue() - child.marginRight.pxValue(),
-          heightBasis: panelHeight - child.marginTop.pxValue() - child.marginBottom.pxValue(),
+          style: {
+            left: x,
+            top: y,
+          },
+          widthBasis: width - child.style.marginLeft.pxValue() - child.style.marginRight.pxValue(),
+          heightBasis: panelHeight - child.style.marginTop.pxValue() - child.style.marginBottom.pxValue(),
         });
       }
       if (child instanceof HtmlView) {
-        child.paddingBottom.setState(child.nextSibling === null ? this.paddingBottom.value : null, Affinity.Transient);
+        child.style.paddingBottom.setState(child.nextSibling === null ? this.style.paddingBottom.value : null, Affinity.Transient);
       }
       processChild.call(this, child, processFlags);
       if (child instanceof PanelView) {
-        child.visibility.setIntrinsic(void 0);
-        y += child.marginTop.pxValue() + child.height.pxValue() + child.marginBottom.pxValue();
+        child.style.visibility.setIntrinsic(void 0);
+        y += child.style.marginTop.pxValue() + child.style.height.pxValue() + child.style.marginBottom.pxValue();
       }
     }
     super.processChildren(processFlags, resizeChild);

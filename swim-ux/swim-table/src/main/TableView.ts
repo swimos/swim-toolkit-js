@@ -99,7 +99,7 @@ export class TableView extends HtmlView {
 
   protected initTable(): void {
     this.addClass("table");
-    this.setIntrinsic<TableView>({
+    this.style.setIntrinsic({
       position: "relative",
       backgroundColor: Look.backgroundColor,
       boxSizing: "border-box",
@@ -185,7 +185,7 @@ export class TableView extends HtmlView {
     binds: true,
     initView(headerView: HeaderView): void {
       const layout = this.owner.layout.value;
-      headerView.setIntrinsic({
+      headerView.style.setIntrinsic({
         display: "none",
         position: "absolute",
         left: 0,
@@ -240,7 +240,7 @@ export class TableView extends HtmlView {
     observes: true,
     initView(rowView: RowView): void {
       const layout = this.owner.layout.value;
-      rowView.setIntrinsic({
+      rowView.style.setIntrinsic({
         display: "none",
         position: "absolute",
         left: 0,
@@ -339,8 +339,8 @@ export class TableView extends HtmlView {
     const yBleed = this.rowHeight.getValueOr(Length.zero()).pxValue();
     const parentVisibleFrame = this.visibleFrame.value;
     if (parentVisibleFrame !== null) {
-      const left = this.left.pxState();
-      const top = this.top.pxState();
+      const left = this.style.left.pxState();
+      const top = this.style.top.pxState();
       return new R2Box(parentVisibleFrame.xMin - left - xBleed, parentVisibleFrame.yMin - top - yBleed,
                        parentVisibleFrame.xMax - left + xBleed, parentVisibleFrame.yMax - top + yBleed);
     } else {
@@ -374,11 +374,11 @@ export class TableView extends HtmlView {
         width = superLayout.width.pxValue();
       }
       if (width === null) {
-        width = this.width.pxState();
+        width = this.style.width.pxState();
       }
       const edgeInsets = this.edgeInsets.value;
-      const paddingLeft = this.paddingLeft.pxState();
-      const paddingRight = this.paddingRight.pxState();
+      const paddingLeft = this.style.paddingLeft.pxState();
+      const paddingRight = this.style.paddingRight.pxState();
       let left = edgeInsets !== null ? edgeInsets.insetLeft : 0;
       left += paddingLeft;
       let right = edgeInsets !== null ? edgeInsets.insetRight : 0;
@@ -440,14 +440,14 @@ export class TableView extends HtmlView {
           }
           yState += rowSpacing;
         }
-        if (child.top.hasAffinity(Affinity.Intrinsic)) {
-          child.top.setInterpolatedValue(Length.px(yValue), Length.px(yState));
+        if (child.style.top.hasAffinity(Affinity.Intrinsic)) {
+          child.style.top.setInterpolatedValue(Length.px(yValue), Length.px(yState));
         }
       }
       let isVisible: boolean;
       if (child instanceof HtmlView) {
-        const top = child.top.state;
-        const height = child.height.state;
+        const top = child.style.top.state;
+        const height = child.style.height.state;
         if (top !== null && height !== null) {
           const yMin0 = visibleFrame.yMin;
           const yMax0 = visibleFrame.yMax;
@@ -455,7 +455,7 @@ export class TableView extends HtmlView {
           const yMax1 = yMin1 + height.pxValue();
           isVisible = disclosingPhase !== 0 && (child instanceof HeaderView || expandingPhase !== 0)
                    && yMin0 <= yMax1 && yMin1 <= yMax0 && yMin1 !== yMax1;
-          child.display.setIntrinsic(isVisible ? "flex" : "none");
+          child.style.display.setIntrinsic(isVisible ? "flex" : "none");
           child.setCulled(!isVisible);
         } else {
           isVisible = true;
@@ -469,11 +469,11 @@ export class TableView extends HtmlView {
       }
       if (child instanceof RowView || child instanceof HeaderView) {
         if (child instanceof RowView) {
-          yValue += child.height.pxValue() * disclosingPhase * expandingPhase;
+          yValue += child.style.height.pxValue() * disclosingPhase * expandingPhase;
         } else {
-          yValue += child.height.pxValue() * disclosingPhase;
+          yValue += child.style.height.pxValue() * disclosingPhase;
         }
-        yState += child.height.pxState();
+        yState += child.style.height.pxState();
         rowIndex += 1;
       }
     }
@@ -536,19 +536,19 @@ export class TableView extends HtmlView {
           }
           yState += rowSpacing;
         }
-        if (child.top.hasAffinity(Affinity.Intrinsic)) {
-          if (yValue !== yState || child.display.value === "none") {
-            child.top.setInterpolatedValue(Length.px(yValue), Length.px(yState));
+        if (child.style.top.hasAffinity(Affinity.Intrinsic)) {
+          if (yValue !== yState || child.style.display.value === "none") {
+            child.style.top.setInterpolatedValue(Length.px(yValue), Length.px(yState));
           } else {
-            child.top.setIntrinsic(yState, timing);
+            child.style.top.setIntrinsic(yState, timing);
           }
         }
-        child.width.setIntrinsic(width);
+        child.style.width.setIntrinsic(width);
       }
       let isVisible: boolean;
       if (child instanceof HtmlView) {
-        const top = child.top.state;
-        const height = child.height.state;
+        const top = child.style.top.state;
+        const height = child.style.height.state;
         if (top !== null && height !== null) {
           const yMin0 = visibleFrame.yMin;
           const yMax0 = visibleFrame.yMax;
@@ -560,11 +560,11 @@ export class TableView extends HtmlView {
           isVisible = true;
         }
         if (child instanceof RowView) {
-          child.opacity.setIntrinsic(disclosurePhase * expandingPhase);
+          child.style.opacity.setIntrinsic(disclosurePhase * expandingPhase);
         } else {
-          child.opacity.setIntrinsic(disclosurePhase);
+          child.style.opacity.setIntrinsic(disclosurePhase);
         }
-        child.display.setIntrinsic(isVisible ? "flex" : "none");
+        child.style.display.setIntrinsic(isVisible ? "flex" : "none");
         child.setCulled(!isVisible);
       } else {
         isVisible = true;
@@ -575,18 +575,18 @@ export class TableView extends HtmlView {
       displayChild.call(this, child, displayFlags);
       if (child instanceof RowView || child instanceof HeaderView) {
         if (child instanceof RowView) {
-          yValue += child.height.pxValue() * disclosingPhase * expandingPhase;
+          yValue += child.style.height.pxValue() * disclosingPhase * expandingPhase;
         } else {
-          yValue += child.height.pxValue() * disclosingPhase;
+          yValue += child.style.height.pxValue() * disclosingPhase;
         }
-        yState += child.height.pxState();
+        yState += child.style.height.pxState();
         rowIndex += 1;
       }
     }
     super.displayChildren(displayFlags, layoutChild);
 
-    if (this.height.hasAffinity(Affinity.Intrinsic)) {
-      this.height.setInterpolatedValue(Length.px(yValue), Length.px(yState));
+    if (this.style.height.hasAffinity(Affinity.Intrinsic)) {
+      this.style.height.setInterpolatedValue(Length.px(yValue), Length.px(yState));
     }
   }
 }

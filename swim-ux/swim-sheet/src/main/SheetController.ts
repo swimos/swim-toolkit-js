@@ -271,7 +271,7 @@ export class SheetController extends Controller {
     createController(): ToolController {
       const titleController = TitleToolController.create();
       const titleView = titleController.tool.attachView();
-      titleView.fontSize.setIntrinsic(14);
+      titleView.style.fontSize.setIntrinsic(14);
       return titleController;
     },
   })

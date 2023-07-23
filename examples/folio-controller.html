@@ -70,7 +70,7 @@ const ExampleFolioController = (function () {
 
 const folioController = new ExampleFolioController();
 folioController.mount();
-const folioView = folioController.folio.attachView().set({
+const folioView = folioController.folio.attachView().style.set({
   flexGrow: 1,
 });
 
@@ -98,7 +98,7 @@ function createSheetController(i) {
   });
   const sheetView = sheetController.sheet.attachView();
   sheetView.dismiss(false);
-  const headerView = sheetView.appendChild("h2").set({
+  const headerView = sheetView.appendChild("h2").style.set({
     margin: 12,
     cursor: "pointer",
     userSelect: "none",
@@ -107,7 +107,7 @@ function createSheetController(i) {
   headerView.addEventListener("click", () => {
     folioController.sheets.addController(createSheetController(i + 1));
   });
-  const inspectView = sheetView.appendChild("h3").set({
+  const inspectView = sheetView.appendChild("h3").style.set({
     margin: 12,
     cursor: "pointer",
     userSelect: "none",
@@ -136,7 +136,7 @@ const tab1Controller = new swim.SheetController().set({
 });
 tab1Controller.handle.setIcon(swim.PolygonIcon.create(4));
 const tab1View = tab1Controller.sheet.attachView();
-tab1View.appendChild("h2").set({
+tab1View.appendChild("h2").style.set({
   margin: 12,
 }).text("Tab 1");
 binderController.tabs.addController(tab1Controller);
@@ -146,7 +146,7 @@ const tab2Controller = new swim.SheetController().set({
 });
 tab2Controller.handle.setIcon(swim.PolygonIcon.create(6));
 const tab2View = tab2Controller.sheet.attachView();
-tab2View.appendChild("h2").set({
+tab2View.appendChild("h2").style.set({
   margin: 12,
 }).text("Tab 2");
 binderController.tabs.addController(tab2Controller);
@@ -156,7 +156,7 @@ const tab3Controller = new swim.SheetController().set({
 });
 tab3Controller.handle.setIcon(swim.PolygonIcon.create(8));
 const tab3View = tab3Controller.sheet.attachView();
-tab3View.appendChild("h2").set({
+tab3View.appendChild("h2").style.set({
   margin: 12,
 }).text("Tab 3");
 binderController.tabs.addController(tab3Controller);

@@ -55,7 +55,7 @@ export class BinderView extends SheetView {
 
   protected initBinder(): void {
     this.addClass("binder");
-    this.setIntrinsic<BinderView>({
+    this.style.setIntrinsic({
       position: "relative",
       overflow: "hidden",
     });
@@ -79,12 +79,12 @@ export class BinderView extends SheetView {
     binds: true,
     observes: true,
     initView(tabBarView: BarView): void {
-      tabBarView.setIntrinsic({
-        placement: "bottom",
+      tabBarView.placement.setIntrinsic("bottom");
+      tabBarView.style.setIntrinsic({
         position: "absolute",
         left: 0,
         bottom: 0,
-        width: this.owner.width.cssState,
+        width: this.owner.style.width.cssState,
         zIndex: 1,
       });
     },
@@ -142,14 +142,14 @@ export class BinderView extends SheetView {
     initView(tabView: SheetView): void {
       const tabBarView = this.owner.tabBar.view;
       const tabBarHeight = tabBarView !== null && tabBarView.mounted
-                         ? tabBarView.height.cssState : null;
-      tabView.setIntrinsic({
+                         ? tabBarView.style.height.cssState : null;
+      tabView.style.setIntrinsic({
         position: "absolute",
         left: 0,
         top: 0,
-        width: this.owner.width.cssState,
-        height: this.owner.height.cssState,
-        paddingTop: this.owner.paddingTop.state,
+        width: this.owner.style.width.cssState,
+        height: this.owner.style.height.cssState,
+        paddingTop: this.owner.style.paddingTop.state,
         paddingBottom: tabBarHeight,
         boxSizing: "border-box",
         zIndex: 0,
@@ -222,23 +222,23 @@ export class BinderView extends SheetView {
   }
 
   protected resizeBinder(): void {
-    const binderWidth = this.width.cssState!;
-    const binderHeight = this.height.cssState!;
-    const paddingLeft = this.paddingLeft.value;
-    const paddingRight = this.paddingRight.value;
+    const binderWidth = this.style.width.cssState!;
+    const binderHeight = this.style.height.cssState!;
+    const paddingLeft = this.style.paddingLeft.value;
+    const paddingRight = this.style.paddingRight.value;
 
     const tabBarView = this.tabBar.view;
     let tabBarHeight: Length | null = null;
     if (tabBarView !== null && tabBarView.mounted) {
       let tabBarWidth = binderWidth;
-      tabBarHeight = tabBarView.height.cssState;
+      tabBarHeight = tabBarView.style.height.cssState;
       if (paddingLeft !== null) {
         tabBarWidth = tabBarWidth.minus(paddingLeft);
       }
       if (paddingRight !== null) {
         tabBarWidth = tabBarWidth.minus(paddingRight);
       }
-      tabBarView.setIntrinsic({
+      tabBarView.style.setIntrinsic({
         left: paddingLeft,
         right: paddingRight,
         width: tabBarWidth,
@@ -248,10 +248,10 @@ export class BinderView extends SheetView {
     const tabViews = this.tabs.views;
     for (const viewId in tabViews) {
       const tabView = tabViews[viewId]!;
-      tabView.setIntrinsic({
+      tabView.style.setIntrinsic({
         width: binderWidth,
         height: binderHeight,
-        paddingTop: this.paddingTop.state,
+        paddingTop: this.style.paddingTop.state,
         paddingRight,
         paddingBottom: tabBarHeight,
         paddingLeft,
