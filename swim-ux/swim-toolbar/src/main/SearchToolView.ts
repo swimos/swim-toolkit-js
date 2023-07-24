@@ -41,7 +41,7 @@ export interface SearchToolViewObserver<V extends SearchToolView = SearchToolVie
 export class SearchToolView extends ToolView {
   protected override initTool(): void {
     super.initTool();
-    this.addClass("tool-search");
+    this.classList.add("tool-search");
   }
 
   declare readonly observerType?: Class<SearchToolViewObserver>;

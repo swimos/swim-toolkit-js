@@ -41,7 +41,7 @@ export interface IconColViewObserver<V extends IconColView = IconColView> extend
 export class IconColView extends ColView implements IconView {
   protected override initCol(): void {
     super.initCol();
-    this.addClass("col-icon");
+    this.classList.add("col-icon");
   }
 
   declare readonly observerType?: Class<IconColViewObserver>;

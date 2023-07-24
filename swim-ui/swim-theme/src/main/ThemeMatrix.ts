@@ -120,14 +120,14 @@ export class ThemeMatrix implements Equals, Debug {
     const thatColArray = that.colArray;
     const newColArray = new Array<[Feel, FeelVector]>();
     const newColIndex: {[name: string]: number | undefined} = {};
-    for (let j = 0, n = thisColArray.length; j < n; j += 1) {
+    for (let j = 0; j < thisColArray.length; j += 1) {
       const entry = thisColArray[j]!;
       const feel = entry[0];
       const b = that.getCol(feel);
       newColIndex[feel.name] = newColArray.length;
       newColArray.push(b === void 0 ? entry : [feel, entry[1].plus(b)]);
     }
-    for (let j = 0, n = thatColArray.length; j < n; j += 1) {
+    for (let j = 0; j < thatColArray.length; j += 1) {
       const entry = thatColArray[j]!;
       const feel = entry[0];
       if (newColIndex[feel.name] === void 0) {
@@ -154,14 +154,14 @@ export class ThemeMatrix implements Equals, Debug {
     const thatColArray = that.colArray;
     const newColArray = new Array<[Feel, FeelVector]>();
     const newColIndex: {[name: string]: number | undefined} = {};
-    for (let j = 0, n = thisColArray.length; j < n; j += 1) {
+    for (let j = 0; j < thisColArray.length; j += 1) {
       const entry = thisColArray[j]!;
       const feel = entry[0];
       const b = that.getCol(feel);
       newColIndex[feel.name] = newColArray.length;
       newColArray.push(b === void 0 ? entry : [feel, entry[1].minus(b)]);
     }
-    for (let j = 0, n = thatColArray.length; j < n; j += 1) {
+    for (let j = 0; j < thatColArray.length; j += 1) {
       const [feel, b] = thatColArray[j]!;
       if (newColIndex[feel.name] === void 0) {
         newColIndex[feel.name] = newColArray.length;
@@ -222,7 +222,7 @@ export class ThemeMatrix implements Equals, Debug {
     const rowArray = this.rowArray;
     const newArray = new Array<[Look<unknown>, unknown]>();
     const newIndex: {[name: string]: number | undefined} = {};
-    for (let i = 0, m = rowArray.length; i < m; i += 1) {
+    for (let i = 0; i < rowArray.length; i += 1) {
       const [look, row] = rowArray[i]!;
       const value = look.dot(row, col);
       if (value !== void 0) {
@@ -240,7 +240,7 @@ export class ThemeMatrix implements Equals, Debug {
     const newRowIndex: {[name: string]: number | undefined} = {};
     const newColArray = new Array<[Feel, FeelVector]>();
     const newColIndex: {[name: string]: number | undefined} = {};
-    for (let j = 0, n = thisColArray.length; j < n; j += 1) {
+    for (let j = 0; j < thisColArray.length; j += 1) {
       const feel = thisColArray[j]![0];
       let col = that.getCol(feel);
       if (col === void 0 && implicitIdentity) {
@@ -249,7 +249,7 @@ export class ThemeMatrix implements Equals, Debug {
       if (col === void 0) {
         continue;
       }
-      for (let i = 0, m = thisRowArray.length; i < m; i += 1) {
+      for (let i = 0; i < thisRowArray.length; i += 1) {
         const [look, row] = thisRowArray[i]!;
         const value = look.dot(row, col);
         if (value === void 0) {
@@ -302,7 +302,7 @@ export class ThemeMatrix implements Equals, Debug {
       const newRowArray = new Array<[Look<unknown>, LookVector<unknown>]>();
       const newRowIndex: {[name: string]: number | undefined} = {};
       let k = 0;
-      for (let j = 0, n = oldRowArray.length; j < n; j += 1) {
+      for (let j = 0; j < oldRowArray.length; j += 1) {
         const entry = oldRowArray[j]!;
         if (entry[0] !== look) {
           newRowArray[k] = entry;
@@ -339,7 +339,7 @@ export class ThemeMatrix implements Equals, Debug {
       const newColArray = new Array<[Feel, FeelVector]>();
       const newColIndex: {[name: string]: number | undefined} = {};
       let k = 0;
-      for (let j = 0, n = oldColArray.length; j < n; j += 1) {
+      for (let j = 0; j < oldColArray.length; j += 1) {
         const entry = oldColArray[j]!;
         if (entry[0] !== feel) {
           newColArray[k] = entry;
@@ -454,7 +454,7 @@ export class ThemeMatrix implements Equals, Debug {
     }
     const colArray = new Array<[Feel, FeelVector]>();
     const colIndex: {[name: string]: number | undefined} = {};
-    for (let i = 0, m = rowArray.length; i < m; i += 1) {
+    for (let i = 0; i < rowArray.length; i += 1) {
       const row = rowArray[i]![1];
       row.forEach(function (value: unknown, feel: Feel): void {
         if (colIndex[feel.name] === void 0) {
@@ -463,12 +463,12 @@ export class ThemeMatrix implements Equals, Debug {
         }
       }, this);
     }
-    for (let j = 0, n = colArray.length; j < n; j += 1) {
+    for (let j = 0; j < colArray.length; j += 1) {
       const entry = colArray[j]!;
       const feel = entry[0];
       const array = new Array<[Look<unknown>, unknown]>();
       const index: {[name: string]: number | undefined} = {};
-      for (let i = 0, m = rowArray.length; i < m; i += 1) {
+      for (let i = 0; i < rowArray.length; i += 1) {
         const [look, row] = rowArray[i]!;
         const value = row.get(feel);
         if (value !== void 0) {
@@ -489,7 +489,7 @@ export class ThemeMatrix implements Equals, Debug {
     }
     const rowArray = new Array<[Look<unknown>, LookVector<unknown>]>();
     const rowIndex: {[name: string]: number | undefined} = {};
-    for (let i = 0, n = colArray.length; i < n; i += 1) {
+    for (let i = 0; i < colArray.length; i += 1) {
       const col = colArray[i]![1];
       col.forEach(function <T>(value: T, look: Look<T>): void {
         if (rowIndex[look.name] === void 0) {
@@ -498,12 +498,12 @@ export class ThemeMatrix implements Equals, Debug {
         }
       }, this);
     }
-    for (let i = 0, m = rowArray.length; i < m; i += 1) {
+    for (let i = 0; i < rowArray.length; i += 1) {
       const entry = rowArray[i]!;
       const look = entry[0];
       const array = new Array<[Feel, unknown]>();
       const index: {[name: string]: number | undefined} = {};
-      for (let j = 0, n = colArray.length; j < n; j += 1) {
+      for (let j = 0; j < colArray.length; j += 1) {
         const [feel, col] = colArray[j]!;
         const value = col.get(look);
         if (value !== void 0) {

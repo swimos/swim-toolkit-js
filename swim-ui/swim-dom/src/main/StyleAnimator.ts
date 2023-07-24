@@ -135,7 +135,7 @@ export const StyleAnimator = (<R, T, I extends any[], A extends StyleAnimator<an
       if (typeof propertyNames === "string") {
         propertyValue = styles.getPropertyValue(propertyNames);
       } else {
-        for (let i = 0, n = propertyNames.length; i < n && propertyValue.length === 0; i += 1) {
+        for (let i = 0; i < propertyNames.length && propertyValue.length === 0; i += 1) {
           propertyValue = styles.getPropertyValue(propertyNames[i]!);
         }
       }
@@ -221,7 +221,7 @@ export const StyleAnimator = (<R, T, I extends any[], A extends StyleAnimator<an
     if (typeof propertyNames === "string") {
       this.owner.setStyle(propertyNames, value, priority);
     } else {
-      for (let i = 0, n = propertyNames.length; i < n; i += 1) {
+      for (let i = 0; i <  propertyNames.length; i += 1) {
         this.owner.setStyle(propertyNames[i]!, value, priority);
       }
     }

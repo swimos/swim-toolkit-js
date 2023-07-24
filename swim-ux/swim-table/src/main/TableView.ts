@@ -98,11 +98,13 @@ export class TableView extends HtmlView {
   }
 
   protected initTable(): void {
-    this.addClass("table");
-    this.style.setIntrinsic({
-      position: "relative",
-      backgroundColor: Look.backgroundColor,
-      boxSizing: "border-box",
+    this.setIntrinsic<TableView>({
+      classList: ["table"],
+      style: {
+        position: "relative",
+        backgroundColor: Look.backgroundColor,
+        boxSizing: "border-box",
+      },
     });
   }
 

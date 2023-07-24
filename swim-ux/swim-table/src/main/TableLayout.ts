@@ -60,7 +60,7 @@ export class TableLayout implements Equals, Equivalent, Debug {
 
   getCol(key: string): ColLayout | null {
     const cols = this.cols;
-    for (let i = 0, n = cols.length; i < n; i += 1) {
+    for (let i = 0; i < cols.length; i += 1) {
       const col = cols[i]!;
       if (key === col.key) {
         return col;
@@ -238,7 +238,7 @@ export class TableLayout implements Equals, Equivalent, Debug {
 
   debug<T>(output: Output<T>): Output<T> {
     output = output.write("TableLayout").write(46/*'.'*/).write("of").write(40/*'('*/);
-    for (let i = 0, n = this.cols.length; i < n; i += 1) {
+    for (let i = 0; i < this.cols.length; i += 1) {
       if (i !== 0) {
         output = output.write(", ");
       }

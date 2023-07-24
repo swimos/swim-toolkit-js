@@ -1543,7 +1543,7 @@ export class View extends Component<View> implements ConstraintScope, Constraint
       const cols = feel as [feel: Feel, updates: MoodVectorUpdates<Feel> | undefined][];
       timing = updates as TimingLike | boolean;
       updates = void 0;
-      for (let i = 0, n = cols.length; i < n; i += 1) {
+      for (let i = 0; i < cols.length; i += 1) {
         [feel, updates] = cols[i]!;
         if (updates !== void 0) {
           newThemeModifier = newThemeModifier.updatedCol(feel, updates, true);

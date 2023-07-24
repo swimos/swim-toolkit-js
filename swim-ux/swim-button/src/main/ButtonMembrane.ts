@@ -26,7 +26,7 @@ export class ButtonMembrane extends HtmlView {
   }
 
   protected initMembrane(node: HTMLElement): void {
-    this.addClass("membrane");
+    this.classList.add("membrane");
   }
 
   @Property({valueType: Boolean, value: true, inherits: true})

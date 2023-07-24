@@ -64,7 +64,7 @@ export class BarLayout implements Interpolate<BarLayout>, Equals, Equivalent, De
 
   getTool(key: string): ToolLayout | null {
     const tools = this.tools;
-    for (let i = 0, n = tools.length; i < n; i += 1) {
+    for (let i = 0; i < tools.length; i += 1) {
       const tool = tools[i]!;
       if (key === tool.key) {
         return tool;
@@ -202,7 +202,7 @@ export class BarLayout implements Interpolate<BarLayout>, Equals, Equivalent, De
 
   debug<T>(output: Output<T>): Output<T> {
     output = output.write("BarLayout").write(46/*'.'*/).write("of").write(40/*'('*/);
-    for (let i = 0, n = this.tools.length; i < n; i += 1) {
+    for (let i = 0; i < this.tools.length; i += 1) {
       if (i !== 0) {
         output = output.write(", ");
       }

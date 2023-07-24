@@ -31,7 +31,7 @@ export interface TextCellViewObserver<V extends TextCellView = TextCellView> ext
 export class TextCellView extends CellView {
   protected override initCell(): void {
     super.initCell();
-    this.addClass("cell-text");
+    this.classList.add("cell-text");
   }
 
   declare readonly observerType?: Class<TextCellViewObserver>;

@@ -62,11 +62,13 @@ export class FolioView extends HtmlView {
   }
 
   protected initFolio(): void {
-    this.addClass("folio");
-    this.style.setIntrinsic({
-      display: "flex",
-      position: "relative",
-      overflow: "hidden",
+    this.setIntrinsic<FolioView>({
+      classList: ["folio"],
+      style: {
+        display: "flex",
+        position: "relative",
+        overflow: "hidden",
+      },
     });
   }
 

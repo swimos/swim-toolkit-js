@@ -51,14 +51,16 @@ export interface ButtonToolViewObserver<V extends ButtonToolView = ButtonToolVie
 export class ButtonToolView extends ToolView implements IconView {
   protected override initTool(): void {
     super.initTool();
-    this.addClass("tool-button");
-    this.style.setIntrinsic({
-      boxSizing: "border-box",
-      borderRadius: 4,
-      overflow: "hidden",
-      userSelect: "none",
-      cursor: "pointer",
-      backgroundColor: Look.backgroundColor,
+    this.setIntrinsic<ButtonToolView>({
+      classList: ["tool-button"],
+      style: {
+        boxSizing: "border-box",
+        borderRadius: 4,
+        overflow: "hidden",
+        userSelect: "none",
+        cursor: "pointer",
+        backgroundColor: Look.backgroundColor,
+      },
     });
   }
 

@@ -79,9 +79,11 @@ export class RowView extends HtmlView {
   }
 
   protected initRow(): void {
-    this.addClass("row");
-    this.style.setIntrinsic({
-      position: "relative",
+    this.setIntrinsic<RowView>({
+      classList: ["row"],
+      style: {
+        position: "relative",
+      },
     });
   }
 
@@ -194,17 +196,19 @@ export class RowView extends HtmlView {
     binds: true,
     initView(headView: HtmlView): void {
       const layout = this.owner.layout.value;
-      headView.addClass("head");
-      headView.style.setIntrinsic({
-        display: "none",
-        position: "absolute",
-        left: 0,
-        top: this.owner.rowHeight.state,
-        width: layout !== null ? layout.width : null,
-        height: this.owner.rowSpacing.state,
-        backgroundColor: Look.accentColor,
-        opacity: this.owner.disclosing.getPhaseOr(1) * this.owner.expanding.getPhaseOr(1),
-        zIndex: 1,
+      headView.setIntrinsic({
+        classList: ["head"],
+        style: {
+          display: "none",
+          position: "absolute",
+          left: 0,
+          top: this.owner.rowHeight.state,
+          width: layout !== null ? layout.width : null,
+          height: this.owner.rowSpacing.state,
+          backgroundColor: Look.accentColor,
+          opacity: this.owner.disclosing.getPhaseOr(1) * this.owner.expanding.getPhaseOr(1),
+          zIndex: 1,
+        },
       });
     },
   })
@@ -218,13 +222,15 @@ export class RowView extends HtmlView {
     binds: true,
     initView(treeView: TableView): void {
       const layout = this.owner.layout.value;
-      treeView.addClass("tree");
-      treeView.style.setIntrinsic({
-        display: this.owner.disclosure.collapsed ? "none" : "block",
-        position: "absolute",
-        left: 0,
-        width: layout !== null ? layout.width : null,
-        zIndex: 0,
+      treeView.setIntrinsic({
+        classList: ["tree"],
+        style: {
+          display: this.owner.disclosure.collapsed ? "none" : "block",
+          position: "absolute",
+          left: 0,
+          width: layout !== null ? layout.width : null,
+          zIndex: 0,
+        },
       });
       treeView.depth.setIntrinsic(this.owner.depth.value + 1);
     },
@@ -243,17 +249,19 @@ export class RowView extends HtmlView {
     binds: true,
     initView(footView: HtmlView): void {
       const layout = this.owner.layout.value;
-      footView.addClass("foot");
-      footView.style.setIntrinsic({
-        display: "none",
-        position: "absolute",
-        left: 0,
-        top: this.owner.rowHeight.state,
-        width: layout !== null ? layout.width : null,
-        height: this.owner.rowSpacing.state,
-        backgroundColor: Look.borderColor,
-        opacity: this.owner.disclosing.getPhaseOr(1) * this.owner.expanding.getPhaseOr(1),
-        zIndex: 1,
+      footView.setIntrinsic({
+        classList: ["foot"],
+        style: {
+          display: "none",
+          position: "absolute",
+          left: 0,
+          top: this.owner.rowHeight.state,
+          width: layout !== null ? layout.width : null,
+          height: this.owner.rowSpacing.state,
+          backgroundColor: Look.borderColor,
+          opacity: this.owner.disclosing.getPhaseOr(1) * this.owner.expanding.getPhaseOr(1),
+          zIndex: 1,
+        },
       });
     },
   })

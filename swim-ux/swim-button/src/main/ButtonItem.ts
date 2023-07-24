@@ -28,7 +28,7 @@ export class ButtonItem extends HtmlView {
   }
 
   protected initButtonItem(): void {
-    this.addClass("button-item");
+    this.classList.add("button-item");
     this.style.position.setIntrinsic("relative");
     const button = this.createButton();
     if (button !== null) {

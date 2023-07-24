@@ -126,7 +126,7 @@ export class LookVector<T> implements Equals, Debug {
         const newArray = new Array<[Feel, T]>();
         const newIndex: {[name: string]: number | undefined} = {};
         let k = 0;
-        for (let j = 0, n = oldArray.length; j < n; j += 1) {
+        for (let j = 0; j < oldArray.length; j += 1) {
           const entry = oldArray[j]!;
           if (entry[0] !== feel) {
             newArray[k] = entry;
@@ -153,7 +153,7 @@ export class LookVector<T> implements Equals, Debug {
   forEach<R, S>(callback: (this: S, value: T, feel: Feel) => R | void, thisArg: S): R | undefined;
   forEach<R, S>(callback: (this: S | undefined, value: T, feel: Feel) => R | void, thisArg?: S): R | undefined {
     const array = this.array;
-    for (let i = 0, n = array.length; i < n; i += 1) {
+    for (let i = 0; i < array.length; i += 1) {
       const entry = array[i]!;
       const result = callback.call(thisArg, entry[1], entry[0]);
       if (result !== void 0) {
@@ -224,7 +224,7 @@ export class LookVector<T> implements Equals, Debug {
   /** @internal */
   static index<T>(array: readonly [Feel, T][]): {readonly [name: string]: number | undefined} {
     const index: {[name: string]: number | undefined} = {};
-    for (let i = 0, n = array.length; i < n; i += 1) {
+    for (let i = 0; i < array.length; i += 1) {
       const entry = array[i]!;
       index[entry[0].name] = i;
     }

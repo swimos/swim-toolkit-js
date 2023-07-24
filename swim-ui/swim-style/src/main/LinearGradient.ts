@@ -145,13 +145,13 @@ export class LinearGradient implements Interpolate<LinearGradient>, Equals, Equi
           s += " ";
           s += this.angle;
         } else {
-          for (let i = 0, n = this.angle.length; i < n; i += 1) {
+          for (let i = 0; i < this.angle.length; i += 1) {
             s += " ";
             s += this.angle[i];
           }
         }
       }
-      for (let i = 0, n = this.stops.length; i < n; i += 1) {
+      for (let i = 0; i < this.stops.length; i += 1) {
         s += ", ";
         s += this.stops[i]!.toString();
       }

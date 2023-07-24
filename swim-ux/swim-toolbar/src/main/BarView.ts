@@ -59,11 +59,13 @@ export class BarView extends HtmlView {
   }
 
   protected initBar(): void {
-    this.addClass("bar");
-    this.style.setIntrinsic({
-      position: "relative",
-      overflow: "hidden",
-      userSelect: "none",
+    this.setIntrinsic<BarView>({
+      classList: ["bar"],
+      style: {
+        position: "relative",
+        overflow: "hidden",
+        userSelect: "none",
+      },
     });
     this.modifyMood(Feel.default, [[Feel.primary, 1]]);
   }
@@ -227,8 +229,8 @@ export class BarView extends HtmlView {
   }
 
   protected resizeBarTop(): void {
-    this.addClass("bar-top")
-        .removeClass("bar-bottom");
+    this.classList.remove("bar-bottom");
+    this.classList.add("bar-top");
 
     const edgeInsets = this.edgeInsets.value;
     let height = this.barHeight.value;
@@ -249,8 +251,8 @@ export class BarView extends HtmlView {
   }
 
   protected resizeBarBottom(): void {
-    this.removeClass("bar-top")
-        .addClass("bar-bottom");
+    this.classList.remove("bar-top");
+    this.classList.add("bar-bottom");
 
     const edgeInsets = this.edgeInsets.value;
     let height = this.barHeight.value;
@@ -271,8 +273,8 @@ export class BarView extends HtmlView {
   }
 
   protected resizeBarNone(): void {
-    this.removeClass("bar-top")
-        .removeClass("bar-bottom");
+    this.classList.remove("bar-top");
+    this.classList.remove("bar-bottom");
 
     const oldLayout = !this.layout.derived ? this.layout.state : null;
     if (oldLayout !== void 0 && oldLayout !== null) {

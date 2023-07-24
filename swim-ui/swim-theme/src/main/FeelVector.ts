@@ -130,7 +130,7 @@ export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
         const newArray = new Array<[Look<unknown>, unknown]>();
         const newIndex: {[name: string]: number | undefined} = {};
         let k = 0;
-        for (let j = 0, n = oldArray.length; j < n; j += 1) {
+        for (let j = 0; j < oldArray.length; j += 1) {
           const entry = oldArray[j]!;
           if (entry[0] !== look) {
             newArray[k] = entry;
@@ -153,14 +153,14 @@ export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
     const thatArray = that.array;
     const newArray = new Array<[Look<unknown>, unknown]>();
     const newIndex: {[name: string]: number | undefined} = {};
-    for (let i = 0, n = thisArray.length; i < n; i += 1) {
+    for (let i = 0; i < thisArray.length; i += 1) {
       const entry = thisArray[i]!;
       const look = entry[0];
       const y = that.get(look);
       newIndex[look.name] = newArray.length;
       newArray.push(y === void 0 ? entry : [look, look.combine(entry[1], y)]);
     }
-    for (let i = 0, n = thatArray.length; i < n; i += 1) {
+    for (let i = 0; i < thatArray.length; i += 1) {
       const entry = thatArray[i]!;
       const look = entry[0];
       if (newIndex[look.name] === void 0) {
@@ -187,14 +187,14 @@ export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
     const thatArray = that.array;
     const newArray = new Array<[Look<unknown>, unknown]>();
     const newIndex: {[name: string]: number | undefined} = {};
-    for (let i = 0, n = thisArray.length; i < n; i += 1) {
+    for (let i = 0; i < thisArray.length; i += 1) {
       const entry = thisArray[i]!;
       const look = entry[0];
       const y = that.get(look);
       newIndex[look.name] = newArray.length;
       newArray.push(y === void 0 ? entry : [look, look.combine(entry[1], y, -1)]);
     }
-    for (let i = 0, n = thatArray.length; i < n; i += 1) {
+    for (let i = 0; i < thatArray.length; i += 1) {
       const [look, y] = thatArray[i]!;
       if (newIndex[look.name] === void 0) {
         newIndex[look.name] = newArray.length;
@@ -224,7 +224,7 @@ export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
   forEach<R, S>(callback: <T>(this: S, value: T, look: Look<T>) => R | void, thisArg: S): R | undefined;
   forEach<R, S>(callback: <T>(this: S | undefined, value: T, look: Look<T>) => R | void, thisArg?: S): R | undefined {
     const array = this.array;
-    for (let i = 0, n = array.length; i < n; i += 1) {
+    for (let i = 0; i < array.length; i += 1) {
       const entry = array[i]!;
       const result = callback.call(thisArg, entry[1], entry[0]);
       if (result !== void 0) {
@@ -313,7 +313,7 @@ export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
   /** @internal */
   static index<T>(array: readonly [Look<T>, T][]): {readonly [name: string]: number | undefined} {
     const index: {[name: string]: number | undefined} = {};
-    for (let i = 0, n = array.length; i < n; i += 1) {
+    for (let i = 0; i < array.length; i += 1) {
       const entry = array[i]!;
       index[entry[0].name] = i;
     }

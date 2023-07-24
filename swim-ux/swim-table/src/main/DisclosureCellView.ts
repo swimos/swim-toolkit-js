@@ -29,7 +29,7 @@ export interface DisclosureCellViewObserver<V extends DisclosureCellView = Discl
 export class DisclosureCellView extends CellView {
   protected override initCell(): void {
     super.initCell();
-    this.addClass("cell-disclosure");
+    this.classList.add("cell-disclosure");
   }
 
   declare readonly observerType?: Class<DisclosureCellViewObserver>;

@@ -36,7 +36,7 @@ export class ToolView extends HtmlView {
   }
 
   protected initTool(): void {
-    this.addClass("tool");
+    this.classList.add("tool");
   }
 
   declare readonly observerType?: Class<ToolViewObserver>;

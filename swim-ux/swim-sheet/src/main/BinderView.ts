@@ -54,10 +54,12 @@ export class BinderView extends SheetView {
   }
 
   protected initBinder(): void {
-    this.addClass("binder");
-    this.style.setIntrinsic({
-      position: "relative",
-      overflow: "hidden",
+    this.setIntrinsic<BinderView>({
+      classList: ["binder"],
+      style: {
+        position: "relative",
+        overflow: "hidden",
+      },
     });
   }
 

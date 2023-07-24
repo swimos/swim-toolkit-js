@@ -73,22 +73,26 @@ export class TokenView extends HtmlView {
   declare readonly observerType?: Class<TokenViewObserver>;
 
   protected initToken(): void {
-    this.addClass("token");
-    this.style.setIntrinsic({
-      position: "relative",
-      height: 32,
-      boxSizing: "content-box",
-      userSelect: "none",
+    this.setIntrinsic<TokenView>({
+      classList: ["token"],
+      style: {
+        position: "relative",
+        height: 32,
+        boxSizing: "content-box",
+        userSelect: "none",
+      },
     });
     this.shape.insertView();
   }
 
   protected initShape(shapeView: SvgView): void {
-    shapeView.addClass("shape");
-    shapeView.style.set({
-      position: "absolute",
-      left: 0,
-      top: 0,
+    shapeView.set({
+      classList: ["shape"],
+      style: {
+        position: "absolute",
+        left: 0,
+        top: 0,
+      },
     });
 
     this.head.insertView(shapeView);
@@ -99,54 +103,66 @@ export class TokenView extends HtmlView {
   }
 
   protected initHead(headView: SvgView): void {
-    headView.addClass("head");
-    headView.attributes.setIntrinsic({
-      fillRule: "evenodd",
-      cursor: "pointer",
-      pointerEvents: "bounding-box",
+    headView.setIntrinsic({
+      classList: ["head"],
+      attributes: {
+        fillRule: "evenodd",
+        cursor: "pointer",
+        pointerEvents: "bounding-box",
+      },
     });
   }
 
   protected initHeadIcon(headIconView: SvgView): void {
-    headIconView.addClass("head-icon");
-    headIconView.attributes.setIntrinsic({
-      pointerEvents: "none",
+    headIconView.setIntrinsic({
+      classList: ["head-icon"],
+      attributes: {
+        pointerEvents: "none",
+      },
     });
   }
 
   protected initBody(bodyView: SvgView): void {
-    bodyView.addClass("body");
-    bodyView.attributes.setIntrinsic({
-      cursor: "pointer",
-      pointerEvents: "fill",
+    bodyView.setIntrinsic({
+      classList: ["body"],
+      attributes: {
+        cursor: "pointer",
+        pointerEvents: "fill",
+      },
     });
   }
 
   protected initFoot(footView: SvgView): void {
-    footView.addClass("foot");
-    footView.attributes.setIntrinsic({
-      fillRule: "evenodd",
-      cursor: "pointer",
-      pointerEvents: "bounding-box",
+    footView.setIntrinsic({
+      classList: ["foot"],
+      attributes: {
+        fillRule: "evenodd",
+        cursor: "pointer",
+        pointerEvents: "bounding-box",
+      },
     });
   }
 
   protected initFootIcon(footIconView: SvgView): void {
-    footIconView.addClass("foot-icon");
-    footIconView.attributes.setIntrinsic({
-      pointerEvents: "none",
+    footIconView.setIntrinsic({
+      classList: ["foot-icon"],
+      attributes: {
+        pointerEvents: "none",
+      },
     });
   }
 
   protected initLabelContainer(labelContainer: HtmlView): void {
-    labelContainer.addClass("label");
-    labelContainer.style.setIntrinsic({
-      display: "block",
-      position: "absolute",
-      left: 0,
-      top: 0,
-      overflow: "hidden",
-      pointerEvents: "none",
+    labelContainer.setIntrinsic({
+      classList: ["label"],
+      style: {
+        display: "block",
+        position: "absolute",
+        left: 0,
+        top: 0,
+        overflow: "hidden",
+        pointerEvents: "none",
+      },
     });
   }
 

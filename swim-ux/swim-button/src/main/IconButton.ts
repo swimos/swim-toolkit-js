@@ -54,18 +54,20 @@ export class IconButton extends ButtonMembrane implements IconView {
   declare readonly observerType?: Class<HtmlViewObserver & ButtonObserver>;
 
   protected initButton(): void {
-    this.addClass("icon-button");
-    this.style.setIntrinsic({
-      position: "relative",
-      width: 44,
-      height: 44,
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      borderRadius: 4,
-      overflow: "hidden",
-      userSelect: "none",
-      cursor: "pointer",
+    this.setIntrinsic<IconButton>({
+      classList: ["icon-button"],
+      style: {
+        position: "relative",
+        width: 44,
+        height: 44,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        borderRadius: 4,
+        overflow: "hidden",
+        userSelect: "none",
+        cursor: "pointer",
+      },
     });
   }
 

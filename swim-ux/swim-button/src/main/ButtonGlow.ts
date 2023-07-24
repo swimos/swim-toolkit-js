@@ -36,13 +36,15 @@ export class ButtonGlow extends HtmlView {
   }
 
   protected initGlow(): void {
-    this.addClass("button-glow");
-    this.style.setIntrinsic({
-      position: "absolute",
-      width: Length.zero(),
-      height: Length.zero(),
-      borderRadius: Length.pct(50),
-      pointerEvents: "none",
+    this.setIntrinsic<ButtonGlow>({
+      classList: ["button-glow"],
+      style: {
+        position: "absolute",
+        width: Length.zero(),
+        height: Length.zero(),
+        borderRadius: Length.pct(50),
+        pointerEvents: "none",
+      },
     });
   }
 

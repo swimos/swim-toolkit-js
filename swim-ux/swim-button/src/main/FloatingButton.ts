@@ -47,13 +47,15 @@ export class FloatingButton extends ButtonMembrane {
   }
 
   protected initButton(): void {
-    this.addClass("floating-button");
-    this.style.setIntrinsic({
-      position: "relative",
-      borderRadius: Length.pct(50),
-      overflow: "hidden",
-      userSelect: "none",
-      cursor: "pointer",
+    this.setIntrinsic<FloatingButton>({
+      classList: ["floating-button"],
+      style: {
+        position: "relative",
+        borderRadius: Length.pct(50),
+        overflow: "hidden",
+        userSelect: "none",
+        cursor: "pointer",
+      },
     });
   }
 

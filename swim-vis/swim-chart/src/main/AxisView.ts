@@ -165,7 +165,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
 
     const oldTicks = this.tickViews.clone();
     const tickValues = tickGenerator.generate();
-    for (let i = 0, n = tickValues.length; i < n; i += 1) {
+    for (let i = 0; i < tickValues.length; i += 1) {
       const tickValue = tickValues[i]!;
       const oldTick = oldTicks.get(tickValue);
       if (oldTick !== void 0) {

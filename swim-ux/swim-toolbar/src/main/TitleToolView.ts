@@ -33,9 +33,11 @@ export interface TitleToolViewObserver<V extends TitleToolView = TitleToolView> 
 export class TitleToolView extends ToolView {
   protected override initTool(): void {
     super.initTool();
-    this.addClass("tool-title");
-    this.style.setIntrinsic({
-      overflowX: "hidden",
+    this.setIntrinsic<TitleToolView>({
+      classList: ["tool-title"],
+      style: {
+        overflowX: "hidden",
+      },
     });
   }
 

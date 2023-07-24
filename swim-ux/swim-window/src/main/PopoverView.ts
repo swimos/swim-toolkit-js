@@ -70,13 +70,14 @@ export class PopoverView extends HtmlView implements ModalView {
   }
 
   protected createArrow(): HtmlView | null {
-    const arrow = HtmlView.fromTag("div");
-    arrow.addClass("popover-arrow");
-    return arrow.style.setIntrinsic({
-      display: "none",
-      position: "absolute",
-      width: 0,
-      height: 0,
+    return HtmlView.fromTag("div").setIntrinsic({
+      classList: ["popover-arrow"],
+      style: {
+        display: "none",
+        position: "absolute",
+        width: 0,
+        height: 0,
+      },
     });
   }
 

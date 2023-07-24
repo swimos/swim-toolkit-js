@@ -49,14 +49,14 @@ export abstract class Look<T> implements Mood {
     const bArray = b.array;
     const newArray = new Array<[Feel, T]>();
     const newIndex: {[name: string]: number | undefined} = {};
-    for (let i = 0, n = aArray.length; i < n; i += 1) {
+    for (let i = 0; i < aArray.length; i += 1) {
       const entry = aArray[i]!;
       const feel = entry[0];
       const y = b.get(feel);
       newIndex[feel.name] = newArray.length;
       newArray.push(y === void 0 ? entry : [feel, feel.combine(this, entry[1], y)]);
     }
-    for (let i = 0, n = bArray.length; i < n; i += 1) {
+    for (let i = 0; i < bArray.length; i += 1) {
       const entry = bArray[i]!;
       const feel = entry[0];
       if (newIndex[feel.name] === void 0) {
@@ -83,14 +83,14 @@ export abstract class Look<T> implements Mood {
     const bArray = b.array;
     const newArray = new Array<[Feel, T]>();
     const newIndex: {[name: string]: number | undefined} = {};
-    for (let i = 0, n = aArray.length; i < n; i += 1) {
+    for (let i = 0; i < aArray.length; i += 1) {
       const entry = aArray[i]!;
       const feel = entry[0];
       const y = b.get(feel);
       newIndex[feel.name] = newArray.length;
       newArray.push(y === void 0 ? entry : [feel, feel.combine(this, entry[1], y, -1)]);
     }
-    for (let i = 0, n = bArray.length; i < n; i += 1) {
+    for (let i = 0; i < bArray.length; i += 1) {
       const [feel, y] = bArray[i]!;
       if (newIndex[feel.name] === void 0) {
         newIndex[feel.name] = newArray.length;
@@ -114,7 +114,7 @@ export abstract class Look<T> implements Mood {
   dot(a: LookVector<T>, b: MoodVector): T | undefined {
     const array = a.array;
     let combination: T | undefined;
-    for (let i = 0, n = array.length; i < n; i += 1) {
+    for (let i = 0; i < array.length; i += 1) {
       const [feel, value] = array[i]!;
       const weight = b.get(feel);
       if (weight !== void 0 && weight !== 0) {

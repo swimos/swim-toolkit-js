@@ -30,7 +30,7 @@ export class DrawerButton extends IconButton {
 
   protected override initButton(): void {
     super.initButton();
-    this.addClass("drawer-button");
+    this.classList.add("drawer-button");
   }
 
   protected initIcon(): void {

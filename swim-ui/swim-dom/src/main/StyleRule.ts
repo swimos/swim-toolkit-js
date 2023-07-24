@@ -172,7 +172,7 @@ export const StyleRule = (<R, F extends StyleRule<any>>() => CssRule.extend<Styl
       if (typeof propertyNames === "string") {
         return style.get(propertyNames);
       }
-      for (let i = 0, n = propertyNames.length; i < n; i += 1) {
+      for (let i = 0; i < propertyNames.length; i += 1) {
         const value = style.get(propertyNames[i]!);
         if (value !== void 0) {
           return value;
@@ -184,7 +184,7 @@ export const StyleRule = (<R, F extends StyleRule<any>>() => CssRule.extend<Styl
     if (typeof propertyNames === "string") {
       return style.getPropertyValue(propertyNames);
     }
-    for (let i = 0, n = propertyNames.length; i < n; i += 1) {
+    for (let i = 0; i < propertyNames.length; i += 1) {
       const value = style.getPropertyValue(propertyNames[i]!);
       if (value.length !== 0) {
         return value;

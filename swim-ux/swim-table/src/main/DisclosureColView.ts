@@ -29,7 +29,7 @@ export interface DisclosureColViewObserver<V extends DisclosureColView = Disclos
 export class DisclosureColView extends ColView {
   protected override initCol(): void {
     super.initCol();
-    this.addClass("col-disclosure");
+    this.classList.add("col-disclosure");
   }
 
   declare readonly observerType?: Class<DisclosureColViewObserver>;

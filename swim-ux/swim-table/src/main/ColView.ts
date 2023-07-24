@@ -32,9 +32,11 @@ export class ColView extends HtmlView {
   }
 
   protected initCol(): void {
-    this.addClass("col");
-    this.style.setIntrinsic({
-      overflow: "hidden",
+    this.setIntrinsic<ColView>({
+      classList: ["col"],
+      style: {
+        overflow: "hidden",
+      },
     });
   }
 

@@ -33,14 +33,16 @@ export class DisclosureButton extends HtmlView {
   }
 
   protected initDisclosureButton(): void {
-    this.addClass("disclosure-button");
-    this.style.setIntrinsic({
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      flexGrow: 1,
-      flexShrink: 0,
-      cursor: "pointer",
+    this.setIntrinsic<DisclosureButton>({
+      classList: ["disclosure-button"],
+      style: {
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        flexGrow: 1,
+        flexShrink: 0,
+        cursor: "pointer",
+      },
     });
 
     const icon = this.appendChild(SvgView, "icon").attributes.setIntrinsic({

@@ -73,6 +73,8 @@ export type {MediaRuleDescriptor} from "./MediaRule";
 export type {MediaRuleClass} from "./MediaRule";
 export {MediaRule} from "./MediaRule";
 
+export {ClassList} from "./ClassList";
+
 // Node
 
 export type {NodeViewFactory} from "./NodeView";

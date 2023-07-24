@@ -49,7 +49,7 @@ export class InputTokenView extends TokenView {
 
   protected override initToken(): void {
     super.initToken();
-    this.addClass("input-token");
+    this.classList.add("input-token");
     this.label.attachView();
   }
 

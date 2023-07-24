@@ -35,7 +35,7 @@ export interface BoardViewObserver<V extends BoardView = BoardView> extends Shee
 export class BoardView extends SheetView {
   protected override initSheet(): void {
     super.initSheet();
-    this.addClass("board");
+    this.classList.add("board");
   }
 
   declare readonly observerType?: Class<BoardViewObserver>;

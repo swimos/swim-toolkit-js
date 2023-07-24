@@ -41,7 +41,7 @@ export interface IconCellViewObserver<V extends IconCellView = IconCellView> ext
 export class IconCellView extends CellView implements IconView {
   protected override initCell(): void {
     super.initCell();
-    this.addClass("cell-icon");
+    this.classList.add("cell-icon");
   }
 
   declare readonly observerType?: Class<IconCellViewObserver>;

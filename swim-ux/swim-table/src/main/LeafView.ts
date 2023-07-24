@@ -69,11 +69,13 @@ export class LeafView extends HtmlView {
   }
 
   protected initLeaf(): void {
-    this.addClass("leaf");
-    this.style.setIntrinsic({
-      position: "relative",
-      overflow: "hidden",
-      backgroundColor: Look.backgroundColor,
+    this.setIntrinsic<LeafView>({
+      classList: ["leaf"],
+      style: {
+        position: "relative",
+        overflow: "hidden",
+        backgroundColor: Look.backgroundColor,
+      },
     });
     this.modifyMood(Feel.default, [[Feel.transparent, 1], [Feel.hovering, 0]], false);
   }

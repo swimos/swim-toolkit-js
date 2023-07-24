@@ -50,10 +50,12 @@ export class HeaderView extends HtmlView {
   }
 
   protected initHeader(): void {
-    this.addClass("header");
-    this.style.setIntrinsic({
-      position: "relative",
-      overflow: "hidden",
+    this.setIntrinsic<HeaderView>({
+      classList: ["header"],
+      style: {
+        position: "relative",
+        overflow: "hidden",
+      },
     });
   }
 

@@ -158,7 +158,7 @@ export class DomService extends Service {
                    : typeof global !== "undefined" ? global
                    : void 0;
     const idents = qname.split(".");
-    for (let i = 0, n = idents.length; typeof value === "object" && value !== null && i < n; i += 1) {
+    for (let i = 0; typeof value === "object" && value !== null && i < idents.length; i += 1) {
       const ident = idents[i]!;
       value = value[ident];
     }

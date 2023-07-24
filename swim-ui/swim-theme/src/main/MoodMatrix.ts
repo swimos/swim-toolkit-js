@@ -107,14 +107,14 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
     const thatColArray = that.colArray;
     const newColArray = new Array<[N, MoodVector<M>]>();
     const newColIndex: {[name: string]: number | undefined} = {};
-    for (let j = 0, n = thisColArray.length; j < n; j += 1) {
+    for (let j = 0; j < thisColArray.length; j += 1) {
       const entry = thisColArray[j]!;
       const colKey = entry[0];
       const b = that.getCol(colKey);
       newColIndex[colKey.name] = newColArray.length;
       newColArray.push(b === void 0 ? entry : [colKey, entry[1].plus(b)]);
     }
-    for (let j = 0, n = thatColArray.length; j < n; j += 1) {
+    for (let j = 0; j < thatColArray.length; j += 1) {
       const entry = thatColArray[j]!;
       const colKey = entry[0];
       if (newColIndex[colKey.name] === void 0) {
@@ -141,14 +141,14 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
     const thatColArray = that.colArray;
     const newColArray = new Array<[N, MoodVector<M>]>();
     const newColIndex: {[name: string]: number | undefined} = {};
-    for (let j = 0, n = thisColArray.length; j < n; j += 1) {
+    for (let j = 0; j < thisColArray.length; j += 1) {
       const entry = thisColArray[j]!;
       const colKey = entry[0];
       const b = that.getCol(colKey);
       newColIndex[colKey.name] = newColArray.length;
       newColArray.push(b === void 0 ? entry : [colKey, entry[1].minus(b)]);
     }
-    for (let j = 0, n = thatColArray.length; j < n; j += 1) {
+    for (let j = 0; j < thatColArray.length; j += 1) {
       const [colKey, b] = thatColArray[j]!;
       if (newColIndex[colKey.name] === void 0) {
         newColIndex[colKey.name] = newColArray.length;
@@ -192,7 +192,7 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
     const rowArray = this.rowArray;
     const newArray = new Array<[M, number]>();
     const newIndex: {[name: string]: number | undefined} = {};
-    for (let i = 0, m = rowArray.length; i < m; i += 1) {
+    for (let i = 0; i < rowArray.length; i += 1) {
       const [rowKey, row] = rowArray[i]!;
       const value = row.dot(col);
       if (value !== void 0) {
@@ -202,7 +202,7 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
     }
     if (implicitIdentity) {
       const thatArray = col.array;
-      for (let i = 0, m = thatArray.length; i < m; i += 1) {
+      for (let i = 0; i < thatArray.length; i += 1) {
         const rowKey = thatArray[i]![0];
         if (!this.hasRow(rowKey)) {
           newIndex[rowKey.name] = newArray.length;
@@ -219,7 +219,7 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
     const colArray = this.colArray;
     const newArray = new Array<[N, number]>();
     const newIndex: {[name: string]: number | undefined} = {};
-    for (let i = 0, n = colArray.length; i < n; i += 1) {
+    for (let i = 0; i < colArray.length; i += 1) {
       const [colKey, col] = colArray[i]!;
       const value = row.dot(col as MoodVector<M & N>);
       if (value !== void 0) {
@@ -229,7 +229,7 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
     }
     if (implicitIdentity) {
       const thatArray = row.array;
-      for (let i = 0, n = thatArray.length; i < n; i += 1) {
+      for (let i = 0; i < thatArray.length; i += 1) {
         const colKey = thatArray[i]![0];
         if (!this.hasCol(colKey)) {
           newIndex[colKey.name] = newArray.length;
@@ -247,7 +247,7 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
     const newRowIndex: {[name: string]: number | undefined} = {};
     const newColArray = new Array<[N, MoodVector<M>]>();
     const newColIndex: {[name: string]: number | undefined} = {};
-    for (let j = 0, n = thisColArray.length; j < n; j += 1) {
+    for (let j = 0; j < thisColArray.length; j += 1) {
       const colKey = thisColArray[j]![0];
       let col = that.getCol(colKey);
       if (col === void 0 && implicitIdentity) {
@@ -256,7 +256,7 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
       if (col === void 0) {
         continue;
       }
-      for (let i = 0, m = thisRowArray.length; i < m; i += 1) {
+      for (let i = 0; i < thisRowArray.length; i += 1) {
         const [rowKey, row] = thisRowArray[i]!;
         const value = row.dot(col);
         if (value === void 0) {
@@ -291,7 +291,7 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
     const thatColArray = that.colArray;
     let newRowArray: Array<[M, MoodVector<N>]> | undefined;
     let newRowIndex: {[name: string]: number | undefined} | undefined;
-    for (let j = 0, n = thatColArray.length; j < n; j += 1) {
+    for (let j = 0; j < thatColArray.length; j += 1) {
       const colKey = thatColArray[j]![0];
       if (this.hasRow(colKey)) {
         continue;
@@ -337,7 +337,7 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
       const newRowArray = new Array<[M, MoodVector<N>]>();
       const newRowIndex: {[name: string]: number | undefined} = {};
       let k = 0;
-      for (let j = 0, n = oldRowArray.length; j < n; j += 1) {
+      for (let j = 0; j < oldRowArray.length; j += 1) {
         const entry = oldRowArray[j]!;
         if (entry[0] !== rowKey) {
           newRowArray[k] = entry;
@@ -374,7 +374,7 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
       const newColArray = new Array<[N, MoodVector<M>]>();
       const newColIndex: {[name: string]: number | undefined} = {};
       let k = 0;
-      for (let j = 0, n = oldColArray.length; j < n; j += 1) {
+      for (let j = 0; j < oldColArray.length; j += 1) {
         const entry = oldColArray[j]!;
         if (entry[0] !== colKey) {
           newColArray[k] = entry;
@@ -509,7 +509,7 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
     }
     const colArray = new Array<[N, MoodVector<M>]>();
     const colIndex: {[name: string]: number | undefined} = {};
-    for (let i = 0, m = rowArray.length; i < m; i += 1) {
+    for (let i = 0; i < rowArray.length; i += 1) {
       const row = rowArray[i]![1];
       row.forEach(function (value: number, colKey: N): void {
         if (colIndex[colKey.name] === void 0) {
@@ -518,12 +518,12 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
         }
       }, this);
     }
-    for (let j = 0, n = colArray.length; j < n; j += 1) {
+    for (let j = 0; j < colArray.length; j += 1) {
       const entry = colArray[j]!;
       const colKey = entry[0];
       const array = new Array<[M, number]>();
       const index: {[name: string]: number | undefined} = {};
-      for (let i = 0, m = rowArray.length; i < m; i += 1) {
+      for (let i = 0; i < rowArray.length; i += 1) {
         const [rowKey, row] = rowArray[i]!;
         const value = row.get(colKey);
         if (value !== void 0) {
@@ -545,7 +545,7 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
     }
     const rowArray = new Array<[M, MoodVector<N>]>();
     const rowIndex: {[name: string]: number | undefined} = {};
-    for (let i = 0, n = colArray.length; i < n; i += 1) {
+    for (let i = 0; i < colArray.length; i += 1) {
       const col = colArray[i]![1];
       col.forEach(function (value: number, rowKey: M): void {
         if (rowIndex[rowKey.name] === void 0) {
@@ -554,12 +554,12 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
         }
       }, this);
     }
-    for (let i = 0, m = rowArray.length; i < m; i += 1) {
+    for (let i = 0; i < rowArray.length; i += 1) {
       const entry = rowArray[i]!;
       const rowKey = entry[0];
       const array = new Array<[N, number]>();
       const index: {[name: string]: number | undefined} = {};
-      for (let j = 0, n = colArray.length; j < n; j += 1) {
+      for (let j = 0; j < colArray.length; j += 1) {
         const [colKey, col] = colArray[j]!;
         const value = col.get(rowKey);
         if (value !== void 0) {

@@ -71,13 +71,15 @@ export class DrawerView extends HtmlView implements ModalView {
   declare readonly observerType?: Class<DrawerViewObserver>;
 
   protected initDrawer(): void {
-    this.addClass("drawer");
-    this.style.setIntrinsic({
-      display: "flex",
-      overflowX: "hidden",
-      overflowY: "auto",
-      overscrollBehaviorY: "contain",
-      overflowScrolling: "touch",
+    this.setIntrinsic<DrawerView>({
+      classList: ["drawer"],
+      style: {
+        display: "flex",
+        overflowX: "hidden",
+        overflowY: "auto",
+        overscrollBehaviorY: "contain",
+        overflowScrolling: "touch",
+      },
     });
   }
 
@@ -235,10 +237,10 @@ export class DrawerView extends HtmlView implements ModalView {
   protected layoutDrawerTop(): void {
     const presencePhase = this.presence.getPhase();
 
-    this.addClass("drawer-top")
-        .removeClass("drawer-right")
-        .removeClass("drawer-bottom")
-        .removeClass("drawer-left");
+    this.classList.add("drawer-top");
+    this.classList.remove("drawer-right");
+    this.classList.remove("drawer-bottom");
+    this.classList.remove("drawer-left");
 
     this.style.setIntrinsic({
       position: "fixed",
@@ -264,10 +266,10 @@ export class DrawerView extends HtmlView implements ModalView {
     const stretchPhase = this.stretch.getPhase();
     const presencePhase = this.presence.getPhase();
 
-    this.removeClass("drawer-top")
-        .addClass("drawer-right")
-        .removeClass("drawer-bottom")
-        .removeClass("drawer-left");
+    this.classList.remove("drawer-top");
+    this.classList.add("drawer-right");
+    this.classList.remove("drawer-bottom");
+    this.classList.remove("drawer-left");
 
     this.style.setIntrinsic({
       position: "fixed",
@@ -295,10 +297,10 @@ export class DrawerView extends HtmlView implements ModalView {
   protected layoutDrawerBottom(): void {
     const presencePhase = this.presence.getPhase();
 
-    this.removeClass("drawer-top")
-        .removeClass("drawer-right")
-        .addClass("drawer-bottom")
-        .removeClass("drawer-left");
+    this.classList.remove("drawer-top");
+    this.classList.remove("drawer-right");
+    this.classList.add("drawer-bottom");
+    this.classList.remove("drawer-left");
 
     this.style.setIntrinsic({
       position: "fixed",
@@ -324,10 +326,10 @@ export class DrawerView extends HtmlView implements ModalView {
     const stretchPhase = this.stretch.getPhase();
     const presencePhase = this.presence.getPhase();
 
-    this.removeClass("drawer-top")
-        .removeClass("drawer-right")
-        .removeClass("drawer-bottom")
-        .addClass("drawer-left");
+    this.classList.remove("drawer-top");
+    this.classList.remove("drawer-right");
+    this.classList.remove("drawer-bottom");
+    this.classList.add("drawer-left");
 
     this.style.setIntrinsic({
       position: "fixed",

@@ -36,6 +36,7 @@ import type {AttributeContext} from "./AttributeContext";
 import {AttributeAnimator} from "./AttributeAnimator";
 import type {StyleContext} from "./StyleContext";
 import {StyleAttribute} from "./StyleAttribute";
+import {ClassList} from "./ClassList";
 import type {NodeViewFactory} from "./NodeView";
 import type {NodeViewClass} from "./NodeView";
 import type {NodeViewConstructor} from "./NodeView";
@@ -236,7 +237,7 @@ export class ElementView extends NodeView implements AttributeContext, StyleCont
           return void 0;
         }
       } else {
-        for (let i = 0, n = propertyNames.length; i < n; i += 1) {
+        for (let i = 0; i < propertyNames.length; i += 1) {
           const value = style.get(propertyNames[i]!);
           if (value !== void 0) {
             return value;
@@ -249,7 +250,7 @@ export class ElementView extends NodeView implements AttributeContext, StyleCont
       if (typeof propertyNames === "string") {
         return style.getPropertyValue(propertyNames);
       } else {
-        for (let i = 0, n = propertyNames.length; i < n; i += 1) {
+        for (let i = 0; i < propertyNames.length; i += 1) {
           const value = style.getPropertyValue(propertyNames[i]!);
           if (value.length !== 0) {
             return value;
@@ -319,52 +320,9 @@ export class ElementView extends NodeView implements AttributeContext, StyleCont
     }
   }
 
-  className(): string | undefined;
-  className(value: string | undefined): this;
-  className(value?: string | undefined): string | undefined | this {
-    if (arguments.length === 0) {
-      const className = this.getAttribute("class");
-      return className !== null ? className : void 0;
-    } else {
-      this.setAttribute("class", value);
-      return this;
-    }
-  }
-
-  get classList(): DOMTokenList {
-    return this.node.classList;
-  }
-
-  hasClass(className: string): boolean {
-    return this.node.classList.contains(className);
-  }
-
-  addClass(...classNames: string[]): this {
-    const classList = this.node.classList;
-    for (let i = 0, n = classNames.length; i < n; i += 1) {
-      classList.add(classNames[i]!);
-    }
-    return this;
-  }
-
-  removeClass(...classNames: string[]): this {
-    const classList = this.node.classList;
-    for (let i = 0, n = classNames.length; i < n; i += 1) {
-      classList.remove(classNames[i]!);
-    }
-    return this;
-  }
-
-  toggleClass(className: string, state?: boolean): this {
-    const classList = this.node.classList;
-    if (state === void 0) {
-      classList.toggle(className);
-    } else if (state === true) {
-      classList.add(className);
-    } else if (state === false) {
-      classList.remove(className);
-    }
-    return this;
+  @ClassList({})
+  get classList(): ClassList<this> {
+    return ClassList.dummy();
   }
 
   protected detectTheme(): void {

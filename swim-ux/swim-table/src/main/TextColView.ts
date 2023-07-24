@@ -32,7 +32,7 @@ export interface TextColViewObserver<V extends TextColView = TextColView> extend
 export class TextColView extends ColView {
   protected override initCol(): void {
     super.initCol();
-    this.addClass("col-text");
+    this.classList.add("col-text");
   }
 
   declare readonly observerType?: Class<TextColViewObserver>;

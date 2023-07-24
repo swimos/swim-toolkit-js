@@ -17,6 +17,7 @@ import type {TimingLike} from "@swim/util";
 import type {Timing} from "@swim/util";
 import {Affinity} from "@swim/component";
 import {Property} from "@swim/component";
+import {EventHandler} from "@swim/component";
 import {Presence} from "@swim/style";
 import {PresenceAnimator} from "@swim/style";
 import {Look} from "@swim/theme";
@@ -45,19 +46,20 @@ export class SheetView extends HtmlView {
   constructor(node: HTMLElement) {
     super(node);
     this.initSheet();
-    node.addEventListener("scroll", this.onSheetScroll.bind(this));
   }
 
   protected initSheet(): void {
-    this.addClass("sheet");
-    this.style.setIntrinsic({
-      position: "relative",
-      boxSizing: "border-box",
-      overflowX: "hidden",
-      overflowY: "auto",
-      overscrollBehaviorY: "contain",
-      overflowScrolling: "touch",
-      backgroundColor: Look.backgroundColor,
+    this.setIntrinsic<SheetView>({
+      classList: ["sheet"],
+      style: {
+        position: "relative",
+        boxSizing: "border-box",
+        overflowX: "hidden",
+        overflowY: "auto",
+        overscrollBehaviorY: "contain",
+        overflowScrolling: "touch",
+        backgroundColor: Look.backgroundColor,
+      },
     });
   }
 
@@ -137,7 +139,12 @@ export class SheetView extends HtmlView {
     this.style.left.setIntrinsic(sheetWidth * sheetAlign * (1 - phase));
   }
 
-  protected onSheetScroll(event: Event): void {
-    this.requireUpdate(View.NeedsScroll);
-  }
+  @EventHandler({
+    eventType: "scroll",
+    bindsOwner: true,
+    handle(event: Event): void {
+      this.owner.requireUpdate(View.NeedsScroll);
+    },
+  })
+  readonly scroll!: EventHandler<this>;
 }

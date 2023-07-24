@@ -34,17 +34,19 @@ export class ScrimView extends HtmlView {
   }
 
   protected initScrim(): void {
-    this.addClass("scrim");
-    this.style.setIntrinsic({
-      display: "none",
-      position: "absolute",
-      top: 0,
-      right: 0,
-      bottom: 0,
-      left: 0,
-      pointerEvents: "auto",
-      cursor: "pointer",
-      backgroundColor: Color.black(0),
+    this.setIntrinsic<ScrimView>({
+      classList: ["scrim"],
+      style: {
+        display: "none",
+        position: "absolute",
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
+        pointerEvents: "auto",
+        cursor: "pointer",
+        backgroundColor: Color.black(0),
+      },
     });
   }
 

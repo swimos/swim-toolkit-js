@@ -45,15 +45,17 @@ export class ButtonStack extends HtmlView implements ModalView {
   }
 
   protected initButtonStack(): void {
-    this.addClass("button-stack");
-    this.style.setIntrinsic({
-      display: "block",
-      position: "relative",
-      width: 56,
-      height: 56,
-      opacity: 1,
-      userSelect: "none",
-      cursor: "pointer",
+    this.setIntrinsic<ButtonStack>({
+      classList: ["button-stack"],
+      style: {
+        display: "block",
+        position: "relative",
+        width: 56,
+        height: 56,
+        opacity: 1,
+        userSelect: "none",
+        cursor: "pointer",
+      },
     });
     this.button.insertView();
   }

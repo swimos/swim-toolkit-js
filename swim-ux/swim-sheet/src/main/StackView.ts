@@ -56,10 +56,12 @@ export class StackView extends HtmlView {
   }
 
   protected initStack(): void {
-    this.addClass("stack");
-    this.style.setIntrinsic({
-      position: "relative",
-      overflow: "hidden",
+    this.setIntrinsic<StackView>({
+      classList: ["stack"],
+      style: {
+        position: "relative",
+        overflow: "hidden",
+      },
     });
   }
 

@@ -71,11 +71,13 @@ export class PanelView extends HtmlView {
   }
 
   protected initPanel(): void {
-    this.addClass("panel");
-    this.style.setIntrinsic({
-      position: "relative",
-      boxSizing: "border-box",
-      overflow: "hidden",
+    this.setIntrinsic<PanelView>({
+      classList: ["panel"],
+      style: {
+        position: "relative",
+        boxSizing: "border-box",
+        overflow: "hidden",
+      },
     });
     this.panelStyle.applyPanelStyle(this.panelStyle.value);
   }
@@ -127,7 +129,7 @@ export class PanelView extends HtmlView {
     applyPanelStyle(panelStyle: PanelStyle): void {
       const panelView = this.owner;
       if (panelStyle === "card") {
-        panelView.addClass("panel-card");
+        panelView.classList.add("panel-card");
         panelView.style.setIntrinsic({
           margin: 6,
           borderRadius: 4,
@@ -135,7 +137,7 @@ export class PanelView extends HtmlView {
         });
         panelView.modifyTheme(Feel.default, [[Feel.raised, 1]]);
       } else {
-        panelView.removeClass("panel-card");
+        panelView.classList.remove("panel-card");
         panelView.style.setIntrinsic({
           margin: 0,
           borderRadius: null,
@@ -194,21 +196,22 @@ export class PanelView extends HtmlView {
       }
     },
     createView(): HtmlView {
-      const headerView = HtmlView.create();
-      headerView.addClass("panel-header");
-      return headerView.style.setIntrinsic({
-        display: "flex",
-        justifyContent: "space-between",
-        position: "absolute",
-        left: 0,
-        top: 0,
-        width: Length.pct(100),
-        height: 30,
-        paddingLeft: 12,
-        paddingRight: 12,
-        boxSizing: "border-box",
-        userSelect: "none",
-        zIndex: 1,
+      return (super.createView() as HtmlView).setIntrinsic({
+        classList: ["panel-header"],
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          position: "absolute",
+          left: 0,
+          top: 0,
+          width: Length.pct(100),
+          height: 30,
+          paddingLeft: 12,
+          paddingRight: 12,
+          boxSizing: "border-box",
+          userSelect: "none",
+          zIndex: 1,
+        },
       });
     }
   })
@@ -245,11 +248,12 @@ export class PanelView extends HtmlView {
       return super.fromLike(value);
     },
     createView(): HtmlView {
-      const titleView = HtmlView.create();
-      titleView.addClass("header-title");
-      return titleView.style.setIntrinsic({
-        alignSelf: "center",
-        color: Look.legendColor,
+      return (super.createView() as HtmlView).setIntrinsic({
+        classList: ["header-title"],
+        style: {
+          alignSelf: "center",
+          color: Look.legendColor,
+        },
       });
     },
   })
@@ -280,11 +284,12 @@ export class PanelView extends HtmlView {
       return super.fromLike(value);
     },
     createView(): HtmlView {
-      const subtitleView = HtmlView.create();
-      subtitleView.addClass("header-subtitle");
-      return subtitleView.style.setIntrinsic({
-        alignSelf: "center",
-        color: Look.legendColor,
+      return (super.createView() as HtmlView).setIntrinsic({
+        classList: ["header-subtitle"],
+        style: {
+          alignSelf: "center",
+          color: Look.legendColor,
+        },
       });
     },
   })

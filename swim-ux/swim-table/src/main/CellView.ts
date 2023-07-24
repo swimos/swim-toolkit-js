@@ -34,9 +34,11 @@ export class CellView extends HtmlView {
   }
 
   protected initCell(): void {
-    this.addClass("cell");
-    this.style.setIntrinsic({
-      overflow: "hidden",
+    this.setIntrinsic<CellView>({
+      classList: ["cell"],
+      style: {
+        overflow: "hidden",
+      },
     });
   }
 
