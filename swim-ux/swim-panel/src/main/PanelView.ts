@@ -480,4 +480,7 @@ export class PanelView extends HtmlView {
   protected onPanelScroll(event: Event): void {
     this.requireUpdate(View.NeedsScroll);
   }
+
+  static override readonly InsertChildFlags: ViewFlags = View.InsertChildFlags | this.NeedsResize;
+  static override readonly RemoveChildFlags: ViewFlags = View.RemoveChildFlags | this.NeedsResize;
 }

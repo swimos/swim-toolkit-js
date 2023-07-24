@@ -114,4 +114,7 @@ export class BoardView extends SheetView {
     }
     super.processChildren(processFlags, resizeChild);
   }
+
+  static override readonly InsertChildFlags: ViewFlags = View.InsertChildFlags | this.NeedsResize;
+  static override readonly RemoveChildFlags: ViewFlags = View.RemoveChildFlags | this.NeedsResize;
 }
