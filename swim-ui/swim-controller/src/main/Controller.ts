@@ -787,7 +787,7 @@ export class Controller extends Component<Controller> implements Consumable, War
     },
   })
   get hostUri(): Property<this, Uri | null> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   /** @override */
@@ -800,7 +800,7 @@ export class Controller extends Component<Controller> implements Consumable, War
     },
   })
   get nodeUri(): Property<this, Uri | null> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   /** @override */
@@ -813,7 +813,7 @@ export class Controller extends Component<Controller> implements Consumable, War
     },
   })
   get laneUri(): Property<this, Uri | null> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   /** @override */
@@ -1008,7 +1008,7 @@ export class Controller extends Component<Controller> implements Consumable, War
     },
   })
   get warpRef(): Property<this, WarpRef> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   /** @internal */

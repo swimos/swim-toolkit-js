@@ -114,7 +114,7 @@ export class CanvasView extends HtmlView {
     },
   })
   get sprites(): Provider<this, SpriteService> {
-    return Provider.dummy();
+    return Provider.getter();
   }
 
   get pixelRatio(): number {

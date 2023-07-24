@@ -170,7 +170,7 @@ export class DataPointController<X = unknown, Y = unknown> extends Controller {
 
   @Property({valueType: Timing, inherits: true})
   get dataPointTiming(): Property<this, Timing | boolean | undefined> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   @TraitViewRef({

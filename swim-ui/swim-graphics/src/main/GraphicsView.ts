@@ -115,7 +115,7 @@ export class GraphicsView extends View {
     },
   })
   get sprites(): Provider<this, SpriteService> {
-    return Provider.dummy();
+    return Provider.getter();
   }
 
   /** @internal */

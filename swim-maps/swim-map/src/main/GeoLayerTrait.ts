@@ -42,7 +42,7 @@ export class GeoLayerTrait extends GeoTrait {
 
   @Property({extends: true, inherits: false})
   override get nodeUri(): Property<this, Uri | null> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   @Property({

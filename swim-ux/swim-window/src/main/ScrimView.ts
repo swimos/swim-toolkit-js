@@ -170,7 +170,7 @@ export class ScrimView extends HtmlView {
     },
   })
   override get modal(): Provider<this, ModalService> & HtmlView["modal"] & Observes<ModalService> {
-    return Provider.dummy();
+    return Provider.getter();
   }
 
   serviceDidSetModality(newModality: number, oldModality: number, modalService: ModalService): void {

@@ -157,7 +157,7 @@ export class PieController extends Controller {
 
   @Property({valueType: Timing, value: true})
   get sliceTiming(): Property<this, Timing | boolean | undefined> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   @TraitViewControllerSet({

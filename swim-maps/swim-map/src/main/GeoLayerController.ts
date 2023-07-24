@@ -79,7 +79,7 @@ export class GeoLayerController extends GeoController {
 
   @Property({extends: true, inherits: false})
   override get nodeUri(): Property<this, Uri | null> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   @Property({
@@ -99,7 +99,7 @@ export class GeoLayerController extends GeoController {
     setMin(minZoom: number, affinity?: Affinity): void;
     setMax(maxZoom: number, affinity?: Affinity): void;
   } {
-    return Property.dummy();
+    return Property.getter();
   }
 
   @Property({
@@ -119,7 +119,7 @@ export class GeoLayerController extends GeoController {
     setMin(minZoom: number, affinity?: Affinity): void;
     setMax(maxZoom: number, affinity?: Affinity): void;
   } {
-    return Property.dummy();
+    return Property.getter();
   }
 
   @Property({

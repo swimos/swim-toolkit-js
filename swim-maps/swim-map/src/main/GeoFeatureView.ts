@@ -39,7 +39,7 @@ export class GeoFeatureView extends GeoView {
 
   @Property({valueType: Hyperlink, value: null})
   get hyperlink(): Property<this, Hyperlink | null> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   @PositionGesture({

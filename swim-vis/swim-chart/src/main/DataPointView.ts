@@ -117,7 +117,7 @@ export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
     },
   })
   get y2(): Animator<this, Y | undefined> {
-    return Animator.dummy();
+    return Animator.getter();
   }
 
   @ThemeAnimator({
@@ -128,12 +128,12 @@ export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
     },
   })
   get radius(): ThemeAnimator<this, Length | null> {
-    return ThemeAnimator.dummy();
+    return ThemeAnimator.getter();
   }
 
   @Property({valueType: Number, value: 5})
   get hitRadius(): Property<this, number> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   @ThemeAnimator({
@@ -145,7 +145,7 @@ export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
     },
   })
   get color(): ThemeAnimator<this, Color | null> {
-    return ThemeAnimator.dummy();
+    return ThemeAnimator.getter();
   }
 
   @ThemeAnimator({
@@ -156,27 +156,27 @@ export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
     },
   })
   get opacity(): ThemeAnimator<this, number | undefined> {
-    return ThemeAnimator.dummy();
+    return ThemeAnimator.getter();
   }
 
   @ThemeAnimator({valueType: Font, inherits: true})
   get font(): ThemeAnimator<this, Font | undefined> {
-    return ThemeAnimator.dummy();
+    return ThemeAnimator.getter();
   }
 
   @ThemeAnimator({valueType: Color, inherits: true})
   get textColor(): ThemeAnimator<this, Color | undefined> {
-    return ThemeAnimator.dummy();
+    return ThemeAnimator.getter();
   }
 
   @Property({valueType: String})
   get category(): Property<this, DataPointCategory> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   @ThemeAnimator({valueType: Length, value: Length.zero(), updateFlags: View.NeedsLayout})
   get labelPadding(): ThemeAnimator<this, Length> {
-    return ThemeAnimator.dummy();
+    return ThemeAnimator.getter();
   }
 
   @ViewRef({
@@ -207,7 +207,7 @@ export class DataPointView<X = unknown, Y = unknown> extends GraphicsView {
 
   @Property({valueType: String, value: "auto"})
   get labelPlacement(): Property<this, DataPointLabelPlacement> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   /** @internal */

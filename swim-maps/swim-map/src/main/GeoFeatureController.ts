@@ -65,7 +65,7 @@ export class GeoFeatureController extends GeoController {
     setMin(minZoom: number, affinity?: Affinity): void;
     setMax(maxZoom: number, affinity?: Affinity): void;
   } {
-    return Property.dummy();
+    return Property.getter();
   }
 
   @Property({
@@ -85,7 +85,7 @@ export class GeoFeatureController extends GeoController {
     setMin(minZoom: number, affinity?: Affinity): void;
     setMax(maxZoom: number, affinity?: Affinity): void;
   } {
-    return Property.dummy();
+    return Property.getter();
   }
 
   @Property({
@@ -203,6 +203,6 @@ export class GeoFeatureController extends GeoController {
 
   @Property({valueType: Hyperlink, value: null})
   get hyperlink(): Property<this, Hyperlink | null> {
-    return Property.dummy();
+    return Property.getter();
   }
 }

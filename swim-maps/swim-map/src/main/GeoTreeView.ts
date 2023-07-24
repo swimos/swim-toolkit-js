@@ -113,7 +113,7 @@ export class GeoTreeView extends GeoView {
 
   @ThemeAnimator({valueType: Color, value: null})
   get geoTreeColor(): ThemeAnimator<this, Color | null> {
-    return ThemeAnimator.dummy();
+    return ThemeAnimator.getter();
   }
 
   protected override onRender(): void {

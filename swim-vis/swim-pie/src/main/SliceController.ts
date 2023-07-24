@@ -118,7 +118,7 @@ export class SliceController extends Controller {
 
   @Property({valueType: Timing, inherits: true})
   get sliceTiming(): Property<this, Timing | boolean | undefined> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   @TraitViewRef({

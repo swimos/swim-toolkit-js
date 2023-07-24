@@ -61,7 +61,7 @@ export class IconCellView extends CellView implements IconView {
     },
   })
   get iconColor(): ThemeAnimator<this, Color | null> {
-    return ThemeAnimator.dummy();
+    return ThemeAnimator.getter();
   }
 
   /** @override */

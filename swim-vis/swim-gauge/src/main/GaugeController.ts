@@ -172,7 +172,7 @@ export class GaugeController extends Controller {
 
   @Property({valueType: Timing, value: true})
   get dialTiming(): Property<this, Timing | boolean | undefined> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   @TraitViewControllerSet({

@@ -183,7 +183,7 @@ export class StackView extends HtmlView {
     },
   })
   override get edgeInsets(): Property<this, ViewInsets> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   protected override onResize(): void {

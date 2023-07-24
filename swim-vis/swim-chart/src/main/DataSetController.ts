@@ -96,7 +96,7 @@ export class DataSetController<X = unknown, Y = unknown> extends Controller {
 
   @Property({valueType: Timing, value: true})
   get dataPointTiming(): Property<this, Timing | boolean | undefined> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   @TraitViewControllerSet({

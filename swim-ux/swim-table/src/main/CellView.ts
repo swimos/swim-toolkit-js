@@ -74,7 +74,7 @@ export class CellView extends HtmlView {
     },
   })
   get hyperlink(): Property<this, Hyperlink | null> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   didPress(input: PositionGestureInput, event: Event | null): void {

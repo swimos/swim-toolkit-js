@@ -29,7 +29,7 @@ export class GeoFeatureTrait extends GeoTrait {
 
   @Property({valueType: Hyperlink, value: null})
   get hyperlink(): Property<this, Hyperlink | null> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   override createGeoController(): GeoFeatureController {

@@ -271,7 +271,7 @@ export class MapboxView extends MapView {
   override get edgeInsets(): Property<this, ViewInsets> & {
     get padding(): mapboxgl.PaddingOptions;
   } {
-    return Property.dummy();
+    return Property.getter();
   }
 
   protected override onResize(): void {
@@ -324,7 +324,7 @@ export class MapboxView extends MapView {
     },
   })
   override get viewport(): Provider<this, ViewportService> & MapView["viewport"] & Observes<ViewportService> {
-    return Provider.dummy();
+    return Provider.getter();
   }
 
   @Property({

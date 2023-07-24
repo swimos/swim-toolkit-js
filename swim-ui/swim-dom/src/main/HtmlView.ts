@@ -287,7 +287,7 @@ export class HtmlView extends ElementView {
 
   @HtmlAttributes({})
   override get attributes(): HtmlAttributes<this> {
-    return HtmlAttributes.dummy();
+    return HtmlAttributes.getter();
   }
 
   override setChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(key: string, newChildFactory: F): View | null;

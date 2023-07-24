@@ -215,7 +215,7 @@ export class BinderView extends SheetView {
     },
   })
   override get edgeInsets(): Property<this, ViewInsets> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   protected override onResize(): void {

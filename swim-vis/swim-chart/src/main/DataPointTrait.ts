@@ -71,7 +71,7 @@ export class DataPointTrait<X = unknown, Y = unknown> extends Trait {
     },
   })
   get y2(): Property<this, Y | undefined> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   @Property({
@@ -82,7 +82,7 @@ export class DataPointTrait<X = unknown, Y = unknown> extends Trait {
     },
   })
   get radius(): Property<this, Length | null> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   @Property({
@@ -93,7 +93,7 @@ export class DataPointTrait<X = unknown, Y = unknown> extends Trait {
     },
   })
   get color(): Property<this, ColorOrLook | null> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   @Property({
@@ -103,7 +103,7 @@ export class DataPointTrait<X = unknown, Y = unknown> extends Trait {
     },
   })
   get opacity(): Property<this, number | undefined> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   formatLabel(x: X | undefined, y: Y | undefined): string | undefined {
@@ -117,6 +117,6 @@ export class DataPointTrait<X = unknown, Y = unknown> extends Trait {
     },
   })
   get label(): Property<this, string | undefined> {
-    return Property.dummy();
+    return Property.getter();
   }
 }

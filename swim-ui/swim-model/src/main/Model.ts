@@ -1640,7 +1640,7 @@ export class Model extends Component<Model> implements Consumable, WarpRef {
     },
   })
   get selection(): Provider<this, SelectionService> {
-    return Provider.dummy();
+    return Provider.getter();
   }
 
   /** @override */
@@ -1653,7 +1653,7 @@ export class Model extends Component<Model> implements Consumable, WarpRef {
     },
   })
   get hostUri(): Property<this, Uri | null> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   /** @override */
@@ -1666,7 +1666,7 @@ export class Model extends Component<Model> implements Consumable, WarpRef {
     },
   })
   get nodeUri(): Property<this, Uri | null> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   /** @override */
@@ -1679,7 +1679,7 @@ export class Model extends Component<Model> implements Consumable, WarpRef {
     },
   })
   get laneUri(): Property<this, Uri | null> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   /** @override */
@@ -1874,7 +1874,7 @@ export class Model extends Component<Model> implements Consumable, WarpRef {
     },
   })
   get warpRef(): Property<this, WarpRef> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   /** @internal */

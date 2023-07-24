@@ -29,7 +29,7 @@ export class CellTrait extends Trait {
 
   @Property({valueType: Hyperlink, value: null})
   get hyperlink(): Property<this, Hyperlink | null> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   createCellController(): CellController {

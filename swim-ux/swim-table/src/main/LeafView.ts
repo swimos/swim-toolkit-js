@@ -285,7 +285,7 @@ export class LeafView extends HtmlView {
     },
   })
   get hyperlink(): Property<this, Hyperlink | null> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   @PositionGesture({

@@ -52,12 +52,12 @@ export class GeoTileController extends GeoLayerController {
 
   @Property({extends: true, inherits: false})
   override get visibleRange(): Property<this, readonly [minZoom: number, maxZoom: number]> & GeoLayerController["visibleRange"] {
-    return Property.dummy();
+    return Property.getter();
   }
 
   @Property({extends: true, inherits: false})
   override get consumeRange(): Property<this, readonly [minZoom: number, maxZoom: number]> & GeoLayerController["consumeRange"] {
-    return Property.dummy();
+    return Property.getter();
   }
 
   @TraitViewRef({

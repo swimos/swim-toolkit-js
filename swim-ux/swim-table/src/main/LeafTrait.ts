@@ -36,7 +36,7 @@ export class LeafTrait extends Trait {
 
   @Property({valueType: Hyperlink, value: null})
   get hyperlink(): Property<this, Hyperlink | null> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   getCell<F extends Class<CellTrait>>(key: string, cellTraitClass: F): InstanceType<F> | null;

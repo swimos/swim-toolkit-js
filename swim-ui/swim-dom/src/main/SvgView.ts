@@ -507,7 +507,7 @@ export class SvgView extends ElementView {
 
   @SvgAttributes({})
   override get attributes(): SvgAttributes<this> {
-    return SvgAttributes.dummy();
+    return SvgAttributes.getter();
   }
 
   override setChild<F extends Class<Instance<F, View>> & Creatable<Instance<F, View>>>(key: string, newChildFactory: F): View | null;

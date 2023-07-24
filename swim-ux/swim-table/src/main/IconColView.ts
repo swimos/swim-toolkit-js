@@ -60,7 +60,7 @@ export class IconColView extends ColView implements IconView {
     },
   })
   get iconColor(): ThemeAnimator<this, Color | null> {
-    return ThemeAnimator.dummy();
+    return ThemeAnimator.getter();
   }
 
   @ThemeAnimator({

@@ -698,7 +698,7 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
     updateFlags: Model.NeedsReconcile,
   })
   get hostUri(): Property<this, Uri | null> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   /** @override */
@@ -712,7 +712,7 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
     updateFlags: Model.NeedsReconcile,
   })
   get nodeUri(): Property<this, Uri | null> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   /** @override */
@@ -726,7 +726,7 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
     updateFlags: Model.NeedsReconcile,
   })
   get laneUri(): Property<this, Uri | null> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   /** @override */
@@ -919,7 +919,7 @@ export abstract class Trait implements HashCode, Observable, Consumable, Fastene
     },
   })
   get warpRef(): Property<this, WarpRef> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   get mounted(): boolean {

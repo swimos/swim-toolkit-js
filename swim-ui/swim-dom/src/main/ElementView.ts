@@ -175,7 +175,7 @@ export class ElementView extends NodeView implements AttributeContext, StyleCont
 
   @ElementAttributes({})
   get attributes(): ElementAttributes<this> {
-    return ElementAttributes.dummy();
+    return ElementAttributes.getter();
   }
 
   /** @override */
@@ -224,7 +224,7 @@ export class ElementView extends NodeView implements AttributeContext, StyleCont
 
   @StyleAttribute({})
   get style(): StyleAttribute<this> {
-    return StyleAttribute.dummy();
+    return StyleAttribute.getter();
   }
 
   getStyle(propertyNames: string | readonly string[]): CSSStyleValue | string | undefined {
@@ -322,7 +322,7 @@ export class ElementView extends NodeView implements AttributeContext, StyleCont
 
   @ClassList({})
   get classList(): ClassList<this> {
-    return ClassList.dummy();
+    return ClassList.getter();
   }
 
   protected detectTheme(): void {
@@ -361,7 +361,7 @@ export class ElementView extends NodeView implements AttributeContext, StyleCont
     },
   })
   override get viewport(): Provider<this, ViewportService> & NodeView["viewport"] & Observes<ViewportService> {
-    return Provider.dummy();
+    return Provider.getter();
   }
 
   @Provider({
@@ -378,7 +378,7 @@ export class ElementView extends NodeView implements AttributeContext, StyleCont
     },
   })
   get dom(): Provider<this, DomService> {
-    return Provider.dummy();
+    return Provider.getter();
   }
 
   @Provider({
@@ -415,7 +415,7 @@ export class ElementView extends NodeView implements AttributeContext, StyleCont
     dismiss(modalView?: ModalView): void,
     toggle(modalView?: ModalView): void,
   } {
-    return Provider.dummy();
+    return Provider.getter();
   }
 
   override get clientBounds(): R2Box {

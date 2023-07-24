@@ -44,7 +44,7 @@ export class GeoView extends GraphicsView {
 
   @ThemeAnimator({valueType: Color, value: null, inherits: true})
   get geoBoundsColor(): ThemeAnimator<this, Color | null> {
-    return ThemeAnimator.dummy();
+    return ThemeAnimator.getter();
   }
 
   protected override didInsertChild(child: View, target: View | null): void {

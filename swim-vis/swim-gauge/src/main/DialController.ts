@@ -150,7 +150,7 @@ export class DialController extends Controller {
 
   @Property({valueType: Timing, inherits: true})
   get dialTiming(): Property<this, Timing | boolean | undefined> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   @TraitViewRef({

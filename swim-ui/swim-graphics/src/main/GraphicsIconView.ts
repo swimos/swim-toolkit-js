@@ -47,7 +47,7 @@ export class GraphicsIconView extends GraphicsView implements IconView {
     },
   })
   get iconColor(): ThemeAnimator<this, Color | null> {
-    return ThemeAnimator.dummy();
+    return ThemeAnimator.getter();
   }
 
   /** @override */

@@ -1285,7 +1285,7 @@ export class View extends Component<View> implements ConstraintScope, Constraint
     },
   })
   get viewport(): Provider<this, ViewportService> {
-    return Provider.dummy();
+    return Provider.getter();
   }
 
   @Provider({
@@ -1309,7 +1309,7 @@ export class View extends Component<View> implements ConstraintScope, Constraint
     },
   })
   get solver(): Provider<this, SolverService> {
-    return Provider.dummy();
+    return Provider.getter();
   }
 
   @Provider({
@@ -1864,7 +1864,7 @@ export class View extends Component<View> implements ConstraintScope, Constraint
     equalValues: ViewInsets.equal,
   })
   get edgeInsets(): Property<this, ViewInsets> {
-    return Property.dummy();
+    return Property.getter();
   }
 
   /**
