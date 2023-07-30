@@ -1,11 +1,12 @@
 import nodeResolve from "@rollup/plugin-node-resolve";
 import sourcemaps from "rollup-plugin-sourcemaps";
 import terser from "@rollup/plugin-terser";
-import * as pkg from "../../package.json";
+//import pkg from "../../package.json" assert {type: "json"};
+import {createRequire} from "node:module";
+const require = createRequire(import.meta.url);
+const pkg = createRequire(import.meta.url)("../../package.json");
 
-const script = "swim-maps";
-
-const core = [
+const swimCore = [
   "@swim/util",
   "@swim/codec",
   "@swim/component",
@@ -20,13 +21,13 @@ const core = [
   "@swim/core",
 ];
 
-const host = [
+const swimHost = [
   "@swim/warp",
   "@swim/client",
   "@swim/host",
 ];
 
-const ui = [
+const swimUi = [
   "@swim/model",
   "@swim/style",
   "@swim/theme",
@@ -37,58 +38,41 @@ const ui = [
   "@swim/ui",
 ];
 
-const vendor = [
-  "leaflet",
-  "mapbox-gl",
-];
-
-const vendorGlobals = {
-  "leaflet": "L",
-  "mapbox-gl": "mapboxgl",
-};
-
-const external = core.concat(host).concat(ui);
-
-const globals = Object.fromEntries(external.map(name => [name, "swim"]));
-
-const paths = Object.fromEntries(core.map(name => [name, "@swim/core"])
-                         .concat(host.map(name => [name, "@swim/host"]))
-                         .concat(ui.map(name => [name, "@swim/ui"])));
-
-const beautify = terser({
-  compress: false,
-  mangle: false,
-  output: {
-    preamble: `// ${pkg.name} v${pkg.version} (c) ${pkg.copyright}`,
-    beautify: true,
-    comments: false,
-    indent_level: 2,
-  },
-});
-
-const minify = terser({
-  output: {
-    preamble: `// ${pkg.name} v${pkg.version} (c) ${pkg.copyright}`,
-    comments: false,
-  },
-});
-
 export default [
   {
     input: "../../lib/main/index.js",
     output: {
-      file: `../../dist/${script}.mjs`,
+      file: "../../dist/swim-maps.js",
       format: "esm",
-      globals: vendorGlobals,
-      paths: paths,
+      paths: {
+        ...Object.fromEntries(swimCore.map(name => [name, "@swim/core"])),
+        ...Object.fromEntries(swimHost.map(name => [name, "@swim/host"])),
+        ...Object.fromEntries(swimUi.map(name => [name, "@swim/ui"])),
+      },
       generatedCode: {
         preset: "es2015",
         constBindings: true,
       },
       sourcemap: true,
-      plugins: [beautify],
+      plugins: [
+        terser({
+          compress: false,
+          mangle: false,
+          output: {
+            preamble: `// ${pkg.name} v${pkg.version} (c) ${pkg.copyright}`,
+            beautify: true,
+            comments: false,
+            indent_level: 2,
+          },
+        }),
+      ],
     },
-    external: external.concat(vendor).concat("tslib"),
+    external: [
+      ...swimCore,
+      ...swimHost,
+      ...swimUi,
+      "tslib",
+    ],
     plugins: [
       nodeResolve(),
       sourcemaps(),
@@ -102,14 +86,19 @@ export default [
     input: "../../lib/main/index.js",
     output: [
       {
-        file: `../../dist/${script}.js`,
+        file: "../../dist/umd/swim-maps.js",
         name: "swim",
         format: "umd",
         globals: {
-          ...globals,
-          ...vendorGlobals,
+          ...Object.fromEntries(swimCore.map(name => [name, "swim"])),
+          ...Object.fromEntries(swimHost.map(name => [name, "swim"])),
+          ...Object.fromEntries(swimUi.map(name => [name, "swim"])),
         },
-        paths: paths,
+        paths: {
+          ...Object.fromEntries(swimCore.map(name => [name, "@swim/core"])),
+          ...Object.fromEntries(swimHost.map(name => [name, "@swim/host"])),
+          ...Object.fromEntries(swimUi.map(name => [name, "@swim/ui"])),
+        },
         generatedCode: {
           preset: "es2015",
           constBindings: true,
@@ -117,17 +106,33 @@ export default [
         sourcemap: true,
         interop: "esModule",
         extend: true,
-        plugins: [beautify],
+        plugins: [
+          terser({
+            compress: false,
+            mangle: false,
+            output: {
+              preamble: `// ${pkg.name} v${pkg.version} (c) ${pkg.copyright}`,
+              beautify: true,
+              comments: false,
+              indent_level: 2,
+            },
+          }),
+        ],
       },
       {
-        file: `../../dist/${script}.min.js`,
+        file: "../../dist/umd/swim-maps.min.js",
         name: "swim",
         format: "umd",
         globals: {
-          ...globals,
-          ...vendorGlobals,
+          ...Object.fromEntries(swimCore.map(name => [name, "swim"])),
+          ...Object.fromEntries(swimHost.map(name => [name, "swim"])),
+          ...Object.fromEntries(swimUi.map(name => [name, "swim"])),
         },
-        paths: paths,
+        paths: {
+          ...Object.fromEntries(swimCore.map(name => [name, "@swim/core"])),
+          ...Object.fromEntries(swimHost.map(name => [name, "@swim/host"])),
+          ...Object.fromEntries(swimUi.map(name => [name, "@swim/ui"])),
+        },
         generatedCode: {
           preset: "es2015",
           constBindings: true,
@@ -135,10 +140,21 @@ export default [
         sourcemap: true,
         interop: "esModule",
         extend: true,
-        plugins: [minify],
+        plugins: [
+          terser({
+            output: {
+              preamble: `// ${pkg.name} v${pkg.version} (c) ${pkg.copyright}`,
+              comments: false,
+            },
+          }),
+        ],
       },
     ],
-    external: external.concat(vendor),
+    external: [
+      ...swimCore,
+      ...swimHost,
+      ...swimUi,
+    ],
     plugins: [
       nodeResolve(),
       sourcemaps(),

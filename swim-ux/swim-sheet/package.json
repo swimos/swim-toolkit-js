@@ -7,16 +7,15 @@
   "copyright": "2015-2023 Swim.inc",
   "license": "Apache-2.0",
   "repository": "https://github.com/swimos/swim.git",
+  "type": "module",
   "main": "./dist/swim-sheet.js",
-  "module": "./dist/swim-sheet.mjs",
+  "types": "./dist/swim-sheet.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/swim-sheet.mjs",
-      "require": "./dist/swim-sheet.js",
+      "import": "./dist/swim-sheet.js",
       "types": "./dist/swim-sheet.d.ts"
     }
   },
-  "types": "./dist/swim-sheet.d.ts",
   "typedocMain": "./src/main/index.ts",
   "sideEffects": false,
   "dependencies": {
@@ -41,7 +40,8 @@
     "@swim/controller": "4.0.0-dev.20220527.3",
     "@swim/button": "4.0.0-dev.20220527.3",
     "@swim/toolbar": "4.0.0-dev.20220527.3",
-    "@swim/window": "4.0.0-dev.20220527.3"
+    "@swim/window": "4.0.0-dev.20220527.3",
+    "tslib": "2"
   },
   "scripts": {
     "main:compile": "tsc -b src/main && api-extractor run -l -c src/main/api-extractor.json",

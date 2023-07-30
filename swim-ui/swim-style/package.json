@@ -7,16 +7,15 @@
   "copyright": "2015-2023 Swim.inc",
   "license": "Apache-2.0",
   "repository": "https://github.com/swimos/swim.git",
+  "type": "module",
   "main": "./dist/swim-style.js",
-  "module": "./dist/swim-style.mjs",
+  "types": "./dist/swim-style.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/swim-style.mjs",
-      "require": "./dist/swim-style.js",
+      "import": "./dist/swim-style.js",
       "types": "./dist/swim-style.d.ts"
     }
   },
-  "types": "./dist/swim-style.d.ts",
   "typedocMain": "./src/main/index.ts",
   "sideEffects": false,
   "dependencies": {
@@ -26,7 +25,8 @@
     "@swim/structure": "4.0.0-dev.20220527.3",
     "@swim/math": "4.0.0-dev.20220527.3",
     "@swim/time": "4.0.0-dev.20220527.3",
-    "@types/w3c-css-typed-object-model-level-1": ">= 20180410"
+    "@types/w3c-css-typed-object-model-level-1": ">= 20180410",
+    "tslib": "2"
   },
   "devDependencies": {
     "@types/w3c-css-typed-object-model-level-1": "20180410"
@@ -40,7 +40,7 @@
     "test:build": "npm run test:compile && npm run test:bundle",
     "compile": "npm run main:compile",
     "build": "npm run main:build",
-    "test": "npx swim-unit -m dist/swim-style-test.mjs",
+    "test": "npx swim-unit -m dist/swim-style-test.js",
     "clean": "rm -rf lib dist"
   }
 }

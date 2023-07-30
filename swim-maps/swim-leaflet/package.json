@@ -7,16 +7,15 @@
   "copyright": "2015-2023 Swim.inc",
   "license": "Apache-2.0",
   "repository": "https://github.com/swimos/swim.git",
+  "type": "module",
   "main": "./dist/swim-leaflet.js",
-  "module": "./dist/swim-leaflet.mjs",
+  "types": "./dist/swim-leaflet.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/swim-leaflet.mjs",
-      "require": "./dist/swim-leaflet.js",
+      "import": "./dist/swim-leaflet.js",
       "types": "./dist/swim-leaflet.d.ts"
     }
   },
-  "types": "./dist/swim-leaflet.d.ts",
   "typedocMain": "./src/main/index.ts",
   "sideEffects": false,
   "dependencies": {
@@ -41,7 +40,8 @@
     "@swim/graphics": "4.0.0-dev.20220527.3",
     "@swim/controller": "4.0.0-dev.20220527.3",
     "@swim/map": "4.0.0-dev.20220527.3",
-    "@types/leaflet": ">= 1.0"
+    "@types/leaflet": ">= 1.0",
+    "tslib": "2"
   },
   "devDependencies": {
     "@types/leaflet": "1.9"

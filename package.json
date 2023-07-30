@@ -7,16 +7,15 @@
   "copyright": "2015-2023 Swim.inc",
   "license": "Apache-2.0",
   "repository": "https://github.com/swimos/swim.git",
+  "type": "module",
   "main": "./dist/swim-toolkit.js",
-  "module": "./dist/swim-toolkit.mjs",
+  "types": "./dist/swim-toolkit.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/swim-toolkit.mjs",
-      "require": "./dist/swim-toolkit.js",
+      "import": "./dist/swim-toolkit.js",
       "types": "./dist/swim-toolkit.d.ts"
     }
   },
-  "types": "./dist/swim-toolkit.d.ts",
   "typedocMain": "./src/main/index.ts",
   "sideEffects": false,
   "dependencies": {
@@ -24,7 +23,8 @@
     "@swim/ui": "4.0.0-dev.20220527.3",
     "@swim/ux": "4.0.0-dev.20220527.3",
     "@swim/vis": "4.0.0-dev.20220527.3",
-    "@swim/maps": "4.0.0-dev.20220527.3"
+    "@swim/maps": "4.0.0-dev.20220527.3",
+    "tslib": "2"
   },
   "devDependencies": {
     "@swim/util": "4.0.0-dev.20220527.3",
@@ -34,7 +34,7 @@
     "@swim/args": "4.0.0-dev.20220527.3",
     "@swim/unit": "4.0.0-dev.20220527.3",
     "@swim/build": "4.0.0-dev.20220527.3",
-    "@microsoft/api-extractor": "7.35",
+    "@microsoft/api-extractor": "7.36",
     "@rollup/plugin-node-resolve": "15",
     "@rollup/plugin-terser": "0.4",
     "@types/arcgis-js-api": "4.27",
@@ -43,13 +43,13 @@
     "@types/leaflet": "1.9",
     "@types/mapbox-gl": "2.7",
     "@types/node": "20",
-    "@typescript-eslint/eslint-plugin": "5",
-    "@typescript-eslint/parser": "5",
+    "@types/w3c-css-typed-object-model-level-1": "20180410",
+    "@typescript-eslint/eslint-plugin": "6",
+    "@typescript-eslint/parser": "6",
     "eslint": "8",
-    "rollup": "2.79",
+    "rollup": "3.27",
     "rollup-plugin-sourcemaps": "0.6",
     "terser": ">= 5.17",
-    "tslib": "2",
     "typedoc": "0.24",
     "typescript": "5.1"
   },

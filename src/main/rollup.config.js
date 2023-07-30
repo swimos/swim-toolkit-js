@@ -1,11 +1,12 @@
 import nodeResolve from "@rollup/plugin-node-resolve";
 import sourcemaps from "rollup-plugin-sourcemaps";
 import terser from "@rollup/plugin-terser";
-import * as pkg from "../../package.json";
+//import pkg from "../../package.json" assert {type: "json"};
+import {createRequire} from "node:module";
+const require = createRequire(import.meta.url);
+const pkg = createRequire(import.meta.url)("../../package.json");
 
-const script = "swim-toolkit";
-
-const external = [
+const swimRuntime = [
   "@swim/util",
   "@swim/codec",
   "@swim/component",
@@ -24,54 +25,37 @@ const external = [
   "@swim/runtime",
 ];
 
-const vendor = [
-  "leaflet",
-  "mapbox-gl",
-];
-
-const vendorGlobals = {
-  "leaflet": "L",
-  "mapbox-gl": "mapboxgl",
-};
-
-const globals = Object.fromEntries(external.map(name => [name, "swim"]));
-
-const paths = Object.fromEntries(external.map(name => [name, "@swim/runtime"]));
-
-const beautify = terser({
-  compress: false,
-  mangle: false,
-  output: {
-    preamble: `// ${pkg.name} v${pkg.version} (c) ${pkg.copyright}`,
-    beautify: true,
-    comments: false,
-    indent_level: 2,
-  },
-});
-
-const minify = terser({
-  output: {
-    preamble: `// ${pkg.name} v${pkg.version} (c) ${pkg.copyright}`,
-    comments: false,
-  },
-});
-
 export default [
   {
     input: "../../lib/main/index.js",
     output: {
-      file: `../../dist/${script}.mjs`,
+      file: "../../dist/swim-toolkit.js",
       format: "esm",
-      globals: vendorGlobals,
-      paths: paths,
+      paths: {
+        ...Object.fromEntries(swimRuntime.map(name => [name, "@swim/runtime"])),
+      },
       generatedCode: {
         preset: "es2015",
         constBindings: true,
       },
       sourcemap: true,
-      plugins: [beautify],
+      plugins: [
+        terser({
+          compress: false,
+          mangle: false,
+          output: {
+            preamble: `// ${pkg.name} v${pkg.version} (c) ${pkg.copyright}`,
+            beautify: true,
+            comments: false,
+            indent_level: 2,
+          },
+        }),
+      ],
     },
-    external: external.concat(vendor).concat("tslib"),
+    external: [
+      ...swimRuntime,
+      "tslib",
+    ],
     plugins: [
       nodeResolve(),
       sourcemaps(),
@@ -85,14 +69,15 @@ export default [
     input: "../../lib/main/index.js",
     output: [
       {
-        file: `../../dist/${script}.js`,
+        file: "../../dist/umd/swim-toolkit.js",
         name: "swim",
         format: "umd",
         globals: {
-          ...globals,
-          ...vendorGlobals,
+          ...Object.fromEntries(swimRuntime.map(name => [name, "swim"])),
         },
-        paths: paths,
+        paths: {
+          ...Object.fromEntries(swimRuntime.map(name => [name, "@swim/runtime"])),
+        },
         generatedCode: {
           preset: "es2015",
           constBindings: true,
@@ -100,17 +85,29 @@ export default [
         sourcemap: true,
         interop: "esModule",
         extend: true,
-        plugins: [beautify],
+        plugins: [
+          terser({
+            compress: false,
+            mangle: false,
+            output: {
+              preamble: `// ${pkg.name} v${pkg.version} (c) ${pkg.copyright}`,
+              beautify: true,
+              comments: false,
+              indent_level: 2,
+            },
+          }),
+        ],
       },
       {
-        file: `../../dist/${script}.min.js`,
+        file: "../../dist/umd/swim-toolkit.min.js",
         name: "swim",
         format: "umd",
         globals: {
-          ...globals,
-          ...vendorGlobals,
+          ...Object.fromEntries(swimRuntime.map(name => [name, "swim"])),
         },
-        paths: paths,
+        paths: {
+          ...Object.fromEntries(swimRuntime.map(name => [name, "@swim/runtime"])),
+        },
         generatedCode: {
           preset: "es2015",
           constBindings: true,
@@ -118,10 +115,19 @@ export default [
         sourcemap: true,
         interop: "esModule",
         extend: true,
-        plugins: [minify],
+        plugins: [
+          terser({
+            output: {
+              preamble: `// ${pkg.name} v${pkg.version} (c) ${pkg.copyright}`,
+              comments: false,
+            },
+          }),
+        ],
       },
     ],
-    external: external.concat(vendor),
+    external: [
+      ...swimRuntime,
+    ],
     plugins: [
       nodeResolve(),
       sourcemaps(),

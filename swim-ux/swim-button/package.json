@@ -7,16 +7,15 @@
   "copyright": "2015-2023 Swim.inc",
   "license": "Apache-2.0",
   "repository": "https://github.com/swimos/swim.git",
+  "type": "module",
   "main": "./dist/swim-button.js",
-  "module": "./dist/swim-button.mjs",
+  "types": "./dist/swim-button.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/swim-button.mjs",
-      "require": "./dist/swim-button.js",
+      "import": "./dist/swim-button.js",
       "types": "./dist/swim-button.d.ts"
     }
   },
-  "types": "./dist/swim-button.d.ts",
   "typedocMain": "./src/main/index.ts",
   "sideEffects": false,
   "dependencies": {
@@ -33,7 +32,8 @@
     "@swim/theme": "4.0.0-dev.20220527.3",
     "@swim/view": "4.0.0-dev.20220527.3",
     "@swim/dom": "4.0.0-dev.20220527.3",
-    "@swim/graphics": "4.0.0-dev.20220527.3"
+    "@swim/graphics": "4.0.0-dev.20220527.3",
+    "tslib": "2"
   },
   "scripts": {
     "main:compile": "tsc -b src/main && api-extractor run -l -c src/main/api-extractor.json",
