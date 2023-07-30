@@ -1,0 +1,33 @@
+{
+  "out": "lib/doc",
+  "categorizeByGroup": false,
+  "excludeInternal": true,
+  "entryPointStrategy": "packages",
+  "entryPoints": [
+    "swim-ui/swim-model",
+    "swim-ui/swim-style",
+    "swim-ui/swim-theme",
+    "swim-ui/swim-view",
+    "swim-ui/swim-dom",
+    "swim-ui/swim-graphics",
+    "swim-ui/swim-controller",
+
+    "swim-ux/swim-button",
+    "swim-ux/swim-toolbar",
+    "swim-ux/swim-token",
+    "swim-ux/swim-table",
+    "swim-ux/swim-window",
+    "swim-ux/swim-sheet",
+    "swim-ux/swim-panel",
+
+    "swim-vis/swim-gauge",
+    "swim-vis/swim-pie",
+    "swim-vis/swim-chart",
+
+    "swim-maps/swim-map",
+    "swim-maps/swim-mapbox",
+    "swim-maps/swim-leaflet",
+    "swim-maps/swim-googlemap",
+    "swim-maps/swim-esrimap"
+  ]
+}
